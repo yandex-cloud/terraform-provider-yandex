@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `asynchronous_insert_log_retention_time` for server configuration'
+time: 2024-09-10T10:13:08.839755+05:00

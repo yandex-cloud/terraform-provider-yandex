@@ -877,60 +877,60 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	if c.EffectiveConfig.TextLogRetentionTime != nil {
 		res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
 	}
-	// if c.EffectiveConfig.OpentelemetrySpanLogEnabled != nil {
-	// 	res["opentelemetry_span_log_enabled"] = c.EffectiveConfig.OpentelemetrySpanLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.OpentelemetrySpanLogRetentionSize != nil {
-	// 	res["opentelemetry_span_log_retention_size"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.OpentelemetrySpanLogRetentionTime != nil {
-	// 	res["opentelemetry_span_log_retention_time"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionTime.Value
-	// }
-	// if c.EffectiveConfig.QueryViewsLogEnabled != nil {
-	// 	res["query_views_log_enabled"] = c.EffectiveConfig.QueryViewsLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.QueryViewsLogRetentionSize != nil {
-	// 	res["query_views_log_retention_size"] = c.EffectiveConfig.QueryViewsLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.QueryViewsLogRetentionTime != nil {
-	// 	res["query_views_log_retention_time"] = c.EffectiveConfig.QueryViewsLogRetentionTime.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousMetricLogEnabled != nil {
-	// 	res["asynchronous_metric_log_enabled"] = c.EffectiveConfig.AsynchronousMetricLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousMetricLogRetentionSize != nil {
-	// 	res["asynchronous_metric_log_retention_size"] = c.EffectiveConfig.AsynchronousMetricLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousMetricLogRetentionTime != nil {
-	// 	res["asynchronous_metric_log_retention_time"] = c.EffectiveConfig.AsynchronousMetricLogRetentionTime.Value
-	// }
-	// if c.EffectiveConfig.SessionLogEnabled != nil {
-	// 	res["session_log_enabled"] = c.EffectiveConfig.SessionLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.SessionLogRetentionSize != nil {
-	// 	res["session_log_retention_size"] = c.EffectiveConfig.SessionLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.SessionLogRetentionTime != nil {
-	// 	res["session_log_retention_time"] = c.EffectiveConfig.SessionLogRetentionTime.Value
-	// }
-	// if c.EffectiveConfig.ZookeeperLogEnabled != nil {
-	// 	res["zookeeper_log_enabled"] = c.EffectiveConfig.ZookeeperLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.ZookeeperLogRetentionSize != nil {
-	// 	res["zookeeper_log_retention_size"] = c.EffectiveConfig.ZookeeperLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.ZookeeperLogRetentionTime != nil {
-	// 	res["zookeeper_log_retention_time"] = c.EffectiveConfig.ZookeeperLogRetentionTime.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousInsertLogEnabled != nil {
-	// 	res["asynchronous_insert_log_enabled"] = c.EffectiveConfig.AsynchronousInsertLogEnabled.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousInsertLogRetentionSize != nil {
-	// 	res["asynchronous_insert_log_retention_size"] = c.EffectiveConfig.AsynchronousInsertLogRetentionSize.Value
-	// }
-	// if c.EffectiveConfig.AsynchronousInsertLogRetentionTime != nil {
-	// 	res["asynchronous_insert_log_retention_time"] = c.EffectiveConfig.AsynchronousInsertLogRetentionTime.Value
-	// }
+	if c.EffectiveConfig.OpentelemetrySpanLogEnabled != nil {
+		res["opentelemetry_span_log_enabled"] = c.EffectiveConfig.OpentelemetrySpanLogEnabled.Value
+	}
+	if c.EffectiveConfig.OpentelemetrySpanLogRetentionSize != nil {
+		res["opentelemetry_span_log_retention_size"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.OpentelemetrySpanLogRetentionTime != nil {
+		res["opentelemetry_span_log_retention_time"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.QueryViewsLogEnabled != nil {
+		res["query_views_log_enabled"] = c.EffectiveConfig.QueryViewsLogEnabled.Value
+	}
+	if c.EffectiveConfig.QueryViewsLogRetentionSize != nil {
+		res["query_views_log_retention_size"] = c.EffectiveConfig.QueryViewsLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.QueryViewsLogRetentionTime != nil {
+		res["query_views_log_retention_time"] = c.EffectiveConfig.QueryViewsLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.AsynchronousMetricLogEnabled != nil {
+		res["asynchronous_metric_log_enabled"] = c.EffectiveConfig.AsynchronousMetricLogEnabled.Value
+	}
+	if c.EffectiveConfig.AsynchronousMetricLogRetentionSize != nil {
+		res["asynchronous_metric_log_retention_size"] = c.EffectiveConfig.AsynchronousMetricLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.AsynchronousMetricLogRetentionTime != nil {
+		res["asynchronous_metric_log_retention_time"] = c.EffectiveConfig.AsynchronousMetricLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.SessionLogEnabled != nil {
+		res["session_log_enabled"] = c.EffectiveConfig.SessionLogEnabled.Value
+	}
+	if c.EffectiveConfig.SessionLogRetentionSize != nil {
+		res["session_log_retention_size"] = c.EffectiveConfig.SessionLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.SessionLogRetentionTime != nil {
+		res["session_log_retention_time"] = c.EffectiveConfig.SessionLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.ZookeeperLogEnabled != nil {
+		res["zookeeper_log_enabled"] = c.EffectiveConfig.ZookeeperLogEnabled.Value
+	}
+	if c.EffectiveConfig.ZookeeperLogRetentionSize != nil {
+		res["zookeeper_log_retention_size"] = c.EffectiveConfig.ZookeeperLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.ZookeeperLogRetentionTime != nil {
+		res["zookeeper_log_retention_time"] = c.EffectiveConfig.ZookeeperLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.AsynchronousInsertLogEnabled != nil {
+		res["asynchronous_insert_log_enabled"] = c.EffectiveConfig.AsynchronousInsertLogEnabled.Value
+	}
+	if c.EffectiveConfig.AsynchronousInsertLogRetentionSize != nil {
+		res["asynchronous_insert_log_retention_size"] = c.EffectiveConfig.AsynchronousInsertLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.AsynchronousInsertLogRetentionTime != nil {
+		res["asynchronous_insert_log_retention_time"] = c.EffectiveConfig.AsynchronousInsertLogRetentionTime.Value
+	}
 
 	res["text_log_level"] = c.EffectiveConfig.TextLogLevel.String()
 
@@ -1391,60 +1391,60 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOkExists(rootKey + ".text_log_retention_time"); ok {
 		config.TextLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_enabled"); ok {
-	// 	config.OpentelemetrySpanLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_size"); ok {
-	// 	config.OpentelemetrySpanLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_time"); ok {
-	// 	config.OpentelemetrySpanLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_enabled"); ok {
-	// 	config.QueryViewsLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_size"); ok {
-	// 	config.QueryViewsLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_time"); ok {
-	// 	config.QueryViewsLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_enabled"); ok {
-	// 	config.AsynchronousMetricLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_size"); ok {
-	// 	config.AsynchronousMetricLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_time"); ok {
-	// 	config.AsynchronousMetricLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".session_log_enabled"); ok {
-	// 	config.SessionLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".session_log_retention_size"); ok {
-	// 	config.SessionLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".session_log_retention_time"); ok {
-	// 	config.SessionLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_enabled"); ok {
-	// 	config.ZookeeperLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_size"); ok {
-	// 	config.ZookeeperLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_time"); ok {
-	// 	config.ZookeeperLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_enabled"); ok {
-	// 	config.AsynchronousInsertLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_size"); ok {
-	// 	config.AsynchronousInsertLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
-	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_time"); ok {
-	// 	config.AsynchronousInsertLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
-	// }
+	if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_enabled"); ok {
+		config.OpentelemetrySpanLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_size"); ok {
+		config.OpentelemetrySpanLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_time"); ok {
+		config.OpentelemetrySpanLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".query_views_log_enabled"); ok {
+		config.QueryViewsLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_size"); ok {
+		config.QueryViewsLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_time"); ok {
+		config.QueryViewsLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_enabled"); ok {
+		config.AsynchronousMetricLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_size"); ok {
+		config.AsynchronousMetricLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_time"); ok {
+		config.AsynchronousMetricLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".session_log_enabled"); ok {
+		config.SessionLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".session_log_retention_size"); ok {
+		config.SessionLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".session_log_retention_time"); ok {
+		config.SessionLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_enabled"); ok {
+		config.ZookeeperLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_size"); ok {
+		config.ZookeeperLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_time"); ok {
+		config.ZookeeperLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_enabled"); ok {
+		config.AsynchronousInsertLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_size"); ok {
+		config.AsynchronousInsertLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_time"); ok {
+		config.AsynchronousInsertLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 	if v, ok := d.GetOk(rootKey + ".text_log_level"); ok {
 		if val, err := expandEnum("text_log_level", v.(string), clickhouseConfig.ClickhouseConfig_LogLevel_value); val != nil && err == nil {
 			config.TextLogLevel = clickhouseConfig.ClickhouseConfig_LogLevel(*val)
@@ -1610,6 +1610,15 @@ func expandClickHouseAccess(d *schema.ResourceData) *clickhouse.Access {
 	return result
 }
 
+func expandClickhouseBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.Int64Value {
+	if v, ok := d.GetOk("backup_retain_period_days"); ok {
+		return &wrappers.Int64Value{
+			Value: int64(v.(int)),
+		}
+	}
+	return nil
+}
+
 func expandClickHouseUserPermissions(ps *schema.Set) []*clickhouse.Permission {
 	result := []*clickhouse.Permission{}
 
@@ -1690,9 +1699,16 @@ var (
 		4: "first_or_random",
 		5: "round_robin",
 	}
+	UserSettings_DateTimeInputFormat_name = map[int32]string{
+		0: "unspecified",
+		1: "best_effort",
+		2: "basic",
+		3: "best_effort_us",
+	}
 	UserSettings_LocalFilesystemReadMethod_value  = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
 	UserSettings_RemoteFilesystemReadMethod_value = makeReversedMap(UserSettings_RemoteFilesystemReadMethod_name, clickhouse.UserSettings_RemoteFilesystemReadMethod_value)
 	UserSettings_LoadBalancing_value              = makeReversedMap(UserSettings_LoadBalancing_name, clickhouse.UserSettings_LoadBalancing_value)
+	UserSettings_DateTimeInputFormat_value        = makeReversedMap(UserSettings_DateTimeInputFormat_name, clickhouse.UserSettings_DateTimeInputFormat_value)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
@@ -1803,6 +1819,20 @@ func getLoadBalancingName(value clickhouse.UserSettings_LoadBalancing) string {
 func getLoadBalancingValue(name string) clickhouse.UserSettings_LoadBalancing {
 	if value, ok := UserSettings_LoadBalancing_value[name]; ok {
 		return clickhouse.UserSettings_LoadBalancing(value)
+	}
+	return 0
+}
+
+func getDateTimeInputFormatName(value clickhouse.UserSettings_DateTimeInputFormat) string {
+	if name, ok := UserSettings_DateTimeInputFormat_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_DateTimeInputFormat_name[0]
+}
+
+func getDateTimeInputFormatValue(name string) clickhouse.UserSettings_DateTimeInputFormat {
+	if value, ok := UserSettings_DateTimeInputFormat_value[name]; ok {
+		return clickhouse.UserSettings_DateTimeInputFormat(value)
 	}
 	return 0
 }
@@ -2053,6 +2083,10 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 
 	setSettingFromMapBool(us, "prefer_localhost_replica", &result.PreferLocalhostReplica)
 
+	if v, ok := us["date_time_input_format"]; ok {
+		result.DateTimeInputFormat = getDateTimeInputFormatValue(v.(string))
+	}
+
 	return result
 }
 
@@ -2251,6 +2285,10 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	}
 
 	setSettingFromDataBool(d, rootKey+".prefer_localhost_replica", &result.PreferLocalhostReplica)
+
+	if v, ok := d.GetOk(rootKey + ".date_time_input_format"); ok {
+		result.DateTimeInputFormat = getDateTimeInputFormatValue(v.(string))
+	}
 
 	return result
 }
@@ -2592,6 +2630,8 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	result["load_balancing"] = getLoadBalancingName(settings.LoadBalancing)
 
 	result["prefer_localhost_replica"] = falseOnNil(settings.PreferLocalhostReplica)
+
+	result["date_time_input_format"] = getDateTimeInputFormatName(settings.DateTimeInputFormat)
 
 	return result
 }

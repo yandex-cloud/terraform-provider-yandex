@@ -62,6 +62,7 @@ exported:
 * `sql_database_management` - Grants `admin` user database management permission.
 * `embedded_keeper` - Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
+* `backup_retain_period_days` - The period in days during which backups are stored.
 
 The `clickhouse` block supports:
 
@@ -251,6 +252,7 @@ The `settings` block supports:
 * `hedged_connection_timeout_ms` - (Optional) Connection timeout for establishing connection with replica for Hedged requests. Default value: 50 milliseconds.
 * `load_balancing` - (Optional) Specifies the algorithm of replicas selection that is used for distributed query processing, one of: random, nearest_hostname, in_order, first_or_random, round_robin. Default value: random.
 * `prefer_localhost_replica` - (Optional) Enables/disables preferable using the localhost replica when processing distributed queries. Default value: true.
+* `date_time_input_format` - (Optional)  Allows choosing a parser of the text representation of date and time, one of: `best_effort`, `basic`, `best_effort_us`. Default value: `basic`. Cloud default value: `best_effort`.
 
 The `quota` block supports:
 
@@ -327,7 +329,7 @@ The `config` block supports:
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
 `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_merges_mutations_concurrency_ratio`,  `default_database`,
-`total_memory_profiler_step`, `dictionaries_lazy_load` - ClickHouse server parameters. For more information, see
+`total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - MergeTree engine configuration. The structure is documented below.

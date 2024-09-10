@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time` for server configuration'
+time: 2024-09-10T10:12:27.93108+05:00

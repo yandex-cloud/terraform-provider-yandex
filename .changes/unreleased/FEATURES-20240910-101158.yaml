@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time` for server configuration'
+time: 2024-09-10T10:11:58.39467+05:00

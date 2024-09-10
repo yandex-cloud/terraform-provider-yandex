@@ -97,6 +97,7 @@ func testAccDataSourceMDBClickHouseClusterAttributesCheck(datasourceName string,
 			"embedded_keeper",
 			"service_account_id",
 			"deletion_protection",
+			"backup_retain_period_days",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -139,6 +140,7 @@ func testAccDataSourceMDBClickHouseClusterCheck(datasourceName string, resourceN
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "backup_retain_period_days", "12"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }

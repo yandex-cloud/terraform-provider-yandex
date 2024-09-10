@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time` for server configuration'
+time: 2024-09-10T10:11:36.854573+05:00

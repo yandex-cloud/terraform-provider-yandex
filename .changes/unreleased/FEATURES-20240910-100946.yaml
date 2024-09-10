@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `opentelemetry_span_log_retention_time`, `query_views_log_enabled` for server configuration'
+time: 2024-09-10T10:09:46.022998+05:00

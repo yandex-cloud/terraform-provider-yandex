@@ -488,6 +488,8 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
+* `backup_retain_period_days` - (Optional) The period in days during which backups are stored.
+
 
 - - -
 
@@ -828,6 +830,8 @@ The `settings` block supports:
 
 * `prefer_localhost_replica` - (Optional) Enables/disables preferable using the localhost replica when processing distributed queries. Default value: true.
 
+* `date_time_input_format` - (Optional)  Allows choosing a parser of the text representation of date and time, one of: `best_effort`, `basic`, `best_effort_us`. Default value: `basic`. Cloud default value: `best_effort`.
+
 The `quota` block supports:
 
 * `interval_duration` - (Required) Duration of interval for quota in milliseconds.
@@ -931,7 +935,14 @@ The `config` block supports:
 `text_log_retention_time`, `text_log_level`, 
 `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`,`background_merges_mutations_concurrency_ratio`,   
 `default_database`,
-  `total_memory_profiler_step`, `dictionaries_lazy_load` - (Optional) ClickHouse server parameters. For more information, see
+`total_memory_profiler_step`, 
+`dictionaries_lazy_load`, 
+`opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, 
+`query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, 
+`asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, 
+`session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, 
+`zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, 
+`asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - (Optional) ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - (Optional) MergeTree engine configuration. The structure is documented below.

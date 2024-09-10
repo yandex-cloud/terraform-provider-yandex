@@ -24,8 +24,8 @@ import (
 	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
-const chVersion = "23.8"
-const chUpdatedVersion = "24.3"
+const chVersion = "24.3"
+const chUpdatedVersion = "24.8"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -171,6 +171,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(chResource, "backup_retain_period_days", "12"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -213,7 +214,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// test 'deletion_protection
+			// test 'deletion_protection'
 			{
 				Config:      testAccMDBClickHouseClusterConfigMain(chName, "Step 3", "PRODUCTION", true, bucketName, rInt, MaintenanceWindowWeekly),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
@@ -260,6 +261,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(chResource, "cloud_storage.0.enabled", "true"),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(chResource, "backup_retain_period_days", "13"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -676,6 +678,7 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.idle_connection_timeout", "300000"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "first_or_random"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "best_effort"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -722,6 +725,7 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.idle_connection_timeout", "500000"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "nearest_hostname"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "basic"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1131,25 +1135,24 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_enabled", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_size", "1006"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_time", "86400000"),
-					// Will enable when fixed in go-int-api
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_size", "1007"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_time", "123007"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_viewse_log_retention_size", "1008"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_time", "123008"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_size", "1009"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_time", "123009"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.sessione_log_retention_size", "1010"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_time", "123010"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeepere_log_retention_size", "1011"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_time", "123011"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_size", "1012"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_time", "123012"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_size", "1007"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_size", "1008"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_size", "1009"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_size", "1010"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_size", "1011"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_size", "1012"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_time", "86400000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_level", "WARNING"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "32"),
@@ -1268,25 +1271,24 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_enabled", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_size", "2006"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_time", "86400000"),
-					// Will enable when fixed in go-int-api
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_size", "2007"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_time", "223007"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_viewse_log_retention_size", "2008"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_time", "223008"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_size", "2009"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_time", "223009"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.sessione_log_retention_size", "2010"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_time", "223010"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeepere_log_retention_size", "2011"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_time", "223011"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_enabled", "true"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_size", "2012"),
-					// resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_time", "223012"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_size", "2007"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.opentelemetry_span_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_size", "2008"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_views_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_size", "2009"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_metric_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_size", "2010"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.session_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_size", "2011"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.zookeeper_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_size", "2012"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.asynchronous_insert_log_retention_time", "86400000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_level", "ERROR"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "32"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "64"),
@@ -2070,6 +2072,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   deletion_protection = %t
+  backup_retain_period_days = 12
 
   timeouts {
 	create = "1h"
@@ -2356,6 +2359,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   deletion_protection = false
+  backup_retain_period_days = 13
 }
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
@@ -3410,25 +3414,24 @@ config {
 		text_log_enabled                = %t
 		text_log_retention_size         = %d
 		text_log_retention_time         = %d
-		# Will enable when fixed in go-int-api
-		# opentelemetry_span_log_enabled  = %t
-		# opentelemetry_span_log_retention_size  = %d
-		# opentelemetry_span_log_retention_time  = %d
-		# query_views_log_enabled  	    = %t
-		# query_views_log_retention_size = %d
-		# query_views_log_retention_time  = %d
-		# asynchronous_metric_log_enabled = %t
-		# asynchronous_metric_log_retention_size  = %d
-		# asynchronous_metric_log_retention_time  = %d
-		# session_log_enabled  			= %t
-		# session_log_retention_size  	= %d
-		# session_log_retention_time  	= %d
-		# zookeeper_log_enabled  			= %t
-		# zookeeper_log_retention_size   = %d
-		# zookeeper_log_retention_time    = %d
-		# asynchronous_insert_log_enabled = %t
-		# asynchronous_insert_log_retention_size  = %d
-		# asynchronous_insert_log_retention_time  = %d
+		opentelemetry_span_log_enabled  = %t
+		opentelemetry_span_log_retention_size  = %d
+		opentelemetry_span_log_retention_time  = %d
+		query_views_log_enabled  	    = %t
+		query_views_log_retention_size = %d
+		query_views_log_retention_time  = %d
+		asynchronous_metric_log_enabled = %t
+		asynchronous_metric_log_retention_size  = %d
+		asynchronous_metric_log_retention_time  = %d
+		session_log_enabled  			= %t
+		session_log_retention_size  	= %d
+		session_log_retention_time  	= %d
+		zookeeper_log_enabled  			= %t
+		zookeeper_log_retention_size   = %d
+		zookeeper_log_retention_time    = %d
+		asynchronous_insert_log_enabled = %t
+		asynchronous_insert_log_retention_size  = %d
+		asynchronous_insert_log_retention_time  = %d
 		text_log_level                  = "%s"
 		background_pool_size            = %d
 		background_schedule_pool_size   = %d
@@ -3817,6 +3820,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  idle_connection_timeout 							 = 300000
 	  load_balancing 									 = "first_or_random"
 	  prefer_localhost_replica 						     = true
+	  date_time_input_format 							 = "best_effort"
     }
   }
 
@@ -3912,6 +3916,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  idle_connection_timeout 							 = 500000
 	  load_balancing 									 = "nearest_hostname"
 	  prefer_localhost_replica 						     = false
+	  date_time_input_format 							 = "basic"
     }
   }
 
