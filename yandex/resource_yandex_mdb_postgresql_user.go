@@ -65,7 +65,6 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"grants": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringIsNotEmpty,
@@ -75,7 +74,6 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"permission": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Set:      pgUserPermissionHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -94,7 +92,6 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"settings": {
 				Type:             schema.TypeMap,
 				Optional:         true,
-				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
 				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
 				Elem: &schema.Schema{
@@ -220,7 +217,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("User %q", username))
 	}
 
-	userPermissions, err := removePgUserOwnerPermissions(d, meta, clusterID, user.Name, user.Permissions)
+	userPermissions, err := removePgUserOwnerPermissions(meta, clusterID, user.Name, user.Permissions)
 	if err != nil {
 		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
@@ -355,8 +352,10 @@ func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-// Remove (from state) permissions of owners on databases not listed in manifest
-func removePgUserOwnerPermissions(d *schema.ResourceData, meta interface{}, clusterID string, name string, permissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
+// Remove permissions of owners from databases not listed in the manifest
+// Problem: The database owner should always have permission to their database.
+// Idea: Let's just ignore permissions for databases where the user is the owner.
+func removePgUserOwnerPermissions(meta interface{}, clusterID string, username string, userPermissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
 	config := meta.(*Config)
 
 	resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
@@ -368,21 +367,10 @@ func removePgUserOwnerPermissions(d *schema.ResourceData, meta interface{}, clus
 		dbMap[db.Name] = db
 	}
 
-	v := d.Get("permission")
-	existingPerms, err := expandPGUserPermissions(v.(*schema.Set))
-	if err != nil {
-		return nil, err
-	}
-	existingPermsMap := make(map[string]*postgresql.Permission)
-	for _, perm := range existingPerms {
-		existingPermsMap[perm.DatabaseName] = perm
-	}
-
 	newPerms := []*postgresql.Permission{}
-	for _, perm := range permissions {
-		_, exist := existingPermsMap[perm.DatabaseName]
-		if !(!exist && dbMap[perm.DatabaseName].Owner == name) {
-			newPerms = append(newPerms, perm)
+	for _, p := range userPermissions {
+		if dbMap[p.DatabaseName].Owner != username {
+			newPerms = append(newPerms, p)
 		}
 	}
 
@@ -400,14 +388,8 @@ func addPgUserOwnerPermissions(meta interface{}, clusterID string, name string, 
 		return nil, err
 	}
 
-	permsMap := make(map[string]*postgresql.Permission)
-	for _, perm := range permissions {
-		permsMap[perm.DatabaseName] = perm
-	}
-
 	for _, db := range resp.Databases {
-		_, added := permsMap[db.Name]
-		if !added && db.Owner == name {
+		if db.Owner == name {
 			permissions = append(permissions, &postgresql.Permission{
 				DatabaseName: db.Name,
 			})

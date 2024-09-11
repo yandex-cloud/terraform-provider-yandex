@@ -51,7 +51,16 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			mdbPostgreSQLUserImportStep(pgUserResourceNameBob),
 			{
-				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName, true),
+				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "name", "bob"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "deletion_protection", "false"),
+					testAccCheckMDBPostgreSQLUserHasPermission(t, "bob", []string{}),
+				),
+			},
+			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep4(clusterName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "42"),
@@ -62,7 +71,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			{
-				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName, false),
+				Config: testAccMDBPostgreSQLUserConfigStep4(clusterName, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
@@ -70,7 +79,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			{
-				Config: testAccMDBPostgreSQLUserConfigStep4(clusterName),
+				Config: testAccMDBPostgreSQLUserConfigStep5(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "name", "charlie"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "login", "false"),
@@ -261,8 +270,19 @@ resource "yandex_mdb_postgresql_user" "bob" {
 }`
 }
 
+// Drop permissions field. Bug report: changing permissions works but dropping permissions field do nothing
+func testAccMDBPostgreSQLUserConfigStep3(name string) string {
+	return testAccMDBPostgreSQLUserConfigStep1(name) + `
+resource "yandex_mdb_postgresql_user" "bob" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "bob"
+	password   = "mysecureP@ssw0rd"
+	deletion_protection = "false"
+}`
+}
+
 // Change Alice's settings and conn_limit
-func testAccMDBPostgreSQLUserConfigStep3(name string, deletionProtection bool) string {
+func testAccMDBPostgreSQLUserConfigStep4(name string, deletionProtection bool) string {
 	return testAccMDBPostgreSQLUserConfigStep0(name) + fmt.Sprintf(`
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
@@ -280,8 +300,8 @@ resource "yandex_mdb_postgresql_user" "alice" {
 }
 
 // Check login and conn_limit. Bug report: https://github.com/KazanExpress/yc-tf-bugreports/tree/master/bugs/postgres-3
-func testAccMDBPostgreSQLUserConfigStep4(name string) string {
-	return testAccMDBPostgreSQLUserConfigStep3(name, false) + `
+func testAccMDBPostgreSQLUserConfigStep5(name string) string {
+	return testAccMDBPostgreSQLUserConfigStep4(name, false) + `
 resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
