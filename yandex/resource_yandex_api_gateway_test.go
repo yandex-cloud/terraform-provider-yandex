@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 )
 
@@ -361,6 +364,170 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	})
 }
 
+func TestAccYandexAPIGateway_logOptions(t *testing.T) {
+	t.Parallel()
+
+	folderID := os.Getenv("YC_FOLDER_ID")
+	var apiGateway apigateway.ApiGateway
+	var logOptionsWithLogGroupID *apigateway.LogOptions
+	var logGroupID string
+	name := acctest.RandomWithPrefix("tf-api-gateway-log-options")
+	resourceName := "test-api-gateway"
+	resourcePath := "yandex_api_gateway." + resourceName
+
+	newConfig := func(extraOptions ...testResourceYandexAPIGatewayOption) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexAPIGateway(
+			sb,
+			resourceName,
+			spec,
+			append([]testResourceYandexAPIGatewayOption{
+				testResourceYandexAPIGatewayOptionFactory.WithName(name),
+			}, extraOptions...)...,
+		)
+		sb.WriteString(`resource "yandex_logging_group" "logging-group" {` + "\n")
+		sb.WriteString(`}` + "\n")
+		return sb.String()
+	}
+
+	applyAPIGatewayNoLogOptions := resource.TestStep{
+		Config: newConfig(),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexAPIGatewayExists(resourcePath, &apiGateway),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "0"),
+			testYandexAPIGatewayContainsLogOptions(&apiGateway, &apigateway.LogOptions{
+				Destination: &apigateway.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	applyAPIGatewayLogOptionsDisabled := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexAPIGatewayOptionFactory.WithLogOptions(
+				true,
+				"",
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexAPIGatewayExists(resourcePath, &apiGateway),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexAPIGatewayContainsLogOptions(&apiGateway, &apigateway.LogOptions{
+				Disabled: true,
+				Destination: &apigateway.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	applyAPIGatewayLogOptionsFolderID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexAPIGatewayOptionFactory.WithLogOptions(
+				false,
+				folderID,
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexAPIGatewayExists(resourcePath, &apiGateway),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", folderID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexAPIGatewayContainsLogOptions(&apiGateway, &apigateway.LogOptions{
+				Destination: &apigateway.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	applyAPIGatewayLogOptionsLogGroupID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexAPIGatewayOptionFactory.WithLogOptions(
+				false,
+				"",
+				"${yandex_logging_group.logging-group.id}",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexAPIGatewayExists(resourcePath, &apiGateway),
+			func(s *terraform.State) error {
+				rs, ok := s.RootModule().Resources["yandex_logging_group.logging-group"]
+				if !ok {
+					return fmt.Errorf("Not found: %s", name)
+				}
+				if rs.Primary.ID == "" {
+					return fmt.Errorf("No ID is set")
+				}
+				logGroupID = rs.Primary.ID
+				logOptionsWithLogGroupID = &apigateway.LogOptions{
+					Destination: &apigateway.LogOptions_LogGroupId{
+						LogGroupId: logGroupID,
+					},
+				}
+				return nil
+			},
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttrPtr(resourcePath, "log_options.0.log_group_id", &logGroupID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexAPIGatewayContainsLogOptionsPtr(&apiGateway, &logOptionsWithLogGroupID),
+		),
+	}
+
+	applyAPIGatewayLogOptionsMinLevel := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexAPIGatewayOptionFactory.WithLogOptions(
+				false,
+				"",
+				"",
+				"ERROR"),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexAPIGatewayExists(resourcePath, &apiGateway),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
+			testYandexAPIGatewayContainsLogOptions(&apiGateway, &apigateway.LogOptions{
+				Destination: &apigateway.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+				MinLevel: logging.LogLevel_ERROR,
+			}),
+		),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testYandexAPIGatewayDestroy,
+		Steps: []resource.TestStep{
+			applyAPIGatewayNoLogOptions,
+			applyAPIGatewayLogOptionsDisabled,
+			applyAPIGatewayLogOptionsFolderID,
+			applyAPIGatewayLogOptionsLogGroupID,
+			applyAPIGatewayLogOptionsMinLevel,
+			// Apply of config without log_options will return state to the beginning.
+			applyAPIGatewayNoLogOptions,
+		},
+	})
+}
+
 func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, spec string, apiGateway *apigateway.ApiGateway) resource.TestStep {
 	return resource.TestStep{
 		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec),
@@ -511,6 +678,33 @@ func testYandexAPIGatewayContainsUserDomains(apiGateway *apigateway.ApiGateway, 
 	}
 }
 
+func testYandexAPIGatewayContainsLogOptions(
+	apiGateway *apigateway.ApiGateway,
+	expected *apigateway.LogOptions,
+) resource.TestCheckFunc {
+	return testYandexAPIGatewayContainsLogOptionsPtr(apiGateway, &expected)
+}
+
+// Same as testYandexAPIGatewayContainsLogOptions but receives pointer that can be updated while the test is running.
+func testYandexAPIGatewayContainsLogOptionsPtr(
+	apiGateway *apigateway.ApiGateway,
+	expectedPtr **apigateway.LogOptions,
+) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		actual := apiGateway.GetLogOptions()
+		expected := *expectedPtr
+		if assert.ObjectsAreEqual(expected, actual) {
+			return nil
+		}
+		return fmt.Errorf("Created API Gateway log options not equal to expected:\n"+
+			"\nExpected:\n%s\n"+
+			"\nActual:\n%s\n",
+			expected.String(),
+			actual.String(),
+		)
+	}
+}
+
 func testYandexAPIGatewayBasic(name, desc, labelKey, labelValue string, spec string) string {
 	return fmt.Sprintf(`
 resource "yandex_api_gateway" "test-api-gateway" {
@@ -582,4 +776,86 @@ func getTestCertificateId(t *testing.T) string {
 	}
 
 	return certID
+}
+
+type testResourceYandexAPIGatewayOptions struct {
+	name       *string
+	logOptions *testResourceYandexAPIGatewayLogOptions
+}
+
+type testResourceYandexAPIGatewayLogOptions struct {
+	disabled   bool
+	folderID   string
+	LogGroupID string
+	minLevel   string
+}
+
+type testResourceYandexAPIGatewayOption func(o *testResourceYandexAPIGatewayOptions)
+
+type testResourceYandexAPIGatewayOptionFactoryImpl bool
+
+const testResourceYandexAPIGatewayOptionFactory = testResourceYandexAPIGatewayOptionFactoryImpl(true)
+
+func (testResourceYandexAPIGatewayOptionFactoryImpl) WithName(name string) testResourceYandexAPIGatewayOption {
+	return func(o *testResourceYandexAPIGatewayOptions) {
+		o.name = &name
+	}
+}
+
+func (testResourceYandexAPIGatewayOptionFactoryImpl) WithLogOptions(
+	disabled bool,
+	folderID string,
+	LogGroupID string,
+	minLevel string,
+) testResourceYandexAPIGatewayOption {
+	return func(o *testResourceYandexAPIGatewayOptions) {
+		o.logOptions = &testResourceYandexAPIGatewayLogOptions{
+			disabled:   disabled,
+			folderID:   folderID,
+			LogGroupID: LogGroupID,
+			minLevel:   minLevel,
+		}
+	}
+}
+
+func testWriteResourceYandexAPIGateway(
+	sb *strings.Builder,
+	resourceName string,
+	spec string,
+	options ...testResourceYandexAPIGatewayOption,
+) {
+	var o testResourceYandexAPIGatewayOptions
+	for _, option := range options {
+		option(&o)
+	}
+
+	fprintfLn := func(sb *strings.Builder, format string, a ...any) {
+		_, _ = fmt.Fprintf(sb, format, a...)
+		sb.WriteRune('\n')
+	}
+
+	fprintfLn(sb, "resource \"yandex_api_gateway\" \"%s\" {", resourceName)
+	if name := o.name; name != nil {
+		fprintfLn(sb, "  name = \"%s\"", *name)
+	}
+	fprintfLn(sb, "  spec = <<EOF\n")
+	fprintfLn(sb, spec)
+	fprintfLn(sb, "EOF")
+	if logOptions := o.logOptions; logOptions != nil {
+		fprintfLn(sb, "  log_options {")
+		if logOptions.disabled {
+			fprintfLn(sb, "    disabled = true")
+		}
+		if logGroupID := logOptions.LogGroupID; len(logGroupID) > 0 {
+			fprintfLn(sb, "    log_group_id = \"%s\"", logGroupID)
+		}
+		if folderID := logOptions.folderID; len(folderID) > 0 {
+			fprintfLn(sb, "    folder_id = \"%s\"", folderID)
+		}
+		if minLevel := logOptions.minLevel; len(minLevel) > 0 {
+			fprintfLn(sb, "    min_level = \"%s\"", minLevel)
+		}
+		fprintfLn(sb, "  }")
+	}
+	fprintfLn(sb, "}")
 }

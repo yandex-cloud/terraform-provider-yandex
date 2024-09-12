@@ -2,13 +2,12 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/grpc/codes"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"google.golang.org/grpc/codes"
 )
 
 func dataSourceYandexFunction() *schema.Resource {
@@ -355,5 +354,5 @@ func dataSourceYandexFunctionRead(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(function.Id)
 	d.Set("function_id", function.Id)
 	d.Set("storage_mounts", flattenVersionStorageMounts(version.StorageMounts)) // for backward compatibility
-	return flattenYandexFunction(d, function, version)
+	return flattenYandexFunction(d, function, version, true)
 }

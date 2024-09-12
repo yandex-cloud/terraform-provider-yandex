@@ -158,7 +158,6 @@ func resourceYandexApiGateway() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
@@ -169,13 +168,11 @@ func resourceYandexApiGateway() *schema.Resource {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"min_level": {
 							Type:     schema.TypeString,
@@ -435,7 +432,7 @@ func resourceYandexApiGatewayRead(d *schema.ResourceData, meta interface{}) erro
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud API Gateway %q", d.Id()))
 	}
 
-	return flattenYandexApiGateway(d, apiGateway)
+	return flattenYandexApiGateway(d, apiGateway, false)
 }
 
 func resourceYandexApiGatewayDelete(d *schema.ResourceData, meta interface{}) error {
@@ -457,7 +454,7 @@ func resourceYandexApiGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiGateway) error {
+func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiGateway, allFields bool) error {
 	d.Set("name", apiGateway.Name)
 	d.Set("folder_id", apiGateway.FolderId)
 	d.Set("description", apiGateway.Description)
@@ -465,10 +462,8 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	d.Set("domain", apiGateway.Domain)
 	d.Set("status", strings.ToLower(apiGateway.Status.String()))
 	d.Set("log_group_id", apiGateway.LogGroupId)
-
-	if err := d.Set("custom_domains", flattenCustomDomains(apiGateway.AttachedDomains)); err != nil {
-		return fmt.Errorf("Unable to set custom_domains: %s", err)
-	}
+	d.Set("labels", apiGateway.Labels)
+	d.Set("custom_domains", flattenCustomDomains(apiGateway.AttachedDomains))
 
 	if connectivity := flattenApiGatewayConnectivity(apiGateway.Connectivity); connectivity != nil {
 		d.Set("connectivity", connectivity)
@@ -479,9 +474,7 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	if canary := flattenApiGatewayCanary(apiGateway.Canary); canary != nil {
 		d.Set("canary", canary)
 	}
-	if logOptions := flattenApiGatewayLogOptions(apiGateway.LogOptions); logOptions != nil {
-		d.Set("log_options", logOptions)
-	}
+	d.Set("log_options", flattenApiGatewayLogOptions(d, apiGateway.LogOptions, apiGateway.FolderId, allFields))
 	if apiGateway.ExecutionTimeout != nil && apiGateway.ExecutionTimeout.Seconds != 0 {
 		d.Set("execution_timeout", strconv.FormatInt(apiGateway.ExecutionTimeout.Seconds, 10))
 	}
@@ -491,7 +484,7 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	}
 	d.Set("user_domains", convertStringArrToInterface(domains))
 
-	return d.Set("labels", apiGateway.Labels)
+	return nil
 }
 
 func attachDomain(ctx context.Context, config *Config, apigwID string, domain string, certificateId string) error {
@@ -626,43 +619,62 @@ func expandApiGatewayLogOptions(d *schema.ResourceData) (*apigateway.LogOptions,
 		return nil, nil
 	}
 	logOptionsMap := v.(map[string]interface{})
-	logOptions := &apigateway.LogOptions{}
-
-	if disabled, ok := logOptionsMap["disabled"]; ok {
-		logOptions.Disabled = disabled.(bool)
+	if logOptionsMap["disabled"].(bool) {
+		return &apigateway.LogOptions{
+			Disabled: true,
+		}, nil
 	}
+	logOptions := &apigateway.LogOptions{}
 	if folderID, ok := logOptionsMap["folder_id"]; ok {
 		logOptions.SetFolderId(folderID.(string))
 	}
 	if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
 		logOptions.SetLogGroupId(logGroupID.(string))
 	}
-	if level, ok := logOptionsMap["min_level"]; ok {
-		if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
-			logOptions.MinLevel = logging.LogLevel_Level(v)
-		} else {
+	if level := logOptionsMap["min_level"]; len(level.(string)) > 0 {
+		logLevel, ok := logging.LogLevel_Level_value[level.(string)]
+		if !ok {
 			return nil, fmt.Errorf("unknown log level: %s", level)
 		}
+		logOptions.MinLevel = logging.LogLevel_Level(logLevel)
 	}
 	return logOptions, nil
 }
 
-func flattenApiGatewayLogOptions(logOptions *apigateway.LogOptions) []interface{} {
+func flattenApiGatewayLogOptions(
+	d *schema.ResourceData,
+	logOptions *apigateway.LogOptions,
+	apigatewayFolderID string,
+	allFields bool,
+) []interface{} {
 	if logOptions == nil {
 		return nil
 	}
-	res := map[string]interface{}{
-		"disabled":  logOptions.Disabled,
-		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	res := make(map[string]interface{})
+	if !allFields && logOptions.Disabled {
+		res["disabled"] = true
+		return []interface{}{res}
+	}
+	if allFields || len(d.Get("log_options.0.min_level").(string)) > 0 || logOptions.MinLevel != 0 {
+		res["min_level"] = logging.LogLevel_Level_name[int32(logOptions.MinLevel)]
 	}
 	if logOptions.Destination != nil {
-		switch d := logOptions.Destination.(type) {
+		switch destination := logOptions.Destination.(type) {
 		case *apigateway.LogOptions_LogGroupId:
-			res["log_group_id"] = d.LogGroupId
+			res["log_group_id"] = destination.LogGroupId
 		case *apigateway.LogOptions_FolderId:
-			res["folder_id"] = d.FolderId
+			if allFields ||
+				len(d.Get("log_options.0.folder_id").(string)) > 0 ||
+				destination.FolderId != apigatewayFolderID {
+
+				res["folder_id"] = destination.FolderId
+			}
 		}
 	}
+	if !allFields && len(d.Get("log_options").([]interface{})) <= 0 && len(res) <= 0 {
+		return nil
+	}
+	res["disabled"] = logOptions.Disabled
 	return []interface{}{res}
 }
 

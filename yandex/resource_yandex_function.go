@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"io"
 	"io/ioutil"
 	"os"
@@ -17,10 +16,10 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/genproto/protobuf/field_mask"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const yandexFunctionDefaultTimeout = 10 * time.Minute
@@ -353,7 +352,6 @@ func resourceYandexFunction() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
@@ -364,13 +362,11 @@ func resourceYandexFunction() *schema.Resource {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"min_level": {
 							Type:     schema.TypeString,
@@ -567,7 +563,7 @@ func resourceYandexFunctionRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	return flattenYandexFunction(d, function, version)
+	return flattenYandexFunction(d, function, version, false)
 }
 
 func resourceYandexFunctionDelete(d *schema.ResourceData, meta interface{}) error {
@@ -807,25 +803,11 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		config.FailureTarget = expandFunctionAsyncYMQTarget(d, "ymq_failure_target")
 		versionReq.AsyncInvocationConfig = config
 	}
-	if v, ok := d.GetOk("log_options.0"); ok {
-		logOptionsMap := v.(map[string]interface{})
-		logOptions := &functions.LogOptions{}
 
-		if disabled, ok := logOptionsMap["disabled"]; ok {
-			logOptions.Disabled = disabled.(bool)
-		}
-		if folderID, ok := logOptionsMap["folder_id"]; ok {
-			logOptions.SetFolderId(folderID.(string))
-		}
-		if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
-			logOptions.SetLogGroupId(logGroupID.(string))
-		}
-		if level, ok := logOptionsMap["min_level"]; ok {
-			if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
-				logOptions.MinLevel = logging.LogLevel_Level(v)
-			} else {
-				return nil, fmt.Errorf("unknown log level: %s", level)
-			}
+	{
+		logOptions, err := expandFunctionLogOptions(d)
+		if err != nil {
+			return nil, err
 		}
 		versionReq.LogOptions = logOptions
 	}
@@ -871,14 +853,17 @@ func mapBoolModeToString(isReadOnly bool) string {
 	return "rw"
 }
 
-func flattenYandexFunction(d *schema.ResourceData, function *functions.Function, version *functions.Version) error {
+func flattenYandexFunction(
+	d *schema.ResourceData,
+	function *functions.Function,
+	version *functions.Version,
+	allFields bool,
+) error {
 	d.Set("name", function.Name)
 	d.Set("folder_id", function.FolderId)
 	d.Set("description", function.Description)
 	d.Set("created_at", getTimestamp(function.CreatedAt))
-	if err := d.Set("labels", function.Labels); err != nil {
-		return err
-	}
+	d.Set("labels", function.Labels)
 
 	if version == nil {
 		return nil
@@ -903,9 +888,7 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	if asyncConfig := flattenFunctionAsyncConfig(version.AsyncInvocationConfig); asyncConfig != nil {
 		d.Set("async_invocation", asyncConfig)
 	}
-	if logOptions := flattenFunctionLogOptions(version.LogOptions); logOptions != nil {
-		d.Set("log_options", logOptions)
-	}
+	d.Set("log_options", flattenFunctionLogOptions(d, version.LogOptions, function.FolderId, allFields))
 
 	tags := &schema.Set{F: schema.HashString}
 	for _, v := range version.Tags {
@@ -913,13 +896,14 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 			tags.Add(v)
 		}
 	}
+	d.Set("tags", tags)
 
 	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
 	d.Set("mounts", flattenVersionMounts(version.Mounts))
 	d.Set("tmpfs_size", int(version.TmpfsSize/int64(datasize.MB.Bytes())))
 	d.Set("concurrency", version.Concurrency)
 
-	return d.Set("tags", tags)
+	return nil
 }
 
 func zipPathToWriter(root string, buffer io.Writer) error {
@@ -1128,21 +1112,67 @@ func flattenFunctionAsyncResponseTarget(target *functions.AsyncInvocationConfig_
 	}
 }
 
-func flattenFunctionLogOptions(logOptions *functions.LogOptions) []interface{} {
+func expandFunctionLogOptions(d *schema.ResourceData) (*functions.LogOptions, error) {
+	v, ok := d.GetOk("log_options.0")
+	if !ok {
+		return nil, nil
+	}
+	logOptionsMap := v.(map[string]interface{})
+	if logOptionsMap["disabled"].(bool) {
+		return &functions.LogOptions{
+			Disabled: true,
+		}, nil
+	}
+	logOptions := &functions.LogOptions{}
+	if folderID, ok := logOptionsMap["folder_id"]; ok {
+		logOptions.SetFolderId(folderID.(string))
+	}
+	if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+		logOptions.SetLogGroupId(logGroupID.(string))
+	}
+	if level := logOptionsMap["min_level"]; len(level.(string)) > 0 {
+		logLevel, ok := logging.LogLevel_Level_value[level.(string)]
+		if !ok {
+			return nil, fmt.Errorf("unknown log level: %s", level)
+		}
+		logOptions.MinLevel = logging.LogLevel_Level(logLevel)
+	}
+	return logOptions, nil
+}
+
+func flattenFunctionLogOptions(
+	d *schema.ResourceData,
+	logOptions *functions.LogOptions,
+	functionFolderID string,
+	allFields bool,
+) []interface{} {
 	if logOptions == nil {
 		return nil
 	}
-	res := map[string]interface{}{
-		"disabled":  logOptions.Disabled,
-		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	res := make(map[string]interface{})
+	if !allFields && logOptions.Disabled {
+		res["disabled"] = true
+		return []interface{}{res}
+	}
+	if allFields || len(d.Get("log_options.0.min_level").(string)) > 0 || logOptions.MinLevel != 0 {
+		res["min_level"] = logging.LogLevel_Level_name[int32(logOptions.MinLevel)]
 	}
 	if logOptions.Destination != nil {
-		switch d := logOptions.Destination.(type) {
+		switch destination := logOptions.Destination.(type) {
 		case *functions.LogOptions_LogGroupId:
-			res["log_group_id"] = d.LogGroupId
+			res["log_group_id"] = destination.LogGroupId
 		case *functions.LogOptions_FolderId:
-			res["folder_id"] = d.FolderId
+			if allFields ||
+				len(d.Get("log_options.0.folder_id").(string)) > 0 ||
+				destination.FolderId != functionFolderID {
+
+				res["folder_id"] = destination.FolderId
+			}
 		}
 	}
+	if !allFields && len(d.Get("log_options").([]interface{})) <= 0 && len(res) <= 0 {
+		return nil
+	}
+	res["disabled"] = logOptions.Disabled
 	return []interface{}{res}
 }

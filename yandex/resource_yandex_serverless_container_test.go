@@ -3,16 +3,19 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/c2h5oh/datasize"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 )
 
 const serverlessContainerResource = "yandex_serverless_container.test-container"
@@ -322,6 +325,224 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	})
 }
 
+func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
+	t.Parallel()
+
+	folderID := os.Getenv("YC_FOLDER_ID")
+	var container containers.Container
+	var revision containers.Revision
+	var logOptionsWithLogGroupID *containers.LogOptions
+	var logGroupID string
+	name := acctest.RandomWithPrefix("tf-serverless-container-log-options")
+	resourceName := "test-container"
+	resourcePath := "yandex_serverless_container." + resourceName
+
+	newConfig := func(extraOptions ...testResourceYandexServerlessContainerOption) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexServerlessContainer(
+			sb,
+			resourceName,
+			128,
+			serverlessContainerTestImage1,
+			append([]testResourceYandexServerlessContainerOption{
+				testResourceYandexServerlessContainerOptionFactory.WithName(name),
+			}, extraOptions...)...,
+		)
+		sb.WriteString(`resource "yandex_logging_group" "logging-group" {` + "\n")
+		sb.WriteString(`}` + "\n")
+		return sb.String()
+	}
+
+	importStep := func(extraChecks ...resource.TestCheckFunc) resource.TestStep {
+		return resource.TestStep{
+			ResourceName:      resourcePath,
+			ImportState:       true,
+			ImportStateVerify: true,
+			ImportStateVerifyIgnore: []string{
+				"content", "package", "image_size", "user_hash", "storage_mounts",
+			},
+			Check: resource.ComposeTestCheckFunc(extraChecks...),
+		}
+	}
+
+	applyServerlessContainerNoLogOptions := resource.TestStep{
+		Config: newConfig(),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "0"),
+			testYandexServerlessContainerRevisionLogOptions(&revision, &containers.LogOptions{
+				Destination: &containers.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	importServerlessContainerNoLogOptions := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "0"),
+	)
+
+	applyServerlessContainerLogOptionsDisabled := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexServerlessContainerOptionFactory.WithLogOptions(
+				true,
+				"",
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexServerlessContainerRevisionLogOptions(&revision, &containers.LogOptions{
+				Disabled: true,
+				Destination: &containers.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	importServerlessContainerLogOptionsDisabled := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+	)
+
+	applyServerlessContainerLogOptionsFolderID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexServerlessContainerOptionFactory.WithLogOptions(
+				false,
+				folderID,
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", folderID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexServerlessContainerRevisionLogOptions(&revision, &containers.LogOptions{
+				Destination: &containers.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	applyServerlessContainerLogOptionsLogGroupID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexServerlessContainerOptionFactory.WithLogOptions(
+				false,
+				"",
+				"${yandex_logging_group.logging-group.id}",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			func(s *terraform.State) error {
+				rs, ok := s.RootModule().Resources["yandex_logging_group.logging-group"]
+				if !ok {
+					return fmt.Errorf("Not found: %s", name)
+				}
+				if rs.Primary.ID == "" {
+					return fmt.Errorf("No ID is set")
+				}
+				logGroupID = rs.Primary.ID
+				logOptionsWithLogGroupID = &containers.LogOptions{
+					Destination: &containers.LogOptions_LogGroupId{
+						LogGroupId: logGroupID,
+					},
+				}
+				return nil
+			},
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttrPtr(resourcePath, "log_options.0.log_group_id", &logGroupID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexServerlessContainerRevisionLogOptionsPtr(&revision, &logOptionsWithLogGroupID),
+		),
+	}
+
+	importServerlessContainerLogOptionsLogGroupID := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+		resource.TestCheckResourceAttrPtr(resourcePath, "log_options.0.log_group_id", &logGroupID),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+	)
+
+	applyServerlessContainerLogOptionsMinLevel := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexServerlessContainerOptionFactory.WithLogOptions(
+				false,
+				"",
+				"",
+				"ERROR"),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
+			testYandexServerlessContainerRevisionLogOptions(&revision, &containers.LogOptions{
+				Destination: &containers.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+				MinLevel: logging.LogLevel_ERROR,
+			}),
+		),
+	}
+
+	importServerlessContainerLogOptionsMinLevel := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testYandexServerlessContainerDestroy,
+		Steps: []resource.TestStep{
+			applyServerlessContainerNoLogOptions,
+			importServerlessContainerNoLogOptions,
+			applyServerlessContainerLogOptionsDisabled,
+			importServerlessContainerLogOptionsDisabled,
+			applyServerlessContainerLogOptionsFolderID,
+			// Can not verify import with folder id - acceptance tests designed to run within single folder,
+			// therefore created serverless container revision log_options's destination will be the same as default.
+			applyServerlessContainerLogOptionsLogGroupID,
+			importServerlessContainerLogOptionsLogGroupID,
+			applyServerlessContainerLogOptionsMinLevel,
+			importServerlessContainerLogOptionsMinLevel,
+			// Apply of config without log_options will return state to the beginning.
+			applyServerlessContainerNoLogOptions,
+			importServerlessContainerNoLogOptions,
+		},
+	})
+}
+
 func testYandexServerlessContainerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -541,6 +762,33 @@ func testYandexServerlessContainerRevisionServiceAccount(revision *containers.Re
 	}
 }
 
+func testYandexServerlessContainerRevisionLogOptions(
+	revision *containers.Revision,
+	expected *containers.LogOptions,
+) resource.TestCheckFunc {
+	return testYandexServerlessContainerRevisionLogOptionsPtr(revision, &expected)
+}
+
+// Same as testYandexServerlessContainerRevisionLogOptions but receives pointer that can be updated while the test is running.
+func testYandexServerlessContainerRevisionLogOptionsPtr(
+	revision *containers.Revision,
+	expectedPtr **containers.LogOptions,
+) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		actual := revision.GetLogOptions()
+		expected := *expectedPtr
+		if assert.ObjectsAreEqual(expected, actual) {
+			return nil
+		}
+		return fmt.Errorf("Created Container Revision log options not equal to expected:\n"+
+			"\nExpected:\n%s\n"+
+			"\nActual:\n%s\n",
+			expected.String(),
+			actual.String(),
+		)
+	}
+}
+
 func testYandexServerlessContainerBasic(name string, desc string, memory int, image string) string {
 	return fmt.Sprintf(`
 resource "yandex_serverless_container" "test-container" {
@@ -720,4 +968,95 @@ resource "yandex_logging_group" "logging-group" {
 		params.secret.secretName,
 		params.secret.secretKey,
 		params.secret.secretValue)
+}
+
+type testResourceYandexServerlessContainerOptions struct {
+	name       *string
+	image      *testResourceYandexServerlessContainerOptionsImage
+	logOptions *testResourceYandexServerlessContainerOptionsLogOptions
+}
+
+type testResourceYandexServerlessContainerOptionsImage struct {
+	url string
+}
+
+type testResourceYandexServerlessContainerOptionsLogOptions struct {
+	disabled   bool
+	folderID   string
+	LogGroupID string
+	minLevel   string
+}
+
+type testResourceYandexServerlessContainerOption func(o *testResourceYandexServerlessContainerOptions)
+
+type testResourceYandexServerlessContainerOptionFactoryImpl bool
+
+const testResourceYandexServerlessContainerOptionFactory = testResourceYandexServerlessContainerOptionFactoryImpl(true)
+
+func (testResourceYandexServerlessContainerOptionFactoryImpl) WithName(name string) testResourceYandexServerlessContainerOption {
+	return func(o *testResourceYandexServerlessContainerOptions) {
+		o.name = &name
+	}
+}
+
+func (testResourceYandexServerlessContainerOptionFactoryImpl) WithLogOptions(
+	disabled bool,
+	folderID string,
+	LogGroupID string,
+	minLevel string,
+) testResourceYandexServerlessContainerOption {
+	return func(o *testResourceYandexServerlessContainerOptions) {
+		o.logOptions = &testResourceYandexServerlessContainerOptionsLogOptions{
+			disabled:   disabled,
+			folderID:   folderID,
+			LogGroupID: LogGroupID,
+			minLevel:   minLevel,
+		}
+	}
+}
+
+func testWriteResourceYandexServerlessContainer(
+	sb *strings.Builder,
+	resourceName string,
+	memoryMiB uint,
+	imageURL string,
+	options ...testResourceYandexServerlessContainerOption,
+) {
+	o := testResourceYandexServerlessContainerOptions{
+		image: &testResourceYandexServerlessContainerOptionsImage{url: imageURL},
+	}
+	for _, option := range options {
+		option(&o)
+	}
+
+	fprintfLn := func(sb *strings.Builder, format string, a ...any) {
+		_, _ = fmt.Fprintf(sb, format, a...)
+		sb.WriteRune('\n')
+	}
+
+	fprintfLn(sb, "resource \"yandex_serverless_container\" \"%s\" {", resourceName)
+	if name := o.name; name != nil {
+		fprintfLn(sb, "  name = \"%s\"", *name)
+	}
+	fprintfLn(sb, "  memory = %d", memoryMiB)
+	fprintfLn(sb, "  image {")
+	fprintfLn(sb, "    url = \"%s\"", o.image.url)
+	fprintfLn(sb, "  }")
+	if logOptions := o.logOptions; logOptions != nil {
+		fprintfLn(sb, "  log_options {")
+		if logOptions.disabled {
+			fprintfLn(sb, "    disabled = true")
+		}
+		if logGroupID := logOptions.LogGroupID; len(logGroupID) > 0 {
+			fprintfLn(sb, "    log_group_id = \"%s\"", logGroupID)
+		}
+		if folderID := logOptions.folderID; len(folderID) > 0 {
+			fprintfLn(sb, "    folder_id = \"%s\"", folderID)
+		}
+		if minLevel := logOptions.minLevel; len(minLevel) > 0 {
+			fprintfLn(sb, "    min_level = \"%s\"", minLevel)
+		}
+		fprintfLn(sb, "  }")
+	}
+	fprintfLn(sb, "}")
 }

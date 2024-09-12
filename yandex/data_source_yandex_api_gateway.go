@@ -201,5 +201,5 @@ func dataSourceYandexApiGatewayRead(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId(apiGateway.Id)
 	d.Set("api_gateway_id", apiGateway.Id)
-	return flattenYandexApiGateway(d, apiGateway)
+	return flattenYandexApiGateway(d, apiGateway, true)
 }

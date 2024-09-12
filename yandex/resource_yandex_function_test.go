@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -11,7 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-
+	"github.com/stretchr/testify/assert"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 )
 
@@ -281,6 +283,227 @@ func TestAccYandexFunction_full(t *testing.T) {
 	})
 }
 
+func TestAccYandexFunction_logOptions(t *testing.T) {
+	t.Parallel()
+
+	folderID := os.Getenv("YC_FOLDER_ID")
+	var logGroupID string
+	var function functions.Function
+	var version *functions.Version
+	name := acctest.RandomWithPrefix("tf-function-log-options")
+	resourceName := "test-function"
+	resourcePath := "yandex_function." + resourceName
+
+	newConfig := func(extraOptions ...testResourceYandexFunctionOption) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexFunction(
+			sb,
+			resourceName,
+			"user_hash",
+			128,
+			"main",
+			"python37",
+			"test-fixtures/serverless/main.zip",
+			append([]testResourceYandexFunctionOption{
+				testResourceYandexFunctionOptionFactory.WithName(name),
+			}, extraOptions...)...,
+		)
+		sb.WriteString(`resource "yandex_logging_group" "logging-group" {` + "\n")
+		sb.WriteString(`}` + "\n")
+		return sb.String()
+	}
+
+	importStep := func(extraChecks ...resource.TestCheckFunc) resource.TestStep {
+		return resource.TestStep{
+			ResourceName:      resourcePath,
+			ImportState:       true,
+			ImportStateVerify: true,
+			ImportStateVerifyIgnore: []string{
+				"content", "package", "image_size", "user_hash", "storage_mounts",
+			},
+			Check: resource.ComposeTestCheckFunc(extraChecks...),
+		}
+	}
+
+	applyFunctionNoLogOptions := resource.TestStep{
+		Config: newConfig(),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "0"),
+			testYandexFunctionVersionLogOptions(&version, &functions.LogOptions{
+				Destination: &functions.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	importFunctionNoLogOptions := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "0"),
+	)
+
+	applyFunctionLogOptionsDisabled := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexFunctionOptionFactory.WithLogOptions(
+				true,
+				"",
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexFunctionVersionLogOptions(&version, &functions.LogOptions{
+				Disabled: true,
+				Destination: &functions.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	importFunctionLogOptionsDisabled := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+	)
+
+	applyFunctionLogOptionsFolderID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexFunctionOptionFactory.WithLogOptions(
+				false,
+				folderID,
+				"",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", folderID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexFunctionVersionLogOptions(&version, &functions.LogOptions{
+				Destination: &functions.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+			}),
+		),
+	}
+
+	var logOptionsWithLogGroupID *functions.LogOptions
+	applyFunctionLogOptionsLogGroupID := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexFunctionOptionFactory.WithLogOptions(
+				false,
+				"",
+				"${yandex_logging_group.logging-group.id}",
+				"",
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			func(s *terraform.State) error {
+				rs, ok := s.RootModule().Resources["yandex_logging_group.logging-group"]
+				if !ok {
+					return fmt.Errorf("Not found: %s", name)
+				}
+				if rs.Primary.ID == "" {
+					return fmt.Errorf("No ID is set")
+				}
+				logGroupID = rs.Primary.ID
+				logOptionsWithLogGroupID = &functions.LogOptions{
+					Destination: &functions.LogOptions_LogGroupId{
+						LogGroupId: logGroupID,
+					},
+				}
+				return nil
+			},
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttrPtr(resourcePath, "log_options.0.log_group_id", &logGroupID),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+			testYandexFunctionVersionLogOptionsPtr(&version, &logOptionsWithLogGroupID),
+		),
+	}
+
+	importFunctionLogOptionsLogGroupID := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+		resource.TestCheckResourceAttrPtr(resourcePath, "log_options.0.log_group_id", &logGroupID),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", ""),
+	)
+
+	applyFunctionLogOptionsMinLevel := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexFunctionOptionFactory.WithLogOptions(
+				false,
+				"",
+				"",
+				"ERROR"),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "false"),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+			resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
+			testYandexFunctionVersionLogOptions(&version, &functions.LogOptions{
+				Destination: &functions.LogOptions_FolderId{
+					FolderId: folderID,
+				},
+				MinLevel: logging.LogLevel_ERROR,
+			}),
+		),
+	}
+
+	importFunctionLogOptionsMinLevel := importStep(
+		resource.TestCheckResourceAttr(resourcePath, "log_options.#", "1"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.disabled", "true"),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.log_group_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.folder_id", ""),
+		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testYandexFunctionDestroy,
+		Steps: []resource.TestStep{
+			applyFunctionNoLogOptions,
+			importFunctionNoLogOptions,
+			applyFunctionLogOptionsDisabled,
+			importFunctionLogOptionsDisabled,
+			applyFunctionLogOptionsFolderID,
+			// Can not verify import with folder id - acceptance tests designed to run within single folder,
+			// therefore created function version log_options's destination will be the same as default.
+			applyFunctionLogOptionsLogGroupID,
+			importFunctionLogOptionsLogGroupID,
+			applyFunctionLogOptionsMinLevel,
+			importFunctionLogOptionsMinLevel,
+			// Apply of config without log_options will return state to the beginning.
+			applyFunctionNoLogOptions,
+			importFunctionNoLogOptions,
+		},
+	})
+}
+
 func modeBoolToString(isReadOnly bool) string {
 	if isReadOnly {
 		return "ro"
@@ -372,6 +595,46 @@ func testGetFunctionByID(config *Config, ID string) (*functions.Function, error)
 	return config.sdk.Serverless().Functions().Function().Get(context.Background(), &req)
 }
 
+func testYandexFunctionVersionExists(name string, versionPtr **functions.Version) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		primary := rs.Primary
+		if primary == nil {
+			return fmt.Errorf("Primary instance not found within resource %s", name)
+		}
+
+		versionID, ok := primary.Attributes["version"]
+		if !ok || len(versionID) <= 0 {
+			return fmt.Errorf(
+				"Primary instance of resource %s does not cotain \"version\" attribute or it is empty string",
+				name,
+			)
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		version, err := testGetFunctionVersionByID(config, versionID)
+		if err != nil {
+			return err
+		}
+
+		if versionPtr != nil {
+			*versionPtr = version
+		}
+		return nil
+	}
+}
+
+func testGetFunctionVersionByID(config *Config, ID string) (*functions.Version, error) {
+	req := functions.GetFunctionVersionRequest{
+		FunctionVersionId: ID,
+	}
+	return config.sdk.Serverless().Functions().Function().GetVersion(context.Background(), &req)
+}
+
 func testYandexFunctionContainsLabel(function *functions.Function, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := function.Labels[key]
@@ -399,6 +662,33 @@ func testYandexFunctionContainsEnv(name string, key string, value string) resour
 		}
 
 		return fmt.Errorf("Not found environment: %s, value: %s in %s", key, value, s.RootModule().Path)
+	}
+}
+
+func testYandexFunctionVersionLogOptions(
+	versionPtr **functions.Version,
+	expected *functions.LogOptions,
+) resource.TestCheckFunc {
+	return testYandexFunctionVersionLogOptionsPtr(versionPtr, &expected)
+}
+
+// Same as testYandexFunctionVersionLogOptions but receives pointer that can be updated while the test is running.
+func testYandexFunctionVersionLogOptionsPtr(
+	versionPtr **functions.Version,
+	expectedPtr **functions.LogOptions,
+) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		actual := (*versionPtr).GetLogOptions()
+		expected := *expectedPtr
+		if assert.ObjectsAreEqual(expected, actual) {
+			return nil
+		}
+		return fmt.Errorf("Created Function Version log options not equal to expected:\n"+
+			"\nExpected:\n%s\n"+
+			"\nActual:\n%s\n",
+			expected.String(),
+			actual.String(),
+		)
 	}
 }
 
@@ -643,4 +933,94 @@ resource "yandex_logging_group" "logging-group" {
 		params.secret.secretName,
 		params.secret.secretKey,
 		params.secret.secretValue)
+}
+
+type testResourceYandexFunctionOptions struct {
+	name       *string
+	logOptions *testResourceYandexFunctionOptionsLogOptions
+}
+
+type testResourceYandexFunctionOptionsLogOptions struct {
+	disabled   bool
+	folderID   string
+	LogGroupID string
+	minLevel   string
+}
+
+type testResourceYandexFunctionOption func(o *testResourceYandexFunctionOptions)
+
+type testResourceYandexFunctionOptionFactoryImpl bool
+
+const testResourceYandexFunctionOptionFactory = testResourceYandexFunctionOptionFactoryImpl(true)
+
+func (testResourceYandexFunctionOptionFactoryImpl) WithName(name string) testResourceYandexFunctionOption {
+	return func(o *testResourceYandexFunctionOptions) {
+		o.name = &name
+	}
+}
+
+func (testResourceYandexFunctionOptionFactoryImpl) WithLogOptions(
+	disabled bool,
+	folderID string,
+	LogGroupID string,
+	minLevel string,
+) testResourceYandexFunctionOption {
+	return func(o *testResourceYandexFunctionOptions) {
+		o.logOptions = &testResourceYandexFunctionOptionsLogOptions{
+			disabled:   disabled,
+			folderID:   folderID,
+			LogGroupID: LogGroupID,
+			minLevel:   minLevel,
+		}
+	}
+}
+
+func testWriteResourceYandexFunction(
+	sb *strings.Builder,
+	resourceName string,
+	userHash string,
+	memoryMiB uint,
+	entrypoint string,
+	runtime string,
+	zipFilename string,
+	options ...testResourceYandexFunctionOption,
+) {
+	var o testResourceYandexFunctionOptions
+	for _, option := range options {
+		option(&o)
+	}
+
+	fprintfLn := func(sb *strings.Builder, format string, a ...any) {
+		_, _ = fmt.Fprintf(sb, format, a...)
+		sb.WriteRune('\n')
+	}
+
+	fprintfLn(sb, "resource \"yandex_function\" \"%s\" {", resourceName)
+	if name := o.name; name != nil {
+		fprintfLn(sb, "  name = \"%s\"", *name)
+	}
+	fprintfLn(sb, "  user_hash = \"%s\"", userHash)
+	fprintfLn(sb, "  runtime = \"%s\"", runtime)
+	fprintfLn(sb, "  entrypoint = \"%s\"", entrypoint)
+	fprintfLn(sb, "  memory = \"%d\"", memoryMiB)
+	fprintfLn(sb, "  content {")
+	fprintfLn(sb, "    zip_filename = \"%s\"", zipFilename)
+	fprintfLn(sb, "  }")
+	if logOptions := o.logOptions; logOptions != nil {
+		fprintfLn(sb, "  log_options {")
+		if logOptions.disabled {
+			fprintfLn(sb, "    disabled = true")
+		}
+		if logGroupID := logOptions.LogGroupID; len(logGroupID) > 0 {
+			fprintfLn(sb, "    log_group_id = \"%s\"", logGroupID)
+		}
+		if folderID := logOptions.folderID; len(folderID) > 0 {
+			fprintfLn(sb, "    folder_id = \"%s\"", folderID)
+		}
+		if minLevel := logOptions.minLevel; len(minLevel) > 0 {
+			fprintfLn(sb, "    min_level = \"%s\"", minLevel)
+		}
+		fprintfLn(sb, "  }")
+	}
+	fprintfLn(sb, "}")
 }

@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
@@ -311,5 +312,5 @@ func dataSourceYandexServerlessContainerRead(d *schema.ResourceData, meta interf
 	d.Set("container_id", container.Id)
 	d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts)) // for backward compatibility
 
-	return flattenYandexServerlessContainer(d, container, revision)
+	return flattenYandexServerlessContainer(d, container, revision, true)
 }

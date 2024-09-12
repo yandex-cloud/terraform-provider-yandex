@@ -3,14 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"time"
-
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -289,7 +288,6 @@ func resourceYandexServerlessContainer() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
@@ -300,13 +298,11 @@ func resourceYandexServerlessContainer() *schema.Resource {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
-							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"min_level": {
 							Type:     schema.TypeString,
@@ -538,7 +534,7 @@ func resourceYandexServerlessContainerRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Failed to resolve last revision of Yandex Cloud Container: %s", err)
 	}
 
-	return flattenYandexServerlessContainer(d, container, revision)
+	return flattenYandexServerlessContainer(d, container, revision, false)
 }
 
 func resolveContainerLastRevision(ctx context.Context, config *Config, containerID string) (*containers.Revision, error) {
@@ -717,25 +713,11 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 	if connectivity := expandServerlessContainerConnectivity(d); connectivity != nil {
 		revisionReq.Connectivity = connectivity
 	}
-	if v, ok := d.GetOk("log_options.0"); ok {
-		logOptionsMap := v.(map[string]interface{})
-		logOptions := &containers.LogOptions{}
 
-		if disabled, ok := logOptionsMap["disabled"]; ok {
-			logOptions.Disabled = disabled.(bool)
-		}
-		if folderID, ok := logOptionsMap["folder_id"]; ok {
-			logOptions.SetFolderId(folderID.(string))
-		}
-		if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
-			logOptions.SetLogGroupId(logGroupID.(string))
-		}
-		if level, ok := logOptionsMap["min_level"]; ok {
-			if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
-				logOptions.MinLevel = logging.LogLevel_Level(v)
-			} else {
-				return nil, fmt.Errorf("unknown log level: %s", level)
-			}
+	{
+		logOptions, err := expandServerlessContainerLogOptions(d)
+		if err != nil {
+			return nil, err
 		}
 		revisionReq.LogOptions = logOptions
 	}
@@ -765,15 +747,18 @@ func mapContainerModeFromPB(mode containers.Mount_Mode) string {
 	}
 }
 
-func flattenYandexServerlessContainer(d *schema.ResourceData, container *containers.Container, revision *containers.Revision) error {
+func flattenYandexServerlessContainer(
+	d *schema.ResourceData,
+	container *containers.Container,
+	revision *containers.Revision,
+	allFields bool,
+) error {
 	d.Set("name", container.Name)
 	d.Set("folder_id", container.FolderId)
 	d.Set("description", container.Description)
 	d.Set("created_at", getTimestamp(container.CreatedAt))
 	d.Set("url", container.Url)
-	if err := d.Set("labels", container.Labels); err != nil {
-		return err
-	}
+	d.Set("labels", container.Labels)
 
 	if revision == nil {
 		return nil
@@ -812,9 +797,7 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	if connectivity := flattenServerlessContainerConnectivity(revision.Connectivity); connectivity != nil {
 		d.Set("connectivity", connectivity)
 	}
-	if logOptions := flattenRevisionLogOptions(revision.LogOptions); logOptions != nil {
-		d.Set("log_options", logOptions)
-	}
+	d.Set("log_options", flattenServerlessContainerLogOptions(d, revision.LogOptions, container.FolderId, allFields))
 
 	if revision.ProvisionPolicy != nil {
 		d.Set("provision_policy", []map[string]interface{}{
@@ -903,21 +886,67 @@ func flattenServerlessContainerConnectivity(connectivity *containers.Connectivit
 	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
 }
 
-func flattenRevisionLogOptions(logOptions *containers.LogOptions) []interface{} {
+func expandServerlessContainerLogOptions(d *schema.ResourceData) (*containers.LogOptions, error) {
+	v, ok := d.GetOk("log_options.0")
+	if !ok {
+		return nil, nil
+	}
+	logOptionsMap := v.(map[string]interface{})
+	if logOptionsMap["disabled"].(bool) {
+		return &containers.LogOptions{
+			Disabled: true,
+		}, nil
+	}
+	logOptions := &containers.LogOptions{}
+	if folderID, ok := logOptionsMap["folder_id"]; ok {
+		logOptions.SetFolderId(folderID.(string))
+	}
+	if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+		logOptions.SetLogGroupId(logGroupID.(string))
+	}
+	if level := logOptionsMap["min_level"]; len(level.(string)) > 0 {
+		logLevel, ok := logging.LogLevel_Level_value[level.(string)]
+		if !ok {
+			return nil, fmt.Errorf("unknown log level: %s", level)
+		}
+		logOptions.MinLevel = logging.LogLevel_Level(logLevel)
+	}
+	return logOptions, nil
+}
+
+func flattenServerlessContainerLogOptions(
+	d *schema.ResourceData,
+	logOptions *containers.LogOptions,
+	containerFolderID string,
+	allFields bool,
+) []interface{} {
 	if logOptions == nil {
 		return nil
 	}
-	res := map[string]interface{}{
-		"disabled":  logOptions.Disabled,
-		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	res := make(map[string]interface{})
+	if !allFields && logOptions.Disabled {
+		res["disabled"] = true
+		return []interface{}{res}
+	}
+	if allFields || len(d.Get("log_options.0.min_level").(string)) > 0 || logOptions.MinLevel != 0 {
+		res["min_level"] = logging.LogLevel_Level_name[int32(logOptions.MinLevel)]
 	}
 	if logOptions.Destination != nil {
-		switch d := logOptions.Destination.(type) {
+		switch destination := logOptions.Destination.(type) {
 		case *containers.LogOptions_LogGroupId:
-			res["log_group_id"] = d.LogGroupId
+			res["log_group_id"] = destination.LogGroupId
 		case *containers.LogOptions_FolderId:
-			res["folder_id"] = d.FolderId
+			if allFields ||
+				len(d.Get("log_options.0.folder_id").(string)) > 0 ||
+				destination.FolderId != containerFolderID {
+
+				res["folder_id"] = destination.FolderId
+			}
 		}
 	}
+	if !allFields && len(d.Get("log_options").([]interface{})) <= 0 && len(res) <= 0 {
+		return nil
+	}
+	res["disabled"] = logOptions.Disabled
 	return []interface{}{res}
 }
