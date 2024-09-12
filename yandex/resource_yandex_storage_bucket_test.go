@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 )
 
@@ -45,59 +44,20 @@ func testSweepStorageBucket(_ string) error {
 	}
 
 	result := &multierror.Error{}
-	serviceAccountID, err := createIAMServiceAccountForSweeper(conf)
-	if serviceAccountID != "" {
-		defer func() {
-			if !sweepIAMServiceAccount(conf, serviceAccountID) {
-				result = multierror.Append(result,
-					fmt.Errorf("failed to sweep IAM service account %q", serviceAccountID))
-			}
-		}()
-	}
-	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("error creating service account: %s", err))
-		return result.ErrorOrNil()
-	}
-
-	resp, err := conf.sdk.IAM().
-		AWSCompatibility().
-		AccessKey().
-		Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
-			ServiceAccountId: serviceAccountID,
-			Description:      "Storage Bucket sweeper static key",
-		})
-	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("error creating service account static key: %s", err))
-		return result.ErrorOrNil()
-	}
-
-	defer func() {
-		_, err := conf.sdk.IAM().
-			AWSCompatibility().
-			AccessKey().
-			Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
-				AccessKeyId: resp.AccessKey.Id,
-			})
-		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("error deleting service account static key: %s", err))
-		}
-	}()
-
-	s3Client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
+	s3Client, err := getS3ClientByKeys(context.TODO(), "", "", conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
 	}
-	s3client := s3Client.S3()
 
-	buckets, err := s3client.ListBuckets(&awsS3.ListBucketsInput{})
+	buckets, err := s3Client.S3().ListBuckets(&awsS3.ListBucketsInput{})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	for _, b := range buckets.Buckets {
-		_, err := s3client.DeleteBucket(&awsS3.DeleteBucketInput{
+		_, err := s3Client.S3().DeleteBucket(&awsS3.DeleteBucketInput{
 			Bucket: b.Name,
 		})
 
@@ -113,23 +73,38 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccStorageBucketConfig(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckNoResourceAttr(resourceName, "website_endpoint"),
-					resource.TestCheckResourceAttr(resourceName, "bucket", testAccBucketName(rInt)),
-					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccBucketDomainName(rInt)),
-				),
-			},
-		},
-	})
+	tests := []struct {
+		name       string
+		configFunc func(int) string
+	}{
+		{"AWS keys", testAccStorageBucketConfig},
+		{"IAM token", testAccStorageBucketWithoutAWSKeysConfig},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:      func() { testAccPreCheck(t) },
+				IDRefreshName: resourceName,
+				Providers:     testAccProviders,
+				CheckDestroy:  testAccCheckStorageBucketDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: tt.configFunc(rInt),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckStorageBucketExists(resourceName),
+							resource.TestCheckResourceAttr(resourceName, "bucket", testAccBucketName(rInt)),
+							resource.TestCheckResourceAttr(
+								resourceName,
+								"bucket_domain_name",
+								testAccBucketDomainName(rInt),
+							),
+						),
+					},
+				},
+			})
+		})
+	}
 }
 
 func TestAccStorageBucket_namePrefix(t *testing.T) {
@@ -1033,14 +1008,7 @@ func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *
 	config := provider.Meta().(*Config)
 
 	check := func(rs *terraform.ResourceState) error {
-		// access and secret keys should be destroyed too and defaults may be not provided, so create temporary ones
-		ak, sak, cleanup, err := createTemporaryStaticAccessKey("editor", config)
-		if err != nil {
-			return err
-		}
-		defer cleanup()
-
-		s3Client, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
+		s3Client, err := getS3ClientByKeys(context.TODO(), "", "", config)
 		if err != nil {
 			return err
 		}
@@ -1603,6 +1571,8 @@ type testAccStorageBucketConfigBuilder struct {
 	anonymousRead       bool
 	anonymousList       bool
 	anonymousConfigRead bool
+
+	disableAwsKeys bool
 }
 
 func (b testAccStorageBucketConfigBuilder) withCustomName(name string) testAccStorageBucketConfigBuilder {
@@ -1651,6 +1621,12 @@ func (b testAccStorageBucketConfigBuilder) asAdmin() testAccStorageBucketConfigB
 	return b
 }
 
+func (b testAccStorageBucketConfigBuilder) disableAWSKeys() testAccStorageBucketConfigBuilder {
+	b.disableAwsKeys = true
+
+	return b
+}
+
 /*
 render creates new bucket config. For visual representation, note the following
 example of how it might look after calling this method:
@@ -1679,8 +1655,8 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 	const (
 		bucketNameTemplate = "tf-test-bucket-%d"
 		baseTemplate       = `resource "yandex_storage_bucket" "test" {
-	bucket = "%s"
-
+	bucket = "%s"`
+		awsKeysTemplate = `
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key`
 		extendedTemplate = `
@@ -1708,6 +1684,11 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 
 	out.WriteString(fmt.Sprintf(baseTemplate, bucketName))
 	out.WriteString("\n")
+
+	if !b.disableAwsKeys {
+		out.WriteString(awsKeysTemplate)
+		out.WriteString("\n")
+	}
 
 	out.WriteString(fmt.Sprintf(
 		extendedTemplate,
@@ -1742,6 +1723,13 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 
 func testAccStorageBucketConfig(randInt int) string {
 	return newBucketConfigBuilder(randInt).
+		asEditor().
+		render()
+}
+
+func testAccStorageBucketWithoutAWSKeysConfig(randInt int) string {
+	return newBucketConfigBuilder(randInt).
+		disableAWSKeys().
 		asEditor().
 		render()
 }

@@ -34,7 +34,17 @@ import (
 const (
 	defaultExponentialBackoffBase = 50 * time.Millisecond
 	defaultExponentialBackoffCap  = 1 * time.Minute
+	sdkDialContextTimeout         = 1 * time.Second
 )
+
+type iamToken struct {
+	Token     string
+	expiresAt time.Time
+}
+
+func (t iamToken) IsValid() bool {
+	return t.Token != "" && t.expiresAt.After(time.Now())
+}
 
 type Config struct {
 	Endpoint                       string
@@ -72,6 +82,7 @@ type Config struct {
 	sdk               *ycsdk.SDK
 	sharedCredentials *SharedCredentials
 	defaultS3Client   *s3.Client
+	iamToken          *iamToken
 }
 
 // this function return context with added client trace id
@@ -100,6 +111,7 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: c.Insecure,
 		},
+		DialContextTimeout: sdkDialContextTimeout,
 	}
 
 	c.userAgent = config.BuildUserAgent(terraformVersion, sweeper)
@@ -169,16 +181,17 @@ func (c *Config) resolveStorageAccessKeys() (string, string) {
 
 func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {
 	accessKey, secretKey := c.resolveStorageAccessKeys()
-	if c.StorageEndpoint == "" || (accessKey == "" && secretKey == "") {
+	iamToken, err := c.getIAMToken(ctx)
+	if err != nil {
+		log.Println("[WARN] Failed to get IAM token for default storage client:", err)
+		iamToken = ""
+	}
+
+	if c.StorageEndpoint == "" || ((accessKey == "" || secretKey == "") && iamToken == "") {
 		return nil
 	}
 
-	if accessKey == "" || secretKey == "" {
-		return fmt.Errorf("both storage access key and storage secret key should be specified or not specified")
-	}
-
-	c.defaultS3Client, err = s3.NewClient(ctx, accessKey, secretKey, c.StorageEndpoint)
-
+	c.defaultS3Client, err = s3.NewClient(ctx, accessKey, secretKey, iamToken, c.StorageEndpoint)
 	return err
 }
 
@@ -210,6 +223,26 @@ func (c *Config) credentials() (ycsdk.Credentials, error) {
 	return nil, fmt.Errorf(
 		"one of 'token' or 'service_account_key_file' should be specified; if you are inside compute instance, you can attach service account to it in order to authenticate via instance service account",
 	)
+}
+
+func (c *Config) getIAMToken(ctx context.Context) (string, error) {
+	if c.iamToken != nil && c.iamToken.IsValid() {
+		return c.iamToken.Token, nil
+	}
+
+	resp, err := c.sdk.CreateIAMToken(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get IAM token: %w", err)
+	}
+
+	c.iamToken = &iamToken{
+		Token: resp.IamToken,
+	}
+	if resp.ExpiresAt != nil && resp.ExpiresAt.IsValid() {
+		c.iamToken.expiresAt = resp.ExpiresAt.AsTime()
+	}
+
+	return c.iamToken.Token, nil
 }
 
 func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {

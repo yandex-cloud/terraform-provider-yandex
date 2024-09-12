@@ -43,9 +43,11 @@ The following arguments are supported:
 
 * `content_type` - (Optional) A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are valid for this input.
 
-* `access_key` - (Optional) The access key to use when applying changes. If omitted, `storage_access_key` specified in config is used.
+* `access_key` - (Optional) The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+  provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in config is used.
+* `secret_key` - (Optional) The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+  provider config (explicitly or within `shared_credentials_file`) is used.
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
 

@@ -10,17 +10,36 @@ description: |-
 
 Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs/storage/concepts/bucket).
 
-~> **Note:** Your need to provide [static access key](https://cloud.yandex.com/docs/iam/concepts/authorization/access-key) (Access and Secret) to create storage client to work with Storage Service. To create them you need Service Account and proper permissions.
+-> **Note**: By default, for authentication, you need to use [IAM token](https://yandex.cloud/ru/docs/iam/concepts/authorization/iam-token) or [OAuth token](https://yandex.cloud/ru/docs/iam/concepts/authorization/oauth-token) with the necessary permissions.
 
--> **Note:** For extended API usage, such as setting `max_size`, `folder_id`, `anonymous_access_flags`,
-`default_storage_class` and `https` parameters for bucket, will be used default authorization method, i.e.
-`IAM` / `OAuth` token from `provider` block will be used.
-This might be a little bit confusing in cases when separate service account is used for managing buckets because
-in this case buckets will be accessed by two different accounts that might have different permissions for buckets.
+~> **Note**: Alternatively, you can provide [static access keys](https://cloud.yandex.com/docs/iam/concepts/authorization/access-key) (Access and Secret) to create a storage client for working with the Storage Service.
+To generate these keys, you will need a Service Account with the appropriate permissions.
+
+-> **Note**: For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket, only the default authorization method will be used.
+This means the `IAM`/`OAuth` token from the `provider` block will be applied.
+This can be confusing in cases where a separate service account is used for managing buckets because,in such scenarios,
+buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
 
 ## Example Usage
 
 ### Simple Private Bucket
+
+```hcl
+locals {
+  folder_id = "<folder-id>"
+}
+
+provider "yandex" {
+  folder_id = local.folder_id
+  zone      = "ru-central1-a"
+}
+
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket"
+}
+```
+
+### Simple Private Bucket With Static Access Keys
 
 ```hcl
 locals {
@@ -569,10 +588,10 @@ The following arguments are supported:
 * `bucket_prefix` - (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix.
   Conflicts with `bucket`.
 
-* `access_key` - (Optional) The access key to use when applying changes. If omitted, `storage_access_key` specified in
+* `access_key` - (Optional) The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
   provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in
+* `secret_key` - (Optional) The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
   provider config (explicitly or within `shared_credentials_file`) is used.
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply.

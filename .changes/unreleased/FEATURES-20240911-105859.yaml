@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'object_storage: iam integration, access_key and secret_key are optional now'
+time: 2024-09-11T10:58:59.786535+03:00

@@ -19,8 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
-
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 )
 
@@ -39,59 +37,20 @@ func testSweepStorageObject(_ string) error {
 	}
 
 	result := &multierror.Error{}
-	serviceAccountID, err := createIAMServiceAccountForSweeper(conf)
-	if serviceAccountID != "" {
-		defer func() {
-			if !sweepIAMServiceAccount(conf, serviceAccountID) {
-				result = multierror.Append(result,
-					fmt.Errorf("failed to sweep IAM service account %q", serviceAccountID))
-			}
-		}()
-	}
-	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("error creating service account: %s", err))
-		return result.ErrorOrNil()
-	}
-
-	resp, err := conf.sdk.IAM().
-		AWSCompatibility().
-		AccessKey().
-		Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
-			ServiceAccountId: serviceAccountID,
-			Description:      "Storage Bucket sweeper static key",
-		})
-	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("error creating service account static key: %s", err))
-		return result.ErrorOrNil()
-	}
-
-	defer func() {
-		_, err := conf.sdk.IAM().
-			AWSCompatibility().
-			AccessKey().
-			Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
-				AccessKeyId: resp.AccessKey.Id,
-			})
-		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("error deleting service account static key: %s", err))
-		}
-	}()
-
-	s3Client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
+	s3Client, err := getS3ClientByKeys(context.TODO(), "", "", conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
 	}
-	s3client := s3Client.S3()
 
-	buckets, err := s3client.ListBuckets(&awsS3.ListBucketsInput{})
+	buckets, err := s3Client.S3().ListBuckets(&awsS3.ListBucketsInput{})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	for _, b := range buckets.Buckets {
-		res, err := s3client.ListObjectVersions(&awsS3.ListObjectVersionsInput{
+		res, err := s3Client.S3().ListObjectVersions(&awsS3.ListObjectVersionsInput{
 			Bucket: b.Name,
 		})
 
@@ -103,7 +62,7 @@ func testSweepStorageObject(_ string) error {
 		}
 
 		for _, o := range res.Versions {
-			_, err := s3client.DeleteObject(&awsS3.DeleteObjectInput{
+			_, err := s3Client.S3().DeleteObject(&awsS3.DeleteObjectInput{
 				Bucket:    b.Name,
 				Key:       o.Key,
 				VersionId: o.VersionId,
@@ -128,22 +87,33 @@ func TestAccStorageObject_source(t *testing.T) {
 	source := testAccStorageObjectCreateTempFile(t, "some_bucket_content")
 	defer os.Remove(source)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccStorageObjectConfigSource(rInt, source),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageObjectExists(resourceName, &obj),
-					testAccCheckStorageObjectBody(&obj, "some_bucket_content"),
-				),
-			},
-		},
-	})
+	tests := []struct {
+		name           string
+		disableAWSKeys bool
+	}{
+		{name: "AWS keys", disableAWSKeys: false},
+		{name: "IAM token", disableAWSKeys: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:        func() { testAccPreCheck(t) },
+				IDRefreshName:   resourceName,
+				IDRefreshIgnore: []string{"access_key", "secret_key"},
+				Providers:       testAccProviders,
+				CheckDestroy:    testAccCheckStorageObjectDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testAccStorageObjectConfigSource(rInt, source, tt.disableAWSKeys),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckStorageObjectExists(resourceName, &obj),
+							testAccCheckStorageObjectBody(&obj, "some_bucket_content"),
+						),
+					},
+				},
+			})
+		})
+	}
 }
 
 func TestAccStorageObject_sourceHash(t *testing.T) {
@@ -441,14 +411,7 @@ func testAccCheckStorageObjectDestroy(s *terraform.State) error {
 func testAccCheckStorageObjectDestroyWithProvider(s *terraform.State, provider *schema.Provider) error {
 	config := provider.Meta().(*Config)
 
-	// access and secret keys should be destroyed too and defaults may be not provided, so create temporary ones
-	ak, sak, cleanup, err := createTemporaryStaticAccessKey("editor", config)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
-	s3Client, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
+	s3Client, err := getS3ClientByKeys(context.TODO(), "", "", config)
 	if err != nil {
 		return err
 	}
@@ -642,20 +605,24 @@ func testAccStorageObjectCreateTempFile(t *testing.T, data string) string {
 	return filename
 }
 
-func testAccStorageObjectConfigSource(randInt int, source string) string {
+func testAccStorageObjectConfigSource(randInt int, source string, disableAWSKeys bool) string {
 	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
+	keys := ""
+	if !disableAWSKeys {
+		keys = `
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+`
+	}
 
 	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
-	
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-	
+	%[2]s
 	key     = "test-key"
 	source  = "%[1]s"
 }	
-`, source)
+`, source, keys)
 
 	return bucketConfig + objectConfig
 }

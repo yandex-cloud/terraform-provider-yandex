@@ -26,6 +26,8 @@ const testTerraformVersion = "test-terraform"
 const fakeSAKeyFile = "test-fixtures/fake_service_account_key.json"
 
 func TestConfigInitAndValidate(t *testing.T) {
+	t.Parallel()
+
 	config := Config{
 		Endpoint:  testConfigEndpoint,
 		FolderID:  testConfigFolder,
@@ -43,6 +45,8 @@ func TestConfigInitAndValidate(t *testing.T) {
 }
 
 func TestConfigInitByServiceAccountKey(t *testing.T) {
+	t.Parallel()
+
 	config := Config{
 		Endpoint:                       testConfigEndpoint,
 		FolderID:                       testConfigFolder,
@@ -60,6 +64,8 @@ func TestConfigInitByServiceAccountKey(t *testing.T) {
 }
 
 func TestConfigUserAgent(t *testing.T) {
+	t.Parallel()
+
 	// make mock grpc server with ApiEndpoint service
 	grpcServer := grpc.NewServer()
 	mockServerImpl := &userAgentMockServerAPIEndpoint{}
@@ -143,6 +149,8 @@ func Test_iamKeyFromJSONContent(t *testing.T) {
 }
 
 func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
+	t.Parallel()
+
 	config := Config{
 		Endpoint:              testConfigEndpoint,
 		FolderID:              testConfigFolder,
@@ -167,6 +175,8 @@ func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
 }
 
 func TestConfigInitDefaultS3Client_PreferAccessKeysFromConfig(t *testing.T) {
+	t.Parallel()
+
 	config := Config{
 		Endpoint:              testConfigEndpoint,
 		FolderID:              testConfigFolder,
