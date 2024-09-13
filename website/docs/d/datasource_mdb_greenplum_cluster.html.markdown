@@ -74,6 +74,8 @@ exported:
 * `user_name` - Greenplum cluster admin user name.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `deletion_protection` - Flag to protect the cluster from deletion.
+* `master_host_group_ids` - (Optional) A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+* `segment_host_group_ids` - (Optional) A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
 
 The `master_subcluster` block supports:
 * `resources` - Resources allocated to hosts for master subcluster of the Greenplum cluster. The structure is documented below.

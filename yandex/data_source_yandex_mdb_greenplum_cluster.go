@@ -294,6 +294,20 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"master_host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
+			"segment_host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
 			"pxf_config": {
 				Type:     schema.TypeList,
 				Optional: true,

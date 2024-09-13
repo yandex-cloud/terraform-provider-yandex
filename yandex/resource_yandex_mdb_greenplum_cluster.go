@@ -405,6 +405,20 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"master_host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
+			"segment_host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
 			"background_activities": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -606,8 +620,10 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		UserName:     d.Get("user_name").(string),
 		UserPassword: d.Get("user_password").(string),
 
-		ConfigSpec:   configSpec,
-		CloudStorage: expandGreenplumCloudStorage(d),
+		ConfigSpec:          configSpec,
+		CloudStorage:        expandGreenplumCloudStorage(d),
+		MasterHostGroupIds:  expandHostGroupIds(d.Get("master_host_group_ids")),
+		SegmentHostGroupIds: expandHostGroupIds(d.Get("segment_host_group_ids")),
 	}, nil
 }
 
@@ -703,6 +719,8 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("cloud_storage", flattenGreenplumCloudStorage(cluster.CloudStorage)); err != nil {
 		return err
 	}
+	d.Set("master_host_group_ids", cluster.GetMasterHostGroupIds())
+	d.Set("segment_host_group_ids", cluster.GetSegmentHostGroupIds())
 
 	backgroundActivities, err := flattenGreenplumBackgroundActivities(cluster.ClusterConfig.BackgroundActivities)
 	if err != nil {

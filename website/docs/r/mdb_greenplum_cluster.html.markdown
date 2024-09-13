@@ -134,6 +134,10 @@ The following arguments are supported:
 
 * `cloud_storage` - (Optional) Cloud Storage settings of the Greenplum cluster. The structure is documented below.
 
+* `master_host_group_ids` - (Optional) A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+
+* `segment_host_group_ids` - (Optional) A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+
 - - -
 * `user_name` - (Required) Greenplum cluster admin user name.
 
