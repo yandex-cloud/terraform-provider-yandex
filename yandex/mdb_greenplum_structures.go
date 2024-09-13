@@ -2,6 +2,8 @@ package yandex
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -144,6 +146,7 @@ func flattenGreenplumClusterConfig(c *greenplum.ClusterConfigSet) (map[string]st
 	} else if cf, ok := c.GreenplumConfig.(*greenplum.ClusterConfigSet_GreenplumConfigSet_6_22); ok {
 		gpConfig = cf.GreenplumConfigSet_6_22.UserConfig
 	}
+
 	return flattenResourceGenerateMapS(gpConfig, false, mdbGreenplumSettingsFieldsInfo, false, true, nil)
 }
 
@@ -181,6 +184,60 @@ func flattenGreenplumPXFConfig(c *greenplum.PXFConfigSet) ([]interface{}, error)
 	out["xms"] = c.EffectiveConfig.GetXms().GetValue()
 
 	return []interface{}{out}, nil
+}
+
+func flattenGreenplumBackgroundActivities(c *greenplum.BackgroundActivitiesConfig) ([]interface{}, error) {
+	if c == nil {
+		return nil, nil
+	}
+
+	out := map[string]interface{}{}
+
+	if c.AnalyzeAndVacuum != nil {
+		av := map[string]interface{}{}
+		if c.AnalyzeAndVacuum.Start != nil {
+			av["start_time"] = fmt.Sprintf("%d:%d", c.AnalyzeAndVacuum.Start.Hours, c.AnalyzeAndVacuum.Start.Minutes)
+		}
+		if c.AnalyzeAndVacuum.AnalyzeTimeout != nil {
+			av["analyze_timeout"] = c.AnalyzeAndVacuum.AnalyzeTimeout.Value
+		}
+		if c.AnalyzeAndVacuum.VacuumTimeout != nil {
+			av["vacuum_timeout"] = c.AnalyzeAndVacuum.VacuumTimeout.Value
+		}
+		out["analyze_and_vacuum"] = []interface{}{av}
+	}
+	if c.QueryKillerScripts != nil && c.QueryKillerScripts.Idle != nil {
+		qk := flattenGreenplumQueryKiller(c.QueryKillerScripts.Idle)
+		out["query_killer_idle"] = []interface{}{qk}
+	}
+	if c.QueryKillerScripts != nil && c.QueryKillerScripts.IdleInTransaction != nil {
+		qk := flattenGreenplumQueryKiller(c.QueryKillerScripts.IdleInTransaction)
+		out["query_killer_idle_in_transaction"] = []interface{}{qk}
+	}
+	if c.QueryKillerScripts != nil && c.QueryKillerScripts.LongRunning != nil {
+		qk := flattenGreenplumQueryKiller(c.QueryKillerScripts.LongRunning)
+		out["query_killer_long_running"] = []interface{}{qk}
+	}
+
+	return []interface{}{out}, nil
+}
+
+func flattenGreenplumQueryKiller(c *greenplum.QueryKiller) interface{} {
+	if c == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+	if c.Enable != nil {
+		out["enable"] = c.Enable.Value
+	}
+	if c.MaxAge != nil {
+		out["max_age"] = c.MaxAge.Value
+	}
+	if c.IgnoreUsers != nil {
+		out["ignore_users"] = c.IgnoreUsers
+	}
+	return out
 }
 
 func expandGreenplumBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
@@ -274,6 +331,19 @@ func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []
 		"segment_subcluster.0.resources.0.resource_preset_id": "segment_config.resources.resource_preset_id",
 		"segment_subcluster.0.resources.0.disk_type_id":       "segment_config.resources.disk_type_id",
 		"segment_subcluster.0.resources.0.disk_size":          "segment_config.resources.disk_size",
+
+		"background_activities.0.analyze_and_vacuum.0.start_time":                 "config_spec.background_activities.analyze_and_vacuum.start",
+		"background_activities.0.analyze_and_vacuum.0.analyze_timeout":            "config_spec.background_activities.analyze_and_vacuum.analyze_timeout",
+		"background_activities.0.analyze_and_vacuum.0.vacuum_timeout":             "config_spec.background_activities.analyze_and_vacuum.vacuum_timeout",
+		"background_activities.0.query_killer_idle.0.enable":                      "config_spec.background_activities.query_killer_scripts.idle.enable",
+		"background_activities.0.query_killer_idle.0.max_age":                     "config_spec.background_activities.query_killer_scripts.idle.max_age",
+		"background_activities.0.query_killer_idle.0.ignore_users":                "config_spec.background_activities.query_killer_scripts.idle.ignore_users",
+		"background_activities.0.query_killer_idle_in_transaction.0.enable":       "config_spec.background_activities.query_killer_scripts.idle_in_transaction.enable",
+		"background_activities.0.query_killer_idle_in_transaction.0.max_age":      "config_spec.background_activities.query_killer_scripts.idle_in_transaction.max_age",
+		"background_activities.0.query_killer_idle_in_transaction.0.ignore_users": "config_spec.background_activities.query_killer_scripts.idle_in_transaction.ignore_users",
+		"background_activities.0.query_killer_long_running.0.enable":              "config_spec.background_activities.query_killer_scripts.long_running.enable",
+		"background_activities.0.query_killer_long_running.0.max_age":             "config_spec.background_activities.query_killer_scripts.long_running.max_age",
+		"background_activities.0.query_killer_long_running.0.ignore_users":        "config_spec.background_activities.query_killer_scripts.long_running.ignore_users",
 	}
 
 	updatePath := []string{}
@@ -314,9 +384,15 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, [
 		return nil, nil, err
 	}
 
+	backgroundActivities, err := expandGreenplumBackgroundActivities(d)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	configSpec := &greenplum.ConfigSpec{
-		Pool:      poolerConfig,
-		PxfConfig: pxfConfig,
+		Pool:                 poolerConfig,
+		PxfConfig:            pxfConfig,
+		BackgroundActivities: backgroundActivities,
 	}
 	if gpConfig1 != nil {
 		configSpec.GreenplumConfig = gpConfig1
@@ -411,6 +487,92 @@ func expandGreenplumPXFConfig(d *schema.ResourceData) (*greenplum.PXFConfig, err
 	}
 
 	return pc, nil
+}
+
+func expandGreenplumBackgroundActivities(d *schema.ResourceData) (*greenplum.BackgroundActivitiesConfig, error) {
+	result := &greenplum.BackgroundActivitiesConfig{
+		QueryKillerScripts: &greenplum.QueryKillerScripts{},
+	}
+
+	if _, ok := d.GetOk("background_activities.0.analyze_and_vacuum"); ok {
+		analyzeAndVacuum, err := expandGreenplumAnalyzeAndVacuum(d)
+		if err != nil {
+			return nil, err
+		}
+		result.AnalyzeAndVacuum = analyzeAndVacuum
+	}
+	if _, ok := d.GetOk("background_activities.0.query_killer_idle.0"); ok {
+		result.QueryKillerScripts.Idle = expandGreenplumQueryKillerScript(d, "background_activities.0.query_killer_idle.0")
+	}
+	if _, ok := d.GetOk("background_activities.0.query_killer_idle_in_transaction.0"); ok {
+		result.QueryKillerScripts.IdleInTransaction = expandGreenplumQueryKillerScript(d, "background_activities.0.query_killer_idle_in_transaction.0")
+	}
+	if _, ok := d.GetOk("background_activities.0.query_killer_long_running.0"); ok {
+		result.QueryKillerScripts.LongRunning = expandGreenplumQueryKillerScript(d, "background_activities.0.query_killer_long_running.0")
+	}
+
+	return result, nil
+}
+
+func expandGreenplumAnalyzeAndVacuum(d *schema.ResourceData) (*greenplum.AnalyzeAndVacuum, error) {
+	result := &greenplum.AnalyzeAndVacuum{}
+	if v, ok := d.GetOk("background_activities.0.analyze_and_vacuum.0.start_time"); ok {
+		hours, minutes, err := parseTimeOfDay(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		result.Start = &greenplum.BackgroundActivityStartAt{
+			Hours:   int64(hours),
+			Minutes: int64(minutes),
+		}
+	}
+	if v, ok := d.GetOk("background_activities.0.analyze_and_vacuum.0.analyze_timeout"); ok {
+		result.AnalyzeTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("background_activities.0.analyze_and_vacuum.0.vacuum_timeout"); ok {
+		result.VacuumTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	return result, nil
+}
+
+// parse `HH:MM`
+func parseTimeOfDay(time string) (int, int, error) {
+	parts := strings.SplitN(time, ":", 2)
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("invalid time format: expected 'HH:MM'")
+	}
+	hours, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid hours in time of day: %w", err)
+	}
+	if hours < 0 || hours > 24 {
+		return 0, 0, fmt.Errorf("invalid hours in time of day: should be in range 0..23")
+	}
+	minutes, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid minutes in time of day: %w", err)
+	}
+	if minutes < 0 || minutes > 59 {
+		return 0, 0, fmt.Errorf("invalid minutes in time of day: should be in range 0..59")
+	}
+	return hours, minutes, nil
+}
+
+func expandGreenplumQueryKillerScript(d *schema.ResourceData, prefix string) *greenplum.QueryKiller {
+	result := &greenplum.QueryKiller{}
+	if v, ok := d.GetOk(prefix + ".enable"); ok {
+		result.Enable = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(prefix + ".max_age"); ok {
+		result.MaxAge = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(prefix + ".ignore_users"); ok {
+		vS := v.([]interface{})
+		for _, user := range vS {
+			result.IgnoreUsers = append(result.IgnoreUsers, user.(string))
+		}
+	}
+	return result
 }
 
 func parseGreenplumPoolingMode(s string) (greenplum.ConnectionPoolerConfig_PoolMode, error) {

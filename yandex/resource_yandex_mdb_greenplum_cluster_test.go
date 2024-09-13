@@ -193,7 +193,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
-			// Add access and backup_window_start fields
+			// Add access, background_activities and backup_window_start fields
 			{
 				Config: testAccMDBGreenplumClusterConfigStep6(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
@@ -207,6 +207,17 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.hour", "12"),
 					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.start_time", "12:34"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.analyze_timeout", "7200"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.vacuum_timeout", "7300"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.max_age", "6000"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.ignore_users.0", "manager"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.ignore_users.1", "developer"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle_in_transaction.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle_in_transaction.0.ignore_users.#", "0"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.max_age", "8000"),
 				),
 			},
 
@@ -559,6 +570,27 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
   cloud_storage {
 	enable = true
   }
+
+  background_activities {
+	analyze_and_vacuum {
+		start_time      = "12:34"
+		analyze_timeout = 7200
+		vacuum_timeout  = 7300
+	}
+	query_killer_idle {
+		enable       = true
+		max_age      = 6000
+		ignore_users = [ "manager", "developer" ]
+	}
+	query_killer_idle_in_transaction {
+		enable       = true
+		ignore_users = []
+	}
+	query_killer_long_running {
+		enable       = true
+		max_age      = 8000
+	}
+  }
 }`
 }
 
@@ -591,6 +623,26 @@ func testAccMDBGreenplumClusterConfigStep7(name string, description string) stri
   }
   cloud_storage {
     enable = true
+  }
+  background_activities {
+	analyze_and_vacuum {
+		start_time      = "12:34"
+		analyze_timeout = 7200
+		vacuum_timeout  = 8000
+	}
+	query_killer_idle {
+		enable       = true
+		max_age      = 6000
+		ignore_users = [ "manager", "developer" ]
+	}
+	query_killer_idle_in_transaction {
+		enable       = true
+		ignore_users = []
+	}
+	query_killer_long_running {
+		enable       = true
+		max_age      = 8000
+	}
   }
 }`
 }

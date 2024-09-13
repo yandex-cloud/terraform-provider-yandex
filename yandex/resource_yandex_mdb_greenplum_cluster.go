@@ -405,6 +405,97 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"background_activities": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"analyze_and_vacuum": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"analyze_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"vacuum_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+						},
+						"query_killer_idle": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"query_killer_idle_in_transaction": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"query_killer_long_running": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -610,6 +701,14 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	}
 
 	if err := d.Set("cloud_storage", flattenGreenplumCloudStorage(cluster.CloudStorage)); err != nil {
+		return err
+	}
+
+	backgroundActivities, err := flattenGreenplumBackgroundActivities(cluster.ClusterConfig.BackgroundActivities)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("background_activities", backgroundActivities); err != nil {
 		return err
 	}
 

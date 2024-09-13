@@ -339,6 +339,114 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"background_activities": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"analyze_and_vacuum": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"analyze_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"vacuum_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"query_killer_idle": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"query_killer_idle_in_transaction": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"query_killer_long_running": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"max_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"ignore_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'greenplum: add background_activities configs: analyze&vacuum and query_killers script configs'
+time: 2024-09-02T11:45:31.342738+05:00

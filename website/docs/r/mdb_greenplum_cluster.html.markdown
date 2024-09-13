@@ -216,6 +216,25 @@ The `cloud_storage` block supports:
 
 * `enable` - (Optional) Whether to use cloud storage or not.
 
+The `background_activities` block supports:
+
+* `analyze_and_vacuum` - (Optional) Block to configure 'ANALYZE' and 'VACUUM' daily operations.
+    * `start_time` - Time of day in 'HH:MM' format when scripts should run.
+    * `analyze_timeout` - Maximum duration of the `ANALYZE` operation, in seconds. The default value is `36000`. As soon as this period expires, the `ANALYZE` operation will be forced to terminate.
+    * `vacuum_timeout` - Maximum duration of the `VACUUM` operation, in seconds. The default value is `36000`. As soon as this period expires, the `VACUUM` operation will be forced to terminate.
+* `query_killer_idle` - (Optional) Block to configure script that kills long running queries that are in `idle` state.
+    * `enable` - Flag that indicates whether script is enabled.
+    * `max_age` - Maximum duration for this type of queries (in seconds).
+    * `ignore_users` - List of users to ignore when considering queries to terminate.
+* `query_killer_idle_in_transaction` - (Optional) block to configure script that kills long running queries that are in `idle in transaction` state.
+    * `enable` - Flag that indicates whether script is enabled.
+    * `max_age` - Maximum duration for this type of queries (in seconds).
+    * `ignore_users` - List of users to ignore when considering queries to terminate.
+* `query_killer_long_running` - (Optional) block to configure script that kills long running queries (in any state).
+    * `enable` - Flag that indicates whether script is enabled.
+    * `max_age` - Maximum duration for this type of queries (in seconds).
+    * `ignore_users` - List of users to ignore when considering queries to terminate.
+
 
 ## Attributes Reference
 
