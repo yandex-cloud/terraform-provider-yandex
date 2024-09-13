@@ -176,7 +176,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						"data_lens": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  false,
+							Computed: true,
 						},
 						"web_sql": {
 							Type:     schema.TypeBool,
@@ -723,11 +723,19 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
 	}
-	if req.ConfigSpec == nil {
-		req.ConfigSpec = &redis.ConfigSpec{}
-	}
 
-	req.ConfigSpec.Access = expandRedisAccess(d)
+	if d.HasChange("config_spec.access") {
+		if req.ConfigSpec == nil {
+			req.ConfigSpec = &redis.ConfigSpec{}
+		}
+		req.ConfigSpec.Access = expandRedisAccess(d)
+		if d.HasChange("config_spec.access.0.web_sql") {
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.access.web_sql")
+		}
+		if d.HasChange("config_spec.access.0.data_lens") {
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.access.data_lens")
+		}
+	}
 
 	if len(req.UpdateMask.Paths) == 0 && password == "" {
 		return nil

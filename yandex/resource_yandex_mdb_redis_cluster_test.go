@@ -216,6 +216,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", updatedDiskSize*3)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
+						resource.TestCheckResourceAttr(redisResource, "access.0.web_sql", "true"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -448,6 +449,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*3)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
+						resource.TestCheckResourceAttr(redisResource, "access.0.web_sql", "true"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -1181,6 +1183,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     type = "WEEKLY"
     day  = "FRI"
     hour = 20
+  }
+
+  access {
+  	web_sql = true
   }
 
   disk_size_autoscaling {
