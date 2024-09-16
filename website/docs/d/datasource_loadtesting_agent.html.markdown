@@ -45,7 +45,7 @@ The `compute_instance` block supports:
 * `service_account_id` - The service account ID for the instance.
 * `platform_id` – The type of virtual machine.
 * `computed_metadata` - The set of metadata `key:value` pairs assigned to this instance. This includes user custom metadata, and predefined items created by Yandex Cloud Load Testing.
-* `labels` - A map of labels applied to the instance.
+* `computed_labels` - The set of labels `key:value` pairs assigned to this instance. This includes user custom labels, and predefined items created by Yandex Cloud Load Testing.
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.

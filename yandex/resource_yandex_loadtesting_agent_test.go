@@ -145,7 +145,7 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 				ResourceName:            loadtestingAgentResource,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"compute_instance.0.metadata"},
+				ImportStateVerifyIgnore: []string{"compute_instance.0.metadata", "compute_instance.0.labels"},
 			},
 		},
 	})

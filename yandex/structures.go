@@ -2210,11 +2210,12 @@ func expandLoadtestingComputeInstanceNetworkInterfaceSpecs(d *schema.ResourceDat
 	return nics, nil
 }
 
-func flattenLoadtestingComputeInstanceTemplate(ctx context.Context, instance *compute.Instance, config *Config, origMetadata interface{}) ([]map[string]interface{}, error) {
+func flattenLoadtestingComputeInstanceTemplate(ctx context.Context, instance *compute.Instance, config *Config, origMetadata interface{}, origLabels interface{}) ([]map[string]interface{}, error) {
 	templateMap := make(map[string]interface{})
 
 	templateMap["zone_id"] = instance.GetZoneId()
-	templateMap["labels"] = instance.GetLabels()
+	templateMap["labels"] = origLabels
+	templateMap["computed_labels"] = instance.GetLabels()
 	templateMap["metadata"] = origMetadata
 	templateMap["computed_metadata"] = instance.GetMetadata()
 	templateMap["service_account_id"] = instance.GetServiceAccountId()

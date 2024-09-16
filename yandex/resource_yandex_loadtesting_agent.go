@@ -284,6 +284,13 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 							Set:      schema.HashString,
 						},
 
+						"computed_labels": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -389,7 +396,8 @@ func resourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface{}
 	}
 
 	origMetadata := d.Get("compute_instance.0.metadata")
-	compute_instance_template, err := flattenLoadtestingComputeInstanceTemplate(ctx, instance, config, origMetadata)
+	origLabels := d.Get("compute_instance.0.labels")
+	compute_instance_template, err := flattenLoadtestingComputeInstanceTemplate(ctx, instance, config, origMetadata, origLabels)
 	if err != nil {
 		return err
 	}

@@ -56,6 +56,13 @@ func dataSourceYandexLoadtestingAgent() *schema.Resource {
 							Set:      schema.HashString,
 						},
 
+						"computed_labels": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+
 						"zone_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -266,7 +273,7 @@ func dataSourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance %q of Loadtesting Agent with ID %q", agent.ComputeInstanceId, agent.Name))
 	}
 
-	compute_instance_template, err := flattenLoadtestingComputeInstanceTemplate(ctx, instance, config, map[string]string{})
+	compute_instance_template, err := flattenLoadtestingComputeInstanceTemplate(ctx, instance, config, map[string]string{}, map[string]string{})
 	if err != nil {
 		return err
 	}

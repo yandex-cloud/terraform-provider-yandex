@@ -77,6 +77,8 @@ The `compute_instance` block supports:
 
 * `computed_metadata` - (Computed) The set of metadata `key:value` pairs assigned to this instance. This includes user custom `metadata`, and predefined items created by Yandex Cloud Load Testing.
 
+* `computed_labels` - (Computed) The set of labels `key:value` pairs assigned to this instance. This includes user custom `labels` and predefined items created by Yandex Cloud Load Testing.
+
 * `platform_id` - (Optional) The Compute platform of virtual machine. If it is not provided, the standard-v2 platform will be used.
 
 ---
