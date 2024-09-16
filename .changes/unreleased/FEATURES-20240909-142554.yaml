@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `background_move_pool_size`, `background_distributed_schedule_pool_size` for server configuration'
+time: 2024-09-09T14:25:54.047095+05:00

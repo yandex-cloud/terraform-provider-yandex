@@ -102,7 +102,9 @@ The `settings` block supports:
 * `receive_timeout` - Receive timeout in milliseconds on the socket used for communicating with the client.
 * `send_timeout` - Send timeout in milliseconds on the socket used for communicating with the client.
 * `insert_quorum_timeout` - Write to a quorum timeout in milliseconds.
+* `insert_quorum_parallel` - Enables or disables parallelism for quorum INSERT queries.
 * `select_sequential_consistency` - Enables or disables sequential consistency for SELECT queries.
+* `deduplicate_blocks_in_dependent_materialized_views` - Enables or disables the deduplication check for materialized views that receive data from Replicated* tables.
 * `max_replica_delay_for_distributed_queries` - Disables lagging replicas for distributed queries.
 * `fallback_to_stale_replicas_for_distributed_queries` - Forces a query to an out-of-date replica if updated data is not available.
 * `replication_alter_partitions_sync` - For ALTER ... ATTACH|DETACH|DROP queries, you can use the replication_alter_partitions_sync setting to set up waiting.
@@ -180,6 +182,15 @@ The `settings` block supports:
 * `join_overflow_mode` - Sets behaviour on overflow in JOIN. Possible values:
   * `throw` - abort query execution, return an error.
   * `break` - stop query execution, return partial result.
+* `join_algorithm` - Specifies which JOIN algorithm is used. Possible values:
+  * `hash` - hash join algorithm is used. The most generic implementation that supports all combinations of kind and strictness and multiple join keys that are combined with OR in the JOIN ON section.
+  * `parallel_hash` - a variation of hash join that splits the data into buckets and builds several hashtables instead of one concurrently to speed up this process.
+  * `partial_merge` - a variation of the sort-merge algorithm, where only the right table is fully sorted.
+  * `direct` - this algorithm can be applied when the storage for the right table supports key-value requests.
+  * `auto` - when set to auto, hash join is tried first, and the algorithm is switched on the fly to another algorithm if the memory limit is violated.
+  * `full_sorting_merge` - sort-merge algorithm with full sorting joined tables before joining.
+  * `prefer_partial_merge` - clickHouse always tries to use partial_merge join if possible, otherwise, it uses hash. Deprecated, same as partial_merge,hash.
+* `any_join_distinct_right_table_keys` - enables legacy ClickHouse server behaviour in ANY INNER|LEFT JOIN operations.
 * `max_columns_to_read` - Limits the maximum number of columns that can be read from a table in a single query.
 * `max_temporary_columns` - Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, including constant columns.
 * `max_temporary_non_const_columns` - Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, excluding constant columns.
@@ -192,6 +203,8 @@ The `settings` block supports:
 * `count_distinct_implementation` - Specifies which of the uniq* functions should be used to perform the COUNT(DISTINCT …) construction.
 * `input_format_values_interpret_expressions` - Enables or disables the full SQL parser if the fast stream parser can’t parse the data.
 * `input_format_defaults_for_omitted_fields` - When performing INSERT queries, replace omitted input column values with default values of the respective columns.
+* `input_format_null_as_default` - Enables or disables the initialization of NULL fields with default values, if data type of these fields is not nullable.
+* `input_format_with_names_use_header` - Enables or disables checking the column order when inserting data.
 * `output_format_json_quote_64bit_integers` - If the value is true, integers appear in quotes when using JSON* Int64 and UInt64 formats (for compatibility with most JavaScript implementations); otherwise, integers are output without the quotes.
 * `output_format_json_quote_denormals` - Enables +nan, -nan, +inf, -inf outputs in JSON output format.
 * `low_cardinality_allow_in_native_format` - Allows or restricts using the LowCardinality data type with the Native format.
@@ -226,6 +239,8 @@ The `settings` block supports:
 * `cancel_http_readonly_queries_on_client_close` - (Optional) Cancels HTTP read-only queries (e.g. SELECT) when a client closes the connection without waiting for the response.
   Default value: false.
 * `flatten_nested` - (Optional) Sets the data format of a nested columns.
+* `format_regexp` - (Optional) Regular expression (for Regexp format).
+* `format_regexp_skip_unmatched` - (Optional) Skip lines unmatched by regular expression.
 * `max_http_get_redirects` - (Optional) Limits the maximum number of HTTP GET redirect hops for URL-engine tables.
   If the parameter is set to 0 (default), no hops is allowed.
 * `input_format_import_nested_json` - (Optional) Enables or disables the insertion of JSON data with nested objects.
@@ -252,7 +267,8 @@ The `settings` block supports:
 * `hedged_connection_timeout_ms` - (Optional) Connection timeout for establishing connection with replica for Hedged requests. Default value: 50 milliseconds.
 * `load_balancing` - (Optional) Specifies the algorithm of replicas selection that is used for distributed query processing, one of: random, nearest_hostname, in_order, first_or_random, round_robin. Default value: random.
 * `prefer_localhost_replica` - (Optional) Enables/disables preferable using the localhost replica when processing distributed queries. Default value: true.
-* `date_time_input_format` - (Optional)  Allows choosing a parser of the text representation of date and time, one of: `best_effort`, `basic`, `best_effort_us`. Default value: `basic`. Cloud default value: `best_effort`.
+* `date_time_input_format` - (Optional) Allows choosing a parser of the text representation of date and time, one of: `best_effort`, `basic`, `best_effort_us`. Default value: `basic`. Cloud default value: `best_effort`.
+* `date_time_output_format` - (Optional) Allows choosing different output formats of the text representation of date and time, one of: `simple`, `iso`, `unix_timestamp`. Default value: `simple`.
 
 The `quota` block supports:
 
@@ -328,7 +344,7 @@ The `config` block supports:
 `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`,
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
-`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_merges_mutations_concurrency_ratio`,  `default_database`,
+`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_buffer_flush_schedule_pool_size`, `background_move_pool_size`, `background_distributed_schedule_pool_size`, `background_common_pool_size`, `background_merges_mutations_concurrency_ratio`,  `default_database`,
 `total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
@@ -347,18 +363,22 @@ The `merge_tree` block supports:
 * `replicated_deduplication_window_seconds` - Replicated deduplication window seconds: Time during which ZooKeeper stores the hash blocks (the old ones wil be deleted).
 * `parts_to_delay_insert` - Parts to delay insert: Number of active data parts in a table, on exceeding which ClickHouse starts artificially reduce the rate of inserting data into the table.
 * `parts_to_throw_insert` - Parts to throw insert: Threshold value of active data parts in a table, on exceeding which ClickHouse throws the 'Too many parts ...' exception.
+* `inactive_parts_to_delay_insert` - If the number of inactive parts in a single partition in the table at least that many the inactive_parts_to_delay_insert value, an INSERT artificially slows down. It is useful when a server fails to clean up parts quickly enough.
+* `inactive_parts_to_throw_insert` - If the number of inactive parts in a single partition more than the inactive_parts_to_throw_insert value, INSERT is interrupted with the "Too many inactive parts (N). Parts cleaning are processing significantly slower than inserts" exception.
 * `max_replicated_merges_in_queue` - Max replicated merges in queue: Maximum number of merge tasks that can be in the ReplicatedMergeTree queue at the same time.
 * `number_of_free_entries_in_pool_to_lower_max_size_of_merge` - Number of free entries in pool to lower max size of merge: Threshold value of free entries in the pool. If the number of entries in the pool falls below this value, ClickHouse reduces the maximum size of a data part to merge. This helps handle small merges faster, rather than filling the pool with lengthy merges.
 * `max_bytes_to_merge_at_min_space_in_pool` - Max bytes to merge at min space in pool: Maximum total size of a data part to merge when the number of free threads in the background pool is minimum.
+* `max_bytes_to_merge_at_max_space_in_pool` - The maximum total parts size (in bytes) to be merged into one part, if there are enough resources available. max_bytes_to_merge_at_max_space_in_pool -- roughly corresponds to the maximum possible part size created by an automatic background merge.
 * `min_bytes_for_wide_part` - (Optional) Minimum number of bytes in a data part that can be stored in Wide format. You can set one, both or none of these settings.
 * `min_rows_for_wide_part` - (Optional) Minimum number of rows in a data part that can be stored in Wide format. You can set one, both or none of these settings.
 * `ttl_only_drop_parts` - (Optional) Enables or disables complete dropping of data parts where all rows are expired in MergeTree tables.
+* `allow_remote_fs_zero_copy_replication` - (Optional) Enables zero-copy replication when a replica is located on a remote filesystem.
 * `merge_with_ttl_timeout` - (Optional) Minimum delay in seconds before repeating a merge with delete TTL. Default value: 14400 seconds (4 hours).
 * `merge_with_recompression_ttl_timeout` - (Optional) Minimum delay in seconds before repeating a merge with recompression TTL. Default value: 14400 seconds (4 hours).
 * `max_parts_in_total` - (Optional) Maximum number of parts in all partitions.
 * `max_number_of_merges_with_ttl_in_pool` - (Optional) When there is more than specified number of merges with TTL entries in pool, do not assign new merge with TTL. 
 * `cleanup_delay_period` - (Optional) Minimum period to clean old queue logs, blocks hashes and parts.
-* `number_of_free_entries_in_pool_to_execute_mutation` - (Optional) 
+* `number_of_free_entries_in_pool_to_execute_mutation` - (Optional) When there is less than specified number of free entries in pool, do not execute part mutations. This is to leave free threads for regular merges and avoid "Too many parts". Default value: 20.
 * `max_avg_part_size_for_too_many_parts` - (Optional) The `too many parts` check according to `parts_to_delay_insert` and `parts_to_throw_insert` will be active only if the average part size (in the relevant partition) is not larger than the specified threshold. If it is larger than the specified threshold, the INSERTs will be neither delayed or rejected. This allows to have hundreds of terabytes in a single table on a single server if the parts are successfully merged to larger parts. This does not affect the thresholds on inactive parts or total parts.
 * `min_age_to_force_merge_seconds` - (Optional) Merge parts if every part in the range is older than the value of `min_age_to_force_merge_seconds`.
 * `min_age_to_force_merge_on_partition_only` - (Optional) Whether min_age_to_force_merge_seconds should be applied only on the entire partition and not on subset.

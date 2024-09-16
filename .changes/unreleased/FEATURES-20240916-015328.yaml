@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `insert_quorum_parallel`, `deduplicate_blocks_in_dependent_materialized_views` for user settings'
+time: 2024-09-16T01:53:28.745818+05:00

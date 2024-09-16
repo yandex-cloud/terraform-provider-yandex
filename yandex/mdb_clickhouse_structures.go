@@ -590,6 +590,12 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	if c.PartsToThrowInsert != nil {
 		res["parts_to_throw_insert"] = c.PartsToThrowInsert.Value
 	}
+	if c.InactivePartsToDelayInsert != nil {
+		res["inactive_parts_to_delay_insert"] = c.InactivePartsToDelayInsert.Value
+	}
+	if c.InactivePartsToThrowInsert != nil {
+		res["inactive_parts_to_throw_insert"] = c.InactivePartsToThrowInsert.Value
+	}
 	if c.MaxReplicatedMergesInQueue != nil {
 		res["max_replicated_merges_in_queue"] = c.MaxReplicatedMergesInQueue.Value
 	}
@@ -599,7 +605,9 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	if c.MaxBytesToMergeAtMinSpaceInPool != nil {
 		res["max_bytes_to_merge_at_min_space_in_pool"] = c.MaxBytesToMergeAtMinSpaceInPool.Value
 	}
-
+	if c.MaxBytesToMergeAtMaxSpaceInPool != nil {
+		res["max_bytes_to_merge_at_max_space_in_pool"] = c.MaxBytesToMergeAtMaxSpaceInPool.Value
+	}
 	if c.MinBytesForWidePart != nil {
 		res["min_bytes_for_wide_part"] = c.MinBytesForWidePart.Value
 	}
@@ -608,6 +616,9 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	}
 	if c.TtlOnlyDropParts != nil {
 		res["ttl_only_drop_parts"] = c.TtlOnlyDropParts.Value
+	}
+	if c.AllowRemoteFsZeroCopyReplication != nil {
+		res["allow_remote_fs_zero_copy_replication"] = c.AllowRemoteFsZeroCopyReplication.Value
 	}
 	if c.MergeWithTtlTimeout != nil {
 		res["merge_with_ttl_timeout"] = c.MergeWithTtlTimeout.Value
@@ -624,7 +635,9 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	if c.CleanupDelayPeriod != nil {
 		res["cleanup_delay_period"] = c.CleanupDelayPeriod.Value
 	}
-
+	if c.NumberOfFreeEntriesInPoolToExecuteMutation != nil {
+		res["number_of_free_entries_in_pool_to_execute_mutation"] = c.NumberOfFreeEntriesInPoolToExecuteMutation.Value
+	}
 	if c.MaxAvgPartSizeForTooManyParts != nil {
 		res["max_avg_part_size_for_too_many_parts"] = c.MaxAvgPartSizeForTooManyParts.Value
 	}
@@ -945,8 +958,20 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	if c.EffectiveConfig.BackgroundFetchesPoolSize != nil {
 		res["background_fetches_pool_size"] = c.EffectiveConfig.BackgroundFetchesPoolSize.Value
 	}
+	if c.EffectiveConfig.BackgroundMovePoolSize != nil {
+		res["background_move_pool_size"] = c.EffectiveConfig.BackgroundMovePoolSize.Value
+	}
+	if c.EffectiveConfig.BackgroundDistributedSchedulePoolSize != nil {
+		res["background_distributed_schedule_pool_size"] = c.EffectiveConfig.BackgroundDistributedSchedulePoolSize.Value
+	}
+	if c.EffectiveConfig.BackgroundBufferFlushSchedulePoolSize != nil {
+		res["background_buffer_flush_schedule_pool_size"] = c.EffectiveConfig.BackgroundBufferFlushSchedulePoolSize.Value
+	}
 	if c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize != nil {
 		res["background_message_broker_schedule_pool_size"] = c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize.Value
+	}
+	if c.EffectiveConfig.BackgroundCommonPoolSize != nil {
+		res["background_common_pool_size"] = c.EffectiveConfig.BackgroundCommonPoolSize.Value
 	}
 	if c.EffectiveConfig.BackgroundMergesMutationsConcurrencyRatio != nil {
 		res["background_merges_mutations_concurrency_ratio"] = c.EffectiveConfig.BackgroundMergesMutationsConcurrencyRatio.Value
@@ -1043,6 +1068,12 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	if v, ok := d.GetOkExists(rootKey + ".parts_to_throw_insert"); ok {
 		config.PartsToThrowInsert = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".inactive_parts_to_delay_insert"); ok {
+		config.InactivePartsToDelayInsert = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".inactive_parts_to_throw_insert"); ok {
+		config.InactivePartsToThrowInsert = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 	if v, ok := d.GetOkExists(rootKey + ".max_replicated_merges_in_queue"); ok {
 		config.MaxReplicatedMergesInQueue = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
@@ -1052,6 +1083,9 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	if v, ok := d.GetOkExists(rootKey + ".max_bytes_to_merge_at_min_space_in_pool"); ok {
 		config.MaxBytesToMergeAtMinSpaceInPool = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".max_bytes_to_merge_at_max_space_in_pool"); ok {
+		config.MaxBytesToMergeAtMaxSpaceInPool = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 	if v, ok := d.GetOkExists(rootKey + ".min_bytes_for_wide_part"); ok {
 		config.MinBytesForWidePart = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
@@ -1060,6 +1094,9 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	}
 	if v, ok := d.GetOkExists(rootKey + ".ttl_only_drop_parts"); ok {
 		config.TtlOnlyDropParts = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".allow_remote_fs_zero_copy_replication"); ok {
+		config.AllowRemoteFsZeroCopyReplication = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	if v, ok := d.GetOkExists(rootKey + ".merge_with_ttl_timeout"); ok {
 		config.MergeWithTtlTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
@@ -1075,6 +1112,9 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	}
 	if v, ok := d.GetOkExists(rootKey + ".cleanup_delay_period"); ok {
 		config.CleanupDelayPeriod = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".number_of_free_entries_in_pool_to_execute_mutation"); ok {
+		config.NumberOfFreeEntriesInPoolToExecuteMutation = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOkExists(rootKey + ".max_avg_part_size_for_too_many_parts"); ok {
 		config.MaxAvgPartSizeForTooManyParts = &wrappers.Int64Value{Value: int64(v.(int))}
@@ -1462,6 +1502,18 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOk(rootKey + ".background_fetches_pool_size"); ok {
 		config.BackgroundFetchesPoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOk(rootKey + ".background_move_pool_size"); ok {
+		config.BackgroundMovePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_distributed_schedule_pool_size"); ok {
+		config.BackgroundDistributedSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_buffer_flush_schedule_pool_size"); ok {
+		config.BackgroundBufferFlushSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_common_pool_size"); ok {
+		config.BackgroundCommonPoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 	if v, ok := d.GetOk(rootKey + ".background_message_broker_schedule_pool_size"); ok {
 		config.BackgroundMessageBrokerSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
@@ -1619,6 +1671,26 @@ func expandClickhouseBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.In
 	return nil
 }
 
+func expandClickHouseUserSettingsJoinAlgorithm(jas []interface{}) []clickhouse.UserSettings_JoinAlgorithm {
+	result := []clickhouse.UserSettings_JoinAlgorithm{}
+
+	for _, ja := range jas {
+		result = append(result, getJoinAlgorithmValue(ja.(string)))
+	}
+
+	return result
+}
+
+func flattenClickHouseUserSettingsJoinAlgorithm(jas []clickhouse.UserSettings_JoinAlgorithm) []interface{} {
+	var result []interface{}
+
+	for _, ja := range jas {
+		result = append(result, getJoinAlgorithmName(ja))
+	}
+
+	return result
+}
+
 func expandClickHouseUserPermissions(ps *schema.Set) []*clickhouse.Permission {
 	result := []*clickhouse.Permission{}
 
@@ -1686,12 +1758,14 @@ var (
 		3: "pread",
 		4: "nmap",
 	}
+	UserSettings_LocalFilesystemReadMethod_value = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
 	UserSettings_RemoteFilesystemReadMethod_name = map[int32]string{
 		0: "unspecified",
 		1: "read",
 		2: "threadpool",
 	}
-	UserSettings_LoadBalancing_name = map[int32]string{
+	UserSettings_RemoteFilesystemReadMethod_value = makeReversedMap(UserSettings_RemoteFilesystemReadMethod_name, clickhouse.UserSettings_RemoteFilesystemReadMethod_value)
+	UserSettings_LoadBalancing_name               = map[int32]string{
 		0: "unspecified",
 		1: "random",
 		2: "nearest_hostname",
@@ -1699,16 +1773,32 @@ var (
 		4: "first_or_random",
 		5: "round_robin",
 	}
+	UserSettings_LoadBalancing_value      = makeReversedMap(UserSettings_LoadBalancing_name, clickhouse.UserSettings_LoadBalancing_value)
 	UserSettings_DateTimeInputFormat_name = map[int32]string{
 		0: "unspecified",
 		1: "best_effort",
 		2: "basic",
 		3: "best_effort_us",
 	}
-	UserSettings_LocalFilesystemReadMethod_value  = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
-	UserSettings_RemoteFilesystemReadMethod_value = makeReversedMap(UserSettings_RemoteFilesystemReadMethod_name, clickhouse.UserSettings_RemoteFilesystemReadMethod_value)
-	UserSettings_LoadBalancing_value              = makeReversedMap(UserSettings_LoadBalancing_name, clickhouse.UserSettings_LoadBalancing_value)
-	UserSettings_DateTimeInputFormat_value        = makeReversedMap(UserSettings_DateTimeInputFormat_name, clickhouse.UserSettings_DateTimeInputFormat_value)
+	UserSettings_DateTimeInputFormat_value = makeReversedMap(UserSettings_DateTimeInputFormat_name, clickhouse.UserSettings_DateTimeInputFormat_value)
+	UserSettings_DateTimeOutputFormat_name = map[int32]string{
+		0: "unspecified",
+		1: "simple",
+		2: "iso",
+		3: "unix_timestamp",
+	}
+	UserSettings_DateTimeOutputFormat_value = makeReversedMap(UserSettings_DateTimeOutputFormat_name, clickhouse.UserSettings_DateTimeOutputFormat_value)
+	UserSettings_JoinAlgorithm_name         = map[int32]string{
+		0: "unspecified",
+		1: "hash",
+		2: "parallel_hash",
+		3: "partial_merge",
+		4: "direct",
+		5: "auto",
+		6: "full_sorting_merge",
+		7: "prefer_partial_merge",
+	}
+	UserSettings_JoinAlgorithm_value = makeReversedMap(UserSettings_JoinAlgorithm_name, clickhouse.UserSettings_JoinAlgorithm_value)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
@@ -1837,6 +1927,34 @@ func getDateTimeInputFormatValue(name string) clickhouse.UserSettings_DateTimeIn
 	return 0
 }
 
+func getDateTimeOutputFormatName(value clickhouse.UserSettings_DateTimeOutputFormat) string {
+	if name, ok := UserSettings_DateTimeOutputFormat_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_DateTimeOutputFormat_name[0]
+}
+
+func getDateTimeOutputFormatValue(name string) clickhouse.UserSettings_DateTimeOutputFormat {
+	if value, ok := UserSettings_DateTimeOutputFormat_value[name]; ok {
+		return clickhouse.UserSettings_DateTimeOutputFormat(value)
+	}
+	return 0
+}
+
+func getJoinAlgorithmName(value clickhouse.UserSettings_JoinAlgorithm) string {
+	if name, ok := UserSettings_JoinAlgorithm_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_JoinAlgorithm_name[0]
+}
+
+func getJoinAlgorithmValue(name string) clickhouse.UserSettings_JoinAlgorithm {
+	if value, ok := UserSettings_JoinAlgorithm_value[name]; ok {
+		return clickhouse.UserSettings_JoinAlgorithm(value)
+	}
+	return 0
+}
+
 func setSettingFromMapInt64(us map[string]interface{}, key string, setting **wrappers.Int64Value) {
 	if v, ok := us[key]; ok {
 		switch vt := v.(type) {
@@ -1898,7 +2016,9 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	setSettingFromMapInt64(us, "receive_timeout", &result.ReceiveTimeout)
 	setSettingFromMapInt64(us, "send_timeout", &result.SendTimeout)
 	setSettingFromMapInt64(us, "insert_quorum_timeout", &result.InsertQuorumTimeout)
+	setSettingFromMapBool(us, "insert_quorum_parallel", &result.InsertQuorumParallel)
 	setSettingFromMapBool(us, "select_sequential_consistency", &result.SelectSequentialConsistency)
+	setSettingFromMapBool(us, "deduplicate_blocks_in_dependent_materialized_views", &result.DeduplicateBlocksInDependentMaterializedViews)
 	setSettingFromMapInt64(us, "max_replica_delay_for_distributed_queries", &result.MaxReplicaDelayForDistributedQueries)
 	setSettingFromMapBool(us, "fallback_to_stale_replicas_for_distributed_queries", &result.FallbackToStaleReplicasForDistributedQueries)
 	setSettingFromMapInt64(us, "replication_alter_partitions_sync", &result.ReplicationAlterPartitionsSync)
@@ -1997,6 +2117,11 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 		result.JoinOverflowMode = getOverflowModeValue(v.(string))
 	}
 
+	if v, ok := us["join_algorithm"]; ok {
+		result.JoinAlgorithm = expandClickHouseUserSettingsJoinAlgorithm(v.([]interface{}))
+	}
+
+	setSettingFromMapBool(us, "any_join_distinct_right_table_keys", &result.AnyJoinDistinctRightTableKeys)
 	setSettingFromMapInt64(us, "max_columns_to_read", &result.MaxColumnsToRead)
 	setSettingFromMapInt64(us, "max_temporary_columns", &result.MaxTemporaryColumns)
 	setSettingFromMapInt64(us, "max_temporary_non_const_columns", &result.MaxTemporaryNonConstColumns)
@@ -2013,6 +2138,8 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 
 	setSettingFromMapBool(us, "input_format_values_interpret_expressions", &result.InputFormatValuesInterpretExpressions)
 	setSettingFromMapBool(us, "input_format_defaults_for_omitted_fields", &result.InputFormatDefaultsForOmittedFields)
+	setSettingFromMapBool(us, "input_format_null_as_default", &result.InputFormatNullAsDefault)
+	setSettingFromMapBool(us, "input_format_with_names_use_header", &result.InputFormatWithNamesUseHeader)
 	setSettingFromMapBool(us, "output_format_json_quote_64bit_integers", &result.OutputFormatJsonQuote_64BitIntegers)
 	setSettingFromMapBool(us, "output_format_json_quote_denormals", &result.OutputFormatJsonQuoteDenormals)
 	setSettingFromMapBool(us, "low_cardinality_allow_in_native_format", &result.LowCardinalityAllowInNativeFormat)
@@ -2046,6 +2173,15 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	setSettingFromMapInt64(us, "timeout_before_checking_execution_speed", &result.TimeoutBeforeCheckingExecutionSpeed)
 	setSettingFromMapBool(us, "cancel_http_readonly_queries_on_client_close", &result.CancelHttpReadonlyQueriesOnClientClose)
 	setSettingFromMapBool(us, "flatten_nested", &result.FlattenNested)
+
+	if v, ok := us["format_regexp"]; ok {
+		formatRegexp, ok := v.(string)
+		if ok && len(formatRegexp) != 0 {
+			result.FormatRegexp = formatRegexp
+		}
+	}
+
+	setSettingFromMapBool(us, "format_regexp_skip_unmatched", &result.FormatRegexpSkipUnmatched)
 	setSettingFromMapInt64(us, "max_http_get_redirects", &result.MaxHttpGetRedirects)
 
 	if v, ok := us["quota_mode"]; ok {
@@ -2087,6 +2223,10 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 		result.DateTimeInputFormat = getDateTimeInputFormatValue(v.(string))
 	}
 
+	if v, ok := us["date_time_output_format"]; ok {
+		result.DateTimeOutputFormat = getDateTimeOutputFormatValue(v.(string))
+	}
+
 	return result
 }
 
@@ -2102,7 +2242,9 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	setSettingFromDataInt64(d, rootKey+".receive_timeout", &result.ReceiveTimeout)
 	setSettingFromDataInt64(d, rootKey+".send_timeout", &result.SendTimeout)
 	setSettingFromDataInt64(d, rootKey+".insert_quorum_timeout", &result.InsertQuorumTimeout)
+	setSettingFromDataBool(d, rootKey+".insert_quorum_parallel", &result.InsertQuorumParallel)
 	setSettingFromDataBool(d, rootKey+".select_sequential_consistency", &result.SelectSequentialConsistency)
+	setSettingFromDataBool(d, rootKey+".deduplicate_blocks_in_dependent_materialized_views", &result.DeduplicateBlocksInDependentMaterializedViews)
 	setSettingFromDataInt64(d, rootKey+".max_replica_delay_for_distributed_queries", &result.MaxReplicaDelayForDistributedQueries)
 	setSettingFromDataBool(d, rootKey+".fallback_to_stale_replicas_for_distributed_queries", &result.FallbackToStaleReplicasForDistributedQueries)
 	setSettingFromDataInt64(d, rootKey+".replication_alter_partitions_sync", &result.ReplicationAlterPartitionsSync)
@@ -2201,6 +2343,11 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 		result.JoinOverflowMode = getOverflowModeValue(v.(string))
 	}
 
+	if v, ok := d.GetOk(rootKey + ".join_algorithm"); ok {
+		result.JoinAlgorithm = expandClickHouseUserSettingsJoinAlgorithm(v.([]interface{}))
+	}
+
+	setSettingFromDataBool(d, rootKey+".any_join_distinct_right_table_keys", &result.AnyJoinDistinctRightTableKeys)
 	setSettingFromDataInt64(d, rootKey+".max_columns_to_read", &result.MaxColumnsToRead)
 	setSettingFromDataInt64(d, rootKey+".max_temporary_columns", &result.MaxTemporaryColumns)
 	setSettingFromDataInt64(d, rootKey+".max_temporary_non_const_columns", &result.MaxTemporaryNonConstColumns)
@@ -2217,6 +2364,8 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 
 	setSettingFromDataBool(d, rootKey+".input_format_values_interpret_expressions", &result.InputFormatValuesInterpretExpressions)
 	setSettingFromDataBool(d, rootKey+".input_format_defaults_for_omitted_fields", &result.InputFormatDefaultsForOmittedFields)
+	setSettingFromDataBool(d, rootKey+".input_format_null_as_default", &result.InputFormatNullAsDefault)
+	setSettingFromDataBool(d, rootKey+".input_format_with_names_use_header", &result.InputFormatWithNamesUseHeader)
 	setSettingFromDataBool(d, rootKey+".output_format_json_quote_64bit_integers", &result.OutputFormatJsonQuote_64BitIntegers)
 	setSettingFromDataBool(d, rootKey+".output_format_json_quote_denormals", &result.OutputFormatJsonQuoteDenormals)
 	setSettingFromDataBool(d, rootKey+".low_cardinality_allow_in_native_format", &result.LowCardinalityAllowInNativeFormat)
@@ -2249,6 +2398,15 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	setSettingFromDataInt64(d, rootKey+".timeout_before_checking_execution_speed", &result.TimeoutBeforeCheckingExecutionSpeed)
 	setSettingFromDataBool(d, rootKey+".cancel_http_readonly_queries_on_client_close", &result.CancelHttpReadonlyQueriesOnClientClose)
 	setSettingFromDataBool(d, rootKey+".flatten_nested", &result.FlattenNested)
+
+	if v, ok := d.GetOkExists(rootKey + ".format_regexp"); ok {
+		formatRegexp, ok := v.(string)
+		if ok && len(formatRegexp) != 0 {
+			result.FormatRegexp = formatRegexp
+		}
+	}
+
+	setSettingFromDataBool(d, rootKey+".format_regexp_skip_unmatched", &result.FormatRegexpSkipUnmatched)
 	setSettingFromDataInt64(d, rootKey+".max_http_get_redirects", &result.MaxHttpGetRedirects)
 
 	if v, ok := d.GetOk(rootKey + ".quota_mode"); ok {
@@ -2288,6 +2446,10 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 
 	if v, ok := d.GetOk(rootKey + ".date_time_input_format"); ok {
 		result.DateTimeInputFormat = getDateTimeInputFormatValue(v.(string))
+	}
+
+	if v, ok := d.GetOk(rootKey + ".date_time_output_format"); ok {
+		result.DateTimeOutputFormat = getDateTimeOutputFormatValue(v.(string))
 	}
 
 	return result
@@ -2345,7 +2507,9 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.InsertQuorumTimeout != nil {
 		result["insert_quorum_timeout"] = settings.InsertQuorumTimeout.Value
 	}
+	result["insert_quorum_parallel"] = falseOnNil(settings.InsertQuorumParallel)
 	result["select_sequential_consistency"] = falseOnNil(settings.SelectSequentialConsistency)
+	result["deduplicate_blocks_in_dependent_materialized_views"] = falseOnNil(settings.DeduplicateBlocksInDependentMaterializedViews)
 	if settings.MaxReplicaDelayForDistributedQueries != nil {
 		result["max_replica_delay_for_distributed_queries"] = settings.MaxReplicaDelayForDistributedQueries.Value
 	}
@@ -2484,6 +2648,8 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 		result["max_bytes_in_join"] = settings.MaxBytesInJoin.Value
 	}
 	result["join_overflow_mode"] = getOverflowModeName(settings.JoinOverflowMode)
+	result["join_algorithm"] = flattenClickHouseUserSettingsJoinAlgorithm(settings.JoinAlgorithm)
+	result["any_join_distinct_right_table_keys"] = falseOnNil(settings.AnyJoinDistinctRightTableKeys)
 	if settings.MaxColumnsToRead != nil {
 		result["max_columns_to_read"] = settings.MaxColumnsToRead.Value
 	}
@@ -2514,6 +2680,8 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	result["count_distinct_implementation"] = getCountDistinctImplementationName(settings.CountDistinctImplementation)
 	result["input_format_values_interpret_expressions"] = falseOnNil(settings.InputFormatValuesInterpretExpressions)
 	result["input_format_defaults_for_omitted_fields"] = falseOnNil(settings.InputFormatDefaultsForOmittedFields)
+	result["input_format_null_as_default"] = falseOnNil(settings.InputFormatNullAsDefault)
+	result["input_format_with_names_use_header"] = falseOnNil(settings.InputFormatWithNamesUseHeader)
 	result["output_format_json_quote_64bit_integers"] = falseOnNil(settings.OutputFormatJsonQuote_64BitIntegers)
 	result["output_format_json_quote_denormals"] = falseOnNil(settings.OutputFormatJsonQuoteDenormals)
 	result["low_cardinality_allow_in_native_format"] = falseOnNil(settings.LowCardinalityAllowInNativeFormat)
@@ -2573,6 +2741,10 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	}
 	result["cancel_http_readonly_queries_on_client_close"] = falseOnNil(settings.CancelHttpReadonlyQueriesOnClientClose)
 	result["flatten_nested"] = falseOnNil(settings.FlattenNested)
+	if len(settings.FormatRegexp) != 0 {
+		result["format_regexp"] = settings.FormatRegexp
+	}
+	result["format_regexp_skip_unmatched"] = falseOnNil(settings.FormatRegexpSkipUnmatched)
 	if settings.MaxHttpGetRedirects != nil {
 		result["max_http_get_redirects"] = settings.MaxHttpGetRedirects.Value
 	}
@@ -2632,6 +2804,8 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	result["prefer_localhost_replica"] = falseOnNil(settings.PreferLocalhostReplica)
 
 	result["date_time_input_format"] = getDateTimeInputFormatName(settings.DateTimeInputFormat)
+
+	result["date_time_output_format"] = getDateTimeOutputFormatName(settings.DateTimeOutputFormat)
 
 	return result
 }

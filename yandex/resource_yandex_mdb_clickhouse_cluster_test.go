@@ -658,6 +658,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.timeout_before_checking_execution_speed", "1000"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_regexp", "regexp1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_regexp_skip_unmatched", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_final_threads", "0"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_import_nested_json", "false"),
@@ -679,6 +681,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "first_or_random"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "best_effort"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_output_format", "simple"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.join_algorithm.#", "2"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -705,6 +709,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.timeout_before_checking_execution_speed", "2000"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_regexp", "regexp2"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_regexp_skip_unmatched", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_final_threads", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_import_nested_json", "true"),
@@ -726,6 +732,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "nearest_hostname"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "basic"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_output_format", "iso"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.join_algorithm.#", "1"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -748,17 +756,22 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			ReplicatedDeduplicationWindowSeconds:           &wrappers.Int64Value{Value: 1000},
 			PartsToDelayInsert:                             &wrappers.Int64Value{Value: 110001},
 			PartsToThrowInsert:                             &wrappers.Int64Value{Value: 11001},
+			InactivePartsToDelayInsert:                     &wrappers.Int64Value{Value: 101},
+			InactivePartsToThrowInsert:                     &wrappers.Int64Value{Value: 110},
 			MaxReplicatedMergesInQueue:                     &wrappers.Int64Value{Value: 11000},
 			NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: &wrappers.Int64Value{Value: 15},
 			MaxBytesToMergeAtMinSpaceInPool:                &wrappers.Int64Value{Value: 11000},
+			MaxBytesToMergeAtMaxSpaceInPool:                &wrappers.Int64Value{Value: 16106127300},
 			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 0},
 			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 0},
 			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: false},
+			AllowRemoteFsZeroCopyReplication:               &wrappers.BoolValue{Value: false},
 			MergeWithTtlTimeout:                            &wrappers.Int64Value{Value: 100005},
 			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 100006},
 			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 100007},
 			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 1},
 			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 120},
+			NumberOfFreeEntriesInPoolToExecuteMutation:     &wrappers.Int64Value{Value: 30},
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 100009},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 100010},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: false},
@@ -894,6 +907,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		BackgroundPoolSize:                        &wrappers.Int64Value{Value: 16},
 		BackgroundSchedulePoolSize:                &wrappers.Int64Value{Value: 32},
 		BackgroundFetchesPoolSize:                 &wrappers.Int64Value{Value: 8},
+		BackgroundMovePoolSize:                    &wrappers.Int64Value{Value: 8},
+		BackgroundDistributedSchedulePoolSize:     &wrappers.Int64Value{Value: 8},
+		BackgroundBufferFlushSchedulePoolSize:     &wrappers.Int64Value{Value: 8},
+		BackgroundCommonPoolSize:                  &wrappers.Int64Value{Value: 8},
 		BackgroundMessageBrokerSchedulePoolSize:   &wrappers.Int64Value{Value: 9},
 		BackgroundMergesMutationsConcurrencyRatio: &wrappers.Int64Value{Value: 3},
 		DefaultDatabase:                           &wrappers.StringValue{Value: "default_db"},
@@ -907,17 +924,22 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			ReplicatedDeduplicationWindowSeconds:           &wrappers.Int64Value{Value: 604800},
 			PartsToDelayInsert:                             &wrappers.Int64Value{Value: 150},
 			PartsToThrowInsert:                             &wrappers.Int64Value{Value: 12000},
+			InactivePartsToDelayInsert:                     &wrappers.Int64Value{Value: 102},
+			InactivePartsToThrowInsert:                     &wrappers.Int64Value{Value: 120},
 			MaxReplicatedMergesInQueue:                     &wrappers.Int64Value{Value: 16},
 			NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: &wrappers.Int64Value{Value: 8},
 			MaxBytesToMergeAtMinSpaceInPool:                &wrappers.Int64Value{Value: 1048576},
+			MaxBytesToMergeAtMaxSpaceInPool:                &wrappers.Int64Value{Value: 16106127301},
 			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 512},
 			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 16},
 			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: true},
+			AllowRemoteFsZeroCopyReplication:               &wrappers.BoolValue{Value: true},
 			MergeWithTtlTimeout:                            &wrappers.Int64Value{Value: 200010},
 			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 200012},
 			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 200014},
 			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 2},
 			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 240},
+			NumberOfFreeEntriesInPoolToExecuteMutation:     &wrappers.Int64Value{Value: 40},
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 200018},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 200020},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: true},
@@ -1088,6 +1110,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		BackgroundPoolSize:                        &wrappers.Int64Value{Value: 32},
 		BackgroundSchedulePoolSize:                &wrappers.Int64Value{Value: 64},
 		BackgroundFetchesPoolSize:                 &wrappers.Int64Value{Value: 16},
+		BackgroundMovePoolSize:                    &wrappers.Int64Value{Value: 16},
+		BackgroundDistributedSchedulePoolSize:     &wrappers.Int64Value{Value: 16},
+		BackgroundBufferFlushSchedulePoolSize:     &wrappers.Int64Value{Value: 16},
+		BackgroundCommonPoolSize:                  &wrappers.Int64Value{Value: 16},
 		BackgroundMessageBrokerSchedulePoolSize:   &wrappers.Int64Value{Value: 17},
 		BackgroundMergesMutationsConcurrencyRatio: &wrappers.Int64Value{Value: 4},
 		DefaultDatabase:                           &wrappers.StringValue{Value: "new_default"},
@@ -1157,6 +1183,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "32"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_move_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_distributed_schedule_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_buffer_flush_schedule_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_common_pool_size", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_message_broker_schedule_pool_size", "9"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_merges_mutations_concurrency_ratio", "3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default_db"),
@@ -1167,17 +1197,22 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "1000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_delay_insert", "110001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.inactive_parts_to_delay_insert", "101"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.inactive_parts_to_throw_insert", "110"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_replicated_merges_in_queue", "11000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_lower_max_size_of_merge", "15"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_min_space_in_pool", "11000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_max_space_in_pool", "16106127300"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.allow_remote_fs_zero_copy_replication", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_ttl_timeout", "100005"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "100006"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "100007"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "120"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_execute_mutation", "30"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "100009"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "100010"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "false"),
@@ -1293,6 +1328,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "32"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "64"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_move_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_distributed_schedule_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_buffer_flush_schedule_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_common_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_message_broker_schedule_pool_size", "17"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_merges_mutations_concurrency_ratio", "4"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
@@ -1303,17 +1342,22 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "604800"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_delay_insert", "150"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "12000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.inactive_parts_to_delay_insert", "102"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.inactive_parts_to_throw_insert", "120"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_replicated_merges_in_queue", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_lower_max_size_of_merge", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_min_space_in_pool", "1048576"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_max_space_in_pool", "16106127301"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.allow_remote_fs_zero_copy_replication", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_ttl_timeout", "200010"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "200012"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "200014"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "240"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_execute_mutation", "40"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "200018"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "200020"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "true"),
@@ -1606,6 +1650,8 @@ func testAccCheckMDBClickHouseClusterHasUsers(r string, perms map[string][]strin
 						s = false
 					case string:
 						s = "unspecified"
+					case []interface{}:
+						s = []interface{}{}
 					default:
 						return fmt.Errorf("User %s has unexpected setting '%s'='%v'", u.Name, key, setting)
 					}
@@ -1976,10 +2022,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -2037,6 +2088,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -2143,10 +2195,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -2204,6 +2261,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -2249,10 +2307,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -2310,6 +2373,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -2424,10 +2488,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -2485,6 +2554,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -2530,10 +2600,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -2591,6 +2666,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -3004,10 +3080,15 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -3065,6 +3146,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -3154,10 +3236,15 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
       http_receive_timeout                               = 0
       http_send_timeout                                  = 0
       input_format_defaults_for_omitted_fields           = false
+	  input_format_null_as_default						 = false
+	  input_format_with_names_use_header				 = false
       input_format_values_interpret_expressions          = false
       insert_quorum                                      = 0
       insert_quorum_timeout                              = 0
+	  insert_quorum_parallel							 = false
       join_overflow_mode                                 = "unspecified"
+	  join_algorithm									 = []
+	  any_join_distinct_right_table_keys				 = false
       join_use_nulls                                     = false
       joined_subquery_requires_alias                     = false
       low_cardinality_allow_in_native_format             = false
@@ -3215,6 +3302,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
       replication_alter_partitions_sync                  = 0
       result_overflow_mode                               = "unspecified"
       select_sequential_consistency                      = false
+	  deduplicate_blocks_in_dependent_materialized_views = false
       send_progress_in_http_headers                      = false
       send_timeout                                       = 0
       set_overflow_mode                                  = "unspecified"
@@ -3303,14 +3391,17 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 			max_replicated_merges_in_queue 							  = 1000
 			number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
 			max_bytes_to_merge_at_min_space_in_pool 			      = 1000000
+			max_bytes_to_merge_at_max_space_in_pool					  = 16106127300
 			min_bytes_for_wide_part 								  = 10485760
 			min_rows_for_wide_part 								      = 14400
 			ttl_only_drop_parts 									  = false
+			allow_remote_fs_zero_copy_replication					  = false
 			merge_with_ttl_timeout 									  = 14400
 			merge_with_recompression_ttl_timeout 					  = 14400
 			max_parts_in_total 										  = 100000
 			max_number_of_merges_with_ttl_in_pool 					  = 2
 			cleanup_delay_period 									  = 30
+			number_of_free_entries_in_pool_to_execute_mutation		  = 30
 		}
 	}
     # resources 
@@ -3436,6 +3527,10 @@ config {
 		background_pool_size            = %d
 		background_schedule_pool_size   = %d
 		background_fetches_pool_size 	= %d
+		background_move_pool_size		= %d
+		background_distributed_schedule_pool_size  = %d
+		background_buffer_flush_schedule_pool_size = %d
+		background_common_pool_size     = %d
         background_message_broker_schedule_pool_size = %d
         background_merges_mutations_concurrency_ratio = %d
 		default_database 				= "%s"
@@ -3516,6 +3611,10 @@ config {
 		config.BackgroundPoolSize.GetValue(),
 		config.BackgroundSchedulePoolSize.GetValue(),
 		config.BackgroundFetchesPoolSize.GetValue(),
+		config.BackgroundMovePoolSize.GetValue(),
+		config.BackgroundDistributedSchedulePoolSize.GetValue(),
+		config.BackgroundBufferFlushSchedulePoolSize.GetValue(),
+		config.BackgroundCommonPoolSize.GetValue(),
 		config.BackgroundMessageBrokerSchedulePoolSize.GetValue(),
 		config.BackgroundMergesMutationsConcurrencyRatio.GetValue(),
 		config.DefaultDatabase.GetValue(),
@@ -3539,17 +3638,22 @@ merge_tree {
 			replicated_deduplication_window_seconds                   = %d
 			parts_to_delay_insert                                     = %d
 			parts_to_throw_insert                                     = %d
+			inactive_parts_to_delay_insert							  = %d
+			inactive_parts_to_throw_insert							  = %d
 			max_replicated_merges_in_queue                            = %d
 			number_of_free_entries_in_pool_to_lower_max_size_of_merge = %d
 			max_bytes_to_merge_at_min_space_in_pool                   = %d
+			max_bytes_to_merge_at_max_space_in_pool 			      = %d
 			min_bytes_for_wide_part 								  = %d
             min_rows_for_wide_part 									  = %d
             ttl_only_drop_parts 									  = %t
+			allow_remote_fs_zero_copy_replication                     = %t
 			merge_with_ttl_timeout                                    = %d
 			merge_with_recompression_ttl_timeout                      = %d
 			max_parts_in_total                                     	  = %d
 			max_number_of_merges_with_ttl_in_pool                     = %d
 			cleanup_delay_period                                      = %d
+			number_of_free_entries_in_pool_to_execute_mutation		  = %d
 			max_avg_part_size_for_too_many_parts 					  = %d
 			min_age_to_force_merge_seconds 							  = %d
 			min_age_to_force_merge_on_partition_only 				  = %t
@@ -3564,17 +3668,22 @@ merge_tree {
 		mergeTree.ReplicatedDeduplicationWindowSeconds.GetValue(),
 		mergeTree.PartsToDelayInsert.GetValue(),
 		mergeTree.PartsToThrowInsert.GetValue(),
+		mergeTree.InactivePartsToDelayInsert.GetValue(),
+		mergeTree.InactivePartsToThrowInsert.GetValue(),
 		mergeTree.MaxReplicatedMergesInQueue.GetValue(),
 		mergeTree.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.GetValue(),
 		mergeTree.MaxBytesToMergeAtMinSpaceInPool.GetValue(),
+		mergeTree.MaxBytesToMergeAtMaxSpaceInPool.GetValue(),
 		mergeTree.MinBytesForWidePart.GetValue(),
 		mergeTree.MinRowsForWidePart.GetValue(),
 		mergeTree.TtlOnlyDropParts.GetValue(),
+		mergeTree.AllowRemoteFsZeroCopyReplication.GetValue(),
 		mergeTree.MergeWithTtlTimeout.GetValue(),
 		mergeTree.MergeWithRecompressionTtlTimeout.GetValue(),
 		mergeTree.MaxPartsInTotal.GetValue(),
 		mergeTree.MaxNumberOfMergesWithTtlInPool.GetValue(),
 		mergeTree.CleanupDelayPeriod.GetValue(),
+		mergeTree.NumberOfFreeEntriesInPoolToExecuteMutation.GetValue(),
 		mergeTree.MaxAvgPartSizeForTooManyParts.GetValue(),
 		mergeTree.MinAgeToForceMergeSeconds.GetValue(),
 		mergeTree.MinAgeToForceMergeOnPartitionOnly.GetValue(),
@@ -3800,6 +3909,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  timeout_before_checking_execution_speed			 = 1000
 	  cancel_http_readonly_queries_on_client_close		 = false
 	  flatten_nested									 = false
+	  format_regexp_skip_unmatched						 = false
+	  format_regexp										 = "regexp1"
 	  max_http_get_redirects							 = 0
 	  max_final_threads                                  = 0
 	  input_format_import_nested_json 				     = false
@@ -3821,6 +3932,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  load_balancing 									 = "first_or_random"
 	  prefer_localhost_replica 						     = true
 	  date_time_input_format 							 = "best_effort"
+	  date_time_output_format							 = "simple"
+	  join_algorithm									 = ["hash", "auto"]
     }
   }
 
@@ -3896,6 +4009,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  timeout_before_checking_execution_speed			 = 2000
 	  cancel_http_readonly_queries_on_client_close		 = true
 	  flatten_nested									 = true
+	  format_regexp_skip_unmatched						 = true
+	  format_regexp										 = "regexp2"
 	  max_http_get_redirects							 = 1
 	  max_final_threads                                  = 1
 	  input_format_import_nested_json 				     = true
@@ -3917,6 +4032,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  load_balancing 									 = "nearest_hostname"
 	  prefer_localhost_replica 						     = false
 	  date_time_input_format 							 = "basic"
+	  date_time_output_format							 = "iso"
+	  join_algorithm									 = ["parallel_hash"]
     }
   }
 
