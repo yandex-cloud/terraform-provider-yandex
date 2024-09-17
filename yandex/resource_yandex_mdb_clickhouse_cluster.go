@@ -1426,6 +1426,7 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"backup_retain_period_days": "config_spec.backup_retain_period_days",
 	"security_group_ids":        "security_group_ids",
 	"service_account_id":        "service_account_id",
+	"network_id":                "network_id",
 	"maintenance_window":        "maintenance_window",
 	"deletion_protection":       "deletion_protection",
 }
@@ -1560,7 +1561,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	req, err := getClickHouseClusterUpdateRequest(d)
+	req, err := getClickHouseClusterUpdateRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -1651,10 +1652,15 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.UpdateClusterRequest, error) {
+func getClickHouseClusterUpdateRequest(d *schema.ResourceData, config *Config) (*clickhouse.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating ClickHouse cluster: %s", err)
+	}
+
+	networkID, err := expandAndValidateNetworkId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("update error while expand clickhouse network_id: %s", err)
 	}
 
 	clickhouseConfigSpec, err := expandClickHouseSpec(d)
@@ -1678,6 +1684,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Labels:      labels,
+		NetworkId:   networkID,
 		ConfigSpec: &clickhouse.ConfigSpec{
 			Version:                d.Get("version").(string),
 			Clickhouse:             clickhouseConfigSpec,

@@ -965,7 +965,8 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 
 func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[DEBUG] updatePGClusterParams")
-	request, err := prepareUpdatePostgreSQLClusterParamsRequest(d)
+	config := meta.(*Config)
+	request, err := prepareUpdatePostgreSQLClusterParamsRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -974,7 +975,6 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
@@ -994,7 +994,7 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData) (request *postgresql.UpdateClusterRequest, err error) {
+func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config *Config) (request *postgresql.UpdateClusterRequest, err error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating PostgreSQL Cluster: %s", err)
@@ -1015,11 +1015,17 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData) (reques
 		return nil, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
 	}
 
+	networkID, err := expandAndValidateNetworkId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding network_id while updating PostgreSQL cluster: %s", err)
+	}
+
 	return &postgresql.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
+		NetworkId:          networkID,
 		ConfigSpec:         configSpec,
 		MaintenanceWindow:  maintenanceWindow,
 		SecurityGroupIds:   securityGroupIds,

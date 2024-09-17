@@ -810,7 +810,7 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	req, err := prepareUpdateGreenplumClusterRequest(d)
+	req, err := prepareUpdateGreenplumClusterRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -880,7 +880,7 @@ func prepareExpandGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.Ex
 
 }
 
-func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.UpdateClusterRequest, error) {
+func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config) (*greenplum.UpdateClusterRequest, error) {
 	if d.HasChange("security_group_ids") {
 		return nil, fmt.Errorf("changing of 'security_group_ids' is not implemented yet")
 	}
@@ -899,12 +899,18 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.Up
 		return nil, fmt.Errorf("error while expanding maintenance_window on Greenplum Cluster update: %s", err)
 	}
 
+	networkID, err := expandAndValidateNetworkId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding network id on Greenplum Cluster update: %s", err)
+	}
+
 	return &greenplum.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
 		UserPassword:       d.Get("user_password").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
+		NetworkId:          networkID,
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  maintenanceWindow,

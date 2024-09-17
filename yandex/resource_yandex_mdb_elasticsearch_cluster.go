@@ -677,6 +677,16 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 
 	}
 
+	if d.HasChange("network_id") {
+		config := meta.(*Config)
+		networkID, err := expandAndValidateNetworkId(d, config)
+		if err != nil {
+			return err
+		}
+		req.NetworkId = networkID
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "network_id")
+	}
+
 	if d.HasChange("maintenance_window") {
 		mw, err := expandElasticsearchMaintenanceWindow(d)
 		if err != nil {

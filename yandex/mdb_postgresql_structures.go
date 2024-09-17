@@ -935,6 +935,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []s
 		"name":                               "name",
 		"description":                        "description",
 		"labels":                             "labels",
+		"network_id":                         "network_id",
 		"config.0.version":                   "config_spec.version",
 		"config.0.autofailover":              "config_spec.autofailover",
 		"config.0.pooler_config":             "config_spec.pooler_config",

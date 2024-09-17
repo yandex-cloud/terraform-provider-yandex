@@ -300,6 +300,7 @@ func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []
 		"description":            "description",
 		"user_password":          "user_password",
 		"labels":                 "labels",
+		"network_id":             "network_id",
 		"access.0.data_lens":     "config.access.data_lens",
 		"access.0.web_sql":       "config.access.web_sql",
 		"access.0.data_transfer": "config.access.data_transfer",

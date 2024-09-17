@@ -958,6 +958,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"name":                      "name",
 	"description":               "description",
 	"labels":                    "labels",
+	"network_id":                "network_id",
 	"security_group_ids":        "security_group_ids",
 	"deletion_protection":       "deletion_protection",
 	"maintenance_window":        "maintenance_window",
@@ -999,7 +1000,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
 }
 
-func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequest, error) {
+func kafkaClusterUpdateRequest(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating Kafka cluster: %s", err)
@@ -1008,6 +1009,11 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 	configSpec, err := expandKafkaConfigSpec(d)
 	if err != nil {
 		return nil, fmt.Errorf("error expanding configSpec while updating Kafka cluster: %s", err)
+	}
+
+	networkID, err := expandAndValidateNetworkId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding network_id settings while updating Kafka cluster: %s", err)
 	}
 
 	maintenanceWindow, err := expandKafkaMaintenanceWindow(d)
@@ -1027,6 +1033,7 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
+		NetworkId:          networkID,
 		ConfigSpec:         configSpec,
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
@@ -1036,8 +1043,8 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 	return req, nil
 }
 
-func kafkaClusterUpdateRequestWithMask(d *schema.ResourceData) (*kafka.UpdateClusterRequest, error) {
-	req, err := kafkaClusterUpdateRequest(d)
+func kafkaClusterUpdateRequestWithMask(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {
+	req, err := kafkaClusterUpdateRequest(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -1070,7 +1077,7 @@ func getSuffixVersion(d *schema.ResourceData) string {
 
 func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	req, err := kafkaClusterUpdateRequestWithMask(d)
+	req, err := kafkaClusterUpdateRequestWithMask(d, config)
 	if err != nil {
 		return err
 	}

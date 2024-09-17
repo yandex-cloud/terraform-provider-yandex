@@ -557,6 +557,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 		"name":        "new-name",
 		"description": "new description",
 		"labels":      map[string]interface{}{"label1": "val1", "label2": "val2"},
+		"network_id":  "mynetwork_id",
 		"config": []interface{}{
 			map[string]interface{}{
 				"version":       "2.8",
@@ -627,13 +628,15 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
 
-	req, err := kafkaClusterUpdateRequestWithMask(resourceData)
+	config := &Config{}
+	req, err := kafkaClusterUpdateRequestWithMask(resourceData, config)
 	require.NoError(t, err)
 
 	expected := &kafka.UpdateClusterRequest{
 		Name:        "new-name",
 		Description: "new description",
 		Labels:      map[string]string{"label1": "val1", "label2": "val2"},
+		NetworkId:   "mynetwork_id",
 		ConfigSpec: &kafka.ConfigSpec{
 			Version:      "2.8",
 			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
@@ -727,6 +730,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"labels",
 			"maintenance_window",
 			"name",
+			"network_id",
 			"security_group_ids",
 			"subnet_ids",
 		}},
@@ -812,7 +816,8 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 		}
 		resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
 
-		req, err := kafkaClusterUpdateRequestWithMask(resourceData)
+		config := &Config{}
+		req, err := kafkaClusterUpdateRequestWithMask(resourceData, config)
 		require.NoError(t, err)
 
 		expected := &kafka.UpdateClusterRequest{

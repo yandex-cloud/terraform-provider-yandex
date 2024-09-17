@@ -795,6 +795,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"name":                      "name",
 	"description":               "description",
 	"labels":                    "labels",
+	"network_id":                "network_id",
 	"access":                    "config_spec.access",
 	"backup_window_start":       "config_spec.backup_window_start",
 	"resources":                 "config_spec.resources",
@@ -807,7 +808,8 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
-	request, err := prepareMySQLClusterUpdateRequest(d)
+	config := meta.(*Config)
+	request, err := prepareMySQLClusterUpdateRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -816,7 +818,6 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
@@ -867,7 +868,7 @@ func updateMySQLClusterAfterCreate(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func prepareMySQLClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterRequest, error) {
+func prepareMySQLClusterUpdateRequest(d *schema.ResourceData, config *Config) (*mysql.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating MySQL cluster: %s", err)
@@ -880,6 +881,11 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClus
 	maintenanceWindow, err := expandMySQLMaintenanceWindow(d)
 	if err != nil {
 		return nil, fmt.Errorf("error expanding maintenance_window while updating MySQL cluster: %s", err)
+	}
+
+	networkID, err := expandAndValidateNetworkId(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding network_id while updating MySQL cluster: %s", err)
 	}
 
 	configSpec, err := expandMySQLConfigSpec(d)
@@ -904,6 +910,7 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClus
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
+		NetworkId:          networkID,
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		MaintenanceWindow:  maintenanceWindow,
 		DeletionProtection: d.Get("deletion_protection").(bool),
