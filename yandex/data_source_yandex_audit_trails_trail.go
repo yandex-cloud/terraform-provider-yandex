@@ -12,6 +12,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func dataSourceAuditTrailsTrailResourceListSchema() *schema.Schema {
+	return &schema.Schema{
+		Computed: true,
+		Type:     schema.TypeList,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"resource_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"resource_type": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	}
+}
+
 func dataSourceAuditTrailsTrailResourcePathSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
@@ -74,6 +93,12 @@ func dataSourceAuditTrailsTrailResourcePathSchema() *schema.Schema {
 func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: readTrailDataSource,
+
+		SchemaVersion: 1,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"trail_id": {
@@ -150,9 +175,54 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 					},
 				},
 			},
-			"filter": {
+			"filtering_policy": {
 				Computed: true,
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"management_events_filter": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
+								},
+							},
+						},
+						"data_events_filter": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"included_events": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"excluded_events": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
+								},
+							},
+						},
+					},
+				},
+			},
+			"filter": {
+				Computed:   true,
+				Type:       schema.TypeSet,
+				Deprecated: "Use filtering_policy instead. This attribute will be removed",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path_filter": dataSourceAuditTrailsTrailResourcePathSchema(),
@@ -279,69 +349,55 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 		result = setAndAppendError(data, "storage_destination", nil, result)
 	}
 
-	trailFilter := trail.GetFilter()
+	flatTrailFilteringPolicy := map[string]interface{}{}
 
-	flatTrailFilter := map[string]interface{}{}
+	filteringPolicy := trail.GetFilteringPolicy()
+	flatDataEventFilters := []map[string]interface{}{}
+	for _, dataEventFilter := range filteringPolicy.GetDataEventsFilters() {
+		flatDataEventFilter := map[string]interface{}{}
 
-	if defaultPathFilter := trailFilter.GetPathFilter(); defaultPathFilter != nil {
-		flatTrailFilter["path_filter"] = unpackProtoResourceFilterIntoResourceData(defaultPathFilter)
-	}
+		flatDataEventFilter["service"] = dataEventFilter.GetService()
+		flatDataEventFilter["resource_scope"] = unpackProtoResourceScopesIntoResourceData(dataEventFilter.GetResourceScopes())
 
-	flatTrailEventFilters := []map[string]interface{}{}
-	for _, eventFilter := range trailFilter.GetEventFilter().GetFilters() {
-		flatTrailEventFilter := map[string]interface{}{}
-
-		flatTrailEventFilter["service"] = eventFilter.GetService()
-		flatTrailEventFilter["path_filter"] = unpackProtoResourceFilterIntoResourceData(eventFilter.GetPathFilter())
-
-		flatTrailEventCategories := []map[string]string{}
-		for _, filterElementCategory := range eventFilter.GetCategories() {
-			flatTrailEventCategories = append(flatTrailEventCategories, map[string]string{
-				"plane": filterElementCategory.GetPlane().String(),
-				"type":  filterElementCategory.GetType().String(),
-			})
+		if excludedEvents := dataEventFilter.GetExcludedEvents(); excludedEvents != nil {
+			flatDataEventFilter["excluded_events"] = unpackEventTypesIntoResourceData(excludedEvents)
 		}
-		flatTrailEventFilter["categories"] = flatTrailEventCategories
+		if includedEvents := dataEventFilter.GetIncludedEvents(); includedEvents != nil {
+			flatDataEventFilter["included_events"] = unpackEventTypesIntoResourceData(includedEvents)
+		}
 
-		flatTrailEventFilters = append(flatTrailEventFilters, flatTrailEventFilter)
+		flatDataEventFilters = append(flatDataEventFilters, flatDataEventFilter)
 	}
-	flatTrailFilter["event_filters"] = flatTrailEventFilters
+	if len(flatDataEventFilters) > 0 {
+		flatTrailFilteringPolicy["data_events_filter"] = flatDataEventFilters
+	}
 
-	result = setAndAppendError(data, "filter", []interface{}{flatTrailFilter}, result)
+	managementFilter := filteringPolicy.GetManagementEventsFilter()
+	if len(managementFilter.GetResourceScopes()) > 0 {
+		flatManagementFilter := map[string]interface{}{}
+		flatManagementFilter["resource_scope"] = unpackProtoResourceScopesIntoResourceData(managementFilter.GetResourceScopes())
+
+		flatTrailFilteringPolicy["management_events_filter"] = []interface{}{flatManagementFilter}
+	}
+
+	result = setAndAppendError(data, "filtering_policy", []interface{}{flatTrailFilteringPolicy}, result)
 
 	return result
 }
 
-func unpackProtoResourceFilterIntoResourceData(pathFilter *audittrails.Trail_PathFilter) []map[string]interface{} {
-	flatResourceFilter := map[string]interface{}{}
-
-	if anyFilter := pathFilter.GetRoot().GetAnyFilter(); anyFilter != nil {
-		flatResourceFilter["any_filter"] = []map[string]string{
-			unpackProtoResourceIntoResourceData(anyFilter.GetResource()),
-		}
-	}
-
-	if someFilter := pathFilter.GetRoot().GetSomeFilter(); someFilter != nil {
-		flatSomeFilter := map[string]interface{}{}
-
-		flatSomeFilter["resource_id"] = someFilter.Resource.Id
-		flatSomeFilter["resource_type"] = someFilter.Resource.Type
-
-		var nestedAnyFilters []map[string]string
-		for _, nestedFilter := range someFilter.GetFilters() {
-			nestedAnyFilter := nestedFilter.GetAnyFilter()
-
-			flatAnyResource := unpackProtoResourceIntoResourceData(nestedAnyFilter.GetResource())
-			nestedAnyFilters = append(nestedAnyFilters, flatAnyResource)
-		}
-		flatSomeFilter["any_filters"] = nestedAnyFilters
-
-		flatResourceFilter["some_filter"] = []map[string]interface{}{flatSomeFilter}
-	}
-	return []map[string]interface{}{flatResourceFilter}
+func unpackEventTypesIntoResourceData(eventTypes *audittrails.Trail_EventTypes) []string {
+	return eventTypes.GetEventTypes()
 }
 
-func unpackProtoResourceIntoResourceData(resource *audittrails.Trail_Resource) map[string]string {
+func unpackProtoResourceScopesIntoResourceData(resources []*audittrails.Trail_Resource) []interface{} {
+	flatResourceScopes := []interface{}{}
+	for _, resource := range resources {
+		flatResourceScopes = append(flatResourceScopes, unpackProtoResourceIntoResourceData(resource))
+	}
+	return flatResourceScopes
+}
+
+func unpackProtoResourceIntoResourceData(resource *audittrails.Trail_Resource) interface{} {
 	return map[string]string{
 		"resource_id":   resource.GetId(),
 		"resource_type": resource.GetType(),

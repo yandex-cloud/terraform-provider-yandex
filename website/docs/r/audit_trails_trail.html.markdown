@@ -12,11 +12,11 @@ Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concep
 
 ## Example Usage
 
-Trail delivering logs to Cloud Logging and gathering such logs:
+Trail delivering events to Cloud Logging and gathering such events:
 
-* Control plane logs from the 'home-folder' folder
-* Object Storage data plane logs from the 'home-folder' folder
-* DNS data plane logs from networks in the 'home-folder' folder
+* Management events from the 'home-folder' folder
+* Object Storage data events from the 'home-folder' folder
+* DNS data events from networks 'vpc-net-id-1' and 'vpc-net-id-2'
 ```hcl
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
@@ -33,56 +33,40 @@ resource "yandex_audit_trails_trail" "basic_trail" {
     log_group_id = "some-log-group"
   }
 
-  filter {
-    path_filter {
-      any_filter {
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
         resource_id   = "home-folder"
         resource_type = "resource-manager.folder"
       }
     }
-    event_filters {
+    data_events_filter {
       service = "storage"
-      categories {
-        plane = "DATA_PLANE"
-        type  = "WRITE"
-      }
-      path_filter {
-        any_filter {
-          resource_id   = "home-folder"
-          resource_type = "resource-manager.folder"
-        }
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
       }
     }
-    event_filters {
+    data_events_filter {
       service = "dns"
-      categories {
-        plane = "DATA_PLANE"
-        type  = "READ"
+      resource_scope {
+        resource_id   = "vpc-net-id-1"
+        resource_type = "vpc.network"
       }
-      path_filter {
-        some_filter {
-          resource_id   = "home-folder"
-          resource_type = "resource-manager.folder"
-          any_filters {
-            resource_id   = "vpc-net-id-1"
-            resource_type = "vpc.network"
-          }
-          any_filters {
-            resource_id   = "vpc-net-id-2"
-            resource_type = "vpc.network"
-          }
-        }
+      resource_scope {
+        resource_id   = "vpc-net-id-2"
+        resource_type = "vpc.network"
       }
-    }
+    }      
   }
 }
 ```
 
-Trail delivering logs to YDS and gathering such logs:
+Trail delivering events to YDS and gathering such events:
 
-* Control plane logs from the 'some-organization' organization
-* DNS data plane logs from the 'some-organization' organization
-* Object Storage data plane logs from the 'some-organization' organization
+* Management events from the 'some-organization' organization
+* DNS data events from the 'some-organization' organization
+* Object Storage data events from the 'some-organization' organization 
 ```hcl
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
@@ -100,47 +84,35 @@ resource "yandex_audit_trails_trail" "basic_trail" {
     stream_name = "some-stream"
   }
 
-  filter {
-    path_filter {
-      any_filter {
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
         resource_id   = "some-organization"
         resource_type = "organization-manager.organization"
       }
     }
-    event_filters {
+    data_events_filter {
       service = "storage"
-      categories {
-        plane = "DATA_PLANE"
-        type  = "WRITE"
-      }
-      path_filter {
-        any_filter {
-          resource_id   = "some-organization"
-          resource_type = "organization-manager.organization"
-        }
+      resource_scope {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
       }
     }
-    event_filters {
+    data_events_filter {
       service = "dns"
-      categories {
-        plane = "DATA_PLANE"
-        type  = "READ"
-      }
-      path_filter {
-        any_filter {
-          resource_id   = "some-organization"
-          resource_type = "organization-manager.organization"
-        }
+      resource_scope {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
       }
     }
   }
 }
 ```
 
-Trail delivering logs to Object Storage and gathering such logs:
+Trail delivering events to Object Storage and gathering such events:
 
-* Control plane logs from the 'home-folder' folder
-* Managed PostgreSQL data plane logs from the 'home-folder' folder
+* Management events from the 'home-folder' folder
+* Managed PostgreSQL data events from the 'home-folder' folder
 ```hcl
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
@@ -158,24 +130,18 @@ resource "yandex_audit_trails_trail" "basic_trail" {
     object_prefix = "some-prefix"
   }
 
-  filter {
-    path_filter {
-      any_filter {
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
         resource_id   = "home-folder"
         resource_type = "resource-manager.folder"
       }
     }
-    event_filters {
+    data_events_filter {
       service = "mdb.postgresql"
-      categories {
-        plane = "DATA_PLANE"
-        type  = "WRITE"
-      }
-      path_filter {
-        any_filter {
-          resource_id   = "home-folder"
-          resource_type = "resource-manager.folder"
-        }
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
       }
     }
   }
@@ -196,13 +162,13 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 
 * `storage_destination` - Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.
 
-  * `bucket_name` - (Required) Name of the [destination bucket](https://cloud.yandex.ru/en/docs/storage/concepts/bucket)
+  * `bucket_name` - (Required) Name of the [destination bucket](https://cloud.yandex.ru/en/docs/storage/concepts/bucket).
 
-  * `object_prefix` - (Optional) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`
+  * `object_prefix` - (Optional) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
 
 * `logging_destination` - Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.
 
-  * `log_group_id` - (Required) ID of the destination [Cloud Logging Group](https://cloud.yandex.ru/ru/docs/logging/concepts/log-group)
+  * `log_group_id` - (Required) ID of the destination [Cloud Logging Group](https://cloud.yandex.ru/ru/docs/logging/concepts/log-group).
 
 * `data_stream_destination` - Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.
 
@@ -212,7 +178,7 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 
 * `filter` - Structure describing event filtering process for the trail.
 
-  * `path_filter` - (Optional) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category
+  * `path_filter` - (Optional) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category.
 
     * `any_filter` - Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`.
 
@@ -226,23 +192,47 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 
       * `resource_type` - (Required) Resource type of the parent resource.
 
-      * `any_filters` - (Required) List of child resources from which events will be gathered
+      * `any_filters` - (Required) List of child resources from which events will be gathered.
 
         * `resource_id` - (Required) ID of the child resource.
 
         * `resource_type` - (Required) Resource type of the child resource.
 
-  * `event_filters` - Structure describing filtering process for the service-specific data plane events
+  * `event_filters` - Structure describing filtering process for the service-specific data plane events.
 
-    * `service` - (Required) ID of the service which events will be gathered
+    * `service` - (Required) ID of the service which events will be gathered.
 
-    * `categories` - (Required) List of structures describing categories of gathered data plane events
+    * `categories` - (Required) List of structures describing categories of gathered data plane events.
 
-      * `plane` - (Required) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`
+      * `plane` - (Required) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
 
-      * `type` - (Required) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`
+      * `type` - (Required) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
 
-    * `path_filter` - (Required) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`
+    * `path_filter` - (Required) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`.
+  
+  * `filtering_policy` - (Optional) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled.
+
+    * `management_events_filter` - (Optional) Structure describing filtering process for management events.
+
+      * `resource_scope` - (Required) Structure describing that events will be gathered from the specified resource.
+
+        * `resource_id` - (Required) ID of the monitored resource.
+        
+        * `resource_type` - (Required) Resource type of the monitored resource.
+
+    * `data_events_filter` - (Optional) Structure describing filtering process for the service-specific data events.
+
+      * `service` - (Required) ID of the service which events will be gathered.
+
+      * `resource_scope` - (Required) Structure describing that events will be gathered from the specified resource.
+
+        * `resource_id` - (Required) ID of the monitored resource.
+        
+        * `resource_type` - (Required) Resource type of the monitored resource.
+
+      * `included_events` - (Optional) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
+
+      * `excluded_events` - (Optional) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
 
 ## Attributes Reference
 
@@ -267,3 +257,72 @@ A trail can be imported using the `id` of the resource, e.g.
 ```bash
 $ terraform import yandex_audit_trails_trail.infosec-trail trail_id
 ```
+
+## Migration from deprecated filter field
+
+In order to migrate from unsing `filter` to the `filtering_policy`, you will have to:
+
+  * Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.
+  
+  * Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
+
+  Before
+  ```hcl
+  event_filters {
+    path_filter {
+      some_filter {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+        any_filters {
+          resource_id   = "vpc-net-id-1"
+          resource_type = "vpc.network"
+        }
+        any_filters {
+          resource_id   = "vpc-net-id-2"
+          resource_type = "vpc.network"
+        }
+      }
+    }
+  }
+  ```
+
+  After
+  ```hcl
+  data_events_filter {
+    service = "dns"
+    resource_scope {
+      resource_id   = "vpc-net-id-1"
+      resource_type = "vpc.network"
+    }
+    resource_scope {
+      resource_id   = "vpc-net-id-2"
+      resource_type = "vpc.network"
+    }
+  }
+  ```
+
+  * Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
+
+  Before
+  ```hcl
+  filter {
+    path_filter {
+      any_filter {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+  }
+  ```
+
+  After
+  ```hcl
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+  }
+  ```

@@ -61,6 +61,7 @@ func sweepAuditTrailsTrailOnce(conf *Config, id string) error {
 }
 
 // Tests for Storage with Any/Some filters trail create/update/import/delete operations
+// Requires YC_STORAGE_ACCESS_KEY/YC_STORAGE_SECRET_KEY environment variables
 func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 	t.Parallel()
 
@@ -201,7 +202,7 @@ func TestAccResourceAuditTrailsTrail_dataStream(t *testing.T) {
 				PreConfig: waitForYdb,
 				Config:    tfBaseConfig,
 			},
-			// create base logging destination trail with minimal filter
+			// create base yds destination trail with minimal filter
 			{
 				Config: tfBaseConfig + initialTrail.toTerraformResource(),
 				Check:  checkTrail(initialTrail, false),
@@ -265,58 +266,56 @@ func checkTrail(trail yandexAuditTrailsTrail, dataSourceCheck bool) resource.Tes
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "data_stream_destination.#", "0"))
 	}
 
-	if defaultFilter := trail.Filter.PathFilter; defaultFilter.ResourceID != "" {
-		statePrefix := "filter.0.path_filter.0."
-		checks = append(checks, checkResourcePathFilter(resourceName, statePrefix, defaultFilter)...)
-	} else {
-		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "filter.0.path_filter.#", "0"))
-	}
+	managementFilter := trail.FilteringPolicy.ManagementFilter
+	checks = append(checks, checkResourceScopes(resourceName, "filtering_policy.0.management_events_filter.0.resource_scope.", managementFilter.ResourceScope)...)
 
-	for i, eventFilter := range trail.Filter.EventFilters {
-		statePrefix := fmt.Sprintf("filter.0.event_filters.%d.", i)
-
-		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"service", eventFilter.Service))
-
-		for j, filterCategory := range eventFilter.Categories {
-			categoryStatePrefix := fmt.Sprintf("%scategories.%d.", statePrefix, j)
-
-			checks = append(checks, resource.TestCheckResourceAttr(resourceName, categoryStatePrefix+"plane", filterCategory.Plane))
-			checks = append(checks, resource.TestCheckResourceAttr(resourceName, categoryStatePrefix+"type", filterCategory.Type))
-		}
-
-		checks = append(checks, checkResourcePathFilter(resourceName, statePrefix+"path_filter.0.", eventFilter.PathFilter)...)
+	dataEventFilters := trail.FilteringPolicy.DataEventFilters
+	for i, dataEventFilter := range dataEventFilters {
+		statePrefix := fmt.Sprintf("filtering_policy.0.data_events_filter.%d.", i)
+		checks = append(checks, checkDataEventFilter(resourceName, statePrefix, dataEventFilter)...)
 	}
 
 	return resource.ComposeTestCheckFunc(checks...)
 }
 
-func checkResourcePathFilter(resourceName string, statePrefix string, pathFilter trailResourceFilter) []resource.TestCheckFunc {
+func checkDataEventFilter(resourceName string, statePrefix string, dataEventFilter trailDataEventFilter) []resource.TestCheckFunc {
 	var checks []resource.TestCheckFunc
 
-	if pathFilter.IsAnyFilter {
-		checks = append(checks, checkResource(statePrefix+"any_filter.0.", resourceName, pathFilter)...)
-	} else {
-		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"any_filter.#", "0"))
+	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"service", dataEventFilter.Service))
+	checks = append(checks, checkResourceScopes(resourceName, statePrefix+"resource_scope.", dataEventFilter.ResourceScope)...)
+
+	for i, includedEvent := range dataEventFilter.IncludedEvents {
+		statePath := fmt.Sprintf("%sincluded_events.%d", statePrefix, i)
+		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePath, includedEvent))
 	}
 
-	if pathFilter.IsSomeFilter {
-		checks = append(checks, checkResource(statePrefix+"some_filter.0.", resourceName, pathFilter)...)
-
-		for i, nestedFilter := range pathFilter.AnyFilters {
-			nestedFilterStatePrefix := fmt.Sprintf("%ssome_filter.0.any_filters.%d.", statePrefix, i)
-			checks = append(checks, checkResource(nestedFilterStatePrefix, resourceName, nestedFilter)...)
-		}
-	} else {
-		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"some_filter.#", "0"))
+	for i, excludedEvent := range dataEventFilter.ExcludedEvents {
+		statePath := fmt.Sprintf("%sexcluded_events.%d", statePrefix, i)
+		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePath, excludedEvent))
 	}
+
 	return checks
 }
 
-func checkResource(statePrefix string, resourceName string, defaultFilter trailResourceFilter) []resource.TestCheckFunc {
+func checkResourceScopes(resourceName string, statePrefix string, expected []trailResourceEntry) []resource.TestCheckFunc {
 	var checks []resource.TestCheckFunc
 
-	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"resource_id", defaultFilter.ResourceID))
-	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"resource_type", defaultFilter.ResourceType))
+	resourceEntryLen := len(expected)
+	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"#", fmt.Sprint(resourceEntryLen)))
+
+	for i := 0; i < resourceEntryLen; i++ {
+		nestedResourceStatePrefix := fmt.Sprintf("%s%d.", statePrefix, i)
+		checks = append(checks, checkResource(nestedResourceStatePrefix, resourceName, expected[i])...)
+	}
+
+	return checks
+}
+
+func checkResource(statePrefix string, resourceName string, resourceEntry trailResourceEntry) []resource.TestCheckFunc {
+	var checks []resource.TestCheckFunc
+
+	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"resource_id", resourceEntry.ResourceId))
+	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"resource_type", resourceEntry.ResourceType))
 	return checks
 }
 
@@ -404,13 +403,16 @@ func auditTrailsYdsConfig(trailResourceName, ydbName, streamName, saName string)
 			YdbName:    ydbName,
 			StreamName: streamName,
 		},
-		Filter: trailFilter{
-			PathFilter: trailResourceFilter{
-				IsAnyFilter:  true,
-				ResourceType: "resource-manager.folder",
-				ResourceID:   getExampleFolderID(),
+		FilteringPolicy: trailFilteringPolicy{
+			ManagementFilter: trailManagementFilter{
+				ResourceScope: []trailResourceEntry{
+					{
+						ResourceId:   getExampleFolderID(),
+						ResourceType: "resource-manager.folder",
+					},
+				},
 			},
-			EventFilters: []trailEventFilter{},
+			DataEventFilters: []trailDataEventFilter{},
 		},
 	}
 }
@@ -425,13 +427,16 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 		LoggingDestination: trailLoggingDestination{
 			LogGroupName: logGroupName,
 		},
-		Filter: trailFilter{
-			PathFilter: trailResourceFilter{
-				IsAnyFilter:  true,
-				ResourceType: "resource-manager.folder",
-				ResourceID:   getExampleFolderID(),
+		FilteringPolicy: trailFilteringPolicy{
+			ManagementFilter: trailManagementFilter{
+				ResourceScope: []trailResourceEntry{
+					{
+						ResourceId:   getExampleFolderID(),
+						ResourceType: "resource-manager.folder",
+					},
+				},
 			},
-			EventFilters: []trailEventFilter{},
+			DataEventFilters: []trailDataEventFilter{},
 		},
 	}
 }
@@ -446,31 +451,22 @@ func auditTrailsStorageConfig(trailResourceName, bucketName, saName string) yand
 		StorageDestination: trailStorageDestination{
 			BucketName: bucketName,
 		},
-		Filter: trailFilter{
-			PathFilter: trailResourceFilter{
-				IsAnyFilter:  true,
-				ResourceType: "resource-manager.folder",
-				ResourceID:   getExampleFolderID(),
+		FilteringPolicy: trailFilteringPolicy{
+			ManagementFilter: trailManagementFilter{
+				ResourceScope: []trailResourceEntry{
+					{
+						ResourceId:   getExampleFolderID(),
+						ResourceType: "resource-manager.folder",
+					},
+				},
 			},
-			EventFilters: []trailEventFilter{
+			DataEventFilters: []trailDataEventFilter{
 				{
 					Service: "storage",
-					Categories: []trailFilterCategory{
+					ResourceScope: []trailResourceEntry{
 						{
-							Plane: "DATA_PLANE",
-							Type:  "WRITE",
-						},
-					},
-					PathFilter: trailResourceFilter{
-						IsSomeFilter: true,
-						ResourceType: "resource-manager.folder",
-						ResourceID:   getExampleFolderID(),
-						AnyFilters: []trailResourceFilter{
-							{
-								IsAnyFilter:  true,
-								ResourceType: "storage.bucket",
-								ResourceID:   bucketName,
-							},
+							ResourceId:   bucketName,
+							ResourceType: "storage.bucket",
 						},
 					},
 				},
@@ -547,6 +543,12 @@ resource "yandex_resourcemanager_folder_iam_member" "role-4-{{.SaName}}" {
 
 resource "yandex_resourcemanager_folder_iam_member" "role-5-{{.SaName}}" {
   folder_id = "{{.FolderId}}"
+  role      = "ydb.viewer"
+  member    = "serviceAccount:${yandex_iam_service_account.{{.SaName}}.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "role-6-{{.SaName}}" {
+  folder_id = "{{.FolderId}}"
   role      = "logging.viewer"
   member    = "serviceAccount:${yandex_iam_service_account.{{.SaName}}.id}"
 }
@@ -599,26 +601,6 @@ resource "yandex_ydb_topic" "{{.TopicName}}" {
 `
 
 const trailResourceTemplate = `
-{{define "pathFilter"}}
-{{if .IsAnyFilter}}
-any_filter {
- resource_id = "{{.ResourceID}}"
- resource_type = "{{.ResourceType}}"
-}
-{{else if .IsSomeFilter}}
-some_filter {
- resource_id = "{{.ResourceID}}"
- resource_type = "{{.ResourceType}}"
- {{range .AnyFilters}}  
- any_filters {
-    resource_id = "{{.ResourceID}}"
-    resource_type = "{{.ResourceType}}"
- }
- {{end}}
-}
-{{end}}
-{{end}}
-
 resource "yandex_audit_trails_trail" "{{.Name}}" {
  name = "{{.Name}}"
  folder_id = "{{.FolderID}}"
@@ -661,36 +643,49 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
  }
  {{end}}
  {{end}}
- 
- filter {
-    path_filter {
-      {{template "pathFilter" .Filter.PathFilter}}
-    }
-    {{range .Filter.EventFilters}}
-    event_filters {
-      service = "{{.Service}}"
-      {{range .Categories}}
-      categories {
-        plane = "{{.Plane}}"
-        type = "{{.Type}}"
-      }
-      {{end}}
-      path_filter {
-        {{template "pathFilter" .PathFilter}}
-      }
-    }
-    {{end}}
+
+ filtering_policy {
+    {{if .FilteringPolicy.ManagementFilter}}
+	management_events_filter {
+	  {{range .FilteringPolicy.ManagementFilter.ResourceScope}}
+	  resource_scope {
+	    resource_id = "{{.ResourceId}}"
+		resource_type = "{{.ResourceType}}"
+	  }
+	  {{end}}
+	}
+	{{end}}
+    {{range .FilteringPolicy.DataEventFilters}}
+	data_events_filter {
+	  service = "{{.Service}}"
+
+	  {{range .ResourceScope}}
+	  resource_scope {
+	    resource_id = "{{.ResourceId}}"
+		resource_type = "{{.ResourceType}}"
+	  }
+	  {{end}}
+
+	  {{if .IncludedEvents}}
+	  included_events = [
+	  {{range .IncludedEvents}}
+	    "{{.}}",
+	  {{end}}
+	  ]
+	  {{end}}
+
+	  {{if .ExcludedEvents}}
+	  excluded_events = [
+	  {{range .ExcludedEvents}}
+	    "{{.}}",
+	  {{end}}
+	  ]
+	  {{end}}
+	}
+	{{end}}
  }
 }
 `
-
-type trailResourceFilter struct {
-	IsAnyFilter  bool
-	IsSomeFilter bool
-	ResourceID   string
-	ResourceType string
-	AnyFilters   []trailResourceFilter
-}
 
 type trailLoggingDestination struct {
 	LogGroupName string
@@ -706,20 +701,25 @@ type trailStorageDestination struct {
 	ObjectPrefix string
 }
 
-type trailFilterCategory struct {
-	Plane string
-	Type  string
+type trailManagementFilter struct {
+	ResourceScope []trailResourceEntry
 }
 
-type trailEventFilter struct {
-	Service    string
-	Categories []trailFilterCategory
-	PathFilter trailResourceFilter
+type trailDataEventFilter struct {
+	Service        string
+	ResourceScope  []trailResourceEntry
+	IncludedEvents []string
+	ExcludedEvents []string
 }
 
-type trailFilter struct {
-	PathFilter   trailResourceFilter
-	EventFilters []trailEventFilter
+type trailResourceEntry struct {
+	ResourceId   string
+	ResourceType string
+}
+
+type trailFilteringPolicy struct {
+	ManagementFilter trailManagementFilter
+	DataEventFilters []trailDataEventFilter
 }
 
 type yandexAuditTrailsTrail struct {
@@ -731,7 +731,7 @@ type yandexAuditTrailsTrail struct {
 	LoggingDestination trailLoggingDestination
 	YDSDestination     trailDataStreamDestination
 	StorageDestination trailStorageDestination
-	Filter             trailFilter
+	FilteringPolicy    trailFilteringPolicy
 }
 
 func (t yandexAuditTrailsTrail) toTerraformResource() string {

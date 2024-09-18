@@ -3,13 +3,30 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
-	"log"
-	"time"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
+
+func resourceAuditTrailsTrailResourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resource_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+}
 
 func resourceYandexAuditTrailsTrail() *schema.Resource {
 	return &schema.Resource{
@@ -17,6 +34,8 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 		CreateContext: createTrailResource,
 		UpdateContext: updateTrailResource,
 		DeleteContext: deleteTrailResource,
+
+		SchemaVersion: 1,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -120,10 +139,79 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					},
 				},
 			},
-			"filter": {
-				Required: true,
+			"filtering_policy": {
+				ExactlyOneOf: []string{
+					"filtering_policy",
+					"filter",
+				},
+				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"management_events_filter": {
+							AtLeastOneOf: []string{
+								"filtering_policy.0.management_events_filter",
+								"filtering_policy.0.data_events_filter",
+							},
+							Optional: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_scope": {
+										Required: true,
+										Type:     schema.TypeList,
+										MinItems: 1,
+										Elem:     resourceAuditTrailsTrailResourceSchema(),
+									},
+								},
+							},
+						},
+						"data_events_filter": {
+							AtLeastOneOf: []string{
+								"filtering_policy.0.management_events_filter",
+								"filtering_policy.0.data_events_filter",
+							},
+							Optional: true,
+							Type:     schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service": {
+										Required: true,
+										Type:     schema.TypeString,
+									},
+									"included_events": {
+										Optional: true,
+										Type:     schema.TypeList,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"excluded_events": {
+										Optional: true,
+										Type:     schema.TypeList,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"resource_scope": {
+										Required: true,
+										Type:     schema.TypeList,
+										MinItems: 1,
+										Elem:     resourceAuditTrailsTrailResourceSchema(),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"filter": {
+				ExactlyOneOf: []string{
+					"filtering_policy",
+					"filter",
+				},
+				Optional:   true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Deprecated: "Configure filtering_policy instead. This attribute will be removed",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path_filter": {
@@ -140,18 +228,7 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 										Optional: true,
 										Type:     schema.TypeList,
 										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"resource_id": {
-													Type:     schema.TypeString,
-													Required: true,
-												},
-												"resource_type": {
-													Type:     schema.TypeString,
-													Required: true,
-												},
-											},
-										},
+										Elem:     resourceAuditTrailsTrailResourceSchema(),
 									},
 									"some_filter": {
 										ExactlyOneOf: []string{
@@ -174,18 +251,7 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 												"any_filters": {
 													Type:     schema.TypeList,
 													Required: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"resource_id": {
-																Type:     schema.TypeString,
-																Required: true,
-															},
-															"resource_type": {
-																Type:     schema.TypeString,
-																Required: true,
-															},
-														},
-													},
+													Elem:     resourceAuditTrailsTrailResourceSchema(),
 												},
 											},
 										},
@@ -229,18 +295,7 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 													Type:     schema.TypeList,
 													Optional: true,
 													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"resource_id": {
-																Type:     schema.TypeString,
-																Required: true,
-															},
-															"resource_type": {
-																Type:     schema.TypeString,
-																Required: true,
-															},
-														},
-													},
+													Elem:     resourceAuditTrailsTrailResourceSchema(),
 												},
 												"some_filter": {
 													Type:     schema.TypeList,
@@ -259,18 +314,7 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 															"any_filters": {
 																Type:     schema.TypeList,
 																Required: true,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"resource_id": {
-																			Type:     schema.TypeString,
-																			Required: true,
-																		},
-																		"resource_type": {
-																			Type:     schema.TypeString,
-																			Required: true,
-																		},
-																	},
-																},
+																Elem:     resourceAuditTrailsTrailResourceSchema(),
 															},
 														},
 													},
@@ -292,8 +336,9 @@ func deleteTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 	config := meta.(*Config)
 
 	id := data.Id()
+	ctx = tflog.SetField(ctx, "trail_id", id)
 
-	log.Printf("[DEBUG] Deleting Trail %q", id)
+	tflog.Debug(ctx, "Deleting trail")
 
 	req := &audittrails.DeleteTrailRequest{
 		TrailId: id,
@@ -314,21 +359,18 @@ func deleteTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Finished deleting Trail %q", id)
+	tflog.Debug(ctx, "Finished deleting trail")
 	return nil
 }
 
 func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Updating Trail %q", data.Id())
+	ctx = tflog.SetField(ctx, "trail_id", data.Id())
+
+	tflog.Debug(ctx, "Updating trail")
 
 	labels, err := expandLabels(data.Get("labels"))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	filter, err := packResourceDataIntoFilter(data)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -340,7 +382,10 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
 		Destination:      packResourceDataIntoDestination(data),
-		Filter:           filter,
+		FilteringPolicy:  packResourceDataIntoFilteringPolicy(data),
+		UpdateMask: &fieldmaskpb.FieldMask{
+			Paths: []string{"name", "description", "labels", "service_account_id", "destination", "filtering_policy", "filter"},
+		},
 	}
 
 	err = retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
@@ -374,7 +419,7 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Finished updating Trail %q", data.Id())
+	tflog.Debug(ctx, "Finished updating trail")
 
 	return readTrailResource(ctx, data, meta)
 }
@@ -382,7 +427,9 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 func createTrailResource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Creating Trail %q", data.Get("name").(string))
+	ctx = tflog.SetField(ctx, "trail_name", data.Get("name"))
+
+	tflog.Debug(ctx, "Creating trail")
 
 	labels, err := expandLabels(data.Get("labels"))
 	if err != nil {
@@ -394,11 +441,6 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	filter, err := packResourceDataIntoFilter(data)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
 	req := &audittrails.CreateTrailRequest{
 		FolderId:         folderID,
 		Name:             data.Get("name").(string),
@@ -406,7 +448,7 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
 		Destination:      packResourceDataIntoDestination(data),
-		Filter:           filter,
+		FilteringPolicy:  packResourceDataIntoFilteringPolicy(data),
 	}
 
 	err = retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
@@ -440,21 +482,90 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Finished creating Trail %q", data.Get("name").(string))
+	tflog.Debug(ctx, "Finished creating trail")
 
 	return readTrailResource(ctx, data, meta)
 }
 
-func packResourceDataIntoFilter(data *schema.ResourceData) (*audittrails.Trail_Filter, error) {
-	res := &audittrails.Trail_Filter{}
+func packResourceDataIntoFilteringPolicy(data *schema.ResourceData) *audittrails.Trail_FilteringPolicy {
+	res := &audittrails.Trail_FilteringPolicy{}
+
+	if _, newFilterUsed := data.GetOk("filtering_policy"); newFilterUsed {
+
+		_, filteringPolicyExists := data.GetOk("filtering_policy.0.management_events_filter")
+		if filteringPolicyExists {
+			managementFilter := packResourceDataIntoManagementFilter(data, "filtering_policy.0.management_events_filter.0.")
+			res.SetManagementEventsFilter(managementFilter)
+		}
+
+		_, filteringPolicyExists = data.GetOk("filtering_policy.0.data_events_filter")
+		if filteringPolicyExists {
+			dataEventsFilters := packResourceDataIntoDataEventsFilters(data, "filtering_policy.0.data_events_filter.")
+			res.SetDataEventsFilters(dataEventsFilters)
+		}
+	}
+
+	if _, oldFilterUsed := data.GetOk("filter"); oldFilterUsed {
+		return packResourceDataIntoFilter(data)
+	}
+
+	return res
+}
+
+func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace string) []*audittrails.Trail_DataEventsFiltering {
+	res := []*audittrails.Trail_DataEventsFiltering{}
+
+	numberOfFilters := data.Get(namespace + "#").(int)
+	for i := 0; i < numberOfFilters; i++ {
+		filterNamespace := fmt.Sprintf("%s%d.", namespace, i)
+
+		filter := &audittrails.Trail_DataEventsFiltering{
+			ResourceScopes: packResourceDataIntoResourceScopes(data, filterNamespace+"resource_scope."),
+			Service:        data.Get(filterNamespace + "service").(string),
+		}
+
+		_, exists := data.GetOk(filterNamespace + "included_events")
+		if exists {
+			includedEvents := packResourceDataIntoEventTypes(data, filterNamespace+"included_events.")
+			filter.SetIncludedEvents(includedEvents)
+		}
+
+		_, exists = data.GetOk(filterNamespace + "excluded_events")
+		if exists {
+			excludedEvents := packResourceDataIntoEventTypes(data, filterNamespace+"excluded_events.")
+			filter.SetIncludedEvents(excludedEvents)
+		}
+
+		res = append(res, filter)
+	}
+
+	return res
+}
+
+func packResourceDataIntoEventTypes(data *schema.ResourceData, namespace string) *audittrails.Trail_EventTypes {
+	res := []string{}
+
+	numberOfTypes := data.Get(namespace + "#").(int)
+	for i := 0; i < numberOfTypes; i++ {
+		eventTypePath := fmt.Sprintf("%s%d", namespace, i)
+		eventType := data.Get(eventTypePath).(string)
+		res = append(res, eventType)
+	}
+
+	return &audittrails.Trail_EventTypes{
+		EventTypes: res,
+	}
+}
+
+func packResourceDataIntoFilter(data *schema.ResourceData) *audittrails.Trail_FilteringPolicy {
+	res := &audittrails.Trail_FilteringPolicy{}
 
 	_, exists := data.GetOk("filter.0.path_filter")
 	if exists {
-		pathFilter, err := packResourceDataIntoPathFilter(data, "filter.0.path_filter.0.")
-		if err != nil {
-			return nil, err
-		}
-		res.SetPathFilter(pathFilter)
+		pathFilter := packResourceDataIntoPathFilter(data, "filter.0.path_filter.0.")
+		res.SetManagementEventsFilter(&audittrails.Trail_ManagementEventsFiltering{
+			ResourceScopes: pathFilterToResourceScopes(pathFilter),
+		})
 	}
 
 	eventFiltersField, ok := data.GetOk("filter.0.event_filters.#")
@@ -466,54 +577,47 @@ func packResourceDataIntoFilter(data *schema.ResourceData) (*audittrails.Trail_F
 		eventFiltersCount = 0
 	}
 
-	eventFilters := make([]*audittrails.Trail_EventFilterElement, eventFiltersCount)
+	eventFilters := make([]*audittrails.Trail_DataEventsFiltering, eventFiltersCount)
 
 	for i := 0; i < eventFiltersCount; i++ {
 		prefix := fmt.Sprintf("filter.0.event_filters.%d.", i)
-		eventFilterElement, err := packResourceDataIntoEventFilterElement(data, prefix)
-		if err != nil {
-			return nil, err
-		}
+		eventFilterElement := packResourceDataIntoEventFilterElement(data, prefix)
 		eventFilters[i] = eventFilterElement
 	}
 
-	res.SetEventFilter(&audittrails.Trail_EventFilter{
-		Filters: eventFilters,
-	})
+	res.SetDataEventsFilters(eventFilters)
 
-	return res, nil
+	return res
 }
 
-func packResourceDataIntoEventFilterElement(data *schema.ResourceData, namespace string) (*audittrails.Trail_EventFilterElement, error) {
-	categoriesCount := data.Get(namespace + "categories.#").(int)
-	categories := make([]*audittrails.Trail_EventFilterElementCategory, categoriesCount)
-	for i := 0; i < categoriesCount; i++ {
-		prefix := fmt.Sprintf("%scategories.%d.", namespace, i)
-		categories[i] = &audittrails.Trail_EventFilterElementCategory{
-			Type:  audittrails.Trail_EventAccessTypeFilter(audittrails.Trail_EventAccessTypeFilter_value[data.Get(prefix+"type").(string)]),
-			Plane: audittrails.Trail_EventCategoryFilter(audittrails.Trail_EventCategoryFilter_value[data.Get(prefix+"plane").(string)]),
+func packResourceDataIntoEventFilterElement(data *schema.ResourceData, namespace string) *audittrails.Trail_DataEventsFiltering {
+	pathFilter := packResourceDataIntoPathFilter(data, namespace+"path_filter.0.")
+
+	return &audittrails.Trail_DataEventsFiltering{
+		Service:        data.Get(namespace + "service").(string),
+		ResourceScopes: pathFilterToResourceScopes(pathFilter),
+	}
+}
+
+func pathFilterToResourceScopes(pathFilter *audittrails.Trail_PathFilter) []*audittrails.Trail_Resource {
+	if anyFilter := pathFilter.Root.GetAnyFilter(); anyFilter != nil {
+		return []*audittrails.Trail_Resource{anyFilter.Resource}
+	}
+
+	if someFilter := pathFilter.Root.GetSomeFilter(); someFilter != nil {
+		result := []*audittrails.Trail_Resource{}
+		anyFilters := someFilter.GetFilters()
+		for _, anyFilter := range anyFilters {
+			result = append(result, anyFilter.GetAnyFilter().GetResource())
 		}
 	}
 
-	pathFilter, err := packResourceDataIntoPathFilter(data, namespace+"path_filter.0.")
-	if err != nil {
-		return nil, err
-	}
-
-	return &audittrails.Trail_EventFilterElement{
-		Service:    data.Get(namespace + "service").(string),
-		Categories: categories,
-		PathFilter: pathFilter,
-	}, nil
+	panic("Shouldn't happen due to internal terraform resource validations")
 }
 
-func packResourceDataIntoPathFilter(data *schema.ResourceData, namespace string) (*audittrails.Trail_PathFilter, error) {
+func packResourceDataIntoPathFilter(data *schema.ResourceData, namespace string) *audittrails.Trail_PathFilter {
 	_, anyDefined := data.GetOk(namespace + "any_filter")
 	_, someDefined := data.GetOk(namespace + "some_filter")
-
-	if anyDefined == someDefined {
-		return nil, fmt.Errorf("exactly one of fields any_filter or some_filter should be specified at %s", namespace)
-	}
 
 	resRoot := &audittrails.Trail_PathFilterElement{}
 	if anyDefined {
@@ -537,7 +641,24 @@ func packResourceDataIntoPathFilter(data *schema.ResourceData, namespace string)
 			Filters:  childFilters,
 		})
 	}
-	return &audittrails.Trail_PathFilter{Root: resRoot}, nil
+	return &audittrails.Trail_PathFilter{Root: resRoot}
+}
+
+func packResourceDataIntoManagementFilter(data *schema.ResourceData, namespace string) *audittrails.Trail_ManagementEventsFiltering {
+	return &audittrails.Trail_ManagementEventsFiltering{
+		ResourceScopes: packResourceDataIntoResourceScopes(data, namespace+"resource_scope."),
+	}
+}
+
+func packResourceDataIntoResourceScopes(data *schema.ResourceData, namespace string) []*audittrails.Trail_Resource {
+	res := []*audittrails.Trail_Resource{}
+
+	numberOfScopes := data.Get(namespace + "#").(int)
+	for i := 0; i < numberOfScopes; i++ {
+		resourceNamespace := fmt.Sprintf("%s%d.", namespace, i)
+		res = append(res, packResourceDataIntoResource(data, resourceNamespace))
+	}
+	return res
 }
 
 func packResourceDataIntoResource(data *schema.ResourceData, namespace string) *audittrails.Trail_Resource {
@@ -589,8 +710,9 @@ func readTrailResource(ctx context.Context, data *schema.ResourceData, meta inte
 	config := meta.(*Config)
 
 	id := data.Id()
+	ctx = tflog.SetField(ctx, "trail_id", id)
 
-	log.Printf("[DEBUG] Reading Trail %q", id)
+	tflog.Debug(ctx, "Reading trail")
 
 	var unpackingErrors diag.Diagnostics
 
@@ -610,6 +732,7 @@ func readTrailResource(ctx context.Context, data *schema.ResourceData, meta inte
 		return diag.FromErr(handleNotFoundError(err, data, fmt.Sprintf("Trail %q", id)))
 	}
 
-	log.Printf("[DEBUG] Finished reading Trail %q", id)
+	tflog.Debug(ctx, "Finished reading trail")
+
 	return unpackingErrors
 }
