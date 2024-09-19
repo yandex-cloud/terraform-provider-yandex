@@ -10,18 +10,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	advanced_rate_limiter "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
-func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
+func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceYandexSmartwebsecuritySecurityProfileCreate,
-		ReadContext:   resourceYandexSmartwebsecuritySecurityProfileRead,
-		UpdateContext: resourceYandexSmartwebsecuritySecurityProfileUpdate,
-		DeleteContext: resourceYandexSmartwebsecuritySecurityProfileDelete,
+		CreateContext: resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileCreate,
+		ReadContext:   resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileRead,
+		UpdateContext: resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileUpdate,
+		DeleteContext: resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -37,13 +37,862 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"advanced_rate_limiter_profile_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+			"advanced_rate_limiter_rule": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"description": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringLenBetween(0, 512),
+						},
 
-			"captcha_id": {
-				Type:     schema.TypeString,
+						"dry_run": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+
+						"dynamic_quota": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"action": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXAction),
+									},
+
+									"characteristic": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"case_insensitive": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+
+												"key_characteristic": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"type": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXDynamicQuotaXCharacteristicXKeyCharacteristicXType),
+															},
+
+															"value": {
+																Type:     schema.TypeString,
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"simple_characteristic": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"type": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXDynamicQuotaXCharacteristicXSimpleCharacteristicXType),
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+
+									"condition": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"authority": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"authorities": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"headers": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validation.StringLenBetween(1, 255),
+															},
+
+															"value": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Required: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"http_method": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"http_methods": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"request_uri": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"path": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"queries": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: validation.StringLenBetween(1, 255),
+																		},
+
+																		"value": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"exact_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"exact_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"pire_regex_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"pire_regex_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"prefix_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"prefix_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+																				},
+																			},
+																			Required: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"source_ip": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"geo_ip_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"locations": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"geo_ip_not_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"locations": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"ip_ranges_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ip_ranges": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"ip_ranges_not_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ip_ranges": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 9999999999999),
+									},
+
+									"period": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+							Optional: true,
+						},
+
+						"name": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
+						},
+
+						"priority": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 999999),
+						},
+
+						"static_quota": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"action": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXAction),
+									},
+
+									"condition": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"authority": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"authorities": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"headers": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validation.StringLenBetween(1, 255),
+															},
+
+															"value": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Required: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"http_method": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"http_methods": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"request_uri": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"path": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"exact_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"exact_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"pire_regex_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+
+																		"prefix_not_match": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: validation.StringLenBetween(0, 255),
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"queries": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: validation.StringLenBetween(1, 255),
+																		},
+
+																		"value": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"exact_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"exact_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"pire_regex_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"pire_regex_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"prefix_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+
+																					"prefix_not_match": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringLenBetween(0, 255),
+																					},
+																				},
+																			},
+																			Required: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+
+												"source_ip": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"geo_ip_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"locations": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"geo_ip_not_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"locations": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"ip_ranges_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ip_ranges": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+
+															"ip_ranges_not_match": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ip_ranges": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 9999999999999),
+									},
+
+									"period": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+							Optional: true,
+						},
+					},
+				},
 				Optional: true,
 			},
 
@@ -56,12 +905,6 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-
-			"default_action": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityProfileXDefaultAction),
 			},
 
 			"description": {
@@ -92,1184 +935,11 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 			},
-
-			"security_rule": {
-				Type: schema.TypeList,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"description": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(0, 512),
-						},
-
-						"dry_run": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-
-						"name": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
-						},
-
-						"priority": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1, 999999),
-						},
-
-						"rule_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"action": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXRuleConditionXAction),
-									},
-
-									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"authorities": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"headers": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: validation.StringLenBetween(1, 255),
-															},
-
-															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Required: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"http_methods": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"queries": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"key": {
-																			Type:         schema.TypeString,
-																			Required:     true,
-																			ValidateFunc: validation.StringLenBetween(1, 255),
-																		},
-
-																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"exact_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"exact_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-																				},
-																			},
-																			Required: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-											},
-										},
-										Optional: true,
-									},
-								},
-							},
-							Optional: true,
-						},
-
-						"smart_protection": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"authorities": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"headers": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: validation.StringLenBetween(1, 255),
-															},
-
-															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Required: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"http_methods": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"queries": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"key": {
-																			Type:         schema.TypeString,
-																			Required:     true,
-																			ValidateFunc: validation.StringLenBetween(1, 255),
-																		},
-
-																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"exact_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"exact_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-																				},
-																			},
-																			Required: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-											},
-										},
-										Optional: true,
-									},
-
-									"mode": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXSmartProtectionXMode),
-									},
-								},
-							},
-							Optional: true,
-						},
-
-						"waf": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"authorities": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"headers": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: validation.StringLenBetween(1, 255),
-															},
-
-															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Required: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"http_methods": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"exact_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"exact_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"pire_regex_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-
-																		"prefix_not_match": {
-																			Type:         schema.TypeString,
-																			Optional:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 255),
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"queries": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"key": {
-																			Type:         schema.TypeString,
-																			Required:     true,
-																			ValidateFunc: validation.StringLenBetween(1, 255),
-																		},
-
-																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"exact_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"exact_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"pire_regex_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-
-																					"prefix_not_match": {
-																						Type:         schema.TypeString,
-																						Optional:     true,
-																						ValidateFunc: validation.StringLenBetween(0, 255),
-																					},
-																				},
-																			},
-																			Required: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-
-												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"locations": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-
-															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"ip_ranges": {
-																			Type: schema.TypeList,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																			Optional: true,
-																		},
-																	},
-																},
-																Optional: true,
-															},
-														},
-													},
-													Optional: true,
-												},
-											},
-										},
-										Optional: true,
-									},
-
-									"mode": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXWafXMode),
-									},
-
-									"waf_profile_id": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-								},
-							},
-							Optional: true,
-						},
-					},
-				},
-				Optional: true,
-			},
 		},
 	}
 }
 
-func resourceYandexSmartwebsecuritySecurityProfileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
 	folderId, err := getFolderID(d, config)
@@ -1278,36 +948,28 @@ func resourceYandexSmartwebsecuritySecurityProfileCreate(ctx context.Context, d 
 	}
 
 	labels := expandStringStringMap(d.Get("labels").(map[string]interface{}))
-	defaultAction, err := parseSmartwebsecuritySecurityProfileXDefaultAction(d.Get("default_action").(string))
+	advancedRateLimiterRules, err := expandAdvancedRateLimiterProfileAdvancedRateLimiterRulesSlice(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	securityRules, err := expandSecurityProfileSecurityRulesSlice(d)
-	if err != nil {
-		return diag.FromErr(err)
+	req := &advanced_rate_limiter.CreateAdvancedRateLimiterProfileRequest{
+		FolderId:                 folderId,
+		Labels:                   labels,
+		Name:                     d.Get("name").(string),
+		Description:              d.Get("description").(string),
+		AdvancedRateLimiterRules: advancedRateLimiterRules,
 	}
 
-	req := &smartwebsecurity.CreateSecurityProfileRequest{
-		FolderId:                     folderId,
-		Labels:                       labels,
-		Name:                         d.Get("name").(string),
-		Description:                  d.Get("description").(string),
-		DefaultAction:                defaultAction,
-		SecurityRules:                securityRules,
-		CaptchaId:                    d.Get("captcha_id").(string),
-		AdvancedRateLimiterProfileId: d.Get("advanced_rate_limiter_profile_id").(string),
-	}
-
-	log.Printf("[DEBUG] Create SecurityProfile request: %s", protoDump(req))
+	log.Printf("[DEBUG] Create AdvancedRateLimiterProfile request: %s", protoDump(req))
 
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurity().SecurityProfile().Create(ctx, req, grpc.Header(md)))
+	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().Create(ctx, req, grpc.Header(md)))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Create SecurityProfile x-server-trace-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Create AdvancedRateLimiterProfile x-server-trace-id: %s", traceHeader[0])
 	}
 	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Create SecurityProfile x-server-request-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Create AdvancedRateLimiterProfile x-server-request-id: %s", traceHeader[0])
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -1315,60 +977,56 @@ func resourceYandexSmartwebsecuritySecurityProfileCreate(ctx context.Context, d 
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return diag.Errorf("Error while get smartwebsecurity.SecurityProfile create operation metadata: %v", err)
+		return diag.Errorf("Error while get advanced_rate_limiter.AdvancedRateLimiterProfile create operation metadata: %v", err)
 	}
 
-	createMetadata, ok := protoMetadata.(*smartwebsecurity.CreateSecurityProfileMetadata)
+	createMetadata, ok := protoMetadata.(*advanced_rate_limiter.CreateAdvancedRateLimiterProfileMetadata)
 	if !ok {
-		return diag.Errorf("could not get SecurityProfile ID from create operation metadata")
+		return diag.Errorf("could not get AdvancedRateLimiterProfile ID from create operation metadata")
 	}
 
-	d.SetId(createMetadata.SecurityProfileId)
+	d.SetId(createMetadata.AdvancedRateLimiterProfileId)
 
 	err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return resourceYandexSmartwebsecuritySecurityProfileRead(ctx, d, meta)
+	return resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileRead(ctx, d, meta)
 }
 
-func resourceYandexSmartwebsecuritySecurityProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	req := &smartwebsecurity.GetSecurityProfileRequest{
-		SecurityProfileId: d.Id(),
+	req := &advanced_rate_limiter.GetAdvancedRateLimiterProfileRequest{
+		AdvancedRateLimiterProfileId: d.Id(),
 	}
 
-	log.Printf("[DEBUG] Read SecurityProfile request: %s", protoDump(req))
+	log.Printf("[DEBUG] Read AdvancedRateLimiterProfile request: %s", protoDump(req))
 
 	md := new(metadata.MD)
-	resp, err := config.sdk.SmartWebSecurity().SecurityProfile().Get(ctx, req, grpc.Header(md))
+	resp, err := config.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().Get(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Read SecurityProfile x-server-trace-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Read AdvancedRateLimiterProfile x-server-trace-id: %s", traceHeader[0])
 	}
 	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Read SecurityProfile x-server-request-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Read AdvancedRateLimiterProfile x-server-request-id: %s", traceHeader[0])
 	}
 	if err != nil {
-		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("security_profile %q", d.Id())))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("advanced_rate_limiter_profile %q", d.Id())))
 	}
 
-	log.Printf("[DEBUG] Read SecurityProfile response: %s", protoDump(resp))
+	log.Printf("[DEBUG] Read AdvancedRateLimiterProfile response: %s", protoDump(resp))
 
-	createdAt := getTimestamp(resp.GetCreatedAt())
-
-	securityRule, err := flattenSmartwebsecuritySecurityRuleSlice(resp.GetSecurityRules())
+	advancedRateLimiterRule, err := flattenAdvancedXrateXlimiterAdvancedRateLimiterRuleSlice(resp.GetAdvancedRateLimiterRules())
 	if err != nil { // isElem: false, ret: 1
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("advanced_rate_limiter_profile_id", resp.GetAdvancedRateLimiterProfileId()); err != nil {
-		log.Printf("[ERROR] failed set field advanced_rate_limiter_profile_id: %s", err)
-		return diag.FromErr(err)
-	}
-	if err := d.Set("captcha_id", resp.GetCaptchaId()); err != nil {
-		log.Printf("[ERROR] failed set field captcha_id: %s", err)
+	createdAt := getTimestamp(resp.GetCreatedAt())
+
+	if err := d.Set("advanced_rate_limiter_rule", advancedRateLimiterRule); err != nil {
+		log.Printf("[ERROR] failed set field advanced_rate_limiter_rule: %s", err)
 		return diag.FromErr(err)
 	}
 	if err := d.Set("cloud_id", resp.GetCloudId()); err != nil {
@@ -1377,10 +1035,6 @@ func resourceYandexSmartwebsecuritySecurityProfileRead(ctx context.Context, d *s
 	}
 	if err := d.Set("created_at", createdAt); err != nil {
 		log.Printf("[ERROR] failed set field created_at: %s", err)
-		return diag.FromErr(err)
-	}
-	if err := d.Set("default_action", resp.GetDefaultAction().String()); err != nil {
-		log.Printf("[ERROR] failed set field default_action: %s", err)
 		return diag.FromErr(err)
 	}
 	if err := d.Set("description", resp.GetDescription()); err != nil {
@@ -1399,51 +1053,39 @@ func resourceYandexSmartwebsecuritySecurityProfileRead(ctx context.Context, d *s
 		log.Printf("[ERROR] failed set field name: %s", err)
 		return diag.FromErr(err)
 	}
-	if err := d.Set("security_rule", securityRule); err != nil {
-		log.Printf("[ERROR] failed set field security_rule: %s", err)
-		return diag.FromErr(err)
-	}
 
 	return nil
 }
 
-func resourceYandexSmartwebsecuritySecurityProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
 	labels := expandStringStringMap(d.Get("labels").(map[string]interface{}))
-	defaultAction, err := parseSmartwebsecuritySecurityProfileXDefaultAction(d.Get("default_action").(string))
+	advancedRateLimiterRules, err := expandAdvancedRateLimiterProfileAdvancedRateLimiterRulesSlice_(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	securityRules, err := expandSecurityProfileSecurityRulesSlice_(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	req := &smartwebsecurity.UpdateSecurityProfileRequest{
-		SecurityProfileId:            d.Id(),
+	req := &advanced_rate_limiter.UpdateAdvancedRateLimiterProfileRequest{
+		AdvancedRateLimiterProfileId: d.Id(),
 		Labels:                       labels,
 		Name:                         d.Get("name").(string),
 		Description:                  d.Get("description").(string),
-		DefaultAction:                defaultAction,
-		SecurityRules:                securityRules,
-		CaptchaId:                    d.Get("captcha_id").(string),
-		AdvancedRateLimiterProfileId: d.Get("advanced_rate_limiter_profile_id").(string),
+		AdvancedRateLimiterRules:     advancedRateLimiterRules,
 	}
 
-	updatePath := generateFieldMasks(d, resourceYandexSmartwebsecuritySecurityProfileUpdateFieldsMap)
+	updatePath := generateFieldMasks(d, resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileUpdateFieldsMap)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
-	log.Printf("[DEBUG] Update SecurityProfile request: %s", protoDump(req))
+	log.Printf("[DEBUG] Update AdvancedRateLimiterProfile request: %s", protoDump(req))
 
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurity().SecurityProfile().Update(ctx, req, grpc.Header(md)))
+	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().Update(ctx, req, grpc.Header(md)))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Update SecurityProfile x-server-trace-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Update AdvancedRateLimiterProfile x-server-trace-id: %s", traceHeader[0])
 	}
 	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Update SecurityProfile x-server-request-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Update AdvancedRateLimiterProfile x-server-request-id: %s", traceHeader[0])
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -1454,28 +1096,28 @@ func resourceYandexSmartwebsecuritySecurityProfileUpdate(ctx context.Context, d 
 		return diag.FromErr(err)
 	}
 
-	return resourceYandexSmartwebsecuritySecurityProfileRead(ctx, d, meta)
+	return resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileRead(ctx, d, meta)
 }
 
-func resourceYandexSmartwebsecuritySecurityProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	req := &smartwebsecurity.DeleteSecurityProfileRequest{
-		SecurityProfileId: d.Id(),
+	req := &advanced_rate_limiter.DeleteAdvancedRateLimiterProfileRequest{
+		AdvancedRateLimiterProfileId: d.Id(),
 	}
 
-	log.Printf("[DEBUG] Delete SecurityProfile request: %s", protoDump(req))
+	log.Printf("[DEBUG] Delete AdvancedRateLimiterProfile request: %s", protoDump(req))
 
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurity().SecurityProfile().Delete(ctx, req, grpc.Header(md)))
+	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().Delete(ctx, req, grpc.Header(md)))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Delete SecurityProfile x-server-trace-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Delete AdvancedRateLimiterProfile x-server-trace-id: %s", traceHeader[0])
 	}
 	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		log.Printf("[DEBUG] Delete SecurityProfile x-server-request-id: %s", traceHeader[0])
+		log.Printf("[DEBUG] Delete AdvancedRateLimiterProfile x-server-request-id: %s", traceHeader[0])
 	}
 	if err != nil {
-		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("security_profile %q", d.Id())))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("advanced_rate_limiter_profile %q", d.Id())))
 	}
 
 	err = op.Wait(ctx)
@@ -1486,12 +1128,9 @@ func resourceYandexSmartwebsecuritySecurityProfileDelete(ctx context.Context, d 
 	return nil
 }
 
-var resourceYandexSmartwebsecuritySecurityProfileUpdateFieldsMap = map[string]string{
-	"labels":                           "labels",
-	"name":                             "name",
-	"description":                      "description",
-	"default_action":                   "default_action",
-	"security_rule":                    "security_rules",
-	"captcha_id":                       "captcha_id",
-	"advanced_rate_limiter_profile_id": "advanced_rate_limiter_profile_id",
+var resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileUpdateFieldsMap = map[string]string{
+	"labels":                     "labels",
+	"name":                       "name",
+	"description":                "description",
+	"advanced_rate_limiter_rule": "advanced_rate_limiter_rules",
 }

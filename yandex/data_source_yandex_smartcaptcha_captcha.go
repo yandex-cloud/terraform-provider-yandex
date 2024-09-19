@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
+	smartcaptcha "github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

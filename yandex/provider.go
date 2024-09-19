@@ -225,6 +225,9 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_database_dedicated":                           dataSourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                          dataSourceYandexYDBDatabaseServerless(),
 			"yandex_sws_security_profile":                             dataSourceYandexSmartwebsecuritySecurityProfile(),
+			"yandex_sws_advanced_rate_limiter_profile":                dataSourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
+			"yandex_sws_waf_profile":                                  dataSourceYandexSmartwebsecurityWafWafProfile(),
+			"yandex_sws_waf_rule_set_descriptor":                      dataSourceYandexSmartwebsecurityWafRuleSetDescriptor(),
 			"yandex_smartcaptcha_captcha":                             dataSourceYandexSmartcaptchaCaptcha(),
 		},
 
@@ -351,6 +354,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_table_changefeed":                             resourceYandexYDBTableChangefeed(),
 			"yandex_ydb_table_index":                                  resourceYandexYDBTableIndex(),
 			"yandex_sws_security_profile":                             resourceYandexSmartwebsecuritySecurityProfile(),
+			"yandex_sws_advanced_rate_limiter_profile":                resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
+			"yandex_sws_waf_profile":                                  resourceYandexSmartwebsecurityWafWafProfile(),
 			"yandex_smartcaptcha_captcha":                             resourceYandexSmartcaptchaCaptcha(),
 		},
 	}
