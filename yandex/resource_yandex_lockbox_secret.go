@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/encoding/protojson"
 	"log"
 	"regexp"
 	"time"
+
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,6 +92,62 @@ func resourceYandexLockboxSecret() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"password_payload_specification": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"password_key": {
+							Type:     schema.TypeString,
+							Required: true,
+							ValidateFunc: validation.All(
+								validation.StringLenBetween(1, 256),
+								validation.StringMatch(regexp.MustCompile(`^[-_./\\@0-9a-zA-Z]+$`), ""),
+							),
+						},
+						"length": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      36,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+						"include_uppercase": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"include_lowercase": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"include_digits": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"include_punctuation": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"included_punctuation": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"password_payload_specification.0.excluded_punctuation"},
+							ValidateFunc:  validation.StringLenBetween(0, 32),
+						},
+						"excluded_punctuation": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"password_payload_specification.0.included_punctuation"},
+							ValidateFunc:  validation.StringLenBetween(0, 31),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -103,13 +160,26 @@ func resourceYandexLockboxSecretCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
+	var payloadSpecification lockbox.CreateSecretRequest_PayloadSpecification = nil
+
+	pps, err := expandPasswordPayloadSpecification(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if pps != nil {
+		payloadSpecification = &lockbox.CreateSecretRequest_PasswordPayloadSpecification{
+			PasswordPayloadSpecification: pps,
+		}
+	}
+
 	req := &lockbox.CreateSecretRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		Labels:             expandStringStringMap(d.Get("labels").(map[string]interface{})),
-		KmsKeyId:           d.Get("kms_key_id").(string),
-		DeletionProtection: d.Get("deletion_protection").(bool),
+		FolderId:             folderID,
+		Name:                 d.Get("name").(string),
+		Description:          d.Get("description").(string),
+		Labels:               expandStringStringMap(d.Get("labels").(map[string]interface{})),
+		KmsKeyId:             d.Get("kms_key_id").(string),
+		DeletionProtection:   d.Get("deletion_protection").(bool),
+		PayloadSpecification: payloadSpecification,
 	}
 
 	log.Printf("[INFO] creating Lockbox secret: %s", protojson.Format(req))
@@ -215,6 +285,12 @@ func yandexLockboxSecretRead(id string, isDataSource bool, ctx context.Context, 
 		return diag.FromErr(err)
 	}
 
+	passwordPayloadSpecification := flattenPasswordPayloadSpecification(secret.GetPasswordPayloadSpecification())
+	if err = d.Set("password_payload_specification", passwordPayloadSpecification); err != nil {
+		log.Printf("[ERROR] failed set field password_payload_specification: %s", err)
+		return diag.FromErr(err)
+	}
+
 	log.Printf("[INFO] read Lockbox secret with ID: %s", d.Id())
 
 	return nil
@@ -223,12 +299,25 @@ func yandexLockboxSecretRead(id string, isDataSource bool, ctx context.Context, 
 func resourceYandexLockboxSecretUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
+	var payloadSpecification lockbox.UpdateSecretRequest_PayloadSpecification = nil
+
+	pps, err := expandPasswordPayloadSpecification(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if pps != nil {
+		payloadSpecification = &lockbox.UpdateSecretRequest_PasswordPayloadSpecification{
+			PasswordPayloadSpecification: pps,
+		}
+	}
+
 	req := &lockbox.UpdateSecretRequest{
-		SecretId:           d.Id(),
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		Labels:             expandStringStringMap(d.Get("labels").(map[string]interface{})),
-		DeletionProtection: d.Get("deletion_protection").(bool),
+		SecretId:             d.Id(),
+		Name:                 d.Get("name").(string),
+		Description:          d.Get("description").(string),
+		Labels:               expandStringStringMap(d.Get("labels").(map[string]interface{})),
+		DeletionProtection:   d.Get("deletion_protection").(bool),
+		PayloadSpecification: payloadSpecification,
 		UpdateMask: &fieldmaskpb.FieldMask{
 			Paths: generateFieldMasks(d, resourceYandexLockboxSecretUpdateFieldsMap),
 		},
@@ -286,8 +375,9 @@ func resourceYandexLockboxSecretDelete(ctx context.Context, d *schema.ResourceDa
 }
 
 var resourceYandexLockboxSecretUpdateFieldsMap = map[string]string{
-	"name":                "name",
-	"description":         "description",
-	"labels":              "labels",
-	"deletion_protection": "deletion_protection",
+	"name":                           "name",
+	"description":                    "description",
+	"labels":                         "labels",
+	"deletion_protection":            "deletion_protection",
+	"password_payload_specification": "password_payload_specification",
 }

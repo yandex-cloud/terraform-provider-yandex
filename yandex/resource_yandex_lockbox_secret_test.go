@@ -131,6 +131,58 @@ func TestAccLockboxSecret_kms(t *testing.T) {
 	})
 }
 
+func TestAccLockboxSecret_passwordPayloadSpec(t *testing.T) {
+	secretName := "a" + acctest.RandString(10)
+	secretDesc := "Terraform Test With Password Payload Spec"
+	folderID := getExampleFolderID()
+	basicResource := "yandex_lockbox_secret.basic_secret"
+	basicResourceID := ""
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
+		Steps: []resource.TestStep{
+			{
+				// Create secret
+				Config: testAccLockboxSecretWithPasswordPayloadSpec(secretName, secretDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckYandexLockboxResourceExists(basicResource, &basicResourceID),
+					resource.TestCheckResourceAttr(basicResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(basicResource, "name", secretName),
+					resource.TestCheckResourceAttr(basicResource, "description", secretDesc),
+					resource.TestCheckResourceAttr(basicResource, "deletion_protection", "false"),
+					resource.TestCheckNoResourceAttr(basicResource, "labels.%"),
+					resource.TestCheckResourceAttr(basicResource, "status",
+						lockbox.Secret_Status_name[int32(lockbox.Secret_ACTIVE)]),
+					resource.TestCheckResourceAttr(basicResource, "password_payload_specification.#", "1"),
+					resource.TestCheckResourceAttr(basicResource, "password_payload_specification.0.password_key", "password_key"),
+					resource.TestCheckResourceAttr(basicResource, "password_payload_specification.0.length", "10"),
+					testAccCheckCreatedAtAttr(basicResource),
+				),
+			},
+			{
+				// Update to basic secret
+				Config: testAccLockboxSecretBasicModified(secretName+"-modified", secretDesc+" edited"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckYandexLockboxResourceExists(basicResource, nil),
+					resource.TestCheckResourceAttr(basicResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(basicResource, "name", secretName+"-modified"),
+					resource.TestCheckResourceAttr(basicResource, "description", secretDesc+" edited"),
+					resource.TestCheckResourceAttr(basicResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(basicResource, "labels.%", "3"),
+					resource.TestCheckResourceAttr(basicResource, "labels.key1", "value10"),
+					resource.TestCheckResourceAttr(basicResource, "labels.key3", "value30"),
+					resource.TestCheckResourceAttr(basicResource, "labels.key4", "value40"),
+					resource.TestCheckResourceAttr(basicResource, "status",
+						lockbox.Secret_Status_name[int32(lockbox.Secret_ACTIVE)]),
+					resource.TestCheckResourceAttr(basicResource, "password_payload_specification.#", "0"),
+					testAccCheckCreatedAtAttr(basicResource),
+				),
+			},
+		},
+	})
+}
+
 func testAccLockboxSecretBasic(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_lockbox_secret" "basic_secret" {
@@ -195,6 +247,19 @@ resource "yandex_kms_symmetric_key" "some_key1" {
 resource "yandex_kms_symmetric_key" "some_key2" {
 }
 `
+}
+
+func testAccLockboxSecretWithPasswordPayloadSpec(name, desc string) string {
+	return fmt.Sprintf(`
+resource "yandex_lockbox_secret" "basic_secret" {
+  name        = "%v"
+  description = "%v"
+  password_payload_specification {
+	password_key = "password_key"
+	length       = 10 
+  }
+}
+`, name, desc)
 }
 
 // If idPtr is provided:

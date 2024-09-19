@@ -34,11 +34,28 @@ resource "yandex_lockbox_secret_version" "my_version" {
 }
 ```
 
+## Example Usage With Password Payload Specification:
+
+```hcl
+resource "yandex_lockbox_secret" "my_secret" {
+  name = "test secret with passowrd"
+
+  password_payload_specification {
+    password_key = "some_password"
+    length = 12
+  }
+}
+
+resource "yandex_lockbox_secret_version" "my_version" {
+  secret_id = yandex_lockbox_secret.my_secret.id
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `entries` - (Required) List of entries in the Yandex Cloud Lockbox secret version.
+* `entries` - (Optional) List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification.
 * `secret_id` - (Required) The Yandex Cloud Lockbox secret ID where to add the version.
 * `description` - (Optional) The Yandex Cloud Lockbox secret version description.
 

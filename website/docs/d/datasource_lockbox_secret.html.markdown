@@ -47,6 +47,7 @@ exported:
 * `labels` - A set of key/value label pairs assigned to the Yandex Cloud Lockbox secret.
 * `name` - The Yandex Cloud Lockbox secret name.
 * `status` - The Yandex Cloud Lockbox secret status.
+* `password_payload_specification` - Payload specification for password generation (if set).
 
 The `current_version` block contains:
 
@@ -57,3 +58,14 @@ The `current_version` block contains:
 * `payload_entry_keys` - List of keys that the version contains (doesn't include the values).
 * `secret_id` - The secret ID the version belongs to (it's the same as the `secret_id` argument indicated above)
 * `status` - The version status.
+
+The `password_payload_specification` block contains:
+
+* `password_key` - The key with which the generated password will be placed in the secret version.
+* `length` - Length of the generated password.
+* `include_uppercase` - Use capital letters in the generated password.
+* `include_lowercase` - Use lowercase letters in the generated password.
+* `include_digits` - Use digits in the generated password.
+* `include_punctuation` - Use punctuation (``!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~``) in the generated password.
+* `included_punctuation` - String of punctuation characters to use.
+* `excluded_punctuation` - String of punctuation characters to exclude from the default. 

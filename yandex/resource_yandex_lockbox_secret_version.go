@@ -83,7 +83,7 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 					},
 				},
 				ForceNew: true,
-				Required: true,
+				Optional: true,
 			},
 
 			"secret_id": {
@@ -120,6 +120,13 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPayloadEntries []*lockbox.PayloadEntryChange, d *schema.ResourceData, config *Config) diag.Diagnostics {
+	secret, err := config.sdk.LockboxSecret().Secret().Get(ctx, &lockbox.GetSecretRequest{
+		SecretId: d.Get("secret_id").(string),
+	})
+	if err != nil {
+		return diag.Errorf("could not get secret %v: %s", d.Get("secret_id"), err)
+	}
+
 	getPayloadReq := &lockbox.GetPayloadRequest{
 		SecretId: d.Get("secret_id").(string),
 		// It's not relevant what version to use as base, since addEntryChangesForRemovedKeys will just leave the versionPayloadEntries.
@@ -139,9 +146,11 @@ func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPay
 		SecretId: d.Get("secret_id").(string),
 		// Make sure we're taking this version as reference, since addEntryChangesForRemovedKeys will
 		// remove the entries in payload.Entries that versionPayloadEntries doesn't contain anymore.
-		BaseVersionId:  payload.VersionId,
-		Description:    d.Get("description").(string),
-		PayloadEntries: addEntryChangesForRemovedKeys(payload.Entries, versionPayloadEntries),
+		BaseVersionId: payload.VersionId,
+		Description:   d.Get("description").(string),
+	}
+	if secret.PayloadSpecification == nil {
+		req.PayloadEntries = addEntryChangesForRemovedKeys(payload.Entries, versionPayloadEntries)
 	}
 
 	log.Printf("[INFO] adding Lockbox version for secret with ID: %s, base version ID: %s", req.SecretId, req.BaseVersionId)

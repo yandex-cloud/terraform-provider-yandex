@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -111,6 +112,47 @@ func dataSourceYandexLockboxSecret() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"password_payload_specification": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"password_key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"length": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"include_uppercase": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"include_lowercase": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"include_digits": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"include_punctuation": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"included_punctuation": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"excluded_punctuation": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 		},
 	}
