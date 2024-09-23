@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'vpc: fixed processing of yandex_vpc_private_endpoint.endpoint_address'
+time: 2024-09-23T16:15:27.216823485+02:00

@@ -362,63 +362,34 @@ func resourceYandexVPCPrivateEndpointDelete(d *schema.ResourceData, meta interfa
 }
 
 func expandPrivateEndpointDnsOptions(d *schema.ResourceData) (*privatelink.PrivateEndpoint_DnsOptions, error) {
-	var (
-		v  interface{}
-		ok bool
-	)
-
-	if v, ok = d.GetOk("dns_options"); !ok {
+	if d.Get("dns_options.#").(int) == 0 {
 		return nil, nil
 	}
 
-	dnsOptList := v.([]interface{})
-	if len(dnsOptList) == 0 {
-		return nil, nil
-	}
-
-	dnsOpt := dnsOptList[0].(map[string]interface{})
-	privateDnsRecEnabled := dnsOpt["private_dns_records_enabled"].(bool)
-	dnsOptions := &privatelink.PrivateEndpoint_DnsOptions{
-		PrivateDnsRecordsEnabled: privateDnsRecEnabled,
-	}
-	return dnsOptions, nil
+	return &privatelink.PrivateEndpoint_DnsOptions{
+		PrivateDnsRecordsEnabled: d.Get("dns_options.0.private_dns_records_enabled").(bool),
+	}, nil
 }
 
 func expandPrivateEndpointAddressSpec(d *schema.ResourceData) (*privatelink.AddressSpec, error) {
-	var (
-		addressSpec *privatelink.AddressSpec
-		v           interface{}
-		ok          bool
-	)
-
-	if v, ok = d.GetOk("endpoint_address"); !ok {
-		return nil, nil
-	}
-
-	addrList := v.([]map[string]string)
-	if len(addrList) == 0 {
-		return nil, nil
-	}
-
-	addr := addrList[0]
-	if addr["subnet_id"] != "" {
-		addressSpec = &privatelink.AddressSpec{
+	if v, ok := d.GetOk("endpoint_address.0.subnet_id"); ok {
+		return &privatelink.AddressSpec{
 			Address: &privatelink.AddressSpec_InternalIpv4AddressSpec{
 				InternalIpv4AddressSpec: &privatelink.InternalIpv4AddressSpec{
-					Address:  addr["address"],
-					SubnetId: addr["subnet_id"],
+					Address:  d.Get("endpoint_address.0.address").(string),
+					SubnetId: v.(string),
 				},
 			},
-		}
-	} else {
-		addressSpec = &privatelink.AddressSpec{
+		}, nil
+	} else if v, ok := d.GetOk("endpoint_address.0.address_id"); ok {
+		return &privatelink.AddressSpec{
 			Address: &privatelink.AddressSpec_AddressId{
-				AddressId: addr["address_id"],
+				AddressId: v.(string),
 			},
-		}
+		}, nil
 	}
 
-	return addressSpec, nil
+	return nil, nil
 }
 
 func flattenPrivateEndpointDnsOptions(dnsOpts *privatelink.PrivateEndpoint_DnsOptions) []map[string]interface{} {

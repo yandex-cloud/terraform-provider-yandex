@@ -58,7 +58,7 @@ func sweepVPCPrivateEndpointOnce(conf *Config, id string) error {
 	return handleSweepOperation(ctx, conf, op, err)
 }
 
-func TestAccVPCPrivateEndpointBasic(t *testing.T) {
+func TestAccVPCPrivateEndpoint_Basic(t *testing.T) {
 	t.Parallel()
 
 	networkName := acctest.RandomWithPrefix("tf-network")
@@ -105,6 +105,24 @@ func TestAccVPCPrivateEndpointBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "endpoint_address.0.address_id"),
 				),
 			},
+		},
+	})
+}
+
+func TestAccVPCPrivateEndpoint_SpecificAddress(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	peName := acctest.RandomWithPrefix("tf-private-endpoint")
+
+	var pe privatelink.PrivateEndpoint
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCPrivateEndpointDestroy,
+		Steps: []resource.TestStep{
 			{
 				Config: testAccVPCPrivateEndpointConfigAddressSpec(networkName, subnetName, peName),
 				Check: resource.ComposeTestCheckFunc(
