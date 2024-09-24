@@ -457,8 +457,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 
 										"assign_public_ip": schema.BoolAttribute{Computed: true, Optional: true},
 										"roles": schema.SetAttribute{
-											Optional:    true,
-											Computed:    true,
+											Required:    true,
 											ElementType: types.StringType,
 											Validators: []validator.Set{
 												validate.UniqueCaseInsensitive(),
@@ -689,4 +688,6 @@ func updateState(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, d
 	if diagnostics.HasError() {
 		return
 	}
+
+	tflog.Debug(ctx, fmt.Sprintf("updatedState: OpenSearch Cluster state: %+v", state))
 }

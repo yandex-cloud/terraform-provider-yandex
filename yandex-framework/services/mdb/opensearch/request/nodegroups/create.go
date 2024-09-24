@@ -9,7 +9,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/model"
 )
 
-func PrepareOpenSearchCreate(ctx context.Context, cfg *model.OpenSearchSubConfig) ([]*opensearch.OpenSearchCreateSpec_NodeGroup, diag.Diagnostics) {
+func PrepareOpenSearchCreate(ctx context.Context, cfg model.OpenSearchSubConfig) ([]*opensearch.OpenSearchCreateSpec_NodeGroup, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 	nodeGroups := make([]model.OpenSearchNode, 0, len(cfg.NodeGroups.Elements()))
 	diags.Append(cfg.NodeGroups.ElementsAs(ctx, &nodeGroups, false)...)
@@ -32,14 +32,15 @@ func PrepareOpenSearchCreate(ctx context.Context, cfg *model.OpenSearchSubConfig
 			return nil, diags
 		}
 
-		subnetIDs := make([]string, 0, len(ng.SubnetIDs.Elements()))
-		diags.Append(ng.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
-		if diags.HasError() {
-			return nil, diags
+		var subnetIDs []string
+		if !(ng.SubnetIDs.IsUnknown() || ng.SubnetIDs.IsNull()) {
+			diags.Append(ng.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
+			if diags.HasError() {
+				return nil, diags
+			}
 		}
 
 		roles := make([]opensearch.OpenSearch_GroupRole, 0, len(ng.Roles.Elements()))
-
 		stringRoles := make([]string, 0, len(ng.Roles.Elements()))
 		diags.Append(ng.Roles.ElementsAs(ctx, &stringRoles, false)...)
 		if diags.HasError() {
@@ -91,10 +92,12 @@ func PrepareDashboardsCreate(ctx context.Context, cfg *model.DashboardsSubConfig
 			return nil, diags
 		}
 
-		subnetIDs := make([]string, 0, len(ng.SubnetIDs.Elements()))
-		diags.Append(ng.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
-		if diags.HasError() {
-			return nil, diags
+		var subnetIDs []string
+		if !ng.SubnetIDs.IsUnknown() && !ng.SubnetIDs.IsNull() {
+			diags.Append(ng.SubnetIDs.ElementsAs(ctx, &subnetIDs, false)...)
+			if diags.HasError() {
+				return nil, diags
+			}
 		}
 
 		result = append(result, &opensearch.DashboardsCreateSpec_NodeGroup{

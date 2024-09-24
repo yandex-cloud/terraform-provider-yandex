@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 )
 
@@ -48,27 +48,26 @@ var OpenSearchNodeType = types.ObjectType{
 	},
 }
 
-func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch, state *OpenSearchSubConfig) (types.Object, diag.Diagnostics) {
-	plugins := types.SetNull(types.StringType)
-	if state != nil && !state.Plugins.IsUnknown() {
-		plugins = state.Plugins
+func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch, state OpenSearchSubConfig) (types.Object, diag.Diagnostics) {
+	plugins, diags := nullableStringSliceToSet(ctx, cfg.GetPlugins())
+	if diags.HasError() {
+		return types.ObjectNull(OpenSearchSubConfigAttrTypes), diags
 	}
 
-	if cfg.GetPlugins() != nil {
-		p, diags := types.SetValueFrom(ctx, types.StringType, cfg.GetPlugins())
-		if diags.HasError() {
-			return types.ObjectNull(OpenSearchSubConfigAttrTypes), diags
+	if setsAreEqual(state.Plugins, plugins) {
+		//This condition needs to fix import in tests, because somehow acceptance tests will contain `types.SetType[!!! MISSING TYPE !!!] / underlying type: tftypes.Set[tftypes.DynamicPseudoType]` instead of `types.SetType[basetypes.StringType] / underlying type: tftypes.Set[tftypes.String]`
+		switch state.Plugins.ElementType(ctx).(type) {
+		case nil:
+			tflog.Debug(ctx, "got nil element type for 'plugins', set received value")
+		default:
+			plugins = state.Plugins
 		}
-
-		plugins = p
 	}
 
-	var stateNodeGroups []OpenSearchNode
-
-	if state != nil {
-		// we have to keep node_groups order from config
-		stateNodeGroups = make([]OpenSearchNode, 0, len(state.NodeGroups.Elements()))
-		diags := state.NodeGroups.ElementsAs(ctx, &stateNodeGroups, false)
+	// we have to keep node_groups order from config
+	stateNodeGroups := make([]OpenSearchNode, 0, len(state.NodeGroups.Elements()))
+	if len(state.NodeGroups.Elements()) != 0 {
+		diags = state.NodeGroups.ElementsAs(ctx, &stateNodeGroups, false)
 		if diags.HasError() {
 			return types.ObjectNull(OpenSearchSubConfigAttrTypes), diags
 		}
@@ -92,35 +91,24 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 	stateGroupsByName := make(map[string]OpenSearchNode, len(state))
 
 	if len(state) != 0 && len(state) == len(nodeGroups) {
-		stateNodeGroupNames := make([]string, 0, len(state))
-		for _, s := range state {
-			if ng, ok := groupsByName[s.Name.ValueString()]; !ok || !sameNodeGroup(ctx, ng, s) {
-				continue
-			}
+		for i, s := range state {
 			stateGroupsByName[s.Name.ValueString()] = s
-			stateNodeGroupNames = append(stateNodeGroupNames, s.Name.ValueString())
-		}
-
-		//if in state and response have same names, we can use state names
-		if len(stateNodeGroupNames) == len(nodeGroupNames) {
-			nodeGroupNames = stateNodeGroupNames
+			nodeGroupNames[i] = s.Name.ValueString()
 		}
 	}
 
 	for _, groupName := range nodeGroupNames {
 		v := groupsByName[groupName]
+		stateGroup := stateGroupsByName[groupName]
 
-		var roles basetypes.SetValue
-		var diags diag.Diagnostics
-		if _, ok := stateGroupsByName[groupName]; !ok {
-			roles, diags = rolesToSet(v.Roles)
-			if diags.HasError() {
-				diags.AddError("Failed to parse opensearch.node_groups.roles", fmt.Sprintf("Error while parsing roles for group: %s", groupName))
-				return types.ListUnknown(OpenSearchNodeType), diags
-			}
-		} else {
-			//to prevent change ordering and lower/upper case, to avoid terrafrom inconsistent error: "Provider produced inconsistent result after apply"
-			roles = stateGroupsByName[groupName].Roles
+		roles, diags := rolesToSet(v.Roles)
+		if diags.HasError() {
+			diags.AddError("Failed to parse opensearch.node_groups.roles", fmt.Sprintf("Error while parsing roles for group: %s", groupName))
+			return types.ListUnknown(OpenSearchNodeType), diags
+		}
+
+		if sameRoles(ctx, stateGroup.Roles, v.GetRoles()) {
+			roles = stateGroup.Roles
 		}
 
 		zoneIds, diags := nullableStringSliceToSet(ctx, v.GetZoneIds())
@@ -129,11 +117,20 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 			return types.ListUnknown(OpenSearchNodeType), diags
 		}
 
+		if setsAreEqual(stateGroup.ZoneIDs, zoneIds) {
+			zoneIds = stateGroup.ZoneIDs
+		}
+
 		subnetIds, diags := nullableStringSliceToList(ctx, v.GetSubnetIds())
 		if diags.HasError() {
 			diags.AddError("Failed to parse opensearch.node_groups.subnet_ids", fmt.Sprintf("Error while parsing subnet_ids for group: %s", groupName))
-
 			return types.ListUnknown(OpenSearchNodeType), diags
+		}
+
+		if sliceAndListAreEqual(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
+			subnetIds = stateGroup.SubnetIDs
+		} else {
+			tflog.Debug(ctx, fmt.Sprintf("slice %v is not 'same' with %v", v.GetSubnetIds(), stateGroup.SubnetIDs))
 		}
 
 		resources, diags := resourcesToObject(ctx, v.GetResources())
@@ -156,50 +153,47 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 	return types.ListValueFrom(ctx, OpenSearchNodeType, ret)
 }
 
-func sameNodeGroup(ctx context.Context, res *opensearch.OpenSearch_NodeGroup, state OpenSearchNode) bool {
-	if res == nil {
+func sameRoles(ctx context.Context, state types.Set, res []opensearch.OpenSearch_GroupRole) bool {
+	if state.IsUnknown() {
 		return false
 	}
 
-	stringRoles := make([]string, 0, len(state.Roles.Elements()))
-	_ = state.Roles.ElementsAs(ctx, &stringRoles, false)
+	// ensure they are at the same length
+	if len(state.Elements()) != len(res) {
+		return false
+	}
+
+	if len(state.Elements()) == 0 {
+		//both has 0 length so they equal
+		return true
+	}
+
+	stringRoles := make([]string, 0, len(state.Elements()))
+	_ = state.ElementsAs(ctx, &stringRoles, false)
 
 	stateRoles := make(map[string]interface{}, len(stringRoles))
 	for _, r := range stringRoles {
 		stateRoles[strings.ToUpper(r)] = nil
 	}
 
-	if len(stringRoles) != len(res.Roles) {
-		return false
-	}
-
-	for _, r := range res.Roles {
+	for _, r := range res {
 		if _, ok := stateRoles[strings.ToUpper(r.String())]; !ok {
 			return false
 		}
 	}
 
-	zoneIds, _ := nullableStringSliceToSet(ctx, res.GetZoneIds())
-	subnetIds, _ := nullableStringSliceToList(ctx, res.GetSubnetIds())
-	resources, _ := resourcesToObject(ctx, res.GetResources())
-
-	return res.GetName() == state.Name.ValueString() &&
-		res.GetHostsCount() == state.HostsCount.ValueInt64() &&
-		res.GetAssignPublicIp() == state.AssignPublicIP.ValueBool() &&
-		zoneIds.Equal(state.ZoneIDs) &&
-		subnetIds.Equal(state.SubnetIDs) &&
-		resources.Equal(state.Resources)
+	return true
 }
 
-func ParseOpenSearchSubConfig(ctx context.Context, state *Config) (*OpenSearchSubConfig, diag.Diagnostics) {
+func ParseOpenSearchSubConfig(ctx context.Context, state *Config) (OpenSearchSubConfig, diag.Diagnostics) {
+	var res OpenSearchSubConfig
 	if state == nil {
-		return nil, diag.Diagnostics{}
+		return res, diag.Diagnostics{}
 	}
 
-	res := &OpenSearchSubConfig{}
-	diags := state.OpenSearch.As(ctx, res, defaultOpts)
+	diags := state.OpenSearch.As(ctx, &res, defaultOpts)
 	if diags.HasError() {
-		return nil, diags
+		return res, diags
 	}
 
 	return res, diag.Diagnostics{}

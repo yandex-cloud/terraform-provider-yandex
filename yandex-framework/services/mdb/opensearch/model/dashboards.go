@@ -67,29 +67,42 @@ func dashboardSubConfigToObject(ctx context.Context, cfg *opensearch.Dashboards,
 		NodeGroups: nodeGroups,
 	})
 }
+
 func dashboardsNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Dashboards_NodeGroup, state []DashboardNode) (types.List, diag.Diagnostics) {
 	groupsByName := GetGroupByName(nodeGroups)
 	var ret = make([]DashboardNode, 0, len(nodeGroups))
 	nodeGroupNames := getGroupNames(nodeGroups)
-	if len(state) != 0 {
-		nodeGroupNames = make([]string, 0, len(state))
-		for _, s := range state {
-			nodeGroupNames = append(nodeGroupNames, s.Name.ValueString())
+	stateGroupsByName := make(map[string]DashboardNode, len(state))
+
+	if len(state) != 0 && len(state) == len(nodeGroups) {
+		for i, s := range state {
+			stateGroupsByName[s.Name.ValueString()] = s
+			nodeGroupNames[i] = s.Name.ValueString()
 		}
 	}
 
 	for _, groupName := range nodeGroupNames {
 		v := groupsByName[groupName]
+		stateGroup := stateGroupsByName[groupName]
+
 		zoneIds, diags := nullableStringSliceToSet(ctx, v.GetZoneIds())
 		if diags.HasError() {
 			diags.AddError("Failed to parse dashboards.node_groups.zone_ids", fmt.Sprintf("Error while parsing zone_ids for group: %s", groupName))
 			return types.ListUnknown(DashboardNodeType), diags
 		}
 
+		if setsAreEqual(stateGroup.ZoneIDs, zoneIds) {
+			zoneIds = stateGroup.ZoneIDs
+		}
+
 		subnetIds, diags := nullableStringSliceToList(ctx, v.GetSubnetIds())
 		if diags.HasError() {
 			diags.AddError("Failed to parse dashboards.node_groups.subnet_ids", fmt.Sprintf("Error while parsing subnet_ids for group: %s", groupName))
 			return types.ListUnknown(DashboardNodeType), diags
+		}
+
+		if sliceAndListAreEqual(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
+			subnetIds = stateGroup.SubnetIDs
 		}
 
 		resources, diags := resourcesToObject(ctx, v.GetResources())

@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -56,21 +57,22 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.FolderID = types.StringValue(cluster.GetFolderId())
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.GetCreatedAt()))
 	state.Name = types.StringValue(cluster.GetName())
-	if state.Description.IsUnknown() || cluster.GetDescription() != "" {
-		state.Description = types.StringValue(cluster.GetDescription())
+
+	newDescription := types.StringValue(cluster.GetDescription())
+	if !stringsAreEqual(state.Description, newDescription) {
+		state.Description = newDescription
 	}
 
-	if state.Labels.IsUnknown() || cluster.Labels != nil {
-		labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
-		if diags.HasError() {
-			return diags
-		}
+	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
+	if diags.HasError() {
+		return diags
+	}
+	if !mapsAreEqual(state.Labels, labels) {
 		state.Labels = labels
 	}
 
 	state.Environment = types.StringValue(cluster.GetEnvironment().String())
 
-	var diags diag.Diagnostics
 	state.Config, diags = configToState(ctx, cluster.Config, state)
 	if diags.HasError() {
 		return diags
@@ -80,15 +82,18 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.Health = types.StringValue(cluster.GetHealth().String())
 	state.Status = types.StringValue(cluster.GetStatus().String())
 
-	if state.SecurityGroupIDs.IsUnknown() || cluster.SecurityGroupIds != nil {
-		state.SecurityGroupIDs, diags = nullableStringSliceToSet(ctx, cluster.SecurityGroupIds)
-		if diags.HasError() {
-			return diags
-		}
+	securityGroupIDs, diags := nullableStringSliceToSet(ctx, cluster.SecurityGroupIds)
+	if diags.HasError() {
+		return diags
 	}
 
-	if state.ServiceAccountID.IsUnknown() || cluster.ServiceAccountId != "" {
-		state.ServiceAccountID = types.StringValue(cluster.ServiceAccountId)
+	if !setsAreEqual(state.SecurityGroupIDs, securityGroupIDs) {
+		state.SecurityGroupIDs = securityGroupIDs
+	}
+
+	newServiceAccountId := types.StringValue(cluster.GetServiceAccountId())
+	if !stringsAreEqual(state.ServiceAccountID, newServiceAccountId) {
+		state.ServiceAccountID = newServiceAccountId
 	}
 
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
@@ -172,6 +177,75 @@ func nullableStringSliceToList(ctx context.Context, s []string) (types.List, dia
 	}
 
 	return types.ListValueFrom(ctx, types.StringType, s)
+}
+
+func sliceAndListAreEqual(ctx context.Context, l types.List, s []string) bool {
+	if l.IsUnknown() {
+		return false
+	}
+
+	if len(l.Elements()) != len(s) {
+		return false
+	}
+
+	slices.Sort(s)
+
+	fromList := make([]string, 0, len(l.Elements()))
+	l.ElementsAs(ctx, &fromList, false)
+	slices.Sort(fromList)
+
+	return slices.Equal(fromList, s)
+}
+
+func setsAreEqual(set1, set2 types.Set) bool {
+	if set1.IsUnknown() || set2.IsUnknown() {
+		return false
+	}
+
+	// if one of sets is null and the other is empty then we assume that they are equal
+	if len(set1.Elements()) == 0 && len(set2.Elements()) == 0 {
+		return true
+	}
+
+	if !set1.IsNull() && set1.Equal(set2) {
+		return true
+	}
+
+	return false
+}
+
+func mapsAreEqual(map1, map2 types.Map) bool {
+	if map1.IsUnknown() || map2.IsUnknown() {
+		return false
+	}
+
+	// if one of map is null and the other is empty then we assume that they are equal
+	if len(map1.Elements()) == 0 && len(map2.Elements()) == 0 {
+		return true
+	}
+
+	if !map1.IsNull() && map1.Equal(map2) {
+		return true
+	}
+
+	return false
+}
+
+func stringsAreEqual(str1, str2 types.String) bool {
+	if str1.IsUnknown() || str2.IsUnknown() {
+		return false
+	}
+
+	// if one of strings is null and the other is empty then we assume that they are equal
+	if str1.ValueString() == "" && str2.ValueString() == "" {
+		return true
+	}
+
+	if !str1.IsNull() && str1.Equal(str2) {
+		return true
+	}
+
+	return false
 }
 
 func ParseConfig(ctx context.Context, state *OpenSearch) (*Config, diag.Diagnostics) {

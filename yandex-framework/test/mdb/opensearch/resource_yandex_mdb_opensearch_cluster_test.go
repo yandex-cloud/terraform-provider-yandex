@@ -609,11 +609,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         assign_public_ip = false
         hosts_count      = 1
         zone_ids         = local.zones
-        subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
-        ]
         roles = ["data","manager"]
         resources {
           resource_preset_id = "s2.micro"

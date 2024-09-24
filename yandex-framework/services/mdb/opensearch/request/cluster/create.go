@@ -24,16 +24,21 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		return nil, diags
 	}
 
-	labels := make(map[string]string, len(plan.Labels.Elements()))
-	diags.Append(plan.Labels.ElementsAs(ctx, &labels, false)...)
-	if diags.HasError() {
-		return nil, diags
+	var labels map[string]string
+	if !(plan.Labels.IsUnknown() || plan.Labels.IsNull()) {
+		diags.Append(plan.Labels.ElementsAs(ctx, &labels, false)...)
+		if diags.HasError() {
+			return nil, diags
+		}
 	}
 
-	env, d := toEnvironment(plan.Environment)
-	diags.Append(d)
-	if diags.HasError() {
-		return nil, diags
+	var env opensearch.Cluster_Environment
+	if !(plan.Environment.IsUnknown() || plan.Environment.IsNull()) {
+		env, d = toEnvironment(plan.Environment)
+		diags.Append(d)
+		if diags.HasError() {
+			return nil, diags
+		}
 	}
 
 	config, diags := prepareConfigCreateSpec(ctx, plan)
@@ -48,10 +53,12 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		return nil, diags
 	}
 
-	securityGroupIds := make([]string, 0, len(plan.SecurityGroupIDs.Elements()))
-	diags.Append(plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIds, false)...)
-	if diags.HasError() {
-		return nil, diags
+	var securityGroupIds []string
+	if !(plan.SecurityGroupIDs.IsUnknown() || plan.SecurityGroupIDs.IsNull()) {
+		diags.Append(plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIds, false)...)
+		if diags.HasError() {
+			return nil, diags
+		}
 	}
 
 	mw, diags := prepareMaintenanceWindow(ctx, plan)
