@@ -286,6 +286,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `local_disk.device_name` - The name of the local disk device.
 
+* `hardware_generation` - Instance hardware generation and its features. The structure is documented below.
+
+The `hardware_generation` consists of one of the following blocks:
+
+* `legacy_features` - Defines the first known hardware generation and its features, which are:
+  * `pci_topology` - A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+* `generation2_features` - A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
+
 ## Timeouts
 
 This resource provides the following configuration options for

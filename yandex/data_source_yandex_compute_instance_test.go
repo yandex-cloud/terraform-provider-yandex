@@ -22,9 +22,12 @@ func TestAccDataSourceComputeInstance_byID(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName, true),
-				Check: testAccDataSourceComputeInstanceCheck(
-					"data.yandex_compute_instance.bar",
-					"yandex_compute_instance.foo", instanceName, "migrate"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceComputeInstanceCheck(
+						"data.yandex_compute_instance.bar",
+						"yandex_compute_instance.foo", instanceName, "migrate"),
+					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "hardware_generation.#", "1"),
+				),
 			},
 		},
 	})

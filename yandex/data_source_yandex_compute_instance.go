@@ -460,6 +460,35 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"hardware_generation": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"legacy_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+						},
+
+						"generation2_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Computed: true,
+						},
+					},
+				},
+				Computed: true,
+			},
 		},
 	}
 
@@ -529,6 +558,11 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	filesystems := flattenInstanceFilesystems(instance)
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(instance.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
@@ -596,6 +630,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("maintenance_grace_period", formatDuration(instance.MaintenanceGracePeriod)); err != nil {
+		return err
+	}
+
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 

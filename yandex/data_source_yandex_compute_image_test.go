@@ -34,6 +34,7 @@ func TestAccDataSourceComputeImage_byID(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source",
 						"id"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_image.source"),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source", "hardware_generation.#", "1"),
 				),
 			},
 		},

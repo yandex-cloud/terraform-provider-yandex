@@ -74,6 +74,34 @@ func dataSourceYandexComputeImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"hardware_generation": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"legacy_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+						},
+
+						"generation2_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Computed: true,
+						},
+					},
+				},
+				Computed: true,
+			},
 		},
 	}
 }
@@ -124,6 +152,11 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(image.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("image_id", image.Id)
 	d.Set("created_at", getTimestamp(image.CreatedAt))
 	d.Set("family", image.Family)
@@ -141,6 +174,10 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := d.Set("product_ids", image.ProductIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 

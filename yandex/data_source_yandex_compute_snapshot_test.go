@@ -36,6 +36,7 @@ func TestAccDataSourceComputeSnapshot_byID(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source",
 						"labels.test_label", label),
 					testAccCheckCreatedAtAttr("data.yandex_compute_snapshot.source"),
+					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source", "hardware_generation.#", "1"),
 				),
 			},
 		},

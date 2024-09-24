@@ -161,6 +161,9 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"yandex_compute_disk.seconddisk", &disk),
+					resource.TestCheckResourceAttr("yandex_compute_disk.seconddisk", "hardware_generation.#", "1"),
+					resource.TestCheckResourceAttr("yandex_compute_disk.seconddisk", "hardware_generation.0.legacy_features.#", "1"),
+					resource.TestCheckResourceAttr("yandex_compute_disk.seconddisk", "hardware_generation.0.legacy_features.0.pci_topology", "PCI_TOPOLOGY_V2"),
 				),
 			},
 		},
@@ -407,11 +410,19 @@ resource "yandex_compute_disk" "foobar" {
   image_id = "${data.yandex_compute_image.ubuntu.id}"
   size     = 4
   type     = "network-hdd"
+  hardware_generation {
+    legacy_features {
+	  pci_topology = "PCI_TOPOLOGY_V1"
+	}
+  }
 }
 
 resource "yandex_compute_snapshot" "snapdisk" {
   name           = "%s"
   source_disk_id = "${yandex_compute_disk.foobar.id}"
+  hardware_generation {
+    generation2_features {}
+  }
 }
 
 resource "yandex_compute_disk" "seconddisk" {
@@ -419,6 +430,11 @@ resource "yandex_compute_disk" "seconddisk" {
   size        = 6
   snapshot_id = "${yandex_compute_snapshot.snapdisk.id}"
   type        = "network-hdd"
+  hardware_generation {
+    legacy_features {
+	  pci_topology = "PCI_TOPOLOGY_V2"
+	}
+  }
 }
 `, firstDiskName, snapshotName, secondDiskName)
 }

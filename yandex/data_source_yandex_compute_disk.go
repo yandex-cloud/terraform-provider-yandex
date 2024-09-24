@@ -90,9 +90,36 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 					},
 				},
 			},
-
 			"created_at": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"hardware_generation": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"legacy_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+						},
+
+						"generation2_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Computed: true,
+						},
+					},
+				},
 				Computed: true,
 			},
 		},
@@ -131,6 +158,11 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(disk.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("disk_id", disk.Id)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("created_at", getTimestamp(disk.CreatedAt))
@@ -154,6 +186,10 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := d.Set("product_ids", disk.ProductIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 

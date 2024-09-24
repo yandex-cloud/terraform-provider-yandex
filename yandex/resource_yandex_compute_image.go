@@ -148,6 +148,47 @@ func resourceYandexComputeImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"hardware_generation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"generation2_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+
+						"legacy_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Computed:     true,
+										ValidateFunc: validateParsableValue(parseComputePCITopology),
+									},
+								},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+					},
+				},
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -174,6 +215,11 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 	osTypeName := strings.ToUpper(d.Get("os_type").(string))
 	osType := compute.Os_Type(compute.Os_Type_value[osTypeName])
 
+	hardwareGeneration, err := expandHardwareGeneration(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding hardware generation while creating image: %s", err)
+	}
+
 	req := compute.CreateImageRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
@@ -186,6 +232,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 		Os: &compute.Os{
 			Type: osType,
 		},
+		HardwareGeneration: hardwareGeneration,
 	}
 
 	err = prepareSourceForImage(&req, d, meta)
@@ -236,6 +283,11 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("Image %q", d.Get("name").(string)))
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(image.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("created_at", getTimestamp(image.CreatedAt))
 	d.Set("name", image.Name)
 	d.Set("folder_id", image.FolderId)
@@ -247,6 +299,9 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("pooled", image.Pooled)
 
 	if err := d.Set("labels", image.Labels); err != nil {
+		return err
+	}
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 
@@ -438,4 +493,12 @@ func makeImageUpdateRequest(req *compute.UpdateImageRequest, d *schema.ResourceD
 	}
 
 	return nil
+}
+
+func parseComputePCITopology(str string) (compute.PCITopology, error) {
+	val, ok := compute.PCITopology_value[str]
+	if !ok {
+		return compute.PCITopology(0), invalidKeyError("pci_topology", compute.PCITopology_value, str)
+	}
+	return compute.PCITopology(val), nil
 }

@@ -102,9 +102,20 @@ The following arguments are supported:
 
 * `snapshot_id` - (Optional) The source snapshot to use for disk creation.
 
+* `hardware_generation` - (Optional) Hardware generation and its features,
+  which will be applied to the instance when this disk is used as a boot
+  disk. Provide this property if you wish to override this value, which
+  otherwise is inherited from the source. The structure is documented below.
+
 The `disk_placement_policy` block supports:
 
 * `disk_placement_group_id` - (Required) Specifies Disk Placement Group id.
+
+The `hardware_generation` consists of one of the following blocks:
+
+* `legacy_features` - Defines the first known hardware generation and its features, which are:
+  * `pci_topology` - A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+* `generation2_features` - A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
 
 ~> **NOTE:** Only one of `image_id` or `snapshot_id` can be specified.
 

@@ -105,6 +105,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_endpoint", "1"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_token", "1"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_token", "2"),
+					resource.TestCheckResourceAttr("yandex_compute_instance.foobar", "hardware_generation.#", "1"),
 				),
 			},
 			computeInstanceImportStep(),

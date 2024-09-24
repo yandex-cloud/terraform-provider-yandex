@@ -127,6 +127,8 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 						"yandex_compute_image.foobar", &image),
 					testAccCheckComputeImageHasSourceDisk("yandex_compute_image.foobar"),
 					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
+					resource.TestCheckResourceAttr("yandex_compute_image.foobar", "hardware_generation.#", "1"),
+					resource.TestCheckResourceAttr("yandex_compute_image.foobar", "hardware_generation.0.generation2_features.#", "1"),
 				),
 			},
 			{
@@ -338,6 +340,11 @@ resource "yandex_compute_disk" "foobar" {
   zone     = "ru-central1-a"
   image_id = "${data.yandex_compute_image.ubuntu.id}"
   size     = 4
+  hardware_generation {
+    legacy_features {
+	  pci_topology = "PCI_TOPOLOGY_V2"
+	}
+  }
 }
 
 resource "yandex_compute_image" "foobar" {
@@ -345,6 +352,9 @@ resource "yandex_compute_image" "foobar" {
   source_disk   = "${yandex_compute_disk.foobar.id}"
   min_disk_size = 8
   os_type       = "linux"
+  hardware_generation {
+    generation2_features {}
+  }
 }
 `, acctest.RandString(8), acctest.RandString(8))
 }

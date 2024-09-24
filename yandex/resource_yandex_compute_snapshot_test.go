@@ -35,6 +35,8 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 					testAccCheckComputeSnapshotExists(
 						"yandex_compute_snapshot.foobar", &snapshot),
 					testAccCheckCreatedAtAttr("yandex_compute_snapshot.foobar"),
+					resource.TestCheckResourceAttr("yandex_compute_snapshot.foobar", "hardware_generation.#", "1"),
+					resource.TestCheckResourceAttr("yandex_compute_snapshot.foobar", "hardware_generation.0.generation2_features.#", "1"),
 				),
 			},
 		},
@@ -181,6 +183,12 @@ resource "yandex_compute_disk" "foobar" {
   labels = {
     disk_label = "value-of-disk-label"
   }
+
+  hardware_generation {
+    legacy_features {
+	  pci_topology = "PCI_TOPOLOGY_V2"
+	}
+  }
 }
 
 resource "yandex_compute_snapshot" "foobar" {
@@ -189,6 +197,10 @@ resource "yandex_compute_snapshot" "foobar" {
 
   labels = {
     test_label = "%s"
+  }
+
+  hardware_generation {
+    generation2_features {}
   }
 }
 `, diskName, snapshotName, labelValue)

@@ -116,6 +116,97 @@ func expandProductIds(v interface{}) ([]string, error) {
 	return m, nil
 }
 
+func expandHardwareGeneration(d *schema.ResourceData) (*compute.HardwareGeneration, error) {
+	val := new(compute.HardwareGeneration)
+
+	if _, ok := d.GetOk("hardware_generation.0.legacy_features"); ok {
+		legacyFeatures, err := expandDiskHardwareGenerationLegacyFeatures(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetLegacyFeatures(legacyFeatures)
+	}
+
+	if _, ok := d.GetOk("hardware_generation.0.generation2_features"); ok {
+		generation2Features, err := expandDiskHardwareGenerationGeneration2Features(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetGeneration2Features(generation2Features)
+	}
+
+	empty := new(compute.HardwareGeneration)
+	if proto.Equal(val, empty) {
+		return nil, nil
+	}
+
+	return val, nil
+}
+
+func expandDiskHardwareGenerationLegacyFeatures(d *schema.ResourceData) (*compute.LegacyHardwareFeatures, error) {
+	val := new(compute.LegacyHardwareFeatures)
+
+	if v, ok := d.GetOk("hardware_generation.0.legacy_features.0.pci_topology"); ok {
+		pciTopology, err := parseComputePCITopology(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPciTopology(pciTopology)
+	}
+
+	return val, nil
+}
+
+func expandDiskHardwareGenerationGeneration2Features(_ *schema.ResourceData) (*compute.Generation2HardwareFeatures, error) {
+	val := new(compute.Generation2HardwareFeatures)
+	return val, nil
+}
+
+func flattenComputeHardwareGeneration(v *compute.HardwareGeneration) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	generation2Features, err := flattenComputeHardwareGenerationgeneration2Features(v.GetGeneration2Features())
+	if err != nil {
+		return nil, err
+	}
+	m["generation2_features"] = generation2Features
+	legacyFeatures, err := flattenComputeHardwareGenerationlegacyFeatures(v.GetLegacyFeatures())
+	if err != nil {
+		return nil, err
+	}
+	m["legacy_features"] = legacyFeatures
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenComputeHardwareGenerationgeneration2Features(v *compute.Generation2HardwareFeatures) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenComputeHardwareGenerationlegacyFeatures(v *compute.LegacyHardwareFeatures) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["pci_topology"] = v.PciTopology.String()
+
+	return []map[string]interface{}{m}, nil
+}
+
 func flattenInstanceResources(instance *compute.Instance) ([]map[string]interface{}, error) {
 	resourceMap := map[string]interface{}{
 		"cores":         int(instance.Resources.Cores),

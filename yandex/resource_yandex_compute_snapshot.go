@@ -78,6 +78,47 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"hardware_generation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"generation2_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+
+						"legacy_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Computed:     true,
+										ValidateFunc: validateParsableValue(parseComputePCITopology),
+									},
+								},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+					},
+				},
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -96,12 +137,18 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error expanding labels while creating snapshot: %s", err)
 	}
 
+	hardwareGeneration, err := expandHardwareGeneration(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding hardware generation while creating snapshot: %s", err)
+	}
+
 	req := compute.CreateSnapshotRequest{
-		FolderId:    folderID,
-		DiskId:      d.Get("source_disk_id").(string),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
+		FolderId:           folderID,
+		DiskId:             d.Get("source_disk_id").(string),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		HardwareGeneration: hardwareGeneration,
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -147,6 +194,11 @@ func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Snapshot %q", d.Get("name").(string)))
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(snapshot.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("created_at", getTimestamp(snapshot.CreatedAt))
 	d.Set("name", snapshot.Name)
 	d.Set("folder_id", snapshot.FolderId)
@@ -154,6 +206,10 @@ func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{})
 	d.Set("disk_size", toGigabytes(snapshot.DiskSize))
 	d.Set("storage_size", toGigabytes(snapshot.StorageSize))
 	d.Set("source_disk_id", snapshot.SourceDiskId)
+
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
+		return err
+	}
 
 	return d.Set("labels", snapshot.Labels)
 }

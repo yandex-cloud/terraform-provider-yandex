@@ -143,6 +143,47 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+
+			"hardware_generation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"generation2_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+
+						"legacy_features": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Computed:     true,
+										ValidateFunc: validateParsableValue(parseComputePCITopology),
+									},
+								},
+							},
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+					},
+				},
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -190,6 +231,11 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error expanding disk placement policy while creating disk: %s", err)
 	}
 
+	hardwareGeneration, err := expandHardwareGeneration(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding hardware generation while creating disk: %s", err)
+	}
+
 	req := compute.CreateDiskRequest{
 		FolderId:            folderID,
 		Name:                d.Get("name").(string),
@@ -200,6 +246,7 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		Size:                toBytes(d.Get("size").(int)),
 		BlockSize:           int64(d.Get("block_size").(int)),
 		DiskPlacementPolicy: diskPlacementPolicy,
+		HardwareGeneration:  hardwareGeneration,
 	}
 
 	if v, ok := d.GetOk("image_id"); ok {
@@ -260,6 +307,11 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(disk.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("created_at", getTimestamp(disk.CreatedAt))
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
@@ -274,6 +326,9 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("disk_placement_policy", diskPlacementPolicy)
 
 	if err := d.Set("product_ids", disk.ProductIds); err != nil {
+		return err
+	}
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 

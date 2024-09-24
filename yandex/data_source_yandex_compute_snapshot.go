@@ -63,6 +63,34 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"hardware_generation": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"legacy_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pci_topology": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+						},
+
+						"generation2_features": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							Computed: true,
+						},
+					},
+				},
+				Computed: true,
+			},
 		},
 	}
 
@@ -95,6 +123,11 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("snapshot with ID %q", snapshotID))
 	}
 
+	hardwareGeneration, err := flattenComputeHardwareGeneration(snapshot.HardwareGeneration)
+	if err != nil {
+		return err
+	}
+
 	d.Set("snapshot_id", snapshot.Id)
 	d.Set("folder_id", snapshot.FolderId)
 	d.Set("created_at", getTimestamp(snapshot.CreatedAt))
@@ -110,6 +143,10 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("product_ids", snapshot.ProductIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
 		return err
 	}
 

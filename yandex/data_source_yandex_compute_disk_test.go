@@ -40,6 +40,7 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
 						"block_size", "4096"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
+					resource.TestCheckResourceAttr("data.yandex_compute_disk.source", "hardware_generation.#", "1"),
 				),
 			},
 		},
