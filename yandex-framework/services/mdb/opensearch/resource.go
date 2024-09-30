@@ -367,7 +367,7 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 		return diags
 	}
 
-	if stateDashboardsBlock != nil && planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
+	if stateDashboardsBlock != nil && planDashboardsBlock != nil && planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
 		tflog.Debug(ctx, "No changes in config.dashboards.node_groups", log.IdFromStr(cid))
 		return nil
 	}
