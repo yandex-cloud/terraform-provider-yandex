@@ -1,0 +1,28 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Get information about a Yandex Backup Policy.
+---
+
+
+# {{.Name}}
+
+{{ .Description }}
+
+
+Get information about a Yandex Backup Policy. For more information, see [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).
+
+{{tffile "examples/backup/data-sources/example_1.tf"}}
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `policy_id` - (Optional) ID of the policy.
+
+* `name` - (Optional) Name of the policy.
+
+~> **NOTE:** One of `policy_id` or `name` should be specified.
+
+~> **NOTE:** In case you use `name`, an error will occur if two policies with the same name exist. In this case, rename the policy or use the `policy_id`.

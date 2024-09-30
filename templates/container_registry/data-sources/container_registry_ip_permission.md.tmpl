@@ -1,0 +1,32 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Get information about a Yandex Container Registry IP Permission.
+---
+
+
+# {{.Name}}
+
+{{ .Description }}
+
+
+Get information about a Yandex Container Registry IP Permission. For more information, see [the official documentation](https://cloud.yandex.ru/docs/container-registry/operations/registry/registry-access)
+
+{{tffile "examples/container_registry/data-sources/example_1.tf"}}
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `registry_id` - (Optional) The ID of a specific Container Registry.
+
+* `registry_name` - (Optional) The Name of specific Container Registry.
+
+~> **NOTE:** Either `registry_id` or `registry_name` must be specified.
+
+## Attributes Reference
+
+* `push` - List of configured CIDRs, from which push is allowed.
+
+* `pull` - List of configured CIDRs, from which pull is allowed.

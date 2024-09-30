@@ -1,0 +1,28 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Get information about a Yandex.Cloud Service Agent.
+---
+
+
+# {{.Name}}
+
+{{ .Description }}
+
+
+{{tffile "examples/iam/data-sources/example_1.tf"}}
+
+## Argument Reference
+
+* `cloud_id` - (Required) ID of the cloud.
+* `service_id` - (Required) ID of the service-control service.
+* `microservice_id` - (Required) ID of the service-control microservice.
+
+## Attributes Reference
+
+The following attributes are exported:
+
+* `service_account_id` - ID of the resolved agent service account.
+* `service_id` - ID of the service-control service.
+* `microservice_id` - ID of the service-control microservice.

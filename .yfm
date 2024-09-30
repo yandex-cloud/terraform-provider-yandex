@@ -1,0 +1,3 @@
+allowHTML: true
+storageEndpoint: https://storage.yandexcloud.net
+storageBucket: terraform-provider.yandexcloud.net

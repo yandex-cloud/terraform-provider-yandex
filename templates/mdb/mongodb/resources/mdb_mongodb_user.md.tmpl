@@ -1,0 +1,39 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Manages a MongoDB user within Yandex.Cloud.
+---
+
+
+# {{.Name}}
+
+{{ .Description }}
+
+
+Manages a MongoDB user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
+
+{{tffile "examples/mdb/mongodb/resources/example_1.tf"}}
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `name` - (Required) The name of the user.
+
+* `password` - (Required) The password of the user.
+
+* `permission` - (Optional) Set of permissions granted to the user. The structure is documented below.
+
+The `permission` block supports:
+
+* `database_name` - (Required) The name of the database that the permission grants access to.
+* `roles` - (Optional) List of strings. The roles of the user in this database. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/users-and-roles).
+
+## Import
+
+A MongoDB user can be imported using the following format:
+
+```
+$ terraform import yandex_mdb_mongodb_user.foo {cluster_id}:{username}
+```

@@ -6,7 +6,9 @@ run:
     - scripts
     - vendor
     - version
-    - website
+    - examples
+    - docs
+    - templates
     - yandex/mocks
     - yandex/test-fixtures
 

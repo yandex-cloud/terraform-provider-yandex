@@ -17,10 +17,11 @@ const yandexDnsDefaultTimeout = 5 * time.Minute
 
 func resourceYandexDnsZone() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexDnsZoneCreate,
-		Read:   resourceYandexDnsZoneRead,
-		Update: resourceYandexDnsZoneUpdate,
-		Delete: resourceYandexDnsZoneDelete,
+		Description: "Manages a DNS Zone.",
+		Create:      resourceYandexDnsZoneCreate,
+		Read:        resourceYandexDnsZoneRead,
+		Update:      resourceYandexDnsZoneUpdate,
+		Delete:      resourceYandexDnsZoneDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -41,37 +42,43 @@ func resourceYandexDnsZone() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateZoneName(),
+				Description:  "The DNS name of this zone, e.g. \"example.com.\". Must ends with dot.",
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "ID of the folder to create a zone in. If it is not provided, the default provider folder is used.",
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "User assigned name of a specific resource. Must be unique within the folder.",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the DNS zone.",
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "A set of key/value label pairs to assign to the DNS zone.",
 			},
 
 			"public": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.",
 			},
 
 			"private_networks": {
@@ -81,17 +88,20 @@ func resourceYandexDnsZone() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:         schema.HashString,
+				Description: "For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The DNS zone creation timestamp.",
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Flag that protects the dns zone from accidental deletion.",
 			},
 		},
 	}

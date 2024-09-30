@@ -237,6 +237,7 @@ func dataSourceSessionAffinity() *schema.Schema {
 							"header_name": {
 								Type:        schema.TypeString,
 								Computed:    true,
+								Optional:    true,
 								Description: "The name of the request header that will be used",
 							},
 						},

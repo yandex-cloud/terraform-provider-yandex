@@ -1,0 +1,48 @@
+---
+subcategory: "Organization Manager"
+page_title: "Yandex: yandex_organizationmanager_group"
+description: |-
+  Get information about a Yandex.Cloud Group.
+---
+
+
+# yandex_organizationmanager_group
+
+
+
+
+Get information about a Yandex.Cloud Organization Manager Group. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/organization/manage-groups).
+
+```terraform
+data "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
+  user_ssh_key_id = "some_user_ssh_key_id"
+}
+
+output "my_user_ssh_key_name" {
+  value = "data.yandex_organizationmanager_user_ssh_key.my_user_ssh_key.name"
+}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `group_id` - (Optional) ID of a Group.
+
+* `name` - (Optional) Name of a Group.
+
+~> **NOTE:** One of `group_id` or `name` should be specified.
+
+* `organization_id` - (Optional) Organization that the Group belongs to. If value is omitted, the default provider organization is used.
+
+## Attributes Reference
+
+The following attributes are exported:
+
+* `description` - The description of the Group.
+* `created_at` - The Group creation timestamp.
+* `members` - A list of members of the Group. The structure is documented below.
+
+The `members` block supports:
+* `id` - The ID of the member.
+* `type` - The type of the member.

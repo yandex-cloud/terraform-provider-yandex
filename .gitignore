@@ -38,3 +38,5 @@ vendor
 
 .go-version
 *.xml
+node_modules
+output-folder

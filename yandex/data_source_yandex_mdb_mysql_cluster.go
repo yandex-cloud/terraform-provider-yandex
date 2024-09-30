@@ -252,14 +252,17 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 						"data_lens": {
 							Type:     schema.TypeBool,
 							Computed: true,
+							Optional: true,
 						},
 						"web_sql": {
 							Type:     schema.TypeBool,
 							Computed: true,
+							Optional: true,
 						},
 						"data_transfer": {
 							Type:     schema.TypeBool,
 							Computed: true,
+							Optional: true,
 						},
 					},
 				},

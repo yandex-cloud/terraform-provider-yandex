@@ -2,7 +2,6 @@ SEMVER ?= 0.0.1
 
 TEST?=$$(go list ./... )
 GOFMT_FILES?=$$(find . -name '*.go')
-WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=yandex
 LINT_PACKAGES= ./yandex/... yandex-framework/...
 
@@ -64,6 +63,7 @@ tools:
 	@echo "==> installing required tooling..."
 	go install github.com/client9/misspell/cmd/misspell
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -73,14 +73,29 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-website:
-ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
-	echo "$(WEBSITE_REPO) not found in your GOPATH (necessary for layouts and assets), get-ting..."
-	git clone https://$(WEBSITE_REPO) $(GOPATH)/src/$(WEBSITE_REPO)
-endif
-	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
 changie-lint:
 	go run lint/cmd/changie/changie.go batch patch -d
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint
+install-yfm:
+	npm i @diplodoc/cli -g
+
+generate-docs-templates:
+	go run tools/cmd/generate-templates/generate_templates.go ./templates
+
+generate-docs: generate-docs-templates
+	go run tools/cmd/generate-docs/generate_docs.go ./templates ./docs
+
+build-website: generate-docs
+	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
+ 	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}'
+
+# to run this command please set YFM_STORAGE_SECRET_KEY and YFM_STORAGE_KEY_ID of the bucket
+publish-website: generate-docs
+	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
+	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}' --publish
+
+validate-docs:
+	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
+
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs-templates generate-docs install-yfm

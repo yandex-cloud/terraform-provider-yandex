@@ -1,0 +1,24 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Manages a DNS Zone within Yandex.Cloud.
+---
+
+# {{.Name}}
+
+{{ .Description }}
+
+## Examples
+
+{{tffile "examples/dns/resources/example_1.tf"}}
+
+{{ .SchemaMarkdown }}
+
+## Import
+
+DNS zone can be imported using this format:
+
+```
+$ terraform import yandex_dns_zone.zone1 {zone_id}
+```

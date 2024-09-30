@@ -1,0 +1,38 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Allows management of a Yandex.Cloud IoT Core Device.
+---
+
+
+# {{.Name}}
+
+{{ .Description }}
+
+
+Allows management of [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
+
+{{tffile "examples/iot/resources/example_1.tf"}}
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `registry_id` - IoT Core Registry ID for the IoT Core Device
+
+* `name` (Required) - IoT Core Device name used to define device
+
+* `description` (Optional) - Description of the IoT Core Device
+
+* `aliases` - A set of key/value aliases pairs to assign to the IoT Core Device
+
+* `certificates` - A set of certificate's fingerprints for the IoT Core Device
+
+* `passwords` - A set of passwords's id for the IoT Core Device
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `created_at` - Creation timestamp of the IoT Core Device
