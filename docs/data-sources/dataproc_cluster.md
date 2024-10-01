@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Data Proc cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
 
+## Example usage
+
 ```terraform
 data "yandex_dataproc_cluster" "foo" {
   name = "test"

@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex YDB Topics. For more information, see [the official documentation](https://cloud.yandex.ru/docs/ydb/concepts/#ydb).
 
+## Example usage
+
 ```terraform
 resource "yandex_ydb_database_serverless" "database_name" {
   name        = "database-name"

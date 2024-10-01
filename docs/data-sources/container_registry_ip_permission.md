@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Container Registry IP Permission. For more information, see [the official documentation](https://cloud.yandex.ru/docs/container-registry/operations/registry/registry-access)
 
+## Example usage
+
 ```terraform
 resource "yandex_container_registry" "default" {
   name      = "test-registry"

@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed PostgreSQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_postgresql_user" "foo" {
   cluster_id = "some_cluster_id"

@@ -13,11 +13,13 @@ description: |-
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Organization Manager Group.
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+resource "yandex_organizationmanager_group_iam_member" "editor" {
+  group_id = "some_group_id"
+  role     = "editor"
+  member   = "userAccount:user_id"
 }
 ```
 

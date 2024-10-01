@@ -15,24 +15,18 @@ Allows creation and management of a single member for a single binding within th
 
 ~> **Note:** This resource *must not* be used in conjunction with `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy should be. Similarly, roles controlled by `yandex_resourcemanager_folder_iam_binding` should not be assigned using `yandex_resourcemanager_folder_iam_member`.
 
+## Example usage
+
 ```terraform
-data "yandex_resourcemanager_folder" "project1" {
-  folder_id = "my_folder_id"
+data "yandex_resourcemanager_folder" "department1" {
+  folder_id = "some_folder_id"
 }
 
-data "yandex_iam_policy" "admin" {
-  binding {
-    role = "editor"
+resource "yandex_resourcemanager_folder_iam_member" "admin" {
+  folder_id = data.yandex_resourcemanager.department1.name
 
-    members = [
-      "userAccount:some_user_id",
-    ]
-  }
-}
-
-resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
-  folder_id   = data.yandex_folder.project1.id
-  policy_data = data.yandex_iam_policy.admin.policy_data
+  role   = "editor"
+  member = "userAccount:user_id"
 }
 ```
 

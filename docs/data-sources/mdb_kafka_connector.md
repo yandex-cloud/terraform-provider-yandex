@@ -13,15 +13,16 @@ description: |-
 
 Get information about a connector of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_kafka_user" "foo" {
+data "yandex_mdb_kafka_connector" "foo" {
   cluster_id = "some_cluster_id"
   name       = "test"
-  password   = "pass123"
 }
 
-output "username" {
-  value = data.yandex_mdb_kafka_user.foo.name
+output "tasks_max" {
+  value = data.yandex_mdb_kafka_connector.foo.tasks_max
 }
 ```
 

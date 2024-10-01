@@ -13,25 +13,14 @@ description: |-
 
 Yandex Database (serverless) resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
 
+## Example usage
+
 ```terraform
-resource "yandex_ydb_database_serverless" "database_name" {
-  name        = "database-name"
-  location_id = "ru-central1"
-}
+resource "yandex_ydb_database_serverless" "database1" {
+  name      = "test-ydb-serverless"
+  folder_id = data.yandex_resourcemanager_folder.test_folder.id
 
-
-resource "yandex_ydb_topic" "topic" {
-  database_endpoint = yandex_ydb_database_serverless.database_name.ydb_full_endpoint
-  name              = "topic-test"
-
-  supported_codecs    = ["raw", "gzip"]
-  partitions_count    = 1
-  retention_period_ms = 2000000
-  consumer {
-    name                          = "consumer-name"
-    supported_codecs              = ["raw", "gzip"]
-    starting_message_timestamp_ms = 0
-  }
+  deletion_protection = true
 }
 ```
 

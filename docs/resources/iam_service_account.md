@@ -13,11 +13,12 @@ description: |-
 
 Allows management of a Yandex.Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts). To assign roles and permissions, use the [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html), [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html) and [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html) resources.
 
+## Example usage
+
 ```terraform
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = "some_sa_id"
-  description        = "static access key for object storage"
-  pgp_key            = "keybase:keybaseusername"
+resource "yandex_iam_service_account" "sa" {
+  name        = "vmmanager"
+  description = "service account to manage VMs"
 }
 ```
 

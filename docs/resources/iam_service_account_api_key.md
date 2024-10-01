@@ -15,10 +15,14 @@ Allows management of a [Yandex.Cloud IAM service account API key](https://cloud.
 
 API keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token).
 
+## Example usage
+
 ```terraform
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+resource "yandex_iam_service_account_api_key" "sa-api-key" {
   service_account_id = "some_sa_id"
-  description        = "static access key for object storage"
+  description        = "api key for authorization"
+  scope              = "yc.ydb.topics.manage"
+  expires_at         = "2024-11-11T00:00:00Z"
   pgp_key            = "keybase:keybaseusername"
 }
 ```

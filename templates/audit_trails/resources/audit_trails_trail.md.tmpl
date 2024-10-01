@@ -13,7 +13,9 @@ description: |-
 
 Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
 
-{{tffile "examples/audit_trails/resources/example_1.tf"}}
+## Example usage
+
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_1.tf"}}
 
 Trail delivering events to YDS and gathering such events:
 
@@ -21,14 +23,14 @@ Trail delivering events to YDS and gathering such events:
 * DNS data events from the 'some-organization' organization
 * Object Storage data events from the 'some-organization' organization
 
-{{tffile "examples/audit_trails/resources/example_2.tf"}}
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_2.tf"}}
 
 Trail delivering events to Object Storage and gathering such events:
 
 * Management events from the 'home-folder' folder
 * Managed PostgreSQL data events from the 'home-folder' folder
 
-{{tffile "examples/audit_trails/resources/example_3.tf"}}
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_3.tf"}}
 
 ## Argument Reference
 
@@ -149,17 +151,17 @@ In order to migrate from unsing `filter` to the `filtering_policy`, you will hav
 
 Before
 
-{{tffile "examples/audit_trails/resources/example_4.tf"}}
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_4.tf"}}
 
 After
 
-{{tffile "examples/audit_trails/resources/example_5.tf"}}
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_5.tf"}}
 
 * Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
 
 Before
 
-{{tffile "examples/audit_trails/resources/example_6.tf"}}
+{{tffile "examples/audit_trails/resources/audit_trails_trail_example_6.tf"}}
 
 After
 

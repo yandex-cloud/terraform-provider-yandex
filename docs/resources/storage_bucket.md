@@ -19,14 +19,20 @@ Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs
 
 -> **Note**: For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket, only the default authorization method will be used. This means the `IAM`/`OAuth` token from the `provider` block will be applied. This can be confusing in cases where a separate service account is used for managing buckets because,in such scenarios, buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
 
+## Example usage
+
 ```terraform
-resource "yandex_storage_object" "cute-cat-picture" {
-  bucket = "cat-pictures"
-  key    = "cute-cat"
-  source = "/images/cats/cute-cat.jpg"
-  tags = {
-    test = "value"
-  }
+locals {
+  folder_id = "<folder-id>"
+}
+
+provider "yandex" {
+  folder_id = local.folder_id
+  zone      = "ru-central1-a"
+}
+
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket"
 }
 ```
 

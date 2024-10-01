@@ -13,6 +13,8 @@ description: |-
 
 Allows management of [Yandex.Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
 
+## Example usage
+
 ```terraform
 resource "yandex_iot_core_registry" "my_registry" {
   name        = "some_name"

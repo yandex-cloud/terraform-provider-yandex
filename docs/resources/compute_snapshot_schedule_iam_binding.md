@@ -13,6 +13,8 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Snapshot Schedule.
 
+## Example usage
+
 ```terraform
 resource "yandex_compute_snapshot_schedule" "schedule1" {
   schedule_policy {

@@ -13,6 +13,8 @@ description: |-
 
 Manages a Elasticsearch cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_elasticsearch_cluster" "foo" {
   name        = "test"

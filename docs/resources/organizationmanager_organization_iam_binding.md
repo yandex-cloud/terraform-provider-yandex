@@ -13,11 +13,17 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex.Cloud Organization Manager organization.
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
+resource "yandex_organizationmanager_organization_iam_binding" "editor" {
   organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+
+  role = "editor"
+
+  members = [
+    "userAccount:some_user_id",
+  ]
 }
 ```
 

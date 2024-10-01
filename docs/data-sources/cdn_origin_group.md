@@ -15,13 +15,15 @@ Get information about a Yandex CDN Origin Group. For more information, see [the 
 
 > ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
+## Example usage
+
 ```terraform
-data "yandex_cdn_resource" "my_resource" {
-  resource_id = "some resource id"
+data "yandex_cdn_origin_group" "my_group" {
+  origin_group_id = "some_instance_id"
 }
 
-output "resource_cname" {
-  value = data.yandex_cdn_resource.my_resource.cname
+output "origin_group_name" {
+  value = data.yandex_cdn_origin_group.my_group.name
 }
 ```
 

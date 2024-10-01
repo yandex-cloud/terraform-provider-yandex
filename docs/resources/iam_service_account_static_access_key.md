@@ -15,6 +15,8 @@ Allows management of [Yandex.Cloud IAM service account static access keys](https
 
 Before using keys do not forget to [assign a proper role](https://cloud.yandex.com/docs/iam/operations/sa/assign-role-for-sa) to the service account.
 
+## Example usage
+
 ```terraform
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
   service_account_id = "some_sa_id"

@@ -13,9 +13,15 @@ description: |-
 
 Get information about a Yandex IAM service account. For more information about accounts, see [Yandex.Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
 
+## Example usage
+
 ```terraform
-data "yandex_iam_user" "admin" {
-  login = "my-yandex-login"
+data "yandex_iam_service_account" "builder" {
+  service_account_id = "sa_id"
+}
+
+data "yandex_iam_service_account" "deployer" {
+  name = "sa_name"
 }
 ```
 

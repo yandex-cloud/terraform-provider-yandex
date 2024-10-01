@@ -13,46 +13,27 @@ description: |-
 
 Manages a MySQL cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
+## Example usage
+
 ```terraform
-resource "yandex_mdb_mysql_user" "john" {
-  cluster_id = yandex_mdb_mysql_cluster.foo.id
-  name       = "john"
-  password   = "password"
-
-  permission {
-    database_name = yandex_mdb_mysql_database.testdb.name
-    roles         = ["ALL"]
-  }
-
-  permission {
-    database_name = yandex_mdb_mysql_database.new_testdb.name
-    roles         = ["ALL", "INSERT"]
-  }
-
-  connection_limits {
-    max_questions_per_hour   = 10
-    max_updates_per_hour     = 20
-    max_connections_per_hour = 30
-    max_user_connections     = 40
-  }
-
-  global_permissions = ["PROCESS"]
-
-  authentication_plugin = "SHA256_PASSWORD"
-}
-
 resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
 
-  config {
-    version = 14
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 16
-    }
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  mysql_config = {
+    sql_mode                      = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    max_connections               = 100
+    default_authentication_plugin = "MYSQL_NATIVE_PASSWORD"
+    innodb_print_all_deadlocks    = true
+
   }
 
   host {

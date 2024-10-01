@@ -17,19 +17,13 @@ Creates a Yandex KMS asymmetric encryption key that can be used for cryptographi
 
 For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
 
+## Example usage
+
 ```terraform
-resource "yandex_kms_symmetric_key" "your-key" {
-  folder_id = "your-folder-id"
-  name      = "symmetric-key-name"
-}
-
-resource "yandex_kms_symmetric_key_iam_binding" "viewer" {
-  symmetric_key_id = yandex_kms_symmetric_key.your-key.id
-  role             = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
+resource "yandex_kms_asymmetric_encryption_key" "key-a" {
+  name                 = "example-asymetric-encryption-key"
+  description          = "description for key"
+  encryption_algorithm = "RSA_2048_ENC_OAEP_SHA_256"
 }
 ```
 

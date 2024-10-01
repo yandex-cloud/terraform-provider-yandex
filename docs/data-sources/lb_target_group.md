@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Load Balancer target group. For more information, see [Yandex.Cloud Load Balancer](https://cloud.yandex.com/docs/load-balancer/quickstart).
 
+## Example usage
+
 ```terraform
 data "yandex_lb_target_group" "foo" {
   target_group_id = "my-target-group-id"

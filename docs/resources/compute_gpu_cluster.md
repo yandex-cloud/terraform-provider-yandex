@@ -19,29 +19,17 @@ For more information about GPU cluster in Yandex.Cloud, see:
 
 * [Documentation](https://cloud.yandex.com/docs/compute/concepts/gpu_cluster)
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_gpu_cluster" "default" {
+  name              = "gpu-cluster-name"
+  interconnect_type = "infiniband"
+  zone              = "ru-central1-a"
+
+  labels = {
+    environment = "test"
   }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
-
-  role = "editor"
-
-  members = [
-    "userAccount:some_user_id",
-  ]
 }
 ```
 

@@ -13,9 +13,11 @@ description: |-
 
 Get information about a Yandex Cloud Datasphere Community.
 
+## Example usage
+
 ```terraform
-data "yandex_datasphere_project" "my_datasphere_project" {
-  project_id = "project-id"
+data "yandex_datasphere_community" "my_datasphere_community" {
+  community_id = "community-id"
 }
 ```
 

@@ -13,6 +13,8 @@ Monitoring dashboard
 
 Get information about a Yandex Monitoring dashboard.
 
+## Example usage
+
 ```terraform
 resource "yandex_monitoring_dashboard" "my-dashboard" {
   name        = "local-id-resource"

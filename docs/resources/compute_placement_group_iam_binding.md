@@ -13,23 +13,17 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Placement Group.
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
-  }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
+resource "yandex_compute_placement_group" "pg1" {
+  name        = "test-pg"
+  folder_id   = "abc*********123"
+  description = "my description"
 }
 
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
+resource "yandex_compute_placement_group_iam_binding" "editor" {
+  placement_group_id = data.yandex_compute_placement_group.pg1.id
 
   role = "editor"
 

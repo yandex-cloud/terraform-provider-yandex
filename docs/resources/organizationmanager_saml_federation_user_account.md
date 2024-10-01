@@ -15,11 +15,12 @@ Allows management of a single SAML Federation user account within an existing Ya
 
 ~> **Note:** If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+resource "yandex_organizationmanager_saml_federation_user_account" "account" {
+  federation_id = "some_federation_id"
+  name_id       = "example@example.org"
 }
 ```
 

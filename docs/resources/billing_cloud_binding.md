@@ -15,6 +15,8 @@ Creating the bind, which connect the cloud to the billing account. For more info
 
 **Note**: Currently resource deletion do not unbind cloud from billing account. Instead it does no-operations.
 
+## Example usage
+
 ```terraform
 resource "yandex_billing_cloud_binding" "foo" {
   billing_account_id = "foo-ba-id"

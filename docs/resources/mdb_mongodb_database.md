@@ -13,11 +13,12 @@ description: |-
 
 Manages a MongoDB database within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
 
+## Example usage
+
 ```terraform
-resource "yandex_mdb_mongodb_user" "foo" {
+resource "yandex_mdb_mongodb_database" "foo" {
   cluster_id = yandex_mdb_mongodb_cluster.foo.id
-  name       = "alice"
-  password   = "password"
+  name       = "testdb"
 }
 
 resource "yandex_mdb_mongodb_cluster" "foo" {

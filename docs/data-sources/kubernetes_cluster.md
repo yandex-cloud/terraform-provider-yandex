@@ -14,13 +14,15 @@ description: |-
 
 Get information about a Yandex Kubernetes Cluster.
 
+## Example usage
+
 ```terraform
-data "yandex_kubernetes_node_group" "my_node_group" {
-  node_group_id = "some_k8s_node_group_id"
+data "yandex_kubernetes_cluster" "my_cluster" {
+  cluster_id = "some_k8s_cluster_id"
 }
 
-output "my_node_group.status" {
-  value = data.yandex_kubernetes_node_group.my_node_group.status
+output "cluster_external_v4_endpoint" {
+  value = data.yandex_kubernetes_cluster.my_cluster.master.0.external_v4_endpoint
 }
 ```
 

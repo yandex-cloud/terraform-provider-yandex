@@ -17,24 +17,21 @@ Allows creation and management of a single binding within IAM policy for an exis
 
 ~> **Note:** When you delete `yandex_resourcemanager_folder_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
 
+## Example usage
+
 ```terraform
 data "yandex_resourcemanager_folder" "project1" {
-  folder_id = "my_folder_id"
+  folder_id = "some_folder_id"
 }
 
-data "yandex_iam_policy" "admin" {
-  binding {
-    role = "editor"
+resource "yandex_resourcemanager_folder_iam_binding" "admin" {
+  folder_id = data.yandex_resourcemanager_folder.project1.id
 
-    members = [
-      "userAccount:some_user_id",
-    ]
-  }
-}
+  role = "editor"
 
-resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
-  folder_id   = data.yandex_folder.project1.id
-  policy_data = data.yandex_iam_policy.admin.policy_data
+  members = [
+    "userAccount:some_user_id",
+  ]
 }
 ```
 

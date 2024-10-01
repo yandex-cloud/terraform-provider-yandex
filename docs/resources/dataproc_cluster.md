@@ -13,6 +13,8 @@ description: |-
 
 Manages a Data Proc cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
 
+## Example usage
+
 ```terraform
 resource "yandex_dataproc_cluster" "foo" {
   depends_on = [yandex_resourcemanager_folder_iam_binding.dataproc]

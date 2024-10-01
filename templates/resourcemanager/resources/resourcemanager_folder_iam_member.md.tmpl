@@ -15,7 +15,9 @@ Allows creation and management of a single member for a single binding within th
 
 ~> **Note:** This resource *must not* be used in conjunction with `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy should be. Similarly, roles controlled by `yandex_resourcemanager_folder_iam_binding` should not be assigned using `yandex_resourcemanager_folder_iam_member`.
 
-{{tffile "examples/resourcemanager/resources/example_1.tf"}}
+## Example usage
+
+{{tffile "examples/resourcemanager/resources/resourcemanager_folder_iam_member_example_1.tf"}}
 
 ## Argument Reference
 

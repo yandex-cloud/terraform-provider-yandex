@@ -13,6 +13,8 @@ description: |-
 
 Manages a PostgreSQL user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_postgresql_user" "foo" {
   cluster_id = yandex_mdb_postgresql_cluster.foo.id

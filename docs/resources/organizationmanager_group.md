@@ -13,11 +13,13 @@ description: |-
 
 Allows management of a single Group within an existing Yandex.Cloud Organization. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/organization/manage-groups).
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+resource "yandex_organizationmanager_group" "group" {
+  name            = "my-group"
+  description     = "My new Group"
+  organization_id = "sdf4*********3fr"
 }
 ```
 

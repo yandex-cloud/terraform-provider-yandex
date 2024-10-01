@@ -13,6 +13,8 @@ Creates a virtual host that belongs to specified HTTP router and adds the specif
 
 
 
+## Example usage
+
 ```terraform
 resource "yandex_alb_virtual_host" "my-virtual-host" {
   name           = "my-virtual-host"

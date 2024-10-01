@@ -13,9 +13,25 @@ description: |-
 
 Generates an [IAM](https://cloud.yandex.com/docs/iam/) policy document that may be referenced by and applied to other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.
 
+## Example usage
+
 ```terraform
-data "yandex_iam_user" "admin" {
-  login = "my-yandex-login"
+data "yandex_iam_policy" "admin" {
+  binding {
+    role = "admin"
+
+    members = [
+      "userAccount:user_id_1"
+    ]
+  }
+
+  binding {
+    role = "viewer"
+
+    members = [
+      "userAccount:user_id_2"
+    ]
+  }
 }
 ```
 

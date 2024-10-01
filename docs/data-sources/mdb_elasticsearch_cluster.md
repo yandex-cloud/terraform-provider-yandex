@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_elasticsearch_cluster" "foo" {
   name = "test"

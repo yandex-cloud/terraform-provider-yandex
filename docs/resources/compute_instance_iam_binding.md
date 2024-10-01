@@ -13,23 +13,44 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing instance.
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_instance" "instance1" {
+  name        = "test"
+  platform_id = "standard-v1"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 4
   }
 
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
+  boot_disk {
+    disk_id = yandex_compute_disk.boot-disk.id
   }
 
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
+  network_interface {
+    index     = 1
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+
+  metadata = {
+    foo      = "bar"
+    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+  }
 }
 
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+
+resource "yandex_compute_instance_iam_binding" "editor" {
+  instance_id = data.yandex_compute_instance.instance1.id
 
   role = "editor"
 

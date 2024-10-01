@@ -24,29 +24,18 @@ For more information about filesystems in Yandex.Cloud, see:
   * [Attach filesystem to a VM](https://cloud.yandex.com/en-ru/docs/compute/operations/filesystem/attach-to-vm)
   * [Detach filesystem from VM](https://cloud.yandex.com/en-ru/docs/compute/operations/filesystem/detach-from-vm)
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_filesystem" "default" {
+  name = "fs-name"
+  type = "network-ssd"
+  zone = "ru-central1-a"
+  size = 10
+
+  labels = {
+    environment = "test"
   }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
-
-  role = "editor"
-
-  members = [
-    "userAccount:some_user_id",
-  ]
 }
 ```
 

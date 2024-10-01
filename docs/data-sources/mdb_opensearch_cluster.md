@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_opensearch_cluster" "foo" {
   name = "test"

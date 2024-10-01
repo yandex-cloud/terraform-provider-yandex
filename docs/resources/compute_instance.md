@@ -13,29 +13,40 @@ description: |-
 
 A VM instance resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_instance" "default" {
+  name        = "test"
+  platform_id = "standard-v1"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 4
   }
 
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
+  boot_disk {
+    disk_id = yandex_compute_disk.boot-disk.id
   }
 
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
+  network_interface {
+    index     = 1
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+
+  metadata = {
+    foo      = "bar"
+    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+  }
 }
 
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
+resource "yandex_vpc_network" "foo" {}
 
-  role = "editor"
-
-  members = [
-    "userAccount:some_user_id",
-  ]
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
 }
 ```
 
@@ -257,14 +268,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the instance.
 
 * `local_disk.device_name` - The name of the local disk device.
-
-* `hardware_generation` - Instance hardware generation and its features. The structure is documented below.
-
-The `hardware_generation` consists of one of the following blocks:
-
-* `legacy_features` - Defines the first known hardware generation and its features, which are:
-  * `pci_topology` - A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
-* `generation2_features` - A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
 
 ## Timeouts
 

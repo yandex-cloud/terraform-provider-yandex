@@ -13,9 +13,11 @@ description: |-
 
 Get information about a Yandex Load Balancer network load balancer. For more information, see [Yandex.Cloud Network Load Balancer](https://cloud.yandex.com/docs/load-balancer/concepts/).
 
+## Example usage
+
 ```terraform
-data "yandex_lb_target_group" "foo" {
-  target_group_id = "my-target-group-id"
+data "yandex_lb_network_load_balancer" "foo" {
+  network_load_balancer_id = "my-network-load-balancer"
 }
 ```
 

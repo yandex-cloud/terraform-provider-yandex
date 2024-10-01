@@ -24,12 +24,22 @@ There are three different resources that help you manage your IAM policy for a s
 
 
 
+## Example usage
 
 ```terraform
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = "some_sa_id"
-  description        = "static access key for object storage"
-  pgp_key            = "keybase:keybaseusername"
+data "yandex_iam_policy" "admin" {
+  binding {
+    role = "admin"
+
+    members = [
+      "userAccount:foobar_user_id",
+    ]
+  }
+}
+
+resource "yandex_iam_service_account_iam_policy" "admin-account-iam" {
+  service_account_id = "your-service-account-id"
+  policy_data        = data.yandex_iam_policy.admin.policy_data
 }
 ```
 

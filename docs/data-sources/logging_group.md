@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Cloud Logging group. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/logging/concepts/log-group).
 
+## Example usage
+
 ```terraform
 data "yandex_logging_group" "my_group" {
   group_id = "some_yandex_logging_group_id"

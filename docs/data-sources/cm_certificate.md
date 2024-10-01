@@ -13,12 +13,14 @@ description: |-
 
 Get information about a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/certificate-manager/concepts/).
 
+## Example usage
+
 ```terraform
-data "yandex_cm_certificate_content" "example_by_id" {
+data "yandex_cm_certificate" "example_by_id" {
   certificate_id = "certificate-id"
 }
 
-data "yandex_cm_certificate_content" "example_by_name" {
+data "yandex_cm_certificate" "example_by_name" {
   folder_id = "folder-id"
   name      = "example"
 }

@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_clickhouse_cluster" "foo" {
   name = "test"

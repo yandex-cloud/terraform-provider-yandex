@@ -13,9 +13,11 @@ description: |-
 
 Get information about a Yandex VPC route table. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
+## Example usage
+
 ```terraform
-data "yandex_vpc_subnet" "admin" {
-  subnet_id = "my-subnet-id"
+data "yandex_vpc_route_table" "this" {
+  route_table_id = "my-rt-id"
 }
 ```
 

@@ -17,11 +17,13 @@ Allows creation and management of a single member for a single binding within th
 
 ~> **Note:** When you delete `yandex_organizationmanager_organization_iam_binding` resource, the roles can be deleted from other users within the organization as well. Be careful!
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
+resource "yandex_organizationmanager_organization_iam_member" "editor" {
   organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+  role            = "editor"
+  member          = "userAccount:user_id"
 }
 ```
 

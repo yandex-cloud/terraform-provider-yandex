@@ -13,16 +13,16 @@ description: |-
 
 Allows management of [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
+## Example usage
+
 ```terraform
-resource "yandex_iot_core_registry" "my_registry" {
+resource "yandex_iot_core_device" "my_device" {
+  registry_id = "are1sampleregistryid11"
   name        = "some_name"
   description = "any description"
-  labels = {
-    my-label = "my-label-value"
-  }
-  log_options {
-    log_group_id = "log-group-id"
-    min_level    = "ERROR"
+  aliases = {
+    "some_alias1/subtopic" = "$devices/{id}/events/somesubtopic",
+    "some_alias2/subtopic" = "$devices/{id}/events/aaa/bbb",
   }
   passwords = [
     "my-password1",

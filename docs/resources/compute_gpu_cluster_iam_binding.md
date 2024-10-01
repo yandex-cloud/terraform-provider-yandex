@@ -13,23 +13,21 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing GPU Cluster.
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_gpu_cluster" "cluster1" {
+  name              = "gpu-cluster-name"
+  interconnect_type = "infiniband"
+  zone              = "ru-central1-a"
+
+  labels = {
+    environment = "test"
   }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
 }
 
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
+resource "yandex_compute_gpu_cluster_iam_binding" "editor" {
+  gpu_cluster_id = data.yandex_compute_gpu_cluster.cluster1.id
 
   role = "editor"
 

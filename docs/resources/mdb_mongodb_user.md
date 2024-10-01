@@ -13,6 +13,8 @@ description: |-
 
 Manages a MongoDB user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_mongodb_user" "foo" {
   cluster_id = yandex_mdb_mongodb_cluster.foo.id

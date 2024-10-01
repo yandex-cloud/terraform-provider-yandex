@@ -13,14 +13,15 @@ description: |-
 
 Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_mysql_user" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
+data "yandex_mdb_mysql_cluster" "foo" {
+  name = "test"
 }
 
-output "permission" {
-  value = data.yandex_mdb_mysql_user.foo.permission
+output "network_id" {
+  value = data.yandex_mdb_mysql_cluster.foo.network_id
 }
 ```
 

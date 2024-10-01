@@ -17,6 +17,8 @@ Please read [Pricing for Managed Service for Greenplum](https://cloud.yandex.ru/
 
 Yandex Managed Service for Greenplum® is now in preview
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_greenplum_cluster" "foo" {
   name               = "test"

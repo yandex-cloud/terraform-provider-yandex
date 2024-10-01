@@ -13,19 +13,13 @@ description: |-
 
 Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.
 
+## Example usage
+
 ```terraform
-resource "yandex_kms_symmetric_key" "your-key" {
-  folder_id = "your-folder-id"
-  name      = "symmetric-key-name"
-}
-
-resource "yandex_kms_symmetric_key_iam_binding" "viewer" {
-  symmetric_key_id = yandex_kms_symmetric_key.your-key.id
-  role             = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
+resource "yandex_kms_asymmetric_signature_key" "key-a" {
+  name                = "example-asymetric-signature-key"
+  description         = "description for key"
+  signature_algorithm = "RSA_2048_SIGN_PSS_SHA_256"
 }
 ```
 

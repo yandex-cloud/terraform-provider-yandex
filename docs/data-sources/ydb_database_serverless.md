@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Database serverless cluster. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
 
+## Example usage
+
 ```terraform
 data "yandex_ydb_database_serverless" "my_database" {
   database_id = "some_ydb_serverless_database_id"

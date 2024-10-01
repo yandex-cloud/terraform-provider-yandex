@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_sqlserver_cluster" "foo" {
   name = "test"

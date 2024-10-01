@@ -13,6 +13,8 @@ description: |-
 
 A Load Testing Agent resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/load-testing/concepts/agent).
 
+## Example usage
+
 ```terraform
 resource "yandex_loadtesting_agent" "my-agent" {
   name        = "my-agent"

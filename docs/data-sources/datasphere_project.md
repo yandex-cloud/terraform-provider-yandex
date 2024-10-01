@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Cloud Datasphere Project.
 
+## Example usage
+
 ```terraform
 data "yandex_datasphere_project" "my_datasphere_project" {
   project_id = "project-id"

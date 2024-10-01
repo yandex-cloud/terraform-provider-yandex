@@ -13,9 +13,11 @@ description: |-
 
 Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
+## Example usage
+
 ```terraform
-data "yandex_iot_core_registry" "my_registry" {
-  registry_id = "are1sampleregistry11"
+data "yandex_iot_core_device" "my_device" {
+  device_id = "are1sampleregistry11"
 }
 ```
 

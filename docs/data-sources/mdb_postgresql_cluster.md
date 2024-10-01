@@ -13,14 +13,15 @@ description: |-
 
 Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://cloud.yandex.com/en-ru/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_postgresql_user" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
+data "yandex_mdb_postgresql_cluster" "foo" {
+  name = "test"
 }
 
-output "permission" {
-  value = data.yandex_mdb_postgresql_user.foo.permission
+output "fqdn" {
+  value = data.yandex_mdb_postgresql_cluster.foo.host.0.fqdn
 }
 ```
 

@@ -13,6 +13,8 @@ description: |-
 
 Allows creation and management of the IAM policy for an existing Yandex Resource Manager folder.
 
+## Example usage
+
 ```terraform
 data "yandex_resourcemanager_folder" "project1" {
   folder_id = "my_folder_id"

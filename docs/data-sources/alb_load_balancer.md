@@ -13,10 +13,11 @@ description: |-
 
 Get information about a Yandex Application Load Balancer. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
 
+## Example usage
+
 ```terraform
-data "yandex_alb_virtual_host" "my-vh-data" {
-  name           = yandex_alb_virtual_host.my-vh.name
-  http_router_id = yandex_alb_virtual_host.my-router.id
+data "yandex_alb_load_balancer" "tf-alb-data" {
+  load_balancer_id = "my-alb-id"
 }
 ```
 

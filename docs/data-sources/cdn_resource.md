@@ -15,6 +15,8 @@ Get information about a Yandex CDN Resource. For more information, see [the offi
 
 > ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
+## Example usage
+
 ```terraform
 data "yandex_cdn_resource" "my_resource" {
   resource_id = "some resource id"

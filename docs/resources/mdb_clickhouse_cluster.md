@@ -13,6 +13,8 @@ description: |-
 
 Manages a ClickHouse cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name        = "test"

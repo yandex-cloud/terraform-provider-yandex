@@ -13,6 +13,8 @@ description: |-
 
 Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
 
+## Example usage
+
 ```terraform
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"

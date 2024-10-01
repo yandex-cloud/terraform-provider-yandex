@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex ALB Virtual Host. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
 
+## Example usage
+
 ```terraform
 data "yandex_alb_virtual_host" "my-vh-data" {
   name           = yandex_alb_virtual_host.my-vh.name

@@ -13,15 +13,17 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Asymmetric Signature Key.
 
+## Example usage
+
 ```terraform
-resource "yandex_kms_symmetric_key" "your-key" {
+resource "yandex_kms_asymmetric_signature_key" "your-key" {
   folder_id = "your-folder-id"
-  name      = "symmetric-key-name"
+  name      = "asymmetric-signature-key-name"
 }
 
-resource "yandex_kms_symmetric_key_iam_binding" "viewer" {
-  symmetric_key_id = yandex_kms_symmetric_key.your-key.id
-  role             = "viewer"
+resource "yandex_kms_asymmetric_signature_key_iam_binding" "viewer" {
+  asymmetric_signaturen_key_id = yandex_kms_asymmetric_signature_key.your-key.id
+  role                         = "viewer"
 
   members = [
     "userAccount:foo_user_id",

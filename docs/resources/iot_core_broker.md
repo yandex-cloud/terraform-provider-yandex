@@ -15,8 +15,10 @@ Allows management of [Yandex.Cloud IoT Broker](https://cloud.yandex.com/docs/iot
 
 The service is at the Preview stage.
 
+## Example usage
+
 ```terraform
-resource "yandex_iot_core_registry" "my_registry" {
+resource "yandex_iot_core_broker" "my_broker" {
   name        = "some_name"
   description = "any description"
   labels = {
@@ -26,10 +28,6 @@ resource "yandex_iot_core_registry" "my_registry" {
     log_group_id = "log-group-id"
     min_level    = "ERROR"
   }
-  passwords = [
-    "my-password1",
-    "my-password2"
-  ]
   certificates = [
     "public part of certificate1",
     "public part of certificate2"

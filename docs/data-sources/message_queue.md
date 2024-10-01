@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see [Yandex.Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
 
+## Example usage
+
 ```terraform
 data "yandex_message_queue" "example_queue" {
   name = "ymq_terraform_example"

@@ -13,6 +13,8 @@ description: |-
 
 Allows management of [Yandex.Cloud Storage Object](https://cloud.yandex.com/docs/storage/concepts/object).
 
+## Example usage
+
 ```terraform
 resource "yandex_storage_object" "cute-cat-picture" {
   bucket = "cat-pictures"

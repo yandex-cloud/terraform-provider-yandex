@@ -13,24 +13,34 @@ description: |-
 
 Yandex Database (dedicated) resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
 
+## Example usage
+
 ```terraform
-resource "yandex_ydb_database_serverless" "database_name" {
-  name        = "database-name"
-  location_id = "ru-central1"
-}
+resource "yandex_ydb_database_dedicated" "database1" {
+  name      = "test-ydb-dedicated"
+  folder_id = data.yandex_resourcemanager_folder.test_folder.id
 
+  network_id = yandex_vpc_network.my-inst-group-network.id
+  subnet_ids = ["${yandex_vpc_subnet.my-inst-group-subnet.id}"]
 
-resource "yandex_ydb_topic" "topic" {
-  database_endpoint = yandex_ydb_database_serverless.database_name.ydb_full_endpoint
-  name              = "topic-test"
+  resource_preset_id  = "medium"
+  deletion_protection = true
 
-  supported_codecs    = ["raw", "gzip"]
-  partitions_count    = 1
-  retention_period_ms = 2000000
-  consumer {
-    name                          = "consumer-name"
-    supported_codecs              = ["raw", "gzip"]
-    starting_message_timestamp_ms = 0
+  scale_policy {
+    fixed_scale {
+      size = 1
+    }
+  }
+
+  storage_config {
+    group_count     = 1
+    storage_type_id = "ssd"
+  }
+
+  location {
+    region {
+      id = "ru-central1"
+    }
   }
 }
 ```

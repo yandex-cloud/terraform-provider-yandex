@@ -13,6 +13,8 @@ description: |-
 
 Manages a Redis cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "test"

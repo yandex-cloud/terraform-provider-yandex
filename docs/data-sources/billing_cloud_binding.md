@@ -13,6 +13,8 @@ description: |-
 
 Use this data source to get cloud to billing account bind details. For more information, see [Cloud binding](https://cloud.yandex.ru/docs/billing/operations/pin-cloud).
 
+## Example usage
+
 ```terraform
 data "yandex_billing_cloud_binding" "foo" {
   billing_account_id = "foo-ba-id"

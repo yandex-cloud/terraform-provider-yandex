@@ -15,11 +15,14 @@ Allows members management of a single Yandex.Cloud Organization Manager Group. F
 
 ~> **Note:** Multiple `yandex_organizationmanager_group_iam_binding` resources with the same group id will produce inconsistent behavior!
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+resource "yandex_organizationmanager_group_membership" "group" {
+  group_id = "sdf4*********3fr"
+  members = [
+    "xdf********123"
+  ]
 }
 ```
 

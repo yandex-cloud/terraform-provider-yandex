@@ -11,6 +11,8 @@ description: |-
 
 
 
+## Example usage
+
 ```terraform
 resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
   organization_id = "some_organization_id"

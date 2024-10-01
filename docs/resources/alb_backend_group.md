@@ -13,18 +13,37 @@ Creates a backend group in the specified folder and adds the specified backends 
 
 
 
+## Example usage
+
 ```terraform
-resource "yandex_alb_virtual_host" "my-virtual-host" {
-  name           = "my-virtual-host"
-  http_router_id = yandex_alb_http_router.my-router.id
-  route {
-    name = "my-route"
-    http_route {
-      http_route_action {
-        backend_group_id = yandex_alb_backend_group.my-bg.id
-        timeout          = "3s"
+resource "yandex_alb_backend_group" "test-backend-group" {
+  name = "my-backend-group"
+
+  session_affinity {
+    connection {
+      source_ip = "127.0.0.1"
+    }
+  }
+
+  http_backend {
+    name             = "test-http-backend"
+    weight           = 1
+    port             = 8080
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    tls {
+      sni = "backend-domain.internal"
+    }
+    load_balancing_config {
+      panic_threshold = 50
+    }
+    healthcheck {
+      timeout  = "1s"
+      interval = "1s"
+      http_healthcheck {
+        path = "/"
       }
     }
+    http2 = "true"
   }
 }
 ```

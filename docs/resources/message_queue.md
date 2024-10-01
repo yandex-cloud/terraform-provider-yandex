@@ -13,6 +13,8 @@ description: |-
 
 Allows management of [Yandex.Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
 
+## Example usage
+
 ```terraform
 resource "yandex_message_queue" "example_queue" {
   name                       = "ymq_terraform_example"

@@ -13,14 +13,16 @@ description: |-
 
 Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_mongodb_user" "foo" {
+data "yandex_mdb_mongodb_database" "foo" {
   cluster_id = "some_cluster_id"
   name       = "test"
 }
 
-output "permission" {
-  value = data.yandex_mdb_mongodb_user.foo.permission
+output "owner" {
+  value = data.yandex_mdb_mongodb_database.foo.name
 }
 ```
 

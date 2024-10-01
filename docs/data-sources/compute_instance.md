@@ -13,9 +13,15 @@ description: |-
 
 Get information about a Yandex Compute instance. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
 
+## Example usage
+
 ```terraform
-data "yandex_compute_snapshot_schedule" "my_snapshot_schedule" {
-  snapshot_schedule_id = "some_snapshot_schedule_id"
+data "yandex_compute_instance" "my_instance" {
+  instance_id = "some_instance_id"
+}
+
+output "instance_external_ip" {
+  value = data.yandex_compute_instance.my_instance.network_interface.0.nat_ip_address
 }
 ```
 

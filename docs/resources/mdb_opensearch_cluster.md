@@ -13,6 +13,8 @@ description: |-
 
 Manages a OpenSearch cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_opensearch_cluster" "foo" {
   name        = "test"

@@ -11,16 +11,16 @@ description: |-
 
 
 
+## Example usage
+
 ```terraform
-resource "yandex_function_trigger" "my_trigger" {
-  name        = "some_name"
-  description = "any description"
-  timer {
-    cron_expression = "* * * * ? *"
-  }
-  function {
-    id = "tf-test"
-  }
+resource "yandex_function_iam_binding" "function-iam" {
+  function_id = "your-function-id"
+  role        = "serverless.functions.invoker"
+
+  members = [
+    "system:allUsers",
+  ]
 }
 ```
 

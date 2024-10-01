@@ -13,27 +13,29 @@ description: |-
 
 Manages a MySQL cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
-{{tffile "examples/mdb/mysql/resources/example_1.tf"}}
+## Example usage
+
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_1.tf"}}
 
 Example of creating a High-Availability(HA) MySQL Cluster.
 
-{{tffile "examples/mdb/mysql/resources/example_2.tf"}}
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_2.tf"}}
 
 Example of creating a MySQL Cluster with cascade replicas: HA-group consist of 'na-1' and 'na-2', cascade replicas form a chain 'na-1' -> 'nb-1' -> 'nb-2'
 
-{{tffile "examples/mdb/mysql/resources/example_3.tf"}}
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_3.tf"}}
 
 Example of creating a MySQL Cluster with different backup priorities. Backup will be created from nb-2, if it's not master. na-2 will be used as a backup source as a last resort.
 
-{{tffile "examples/mdb/mysql/resources/example_4.tf"}}
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_4.tf"}}
 
 Example of creating a MySQL Cluster with different host priorities. During failover master will be set to nb-2
 
-{{tffile "examples/mdb/mysql/resources/example_5.tf"}}
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_5.tf"}}
 
 Example of creating a Single Node MySQL with user params.
 
-{{tffile "examples/mdb/mysql/resources/example_6.tf"}}
+{{tffile "examples/mdb/mysql/resources/mdb_mysql_cluster_example_6.tf"}}
 
 Example of restoring MySQL cluster.
 

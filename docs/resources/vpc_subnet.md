@@ -17,6 +17,8 @@ Manages a subnet within the Yandex.Cloud. For more information, see [the officia
   * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
   * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
 
+## Example usage
+
 ```terraform
 resource "yandex_vpc_network" "lab-net" {
   name = "lab-network"

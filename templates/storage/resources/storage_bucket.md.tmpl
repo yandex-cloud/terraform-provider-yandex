@@ -19,51 +19,53 @@ Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs
 
 -> **Note**: For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket, only the default authorization method will be used. This means the `IAM`/`OAuth` token from the `provider` block will be applied. This can be confusing in cases where a separate service account is used for managing buckets because,in such scenarios, buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
 
-{{tffile "examples/storage/resources/example_1.tf"}}
+## Example usage
+
+{{tffile "examples/storage/resources/storage_bucket_example_1.tf"}}
 
 ### Simple Private Bucket With Static Access Keys
 
-{{tffile "examples/storage/resources/example_2.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_2.tf"}}
 
 ### Static Website Hosting
 
-{{tffile "examples/storage/resources/example_3.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_3.tf"}}
 
 ### Using ACL policy grants
 
-{{tffile "examples/storage/resources/example_4.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_4.tf"}}
 
 ### Using CORS
 
-{{tffile "examples/storage/resources/example_5.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_5.tf"}}
 
 ### Using versioning
 
-{{tffile "examples/storage/resources/example_6.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_6.tf"}}
 
 ### Using Object Lock Configuration
 
-{{tffile "examples/storage/resources/example_11.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_11.tf"}}
 
 ### Bucket Tagging
 
-{{tffile "examples/storage/resources/example_12.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_12.tf"}}
 
 ### Bucket Max Size
 
-{{tffile "examples/storage/resources/example_13.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_13.tf"}}
 
 ### Bucket Folder Id
 
-{{tffile "examples/storage/resources/example_14.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_14.tf"}}
 
 ### Bucket Anonymous Access Flags
 
-{{tffile "examples/storage/resources/example_15.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_15.tf"}}
 
 ### Bucket HTTPS Certificate
 
-{{tffile "examples/storage/resources/example_16.tf"}}
+{{tffile "examples/storage/resources/storage_bucket_example_16.tf"}}
 
 ### Bucket Default Storage Class
 

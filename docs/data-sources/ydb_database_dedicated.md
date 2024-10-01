@@ -13,13 +13,15 @@ description: |-
 
 Get information about a Yandex Database (dedicated) cluster. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
 
+## Example usage
+
 ```terraform
-data "yandex_ydb_database_serverless" "my_database" {
-  database_id = "some_ydb_serverless_database_id"
+data "yandex_ydb_database_dedicated" "my_database" {
+  database_id = "some_ydb_dedicated_database_id"
 }
 
 output "ydb_api_endpoint" {
-  value = data.yandex_ydb_database_serverless.my_database.ydb_api_endpoint
+  value = data.yandex_ydb_database_dedicated.my_database.ydb_api_endpoint
 }
 ```
 

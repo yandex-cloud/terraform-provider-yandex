@@ -15,9 +15,11 @@ Get information about a Yandex IoT Core Broker. For more information IoT Core, s
 
 The service is at the Preview stage.
 
+## Example usage
+
 ```terraform
-data "yandex_iot_core_registry" "my_registry" {
-  registry_id = "are1sampleregistry11"
+data "yandex_iot_core_broker" "my_broker" {
+  broker_id = "are1samplebroker11"
 }
 ```
 

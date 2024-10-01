@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_mysql_user" "foo" {
   cluster_id = "some_cluster_id"

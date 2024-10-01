@@ -13,24 +13,21 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Resource Manager cloud.
 
+## Example usage
+
 ```terraform
-data "yandex_resourcemanager_folder" "project1" {
-  folder_id = "my_folder_id"
+data "yandex_resourcemanager_cloud" "project1" {
+  name = "Project 1"
 }
 
-data "yandex_iam_policy" "admin" {
-  binding {
-    role = "editor"
+resource "yandex_resourcemanager_cloud_iam_binding" "admin" {
+  cloud_id = data.yandex_resourcemanager_cloud.project1.id
 
-    members = [
-      "userAccount:some_user_id",
-    ]
-  }
-}
+  role = "editor"
 
-resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
-  folder_id   = data.yandex_folder.project1.id
-  policy_data = data.yandex_iam_policy.admin.policy_data
+  members = [
+    "userAccount:some_user_id",
+  ]
 }
 ```
 

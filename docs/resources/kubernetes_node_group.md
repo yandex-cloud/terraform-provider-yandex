@@ -14,6 +14,8 @@ description: |-
 
 Creates a Yandex Kubernetes Node Group.
 
+## Example usage
+
 ```terraform
 resource "yandex_kubernetes_node_group" "my_node_group" {
   cluster_id  = yandex_kubernetes_cluster.my_cluster.id

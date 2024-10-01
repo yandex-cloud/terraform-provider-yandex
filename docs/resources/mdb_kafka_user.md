@@ -13,6 +13,8 @@ description: |-
 
 Manages a user of a Kafka cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_kafka_cluster" "foo" {
   name       = "foo"

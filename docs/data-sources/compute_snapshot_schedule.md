@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Compute snapshot schedule. For more information, see [the official documentation](https://cloud.yandex.ru/docs/compute/concepts/snapshot-schedule).
 
+## Example usage
+
 ```terraform
 data "yandex_compute_snapshot_schedule" "my_snapshot_schedule" {
   snapshot_schedule_id = "some_snapshot_schedule_id"

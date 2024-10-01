@@ -15,13 +15,16 @@ Get information about a user of Yandex SAML Federation. For more information, se
 
 ~> **Note:** If terraform user had sufficient access and user specified in data source did not exist, it would be created. This behaviour will was **fixed**. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
 
+## Example usage
+
 ```terraform
-data "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  user_ssh_key_id = "some_user_ssh_key_id"
+data "yandex_organizationmanager_saml_federation_user_account" "account" {
+  federation_id = "some_federation_id"
+  name_id       = "example@example.org"
 }
 
-output "my_user_ssh_key_name" {
-  value = "data.yandex_organizationmanager_user_ssh_key.my_user_ssh_key.name"
+output "my_federation.id" {
+  value = data.yandex_organizationmanager_saml_federation_user_account.account.id
 }
 ```
 

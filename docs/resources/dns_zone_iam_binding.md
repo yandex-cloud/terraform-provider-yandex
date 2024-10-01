@@ -13,6 +13,8 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing DNS Zone.
 
+## Example usage
+
 ```terraform
 resource "yandex_dns_zone" "zone1" {
   name = "my-private-zone"

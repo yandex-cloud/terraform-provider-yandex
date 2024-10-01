@@ -13,9 +13,11 @@ description: |-
 
 Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
 
+## Example usage
+
 ```terraform
-data "yandex_function_trigger" "my_trigger" {
-  trigger_id = "are1sampletrigger11"
+data "yandex_function_scaling_policy" "my_scaling_policy" {
+  function_id = "are1samplefunction11"
 }
 ```
 

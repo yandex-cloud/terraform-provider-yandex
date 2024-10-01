@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Cloud Serverless Container.
 
+## Example usage
+
 ```terraform
 data "yandex_serverless_container" "my-container" {
   container_id = "are1samplecontainer11"

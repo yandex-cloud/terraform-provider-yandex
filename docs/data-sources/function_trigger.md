@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
 
+## Example usage
+
 ```terraform
 data "yandex_function_trigger" "my_trigger" {
   trigger_id = "are1sampletrigger11"

@@ -13,6 +13,8 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Symmetric Key.
 
+## Example usage
+
 ```terraform
 resource "yandex_kms_symmetric_key" "your-key" {
   folder_id = "your-folder-id"

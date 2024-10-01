@@ -15,6 +15,8 @@ Manages a SQLServer cluster within the Yandex.Cloud. For more information, see [
 
 Please read [Pricing for Managed Service for SQL Server](https://cloud.yandex.com/docs/managed-sqlserver/pricing#prices) before using SQLServer cluster.
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_sqlserver_cluster" "foo" {
   name        = "test"

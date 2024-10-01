@@ -13,18 +13,9 @@ description: |-
 
 Manages a PostgreSQL cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://cloud.yandex.com/en-ru/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
-```terraform
-resource "yandex_mdb_postgresql_user" "foo" {
-  cluster_id = yandex_mdb_postgresql_cluster.foo.id
-  name       = "alice"
-  password   = "password"
-  conn_limit = 50
-  settings = {
-    default_transaction_isolation = "read committed"
-    log_min_duration_statement    = 5000
-  }
-}
+## Example usage
 
+```terraform
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "test"
   environment = "PRESTABLE"
@@ -37,6 +28,19 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
+    postgresql_config = {
+      max_connections                = 395
+      enable_parallel_hash           = true
+      autovacuum_vacuum_scale_factor = 0.34
+      default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
+      shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
   }
 
   host {

@@ -15,7 +15,9 @@ Manages a single Secuirity Group Rule within the Yandex.Cloud. For more informat
 
 ~> **NOTE:** There is another way to manage security group rules by `ingress` and `egress` arguments in [yandex_vpc_security_group](vpc_security_group.html). Both ways are equivalent but not compatible now. Using in-line rules of [yandex_vpc_security_group](vpc_security_group.html) with Security Group Rule resource at the same time will cause a conflict of rules configuration.
 
-{{tffile "examples/vpc/resources/example_1.tf"}}
+## Example usage
+
+{{tffile "examples/vpc/resources/vpc_security_group_rule_example_1.tf"}}
 
 ## Argument Reference
 

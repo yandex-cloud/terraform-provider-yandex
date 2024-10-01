@@ -13,6 +13,8 @@ description: |-
 
 Get information about WAF rule sets. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set).
 
+## Example usage
+
 ```terraform
 data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
   name    = "OWASP Core Ruleset"

@@ -13,6 +13,8 @@ description: |-
 
 Manages a MySQL user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_mysql_user" "john" {
   cluster_id = yandex_mdb_mysql_cluster.foo.id

@@ -14,9 +14,17 @@ description: |-
 
 Generates an [IAM](https://cloud.yandex.com/docs/iam/) role document that may be referenced by and applied to other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/roles).
 
+## Example usage
+
 ```terraform
-data "yandex_iam_user" "admin" {
-  login = "my-yandex-login"
+data "yandex_iam_role" "admin" {
+  binding {
+    role = "admin"
+
+    members = [
+      "userAccount:user_id_1"
+    ]
+  }
 }
 ```
 

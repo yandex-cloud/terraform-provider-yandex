@@ -13,6 +13,8 @@ description: |-
 
 Get attributes used by provider to configure client connection.
 
+## Example usage
+
 ```terraform
 data "yandex_client_config" "client" {}
 

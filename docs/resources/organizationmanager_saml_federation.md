@@ -13,11 +13,16 @@ description: |-
 
 Allows management of a single SAML Federation within an existing Yandex.Cloud Organization.
 
+## Example usage
+
 ```terraform
-resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  organization_id = "some_organization_id"
-  subject_id      = "some_subject_id"
-  data            = "ssh_key_data"
+resource "yandex_organizationmanager_saml_federation" "federation" {
+  name            = "my-federation"
+  description     = "My new SAML federation"
+  organization_id = "sdf4*********3fr"
+  sso_url         = "https://my-sso.url"
+  issuer          = "my-issuer"
+  sso_binding     = "POST"
 }
 ```
 

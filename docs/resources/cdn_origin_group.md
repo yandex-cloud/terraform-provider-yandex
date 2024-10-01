@@ -15,27 +15,30 @@ Allows management of [Yandex.Cloud CDN Origin Groups](https://cloud.yandex.ru/do
 
 > ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
+## Example usage
+
 ```terraform
-resource "yandex_cdn_resource" "my_resource" {
-  cname = "cdn1.yandex-example.ru"
+resource "yandex_cdn_origin_group" "my_group" {
 
-  active = false
+  name = "My Origin group"
 
-  origin_protocol = "https"
+  use_next = true
 
-  secondary_hostnames = ["cdn-example-1.yandex.ru", "cdn-example-2.yandex.ru"]
+  origin {
+    source = "ya.ru"
+  }
 
-  origin_group_id = yandex_cdn_origin_group.foo_cdn_group_by_id.id
+  origin {
+    source = "yandex.ru"
+  }
 
-  options {
-    edge_cache_settings = 345600
-    ignore_cookie       = true
-    static_request_headers = {
-      is-from-cdn = "yes"
-    }
-    static_response_headers = {
-      is-cdn = "yes"
-    }
+  origin {
+    source = "goo.gl"
+  }
+
+  origin {
+    source = "amazon.com"
+    backup = false
   }
 }
 ```

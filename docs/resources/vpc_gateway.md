@@ -16,15 +16,12 @@ Manages a gateway within the Yandex.Cloud. For more information, see [the offici
 * How-to Guides
   * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
 
-```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
+## Example usage
 
-resource "yandex_vpc_subnet" "lab-subnet-a" {
-  v4_cidr_blocks = ["10.2.0.0/16"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.lab-net.id
+```terraform
+resource "yandex_vpc_gateway" "default" {
+  name = "foobar"
+  shared_egress_gateway {}
 }
 ```
 

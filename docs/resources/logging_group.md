@@ -13,6 +13,8 @@ description: |-
 
 Yandex Cloud Logging group resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/logging/concepts/log-group).
 
+## Example usage
+
 ```terraform
 resource "yandex_logging_group" "group1" {
   name      = "test-logging-group"

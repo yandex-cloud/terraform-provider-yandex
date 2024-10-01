@@ -13,6 +13,8 @@ Creates a WAF Profile in the specified folder. For more information, see [the of
 
 
 
+## Example usage
+
 ```terraform
 resource "yandex_sws_waf_profile" "empty" {
   // NOTE: this WAF profile do not contains any rules enabled.

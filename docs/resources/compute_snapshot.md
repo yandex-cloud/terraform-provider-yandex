@@ -13,29 +13,16 @@ description: |-
 
 Creates a new snapshot of a disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_snapshot" "default" {
+  name           = "test-snapshot"
+  source_disk_id = "test_disk_id"
+
+  labels = {
+    my-label = "my-label-value"
   }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
-
-  role = "editor"
-
-  members = [
-    "userAccount:some_user_id",
-  ]
 }
 ```
 

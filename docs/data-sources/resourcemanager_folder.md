@@ -13,6 +13,8 @@ description: |-
 
 Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder).
 
+## Example usage
+
 ```terraform
 # Get folder by ID
 data "yandex_resourcemanager_folder" "my_folder_1" {

@@ -13,23 +13,22 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Filesystem.
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
+resource "yandex_compute_filesystem" "fs1" {
+  name = "fs-name"
+  type = "network-ssd"
+  zone = "ru-central1-a"
+  size = 10
+
+  labels = {
+    environment = "test"
   }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
 }
 
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
+resource "yandex_compute_filesystem_iam_binding" "editor" {
+  filesystem_id = data.yandex_compute_filesystem.fs1.id
 
   role = "editor"
 

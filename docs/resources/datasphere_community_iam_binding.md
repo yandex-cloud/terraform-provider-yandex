@@ -11,10 +11,12 @@ description: |-
 
 
 
+## Example usage
+
 ```terraform
-resource "yandex_datasphere_project_iam_binding" "project-iam" {
-  project_id = "your-datasphere-project-id"
-  role       = "datasphere.community-projects.developer"
+resource "yandex_datasphere_community_iam_binding" "community-iam" {
+  community_id = "your-datasphere-community-id"
+  role         = "datasphere.communities.developer"
   members = [
     "system:allUsers",
   ]

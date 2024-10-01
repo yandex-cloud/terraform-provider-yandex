@@ -13,6 +13,8 @@ description: |-
 
 Manages a connector of a Kafka cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
 resource "yandex_mdb_kafka_cluster" "foo" {
   name       = "foo"
@@ -31,25 +33,57 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   }
 }
 
-resource "yandex_mdb_kafka_topic" "events" {
-  cluster_id         = yandex_mdb_kafka_cluster.foo.id
-  name               = "events"
-  partitions         = 4
-  replication_factor = 1
+resource "yandex_mdb_kafka_connector" "connector" {
+  cluster_id = yandex_mdb_kafka_cluster.foo.id
+  name       = "replication"
+  tasks_max  = 3
+  properties = {
+    refresh.topics.enabled = "true"
+  }
+  connector_config_mirrormaker {
+    topics             = "data.*"
+    replication_factor = 1
+    source_cluster {
+      alias = "source"
+      external_cluster {
+        bootstrap_servers = "somebroker1:9091,somebroker2:9091"
+        sasl_username     = "someuser"
+        sasl_password     = "somepassword"
+        sasl_mechanism    = "SCRAM-SHA-512"
+        security_protocol = "SASL_SSL"
+      }
+    }
+    target_cluster {
+      alias = "target"
+      this_cluster {}
+    }
+  }
 }
 
-resource "yandex_mdb_kafka_user" "user_events" {
+resource "yandex_mdb_kafka_connector" "connector" {
   cluster_id = yandex_mdb_kafka_cluster.foo.id
-  name       = "user-events"
-  password   = "pass1231232332"
-  permission {
-    topic_name  = "events"
-    role        = "ACCESS_ROLE_CONSUMER"
-    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
+  name       = "s3-sink"
+  tasks_max  = 3
+  properties = {
+    "key.converter"                  = "org.apache.kafka.connect.storage.StringConverter"
+    "value.converter"                = "org.apache.kafka.connect.json.JsonConverter"
+    "value.converter.schemas.enable" = "false"
+    "format.output.type"             = "jsonl"
+    "file.name.template"             = "dir1/dir2/{{topic}}-{{partition:padding=true}}-{{start_offset:padding=true}}.gz"
+    "timestamp.timezone"             = "Europe/Moscow"
   }
-  permission {
-    topic_name = "events"
-    role       = "ACCESS_ROLE_PRODUCER"
+  connector_config_s3_sink {
+    topics                = "data.*"
+    file_compression_type = "gzip"
+    file_max_records      = 100
+    s3_connection {
+      bucket_name = "somebucket"
+      external_s3 {
+        endpoint          = "storage.yandexcloud.net"
+        access_key_id     = "some_access_key_id"
+        secret_access_key = "some_secret_access_key"
+      }
+    }
   }
 }
 ```

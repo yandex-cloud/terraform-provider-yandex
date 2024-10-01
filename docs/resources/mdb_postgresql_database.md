@@ -13,16 +13,27 @@ description: |-
 
 Manages a PostgreSQL database within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
 
+## Example usage
+
 ```terraform
+resource "yandex_mdb_postgresql_database" "foo" {
+  cluster_id = yandex_mdb_postgresql_cluster.foo.id
+  name       = "testdb"
+  owner      = yandex_mdb_postgresql_user.alice.name
+  lc_collate = "en_US.UTF-8"
+  lc_type    = "en_US.UTF-8"
+  extension {
+    name = "uuid-ossp"
+  }
+  extension {
+    name = "xml2"
+  }
+}
+
 resource "yandex_mdb_postgresql_user" "foo" {
   cluster_id = yandex_mdb_postgresql_cluster.foo.id
   name       = "alice"
   password   = "password"
-  conn_limit = 50
-  settings = {
-    default_transaction_isolation = "read committed"
-    log_min_duration_statement    = 5000
-  }
 }
 
 resource "yandex_mdb_postgresql_cluster" "foo" {

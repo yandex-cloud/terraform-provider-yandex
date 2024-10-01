@@ -13,18 +13,20 @@ description: |-
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Lockbox Secret.
 
+## Example usage
+
 ```terraform
-resource "yandex_lockbox_secret" "my_secret" {
-  name = "test secret"
+resource "yandex_lockbox_secret" "your-secret" {
+  name = "secret-name"
 }
 
-resource "yandex_lockbox_secret_version_hashed" "my_version" {
-  secret_id    = yandex_lockbox_secret.my_secret.id
-  key_1        = "key1"
-  text_value_1 = "sensitive value 1" // in Terraform state, these values will be stored in hash format
-  key_2        = "k2"
-  text_value_2 = "sensitive value 2"
-  // etc. (up to 10 entries)
+resource "yandex_lockbox_secret_iam_binding" "viewer" {
+  secret_id = yandex_lockbox_secret.your-secret.id
+  role      = "viewer"
+
+  members = [
+    "userAccount:foo_user_id",
+  ]
 }
 ```
 

@@ -13,19 +13,30 @@ Creates a network load balancer in the specified folder using the data specified
 
 
 
-```terraform
-resource "yandex_lb_target_group" "foo" {
-  name      = "my-target-group"
-  region_id = "ru-central1"
+## Example usage
 
-  target {
-    subnet_id = yandex_vpc_subnet.my-subnet.id
-    address   = yandex_compute_instance.my-instance-1.network_interface.0.ip_address
+```terraform
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
+  listener {
+    name = "my-listener"
+    port = 8080
+    external_address_spec {
+      ip_version = "ipv4"
+    }
   }
 
-  target {
-    subnet_id = yandex_vpc_subnet.my-subnet.id
-    address   = yandex_compute_instance.my-instance-2.network_interface.0.ip_address
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.my-target-group.id
+
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 8080
+        path = "/ping"
+      }
+    }
   }
 }
 ```

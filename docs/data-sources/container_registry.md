@@ -13,18 +13,11 @@ description: |-
 
 Get information about a Yandex Container Registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
 
+## Example usage
+
 ```terraform
-resource "yandex_container_registry" "default" {
-  name      = "test-registry"
-  folder_id = "test_folder_id"
-
-  labels = {
-    my-label = "my-label-value"
-  }
-}
-
-data "yandex_container_registry_ip_permission" "my_ip_permission_by_id" {
-  registry_id = yandex_container_registry.default.id
+data "yandex_container_registry" "source" {
+  registry_id = "some_registry_id"
 }
 ```
 

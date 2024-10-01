@@ -13,6 +13,8 @@ description: |-
 
 Manages an Apache Airflow cluster within Yandex.Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-airflow/concepts/).
 
+## Example usage
+
 ```terraform
 resource "yandex_airflow_cluster" "this" {
   name               = "airflow-created-with-terraform"

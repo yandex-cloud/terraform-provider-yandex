@@ -14,9 +14,11 @@ description: |-
 
 Creates a Yandex Kubernetes Cluster.
 
-{{tffile "examples/kubernetes/resources/example_1.tf"}}
+## Example usage
 
-{{tffile "examples/kubernetes/resources/example_2.tf"}}
+{{tffile "examples/kubernetes/resources/kubernetes_cluster_example_1.tf"}}
+
+{{tffile "examples/kubernetes/resources/kubernetes_cluster_example_2.tf"}}
 
 ## Argument Reference
 
@@ -43,7 +45,7 @@ The following arguments are supported:
 
 **Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources, it is necessary to add dependency on these access resources to cluster config:
 
-{{tffile "examples/kubernetes/resources/example_3.tf"}}
+{{tffile "examples/kubernetes/resources/kubernetes_cluster_example_3.tf"}}
 
 Without it, on destroy, terraform will delete cluster and remove access rights for service account(s) simultaneously, that will cause problems for cluster and related node group deletion.
 

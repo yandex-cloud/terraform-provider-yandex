@@ -13,15 +13,15 @@ description: |-
 
 Get information about a Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_kafka_user" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
-  password   = "pass123"
+data "yandex_mdb_kafka_cluster" "foo" {
+  name = "test"
 }
 
-output "username" {
-  value = data.yandex_mdb_kafka_user.foo.name
+output "network_id" {
+  value = data.yandex_mdb_kafka_cluster.foo.network_id
 }
 ```
 

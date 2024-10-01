@@ -13,6 +13,8 @@ description: |-
 
 Get information about a user of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_kafka_user" "foo" {
   cluster_id = "some_cluster_id"

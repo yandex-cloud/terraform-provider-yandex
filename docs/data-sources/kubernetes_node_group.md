@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Kubernetes Node Group. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
 
+## Example usage
+
 ```terraform
 data "yandex_kubernetes_node_group" "my_node_group" {
   node_group_id = "some_k8s_node_group_id"

@@ -13,6 +13,8 @@ description: |-
 
 Get information about Yandex Cloud Lockbox secret version. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
 
+## Example usage
+
 ```terraform
 data "yandex_lockbox_secret_version" "my_secret_version" {
   secret_id  = "some-secret-id"

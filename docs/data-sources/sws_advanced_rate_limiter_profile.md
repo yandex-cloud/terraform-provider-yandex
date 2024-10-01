@@ -13,16 +13,17 @@ description: |-
 
 Get information about ARL Profile. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/quickstart/quickstart-arl).
 
+## Example usage
+
 ```terraform
-data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
-  name    = "OWASP Core Ruleset"
-  version = "4.0.0"
+data "yandex_sws_advanced_rate_limiter_profile" "by-id" {
+  advanced_rate_limiter_profile_id = yandex_sws_advanced_rate_limiter_profile.my-profile.id
 }
 ```
 
 ```terraform
-data "yandex_sws_waf_profile" "by-name" {
-  name = yandex_sws_waf_profile.my-profile.name
+data "yandex_sws_advanced_rate_limiter_profile" "by-name" {
+  name = yandex_sws_advanced_rate_limiter_profile.my-profile.name
 }
 ```
 

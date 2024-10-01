@@ -13,6 +13,8 @@ description: |-
 
 Get content (certificate, private key) from a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/certificate-manager/concepts/).
 
+## Example usage
+
 ```terraform
 data "yandex_cm_certificate_content" "example_by_id" {
   certificate_id = "certificate-id"

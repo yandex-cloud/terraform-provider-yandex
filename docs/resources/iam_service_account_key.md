@@ -13,10 +13,13 @@ description: |-
 
 Allows management of [Yandex.Cloud IAM service account authorized keys](https://cloud.yandex.com/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token) for a [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
 
+## Example usage
+
 ```terraform
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+resource "yandex_iam_service_account_key" "sa-auth-key" {
   service_account_id = "some_sa_id"
-  description        = "static access key for object storage"
+  description        = "key for service account"
+  key_algorithm      = "RSA_4096"
   pgp_key            = "keybase:keybaseusername"
 }
 ```

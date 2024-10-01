@@ -13,13 +13,16 @@ description: |-
 
 Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/add-federation).
 
+## Example usage
+
 ```terraform
-data "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  user_ssh_key_id = "some_user_ssh_key_id"
+data "yandex_organizationmanager_saml_federation" "federation" {
+  federation_id   = "some_federation_id"
+  organization_id = "some_organization_id"
 }
 
-output "my_user_ssh_key_name" {
-  value = "data.yandex_organizationmanager_user_ssh_key.my_user_ssh_key.name"
+output "my_federation.name" {
+  value = data.yandex_organizationmanager_saml_federation.federation.name
 }
 ```
 

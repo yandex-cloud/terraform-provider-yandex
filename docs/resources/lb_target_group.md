@@ -13,6 +13,8 @@ Creates a target group in the specified folder and adds the specified targets to
 
 
 
+## Example usage
+
 ```terraform
 resource "yandex_lb_target_group" "foo" {
   name      = "my-target-group"

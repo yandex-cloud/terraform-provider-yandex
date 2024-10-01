@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex IAM user account. For more information about accounts, see [Yandex.Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
 
+## Example usage
+
 ```terraform
 data "yandex_iam_user" "admin" {
   login = "my-yandex-login"

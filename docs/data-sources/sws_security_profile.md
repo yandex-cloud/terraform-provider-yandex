@@ -13,16 +13,17 @@ description: |-
 
 Get information about SecurityProfile. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/concepts/profiles).
 
+## Example usage
+
 ```terraform
-data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
-  name    = "OWASP Core Ruleset"
-  version = "4.0.0"
+data "yandex_sws_security_profile" "by-id" {
+  security_profile_id = yandex_sws_security_profile.my-profile.id
 }
 ```
 
 ```terraform
-data "yandex_sws_waf_profile" "by-name" {
-  name = yandex_sws_waf_profile.my-profile.name
+data "yandex_sws_security_profile" "by-name" {
+  name = yandex_sws_security_profile.my-profile.name
 }
 ```
 

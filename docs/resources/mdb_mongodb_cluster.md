@@ -13,11 +13,15 @@ description: |-
 
 Manages a MongoDB cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
 
+## Example usage
+
 ```terraform
-resource "yandex_mdb_mongodb_user" "foo" {
-  cluster_id = yandex_mdb_mongodb_cluster.foo.id
-  name       = "alice"
-  password   = "password"
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
 }
 
 resource "yandex_mdb_mongodb_cluster" "foo" {
@@ -26,26 +30,51 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   network_id  = yandex_vpc_network.foo.id
 
   cluster_config {
-    version = "6.0"
+    version = "4.2"
+  }
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  resources_mongod {
+    resource_preset_id = "s2.small"
+    disk_size          = 16
+    disk_type_id       = "network-hdd"
+  }
+
+  resources_mongos {
+    resource_preset_id = "s2.small"
+    disk_size          = 14
+    disk_type_id       = "network-hdd"
+  }
+
+  resources_mongocfg {
+    resource_preset_id = "s2.small"
+    disk_size          = 14
+    disk_type_id       = "network-hdd"
   }
 
   host {
     zone_id   = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo.id
   }
-  resources_mongod {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 16
+
+  maintenance_window {
+    type = "ANYTIME"
   }
-}
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
 }
 ```
 

@@ -13,24 +13,11 @@ description: |-
 
 Allows creation and management of Cloud resources for an existing Yandex.Cloud Organization. See [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy) for additional info. Note: deletion of clouds may take up to 30 minutes as it requires a lot of communication between cloud services.
 
+## Example usage
+
 ```terraform
-data "yandex_resourcemanager_folder" "project1" {
-  folder_id = "my_folder_id"
-}
-
-data "yandex_iam_policy" "admin" {
-  binding {
-    role = "editor"
-
-    members = [
-      "userAccount:some_user_id",
-    ]
-  }
-}
-
-resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
-  folder_id   = data.yandex_folder.project1.id
-  policy_data = data.yandex_iam_policy.admin.policy_data
+resource "yandex_resourcemanager_cloud" "cloud1" {
+  organization_id = "my_organization_id"
 }
 ```
 

@@ -13,9 +13,12 @@ description: |-
 
 Get information about a Yandex VPC Security Group Rule. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
 
+## Example usage
+
 ```terraform
-data "yandex_vpc_subnet" "admin" {
-  subnet_id = "my-subnet-id"
+data "yandex_vpc_security_group_rule" "rule1" {
+  security_group_binding = "my-sg-id"
+  rule_id                = "my-rule-id"
 }
 ```
 

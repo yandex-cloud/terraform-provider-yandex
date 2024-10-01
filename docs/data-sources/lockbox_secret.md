@@ -13,14 +13,15 @@ description: |-
 
 Get information about Yandex Cloud Lockbox secret. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
 
+## Example usage
+
 ```terraform
-data "yandex_lockbox_secret_version" "my_secret_version" {
-  secret_id  = "some-secret-id"
-  version_id = "some-version-id" # if you don't indicate it, by default refers to the latest version
+data "yandex_lockbox_secret" "my_secret" {
+  secret_id = "some ID"
 }
 
-output "my_secret_entries" {
-  value = data.yandex_lockbox_secret_version.my_secret_version.entries
+output "my_secret_created_at" {
+  value = data.yandex_lockbox_secret.my_secret.created_at
 }
 ```
 

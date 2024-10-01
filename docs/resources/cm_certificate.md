@@ -13,6 +13,8 @@ Creates or requests a TLS certificate in the specified folder. For more informat
 
 
 
+## Example usage
+
 ```terraform
 resource "yandex_cm_certificate" "example" {
   name    = "example"

@@ -13,13 +13,17 @@ description: |-
 
 Allows management of Yandex Cloud Datasphere Communities
 
+## Example usage
+
 ```terraform
-resource "yandex_datasphere_project_iam_binding" "project-iam" {
-  project_id = "your-datasphere-project-id"
-  role       = "datasphere.community-projects.developer"
-  members = [
-    "system:allUsers",
-  ]
+resource "yandex_datasphere_community" "my-community" {
+  name               = "example-datasphere-community"
+  description        = "Description of community"
+  billing_account_id = "example-organization-id"
+  labels = {
+    "foo" : "bar"
+  }
+  organization_id = "example-organization-id"
 }
 ```
 

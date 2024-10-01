@@ -15,6 +15,8 @@ Allows management of [Yandex.Cloud CDN Resource](https://cloud.yandex.ru/docs/cd
 
 > ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
+## Example usage
+
 ```terraform
 resource "yandex_cdn_resource" "my_resource" {
   cname = "cdn1.yandex-example.ru"

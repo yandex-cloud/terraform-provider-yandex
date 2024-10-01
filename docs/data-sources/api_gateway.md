@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Cloud API Gateway. For more information, see the official documentation [Yandex Cloud API Gateway](https://cloud.yandex.com/docs/api-gateway/).
 
+## Example usage
+
 ```terraform
 data "yandex_api_gateway" "my-api-gateway" {
   name = "my-api-gateway"

@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Backup Policy. For more information, see [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).
 
+## Example usage
+
 ```terraform
 data "yandex_backup_policy" "my_policy" {
   name = "some_policy_name"

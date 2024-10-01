@@ -13,6 +13,8 @@ description: |-
 
 Get information about a trail. For information about the trail concept, see [official documentation](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
 
+## Example usage
+
 ```terraform
 data "yandex_audit_trails_trail" "tf-trail-data" {
   trail_id = "infosec-trail-id"

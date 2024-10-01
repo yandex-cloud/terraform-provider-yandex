@@ -13,18 +13,29 @@ Creates an ARL Profile in the specified folder. For more information, see [the o
 
 
 
-```terraform
-resource "yandex_sws_waf_profile" "empty" {
-  // NOTE: this WAF profile do not contains any rules enabled.
-  // See the next example to see how to enable default set of rules. 
-  name = "waf-profile-dummy"
+## Example usage
 
-  core_rule_set {
-    inbound_anomaly_score = 2
-    paranoia_level        = 1
-    rule_set {
-      name    = "OWASP Core Ruleset"
-      version = "4.0.0"
+```terraform
+resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
+  name = "demo-profile"
+
+  advanced_rate_limiter_rule {
+    name        = "rule1"
+    priority    = 10
+    description = "First test rule"
+    dry_run     = true
+
+    static_quota {
+      action = "DENY"
+      limit  = 10000000
+      period = 1
+      condition {
+        request_uri {
+          path {
+            exact_match = "/api"
+          }
+        }
+      }
     }
   }
 }

@@ -13,29 +13,13 @@ description: |-
 
 A Disk Placement Group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
+## Example usage
+
 ```terraform
-resource "yandex_compute_snapshot_schedule" "schedule1" {
-  schedule_policy {
-    expression = "0 0 * * *"
-  }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule_iam_binding" "editor" {
-  snapshot_schedule_id = data.yandex_compute_snapshot_schedule.schedule1.id
-
-  role = "editor"
-
-  members = [
-    "userAccount:some_user_id",
-  ]
+resource "yandex_compute_disk_placement_group" "group1" {
+  name        = "test-pg"
+  folder_id   = "abc*********123"
+  description = "my description"
 }
 ```
 

@@ -13,13 +13,16 @@ description: |-
 
 Get information about a Yandex.Cloud Organization Manager Group. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/organization/manage-groups).
 
+## Example usage
+
 ```terraform
-data "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  user_ssh_key_id = "some_user_ssh_key_id"
+data "yandex_organizationmanager_group" "group" {
+  group_id        = "some_group_id"
+  organization_id = "some_organization_id"
 }
 
-output "my_user_ssh_key_name" {
-  value = "data.yandex_organizationmanager_user_ssh_key.my_user_ssh_key.name"
+output "my_group.name" {
+  value = data.yandex_organizationmanager_group.group.name
 }
 ```
 

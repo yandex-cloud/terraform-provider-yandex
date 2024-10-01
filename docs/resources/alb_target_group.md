@@ -13,18 +13,20 @@ Creates a target group in the specified folder and adds the specified targets to
 
 
 
+## Example usage
+
 ```terraform
-resource "yandex_alb_virtual_host" "my-virtual-host" {
-  name           = "my-virtual-host"
-  http_router_id = yandex_alb_http_router.my-router.id
-  route {
-    name = "my-route"
-    http_route {
-      http_route_action {
-        backend_group_id = yandex_alb_backend_group.my-bg.id
-        timeout          = "3s"
-      }
-    }
+resource "yandex_alb_target_group" "foo" {
+  name = "my-target-group"
+
+  target {
+    subnet_id  = yandex_vpc_subnet.my-subnet.id
+    ip_address = yandex_compute_instance.my-instance-1.network_interface.0.ip_address
+  }
+
+  target {
+    subnet_id  = yandex_vpc_subnet.my-subnet.id
+    ip_address = yandex_compute_instance.my-instance-2.network_interface.0.ip_address
   }
 }
 ```

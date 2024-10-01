@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex.Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
 
+## Example usage
+
 ```terraform
 data "yandex_iot_core_registry" "my_registry" {
   registry_id = "are1sampleregistry11"

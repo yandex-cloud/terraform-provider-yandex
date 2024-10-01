@@ -13,6 +13,8 @@ description: |-
 
 Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-greenplum/).
 
+## Example usage
+
 ```terraform
 data "yandex_mdb_greenplum_cluster" "foo" {
   name = "test"

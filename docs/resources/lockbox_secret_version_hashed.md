@@ -13,6 +13,8 @@ description: |-
 
 Yandex Cloud Lockbox secret version resource (with values hashed in state). For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
 
+## Example usage
+
 ```terraform
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret"

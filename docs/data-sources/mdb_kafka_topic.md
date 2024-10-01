@@ -13,15 +13,16 @@ description: |-
 
 Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
+## Example usage
+
 ```terraform
-data "yandex_mdb_kafka_user" "foo" {
+data "yandex_mdb_kafka_topic" "foo" {
   cluster_id = "some_cluster_id"
   name       = "test"
-  password   = "pass123"
 }
 
-output "username" {
-  value = data.yandex_mdb_kafka_user.foo.name
+output "replication_factor" {
+  value = data.yandex_mdb_kafka_topic.foo.replication_factor
 }
 ```
 

@@ -17,15 +17,11 @@ Manages a network within the Yandex.Cloud. For more information, see [the offici
   * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
   * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
 
-```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
+## Example usage
 
-resource "yandex_vpc_subnet" "lab-subnet-a" {
-  v4_cidr_blocks = ["10.2.0.0/16"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.lab-net.id
+```terraform
+resource "yandex_vpc_network" "default" {
+  name = "foobar"
 }
 ```
 

@@ -17,19 +17,18 @@ Encrypts given plaintext with the specified Yandex KMS key and provides access t
 
 For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
 
+## Example usage
+
 ```terraform
-resource "yandex_kms_symmetric_key" "your-key" {
-  folder_id = "your-folder-id"
-  name      = "symmetric-key-name"
+resource "yandex_kms_symmetric_key" "example" {
+  name        = "example-symetric-key"
+  description = "description for key"
 }
 
-resource "yandex_kms_symmetric_key_iam_binding" "viewer" {
-  symmetric_key_id = yandex_kms_symmetric_key.your-key.id
-  role             = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
+resource "yandex_kms_secret_ciphertext" "password" {
+  key_id      = yandex_kms_symmetric_key.example.id
+  aad_context = "additional authenticated data"
+  plaintext   = "strong password"
 }
 ```
 

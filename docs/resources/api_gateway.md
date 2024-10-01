@@ -13,6 +13,8 @@ description: |-
 
 Allows management of [Yandex Cloud API Gateway](https://cloud.yandex.com/docs/api-gateway/).
 
+## Example usage
+
 ```terraform
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "some_name"
