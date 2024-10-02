@@ -66,6 +66,11 @@ func resourceYandexBackupPolicyBindings() *schema.Resource {
 func resourceYandexBackupPolicyBindingsCreate(ctx context.Context, d *schema.ResourceData, meta any) (diagnostics diag.Diagnostics) {
 	config := meta.(*Config)
 
+	err := checkBackupProviderActivated(ctx, config)
+	if err != nil {
+		return diag.Errorf("Listing active Cloud Backup providers: %s", err)
+	}
+
 	policyID := d.Get("policy_id").(string)
 	instanceID := d.Get("instance_id").(string)
 	id := makeBackupPolicyBindingsID(policyID, instanceID)

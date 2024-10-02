@@ -793,6 +793,22 @@ func asStringSlice[T fmt.Stringer](values ...T) []string {
 	return out
 }
 
+func checkBackupProviderActivated(ctx context.Context, config *Config) error {
+	iterator := config.sdk.Backup().Provider().ProviderActivatedIterator(
+		ctx,
+		&backuppb.ListActivatedProvidersRequest{FolderId: config.FolderID},
+	)
+	providerNames, err := iterator.TakeAll()
+	if err != nil {
+		return err
+	}
+
+	if len(providerNames) == 0 {
+		return fmt.Errorf("the specified folder has no activated backup providers, please, activate provider and try again")
+	}
+	return nil
+}
+
 func getPolicyByName(ctx context.Context, config *Config, name string) (*backuppb.Policy, error) {
 	var res *backuppb.Policy
 	iterator := config.sdk.Backup().Policy().PolicyIterator(ctx, &backuppb.ListPoliciesRequest{
