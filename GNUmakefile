@@ -86,6 +86,9 @@ generate-docs-templates:
 generate-docs: generate-docs-templates
 	go run tools/cmd/generate-docs/generate_docs.go ./templates ./docs
 
+affected-lint-provider-docs:
+	@sh -c "'$(CURDIR)//scripts/affectedocs.sh'"
+
 build-website: generate-docs
 	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
  	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}'
@@ -98,4 +101,4 @@ publish-website: generate-docs
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs-templates generate-docs install-yfm
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs-templates generate-docs install-yfm affected-lint-provider-docs
