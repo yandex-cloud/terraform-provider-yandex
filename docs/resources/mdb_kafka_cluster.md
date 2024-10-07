@@ -216,7 +216,19 @@ The following arguments are supported:
 
 * `maintenance_window` - (Optional) Maintenance policy of the Kafka cluster. The structure is documented below.
 
+* `disk_size_autoscaling` - (Optional) Disk autoscaling settings of the Kafka cluster. The structure is documented below.
+
 ~> **Note:** Historically, `topic` blocks of the `yandex_mdb_kafka_cluster` resource were used to manage topics of the Kafka cluster. However, this approach has a number of disadvantages. In particular, when adding and removing topics from the tf recipe, terraform generates a diff that misleads the user about the planned changes. Also, this approach turned out to be inconvenient when managing topics through the Kafka Admin API. Therefore, topic management through a separate resource type `yandex_mdb_kafka_topic` was implemented and is now recommended.
+
+---
+
+The `disk_size_autoscaling` block supports:
+
+* `disk_size_limit` - (Required) Maximum possible size of disk in bytes.
+
+* `planned_usage_threshold` - (Optional) Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled).
+
+* `emergency_usage_threshold` - (Optional) Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
 
 ---
 
