@@ -13,6 +13,8 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/resourceid"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/validate"
+	"google.golang.org/grpc/codes"
 )
 
 type bindingResource struct {
@@ -99,8 +101,22 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user := readUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
-	if resp.Diagnostics.HasError() {
+	user, err := r.providerConfig.SDK.MDB().MongoDB().User().Get(ctx, &mongodb.GetUserRequest{
+		ClusterId: cid,
+		UserName:  userName,
+	})
+
+	if err != nil {
+		f := resp.Diagnostics.AddError
+		if validate.IsStatusWithCode(err, codes.NotFound) {
+			resp.State.RemoveResource(ctx)
+			f = resp.Diagnostics.AddWarning
+		}
+
+		f(
+			"Failed to Read resource",
+			"Error while requesting API to get MongoDB user:"+err.Error(),
+		)
 		return
 	}
 	resp.Diagnostics.Append(userToState(user, &state)...)

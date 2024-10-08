@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/validate"
+	"google.golang.org/grpc/codes"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -79,8 +83,22 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	db := readDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
-	if resp.Diagnostics.HasError() {
+	db, err := r.providerConfig.SDK.MDB().MongoDB().Database().Get(ctx, &mongodb.GetDatabaseRequest{
+		ClusterId:    cid,
+		DatabaseName: dbName,
+	})
+
+	if err != nil {
+		f := resp.Diagnostics.AddError
+		if validate.IsStatusWithCode(err, codes.NotFound) {
+			resp.State.RemoveResource(ctx)
+			f = resp.Diagnostics.AddWarning
+		}
+
+		f(
+			"Failed to Read resource",
+			"Error while requesting API to get MongoDB database:"+err.Error(),
+		)
 		return
 	}
 	state.ClusterID = types.StringValue(db.ClusterId)
