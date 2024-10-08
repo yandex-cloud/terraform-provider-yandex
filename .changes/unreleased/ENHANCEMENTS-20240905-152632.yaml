@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb: Support `NetworkId` field in `UpdateClusterRequest` by `resource_yandex_mdb_*_cluster`'
-time: 2024-09-05T15:26:32.123562+03:00

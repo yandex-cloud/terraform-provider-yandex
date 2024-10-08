@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `allow_remote_fs_zero_copy_replication`, `max_bytes_to_merge_at_max_space_in_pool` for merge tree configuration'
-time: 2024-09-09T14:41:52.225946+05:00

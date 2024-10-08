@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size` for server configuration'
-time: 2024-09-09T15:02:08.827899+05:00

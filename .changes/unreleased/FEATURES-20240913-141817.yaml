@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'greenplum: add `master_host_group_ids` and `segment_host_group_ids` for greenplum cluster configureation'
-time: 2024-09-13T14:18:17.316133+05:00

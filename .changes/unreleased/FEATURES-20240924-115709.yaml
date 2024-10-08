@@ -1,4 +1,0 @@
-kind: FEATURES
-body: 'compute: added read only `hardware_generation` to the resource and data source
-  `yandex_compute_instance`'
-time: 2024-09-24T11:57:09.321961+07:00

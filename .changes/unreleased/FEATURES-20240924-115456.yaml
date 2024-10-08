@@ -1,4 +1,0 @@
-kind: FEATURES
-body: 'compute: added `hardware_generation` to resources and data sources `yandex_compute_image`,
-  `yandex_compute_disk`, `yandex_compute_snapshot`'
-time: 2024-09-24T11:54:56.403489+07:00

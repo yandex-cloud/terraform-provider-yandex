@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mongodb: handle deleted user from not terraform for terraform resource'
-time: 2024-10-07T19:00:58.045404+03:00

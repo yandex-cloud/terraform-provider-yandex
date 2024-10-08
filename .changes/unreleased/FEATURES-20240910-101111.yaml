@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `query_views_log_retention_size`, `query_views_log_retention_time`, asynchronous_metric_log_enabled` for server configuration'
-time: 2024-09-10T10:11:11.90618+05:00

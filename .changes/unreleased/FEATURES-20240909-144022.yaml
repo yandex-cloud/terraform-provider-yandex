@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `number_of_free_entries_in_pool_to_execute_mutation` for merge tree configuration'
-time: 2024-09-09T14:40:22.493815+05:00
