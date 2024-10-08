@@ -478,7 +478,7 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 									"limit": {
 										Type:         schema.TypeInt,
 										Optional:     true,
-										ValidateFunc: validation.IntBetween(1, 9999999999999),
+										ValidateFunc: validation.IntBetween(1, 2147483647),
 									},
 
 									"period": {
@@ -880,7 +880,7 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 									"limit": {
 										Type:         schema.TypeInt,
 										Optional:     true,
-										ValidateFunc: validation.IntBetween(1, 9999999999999),
+										ValidateFunc: validation.IntBetween(1, 2147483647),
 									},
 
 									"period": {
