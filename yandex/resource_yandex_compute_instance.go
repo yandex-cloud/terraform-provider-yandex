@@ -2087,7 +2087,9 @@ func getSpecsForAddRemoveNatNetworkInterfaces(instanceId string, oldList []inter
 		if err != nil {
 			return nil, nil, err
 		}
-
+		if oldV4Spec == nil || newV4Spec == nil {
+			return nil, nil, nil
+		}
 		if natAddressSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
 			// changing nat address on maybe running instance, safer to use add/remove nat calls
 			if oldV4Spec.OneToOneNatSpec != nil {

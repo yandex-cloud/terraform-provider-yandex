@@ -633,13 +633,14 @@ func expandNetworkInterfaceSpec(data map[string]interface{}) (*compute.NetworkIn
 
 	ipV4Address := data["ip_address"].(string)
 	ipV6Address := data["ipv6_address"].(string)
+	enableIPV4, ipv4Ok := data["ipv4"].(bool)
 
 	// By default allocate any unassigned IPv4 address
-	if ipV4Address == "" && ipV6Address == "" {
+	if ipV4Address == "" && ipV6Address == "" && enableIPV4 {
 		iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
 	}
 
-	if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
+	if ipv4Ok && enableIPV4 {
 		iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
 	}
 
