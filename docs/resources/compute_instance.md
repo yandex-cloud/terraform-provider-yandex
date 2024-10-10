@@ -237,7 +237,7 @@ The `host_affinity_rules` block supports:
 
 * `op` - (Required) Affinity action. The only value supported is `IN`.
 
-* `value` - (Required) List of values (host IDs or host group IDs).
+* `values` - (Required) List of values (host IDs or host group IDs).
 
 The `local_disk` block supports:
 
