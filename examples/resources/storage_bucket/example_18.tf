@@ -1,6 +1,5 @@
 provider "yandex" {
   token              = "<iam-token>"
-  folder_id          = "<folder-id>"
   storage_access_key = "<storage-access-key>"
   storage_secret_key = "<storage-secret-key>"
 }

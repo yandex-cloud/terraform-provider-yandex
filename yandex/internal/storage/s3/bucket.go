@@ -34,6 +34,11 @@ func (c *Client) CreateBucket(ctx context.Context, bucket string, acl BucketACL)
 		return output, nil
 	})
 	if err != nil {
+		if IsErr(err, BadRequest) {
+			description := "This is usually due to the absence or inability to identify folder_id in which the bucket will be created." +
+				" This is possible when creating a bucket using UserAccount IAM token"
+			return fmt.Errorf("failed to create bucket. %s: %w", description, err)
+		}
 		return fmt.Errorf("failed to create bucket: %w", err)
 	}
 

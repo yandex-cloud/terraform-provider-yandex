@@ -11,30 +11,23 @@ import (
 )
 
 func getS3ClientByKeys(ctx context.Context, accessKey, secretKey string, c *Config) (*s3.Client, error) {
-	iamToken, err := c.getIAMToken(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if (accessKey == "" || secretKey == "") && iamToken == "" {
+	if accessKey == "" || secretKey == "" {
 		if c.defaultS3Client == nil {
 			return nil, fmt.Errorf("failed to get default storage client")
 		}
-
 		return c.defaultS3Client, nil
 	}
-
-	return s3.NewClient(ctx, accessKey, secretKey, iamToken, c.StorageEndpoint)
+	// iamToken is not needed here, since we cannot specify it in the resource.
+	// Otherwise, defaultS3Client must be initialised.
+	return s3.NewClient(ctx, accessKey, secretKey, "", c.StorageEndpoint)
 }
 
 func getS3Client(ctx context.Context, d *schema.ResourceData, c *Config) (*s3.Client, error) {
-	ak, sk, err := getS3Keys(d)
-
+	accessKey, secretKey, err := getS3Keys(d)
 	if err != nil {
 		return nil, err
 	}
-
-	return getS3ClientByKeys(ctx, ak, sk, c)
+	return getS3ClientByKeys(ctx, accessKey, secretKey, c)
 }
 
 func getS3Keys(b *schema.ResourceData) (accessKey, secretKey string, err error) {

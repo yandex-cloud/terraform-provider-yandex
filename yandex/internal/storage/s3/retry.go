@@ -18,6 +18,7 @@ type ErrCode string
 const (
 	NoSuchBucket                                   ErrCode = s3.ErrCodeNoSuchBucket
 	AccessDenied                                   ErrCode = "AccessDenied"
+	BadRequest                                     ErrCode = "BadRequest"
 	Forbidden                                      ErrCode = "Forbidden"
 	MalformedPolicy                                ErrCode = "MalformedPolicy"
 	BucketNotEmpty                                 ErrCode = "BucketNotEmpty"

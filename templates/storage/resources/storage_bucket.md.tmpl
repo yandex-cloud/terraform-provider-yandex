@@ -10,14 +10,20 @@ description: |-
 
 {{ .Description }}
 
+Allows management of [Yandex.Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).
 
-Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs/storage/concepts/bucket).
+~> **Note**: By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.
 
--> **Note**: By default, for authentication, you need to use [IAM token](https://yandex.cloud/ru/docs/iam/concepts/authorization/iam-token) or [OAuth token](https://yandex.cloud/ru/docs/iam/concepts/authorization/oauth-token) with the necessary permissions.
+~> **Note**: Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.
 
-~> **Note**: Alternatively, you can provide [static access keys](https://cloud.yandex.com/docs/iam/concepts/authorization/access-key) (Access and Secret) to create a storage client for working with the Storage Service. To generate these keys, you will need a Service Account with the appropriate permissions.
+~> **Note**: For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket,
+only the default authorization method will be used. This means the `IAM` token from the `provider` block will be applied.
+This can be confusing in cases where a separate service account is used for managing buckets because, in such scenarios,
+buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
 
--> **Note**: For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket, only the default authorization method will be used. This means the `IAM`/`OAuth` token from the `provider` block will be applied. This can be confusing in cases where a separate service account is used for managing buckets because,in such scenarios, buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
+~> **Note**: In case you are using IAM token from UserAccount, you are needed to explicitly specify folder_id in the resource,
+as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys,
+folder_id does not need to be specified unless you want to create the resource in a different folder than the account folder.
 
 ## Example usage
 
@@ -247,6 +253,10 @@ Extended parameters of the bucket:
 -> **NOTE:** for this parameters, authorization by `IAM-token` will be used.
 
 * `folder_id` - (Optional) Allow to create bucket in different folder.
+In case you are using IAM token from UserAccount, you are needed to explicitly specify folder_id in the resource,
+as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys,
+folder_id does not need to be specified unless you want to create the resource in a different folder than the account folder.
+
 
 -> **NOTE:** it will try to create bucket using `IAM-token`, not using `access keys`.
 

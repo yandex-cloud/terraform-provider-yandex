@@ -25,9 +25,6 @@ func NewClient(ctx context.Context, accessKey, secretKey, iamToken, url string) 
 	if url == "" {
 		return nil, fmt.Errorf("storage endpoint url is not specified")
 	}
-	if iamToken == "" && (accessKey == "" || secretKey == "") {
-		return nil, fmt.Errorf("credentials are not specified")
-	}
 
 	config := &aws.Config{
 		Endpoint: aws.String(url),
@@ -37,13 +34,16 @@ func NewClient(ctx context.Context, accessKey, secretKey, iamToken, url string) 
 			tflog.Debug(ctx, fmt.Sprint(args...))
 		}),
 	}
-	if accessKey != "" && secretKey != "" {
+	switch {
+	case accessKey != "" && secretKey != "":
 		config.Credentials = credentials.NewStaticCredentials(accessKey, secretKey, "")
-	} else {
+	case iamToken != "":
 		config.Credentials = credentials.AnonymousCredentials
 		config.HTTPClient = &http.Client{
 			Transport: newTransport(iamToken),
 		}
+	default:
+		return nil, fmt.Errorf("nor token, nor access and secret keys are specified")
 	}
 
 	ssn, err := session.NewSession(config)

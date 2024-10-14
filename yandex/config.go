@@ -173,13 +173,16 @@ func (c *Config) initSharedCredentials() error {
 
 func (c *Config) resolveStorageAccessKeys() (string, string) {
 	if c.sharedCredentials == nil || (c.StorageAccessKey != "" && c.StorageSecretKey != "") {
-		return c.StorageAccessKey, c.StorageSecretKey
+		return c.StorageAccessKey, c.StorageSecretKey // from 'provider "yandex" {...}' or ENV vars
 	}
-
 	return c.sharedCredentials.StorageAccessKey, c.sharedCredentials.StorageSecretKey
 }
 
 func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {
+	if c.StorageEndpoint == "" {
+		return nil
+	}
+
 	accessKey, secretKey := c.resolveStorageAccessKeys()
 	iamToken, err := c.getIAMToken(ctx)
 	if err != nil {
@@ -187,7 +190,7 @@ func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {
 		iamToken = ""
 	}
 
-	if c.StorageEndpoint == "" || ((accessKey == "" || secretKey == "") && iamToken == "") {
+	if (accessKey == "" || secretKey == "") && iamToken == "" {
 		return nil
 	}
 

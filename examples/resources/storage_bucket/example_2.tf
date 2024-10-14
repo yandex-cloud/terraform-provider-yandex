@@ -3,8 +3,7 @@ locals {
 }
 
 provider "yandex" {
-  folder_id = local.folder_id
-  zone      = "ru-central1-a"
+  zone = "ru-central1-a"
 }
 
 // Create SA
