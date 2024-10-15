@@ -1,5 +1,5 @@
 ---
-subcategory: "Network Load Balancer"
+subcategory: "Network Load Balancer (NLB)"
 page_title: "Yandex: yandex_lb_network_load_balancer"
 description: |-
   A network load balancer is used to evenly distribute the load across cloud resources.

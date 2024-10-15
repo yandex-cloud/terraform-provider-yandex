@@ -1,5 +1,5 @@
 ---
-subcategory: "ALB (Application Load Balancer)"
+subcategory: "Application Load Balancer (ALB)"
 page_title: "Yandex: yandex_alb_target_group"
 description: |-
   An application load balancer distributes the load across cloud resources that are combined into a target group.

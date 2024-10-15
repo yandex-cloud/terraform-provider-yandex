@@ -1,5 +1,5 @@
 ---
-subcategory: "Network Load Balancer"
+subcategory: "Network Load Balancer (NLB)"
 page_title: "Yandex: yandex_lb_target_group"
 description: |-
   A load balancer distributes the load across cloud resources that are combined into a target group.

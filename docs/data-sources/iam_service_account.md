@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM (Identity and Access Management)"
+subcategory: "Identity and Access Management (IAM)"
 page_title: "Yandex: yandex_iam_service_account"
 description: |-
   Get information about a Yandex IAM service account.

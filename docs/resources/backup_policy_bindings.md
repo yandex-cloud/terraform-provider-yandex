@@ -1,5 +1,5 @@
 ---
-subcategory: "Backup"
+subcategory: "Cloud Backup"
 page_title: "Yandex: yandex_backup_policy_bindings"
 description: |-
   Allows to bind compute instance with backup policy.

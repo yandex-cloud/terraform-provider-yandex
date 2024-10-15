@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_disk"
 description: |-
   Persistent disks are durable storage devices that function similarly to

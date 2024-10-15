@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM (Identity and Access Management)"
+subcategory: "Identity and Access Management (IAM)"
 page_title: "Yandex: yandex_iam_service_account_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex IAM service account.

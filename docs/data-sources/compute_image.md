@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_image"
 description: |-
   Get information about a Yandex Compute image.

@@ -1,5 +1,5 @@
 ---
-subcategory: "CDN (Content Delivery Network)"
+subcategory: "Cloud Content Delivery Network (CDN)"
 page_title: "Yandex: yandex_cdn_origin_group"
 description: |-
   Get information about a Yandex CDN Origin Group.

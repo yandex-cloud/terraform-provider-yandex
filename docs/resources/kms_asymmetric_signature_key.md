@@ -1,5 +1,5 @@
 ---
-subcategory: "KMS (Key Management Service)"
+subcategory: "Key Management Service (KMS)"
 page_title: "Yandex: yandex_kms_asymmetric_signature_key"
 description: |-
   Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.

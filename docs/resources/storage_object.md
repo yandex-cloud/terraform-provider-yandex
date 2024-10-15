@@ -1,5 +1,5 @@
 ---
-subcategory: "Storage"
+subcategory: "Object Storage (S3)"
 page_title: "Yandex: yandex_storage_object"
 description: |-
   Allows management of a Yandex.Cloud Storage Object.

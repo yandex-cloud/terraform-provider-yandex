@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_filesystem"
 description: |-
   File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.

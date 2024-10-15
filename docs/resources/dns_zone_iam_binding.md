@@ -1,5 +1,5 @@
 ---
-subcategory: "DNS (Domain Name System)"
+subcategory: "Cloud Domain Name System (DNS)"
 page_title: "Yandex: yandex_dns_zone_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [DNS Zone](https://cloud.yandex.com/docs/dns/).

@@ -1,5 +1,5 @@
 ---
-subcategory: "DNS (Domain Name System)"
+subcategory: "Cloud Domain Name System (DNS)"
 page_title: "Yandex: yandex_dns_zone"
 description: |-
   Manages a DNS Zone within Yandex.Cloud.

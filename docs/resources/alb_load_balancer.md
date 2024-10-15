@@ -1,5 +1,5 @@
 ---
-subcategory: "ALB (Application Load Balancer)"
+subcategory: "Application Load Balancer (ALB)"
 page_title: "Yandex: yandex_alb_load_balancer"
 description: |-
   A Load Balancer is used for receiving incoming traffic and transmitting it to the backend endpoints

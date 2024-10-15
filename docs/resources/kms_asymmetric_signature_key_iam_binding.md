@@ -1,5 +1,5 @@
 ---
-subcategory: "KMS (Key Management Service)"
+subcategory: "Key Management Service (KMS)"
 page_title: "Yandex: yandex_kms_asymmetric_signature_key_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).

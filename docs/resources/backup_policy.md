@@ -1,5 +1,5 @@
 ---
-subcategory: "Backup"
+subcategory: "Cloud Backup"
 page_title: "Yandex: yandex_backup_policy"
 description: |-
   Allows management of Yandex.Cloud Backup Policy.

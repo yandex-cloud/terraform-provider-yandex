@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_placement_group_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Placement Group.

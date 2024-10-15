@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM (Identity and Access Management)"
+subcategory: "Identity and Access Management (IAM)"
 page_title: "Yandex: yandex_iam_workload_identity_federated_credential"
 description: |-
   

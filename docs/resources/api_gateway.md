@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless API Gateway"
+subcategory: "Yandex API Gateway"
 page_title: "Yandex: yandex_api_gateway"
 description: |-
   Allows management of a Yandex Cloud API Gateway.

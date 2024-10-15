@@ -1,5 +1,5 @@
 ---
-subcategory: "VPC (Virtual Private Cloud)"
+subcategory: "Virtual Private Cloud (VPC)"
 page_title: "Yandex: yandex_vpc_security_group_rule"
 description: |-
   Get information about a Yandex VPC Security Group Rule.

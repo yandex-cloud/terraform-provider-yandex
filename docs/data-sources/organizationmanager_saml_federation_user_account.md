@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_saml_federation_user_account"
 description: |-
   Get information about a user of a Yandex SAML Federation.

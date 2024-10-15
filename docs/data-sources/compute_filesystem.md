@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_filesystem"
 description: |-
   Get information about a Yandex Compute filesystem.

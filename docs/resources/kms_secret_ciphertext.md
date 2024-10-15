@@ -1,5 +1,5 @@
 ---
-subcategory: "KMS (Key Management Service)"
+subcategory: "Key Management Service (KMS)"
 page_title: "Yandex: yandex_kms_secret_ciphertext"
 description: |-
   Encrypts given plaintext with the specified Yandex KMS key and provides access to the ciphertext.

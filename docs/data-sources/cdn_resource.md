@@ -1,5 +1,5 @@
 ---
-subcategory: "CDN (Content Delivery Network)"
+subcategory: "Cloud Content Delivery Network (CDN)"
 page_title: "Yandex: yandex_cdn_resource"
 description: |-
   Get information about a Yandex CDN Resource.

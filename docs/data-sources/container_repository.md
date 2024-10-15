@@ -1,5 +1,5 @@
 ---
-subcategory: "Container Repository"
+subcategory: "Container Registry"
 page_title: "Yandex: yandex_container_repository"
 description: |-
   

@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM (Identity and Access Management)"
+subcategory: "Identity and Access Management (IAM)"
 page_title: "Yandex: yandex_iam_role"
 description: |-
   Generates an IAM role that can be referenced by other resources, applying

@@ -1,5 +1,5 @@
 ---
-subcategory: "ALB (Application Load Balancer)"
+subcategory: "Application Load Balancer (ALB)"
 page_title: "Yandex: yandex_alb_virtual_host"
 description: |-
   Virtual hosts combine routes belonging to the same set of domains.

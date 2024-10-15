@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless Function"
+subcategory: "Cloud Functions"
 page_title: "Yandex: yandex_function_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/).

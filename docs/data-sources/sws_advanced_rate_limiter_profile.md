@@ -1,5 +1,5 @@
 ---
-subcategory: "SWS (Smart Web Security)"
+subcategory: "Smart Web Security (SWS)"
 page_title: "Yandex: yandex_sws_advanced_rate_limiter_profile"
 description: |-
   Get information about SmartWebSecurity ARL Profile.

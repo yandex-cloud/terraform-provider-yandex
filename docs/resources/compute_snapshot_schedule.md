@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_snapshot_schedule"
 description: |-
   Creates a new snapshot schedule.

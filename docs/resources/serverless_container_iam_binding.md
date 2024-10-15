@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless Container"
+subcategory: "Serverless Containers"
 page_title: "Yandex: yandex_serverless_container_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [Yandex Serverless Container](https://cloud.yandex.com/docs/serverless-containers/).

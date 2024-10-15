@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless Function"
+subcategory: "Cloud Functions"
 page_title: "Yandex: yandex_function_trigger"
 description: |-
   Allows management of a Yandex Cloud Functions Trigger.

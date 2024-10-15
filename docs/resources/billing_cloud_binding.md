@@ -1,5 +1,5 @@
 ---
-subcategory: "Billing"
+subcategory: "Cloud Billing"
 page_title: "Yandex: yandex_billing_cloud_binding"
 description: |-
   Bind cloud to billing account.

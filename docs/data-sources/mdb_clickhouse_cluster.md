@@ -1,5 +1,5 @@
 ---
-subcategory: "Managed Service for ClickHouse "
+subcategory: "Managed Service for ClickHouse"
 page_title: "Yandex: yandex_mdb_clickhouse_cluster"
 description: |-
   Get information about a Yandex Managed ClickHouse cluster.

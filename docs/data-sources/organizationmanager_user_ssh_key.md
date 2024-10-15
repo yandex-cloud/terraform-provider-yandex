@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_user_ssh_key"
 description: |-
   Get information about a Yandex.Cloud User Ssh Key.

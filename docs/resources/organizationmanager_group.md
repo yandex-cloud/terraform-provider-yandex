@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_group"
 description: |-
   Allows management of a single Group within an existing Yandex.Cloud Organization.

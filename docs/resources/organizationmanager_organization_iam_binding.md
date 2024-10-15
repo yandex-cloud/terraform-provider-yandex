@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_organization_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex Organization Manager organization.

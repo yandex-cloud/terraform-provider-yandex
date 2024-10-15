@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_saml_federation_user_account"
 description: |-
   Allows management of a single SAML Federation user account within an existing Yandex.Cloud Organization.

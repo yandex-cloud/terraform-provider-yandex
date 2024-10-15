@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM (Identity and Access Management)"
+subcategory: "Identity and Access Management (IAM)"
 page_title: "Yandex: yandex_iam_service_account_static_access_key"
 description: |-
   Allows management of a Yandex.Cloud IAM service account static access key.

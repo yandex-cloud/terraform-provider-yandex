@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_placement_group"
 description: |-
   Get information about a Yandex Compute Placement Group.

@@ -1,5 +1,5 @@
 ---
-subcategory: "VPC (Virtual Private Cloud)"
+subcategory: "Virtual Private Cloud (VPC)"
 page_title: "Yandex: yandex_vpc_subnet"
 description: |-
   A VPC network is a virtual version of the traditional physical networks that exist within and between physical data centers.

@@ -1,5 +1,5 @@
 ---
-subcategory: "K8S (Kubernetes)"
+subcategory: "Managed Service for Kubernetes (MK8S)"
 page_title: "Yandex: yandex_kubernetes_cluster"
 description: |-
   Allows management of Yandex Kubernetes Cluster. For more information, see

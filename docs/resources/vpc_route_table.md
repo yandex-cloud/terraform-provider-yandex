@@ -1,5 +1,5 @@
 ---
-subcategory: "VPC (Virtual Private Cloud)"
+subcategory: "Virtual Private Cloud (VPC)"
 page_title: "Yandex: yandex_vpc_route_table"
 description: |-
   A VPC route table is a virtual version of the traditional route table on router device.

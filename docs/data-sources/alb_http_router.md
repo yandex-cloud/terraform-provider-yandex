@@ -1,5 +1,5 @@
 ---
-subcategory: "ALB (Application Load Balancer)"
+subcategory: "Application Load Balancer (ALB)"
 page_title: "Yandex: yandex_alb_http_router"
 description: |-
   Get information about a Yandex Application Load Balancer HTTP Router.

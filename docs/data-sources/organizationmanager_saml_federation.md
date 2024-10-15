@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_saml_federation"
 description: |-
   Get information about a Yandex.Cloud SAML Federation.

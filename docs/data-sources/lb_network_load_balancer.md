@@ -1,5 +1,5 @@
 ---
-subcategory: "Network Load Balancer"
+subcategory: "Network Load Balancer (NLB)"
 page_title: "Yandex: yandex_lb_network_load_balancer"
 description: |-
   Get information about a Yandex Load Balancer network load balancer.

@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_os_login_settings"
 description: |-
   Get information about a Yandex.Cloud OsLogin Settings.

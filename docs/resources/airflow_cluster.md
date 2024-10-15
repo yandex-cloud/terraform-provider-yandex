@@ -1,5 +1,5 @@
 ---
-subcategory: "Airflow"
+subcategory: "Managed Service for Apache Airflow"
 page_title: "Yandex: yandex_airflow_cluster"
 description: |-
   Manages an Apache Airflow cluster within Yandex.Cloud.

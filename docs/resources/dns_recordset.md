@@ -1,5 +1,5 @@
 ---
-subcategory: "DNS (Domain Name System)"
+subcategory: "Cloud Domain Name System (DNS)"
 page_title: "Yandex: yandex_dns_recordset"
 description: |-
   Manages a DNS Recordset within Yandex.Cloud.

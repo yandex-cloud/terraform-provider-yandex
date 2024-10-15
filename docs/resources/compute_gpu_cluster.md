@@ -1,5 +1,5 @@
 ---
-subcategory: "Compute"
+subcategory: "Compute Cloud"
 page_title: "Yandex: yandex_compute_gpu_cluster"
 description: |-
   GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.

@@ -1,5 +1,5 @@
 ---
-subcategory: "Organization Manager"
+subcategory: "Cloud Organization"
 page_title: "Yandex: yandex_organizationmanager_user_ssh_key"
 description: |-
   Allows management of User Ssh Keys within an existing Yandex.Cloud Organization and Subject.

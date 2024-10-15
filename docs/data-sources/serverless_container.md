@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless Container"
+subcategory: "Serverless Containers"
 page_title: "Yandex: yandex_serverless_container"
 description: |-
   Get information about a Yandex Cloud Serverless Container.

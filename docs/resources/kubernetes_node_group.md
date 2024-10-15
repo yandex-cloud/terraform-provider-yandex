@@ -1,5 +1,5 @@
 ---
-subcategory: "K8S (Kubernetes)"
+subcategory: "Managed Service for Kubernetes (MK8S)"
 page_title: "Yandex: yandex_kubernetes_node_group"
 description: |-
   Allows management of Yandex Kubernetes Node Group. For more information, see

@@ -1,5 +1,5 @@
 ---
-subcategory: "Serverless Function"
+subcategory: "Cloud Functions"
 page_title: "Yandex: yandex_function_scaling_policy"
 description: |-
   Get information about a Yandex Cloud Functions Scaling Policy.
