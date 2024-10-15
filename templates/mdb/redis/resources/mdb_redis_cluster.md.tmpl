@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `tls_enabled` - (Optional) TLS support mode enabled/disabled.
 
-* `persistence_mode` - (Optional) Persistence mode.
+* `persistence_mode` - (Optional) Persistence mode. Possible values: `ON`, `OFF`.
 
 * `announce_hostnames` - Announce fqdn instead of ip address.
 
@@ -90,6 +90,14 @@ The `config` block supports:
 * `client_output_buffer_limit_normal` - (Optional) Normal clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1841).
 
 * `client_output_buffer_limit_pubsub` - (Optional) Pubsub clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1843).
+
+* `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
+
+The `backup_window_start` block supports:
+
+* `hours` - (Optional) The hour at which backup will be started.
+
+* `minutes` - (Optional) The minute at which backup will be started.
 
 The `resources` block supports:
 

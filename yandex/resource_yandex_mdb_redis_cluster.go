@@ -119,6 +119,28 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"backup_window_start": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"hours": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      0,
+										ValidateFunc: validation.IntBetween(0, 23),
+									},
+									"minutes": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      0,
+										ValidateFunc: validation.IntBetween(0, 59),
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -302,6 +324,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 					},
 				},
 			},
+
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -399,6 +422,8 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		DiskSizeAutoscaling: dsa,
 		Access:              expandRedisAccess(d),
 	}
+
+	configSpec.BackupWindowStart = expandMDBBackupWindowStart(d, "config.0.backup_window_start.0")
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
@@ -502,6 +527,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 			"password":                          password,
 			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
 			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
+			"backup_window_start":               flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})
 	if err != nil {
@@ -697,7 +723,13 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.version")
 			req.ConfigSpec.Version = ver
 		}
-
+		if d.HasChange("config.0.backup_window_start") {
+			if req.ConfigSpec == nil {
+				req.ConfigSpec = &redis.ConfigSpec{}
+			}
+			req.ConfigSpec.BackupWindowStart = expandMDBBackupWindowStart(d, "config.0.backup_window_start.0")
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.backup_window_start")
+		}
 	}
 
 	if d.HasChange("security_group_ids") {

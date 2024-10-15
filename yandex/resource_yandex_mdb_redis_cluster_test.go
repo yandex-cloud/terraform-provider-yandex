@@ -412,6 +412,8 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+						resource.TestCheckResourceAttr(redisResource, "config.0.backup_window_start.0.hours", "12"),
+						resource.TestCheckResourceAttr(redisResource, "config.0.backup_window_start.0.minutes", "50"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -446,6 +448,8 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "config.0.backup_window_start.0.hours", "11"),
+						resource.TestCheckResourceAttr(redisResource, "config.0.backup_window_start.0.minutes", "13"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*3)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
@@ -980,6 +984,11 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	version	= "%s"
 	%s
 	%s
+
+    backup_window_start {
+	  hours = 12
+	  minutes = 50
+    }
   }
 
   resources {
@@ -1002,6 +1011,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
     disk_size_limit           = %d
     emergency_usage_threshold = 85
   }
+
 
   access {
     web_sql = true
@@ -1167,6 +1177,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	version			 = "%s"
 	%s
 	%s
+   backup_window_start {
+	 hours = 11
+	 minutes = 13
+   }
   }
 
   resources {

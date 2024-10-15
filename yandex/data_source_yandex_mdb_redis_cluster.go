@@ -82,6 +82,23 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						"backup_window_start": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"hours": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"minutes": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -149,12 +166,11 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 						},
 						"replica_priority": {
 							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  defaultReplicaPriority,
+							Computed: true,
 						},
 						"assign_public_ip": {
 							Type:     schema.TypeBool,
-							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -306,6 +322,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 			"maxmemory_percent":                 conf.maxmemoryPercent,
 			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
 			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
+			"backup_window_start":               flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})
 	if err != nil {

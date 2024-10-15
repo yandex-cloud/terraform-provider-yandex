@@ -52,7 +52,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `host` - A host of the Redis cluster. The structure is documented below.
 * `sharded` - Redis Cluster mode enabled/disabled.
 * `tls_enabled` - TLS support mode enabled/disabled.
-* `persistence_mode` - Persistence mode.
+* `persistence_mode` - Persistence mode. Possible values: `ON`, `OFF`.
 * `announce_hostnames` - Announce fqdn instead of ip address.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
@@ -68,6 +68,12 @@ The `config` block supports:
 * `version` - Version of Redis (6.2).
 * `client_output_buffer_limit_normal` - Normal clients output buffer limits.
 * `client_output_buffer_limit_pubsub` - Pubsub clients output buffer limits.
+* `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
+
+The `backup_window_start` block supports:
+
+* `hours` - The hour at which backup will be started.
+* `minutes` - The minute at which backup will be started.
 
 The `resources` block supports:
 
