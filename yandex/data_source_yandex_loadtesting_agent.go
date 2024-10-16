@@ -44,6 +44,20 @@ func dataSourceYandexLoadtestingAgent() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"log_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_group_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"compute_instance": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -263,6 +277,14 @@ func dataSourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface
 	d.Set("labels", agent.Labels)
 
 	d.SetId(agent.Id)
+
+	logSettings, err := flattenLoadtestingAgentLogSettingsParams(agent)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("log_settings", logSettings); err != nil {
+		return err
+	}
 
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: agent.ComputeInstanceId,

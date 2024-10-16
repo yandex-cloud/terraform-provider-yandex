@@ -63,6 +63,21 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"log_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_group_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"compute_instance": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -332,12 +347,18 @@ func resourceYandexLoadtestingAgentCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	logSettingsParams, err := expandLoadtestingAgentLogSettingsParams(d)
+	if err != nil {
+		return err
+	}
+
 	req := lt.CreateAgentRequest{
 		FolderId:              folderID,
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
 		Labels:                labels,
 		ComputeInstanceParams: computeParams,
+		LogSettings:           logSettingsParams,
 	}
 
 	op, err := config.sdk.WrapOperation(config.sdk.Loadtesting().Agent().Create(ctx, &req))
@@ -385,6 +406,14 @@ func resourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface{}
 	d.Set("description", agent.Description)
 	d.Set("compute_instance_id", agent.ComputeInstanceId)
 	d.Set("labels", agent.Labels)
+
+	logSettings, err := flattenLoadtestingAgentLogSettingsParams(agent)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("log_settings", logSettings); err != nil {
+		return err
+	}
 
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: agent.ComputeInstanceId,

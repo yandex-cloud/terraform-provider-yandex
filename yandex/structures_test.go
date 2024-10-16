@@ -12,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
@@ -910,6 +911,53 @@ func TestFlattenSnapshotScheduleSnapshotSpec(t *testing.T) {
 			t.Errorf("%#v is not equal to %#v", test.expected, got)
 		}
 	})
+}
+
+func TestFlattenLoadtestingAgentLogSettingsParams(t *testing.T) {
+	cases := []struct {
+		name  string
+		agent *ltagent.Agent
+		want  []map[string]interface{}
+	}{
+		{
+			name: "log group id specified",
+			agent: &ltagent.Agent{
+				LogSettings: &ltagent.LogSettings{
+					CloudLogGroupId: "abcloggroupid",
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"log_group_id": "abcloggroupid",
+				},
+			},
+		},
+		{
+			name: "log group id not specified",
+			agent: &ltagent.Agent{
+				LogSettings: &ltagent.LogSettings{},
+			},
+			want: []map[string]interface{}{
+				{
+					"log_group_id": "",
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := flattenLoadtestingAgentLogSettingsParams(tc.agent)
+			if err != nil {
+				t.Errorf("flattenLoadtestingAgentLogSettingsParams() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("flattenLoadtestingAgentLogSettingsParams()\ngot\n%v\nwant\n%v\n", got, tc.want)
+				return
+			}
+		})
+	}
 }
 
 func TestFlattenLoadtestingComputeInstanceResources(t *testing.T) {

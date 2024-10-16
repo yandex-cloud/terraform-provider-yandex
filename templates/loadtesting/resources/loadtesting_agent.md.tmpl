@@ -31,6 +31,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the agent.
 
+* `log_settings` - The logging settings of the load testing agent. The structure is documented below.
+
 ---
 
 The `compute_instance` block supports:
@@ -110,6 +112,12 @@ The `network_interface` block supports:
 * `ip_address` - (Optional) Manual set static IP address.
 
 * `ipv6_address` - (Optional) Manual set static IPv6 address.
+
+---
+
+The `log_settings` block supports:
+
+* `log_group_id` - The ID of cloud logging group to which the load testing agent sends logs.
 
 ## Timeouts
 

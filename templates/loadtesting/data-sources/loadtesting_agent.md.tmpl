@@ -31,6 +31,7 @@ The following arguments are supported:
 * `labels` - A map of labels applied to the load testing agent.
 * `compute_instance_id` - The ID of Yandex Compute Instance running loadtesting agent.
 * `compute_instance` - The Compute Instance details. The structure is documented below.
+* `log_settings` - The logging settings of the load testing agent. The structure is documented below.
 
 ---
 
@@ -81,3 +82,9 @@ The `network_interface` block supports:
 * `nat` - Is NAT interface assigned.
 * `nat_ip_address` - The public IP address of the instance.
 * `nat_ip_version` - The IP version for the public address.
+
+---
+
+The `log_settings` block supports:
+
+* `log_group_id` - The ID of cloud logging group to which the load testing agent sends logs.

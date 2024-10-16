@@ -29,6 +29,7 @@ func init() {
 			"yandex_vpc_subnet",
 			"yandex_iam_service_account",
 			"yandex_compute_instance",
+			"yandex_logging_group",
 		},
 	})
 }
@@ -96,6 +97,7 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 					testAccCheckLoadtestingAgentLabel(&agent, "purpose", "grpc-scenario"),
 					testAccCheckLoadtestingAgentLabel(&agent, "pandora", "0-5-20"),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance_id"),
+					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "log_settings.0.log_group_id"),
 					testAccCheckLoadtestingComputeInstanceExists(&agent, &instance),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance.0.service_account_id"),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.resources.0.memory", "4"),
@@ -471,7 +473,11 @@ resource "yandex_vpc_subnet" "loadtesting-agent-test-subnet" {
 resource "yandex_iam_service_account" "loadtesting-agent-test-sa" {
 	name          = "%s-sa"
 }
-`, name)
+
+resource "yandex_logging_group" "loadtesting-agent-test-logging-group" {
+	name        = "%s-lg"
+}
+`, name, name)
 }
 
 func testAccLoadtestingAgentFull(name, desc string) string {
@@ -484,6 +490,10 @@ resource "yandex_loadtesting_agent" "test-lt-agent" {
 	labels = {
 		purpose = "grpc-scenario"
 		pandora = "0-5-20"
+	}
+
+	log_settings {
+		log_group_id = "${yandex_logging_group.loadtesting-agent-test-logging-group.id}"
 	}
 		
 	compute_instance {
@@ -538,6 +548,10 @@ resource "yandex_loadtesting_agent" "test-lt-agent" {
 	labels = {
 		purpose = "http-scenario"
 		pandora = "0-5-21"
+	}
+
+	log_settings {
+		log_group_id = "${yandex_logging_group.loadtesting-agent-test-logging-group.id}"
 	}
 		
 	compute_instance {

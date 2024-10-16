@@ -2098,6 +2098,34 @@ func expandSnapshotScheduleSnapshotSpec(d *schema.ResourceData) (*compute.Snapsh
 	return val, nil
 }
 
+func expandLoadtestingAgentLogSettingsParams(d *schema.ResourceData) (*ltagent.LogSettings, error) {
+	var logGroupId string
+	prefix := "log_settings.0."
+
+	if v, ok := d.GetOk(prefix + "log_group_id"); ok {
+		logGroupId = v.(string)
+	}
+
+	settings := &ltagent.LogSettings{
+		CloudLogGroupId: logGroupId,
+	}
+
+	return settings, nil
+}
+
+func flattenLoadtestingAgentLogSettingsParams(agent *ltagent.Agent) ([]map[string]interface{}, error) {
+	logSettings := agent.GetLogSettings()
+	if logSettings == nil {
+		return nil, nil
+	}
+
+	templateMap := make(map[string]interface{})
+
+	templateMap["log_group_id"] = logSettings.GetCloudLogGroupId()
+
+	return []map[string]interface{}{templateMap}, nil
+}
+
 func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Config) (*ltagent.CreateComputeInstance, error) {
 	var zoneId, serviceAccountId, platformId string
 	prefix := "compute_instance.0."
