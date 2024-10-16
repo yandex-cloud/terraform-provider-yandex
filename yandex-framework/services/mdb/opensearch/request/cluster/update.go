@@ -22,7 +22,7 @@ func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSear
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
 	}
 
-	if !plan.Description.Equal(state.Description) {
+	if plan.Description.ValueString() != state.Description.ValueString() {
 		req.Description = plan.Description.ValueString()
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 	}

@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'opensearch: fix managing empty in `description`'
+time: 2024-10-15T21:46:18.816678+02:00
