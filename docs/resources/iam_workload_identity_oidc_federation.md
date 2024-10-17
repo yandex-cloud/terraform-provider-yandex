@@ -12,24 +12,24 @@ description: |-
 
 ### Required
 
-- `issuer` (String)
-- `jwks_url` (String)
+- `issuer` (String) Issuer identifier of the external IdP server to be used for authentication.
+- `jwks_url` (String) URL reference to trusted keys in format of JSON Web Key Set.
 
 ### Optional
 
-- `audiences` (List of String)
-- `description` (String)
-- `disabled` (Boolean)
-- `federation_id` (String)
-- `folder_id` (String)
-- `labels` (Map of String)
-- `name` (String)
+- `audiences` (List of String) List of trusted values for aud claim.
+- `description` (String) Description of the OIDC workload identity federation.
+- `disabled` (Boolean) Disabled flag.
+- `federation_id` (String) Id of the OIDC workload identity federation.
+- `folder_id` (String) Id of the folder that the OIDC workload identity federation belongs to.
+- `labels` (Map of String) Resource labels as key-value pairs.
+- `name` (String) Name of the OIDC workload identity federation. The name is unique within the folder.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
-- `created_at` (String)
-- `enabled` (Boolean)
+- `created_at` (String) Creation timestamp.
+- `enabled` (Boolean) Enabled flag.
 - `id` (String) The ID of this resource.
 
 <a id="nestedblock--timeouts"></a>

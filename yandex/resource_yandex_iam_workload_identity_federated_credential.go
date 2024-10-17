@@ -39,6 +39,7 @@ func resourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
+				Description:  "Id of the federated credential.",
 			},
 
 			"service_account_id": {
@@ -47,6 +48,7 @@ func resourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
+				Description:  "Id of the service account that the federated credential belongs to.",
 			},
 
 			"external_subject_id": {
@@ -54,11 +56,13 @@ func resourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
+				Description:  "Id of the workload identity federation which is used for authentication.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the external subject.",
 			},
 		},
 	}

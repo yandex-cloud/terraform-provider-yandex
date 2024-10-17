@@ -12,17 +12,17 @@ description: |-
 
 ### Optional
 
-- `federation_id` (String)
-- `name` (String)
+- `federation_id` (String) Id of the OIDC workload identity federation.
+- `name` (String) Name of the OIDC workload identity federation. The name is unique within the folder.
 
 ### Read-Only
 
-- `audiences` (List of String)
-- `created_at` (String)
-- `description` (String)
-- `enabled` (Boolean)
-- `folder_id` (String)
+- `audiences` (List of String) List of trusted values for aud claim.
+- `created_at` (String) Creation timestamp.
+- `description` (String) Description of the OIDC workload identity federation.
+- `enabled` (Boolean) Enabled flag.
+- `folder_id` (String) Id of the folder that the OIDC workload identity federation belongs to.
 - `id` (String) The ID of this resource.
-- `issuer` (String)
-- `jwks_url` (String)
-- `labels` (Map of String)
+- `issuer` (String) Issuer identifier of the external IdP server to be used for authentication.
+- `jwks_url` (String) URL reference to trusted keys in format of JSON Web Key Set.
+- `labels` (Map of String) Resource labels as key-value pairs.

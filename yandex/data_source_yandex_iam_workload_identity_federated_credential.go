@@ -22,26 +22,31 @@ func dataSourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
+				Description:  "Id of the federated credential.",
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the service account that the federated credential belongs to.",
 			},
 
 			"federation_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the workload identity federation which is used for authentication.",
 			},
 
 			"external_subject_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the external subject.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation timestamp.",
 			},
 		},
 	}

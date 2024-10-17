@@ -42,34 +42,40 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
+				Description:  "Id of the OIDC workload identity federation.",
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Description: "Id of the folder that the OIDC workload identity federation belongs to.",
 			},
 
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), ""),
+				Description:  "Name of the OIDC workload identity federation. The name is unique within the folder.",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the OIDC workload identity federation.",
 			},
 
 			"disabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Disabled flag.",
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Enabled flag.",
 			},
 
 			"audiences": {
@@ -77,18 +83,21 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
+				Optional:    true,
+				Description: "List of trusted values for aud claim.",
 			},
 
 			"issuer": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Issuer identifier of the external IdP server to be used for authentication.",
 			},
 
 			"jwks_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "URL reference to trusted keys in format of JSON Web Key Set.",
 			},
 
 			"labels": {
@@ -96,13 +105,15 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:      schema.HashString,
-				Optional: true,
+				Set:         schema.HashString,
+				Optional:    true,
+				Description: "Resource labels as key-value pairs.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation timestamp.",
 			},
 		},
 	}

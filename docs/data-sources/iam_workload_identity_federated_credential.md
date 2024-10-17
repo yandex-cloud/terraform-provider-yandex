@@ -12,12 +12,12 @@ description: |-
 
 ### Required
 
-- `federated_credential_id` (String)
+- `federated_credential_id` (String) Id of the federated credential.
 
 ### Read-Only
 
-- `created_at` (String)
-- `external_subject_id` (String)
-- `federation_id` (String)
+- `created_at` (String) Creation timestamp.
+- `external_subject_id` (String) Id of the external subject.
+- `federation_id` (String) Id of the workload identity federation which is used for authentication.
 - `id` (String) The ID of this resource.
-- `service_account_id` (String)
+- `service_account_id` (String) Id of the service account that the federated credential belongs to.

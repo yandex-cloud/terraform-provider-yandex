@@ -26,11 +26,13 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Optional:      true,
 				ValidateFunc:  validation.StringLenBetween(0, 50),
 				ConflictsWith: []string{"name"},
+				Description:   "Id of the OIDC workload identity federation.",
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the folder that the OIDC workload identity federation belongs to.",
 			},
 
 			"name": {
@@ -38,16 +40,19 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Computed:      true,
 				Optional:      true,
 				ConflictsWith: []string{"federation_id"},
+				Description:   "Name of the OIDC workload identity federation. The name is unique within the folder.",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Description of the OIDC workload identity federation.",
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Enabled flag.",
 			},
 
 			"audiences": {
@@ -55,17 +60,20 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Computed: true,
+				Computed:    true,
+				Description: "List of trusted values for aud claim.",
 			},
 
 			"issuer": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Issuer identifier of the external IdP server to be used for authentication.",
 			},
 
 			"jwks_url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "URL reference to trusted keys in format of JSON Web Key Set.",
 			},
 
 			"labels": {
@@ -73,13 +81,15 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:      schema.HashString,
-				Computed: true,
+				Set:         schema.HashString,
+				Computed:    true,
+				Description: "Resource labels as key-value pairs.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation timestamp.",
 			},
 		},
 	}

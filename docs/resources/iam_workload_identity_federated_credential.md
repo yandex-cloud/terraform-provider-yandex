@@ -12,17 +12,17 @@ description: |-
 
 ### Required
 
-- `external_subject_id` (String)
-- `federation_id` (String)
+- `external_subject_id` (String) Id of the workload identity federation which is used for authentication.
+- `federation_id` (String) Id of the federated credential.
 
 ### Optional
 
-- `service_account_id` (String)
+- `service_account_id` (String) Id of the service account that the federated credential belongs to.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
-- `created_at` (String)
+- `created_at` (String) Id of the external subject.
 - `id` (String) The ID of this resource.
 
 <a id="nestedblock--timeouts"></a>
