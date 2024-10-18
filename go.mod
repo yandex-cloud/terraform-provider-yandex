@@ -40,7 +40,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20240919115538-c1956ccf891c
 	github.com/yandex-cloud/go-sdk v0.0.0-20240919120105-e63f9f4339a3
-	github.com/ydb-platform/terraform-provider-ydb v0.0.21
+	github.com/ydb-platform/terraform-provider-ydb v0.0.22
 	golang.org/x/crypto v0.26.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.28.0
@@ -225,6 +225,7 @@ require (
 	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
 	github.com/sashamelentyev/usestdlibvars v1.23.0 // indirect
 	github.com/securego/gosec/v2 v2.16.0 // indirect
+	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46 // indirect
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
