@@ -62,6 +62,12 @@ func AccCheckResourceIDField(resourceName string, idFieldName string) resource.T
 	}
 }
 
+func AccCheckResourceAttrWithValueFactory(name, key string, valueFactory func() string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return resource.TestCheckResourceAttr(name, key, valueFactory())(s)
+	}
+}
+
 func ErrorMessage(err error) string {
 	grpcStatus, _ := status.FromError(err)
 	return grpcStatus.Message()

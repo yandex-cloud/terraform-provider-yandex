@@ -1,13 +1,43 @@
-package yandex
+package security_group_rule
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/resourceid"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
+	testvpc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/vpc"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
+
+func getYandexVPCSecurityGroupSweeperDeps() []string {
+	return []string{
+		"yandex_alb_load_balancer",
+		"yandex_compute_instance",
+		"yandex_compute_instance_group",
+		"yandex_dataproc_cluster",
+		"yandex_kubernetes_node_group",
+		"yandex_kubernetes_cluster",
+		"yandex_mdb_clickhouse_cluster",
+		"yandex_mdb_mongodb_cluster",
+		"yandex_mdb_mysql_cluster",
+		"yandex_mdb_postgresql_cluster",
+		"yandex_mdb_greenplum_cluster",
+		"yandex_mdb_redis_cluster",
+		"yandex_mdb_kafka_cluster",
+		"yandex_mdb_sqlserver_cluster",
+		"yandex_mdb_elasticsearch_cluster",
+		"yandex_mdb_kafka_cluster",
+	}
+}
 
 func init() {
 	resource.AddTestSweepers("yandex_vpc_security_group_rule", &resource.Sweeper{
@@ -17,11 +47,97 @@ func init() {
 	})
 }
 
-func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
-	t.Parallel()
+func testSweepVPCSecurityGroups(_ string) error {
+	conf, err := test.ConfigForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
 
-	networkName := getRandAccTestResourceName()
-	sgName := getRandAccTestResourceName()
+	req := &vpc.ListSecurityGroupsRequest{FolderId: conf.ProviderState.FolderID.ValueString()}
+	it := conf.SDK.VPC().SecurityGroup().SecurityGroupIterator(context.Background(), req)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepVPCSecurityGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC security group %q", it.Value().GetId()))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepVPCSecurityGroup(conf *provider_config.Config, id string) bool {
+	return test.SweepWithRetry(sweepVPCSecurityGroupOnce, conf, "VPC Security Group", id)
+}
+
+func sweepVPCSecurityGroupOnce(conf *provider_config.Config, id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), testvpc.YandexVPCNetworkDefaultTimeout)
+	defer cancel()
+
+	sg, err := conf.SDK.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+		SecurityGroupId: id,
+	})
+	if err != nil {
+		return err
+	}
+
+	if sg.DefaultForNetwork {
+		return nil
+	}
+
+	op, err := conf.SDK.VPC().SecurityGroup().Delete(ctx, &vpc.DeleteSecurityGroupRequest{
+		SecurityGroupId: id,
+	})
+	return test.HandleSweepOperation(ctx, conf, op, err)
+}
+
+func TestAccVPCSecurityGroupRule_UpgradeFromSDKv2(t *testing.T) {
+	networkName := acctest.RandomWithPrefix("vpc-sg-upgrade-provider")
+	sgName := acctest.RandomWithPrefix("vpc-sg-upgrade-provider")
+
+	sgr1Name := "yandex_vpc_security_group_rule.sgr1"
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.129.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testVPCSecurityGroupRuleBasicWithV4CidrTarget(networkName, sgName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(sgr1Name, "description", "hello there"),
+					resource.TestCheckResourceAttr(sgr1Name, "direction", "ingress"),
+					resource.TestCheckResourceAttr(sgr1Name, "port", "443"),
+					resource.TestCheckResourceAttr(sgr1Name, "protocol", "TCP"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.#", "2"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.0", "10.0.1.0/24"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.1", "10.0.2.0/24"),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: test.AccProviderFactories,
+				Config:                   testVPCSecurityGroupRuleBasicWithV4CidrTarget(networkName, sgName),
+				// ConfigPlanChecks is a terraform-plugin-testing feature.
+				// If acceptance testing is still using terraform-plugin-sdk/v2,
+				// use `PlanOnly: true` instead. When migrating to
+				// terraform-plugin-testing, switch to `ConfigPlanChecks` or you
+				// will likely experience test failures.
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
+	networkName := acctest.RandomWithPrefix("vpc-network")
+	sgName := acctest.RandomWithPrefix("vpc-security-group")
 
 	sgr1Name := "yandex_vpc_security_group_rule.sgr1"
 
@@ -29,9 +145,9 @@ func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
 	var sgr1 vpc.SecurityGroupRule
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testVPCSecurityGroupRuleBasicWithV4CidrTarget(networkName, sgName),
@@ -45,7 +161,7 @@ func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.#", "2"),
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.0", "10.0.1.0/24"),
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.1", "10.0.2.0/24"),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
@@ -54,11 +170,9 @@ func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
 }
 
 func TestAccVPCSecurityGroupRule_securityGroupId(t *testing.T) {
-	t.Parallel()
-
-	networkName := getRandAccTestResourceName()
-	sgName := getRandAccTestResourceName()
-	sgName2 := getRandAccTestResourceName()
+	networkName := acctest.RandomWithPrefix("vpc-network")
+	sgName := acctest.RandomWithPrefix("vpc-security-group")
+	sgName2 := acctest.RandomWithPrefix("vpc-security-group")
 
 	sgr1Name := "yandex_vpc_security_group_rule.sgr1"
 
@@ -67,9 +181,9 @@ func TestAccVPCSecurityGroupRule_securityGroupId(t *testing.T) {
 	var sgr1 vpc.SecurityGroupRule
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testVPCSecurityGroupRuleBasicWithSecurityGroupTarget(networkName, sgName, sgName2),
@@ -81,8 +195,8 @@ func TestAccVPCSecurityGroupRule_securityGroupId(t *testing.T) {
 					resource.TestCheckResourceAttr(sgr1Name, "direction", "egress"),
 					resource.TestCheckResourceAttr(sgr1Name, "port", "31337"),
 					resource.TestCheckResourceAttr(sgr1Name, "protocol", "UDP"),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
@@ -91,11 +205,9 @@ func TestAccVPCSecurityGroupRule_securityGroupId(t *testing.T) {
 }
 
 func TestAccVPCSecurityGroupRule_update(t *testing.T) {
-	t.Parallel()
-
-	networkName := getRandAccTestResourceName()
-	sgName := getRandAccTestResourceName()
-	sgName2 := getRandAccTestResourceName()
+	networkName := acctest.RandomWithPrefix("vpc-network")
+	sgName := acctest.RandomWithPrefix("vpc-security-group")
+	sgName2 := acctest.RandomWithPrefix("vpc-security-group")
 
 	sgr1Name := "yandex_vpc_security_group_rule.sgr1"
 
@@ -104,9 +216,9 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 	var sgr1 vpc.SecurityGroupRule
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testVPCSecurityGroupRuleBasicWithSecurityGroupTarget(networkName, sgName, sgName2),
@@ -118,8 +230,8 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 					resource.TestCheckResourceAttr(sgr1Name, "direction", "egress"),
 					resource.TestCheckResourceAttr(sgr1Name, "port", "31337"),
 					resource.TestCheckResourceAttr(sgr1Name, "protocol", "UDP"),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
@@ -133,8 +245,8 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 					resource.TestCheckResourceAttr(sgr1Name, "direction", "ingress"),
 					resource.TestCheckResourceAttr(sgr1Name, "port", "1337"),
 					resource.TestCheckResourceAttr(sgr1Name, "protocol", "UDP"),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
-					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
@@ -163,7 +275,7 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   port                   = 443
   protocol               = "TCP"
 }
-`, networkName, sgName, getExampleFolderID())
+`, networkName, sgName, test.GetExampleFolderID())
 }
 
 func testVPCSecurityGroupRuleBasicWithSecurityGroupTarget_updated(networkName, sgName, sgName2 string) string {
@@ -194,7 +306,7 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   port                   = 1337
   protocol               = "UDP"
 }
-`, networkName, sgName, getExampleFolderID(), sgName2, getExampleFolderID())
+`, networkName, sgName, test.GetExampleFolderID(), sgName2, test.GetExampleFolderID())
 }
 
 func testVPCSecurityGroupRuleBasicWithSecurityGroupTarget(networkName, sgName, sgName2 string) string {
@@ -225,7 +337,7 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   port                   = 31337
   protocol               = "UDP"
 }
-`, networkName, sgName, getExampleFolderID(), sgName2, getExampleFolderID())
+`, networkName, sgName, test.GetExampleFolderID(), sgName2, test.GetExampleFolderID())
 }
 
 func testAccCheckVPCSecurityGroupRuleExists(name string, securityGroup *vpc.SecurityGroup, securityGroupRule *vpc.SecurityGroupRule) resource.TestCheckFunc {
@@ -259,9 +371,57 @@ func testVPCSecurityGroupRuleImportStep(resourceName string, securityGroup *vpc.
 	return resource.TestStep{
 		ResourceName: resourceName,
 		ImportStateIdFunc: func(*terraform.State) (string, error) {
-			return constructResourceId(securityGroup.Id, securityGroupRule.Id), nil
+			return resourceid.Construct(securityGroup.Id, securityGroupRule.Id), nil
 		},
 		ImportState:       true,
 		ImportStateVerify: true,
 	}
+}
+
+func testAccCheckVPCSecurityGroupExists(name string, securityGroup *vpc.SecurityGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		sdk := test.AccProvider.(*yandex_framework.Provider).GetConfig().SDK
+		found, err := sdk.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+			SecurityGroupId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("security group not found")
+		}
+
+		*securityGroup = *found
+
+		return nil
+	}
+}
+
+func testAccCheckVPCSecurityGroupDestroy(s *terraform.State) error {
+	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_vpc_security_group" {
+			continue
+		}
+
+		_, err := config.SDK.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+			SecurityGroupId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("Security group still exists")
+		}
+	}
+
+	return nil
 }

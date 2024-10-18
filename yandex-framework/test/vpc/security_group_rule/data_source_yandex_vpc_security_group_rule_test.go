@@ -1,20 +1,19 @@
-package yandex
+package security_group_rule
 
 import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 )
 
 func TestAccDataSourceVPCSecurityGroupRule(t *testing.T) {
-	t.Parallel()
-
 	sgr1Name := "data.yandex_vpc_security_group_rule.rule1"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVPCSecurityGroupRuleResourceConfig(),

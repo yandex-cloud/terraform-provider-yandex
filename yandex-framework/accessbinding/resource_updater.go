@@ -10,10 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
-	"github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/globallock"
 )
-
-var mutexKV = mutexkv.NewMutexKV()
 
 type Policy struct {
 	Bindings []*access.AccessBinding
@@ -75,6 +73,7 @@ type iamPolicyModifyFunc func(p *Policy) error
 
 func iamPolicyReadModifySet(ctx context.Context, updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
 	mutexKey := updater.GetMutexKey()
+	mutexKV := globallock.GetMutexKV()
 	mutexKV.Lock(mutexKey)
 	defer mutexKV.Unlock(mutexKey)
 

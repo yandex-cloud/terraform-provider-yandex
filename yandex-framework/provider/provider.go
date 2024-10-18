@@ -33,6 +33,7 @@ import (
 	mongodbdatabase "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
 	mongodbuser "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc/security_group_rule"
 )
 
 type saKeyValidator struct{}
@@ -267,6 +268,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		snapshot.NewIamBinding,
 		snapshotschedule.NewIamBinding,
 		airflowcluster.NewResource,
+		security_group_rule.NewResource,
 	}
 }
 
@@ -282,6 +284,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		mongodbdatabase.NewDataSource,
 		mongodbuser.NewDataSource,
 		opensearch.NewDataSource,
+		security_group_rule.NewDataSource,
 	}
 }
 
