@@ -19,18 +19,9 @@ import (
 	"google.golang.org/grpc"
 	proto "google.golang.org/protobuf/proto"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	kmsasymmetricencryption "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
 	kmsasymmetricsignature "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricsignature"
 	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -99,7 +90,7 @@ func expandLabels(v interface{}) (map[string]string, error) {
 		return m, nil
 	}
 	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+		m[k] = strings.ToLower(val.(string))
 	}
 	return m, nil
 }
