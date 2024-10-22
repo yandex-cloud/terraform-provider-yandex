@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'vpc: allow inplace update of security_group_rule resource'
-time: 2024-10-14T15:16:17.181920+03:00

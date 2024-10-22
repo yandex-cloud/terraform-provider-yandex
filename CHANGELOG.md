@@ -1,3 +1,20 @@
+## 0.131.0 (October 22, 2024)
+
+FEATURES:
+* redis: added backup_window_start
+* loadtesting: added `log_settings` parameter group and `log_group_id` parameter to `log_settings` in `resource_yandex_loadtesting_agent` resource.
+
+BUG FIXES:
+* compute: fix bug with update instance network interfaces
+* storage: fix use of iam token instead of creds
+* opensearch: fix managing empty in `description`
+* yandex_ydb_topic: fix conflicts in schema
+* yandex_ydb_coordination: fix path
+* yandex_ydb_table: fix ttl units (max week)
+
+ENHANCEMENTS:
+* vpc: allow inplace update of security_group_rule resource
+
 ## 0.130.0 (October 8, 2024)
 
 FEATURES:

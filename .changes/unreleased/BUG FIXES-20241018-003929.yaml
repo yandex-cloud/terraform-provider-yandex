@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'yandex_ydb_table: fix ttl units (max week)'
-time: 2024-10-18T00:39:29.671955+03:00

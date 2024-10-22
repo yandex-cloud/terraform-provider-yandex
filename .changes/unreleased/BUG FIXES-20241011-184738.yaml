@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'storage: fix use of iam token instead of creds'
-time: 2024-10-11T18:47:38.244344+03:00

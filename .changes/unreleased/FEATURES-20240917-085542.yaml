@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'loadtesting: added `log_settings` parameter group and `log_group_id` parameter to `log_settings` in `resource_yandex_loadtesting_agent` resource.'
-time: 2024-09-17T08:55:42.500742181+03:00
