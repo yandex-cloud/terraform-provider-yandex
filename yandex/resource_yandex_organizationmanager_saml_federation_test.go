@@ -238,15 +238,39 @@ type resourceSamlFederationInfo struct {
 }
 
 func generateFederationSecuritySettings() *saml.FederationSecuritySettings {
-	r := rand.Intn(3)
+	r := rand.Intn(7)
 
 	switch r {
 	case 0:
 		return nil
 	case 1:
-		return &saml.FederationSecuritySettings{EncryptedAssertions: true}
+		return &saml.FederationSecuritySettings{
+			EncryptedAssertions: true,
+			ForceAuthn:          true,
+		}
 	case 2:
-		return &saml.FederationSecuritySettings{EncryptedAssertions: true}
+		return &saml.FederationSecuritySettings{
+			EncryptedAssertions: true,
+			ForceAuthn:          false,
+		}
+	case 3:
+		return &saml.FederationSecuritySettings{
+			EncryptedAssertions: false,
+			ForceAuthn:          true,
+		}
+	case 4:
+		return &saml.FederationSecuritySettings{
+			EncryptedAssertions: false,
+			ForceAuthn:          false,
+		}
+	case 5:
+		return &saml.FederationSecuritySettings{
+			ForceAuthn: false,
+		}
+	case 6:
+		return &saml.FederationSecuritySettings{
+			EncryptedAssertions: true,
+		}
 	}
 
 	panic("generated invalid saml.FederationSecuritySettings")
@@ -313,6 +337,7 @@ resource "yandex_organizationmanager_saml_federation" {{.ResourceName}} {
   {{if .SecuritySettings}}
   security_settings {
     encrypted_assertions = {{.SecuritySettings.EncryptedAssertions}} 
+	force_authn          = {{.SecuritySettings.ForceAuthn}}
   }
   {{end}}
 

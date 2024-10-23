@@ -46,7 +46,8 @@ The following arguments are supported:
 
 The `security_settings` block supports:
 
-* `encrypted_assertions` - (Required) Enable encrypted assertions.
+* `encrypted_assertions` - (Optional, Computed) Enable encrypted assertions.
+* `force_authn` - (Optional, Computed) - Force authentication on session expiration
 
 ## Attributes Reference
 

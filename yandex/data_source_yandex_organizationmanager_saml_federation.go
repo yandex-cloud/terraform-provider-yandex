@@ -69,6 +69,10 @@ func dataSourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"force_authn": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},

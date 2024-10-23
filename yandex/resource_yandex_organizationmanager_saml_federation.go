@@ -95,7 +95,13 @@ func resourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"encrypted_assertions": {
 							Type:     schema.TypeBool,
-							Required: true,
+							Optional: true,
+							Computed: true,
+						},
+						"force_authn": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -138,6 +144,7 @@ func getSamlFederationSecuritySettings(d *schema.ResourceData) *saml.FederationS
 	}
 	return &saml.FederationSecuritySettings{
 		EncryptedAssertions: d.Get("security_settings.0.encrypted_assertions").(bool),
+		ForceAuthn:          d.Get("security_settings.0.force_authn").(bool),
 	}
 }
 
@@ -145,6 +152,7 @@ func flattenSamlFederationSecuritySettings(fss *saml.FederationSecuritySettings)
 	return []map[string]interface{}{
 		{
 			"encrypted_assertions": fss.GetEncryptedAssertions(),
+			"force_authn":          fss.GetForceAuthn(),
 		},
 	}
 }
@@ -259,6 +267,7 @@ var updateSamlFederationFieldsMap = map[string]string{
 	"auto_create_account_on_login": "auto_create_account_on_login",
 	"case_insensitive_name_ids":    "case_insensitive_name_ids",
 	"security_settings.0.encrypted_assertions": "security_settings",
+	"security_settings.0.force_authn":          "security_settings",
 }
 
 func resourceYandexOrganizationManagerSamlFederationUpdate(d *schema.ResourceData, meta interface{}) error {
