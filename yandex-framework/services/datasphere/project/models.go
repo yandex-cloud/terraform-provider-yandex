@@ -40,9 +40,7 @@ type settingsObjectModel struct {
 	ServiceAccountId     types.String `tfsdk:"service_account_id"`
 	SubnetId             types.String `tfsdk:"subnet_id"`
 	DataProcClusterId    types.String `tfsdk:"data_proc_cluster_id"`
-	CommitMode           types.String `tfsdk:"commit_mode"`
 	SecurityGroupIds     types.Set    `tfsdk:"security_group_ids"`
-	Ide                  types.String `tfsdk:"ide"`
 	DefaultFolderId      types.String `tfsdk:"default_folder_id"`
 	StaleExecTimeoutMode types.String `tfsdk:"stale_exec_timeout_mode"`
 }
@@ -52,9 +50,7 @@ func (m *settingsObjectModel) attributeTypes() map[string]attr.Type {
 		"service_account_id":      types.StringType,
 		"subnet_id":               types.StringType,
 		"data_proc_cluster_id":    types.StringType,
-		"commit_mode":             types.StringType,
 		"security_group_ids":      types.SetType{ElemType: types.StringType},
-		"ide":                     types.StringType,
 		"default_folder_id":       types.StringType,
 		"stale_exec_timeout_mode": types.StringType,
 	}

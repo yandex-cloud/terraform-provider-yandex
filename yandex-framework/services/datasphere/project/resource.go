@@ -79,18 +79,10 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 			DefaultFolderId:   settings.DefaultFolderId.ValueString(),
 		}
 
-		if !settings.CommitMode.IsNull() && !settings.CommitMode.IsUnknown() {
-			createProjectSettingsRequestData.SetCommitMode(datasphere.Project_Settings_CommitMode(
-				datasphere.Project_Settings_CommitMode_value[settings.CommitMode.ValueString()]))
-		}
 		if !settings.SecurityGroupIds.IsNull() && !settings.SecurityGroupIds.IsUnknown() {
 			settingsSecurityGroups := make([]string, 0, len(settings.SecurityGroupIds.Elements()))
 			resp.Diagnostics.Append(settings.SecurityGroupIds.ElementsAs(ctx, &settingsSecurityGroups, false)...)
 			createProjectSettingsRequestData.SetSecurityGroupIds(settingsSecurityGroups)
-		}
-		if !settings.Ide.IsNull() && !settings.Ide.IsUnknown() {
-			createProjectSettingsRequestData.SetIde(datasphere.Project_Settings_Ide(
-				datasphere.Project_Settings_Ide_value[settings.Ide.ValueString()]))
 		}
 		if !settings.StaleExecTimeoutMode.IsNull() && !settings.StaleExecTimeoutMode.IsUnknown() {
 			createProjectSettingsRequestData.SetStaleExecTimeoutMode(datasphere.Project_Settings_StaleExecutionTimeoutMode(
@@ -299,22 +291,12 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		if !planProjectSettings.DataProcClusterId.Equal(stateProjectSettings.DataProcClusterId) {
 			updatePaths = append(updatePaths, pathPrefix+"data_proc_cluster_id")
 		}
-		if !planProjectSettings.CommitMode.Equal(stateProjectSettings.CommitMode) {
-			updatePaths = append(updatePaths, pathPrefix+"commit_mode")
-			updateProjectSettingsRequestData.SetCommitMode(datasphere.Project_Settings_CommitMode(
-				datasphere.Project_Settings_CommitMode_value[planProjectSettings.CommitMode.ValueString()]))
-		}
 		if !planProjectSettings.SecurityGroupIds.Equal(stateProjectSettings.SecurityGroupIds) {
 			updatePaths = append(updatePaths, pathPrefix+"security_group_ids")
 			settingsSecurityGroups := make([]string, 0, len(planProjectSettings.SecurityGroupIds.Elements()))
 			resp.Diagnostics.Append(
 				planProjectSettings.SecurityGroupIds.ElementsAs(ctx, &settingsSecurityGroups, false)...)
 			updateProjectSettingsRequestData.SetSecurityGroupIds(settingsSecurityGroups)
-		}
-		if !planProjectSettings.Ide.Equal(stateProjectSettings.Ide) {
-			updatePaths = append(updatePaths, pathPrefix+"ide")
-			updateProjectSettingsRequestData.SetIde(datasphere.Project_Settings_Ide(
-				datasphere.Project_Settings_Ide_value[planProjectSettings.Ide.ValueString()]))
 		}
 		if !planProjectSettings.DefaultFolderId.Equal(stateProjectSettings.DefaultFolderId) {
 			updatePaths = append(updatePaths, pathPrefix+"default_folder_id")

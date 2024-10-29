@@ -29,7 +29,6 @@ func convertToTerraformModel(ctx context.Context, terraformModel *projectDataMod
 		settings.ServiceAccountId = types.StringValue(grpcModel.Settings.ServiceAccountId)
 		settings.SubnetId = types.StringValue(grpcModel.Settings.SubnetId)
 		settings.DataProcClusterId = types.StringValue(grpcModel.Settings.DataProcClusterId)
-		settings.CommitMode = types.StringValue(grpcModel.Settings.CommitMode.String())
 
 		if grpcModel.Settings.SecurityGroupIds != nil && len(grpcModel.Settings.SecurityGroupIds) > 0 {
 			securityGroups, diags := types.SetValueFrom(ctx, types.StringType, grpcModel.Settings.SecurityGroupIds)
@@ -38,7 +37,6 @@ func convertToTerraformModel(ctx context.Context, terraformModel *projectDataMod
 		} else {
 			settings.SecurityGroupIds = types.SetNull(types.StringType)
 		}
-		settings.Ide = types.StringValue(grpcModel.Settings.Ide.String())
 		settings.DefaultFolderId = types.StringValue(grpcModel.Settings.DefaultFolderId)
 		settings.StaleExecTimeoutMode = types.StringValue(grpcModel.Settings.StaleExecTimeoutMode.String())
 		settingsObject, diags := types.ObjectValueFrom(ctx, settings.attributeTypes(), settings)
