@@ -88,6 +88,7 @@ func resourceYandexServerlessContainer() *schema.Resource {
 			"concurrency": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 
 			"service_account_id": {

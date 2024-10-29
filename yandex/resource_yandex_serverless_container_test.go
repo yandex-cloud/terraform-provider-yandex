@@ -166,7 +166,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	params.cores = 1
 	params.coreFraction = 100
 	params.executionTimeout = strconv.FormatInt(int64(1+acctest.RandIntRange(1, 10)), 10) + "s"
-	params.concurrency = acctest.RandIntRange(0, 3)
+	params.concurrency = acctest.RandIntRange(1, 3)
 	params.imageURL = serverlessContainerTestImage1
 	params.workDir = acctest.RandomWithPrefix("tf-container-work-dir")
 	params.command = acctest.RandomWithPrefix("tf-container-command")
@@ -218,7 +218,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	paramsUpdated.cores = 1
 	paramsUpdated.coreFraction = 100
 	paramsUpdated.executionTimeout = strconv.FormatInt(int64(11+acctest.RandIntRange(11, 20)), 10) + "s"
-	params.concurrency = params.concurrency + 1
+	paramsUpdated.concurrency = params.concurrency + 1
 	paramsUpdated.imageURL = serverlessContainerTestImage2
 	paramsUpdated.workDir = acctest.RandomWithPrefix("tf-container-work-dir-updated")
 	paramsUpdated.command = acctest.RandomWithPrefix("tf-container-command-updated")

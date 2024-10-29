@@ -87,7 +87,7 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	params.cores = 1
 	params.coreFraction = 100
 	params.executionTimeout = strconv.FormatInt(int64(1+acctest.RandIntRange(1, 10)), 10) + "s"
-	params.concurrency = acctest.RandIntRange(0, 3)
+	params.concurrency = acctest.RandIntRange(1, 3)
 	params.imageURL = serverlessContainerTestImage1
 	params.workDir = acctest.RandomWithPrefix("tf-container-work-dir")
 	params.command = acctest.RandomWithPrefix("tf-container-command")
