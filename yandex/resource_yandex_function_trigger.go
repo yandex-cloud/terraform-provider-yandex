@@ -911,7 +911,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 	rule, err := constructRule(d)
 	if err != nil {
-		return nil
+		return fmt.Errorf("Error constructing rule while creating Yandex Cloud Functions Trigger: %s", err)
 	}
 
 	req := triggers.CreateTriggerRequest{
