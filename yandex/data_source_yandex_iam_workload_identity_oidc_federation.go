@@ -17,6 +17,8 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceYandexIAMWorkloadIdentityOidcFederationRead,
 
+		Description: "Get information about a [Yandex.Cloud IAM workload identity OIDC federation](https://yandex.cloud/docs/iam/concepts/workload-identity).",
+
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{

@@ -23,6 +23,8 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 		UpdateContext: resourceYandexIAMWorkloadIdentityOidcFederationUpdate,
 		DeleteContext: resourceYandexIAMWorkloadIdentityOidcFederationDelete,
 
+		Description: "Allows management of [Yandex.Cloud IAM workload identity OIDC federations](https://yandex.cloud/docs/iam/concepts/workload-identity).",
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexIAMWorkloadIdentityOidcFederationDefaultTimeout),
 			Read:   schema.DefaultTimeout(yandexIAMWorkloadIdentityOidcFederationDefaultTimeout),

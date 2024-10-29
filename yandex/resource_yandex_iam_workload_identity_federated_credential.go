@@ -20,6 +20,8 @@ func resourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 		ReadContext:   resourceYandexIAMWorkloadIdentityFederatedCredentialRead,
 		DeleteContext: resourceYandexIAMWorkloadIdentityFederatedCredentialDelete,
 
+		Description: "Allows management of [Yandex.Cloud IAM federated credentials](https://yandex.cloud/docs/iam/concepts/workload-identity#federated-credentials).",
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexIAMWorkloadIdentityFederatedCredentialDefaultTimeout),
 			Read:   schema.DefaultTimeout(yandexIAMWorkloadIdentityFederatedCredentialDefaultTimeout),
