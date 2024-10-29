@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'serverless: fixed `yandex_function` resource''s `execution_timeout` attribute handling'
+time: 2024-10-24T23:12:00.630432129+03:00

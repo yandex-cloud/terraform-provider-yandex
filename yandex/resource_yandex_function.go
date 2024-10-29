@@ -99,6 +99,7 @@ func resourceYandexFunction() *schema.Resource {
 			"execution_timeout": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"service_account_id": {
