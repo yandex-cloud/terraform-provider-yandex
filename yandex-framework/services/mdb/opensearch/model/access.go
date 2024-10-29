@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type Access struct {
@@ -32,7 +33,7 @@ func accessToObject(ctx context.Context, cfg *opensearch.Access) (types.Object, 
 
 func ParseAccess(ctx context.Context, state *Config) (*Access, diag.Diagnostics) {
 	res := &Access{}
-	diags := state.Access.As(ctx, res, defaultOpts)
+	diags := state.Access.As(ctx, res, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}

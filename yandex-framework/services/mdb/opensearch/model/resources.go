@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type NodeResource struct {
@@ -44,7 +45,7 @@ type WithResources interface {
 
 func ParseNodeResource(ctx context.Context, ng WithResources) (*NodeResource, diag.Diagnostics) {
 	res := &NodeResource{}
-	diags := ng.GetResources().As(ctx, res, defaultOpts)
+	diags := ng.GetResources().As(ctx, res, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}

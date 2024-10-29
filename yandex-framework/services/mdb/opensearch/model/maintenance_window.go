@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type MaintenanceWindow struct {
@@ -48,7 +49,7 @@ func maintenanceWindowToObject(ctx context.Context, mw *opensearch.MaintenanceWi
 
 func ParseMaintenanceWindow(ctx context.Context, model *OpenSearch) (*MaintenanceWindow, diag.Diagnostics) {
 	res := &MaintenanceWindow{}
-	diags := model.MaintenanceWindow.As(ctx, res, defaultOpts)
+	diags := model.MaintenanceWindow.As(ctx, res, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}

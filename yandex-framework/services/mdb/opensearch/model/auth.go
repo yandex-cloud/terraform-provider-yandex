@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type AuthSettings struct {
@@ -105,7 +106,7 @@ func SAMLToState(ctx context.Context, saml *opensearch.SAMLSettings, state *Auth
 
 func AuthSettingsFromState(ctx context.Context, state types.Object) (*AuthSettings, diag.Diagnostics) {
 	res := &AuthSettings{}
-	diags := state.As(ctx, &res, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false})
+	diags := state.As(ctx, &res, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -115,7 +116,7 @@ func AuthSettingsFromState(ctx context.Context, state types.Object) (*AuthSettin
 
 func SAMLFromState(ctx context.Context, state types.Object) (*SAML, diag.Diagnostics) {
 	res := &SAML{}
-	diags := state.As(ctx, &res, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false})
+	diags := state.As(ctx, &res, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}

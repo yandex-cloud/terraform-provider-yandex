@@ -8,12 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/timestamp"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
-
-var defaultOpts = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
 
 type OpenSearch struct {
 	Timeouts           timeouts.Value `tfsdk:"timeouts"`
@@ -250,7 +248,7 @@ func stringsAreEqual(str1, str2 types.String) bool {
 
 func ParseConfig(ctx context.Context, state *OpenSearch) (*Config, diag.Diagnostics) {
 	planConfig := &Config{}
-	diags := state.Config.As(ctx, &planConfig, defaultOpts)
+	diags := state.Config.As(ctx, &planConfig, utils.DefaultOpts)
 	if diags.HasError() {
 		return nil, diags
 	}

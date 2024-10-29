@@ -47,15 +47,15 @@ func AccCheckResourceIDField(resourceName string, idFieldName string) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
+			return fmt.Errorf("not found: %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		if rs.Primary.Attributes[idFieldName] != rs.Primary.ID {
-			return fmt.Errorf("Resource: %s id field: %s, doesn't match resource ID", resourceName, idFieldName)
+			return fmt.Errorf("resource: %s id field: %s, doesn't match resource ID", resourceName, idFieldName)
 		}
 
 		return nil

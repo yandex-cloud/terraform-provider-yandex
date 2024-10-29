@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type DashboardsSubConfig struct {
@@ -130,7 +131,7 @@ func ParseDashboardSubConfig(ctx context.Context, state *Config) (*DashboardsSub
 	}
 
 	res := &DashboardsSubConfig{}
-	diags := state.Dashboards.As(ctx, &res, defaultOpts) //NOTE: &res because state.Dashboards can be nil
+	diags := state.Dashboards.As(ctx, &res, utils.DefaultOpts) //NOTE: &res because state.Dashboards can be nil
 	if diags.HasError() {
 		return nil, diags
 	}

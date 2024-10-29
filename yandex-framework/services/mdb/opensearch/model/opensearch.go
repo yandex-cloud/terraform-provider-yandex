@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 type OpenSearchSubConfig struct {
@@ -191,7 +192,7 @@ func ParseOpenSearchSubConfig(ctx context.Context, state *Config) (OpenSearchSub
 		return res, diag.Diagnostics{}
 	}
 
-	diags := state.OpenSearch.As(ctx, &res, defaultOpts)
+	diags := state.OpenSearch.As(ctx, &res, utils.DefaultOpts)
 	if diags.HasError() {
 		return res, diags
 	}

@@ -33,6 +33,7 @@ import (
 	mongodbdatabase "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
 	mongodbuser "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
+	postgresql_cluster "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/postgresql/cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc/security_group_rule"
 )
 
@@ -269,6 +270,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		snapshotschedule.NewIamBinding,
 		airflowcluster.NewResource,
 		security_group_rule.NewResource,
+		postgresql_cluster.NewPostgreSQLClusterResourceBeta,
 	}
 }
 

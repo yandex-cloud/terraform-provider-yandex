@@ -137,7 +137,7 @@ func (r *communityResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	tflog.Info(ctx,
-		fmt.Sprintf("Making API call to retrive community with id %s", stateCommunity.Id.ValueString()),
+		fmt.Sprintf("Making API call to retrieve community with id %s", stateCommunity.Id.ValueString()),
 	)
 
 	existingCommunity, err := r.providerConfig.SDK.Datasphere().Community().Get(ctx,
