@@ -30,6 +30,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshotschedule"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/marketplace/helm_release"
 	mongodbdatabase "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
 	mongodbuser "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
@@ -271,6 +272,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		airflowcluster.NewResource,
 		security_group_rule.NewResource,
 		postgresql_cluster.NewPostgreSQLClusterResourceBeta,
+		helm_release.NewResource,
 	}
 }
 

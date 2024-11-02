@@ -1,0 +1,23 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}}
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+{{tffile "examples/kubernetes/marketplace/resources/helm_release_example_1.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
+
+
+## Import
+
+Import is supported using the following syntax:
+
+{{codefile "shell" "examples/kubernetes/marketplace/resources/helm_release_import.sh" }}

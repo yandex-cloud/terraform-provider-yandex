@@ -20,6 +20,7 @@ CategoryMapping:
   iot: "IoT Core"
   kms: "Key Management Service (KMS)"
   kubernetes: "Managed Service for Kubernetes (MK8S)"
+  kubernetes/marketplace: "Kubernetes Marketplace"
   loadbalancer: "Network Load Balancer (NLB)"
   loadtesting: "Load Testing"
   lockbox: "Lockbox (Secret Management)"
