@@ -1,3 +1,19 @@
+## 0.132.0 (November 5, 2024)
+
+FEATURES:
+* Marketplace: **New Resource**: `yandex_kubernetes_marketplace_helm_release`
+* IAM: add `yandex_organizationmanager_saml_federation.security_settings.force_authn` parameter
+* IAM: make `yandex_organizationmanager_saml_federation.security_settings.encrypted_assertions` optional and computed
+
+BUG FIXES:
+* compute: Fix wrong argument name in host_affinity_rules block, from "value" to "values" in docs and templates.
+* serverless: fixed `yandex_serverless_container` `concurrency` attribute handling
+* serverless: fixed `yandex_function` resource's `execution_timeout` attribute handling
+* serverless: fix error handling for incorrect parameters in ymq triggers
+
+ENHANCEMENTS:
+* provider: updated yandex cloud go sdk version
+
 ## 0.131.0 (October 22, 2024)
 
 FEATURES:

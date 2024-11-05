@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'IAM: add `yandex_organizationmanager_saml_federation.security_settings.force_authn` parameter'
-time: 2024-10-21T21:27:57.793504+03:00

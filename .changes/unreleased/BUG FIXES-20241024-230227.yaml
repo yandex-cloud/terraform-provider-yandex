@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'serverless: fixed `yandex_serverless_container` `concurrency` attribute handling'
-time: 2024-10-24T23:02:27.979435653+03:00

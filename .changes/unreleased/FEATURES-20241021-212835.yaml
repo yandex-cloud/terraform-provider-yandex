@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'IAM: make `yandex_organizationmanager_saml_federation.security_settings.encrypted_assertions` optional and computed'
-time: 2024-10-21T21:28:35.667907+03:00
