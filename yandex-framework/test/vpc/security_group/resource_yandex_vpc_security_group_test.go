@@ -17,32 +17,10 @@ import (
 	testvpc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/vpc"
 )
 
-func getYandexVPCSecurityGroupSweeperDeps() []string {
-	return []string{
-		"yandex_alb_load_balancer",
-		"yandex_compute_instance",
-		"yandex_compute_instance_group",
-		"yandex_dataproc_cluster",
-		"yandex_kubernetes_node_group",
-		"yandex_kubernetes_cluster",
-		"yandex_mdb_clickhouse_cluster",
-		"yandex_mdb_mongodb_cluster",
-		"yandex_mdb_mysql_cluster",
-		"yandex_mdb_postgresql_cluster",
-		"yandex_mdb_greenplum_cluster",
-		"yandex_mdb_redis_cluster",
-		"yandex_mdb_kafka_cluster",
-		"yandex_mdb_sqlserver_cluster",
-		"yandex_mdb_elasticsearch_cluster",
-		"yandex_mdb_kafka_cluster",
-	}
-}
-
 func init() {
 	resource.AddTestSweepers("yandex_vpc_security_group", &resource.Sweeper{
-		Name:         "yandex_vpc_security_group",
-		F:            testSweepVPCSecurityGroups,
-		Dependencies: getYandexVPCSecurityGroupSweeperDeps(),
+		Name: "yandex_vpc_security_group",
+		F:    testSweepVPCSecurityGroups,
 	})
 }
 
