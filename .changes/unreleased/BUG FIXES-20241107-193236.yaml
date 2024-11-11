@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'lockbox: `yandex_lockbox_secret` no longer creates versions on its own.'
+time: 2024-11-07T19:32:36.280815+03:00

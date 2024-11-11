@@ -1,0 +1,31 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}}
+
+{{ .Description | trimspace }}
+
+{{- /* Uncomment this block as you add "examples/mdb_postgresql_cluster_beta/resources/example_1.tf"
+
+## Example Usage
+
+{{tffile "examples/mdb_postgresql_cluster_beta/resources/example_1.tf" }}
+
+*/ -}}
+
+{{ .SchemaMarkdown | trimspace }}
+
+
+{{- /* Uncomment this block as you add "examples/mdb_postgresql_cluster_beta/resources/import/import.sh"
+
+## Import
+
+Import is supported using the following syntax:
+
+{{codefile "shell" "examples/mdb_postgresql_cluster_beta/resources/import/import.sh" }}
+
+*/ -}}

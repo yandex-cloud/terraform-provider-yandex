@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +18,9 @@ import (
 const (
 	yandexLockboxSecretVersionDefaultTimeout = 1 * time.Minute
 )
+
+// To prevent parallelism when replacing one version with another
+var resourceYandexLockboxSecretVersionMutex sync.Mutex
 
 func resourceYandexLockboxSecretVersion() *schema.Resource {
 	return &schema.Resource{
@@ -120,6 +124,9 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPayloadEntries []*lockbox.PayloadEntryChange, d *schema.ResourceData, config *Config) diag.Diagnostics {
+	resourceYandexLockboxSecretVersionMutex.Lock()
+	defer resourceYandexLockboxSecretVersionMutex.Unlock()
+
 	secret, err := config.sdk.LockboxSecret().Secret().Get(ctx, &lockbox.GetSecretRequest{
 		SecretId: d.Get("secret_id").(string),
 	})
@@ -127,30 +134,48 @@ func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPay
 		return diag.Errorf("could not get secret %v: %s", d.Get("secret_id"), err)
 	}
 
-	getPayloadReq := &lockbox.GetPayloadRequest{
-		SecretId: d.Get("secret_id").(string),
-		// It's not relevant what version to use as base, since addEntryChangesForRemovedKeys will just leave the versionPayloadEntries.
-		// The current entries will be ignored. The behaviour is like PayloadChangeKind.FULL in ycp provider.
+	var currentVersionId string
+
+	if secret.CurrentVersion != nil && secret.CurrentVersion.Status == lockbox.Version_ACTIVE {
+		currentVersionId = secret.CurrentVersion.Id
 	}
 
-	log.Printf("[INFO] getting Lockbox payload (to compare entries): %s", protojson.Format(getPayloadReq))
+	var currentEntries []*lockbox.Payload_Entry
 
-	payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, getPayloadReq)
-	if err != nil {
-		return diag.Errorf("could not get payload from secret %v and version %v: %s", getPayloadReq.SecretId, getPayloadReq.VersionId, err)
+	if currentVersionId != "" {
+		getPayloadReq := &lockbox.GetPayloadRequest{
+			SecretId:  d.Get("secret_id").(string),
+			VersionId: currentVersionId,
+		}
+		getPayloadReq.VersionId = currentVersionId
+
+		log.Printf("[INFO] getting Lockbox payload (to compare entries): %s", protojson.Format(getPayloadReq))
+
+		payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, getPayloadReq)
+		if err != nil {
+			return diag.Errorf("could not get payload from secret %v and version %v: %s", getPayloadReq.SecretId, getPayloadReq.VersionId, err)
+		}
+
+		log.Printf("[INFO] read Lockbox payload (to compare entries) with VersionID: %s", payload.GetVersionId())
+
+		currentEntries = payload.Entries
 	}
-
-	log.Printf("[INFO] read Lockbox payload (to compare entries) with VersionID: %s", payload.GetVersionId())
 
 	req := &lockbox.AddVersionRequest{
 		SecretId: d.Get("secret_id").(string),
 		// Make sure we're taking this version as reference, since addEntryChangesForRemovedKeys will
 		// remove the entries in payload.Entries that versionPayloadEntries doesn't contain anymore.
-		BaseVersionId: payload.VersionId,
-		Description:   d.Get("description").(string),
+		Description: d.Get("description").(string),
+	}
+	if currentVersionId != "" {
+		req.BaseVersionId = currentVersionId
 	}
 	if secret.PayloadSpecification == nil {
-		req.PayloadEntries = addEntryChangesForRemovedKeys(payload.Entries, versionPayloadEntries)
+		if currentEntries != nil {
+			req.PayloadEntries = addEntryChangesForRemovedKeys(currentEntries, versionPayloadEntries)
+		} else {
+			req.PayloadEntries = versionPayloadEntries
+		}
 	}
 
 	log.Printf("[INFO] adding Lockbox version for secret with ID: %s, base version ID: %s", req.SecretId, req.BaseVersionId)
@@ -208,6 +233,9 @@ func resourceYandexLockboxSecretVersionRead(ctx context.Context, d *schema.Resou
 }
 
 func resourceYandexLockboxSecretVersionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	resourceYandexLockboxSecretVersionMutex.Lock()
+	defer resourceYandexLockboxSecretVersionMutex.Unlock()
+
 	config := meta.(*Config)
 
 	req := &lockbox.ScheduleVersionDestructionRequest{

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -180,6 +181,7 @@ func resourceYandexLockboxSecretCreate(ctx context.Context, d *schema.ResourceDa
 		KmsKeyId:             d.Get("kms_key_id").(string),
 		DeletionProtection:   d.Get("deletion_protection").(bool),
 		PayloadSpecification: payloadSpecification,
+		CreateVersion:        &wrapperspb.BoolValue{Value: false},
 	}
 
 	log.Printf("[INFO] creating Lockbox secret: %s", protojson.Format(req))
