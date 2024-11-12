@@ -55,12 +55,6 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 							ForceNew:     true,
 							Sensitive:    true,
 							ValidateFunc: validation.StringLenBetween(0, 65536),
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-								if d.Get("hash_in_state").(bool) {
-									return old == hashPayloadTextValue(new, d.Id())
-								}
-								return false
-							},
 						},
 
 						"command": {
@@ -109,12 +103,6 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 			},
-
-			"hash_in_state": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -132,17 +120,6 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 		return diagErr
 	}
 
-	if d.Get("hash_in_state").(bool) {
-		newEntries := d.Get("entries").([]interface{})
-		for _, entry0 := range newEntries {
-			entry := entry0.(map[string]interface{})
-			entry["text_value"] = hashPayloadTextValue(entry["text_value"], d.Id())
-		}
-		err = d.Set("entries", newEntries)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
 	return resourceYandexLockboxSecretVersionRead(ctx, d, meta)
 }
 

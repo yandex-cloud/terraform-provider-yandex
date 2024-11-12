@@ -35,8 +35,6 @@ func resourceYandexLockboxSecretVersionHashed() *schema.Resource {
 
 		SchemaVersion: 1,
 
-		DeprecationMessage: "This resource has been deprecated in favour of resource `yandex_lockbox_secret_version` with `hash_in_state=true`",
-
 		Schema: addSafeEntries(maxSafeEntries, map[string]*schema.Schema{
 			"secret_id": {
 				Type:         schema.TypeString,
@@ -95,9 +93,7 @@ func addSafeEntries(n int, schemaMap map[string]*schema.Schema) map[string]*sche
 			ForceNew:     true,
 			Sensitive:    true,
 			ValidateFunc: validation.StringLenBetween(0, 65536),
-			StateFunc: func(i interface{}) string {
-				return hashPayloadTextValue(i, "")
-			}, // hide this sensitive value
+			StateFunc:    hashPayloadTextValue, // hide this sensitive value
 			RequiredWith: []string{keyName(i)},
 		}
 	}
@@ -118,13 +114,13 @@ func textValueName(i int) string {
 // Other options that don't have these features:
 // - SHA-256: it's deterministic, but has a fixed difficulty.
 // - Bcrypt: you can parametrize difficulty, but the result is not deterministic.
-func hashPayloadTextValue(i interface{}, extraSalt string) string {
+func hashPayloadTextValue(i interface{}) string {
 	textValue := i.(string)
 	if textValue == "" {
 		return ""
 	}
-	keyLength := 128                                             // select reasonable length
-	salt := []byte("|82&pvyYC[el3Z([,En#1:£!VJ2fKz" + extraSalt) // this salt is public, but I guess it's better than nothing
+	keyLength := 128                                 // select reasonable length
+	salt := []byte("|82&pvyYC[el3Z([,En#1:£!VJ2fKz") // this salt is public, but I guess it's better than nothing
 	// scrypt.Key recommends N=32768, r=8 and p=1 (in my Macbook 2*32768 exceeds 100ms)
 	hash, err := scrypt.Key([]byte(textValue), salt, 32768, 8, 1, keyLength)
 	if err != nil {
