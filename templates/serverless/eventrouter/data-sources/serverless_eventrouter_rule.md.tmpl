@@ -1,0 +1,31 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}}
+
+{{ .Description | trimspace }}
+
+{{- /* Uncomment this block as you add "examples/serverless_eventrouter_rule/data-sources/example_1.tf"
+
+## Example Usage
+
+{{tffile "examples/serverless_eventrouter_rule/data-sources/example_1.tf" }}
+
+*/ -}}
+
+{{ .SchemaMarkdown | trimspace }}
+
+
+{{- /* Uncomment this block as you add "examples/serverless_eventrouter_rule/data-sources/import/import.sh"
+
+## Import
+
+Import is supported using the following syntax:
+
+{{codefile "shell" "examples/serverless_eventrouter_rule/data-sources/import/import.sh" }}
+
+*/ -}}

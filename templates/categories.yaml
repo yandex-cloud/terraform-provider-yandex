@@ -45,3 +45,4 @@ CategoryMapping:
   sws: "Smart Web Security (SWS)"
   vpc: "Virtual Private Cloud (VPC)"
   ydb: "Managed Service for YDB"
+  serverless/eventrouter: "Serverless Event Router"
