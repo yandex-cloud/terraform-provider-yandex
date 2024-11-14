@@ -61,7 +61,7 @@ resource "yandex_vpc_subnet" "mdb-pg-test-subnet-d" {
 
 `
 
-var postgresql_versions = [...]string{"12", "12-1c", "13", "13-1c", "14", "14-1c", "15", "15-1c", "16"}
+var postgresql_versions = [...]string{"12", "12-1c", "13", "13-1c", "14", "14-1c", "15", "15-1c", "16", "17"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster_beta", &resource.Sweeper{
