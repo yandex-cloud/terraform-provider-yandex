@@ -118,6 +118,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"clickhouse.0.config.0.kafka",       // passwords are not returned
 			"clickhouse.0.config.0.kafka_topic", // passwords are not returned
 			"clickhouse.0.config.0.rabbitmq",    // passwords are not returned
+			"shard",                             // MDB-32162
 		},
 	}
 }
