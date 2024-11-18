@@ -136,6 +136,9 @@ func TestAccALBLoadBalancer_streamListener(t *testing.T) {
 					testExistsFirstElementWithAttr(
 						albLoadBalancerResource, "listener", "stream.0.handler.0.backend_group_id", &listenerPath,
 					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "stream.0.handler.0.idle_timeout", &listenerPath,
+					),
 				),
 			},
 			albLoadBalancerImportStep(),
@@ -328,6 +331,9 @@ func TestAccALBLoadBalancer_tlsListenerWithStreamHandler(t *testing.T) {
 					),
 					testExistsFirstElementWithAttr(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.stream_handler.0.backend_group_id", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.stream_handler.0.idle_timeout", &listenerPath,
 					),
 					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,

@@ -56,6 +56,7 @@ const albDefaultRemoteIP = "127.0.0.1/16"
 const albDefaultHeaderName = "client-header"
 const albDefaultHeaderValue = "client-value"
 const albDefaultRBACAction = "allow"
+const albDefaultIdleTimeout = "42s"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener     bool
@@ -69,6 +70,7 @@ type resourceALBLoadBalancerInfo struct {
 	IsAllowHTTP10      bool
 	IsRewriteRequestID bool
 	IsLogOptions       bool
+	IsIdleTimeout      bool
 
 	BaseTemplate string
 
@@ -84,6 +86,7 @@ type resourceALBLoadBalancerInfo struct {
 	EndpointPort         string
 	HTTPToHTTPS          string
 	CertificateID        string
+	IdleTimeout          string
 }
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
@@ -98,6 +101,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		IsHTTP2Options:       false,
 		IsAllowHTTP10:        false,
 		IsRewriteRequestID:   false,
+		IsIdleTimeout:        false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		BalancerName:         acctest.RandomWithPrefix("tf-load-balancer"),
 		RouterName:           acctest.RandomWithPrefix("tf-router"),
@@ -111,6 +115,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		EndpointPort:         albDefaultPort,
 		HTTPToHTTPS:          albDefaultHTTPToHTTPS,
 		CertificateID:        os.Getenv("ALB_TEST_CERTIFICATE_ID"),
+		IdleTimeout:          albDefaultIdleTimeout,
 	}
 
 	return res
@@ -665,6 +670,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       {{if .IsStreamHandler}}
       handler {
         backend_group_id = yandex_alb_backend_group.test-bg.id
+        {{if .IsIdleTimeout}}
+        idle_timeout = {{.IdleTimeout}}
+        {{end}}
       }
       {{end}}
     }
@@ -691,6 +699,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         {{if .IsStreamHandler}}
         stream_handler {
           backend_group_id = yandex_alb_backend_group.test-bg.id
+          {{if .IsIdleTimeout}}
+          idle_timeout = {{.IdleTimeout}}
+          {{end}}          
         }
         {{end}}
         certificate_ids = ["{{.CertificateID}}"]

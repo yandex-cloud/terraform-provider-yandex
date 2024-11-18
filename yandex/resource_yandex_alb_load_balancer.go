@@ -411,6 +411,10 @@ func streamHandler() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"idle_timeout": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 			},
 		},
 	}

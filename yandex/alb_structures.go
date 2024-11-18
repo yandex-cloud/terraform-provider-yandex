@@ -876,7 +876,9 @@ func expandALBListener(d *schema.ResourceData, path string) (*apploadbalancer.Li
 					listener.SetTls(tlsListener)
 				}
 			case "stream":
-				if streamListener := expandALBStreamListener(d, pathToListener); streamListener != nil {
+				if streamListener, err := expandALBStreamListener(d, pathToListener); err != nil {
+					return err
+				} else if streamListener != nil {
 					nonNilCount++
 					listener.SetStream(streamListener)
 				}
@@ -979,16 +981,20 @@ func expandALBSNIMatches(d *schema.ResourceData, path string) ([]*apploadbalance
 	return matches, nil
 }
 
-func expandALBStreamListener(d *schema.ResourceData, path string) *apploadbalancer.StreamListener {
+func expandALBStreamListener(d *schema.ResourceData, path string) (*apploadbalancer.StreamListener, error) {
 	var mStreamListener maybeUsedObject[apploadbalancer.StreamListener]
 
 	if _, ok := d.GetOk(path + "handler.0"); ok {
-		if handler := expandALBStreamHandler(d, path+"handler.0."); handler != nil {
+		handler, err := expandALBStreamHandler(d, path+"handler.0.")
+		if err != nil {
+			return nil, err
+		}
+		if handler != nil {
 			mStreamListener.maybeCreate().SetHandler(handler)
 		}
 	}
 
-	return mStreamListener.get()
+	return mStreamListener.get(), nil
 }
 
 func expandALBHTTPListener(d *schema.ResourceData, path string) (*apploadbalancer.HttpListener, error) {
@@ -1012,13 +1018,20 @@ func expandALBHTTPListener(d *schema.ResourceData, path string) (*apploadbalance
 	return mHttpListener.get(), nil
 }
 
-func expandALBStreamHandler(d *schema.ResourceData, path string) *apploadbalancer.StreamHandler {
+func expandALBStreamHandler(d *schema.ResourceData, path string) (*apploadbalancer.StreamHandler, error) {
 	var mStreamHandler maybeUsedObject[apploadbalancer.StreamHandler]
 
 	if v, ok := d.GetOk(path + "backend_group_id"); ok {
 		mStreamHandler.maybeCreate().SetBackendGroupId(v.(string))
 	}
-	return mStreamHandler.get()
+	if v, ok := d.GetOk(path + "idle_timeout"); ok {
+		d, err := parseDuration(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		mStreamHandler.maybeCreate().SetIdleTimeout(d)
+	}
+	return mStreamHandler.get(), nil
 }
 
 func expandALBHTTPHandler(d *schema.ResourceData, path string) (*apploadbalancer.HttpHandler, error) {
@@ -1077,7 +1090,9 @@ func expandALBTLSHandler(d *schema.ResourceData, path string) (*apploadbalancer.
 	}
 
 	if gotStreamHandler {
-		if handler := expandALBStreamHandler(d, path+"stream_handler.0."); handler != nil {
+		if handler, err := expandALBStreamHandler(d, path+"stream_handler.0."); err != nil {
+			return nil, err
+		} else if handler != nil {
 			mTlsHandler.maybeCreate().SetStreamHandler(handler)
 			assignCount++
 		}
@@ -2168,6 +2183,7 @@ func flattenALBStreamHandler(streamHandler *apploadbalancer.StreamHandler) []int
 	if streamHandler != nil {
 		flHTTPHandler := map[string]interface{}{
 			"backend_group_id": streamHandler.GetBackendGroupId(),
+			"idle_timeout":     streamHandler.IdleTimeout,
 		}
 
 		return []interface{}{flHTTPHandler}
