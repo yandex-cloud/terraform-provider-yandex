@@ -8,6 +8,22 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
+const (
+	allRequestsSchemaKey   = "all_requests"
+	perMinuteSchemaKey     = "per_minute"
+	perSecondSchemaKey     = "per_second"
+	rateLimitSchemaKey     = "rate_limit"
+	requestsPerIPSchemaKey = "requests_per_ip"
+)
+
+const (
+	allRequestsSchemaDescription   = "Rate limit configuration applied to all incoming requests"
+	perMinuteSchemaDescription     = "Limit value specified with per minute time unit"
+	perSecondSchemaDescription     = "Limit value specified with per second time unit"
+	rateLimitSchemaDescription     = "Rate limit configuration applied for a whole virtual host"
+	requestsPerIPSchemaDescription = "Rate limit configuration applied separately for each set of requests grouped by client IP address"
+)
+
 func dataSourceYandexALBVirtualHost() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceYandexALBVirtualHostRead,
@@ -37,6 +53,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 			"modify_request_headers":  dataSourceHeaderModification("modify_request_headers."),
 			"modify_response_headers": dataSourceHeaderModification("modify_response_headers."),
 			"route_options":           dataSourceRouteOptions(),
+			rateLimitSchemaKey:        dataSourceRateLimit(),
 			"route": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -89,6 +106,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Type:     schema.TypeBool,
 													Computed: true,
 												},
+												rateLimitSchemaKey: dataSourceRateLimit(),
 											},
 										},
 									},
@@ -202,6 +220,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Type:     schema.TypeBool,
 													Computed: true,
 												},
+												rateLimitSchemaKey: dataSourceRateLimit(),
 											},
 										},
 									},
@@ -359,4 +378,54 @@ func dataSourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}
 
 	return nil
 
+}
+
+func dataSourceRateLimit() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Computed:    true,
+		Description: rateLimitSchemaDescription,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				allRequestsSchemaKey: {
+					Type:        schema.TypeList,
+					Computed:    true,
+					Description: allRequestsSchemaDescription,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							perSecondSchemaKey: {
+								Type:        schema.TypeInt,
+								Computed:    true,
+								Description: perSecondSchemaDescription,
+							},
+							perMinuteSchemaKey: {
+								Type:        schema.TypeInt,
+								Computed:    true,
+								Description: perMinuteSchemaDescription,
+							},
+						},
+					},
+				},
+				requestsPerIPSchemaKey: {
+					Type:        schema.TypeList,
+					Computed:    true,
+					Description: requestsPerIPSchemaDescription,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							perSecondSchemaKey: {
+								Type:        schema.TypeInt,
+								Computed:    true,
+								Description: perSecondSchemaDescription,
+							},
+							perMinuteSchemaKey: {
+								Type:        schema.TypeInt,
+								Computed:    true,
+								Description: perMinuteSchemaDescription,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
 }

@@ -48,6 +48,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 			},
 			"modify_request_headers":  headerModification(),
 			"modify_response_headers": headerModification(),
+			rateLimitSchemaKey:        rateLimit(),
 			"route": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -103,6 +104,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												rateLimitSchemaKey: rateLimit(),
 											},
 										},
 									},
@@ -226,6 +228,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												rateLimitSchemaKey: rateLimit(),
 											},
 										},
 									},
@@ -306,6 +309,59 @@ func headerModification() *schema.Schema {
 	}
 }
 
+func rateLimit() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: rateLimitSchemaDescription,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				allRequestsSchemaKey: {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: allRequestsSchemaDescription,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							perSecondSchemaKey: {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: perSecondSchemaDescription,
+							},
+							perMinuteSchemaKey: {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: perMinuteSchemaDescription,
+							},
+						},
+					},
+				},
+				requestsPerIPSchemaKey: {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: requestsPerIPSchemaDescription,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							perSecondSchemaKey: {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: perSecondSchemaDescription,
+							},
+							perMinuteSchemaKey: {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Description: perMinuteSchemaDescription,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -370,6 +426,11 @@ func buildALBVirtualHostCreateRequest(d *schema.ResourceData) (*apploadbalancer.
 		return nil, fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
 	}
 
+	rateLimit, err := expandALBRateLimit("", d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding rate limit while updating Application Virtual Host: %w", err)
+	}
+
 	req := &apploadbalancer.CreateVirtualHostRequest{
 		HttpRouterId:          d.Get("http_router_id").(string),
 		Name:                  d.Get("name").(string),
@@ -377,6 +438,7 @@ func buildALBVirtualHostCreateRequest(d *schema.ResourceData) (*apploadbalancer.
 		Routes:                routes,
 		ModifyResponseHeaders: responseHeaders,
 		ModifyRequestHeaders:  requestHeaders,
+		RateLimit:             rateLimit,
 	}
 
 	if _, ok := d.GetOk("route_options"); ok {
@@ -426,6 +488,8 @@ func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
+	rateLimit := flattenALBRateLimit(virtualHost.GetRateLimit())
+
 	d.Set("name", virtualHost.Name)
 	d.Set("authority", virtualHost.Authority)
 
@@ -442,6 +506,10 @@ func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := d.Set("route_options", ro); err != nil {
+		return err
+	}
+
+	if err := d.Set(rateLimitSchemaKey, rateLimit); err != nil {
 		return err
 	}
 
@@ -497,6 +565,11 @@ func buildALBVirtualHostUpdateRequest(d *schema.ResourceData) (*apploadbalancer.
 		return nil, fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
 	}
 
+	rateLimit, err := expandALBRateLimit("", d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding rate limit while updating Application Virtual Host: %w", err)
+	}
+
 	req := &apploadbalancer.UpdateVirtualHostRequest{
 		VirtualHostName:       d.Get("name").(string),
 		HttpRouterId:          d.Get("http_router_id").(string),
@@ -504,6 +577,7 @@ func buildALBVirtualHostUpdateRequest(d *schema.ResourceData) (*apploadbalancer.
 		Routes:                routes,
 		ModifyResponseHeaders: responseHeaders,
 		ModifyRequestHeaders:  requestHeaders,
+		RateLimit:             rateLimit,
 	}
 
 	if _, ok := d.GetOk("route_options"); ok {

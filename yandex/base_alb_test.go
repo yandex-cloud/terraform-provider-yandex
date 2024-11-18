@@ -117,19 +117,28 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 }
 
 type resourceALBVirtualHostInfo struct {
-	IsModifyRequestHeaders       bool
-	IsModifyResponseHeaders      bool
-	IsHTTPRoute                  bool
-	IsGRPCRoute                  bool
-	IsHTTPRouteAction            bool
-	IsRedirectAction             bool
-	IsDirectResponseAction       bool
-	IsGRPCRouteAction            bool
-	IsGRPCStatusResponseAction   bool
-	IsRouteRBAC                  bool
-	IsVirtualHostRBAC            bool
-	IsDataSource                 bool
-	IsHTTPRouteActionHostRewrite bool
+	IsModifyRequestHeaders            bool
+	IsModifyResponseHeaders           bool
+	IsHTTPRoute                       bool
+	IsGRPCRoute                       bool
+	IsHTTPRouteAction                 bool
+	IsRedirectAction                  bool
+	IsDirectResponseAction            bool
+	IsGRPCRouteAction                 bool
+	IsGRPCStatusResponseAction        bool
+	IsRouteRBAC                       bool
+	IsVirtualHostRBAC                 bool
+	IsDataSource                      bool
+	IsHTTPRouteActionHostRewrite      bool
+	IsRateLimit                       bool
+	IsRateLimitAllRequests            bool
+	IsRateLimitRequestsPerIP          bool
+	IsHTTPRouteRateLimit              bool
+	IsHTTPRouteRateLimitAllRequests   bool
+	IsHTTPRouteRateLimitRequestsPerIP bool
+	IsGRPCRouteRateLimit              bool
+	IsGRPCRouteRateLimitAllRequests   bool
+	IsGRPCRouteRateLimitRequestsPerIP bool
 
 	BaseTemplate string
 
@@ -153,6 +162,12 @@ type resourceALBVirtualHostInfo struct {
 	AnyPrincipals                  string
 	RemoteIP                       string
 	RBACAction                     string
+	RateLimitRPS                   string
+	RateLimitRPM                   string
+	HTTPRouteRateLimitRPS          string
+	HTTPRouteRateLimitRPM          string
+	GRPCRouteRateLimitRPS          string
+	GRPCRouteRateLimitRPM          string
 }
 
 func albVirtualHostInfo() resourceALBVirtualHostInfo {
@@ -372,6 +387,34 @@ resource "yandex_alb_virtual_host" "test-vh" {
         {{if .IsHTTPRouteActionHostRewrite}}
         host_rewrite = "{{.HTTPRouteActionHostRewrite}}"
         {{end}}
+
+        {{if .IsHTTPRouteRateLimit}}
+          rate_limit {
+              {{ if .IsHTTPRouteRateLimitAllRequests }}
+                all_requests {
+                  {{if .HTTPRouteRateLimitRPS}}
+                    per_second = {{ .HTTPRouteRateLimitRPS }}
+                  {{end}}
+
+                  {{if .HTTPRouteRateLimitRPM}}
+                    per_minute = {{ .HTTPRouteRateLimitRPM }}
+                  {{end}}
+                }
+              {{end}}
+
+              {{if .IsHTTPRouteRateLimitRequestsPerIP}}
+                requests_per_ip {
+                  {{if .HTTPRouteRateLimitRPS}}
+                    per_second = {{ .HTTPRouteRateLimitRPS }}
+                  {{end}}
+
+                  {{if .HTTPRouteRateLimitRPM}}
+                    per_minute = {{ .HTTPRouteRateLimitRPM }}
+                  {{end}}
+                }
+              {{end}}
+          }
+        {{end}}
       }
       {{end}}
       {{if .IsDirectResponseAction}}
@@ -399,6 +442,34 @@ resource "yandex_alb_virtual_host" "test-vh" {
         backend_group_id = yandex_alb_backend_group.test-bg.id
         max_timeout = "{{.GRPCRouteActionTimeout}}"
         auto_host_rewrite = {{.GRPCRouteActionAutoHostRewrite}}
+
+        {{if .IsGRPCRouteRateLimit}}
+          rate_limit {
+              {{ if .IsGRPCRouteRateLimitAllRequests }}
+                all_requests {
+                  {{if .GRPCRouteRateLimitRPS}}
+                    per_second = {{ .GRPCRouteRateLimitRPS }}
+                  {{end}}
+
+                  {{if .GRPCRouteRateLimitRPM}}
+                    per_minute = {{ .GRPCRouteRateLimitRPM }}
+                  {{end}}
+                }
+              {{end}}
+
+              {{if .IsGRPCRouteRateLimitRequestsPerIP}}
+                requests_per_ip {
+                  {{if .GRPCRouteRateLimitRPS}}
+                    per_second = {{ .GRPCRouteRateLimitRPS }}
+                  {{end}}
+
+                  {{if .GRPCRouteRateLimitRPM}}
+                    per_minute = {{ .GRPCRouteRateLimitRPM }}
+                  {{end}}
+                }
+              {{end}}
+          }
+        {{end}}
       }
       {{end}}
       {{if .IsGRPCStatusResponseAction}}
@@ -409,6 +480,34 @@ resource "yandex_alb_virtual_host" "test-vh" {
     }
     {{end}}
   }
+  {{end}}
+
+  {{if .IsRateLimit}}
+    rate_limit {
+        {{ if .IsRateLimitAllRequests }}
+          all_requests {
+            {{if .RateLimitRPS}}
+              per_second = {{ .RateLimitRPS }}
+            {{end}}
+
+            {{if .RateLimitRPM}}
+              per_minute = {{ .RateLimitRPM }}
+            {{end}}
+          }
+        {{end}}
+
+        {{if .IsRateLimitRequestsPerIP}}
+          requests_per_ip {
+            {{if .RateLimitRPS}}
+              per_second = {{ .RateLimitRPS }}
+            {{end}}
+
+            {{if .RateLimitRPM}}
+              per_minute = {{ .RateLimitRPM }}
+            {{end}}
+          }
+        {{end}}
+    }
   {{end}}
 }
 {{ if or .IsHTTPRoute .IsGRPCRoute }}

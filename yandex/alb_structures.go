@@ -100,6 +100,80 @@ func expandALBModification(d *schema.ResourceData, path string) (*apploadbalance
 	return modification, nil
 }
 
+func expandALBRateLimit(pathPrefix string, d *schema.ResourceData) (*apploadbalancer.RateLimit, error) {
+	var result *apploadbalancer.RateLimit
+
+	sizeValue, ok := d.GetOk(fmt.Sprintf("%v%v.#", pathPrefix, rateLimitSchemaKey))
+	if !ok {
+		return result, nil
+	}
+
+	size := sizeValue.(int)
+	if size == 0 {
+		return result, nil
+	}
+
+	if size > 1 {
+		return nil, fmt.Errorf("too many rate limit objects, expected at most 1 got %v instead", size)
+	}
+
+	result = &apploadbalancer.RateLimit{}
+
+	allRequests, err := expandALBLimit(
+		fmt.Sprintf("%v%v.0.%v", pathPrefix, rateLimitSchemaKey, allRequestsSchemaKey), d,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	result.AllRequests = allRequests
+
+	requestsPerIP, err := expandALBLimit(
+		fmt.Sprintf("%v%v.0.%v", pathPrefix, rateLimitSchemaKey, requestsPerIPSchemaKey), d,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	result.RequestsPerIp = requestsPerIP
+
+	return result, nil
+}
+
+func expandALBLimit(limitPath string, d *schema.ResourceData) (*apploadbalancer.RateLimit_Limit, error) {
+	sizeValue, ok := d.GetOk(fmt.Sprintf("%v.#", limitPath))
+	if !ok {
+		return nil, nil
+	}
+
+	size := sizeValue.(int)
+	if size == 0 {
+		return nil, nil
+	}
+
+	if size > 1 {
+		return nil, fmt.Errorf("too many limit objects, expected at most 1 got %v instead", size)
+	}
+
+	result := &apploadbalancer.RateLimit_Limit{}
+
+	perSecondValue, ok := d.GetOk(fmt.Sprintf("%v.0.%v", limitPath, perSecondSchemaKey))
+	if ok {
+		result.Rate = &apploadbalancer.RateLimit_Limit_PerSecond{
+			PerSecond: int64(perSecondValue.(int)),
+		}
+	}
+
+	perMinuteValue, ok := d.GetOk(fmt.Sprintf("%v.0.%v", limitPath, perMinuteSchemaKey))
+	if ok {
+		result.Rate = &apploadbalancer.RateLimit_Limit_PerMinute{
+			PerMinute: int64(perMinuteValue.(int)),
+		}
+	}
+
+	return result, nil
+}
+
 func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
 	var routes []*apploadbalancer.Route
 
@@ -432,10 +506,17 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 		routeAction.SetAutoHostRewrite(autoHostRewrite.(bool))
 	}
 
+	rateLimit, err := expandALBRateLimit(path, d)
+	if err != nil {
+		return nil, err
+	}
+
+	routeAction.RateLimit = rateLimit
+
 	return routeAction, nil
 }
 
-func expandALBGRPCRouteAction(d *schema.ResourceData, path string) *apploadbalancer.GrpcRouteAction {
+func expandALBGRPCRouteAction(d *schema.ResourceData, path string) (*apploadbalancer.GrpcRouteAction, error) {
 	routeAction := &apploadbalancer.GrpcRouteAction{}
 
 	if val, ok := d.GetOk(path + "backend_group_id"); ok {
@@ -463,7 +544,15 @@ func expandALBGRPCRouteAction(d *schema.ResourceData, path string) *apploadbalan
 	if val, ok := d.GetOk(path + "auto_host_rewrite"); ok {
 		routeAction.SetAutoHostRewrite(val.(bool))
 	}
-	return routeAction
+
+	rateLimit, err := expandALBRateLimit(path, d)
+	if err != nil {
+		return nil, err
+	}
+
+	routeAction.RateLimit = rateLimit
+
+	return routeAction, nil
 }
 
 func expandALBHTTPRouteMatch(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteMatch, error) {
@@ -508,7 +597,12 @@ func expandALBGRPCRoute(d *schema.ResourceData, path string) (*apploadbalancer.G
 		return nil, fmt.Errorf("Either gRPC route action or gRPC status response action should be specified for the gRPC route")
 	}
 	if gotGRPCRouteAction {
-		grpcRoute.SetRoute(expandALBGRPCRouteAction(d, path+"grpc_route_action.0."))
+		routeAction, err := expandALBGRPCRouteAction(d, path+"grpc_route_action.0.")
+		if err != nil {
+			return nil, err
+		}
+
+		grpcRoute.SetRoute(routeAction)
 	}
 	if gotGRPCStatusResponseAction {
 		status, err := expandALBGRPCStatusResponseAction(gRPCStatusResponseAction)
@@ -1658,6 +1752,42 @@ func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModific
 	return result, nil
 }
 
+func flattenALBRateLimit(rateLimit *apploadbalancer.RateLimit) []map[string]interface{} {
+	if rateLimit == nil {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+
+	if allRequests := rateLimit.GetAllRequests(); allRequests != nil {
+		result[allRequestsSchemaKey] = []map[string]interface{}{flattenALBLimit(allRequests)}
+	}
+
+	if requestsPerIP := rateLimit.GetRequestsPerIp(); requestsPerIP != nil {
+		result[requestsPerIPSchemaKey] = []map[string]interface{}{flattenALBLimit(requestsPerIP)}
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func flattenALBLimit(limit *apploadbalancer.RateLimit_Limit) map[string]interface{} {
+	if limit == nil {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+
+	if limit.GetPerSecond() != 0 {
+		result[perSecondSchemaKey] = int(limit.GetPerSecond())
+	}
+
+	if limit.GetPerMinute() != 0 {
+		result[perMinuteSchemaKey] = int(limit.GetPerMinute())
+	}
+
+	return result
+}
+
 func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 
@@ -1791,6 +1921,7 @@ func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interfac
 				"backend_group_id": routeAction.BackendGroupId,
 				"max_timeout":      formatDuration(routeAction.MaxTimeout),
 				"idle_timeout":     formatDuration(routeAction.IdleTimeout),
+				rateLimitSchemaKey: flattenALBRateLimit(routeAction.RateLimit),
 			},
 		}
 		switch routeAction.GetHostRewriteSpecifier().(type) {
@@ -1862,6 +1993,7 @@ func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interfac
 				"idle_timeout":     formatDuration(routeAction.IdleTimeout),
 				"prefix_rewrite":   routeAction.PrefixRewrite,
 				"upgrade_types":    routeAction.GetUpgradeTypes(),
+				rateLimitSchemaKey: flattenALBRateLimit(routeAction.RateLimit),
 			},
 		}
 
