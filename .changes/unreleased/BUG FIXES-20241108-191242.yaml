@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'clickhouse: fixed adding two hosts with same zone instead of one'
+time: 2024-11-08T19:12:42.645196338+03:00
