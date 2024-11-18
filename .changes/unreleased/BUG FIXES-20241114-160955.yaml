@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'ClickHouse: fix yandex_mdb_clickhouse_cluster segfault on empty kafka settings'
+time: 2024-11-14T16:09:55.183451597+03:00

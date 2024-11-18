@@ -667,6 +667,10 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 }
 
 func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *clickhouseConfig.ClickhouseConfig_Kafka) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	res["security_protocol"] = c.SecurityProtocol.String()
@@ -709,6 +713,10 @@ func flattenClickhouseKafkaTopicsSettings(d *schema.ResourceData, c []*clickhous
 }
 
 func flattenClickhouseRabbitmqSettings(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfig_Rabbitmq) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	res["username"] = c.Username
@@ -791,6 +799,10 @@ func flattenClickhouseQueryMaskingRulesSettings(c []*clickhouseConfig.Clickhouse
 }
 
 func flattenClickhouseQueryCacheSettings(c *clickhouseConfig.ClickhouseConfig_QueryCache) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	if c.MaxSizeInBytes != nil {
