@@ -54,8 +54,6 @@ func sweepVPCRouteTableOnce(conf *Config, id string) error {
 }
 
 func TestAccVPCRouteTable_basic(t *testing.T) {
-	t.Parallel()
-
 	var routeTable1 vpc.RouteTable
 	var routeTable2 vpc.RouteTable
 
@@ -98,8 +96,6 @@ func TestAccVPCRouteTable_basic(t *testing.T) {
 }
 
 func TestAccVPCRouteTable_update(t *testing.T) {
-	t.Parallel()
-
 	var network vpc.Network
 	var gateway vpc.Gateway
 	var routeTable1 vpc.RouteTable
@@ -184,8 +180,6 @@ func TestAccVPCRouteTable_update(t *testing.T) {
 }
 
 func TestAccVPCRouteTable_updateGatewayToNextHopAddress(t *testing.T) {
-	t.Parallel()
-
 	var network vpc.Network
 	var gateway vpc.Gateway
 	var routeTable1 vpc.RouteTable

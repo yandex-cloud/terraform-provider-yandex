@@ -104,13 +104,19 @@ func securityGroupRuleToState(ctx context.Context, rule *vpc.SecurityGroupRule, 
 
 	v4Cidrs, v6Cidrs := security_group.SplitCidrs(rule.GetCidrBlocks())
 
-	state.V4CidrBlocks, diags = security_group.NullableStringSliceToList(ctx, v4Cidrs)
+	v4CidrBlocks, diags := security_group.NullableStringSliceToList(ctx, v4Cidrs)
 	if diags.HasError() {
 		return diags
 	}
-	state.V6CidrBlocks, diags = security_group.NullableStringSliceToList(ctx, v6Cidrs)
+	if state.V4CidrBlocks.IsUnknown() || !v4CidrBlocks.IsNull() {
+		state.V4CidrBlocks = v4CidrBlocks
+	}
+	v6CidrBlocks, diags := security_group.NullableStringSliceToList(ctx, v6Cidrs)
 	if diags.HasError() {
 		return diags
+	}
+	if state.V6CidrBlocks.IsUnknown() || !v6CidrBlocks.IsNull() {
+		state.V6CidrBlocks = v6CidrBlocks
 	}
 
 	return diags

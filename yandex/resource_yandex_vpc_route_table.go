@@ -289,6 +289,10 @@ func resourceYandexVPCRouteTableHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
+	if v, ok := m["gateway_id"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
 	if v, ok := m["destination_prefix"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
