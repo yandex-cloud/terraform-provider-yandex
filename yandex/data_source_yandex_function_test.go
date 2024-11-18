@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -63,6 +64,75 @@ func TestAccDataSourceYandexFunction_byName(t *testing.T) {
 					resource.TestCheckResourceAttr(functionDataSource, "description", functionDesc),
 					resource.TestCheckResourceAttrSet(functionDataSource, "folder_id"),
 					testAccCheckCreatedAtAttr(functionDataSource),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceYandexFunction_noVersion(t *testing.T) {
+	t.Parallel()
+
+	var function functions.Function
+	tfName := "test-function"
+	resourcePath := "yandex_function." + tfName
+	dataSourcePath := "data.yandex_function." + tfName
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: func() string {
+					sb := &strings.Builder{}
+					testWriteResourceYandexFunction(
+						sb,
+						tfName,
+						acctest.RandomWithPrefix("tf-function"),
+						"user_hash",
+						128,
+						"main",
+						"python37",
+						"test-fixtures/serverless/main.zip",
+						testResourceYandexFunctionOptionFactory.WithDescription(acctest.RandomWithPrefix("tf-function-desc")),
+						testResourceYandexFunctionOptionFactory.WithExecutionTimeout("-3"),
+					)
+					testWriteDataSourceYandexFunction(
+						sb,
+						tfName,
+						testDataSourceYandexFunctionOptionFactory.WithFunctionID("${"+resourcePath+".id}"),
+					)
+					return sb.String()
+				}(),
+				Check: resource.ComposeTestCheckFunc(
+					// function exists
+					testYandexFunctionExists(resourcePath, &function),
+					// function version not exists
+					testYandexFunctionNoVersionsExists(resourcePath),
+					// all function attributes are set
+					resource.TestCheckResourceAttrPtr(dataSourcePath, "function_id", &function.Id),
+					resource.TestCheckResourceAttrPtr(dataSourcePath, "name", &function.Name),
+					resource.TestCheckResourceAttrPtr(dataSourcePath, "description", &function.Description),
+					resource.TestCheckResourceAttrPtr(dataSourcePath, "folder_id", &function.FolderId),
+					testAccCheckCreatedAtAttr(dataSourcePath),
+					// all version attributes are not set
+					resource.TestCheckNoResourceAttr(dataSourcePath, "runtime"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "entrypoint"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "memory"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "execution_timeout"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "service_account_id"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "environment"),
+					resource.TestCheckResourceAttr(dataSourcePath, "tags.%", "0"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "secrets"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "storage_mounts"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "mounts"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "version"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "connectivity"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "async_invocation"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "log_options"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "tmpfs_size"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "concurrency"),
 				),
 			},
 		},
@@ -379,4 +449,52 @@ resource "yandex_logging_group" "logging-group" {
 		params.secret.secretName,
 		params.secret.secretKey,
 		params.secret.secretValue)
+}
+
+type testDataSourceYandexFunctionOptions struct {
+	name       *string
+	functionID *string
+}
+
+type testDataSourceYandexFunctionOption func(o *testDataSourceYandexFunctionOptions)
+
+type testDataSourceYandexFunctionOptionFactoryImpl bool
+
+const testDataSourceYandexFunctionOptionFactory = testDataSourceYandexFunctionOptionFactoryImpl(true)
+
+func (testDataSourceYandexFunctionOptionFactoryImpl) WithName(name string) testDataSourceYandexFunctionOption {
+	return func(o *testDataSourceYandexFunctionOptions) {
+		o.name = &name
+	}
+}
+
+func (testDataSourceYandexFunctionOptionFactoryImpl) WithFunctionID(functionID string) testDataSourceYandexFunctionOption {
+	return func(o *testDataSourceYandexFunctionOptions) {
+		o.functionID = &functionID
+	}
+}
+
+func testWriteDataSourceYandexFunction(
+	sb *strings.Builder,
+	resourceName string,
+	options ...testDataSourceYandexFunctionOption,
+) {
+	var o testDataSourceYandexFunctionOptions
+	for _, option := range options {
+		option(&o)
+	}
+
+	fprintfLn := func(sb *strings.Builder, format string, a ...any) {
+		_, _ = fmt.Fprintf(sb, format, a...)
+		sb.WriteRune('\n')
+	}
+
+	fprintfLn(sb, "data \"yandex_function\" \"%s\" {", resourceName)
+	if name := o.name; name != nil {
+		fprintfLn(sb, "  name = \"%s\"", *name)
+	}
+	if functionID := o.functionID; functionID != nil {
+		fprintfLn(sb, "  function_id = \"%s\"", *functionID)
+	}
+	fprintfLn(sb, "}")
 }

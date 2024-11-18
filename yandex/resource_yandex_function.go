@@ -15,11 +15,14 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes/duration"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 )
 
 const yandexFunctionDefaultTimeout = 10 * time.Minute
@@ -27,13 +30,13 @@ const versionCreateSourceContentMaxBytes = 3670016
 
 func resourceYandexFunction() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceYandexFunctionCreate,
-		Read:          resourceYandexFunctionRead,
-		Update:        resourceYandexFunctionUpdate,
-		Delete:        resourceYandexFunctionDelete,
+		CreateContext: resourceYandexFunctionCreate,
+		ReadContext:   resourceYandexFunctionRead,
+		UpdateContext: resourceYandexFunctionUpdate,
+		DeleteContext: resourceYandexFunctionDelete,
 		CustomizeDiff: resourceYandexFunctionCustomizeDiff,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -392,25 +395,25 @@ func resourceYandexFunction() *schema.Resource {
 	}
 }
 
-func resourceYandexFunctionCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexFunctionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error expanding labels while creating Yandex Cloud Function: %s", err)
 	}
 
 	versionReq, err := expandLastVersion(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error getting folder ID while creating Yandex Cloud Function: %s", err)
 	}
 
 	req := functions.CreateFunctionRequest{
@@ -422,51 +425,71 @@ func resourceYandexFunctionCreate(d *schema.ResourceData, meta interface{}) erro
 
 	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Functions().Function().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
 	}
 
 	md, ok := protoMetadata.(*functions.CreateFunctionMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get Yandex Cloud Function ID from create operation metadata")
+		return diag.Errorf("Could not get Yandex Cloud Function ID from create operation metadata")
 	}
 
 	d.SetId(md.FunctionId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
 	}
 
+	var diags diag.Diagnostics
 	if versionReq != nil {
 		versionReq.FunctionId = md.FunctionId
-		op, err = config.sdk.WrapOperation(config.sdk.Serverless().Functions().Function().CreateVersion(ctx, versionReq))
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to create version for Yandex Cloud Function: %s", err)
-		}
-
-		err = op.Wait(ctx)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to create version for Yandex Cloud Function: %s", err)
-		}
+		diags = resourceYandexFunctionDiagsFromCreateVersionError(
+			resourceYandexFunctionCreateVersion(ctx, config.sdk, versionReq),
+		)
 	}
 
-	return resourceYandexFunctionRead(d, meta)
+	return append(diags, resourceYandexFunctionRead(ctx, d, meta)...)
 }
 
-func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexFunctionDiagsFromCreateVersionError(err error) diag.Diagnostics {
+	if err == nil {
+		return nil
+	}
+	return diag.Diagnostics{diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Failed to create version for Yandex Cloud Function",
+		Detail: "Error while requesting API to create version for Yandex Cloud Function. " +
+			"After resolving following issues apply resource again to create version for Yandex Cloud Function:\n" +
+			err.Error(),
+	}}
+}
+
+func resourceYandexFunctionCreateVersion(
+	ctx context.Context,
+	sdk *ycsdk.SDK,
+	req *functions.CreateFunctionVersionRequest,
+) error {
+	op, err := sdk.WrapOperation(sdk.Serverless().Functions().Function().CreateVersion(ctx, req))
+	if err != nil {
+		return err
+	}
+	return op.Wait(ctx)
+}
+
+func resourceYandexFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while updating Yandex Cloud Function: %s", err)
+		return diag.Errorf("Error expanding labels while updating Yandex Cloud Function: %s", err)
 	}
 
 	d.Partial(true)
@@ -500,7 +523,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 	if len(versionPartialPaths) != 0 {
 		versionReq, err = expandLastVersion(d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -516,33 +539,27 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 		op, err := config.sdk.Serverless().Functions().Function().Update(ctx, &req)
 		err = waitOperation(ctx, config, op, err)
 		if err != nil {
-			return fmt.Errorf("Error while requesting API to update Yandex Cloud Function: %s", err)
+			return diag.Errorf("Error while requesting API to update Yandex Cloud Function: %s", err)
 		}
 
 	}
 
+	var diags diag.Diagnostics
 	if versionReq != nil {
 		versionReq.FunctionId = d.Id()
-		op, err := config.sdk.WrapOperation(config.sdk.Serverless().Functions().Function().CreateVersion(ctx, versionReq))
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to create version for Yandex Cloud Function: %s", err)
-		}
-
-		err = op.Wait(ctx)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to create version for Yandex Cloud Function: %s", err)
-		}
-
+		diags = resourceYandexFunctionDiagsFromCreateVersionError(
+			resourceYandexFunctionCreateVersion(ctx, config.sdk, versionReq),
+		)
 	}
 	d.Partial(false)
 
-	return resourceYandexFunctionRead(d, meta)
+	return append(diags, resourceYandexFunctionRead(ctx, d, meta)...)
 }
 
-func resourceYandexFunctionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexFunctionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	req := functions.GetFunctionRequest{
@@ -551,26 +568,36 @@ func resourceYandexFunctionRead(d *schema.ResourceData, meta interface{}) error 
 
 	function, err := config.sdk.Serverless().Functions().Function().Get(ctx, &req)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id())))
 	}
 
-	versionReq := functions.GetFunctionVersionByTagRequest{
-		FunctionId: d.Id(),
-		Tag:        "$latest",
-	}
-
-	version, err := config.sdk.Serverless().Functions().Function().GetVersionByTag(ctx, &versionReq)
+	version, err := resolveFunctionLatestVersion(ctx, config, function.GetId())
 	if err != nil {
-		return err
+		return diag.Errorf("Failed to get latest version of Yandex Function: %s", err)
 	}
 
-	return flattenYandexFunction(d, function, version, false)
+	return diag.FromErr(flattenYandexFunction(d, function, version, false))
 }
 
-func resourceYandexFunctionDelete(d *schema.ResourceData, meta interface{}) error {
+func resolveFunctionLatestVersion(ctx context.Context, config *Config, functionID string) (*functions.Version, error) {
+	versionReq := functions.GetFunctionVersionByTagRequest{
+		FunctionId: functionID,
+		Tag:        "$latest",
+	}
+	version, err := config.sdk.Serverless().Functions().Function().GetVersionByTag(ctx, &versionReq)
+	if err != nil {
+		if !isStatusWithCode(err, codes.NotFound) {
+			return nil, err
+		}
+		return nil, nil
+	}
+	return version, nil
+}
+
+func resourceYandexFunctionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	req := functions.DeleteFunctionRequest{
@@ -580,7 +607,7 @@ func resourceYandexFunctionDelete(d *schema.ResourceData, meta interface{}) erro
 	op, err := config.sdk.Serverless().Functions().Function().Delete(ctx, &req)
 	err = waitOperation(ctx, config, op, err)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id())))
 	}
 
 	return nil

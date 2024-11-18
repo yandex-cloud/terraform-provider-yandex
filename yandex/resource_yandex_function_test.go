@@ -113,6 +113,60 @@ func TestAccYandexFunction_update(t *testing.T) {
 	})
 }
 
+func TestAccYandexFunction_updateAfterVersionCreateError(t *testing.T) {
+	t.Parallel()
+
+	var functionFirstApply functions.Function
+	var functionSecondApply functions.Function
+	var version *functions.Version
+	resourceName := "test-function"
+	resourcePath := "yandex_function." + resourceName
+	functionName := acctest.RandomWithPrefix("tf-function")
+
+	newConfig := func(executionTimeout string) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexFunction(
+			sb,
+			resourceName,
+			functionName,
+			"user_hash",
+			128,
+			"main",
+			"python37",
+			"test-fixtures/serverless/main.zip",
+			testResourceYandexFunctionOptionFactory.WithExecutionTimeout(executionTimeout),
+		)
+		return sb.String()
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: newConfig("-3"),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionExists(resourcePath, &functionFirstApply),
+					testYandexFunctionNoVersionsExists(resourcePath),
+				),
+			},
+			{
+				Config: newConfig("3"),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionExists(resourcePath, &functionSecondApply),
+					func(*terraform.State) error {
+						if functionFirstApply.GetId() != functionSecondApply.GetId() {
+							return fmt.Errorf("Must not create new function")
+						}
+						return nil
+					},
+					testYandexFunctionVersionExists(resourcePath, &version),
+				),
+			},
+		},
+	})
+}
+
 func TestAccYandexFunction_full(t *testing.T) {
 	t.Parallel()
 
@@ -290,23 +344,22 @@ func TestAccYandexFunction_logOptions(t *testing.T) {
 	var logGroupID string
 	var function functions.Function
 	var version *functions.Version
-	name := acctest.RandomWithPrefix("tf-function-log-options")
 	resourceName := "test-function"
 	resourcePath := "yandex_function." + resourceName
+	functionName := acctest.RandomWithPrefix("tf-function-log-options")
 
 	newConfig := func(extraOptions ...testResourceYandexFunctionOption) string {
 		sb := &strings.Builder{}
 		testWriteResourceYandexFunction(
 			sb,
 			resourceName,
+			functionName,
 			"user_hash",
 			128,
 			"main",
 			"python37",
 			"test-fixtures/serverless/main.zip",
-			append([]testResourceYandexFunctionOption{
-				testResourceYandexFunctionOptionFactory.WithName(name),
-			}, extraOptions...)...,
+			extraOptions...,
 		)
 		sb.WriteString(`resource "yandex_logging_group" "logging-group" {` + "\n")
 		sb.WriteString(`}` + "\n")
@@ -418,7 +471,7 @@ func TestAccYandexFunction_logOptions(t *testing.T) {
 			func(s *terraform.State) error {
 				rs, ok := s.RootModule().Resources["yandex_logging_group.logging-group"]
 				if !ok {
-					return fmt.Errorf("Not found: %s", name)
+					return fmt.Errorf("Not found: yandex_logging_group.logging-group")
 				}
 				if rs.Primary.ID == "" {
 					return fmt.Errorf("No ID is set")
@@ -633,6 +686,53 @@ func testGetFunctionVersionByID(config *Config, ID string) (*functions.Version, 
 		FunctionVersionId: ID,
 	}
 	return config.sdk.Serverless().Functions().Function().GetVersion(context.Background(), &req)
+}
+
+func testYandexFunctionNoVersionsExists(resourcePath string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourcePath]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourcePath)
+		}
+
+		primary := rs.Primary
+		if primary == nil {
+			return fmt.Errorf("Primary instance not found within resource %s", resourcePath)
+		}
+
+		functionID := primary.ID
+		if functionID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		versions, err := testListFunctionVersionsByFunctionID(config, functionID)
+		if err != nil {
+			return fmt.Errorf("Error while getting Yandex Function versions: %s", err.Error())
+		}
+
+		if len(versions) > 0 {
+			versionsIDs := make([]string, 0, len(versions))
+			for _, version := range versions {
+				versionsIDs = append(versionsIDs, version.GetId())
+			}
+			return fmt.Errorf("Function has version(s): %s, while expected it has none", strings.Join(versionsIDs, ", "))
+		}
+
+		return nil
+	}
+}
+
+func testListFunctionVersionsByFunctionID(config *Config, functionID string) ([]*functions.Version, error) {
+	req := functions.ListFunctionsVersionsRequest{
+		Id: &functions.ListFunctionsVersionsRequest_FunctionId{FunctionId: functionID},
+	}
+	resp, err := config.sdk.Serverless().Functions().Function().ListVersions(context.Background(), &req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Versions, nil
 }
 
 func testYandexFunctionContainsLabel(function *functions.Function, key string, value string) resource.TestCheckFunc {
@@ -936,8 +1036,9 @@ resource "yandex_logging_group" "logging-group" {
 }
 
 type testResourceYandexFunctionOptions struct {
-	name       *string
-	logOptions *testResourceYandexFunctionOptionsLogOptions
+	description      *string
+	executionTimeout *string
+	logOptions       *testResourceYandexFunctionOptionsLogOptions
 }
 
 type testResourceYandexFunctionOptionsLogOptions struct {
@@ -953,9 +1054,15 @@ type testResourceYandexFunctionOptionFactoryImpl bool
 
 const testResourceYandexFunctionOptionFactory = testResourceYandexFunctionOptionFactoryImpl(true)
 
-func (testResourceYandexFunctionOptionFactoryImpl) WithName(name string) testResourceYandexFunctionOption {
+func (testResourceYandexFunctionOptionFactoryImpl) WithDescription(description string) testResourceYandexFunctionOption {
 	return func(o *testResourceYandexFunctionOptions) {
-		o.name = &name
+		o.description = &description
+	}
+}
+
+func (testResourceYandexFunctionOptionFactoryImpl) WithExecutionTimeout(executionTimeout string) testResourceYandexFunctionOption {
+	return func(o *testResourceYandexFunctionOptions) {
+		o.executionTimeout = &executionTimeout
 	}
 }
 
@@ -978,6 +1085,7 @@ func (testResourceYandexFunctionOptionFactoryImpl) WithLogOptions(
 func testWriteResourceYandexFunction(
 	sb *strings.Builder,
 	resourceName string,
+	functionName string,
 	userHash string,
 	memoryMiB uint,
 	entrypoint string,
@@ -996,13 +1104,17 @@ func testWriteResourceYandexFunction(
 	}
 
 	fprintfLn(sb, "resource \"yandex_function\" \"%s\" {", resourceName)
-	if name := o.name; name != nil {
-		fprintfLn(sb, "  name = \"%s\"", *name)
+	fprintfLn(sb, "  name = \"%s\"", functionName)
+	if description := o.description; description != nil {
+		fprintfLn(sb, "  description = \"%s\"", *description)
 	}
 	fprintfLn(sb, "  user_hash = \"%s\"", userHash)
 	fprintfLn(sb, "  runtime = \"%s\"", runtime)
 	fprintfLn(sb, "  entrypoint = \"%s\"", entrypoint)
 	fprintfLn(sb, "  memory = \"%d\"", memoryMiB)
+	if executionTimeout := o.executionTimeout; executionTimeout != nil {
+		fprintfLn(sb, "  execution_timeout = \"%s\"", *executionTimeout)
+	}
 	fprintfLn(sb, "  content {")
 	fprintfLn(sb, "    zip_filename = \"%s\"", zipFilename)
 	fprintfLn(sb, "  }")

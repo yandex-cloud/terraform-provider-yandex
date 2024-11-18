@@ -95,6 +95,14 @@ func (c *Config) ContextWithTimeout(timeout time.Duration) (context.Context, con
 	return context.WithTimeout(c.contextWithClientTraceID, timeout)
 }
 
+// this function adds client trace id to provided context
+func (c *Config) ContextWithClientTraceID(ctx context.Context) context.Context {
+	if md, ok := metadata.FromOutgoingContext(c.contextWithClientTraceID); ok && md != nil {
+		ctx = metadata.NewOutgoingContext(ctx, md)
+	}
+	return ctx
+}
+
 // Client configures and returns a fully initialized Yandex.Cloud sdk
 func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string, sweeper bool) error {
 	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
