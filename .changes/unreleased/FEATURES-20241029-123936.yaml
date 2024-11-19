@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'alb: add `idle_timeout` attribute for Stream and TLS Stream handlers'
-time: 2024-10-29T12:39:36.52610803+03:00
