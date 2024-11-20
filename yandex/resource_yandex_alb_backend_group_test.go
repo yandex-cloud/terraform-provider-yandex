@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const albBGResource = "yandex_alb_backend_group.test-bg"
@@ -1147,6 +1148,323 @@ func TestAccALBBackendGroup_grpcBackendWithEmptyStreamHealthCheck(t *testing.T) 
 			albBackendGroupImportStep(),
 		},
 	})
+}
+
+func TestAcceptanceALBBackendGroup_StreamBackend(t *testing.T) {
+	t.Parallel()
+
+	backendPath := ""
+	var bg apploadbalancer.BackendGroup
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "keep_connections_on_host_health_failure set to false",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBBackendGroupDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBBackendGroupConfig_basic(func() resourceALBBackendGroupInfo {
+							result := albBackendGroupInfo()
+
+							result.IsStreamBackend = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBBackendGroupExists(albBGResource, &bg),
+							testAccCheckALBBackendGroupValues(&bg, false, false, true),
+							testExistsFirstElementWithAttr(
+								albBGResource, "stream_backend", "name", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "stream_backend", keepConnectionsOnHostHealthFailureSchemaKey, "false", &backendPath,
+							),
+						),
+					},
+					albBackendGroupImportStep(),
+				},
+			},
+		},
+		{
+			name: "keep_connections_on_host_health_failure set to true",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBBackendGroupDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBBackendGroupConfig_basic(func() resourceALBBackendGroupInfo {
+							result := albBackendGroupInfo()
+
+							result.IsStreamBackend = true
+							result.KeepConnectionsOnHostHealthFailure = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBBackendGroupExists(albBGResource, &bg),
+							testAccCheckALBBackendGroupValues(&bg, false, false, true),
+							testExistsFirstElementWithAttr(
+								albBGResource, "stream_backend", "name", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "stream_backend", keepConnectionsOnHostHealthFailureSchemaKey, "true", &backendPath,
+							),
+						),
+					},
+					albBackendGroupImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
+func Test_buildALBBackendGroupCreateRequest(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		config         map[string]interface{}
+		folderID       string
+		expectedResult *apploadbalancer.CreateBackendGroupRequest
+		expectErr      bool
+	}{
+		{
+			name:     "stream backend: keep_connections_on_host_health_failure set to false",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{
+						"name": "stream-backend",
+						keepConnectionsOnHostHealthFailureSchemaKey: false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:          "stream-backend",
+								BackendWeight: wrapperspb.Int64(1),
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name:     "stream backend: keep_connections_on_host_health_failure not set",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{"name": "stream-backend"},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:          "stream-backend",
+								BackendWeight: wrapperspb.Int64(1),
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name:     "stream backend: keep_connections_on_host_health_failure set to true",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{
+						"name": "stream-backend",
+						keepConnectionsOnHostHealthFailureSchemaKey: true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:                               "stream-backend",
+								BackendWeight:                      wrapperspb.Int64(1),
+								KeepConnectionsOnHostHealthFailure: true,
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resourceData := schema.TestResourceDataRaw(t, resourceYandexALBBackendGroup().Schema, testCase.config)
+
+			actualResult, err := buildALBBackendGroupCreateRequest(resourceData, testCase.folderID)
+
+			if testCase.expectErr {
+				assert.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expectedResult, actualResult)
+			}
+		})
+	}
+}
+
+func Test_buildALBBackendGroupUpdateRequest(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		config         map[string]interface{}
+		expectedResult *apploadbalancer.UpdateBackendGroupRequest
+		expectErr      bool
+	}{
+		{
+			name: "stream backend: keep_connections_on_host_health_failure set to false",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{
+						"name": "stream-backend",
+						keepConnectionsOnHostHealthFailureSchemaKey: false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:          "stream-backend",
+								BackendWeight: wrapperspb.Int64(1),
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name: "stream backend: keep_connections_on_host_health_failure not set",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{"name": "stream-backend"},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:          "stream-backend",
+								BackendWeight: wrapperspb.Int64(1),
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name: "stream backend: keep_connections_on_host_health_failure set to true",
+			config: map[string]interface{}{
+				"name":        "stream-backend-group",
+				"description": "some-description",
+				"stream_backend": []interface{}{
+					map[string]interface{}{
+						"name": "stream-backend",
+						keepConnectionsOnHostHealthFailureSchemaKey: true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "stream-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Stream{
+					Stream: &apploadbalancer.StreamBackendGroup{
+						Backends: []*apploadbalancer.StreamBackend{
+							{
+								Name:                               "stream-backend",
+								BackendWeight:                      wrapperspb.Int64(1),
+								KeepConnectionsOnHostHealthFailure: true,
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resourceData := schema.TestResourceDataRaw(t, resourceYandexALBBackendGroup().Schema, testCase.config)
+
+			actualResult, err := buildALBBackendGroupUpdateRequest(resourceData)
+
+			if testCase.expectErr {
+				assert.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expectedResult, actualResult)
+			}
+		})
+	}
 }
 
 func testAccCheckALBBackendGroupDestroy(s *terraform.State) error {

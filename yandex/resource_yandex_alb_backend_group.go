@@ -13,6 +13,8 @@ import (
 
 const yandexALBBackendGroupDefaultTimeout = 5 * time.Minute
 
+const keepConnectionsOnHostHealthFailureSchemaKey = "keep_connections_on_host_health_failure"
+
 func resourceYandexALBBackendGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexALBBackendGroupCreate,
@@ -132,6 +134,11 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							},
 						},
 						"enable_proxy_protocol": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						keepConnectionsOnHostHealthFailureSchemaKey: {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,

@@ -132,6 +132,11 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						keepConnectionsOnHostHealthFailureSchemaKey: {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},

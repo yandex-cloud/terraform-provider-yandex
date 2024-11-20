@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'alb: add keep_connections_on_host_health_failure flag to yandex_alb_backend_group stream backend.'
+time: 2024-11-20T13:06:42.913683+03:00

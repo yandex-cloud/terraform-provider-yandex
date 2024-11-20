@@ -1396,6 +1396,10 @@ func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalance
 		backend.SetEnableProxyProtocol(v.(bool))
 	}
 
+	if v, ok := d.GetOk(key + keepConnectionsOnHostHealthFailureSchemaKey); ok {
+		backend.SetKeepConnectionsOnHostHealthFailure(v.(bool))
+	}
+
 	return backend, nil
 }
 
@@ -2402,6 +2406,7 @@ func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, 
 			"load_balancing_config": flattenALBLoadBalancingConfig(b.GetLoadBalancingConfig()),
 			"healthcheck":           flattenALBHealthChecks(b.GetHealthchecks()),
 			"enable_proxy_protocol": b.GetEnableProxyProtocol(),
+			keepConnectionsOnHostHealthFailureSchemaKey: b.GetKeepConnectionsOnHostHealthFailure(),
 		}
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.StreamBackend_TargetGroups:

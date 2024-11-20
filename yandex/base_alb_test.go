@@ -236,16 +236,17 @@ func albHTTPRouterInfo() resourceALBHTTPRouterInfo {
 }
 
 type resourceALBBackendGroupInfo struct {
-	IsHTTPBackend     bool
-	IsGRPCBackend     bool
-	IsStreamBackend   bool
-	IsHTTPCheck       bool
-	IsGRPCCheck       bool
-	IsStreamCheck     bool
-	IsDataSource      bool
-	IsEmptyTLS        bool
-	IsStorageBackend  bool
-	UseHeaderAffinity bool
+	IsHTTPBackend                      bool
+	IsGRPCBackend                      bool
+	IsStreamBackend                    bool
+	IsHTTPCheck                        bool
+	IsGRPCCheck                        bool
+	IsStreamCheck                      bool
+	IsDataSource                       bool
+	IsEmptyTLS                         bool
+	IsStorageBackend                   bool
+	UseHeaderAffinity                  bool
+	KeepConnectionsOnHostHealthFailure bool
 
 	BaseTemplate string
 
@@ -826,6 +827,7 @@ EOF
     weight           = {{.BackendWeight}}
     port             = {{.Port}}
     enable_proxy_protocol = {{.ProxyProtocol}}
+    keep_connections_on_host_health_failure = {{.KeepConnectionsOnHostHealthFailure}}
     target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
     tls {
       {{ if not .IsEmptyTLS }}
