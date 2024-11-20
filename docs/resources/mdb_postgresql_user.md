@@ -80,7 +80,7 @@ The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
 
-The `settings` block supports: Full description https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/grpc/user_service#UserSettings1
+The `settings` block supports: [Full description](https://yandex.cloud/en-ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
 
 * `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
   - 0: "unspecified"
