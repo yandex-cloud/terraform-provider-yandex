@@ -23,7 +23,7 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
-					"6.2", true),
+					"7.2", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
@@ -37,7 +37,7 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
-					"7.0", true),
+					"7.2", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
@@ -62,7 +62,7 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
-					"6.2", false),
+					"7.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
@@ -76,7 +76,7 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
-					"7.0", false),
+					"7.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
@@ -127,6 +127,15 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.0.client_output_buffer_limit_pubsub",
 			"config.0.databases",
 			"config.0.maxmemory_percent",
+			"config.0.lua_time_limit",
+			"config.0.repl_backlog_size_percent",
+			"config.0.cluster_require_full_coverage",
+			"config.0.cluster_allow_reads_when_down",
+			"config.0.cluster_allow_pubsubshard_when_down",
+			"config.0.lfu_decay_time",
+			"config.0.lfu_log_factor",
+			"config.0.turn_before_switchover",
+			"config.0.allow_data_loss",
 			"config.0.version",
 			"security_group_ids",
 			"maintenance_window.0.type",
