@@ -152,6 +152,59 @@ func basicYandexServerlessContainerTestStep(containerName string, containerDesc 
 	}
 }
 
+func TestAccYandexServerlessContainer_updateAfterRevisionDeployError(t *testing.T) {
+	t.Parallel()
+
+	var containerFirstApply containers.Container
+	var containerSecondApply containers.Container
+	var revision containers.Revision
+	resourceName := "test-container"
+	resourcePath := "yandex_serverless_container." + resourceName
+	containerName := acctest.RandomWithPrefix("tf-container")
+
+	newConfig := func(options ...testResourceYandexServerlessContainerOption) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexServerlessContainer(
+			sb,
+			resourceName,
+			containerName,
+			128,
+			serverlessContainerTestImage1,
+			options...,
+		)
+		return sb.String()
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: newConfig(
+					testResourceYandexServerlessContainerOptionFactory.WithServiceAccountID("non-existent"),
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexServerlessContainerExists(resourcePath, &containerFirstApply),
+					testYandexServerlessContainerRevisionNotExists(resourcePath),
+				),
+			},
+			{
+				Config: newConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexServerlessContainerExists(resourcePath, &containerSecondApply),
+					func(*terraform.State) error {
+						if containerFirstApply.GetId() != containerSecondApply.GetId() {
+							return fmt.Errorf("Must not create new container")
+						}
+						return nil
+					},
+					testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+				),
+			},
+		},
+	})
+}
+
 func TestAccYandexServerlessContainer_full(t *testing.T) {
 	t.Parallel()
 
@@ -342,11 +395,10 @@ func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
 		testWriteResourceYandexServerlessContainer(
 			sb,
 			resourceName,
+			name,
 			128,
 			serverlessContainerTestImage1,
-			append([]testResourceYandexServerlessContainerOption{
-				testResourceYandexServerlessContainerOptionFactory.WithName(name),
-			}, extraOptions...)...,
+			extraOptions...,
 		)
 		sb.WriteString(`resource "yandex_logging_group" "logging-group" {` + "\n")
 		sb.WriteString(`}` + "\n")
@@ -608,6 +660,53 @@ func testYandexServerlessContainerRevisionExists(name string, revision *containe
 		*revision = *found
 		return nil
 	}
+}
+
+func testYandexServerlessContainerRevisionNotExists(resourcePath string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourcePath]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourcePath)
+		}
+
+		primary := rs.Primary
+		if primary == nil {
+			return fmt.Errorf("Primary instance not found within resource %s", resourcePath)
+		}
+
+		containerID := primary.ID
+		if containerID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		revisions, err := testListContainerRevisionsByContainerID(config, containerID)
+		if err != nil {
+			return fmt.Errorf("Error while getting Yandex Container Revisions: %s", err.Error())
+		}
+
+		if len(revisions) > 0 {
+			revisionsIDs := make([]string, 0, len(revisions))
+			for _, version := range revisions {
+				revisionsIDs = append(revisionsIDs, version.GetId())
+			}
+			return fmt.Errorf("Container has revision(s): %s, while expected it has none", strings.Join(revisionsIDs, ", "))
+		}
+
+		return nil
+	}
+}
+
+func testListContainerRevisionsByContainerID(config *Config, containerID string) ([]*containers.Revision, error) {
+	req := containers.ListContainersRevisionsRequest{
+		Id: &containers.ListContainersRevisionsRequest_ContainerId{ContainerId: containerID},
+	}
+	resp, err := config.sdk.Serverless().Containers().Container().ListRevisions(context.Background(), &req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Revisions, nil
 }
 
 func testGetServerlessContainerByID(config *Config, ID string) (*containers.Container, error) {
@@ -971,9 +1070,10 @@ resource "yandex_logging_group" "logging-group" {
 }
 
 type testResourceYandexServerlessContainerOptions struct {
-	name       *string
-	image      *testResourceYandexServerlessContainerOptionsImage
-	logOptions *testResourceYandexServerlessContainerOptionsLogOptions
+	description      *string
+	serviceAccountID *string
+	image            *testResourceYandexServerlessContainerOptionsImage
+	logOptions       *testResourceYandexServerlessContainerOptionsLogOptions
 }
 
 type testResourceYandexServerlessContainerOptionsImage struct {
@@ -993,9 +1093,15 @@ type testResourceYandexServerlessContainerOptionFactoryImpl bool
 
 const testResourceYandexServerlessContainerOptionFactory = testResourceYandexServerlessContainerOptionFactoryImpl(true)
 
-func (testResourceYandexServerlessContainerOptionFactoryImpl) WithName(name string) testResourceYandexServerlessContainerOption {
+func (testResourceYandexServerlessContainerOptionFactoryImpl) WithDescription(description string) testResourceYandexServerlessContainerOption {
 	return func(o *testResourceYandexServerlessContainerOptions) {
-		o.name = &name
+		o.description = &description
+	}
+}
+
+func (testResourceYandexServerlessContainerOptionFactoryImpl) WithServiceAccountID(serviceAccountID string) testResourceYandexServerlessContainerOption {
+	return func(o *testResourceYandexServerlessContainerOptions) {
+		o.serviceAccountID = &serviceAccountID
 	}
 }
 
@@ -1018,6 +1124,7 @@ func (testResourceYandexServerlessContainerOptionFactoryImpl) WithLogOptions(
 func testWriteResourceYandexServerlessContainer(
 	sb *strings.Builder,
 	resourceName string,
+	containerName string,
 	memoryMiB uint,
 	imageURL string,
 	options ...testResourceYandexServerlessContainerOption,
@@ -1035,10 +1142,14 @@ func testWriteResourceYandexServerlessContainer(
 	}
 
 	fprintfLn(sb, "resource \"yandex_serverless_container\" \"%s\" {", resourceName)
-	if name := o.name; name != nil {
-		fprintfLn(sb, "  name = \"%s\"", *name)
+	fprintfLn(sb, "  name = \"%s\"", containerName)
+	if description := o.description; description != nil {
+		fprintfLn(sb, "  description = \"%s\"", *description)
 	}
 	fprintfLn(sb, "  memory = %d", memoryMiB)
+	if serviceAccountID := o.serviceAccountID; serviceAccountID != nil {
+		fprintfLn(sb, "  service_account_id = \"%s\"", *serviceAccountID)
+	}
 	fprintfLn(sb, "  image {")
 	fprintfLn(sb, "    url = \"%s\"", o.image.url)
 	fprintfLn(sb, "  }")

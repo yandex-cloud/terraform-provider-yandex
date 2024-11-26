@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -17,10 +19,10 @@ const yandexServerlessContainerDefaultTimeout = 5 * time.Minute
 
 func resourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceYandexServerlessContainerCreate,
-		Read:          resourceYandexServerlessContainerRead,
-		Update:        resourceYandexServerlessContainerUpdate,
-		Delete:        resourceYandexServerlessContainerDelete,
+		CreateContext: resourceYandexServerlessContainerCreate,
+		ReadContext:   resourceYandexServerlessContainerRead,
+		UpdateContext: resourceYandexServerlessContainerUpdate,
+		DeleteContext: resourceYandexServerlessContainerDelete,
 		CustomizeDiff: resourceYandexServerlessContainerCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -386,25 +388,25 @@ func containerStorageMountToMount(storageMount map[string]interface{}) interface
 	return mount
 }
 
-func resourceYandexServerlessContainerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexServerlessContainerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error expanding labels while creating Yandex Cloud Container: %s", err)
 	}
 
 	revisionReq, err := expandLastRevision(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error getting folder ID while creating Yandex Cloud Container: %s", err)
 	}
 
 	req := containers.CreateContainerRequest{
@@ -415,45 +417,69 @@ func resourceYandexServerlessContainerCreate(d *schema.ResourceData, meta interf
 	}
 	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Containers().Container().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
 	}
 	md, ok := protoMetadata.(*containers.CreateContainerMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get Yandex Cloud Container ID from create operation metadata")
+		return diag.Errorf("Could not get Yandex Cloud Container ID from create operation metadata")
 	}
 	d.SetId(md.ContainerId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error while requesting API to create Yandex Cloud Container: %s", err)
 	}
 
+	var diags diag.Diagnostics
 	if revisionReq != nil {
 		revisionReq.ContainerId = md.ContainerId
-		op, err := config.sdk.Serverless().Containers().Container().DeployRevision(ctx, revisionReq)
-		err = waitOperation(ctx, config, op, err)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to deploy revision for Yandex Cloud Container: %s", err)
-		}
+		diags = resourceYandexServerlessContainerDiagsFromDeployRevisionError(
+			resourceYandexServerlessContainerDeployRevision(ctx, config.sdk, revisionReq),
+		)
 	}
 
-	return resourceYandexServerlessContainerRead(d, meta)
+	return append(diags, resourceYandexServerlessContainerRead(ctx, d, meta)...)
 }
 
-func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexServerlessContainerDiagsFromDeployRevisionError(err error) diag.Diagnostics {
+	if err == nil {
+		return nil
+	}
+	return diag.Diagnostics{diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Failed to deploy revision for Yandex Cloud Container",
+		Detail: "Error while requesting API to deploy revision for Yandex Cloud Container. " +
+			"After resolving following issues apply resource again to deploy revision for Yandex Cloud Container:\n" +
+			err.Error(),
+	}}
+}
+
+func resourceYandexServerlessContainerDeployRevision(
+	ctx context.Context,
+	sdk *ycsdk.SDK,
+	req *containers.DeployContainerRevisionRequest,
+) error {
+	op, err := sdk.WrapOperation(sdk.Serverless().Containers().Container().DeployRevision(ctx, req))
+	if err != nil {
+		return err
+	}
+	return op.Wait(ctx)
+}
+
+func resourceYandexServerlessContainerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while updating Yandex Cloud Container: %s", err)
+		return diag.Errorf("Error expanding labels while updating Yandex Cloud Container: %s", err)
 	}
 
 	d.Partial(true)
@@ -484,7 +510,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 	if len(revisionUpdatePaths) != 0 {
 		revisionReq, err = expandLastRevision(d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -500,42 +526,40 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 		op, err := config.sdk.Serverless().Containers().Container().Update(ctx, &req)
 		err = waitOperation(ctx, config, op, err)
 		if err != nil {
-			return fmt.Errorf("Error while requesting API to update Yandex Cloud Container: %s", err)
+			return diag.Errorf("Error while requesting API to update Yandex Cloud Container: %s", err)
 		}
 	}
 
+	var diags diag.Diagnostics
 	if revisionReq != nil {
 		revisionReq.ContainerId = d.Id()
-
-		op, err := config.sdk.Serverless().Containers().Container().DeployRevision(ctx, revisionReq)
-		err = waitOperation(ctx, config, op, err)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to deploy revision for Yandex Cloud Container: %s", err)
-		}
+		diags = resourceYandexServerlessContainerDiagsFromDeployRevisionError(
+			resourceYandexServerlessContainerDeployRevision(ctx, config.sdk, revisionReq),
+		)
 	}
 	d.Partial(false)
 
-	return resourceYandexServerlessContainerRead(d, meta)
+	return append(diags, resourceYandexServerlessContainerRead(ctx, d, meta)...)
 }
 
-func resourceYandexServerlessContainerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexServerlessContainerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	req := containers.GetContainerRequest{ContainerId: d.Id()}
 	container, err := config.sdk.Serverless().Containers().Container().Get(ctx, &req)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id())))
 	}
 
 	revision, err := resolveContainerLastRevision(ctx, config, d.Id())
 	if err != nil {
-		return fmt.Errorf("Failed to resolve last revision of Yandex Cloud Container: %s", err)
+		return diag.Errorf("Failed to resolve last revision of Yandex Cloud Container: %s", err)
 	}
 
-	return flattenYandexServerlessContainer(d, container, revision, false)
+	return diag.FromErr(flattenYandexServerlessContainer(d, container, revision, false))
 }
 
 func resolveContainerLastRevision(ctx context.Context, config *Config, containerID string) (*containers.Revision, error) {
@@ -553,10 +577,10 @@ func resolveContainerLastRevision(ctx context.Context, config *Config, container
 	return resp.Revisions[0], nil
 }
 
-func resourceYandexServerlessContainerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexServerlessContainerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	req := containers.DeleteContainerRequest{
@@ -566,7 +590,7 @@ func resourceYandexServerlessContainerDelete(d *schema.ResourceData, meta interf
 	op, err := config.sdk.Serverless().Containers().Container().Delete(ctx, &req)
 	err = waitOperation(ctx, config, op, err)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id())))
 	}
 
 	return nil

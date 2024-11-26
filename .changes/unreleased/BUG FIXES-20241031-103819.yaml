@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'serverless: `yandex_serverless_container` resource and data source now correctly handle absence of revision'
+time: 2024-10-31T10:38:19.353038753+00:00
