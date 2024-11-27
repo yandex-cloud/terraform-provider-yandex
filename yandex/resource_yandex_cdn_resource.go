@@ -52,6 +52,15 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"labels": {
+				Type: schema.TypeMap,
+
+				Optional: true,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"active": {
 				Type:     schema.TypeBool,
 				Default:  true,
@@ -760,6 +769,17 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	return nil
 }
 
+func prepareCDNResourceLabels(d *schema.ResourceData) map[string]string {
+	labels := make(map[string]string)
+	if rawOption, ok := d.GetOk("labels"); ok {
+		for k, v := range rawOption.(map[string]interface{}) {
+			labels[k] = v.(string)
+		}
+	}
+
+	return labels
+}
+
 func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData, meta *Config) (*cdn.CreateResourceRequest, error) {
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
@@ -815,6 +835,7 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 		},
 
 		Options: prepareCDNResourceOptions(d),
+		Labels:  prepareCDNResourceLabels(d),
 	}
 
 	if _, ok := d.GetOk("origin_protocol"); ok {
@@ -1015,6 +1036,7 @@ func flattenYandexCDNResource(d *schema.ResourceData, resource *cdn.Resource) er
 
 	_ = d.Set("folder_id", resource.FolderId)
 	_ = d.Set("cname", resource.Cname)
+	_ = d.Set("labels", resource.Labels)
 
 	_ = d.Set("created_at", getTimestamp(resource.CreatedAt))
 	_ = d.Set("updated_at", getTimestamp(resource.UpdatedAt))
@@ -1209,6 +1231,13 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("options") {
 		request.Options = prepareCDNResourceOptions(d)
+	}
+
+	if d.HasChange("labels") {
+		request.Labels = prepareCDNResourceLabels(d)
+		if len(request.Labels) == 0 {
+			request.RemoveLabels = true
+		}
 	}
 
 	return request, nil

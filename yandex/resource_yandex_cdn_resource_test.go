@@ -274,6 +274,73 @@ func TestAccCDNResource_updateGroupByName(t *testing.T) {
 	})
 }
 
+func TestAccCDNResource_labels(t *testing.T) {
+	folderID := getExampleFolderID()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource, cdnResourceUpdated cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_basicByName(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_group_name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.%", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_protocol", "http"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "active", "true"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "secondary_hostnames.#", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "ssl_certificate.0.type", "not_used"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+			{
+				Config: testAccCDNResource_addLabel(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResourceUpdated),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_group_name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.%", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.environment", "testing"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+			{
+				Config: testAccCDNResource_updateLabel(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResourceUpdated),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_group_name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.%", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.environment", "production"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+			{
+				Config: testAccCDNResource_basicByName(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_group_name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "labels.%", "0"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccCDNResource_optionDisableCacheOn(t *testing.T) {
 	folderID := getExampleFolderID()
 
@@ -974,6 +1041,34 @@ resource "yandex_cdn_resource" "foobar_resource" {
 `, originalGroupName, groupName, resourceCNAME)
 }
 
+func testAccCDNResource_addLabel(groupName, resourceCNAME string) string {
+	return makeGroupResourceByName(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+
+	origin_group_name = "${yandex_cdn_origin_group.foo_cdn_group_by_name.name}"
+
+	labels = {
+		environment = "testing"
+	}
+}
+`, resourceCNAME)
+}
+
+func testAccCDNResource_updateLabel(groupName, resourceCNAME string) string {
+	return makeGroupResourceByName(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+
+	origin_group_name = "${yandex_cdn_origin_group.foo_cdn_group_by_name.name}"
+
+	labels = {
+		environment = "production"
+	}
+}
+`, resourceCNAME)
+}
+
 func makeGroupResource(groupName string) string {
 	return fmt.Sprintf(`
 	resource "yandex_cdn_origin_group" "foo_cdn_group" {
@@ -981,6 +1076,18 @@ func makeGroupResource(groupName string) string {
 
 		origin {
 		  source = "ya.ru"
+		}
+	}
+	`, groupName)
+}
+
+func makeGroupResourceByName(groupName string) string {
+	return fmt.Sprintf(`
+	resource "yandex_cdn_origin_group" "foo_cdn_group_by_name" {
+		name     = "%s"
+
+		origin {
+			source = "ya.ru"
 		}
 	}
 	`, groupName)
