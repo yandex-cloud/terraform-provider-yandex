@@ -77,6 +77,8 @@ The `config` block supports:
 * `lfu_log_factor` - Determines how the frequency counter represents key hits.
 * `turn_before_switchover` - Allows to turn before switchover in RDSync.
 * `allow_data_loss` - Allows some data to be lost in favor of faster switchover/restart by RDSync.
+* `use_luajit` - Use JIT for lua scripts and functions.
+* `io_threads_allowed` - Allow Redis to use io-threads.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 The `backup_window_start` block supports:

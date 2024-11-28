@@ -109,6 +109,10 @@ The `config` block supports:
 
 * `allow_data_loss` - (Optional) Allows some data to be lost in favor of faster switchover/restart by RDSync.
 
+* `use_luajit` - (Optional) Use JIT for lua scripts and functions.
+
+* `io_threads_allowed` - (Optional) Allow Redis to use io-threads.
+
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 The `backup_window_start` block supports:

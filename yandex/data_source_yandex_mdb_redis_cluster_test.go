@@ -125,6 +125,8 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.0.slowlog_max_len",
 			"config.0.client_output_buffer_limit_normal",
 			"config.0.client_output_buffer_limit_pubsub",
+			"config.0.use_luajit",
+			"config.0.io_threads_allowed",
 			"config.0.databases",
 			"config.0.maxmemory_percent",
 			"config.0.lua_time_limit",

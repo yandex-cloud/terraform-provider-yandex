@@ -70,6 +70,14 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"use_luajit": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"io_threads_allowed": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 						"databases": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -367,6 +375,8 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 			"lfu_log_factor":                      conf.lfuLogFactor,
 			"turn_before_switchover":              conf.turnBeforeSwitchover,
 			"allow_data_loss":                     conf.allowDataLoss,
+			"use_luajit":                          conf.useLuajit,
+			"io_threads_allowed":                  conf.ioThreadsAllowed,
 			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})

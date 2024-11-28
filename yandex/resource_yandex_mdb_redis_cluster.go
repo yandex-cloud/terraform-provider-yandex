@@ -115,6 +115,16 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"use_luajit": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"io_threads_allowed": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
 						"version": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -572,6 +582,8 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 			"lfu_log_factor":                      conf.lfuLogFactor,
 			"turn_before_switchover":              conf.turnBeforeSwitchover,
 			"allow_data_loss":                     conf.allowDataLoss,
+			"use_luajit":                          conf.useLuajit,
+			"io_threads_allowed":                  conf.ioThreadsAllowed,
 			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})
@@ -766,6 +778,8 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"lfu_log_factor",
 			"turn_before_switchover",
 			"allow_data_loss",
+			"use_luajit",
+			"io_threads_allowed",
 		}
 		for _, field := range fields {
 			fullPath := "config_spec.redis." + field

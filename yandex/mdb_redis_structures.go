@@ -2,10 +2,11 @@ package yandex
 
 import (
 	"fmt"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"sort"
 	"strconv"
 	"strings"
+
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -33,6 +34,8 @@ type redisConfig struct {
 	lfuLogFactor                    int64
 	turnBeforeSwitchover            bool
 	allowDataLoss                   bool
+	useLuajit                       bool
+	ioThreadsAllowed                bool
 }
 
 const defaultReplicaPriority = 100
@@ -226,7 +229,8 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res.lfuLogFactor = c.GetLfuLogFactor().GetValue()
 	res.turnBeforeSwitchover = c.GetTurnBeforeSwitchover().GetValue()
 	res.allowDataLoss = c.GetAllowDataLoss().GetValue()
-
+	res.useLuajit = c.GetUseLuajit().GetValue()
+	res.ioThreadsAllowed = c.GetIoThreadsAllowed().GetValue()
 	return res
 }
 
@@ -348,6 +352,16 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		}
 	}
 
+	var useLuajit *wrappers.BoolValue
+	if v := d.Get("config.0.use_luajit"); v != nil {
+		useLuajit = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	var ioThreadsAllowed *wrappers.BoolValue
+	if v := d.Get("config.0.io_threads_allowed"); v != nil {
+		ioThreadsAllowed = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
 	c := config.RedisConfig{
 		Password:                        password,
 		Timeout:                         timeout,
@@ -365,6 +379,8 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		LfuLogFactor:                    lfuLogFactor,
 		TurnBeforeSwitchover:            turnBeforeSwitchover,
 		AllowDataLoss:                   allowDataLoss,
+		UseLuajit:                       useLuajit,
+		IoThreadsAllowed:                ioThreadsAllowed,
 	}
 
 	if len(expandedNormal) != 0 {
