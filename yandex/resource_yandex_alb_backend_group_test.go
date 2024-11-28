@@ -1150,6 +1150,152 @@ func TestAccALBBackendGroup_grpcBackendWithEmptyStreamHealthCheck(t *testing.T) 
 	})
 }
 
+func TestAcceptanceALBBackendGroup_HTTPBackend(t *testing.T) {
+	t.Parallel()
+
+	backendPath := ""
+	var bg apploadbalancer.BackendGroup
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "use custom hc expected statuses: set expected statuses as empty array",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBBackendGroupDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBBackendGroupConfig_basic(func() resourceALBBackendGroupInfo {
+							result := albBackendGroupInfo()
+
+							result.IsHTTPBackend = true
+							result.IsHTTPCheck = true
+							result.Timeout = "1s"
+							result.Interval = "1s"
+							result.Path = "/"
+							result.ExpectedStatuses = "[]"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBBackendGroupExists(albBGResource, &bg),
+							testAccCheckALBBackendGroupValues(&bg, true, false, false),
+							testExistsFirstElementWithAttr(
+								albBGResource, "http_backend", "name", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.#", "0", &backendPath,
+							),
+						),
+					},
+					albBackendGroupImportStep(),
+				},
+			},
+		},
+		{
+			name: "use custom hc expected statuses: set single expected statuses",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBBackendGroupDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBBackendGroupConfig_basic(func() resourceALBBackendGroupInfo {
+							result := albBackendGroupInfo()
+
+							result.IsHTTPBackend = true
+							result.IsHTTPCheck = true
+							result.Timeout = "1s"
+							result.Interval = "1s"
+							result.Path = "/"
+							result.ExpectedStatuses = "[201]"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBBackendGroupExists(albBGResource, &bg),
+							testAccCheckALBBackendGroupValues(&bg, true, false, false),
+							testExistsFirstElementWithAttr(
+								albBGResource, "http_backend", "name", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.#", "1", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.0", "201", &backendPath,
+							),
+						),
+					},
+					albBackendGroupImportStep(),
+				},
+			},
+		},
+		{
+			name: "use custom hc expected statuses: set multiple expected statuses",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBBackendGroupDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBBackendGroupConfig_basic(func() resourceALBBackendGroupInfo {
+							result := albBackendGroupInfo()
+
+							result.IsHTTPBackend = true
+							result.IsHTTPCheck = true
+							result.Timeout = "1s"
+							result.Interval = "1s"
+							result.Path = "/"
+							result.ExpectedStatuses = "[100, 201, 302, 403, 504]"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBBackendGroupExists(albBGResource, &bg),
+							testAccCheckALBBackendGroupValues(&bg, true, false, false),
+							testExistsFirstElementWithAttr(
+								albBGResource, "http_backend", "name", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.#", "5", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.0", "100", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.1", "201", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.2", "302", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.3", "403", &backendPath,
+							),
+							testExistsElementWithAttrValue(
+								albBGResource, "http_backend.0.healthcheck.0.http_healthcheck", "expected_statuses.4", "504", &backendPath,
+							),
+						),
+					},
+					albBackendGroupImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
 func TestAcceptanceALBBackendGroup_StreamBackend(t *testing.T) {
 	t.Parallel()
 
@@ -1244,6 +1390,172 @@ func Test_buildALBBackendGroupCreateRequest(t *testing.T) {
 		expectedResult *apploadbalancer.CreateBackendGroupRequest
 		expectErr      bool
 	}{
+		{
+			name:     "http backend: nil expected statuses slice",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}(nil),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path: "/",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name:     "http backend: empty expected statuses slice",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path: "/",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name:     "http backend: use expected statuses",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}{200, 201, 303, 502},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path:             "/",
+												ExpectedStatuses: []int64{200, 201, 303, 502},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
 		{
 			name:     "stream backend: keep_connections_on_host_health_failure set to false",
 			folderID: "some-folder",
@@ -1363,6 +1675,166 @@ func Test_buildALBBackendGroupUpdateRequest(t *testing.T) {
 		expectedResult *apploadbalancer.UpdateBackendGroupRequest
 		expectErr      bool
 	}{
+		{
+			name: "http backend: nil expected statuses slice",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}(nil),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path: "/",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name: "http backend: empty expected statuses slice",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path: "/",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name: "http backend: use expected statuses",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path":                    "/",
+										expectedStatusesSchemaKey: []interface{}{200, 201, 303, 502},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateBackendGroupRequest{
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.UpdateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path:             "/",
+												ExpectedStatuses: []int64{200, 201, 303, 502},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
 		{
 			name: "stream backend: keep_connections_on_host_health_failure set to false",
 			config: map[string]interface{}{

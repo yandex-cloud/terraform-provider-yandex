@@ -13,7 +13,10 @@ import (
 
 const yandexALBBackendGroupDefaultTimeout = 5 * time.Minute
 
-const keepConnectionsOnHostHealthFailureSchemaKey = "keep_connections_on_host_health_failure"
+const (
+	expectedStatusesSchemaKey                   = "expected_statuses"
+	keepConnectionsOnHostHealthFailureSchemaKey = "keep_connections_on_host_health_failure"
+)
 
 func resourceYandexALBBackendGroup() *schema.Resource {
 	return &schema.Resource{
@@ -353,6 +356,14 @@ func healthCheck() *schema.Schema {
 							},
 							"http2": {
 								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							expectedStatusesSchemaKey: {
+								Type: schema.TypeList,
+								Elem: &schema.Schema{
+									Type:         schema.TypeInt,
+									ValidateFunc: validation.IntBetween(100, 599),
+								},
 								Optional: true,
 							},
 						},

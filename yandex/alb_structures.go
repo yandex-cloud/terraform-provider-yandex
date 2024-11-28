@@ -1588,6 +1588,12 @@ func expandALBHTTPHealthCheck(v interface{}) *apploadbalancer.HealthCheck_HttpHe
 		healthCheck.SetUseHttp2(val.(bool))
 	}
 
+	if val, ok := config[expectedStatusesSchemaKey]; ok {
+		if statuses, err := expandALBInt64ListFromList(val); err == nil {
+			healthCheck.SetExpectedStatuses(statuses)
+		}
+	}
+
 	return healthCheck
 }
 
@@ -2465,9 +2471,10 @@ func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) []inter
 			http := check.GetHttp()
 			flHealthCheck["http_healthcheck"] = []map[string]interface{}{
 				{
-					"host":  http.Host,
-					"path":  http.Path,
-					"http2": http.UseHttp2,
+					"host":                    http.Host,
+					"path":                    http.Path,
+					"http2":                   http.UseHttp2,
+					expectedStatusesSchemaKey: http.ExpectedStatuses,
 				},
 			}
 		case *apploadbalancer.HealthCheck_Grpc:

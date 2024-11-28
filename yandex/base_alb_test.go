@@ -57,6 +57,7 @@ const albDefaultHeaderName = "client-header"
 const albDefaultHeaderValue = "client-value"
 const albDefaultRBACAction = "allow"
 const albDefaultIdleTimeout = "42s"
+const albDefaultExpectedStatuses = "null"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener     bool
@@ -272,6 +273,7 @@ type resourceALBBackendGroupInfo struct {
 	SendText             string
 	ProxyProtocol        string
 	StorageBackendBucket string
+	ExpectedStatuses     string
 }
 
 func albBackendGroupInfo() resourceALBBackendGroupInfo {
@@ -307,6 +309,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		ReceiveText:          albDefaultReceiveText,
 		SendText:             albDefaultSendText,
 		ProxyProtocol:        albDefaultProxyProtocol,
+		ExpectedStatuses:     albDefaultExpectedStatuses,
 	}
 
 	return res
@@ -815,6 +818,7 @@ EOF
         host  = "{{.Host}}"
         path  = "{{.Path}}"
         http2 = "{{.HTTP2}}"
+        expected_statuses = {{ .ExpectedStatuses }}
       }
     }
     {{end}}

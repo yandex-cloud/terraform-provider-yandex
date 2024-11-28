@@ -369,6 +369,13 @@ func dataSourceHealthCheck() *schema.Schema {
 								Optional: true,
 								Computed: true,
 							},
+							expectedStatusesSchemaKey: {
+								Type: schema.TypeList,
+								Elem: &schema.Schema{
+									Type: schema.TypeInt,
+								},
+								Computed: true,
+							},
 						},
 					},
 				},

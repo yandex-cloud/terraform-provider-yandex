@@ -141,6 +141,7 @@ The `http_healthcheck` block supports:
 * `host` - Optional "Host" HTTP header value.
 * `path` - HTTP path.
 * `http2` - If set, health checks will use HTTP2.
+* `expected_statuses` - (Optional) A list of HTTP response statuses considered healthy.
 
 The `grpc_healthcheck` block supports:
 
