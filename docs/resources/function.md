@@ -125,7 +125,7 @@ The following arguments are supported:
 * `memory` - (Required) Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function
 * `execution_timeout` - Execution timeout in seconds for Yandex Cloud Function
 * `service_account_id` - Service account ID for Yandex Cloud Function
-* `environment` - A set of key/value environment variables for Yandex Cloud Function
+* `environment` - A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
 * `tags` - Tags for Yandex Cloud Function. Tag "$latest" isn't returned
 * `secrets` - Secrets for Yandex Cloud Function.
 
@@ -179,7 +179,7 @@ The `secrets` block supports:
 * `id` - (Required) Secret's id
 * `version_id` - (Required) Secret's version id
 * `key` - (Required) Secret's entries key which value will be stored in environment variable
-* `environment_variable` - (Required) Function's environment variable in which secret's value will be stored
+* `environment_variable` - (Required) Function's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
 
 ---
 

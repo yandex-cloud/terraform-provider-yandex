@@ -259,6 +259,23 @@ func resourceYandexServerlessContainer() *schema.Resource {
 				Computed: true,
 			},
 
+			"runtime": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"http", "task"}, true),
+						},
+					},
+				},
+				Required: false,
+				Optional: true,
+				Computed: true,
+			},
+
 			"connectivity": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -498,6 +515,7 @@ func resourceYandexServerlessContainerUpdate(ctx context.Context, d *schema.Reso
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
 		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "mounts", "log_options", "provision_policy",
+		"runtime",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -747,7 +765,28 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 		revisionReq.LogOptions = logOptions
 	}
 
+	if v, ok := d.GetOk("runtime.0"); ok {
+		revisionReq.Runtime = expandServerlessContainerRuntime(v)
+	}
+
 	return revisionReq, nil
+}
+
+func expandServerlessContainerRuntime(v interface{}) *containers.Runtime {
+	var (
+		runtimeMap = v.(map[string]interface{})
+		t          = runtimeMap["type"].(string)
+	)
+
+	switch t {
+	case "http":
+		return &containers.Runtime{Type: &containers.Runtime_Http_{Http: &containers.Runtime_Http{}}}
+	case "task":
+		return &containers.Runtime{Type: &containers.Runtime_Task_{Task: &containers.Runtime_Task{}}}
+	default:
+		// should never happen
+		panic("unknown runtime type: " + t)
+	}
 }
 
 func mapContainerModeFromTF(mode string) containers.Mount_Mode {
@@ -831,8 +870,26 @@ func flattenYandexServerlessContainer(
 			},
 		})
 	}
+	if revision.GetRuntime() != nil {
+		d.Set("runtime", flattenServerlessContainerRuntime(revision.GetRuntime()))
+	}
 
 	return nil
+}
+
+func flattenServerlessContainerRuntime(runtime *containers.Runtime) interface{} {
+	runtimeMap := make(map[string]interface{})
+
+	switch t := runtime.Type.(type) {
+	case *containers.Runtime_Http_:
+		runtimeMap["type"] = "http"
+	case *containers.Runtime_Task_:
+		runtimeMap["type"] = "task"
+	default:
+		panic(fmt.Sprintf("unknown runtime type: %T", t))
+	}
+
+	return []interface{}{runtimeMap}
 }
 
 func flattenRevisionMounts(mounts []*containers.Mount) interface{} {

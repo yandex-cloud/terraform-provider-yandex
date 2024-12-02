@@ -236,6 +236,23 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 				Computed: true,
 			},
 
+			"runtime": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"http", "task"}, true),
+						},
+					},
+				},
+				Required: false,
+				Optional: true,
+				Computed: true,
+			},
+
 			"connectivity": {
 				Type:     schema.TypeList,
 				MaxItems: 1,

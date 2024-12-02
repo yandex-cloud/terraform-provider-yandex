@@ -45,6 +45,9 @@ The following attributes are exported:
 * `execution_timeout` - Execution timeout (duration format) of Yandex Cloud Serverless Container
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID of Yandex Cloud Serverless Container
+* `runtime` - Runtime for Yandex Cloud Serverless Container
+* `runtime.0.type` - Type of the runtime for Yandex Cloud Serverless Container. Valid values are `http` and `task`
+
 * `secrets` - Secrets for Yandex Cloud Serverless Container
 
 * `storage_mounts` - (**DEPRECATED**, use `mounts.0.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container

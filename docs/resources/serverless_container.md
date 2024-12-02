@@ -24,6 +24,9 @@ resource "yandex_serverless_container" "test-container" {
   cores              = 1
   core_fraction      = 100
   service_account_id = "are1service2account3id"
+  runtime {
+    type = "task"
+  }
   secrets {
     id                   = yandex_lockbox_secret.secret.id
     version_id           = yandex_lockbox_secret_version.secret_version.id
@@ -123,6 +126,9 @@ The following arguments are supported:
 * `execution_timeout` - Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID for Yandex Cloud Serverless Container
+* `runtime` - Runtime for Yandex Cloud Serverless Container
+* `runtime.0.type` - Type of the runtime for Yandex Cloud Serverless Container. Valid values are `http` and `task`
+
 * `secrets` - Secrets for Yandex Cloud Serverless Container
 
 * `storage_mounts` - (**DEPRECATED**, use `mounts.0.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container
@@ -150,7 +156,7 @@ The following arguments are supported:
 * `image.0.digest` - Digest of image that will be deployed as Yandex Cloud Serverless Container. If presented, should be equal to digest that will be resolved at server side by URL. Container will be updated on digest change even if `image.0.url` stays the same. If field not specified then its value will be computed.
 * `image.0.command` - List of commands for Yandex Cloud Serverless Container
 * `image.0.args` - List of arguments for Yandex Cloud Serverless Container
-* `image.0.environment` - A set of key/value environment variable pairs for Yandex Cloud Serverless Container
+* `image.0.environment` - A set of key/value environment variable pairs for Yandex Cloud Serverless Container. Each key must begin with a letter (A-Z, a-z).
 
 * `log_options` - Options for logging from Yandex Cloud Serverless Container
 
@@ -172,7 +178,7 @@ The `secrets` block supports:
 * `id` - (Required) Secret's id
 * `version_id` - (Required) Secret's version id
 * `key` - (Required) Secret's entries key which value will be stored in environment variable
-* `environment_variable` - (Required) Container's environment variable in which secret's value will be stored
+* `environment_variable` - (Required) Container's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
 
 ---
 

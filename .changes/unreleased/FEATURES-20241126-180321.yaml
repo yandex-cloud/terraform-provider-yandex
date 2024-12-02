@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'serverless: `yandex_serverless_container` resource and data source now have `runtime` parameter'
+time: 2024-11-26T18:03:21.469630086+01:00

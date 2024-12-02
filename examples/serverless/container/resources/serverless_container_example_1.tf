@@ -6,6 +6,9 @@ resource "yandex_serverless_container" "test-container" {
   cores              = 1
   core_fraction      = 100
   service_account_id = "are1service2account3id"
+  runtime {
+    type = "task"
+  }
   secrets {
     id                   = yandex_lockbox_secret.secret.id
     version_id           = yandex_lockbox_secret_version.secret_version.id

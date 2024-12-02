@@ -154,6 +154,7 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	params.executionTimeout = strconv.FormatInt(int64(1+acctest.RandIntRange(1, 10)), 10) + "s"
 	params.concurrency = acctest.RandIntRange(1, 3)
 	params.imageURL = serverlessContainerTestImage1
+	params.runtime = "http"
 	params.workDir = acctest.RandomWithPrefix("tf-container-work-dir")
 	params.command = acctest.RandomWithPrefix("tf-container-command")
 	params.argument = acctest.RandomWithPrefix("tf-container-argument")
@@ -256,7 +257,8 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "mounts.2.object_storage.0.bucket", params.storageMount.storageMountBucket),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "mounts.2.object_storage.0.prefix", params.storageMount.storageMountPrefix),
 
-					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "runtime.#", "1"),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)), resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.min_level", params.logOptions.minLevel),
 					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "log_options.0.log_group_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),

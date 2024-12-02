@@ -23,6 +23,7 @@ const serverlessContainerServiceAccountResource = "yandex_iam_service_account.te
 const serverlessContainerTestImage1 = "cr.yandex/yc/demo/coi:v1"
 const serverlessContainerTestDigest1 = "sha256:e1d772fa8795adac847a2410c87d0d2e2d38fa02f118cab8c0b5fe1fb95c47f3"
 const serverlessContainerTestImage2 = "cr.yandex/yc/demo/nginx-hostname:cli"
+const serverlessContainerTestImage3 = "cr.yandex/mirror/library/hello-world"
 
 func init() {
 	resource.AddTestSweepers("yandex_serverless_container", &resource.Sweeper{
@@ -219,7 +220,8 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	params.cores = 1
 	params.coreFraction = 100
 	params.executionTimeout = strconv.FormatInt(int64(1+acctest.RandIntRange(1, 10)), 10) + "s"
-	params.concurrency = acctest.RandIntRange(1, 3)
+	params.concurrency = acctest.RandIntRange(1, 3) + 1
+	params.runtime = "http"
 	params.imageURL = serverlessContainerTestImage1
 	params.workDir = acctest.RandomWithPrefix("tf-container-work-dir")
 	params.command = acctest.RandomWithPrefix("tf-container-command")
@@ -271,8 +273,9 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	paramsUpdated.cores = 1
 	paramsUpdated.coreFraction = 100
 	paramsUpdated.executionTimeout = strconv.FormatInt(int64(11+acctest.RandIntRange(11, 20)), 10) + "s"
-	paramsUpdated.concurrency = params.concurrency + 1
-	paramsUpdated.imageURL = serverlessContainerTestImage2
+	paramsUpdated.concurrency = 1
+	paramsUpdated.runtime = "task"
+	paramsUpdated.imageURL = serverlessContainerTestImage3
 	paramsUpdated.workDir = acctest.RandomWithPrefix("tf-container-work-dir-updated")
 	paramsUpdated.command = acctest.RandomWithPrefix("tf-container-command-updated")
 	paramsUpdated.argument = acctest.RandomWithPrefix("tf-container-argument-updated")
@@ -332,6 +335,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				testYandexServerlessContainerRevisionConcurrency(&revision, params.concurrency),
 				testYandexServerlessContainerRevisionImage(&revision, params),
 				testYandexServerlessContainerRevisionServiceAccount(&revision, serverlessContainerServiceAccountResource),
+				testYandexServerlessContainerRevisionRuntime(&revision, params.runtime),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.id"),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.version_id"),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.key", params.secret.secretKey),
@@ -861,6 +865,26 @@ func testYandexServerlessContainerRevisionServiceAccount(revision *containers.Re
 	}
 }
 
+func testYandexServerlessContainerRevisionRuntime(revision *containers.Revision, runtime string) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		rt := revision.GetRuntime()
+		if rt == nil {
+			return fmt.Errorf("Incorrect runtime: expected '%s' but found nil", runtime)
+		}
+		switch runtime {
+		case "http":
+			if rt.GetHttp() == nil {
+				return fmt.Errorf("Incorrect runtime: expected 'http' but found '%s'", rt.String())
+			}
+		case "task":
+			if rt.GetTask() == nil {
+				return fmt.Errorf("Incorrect runtime: expected 'task' but found '%s'", rt.String())
+			}
+		}
+		return nil
+	}
+}
+
 func testYandexServerlessContainerRevisionLogOptions(
 	revision *containers.Revision,
 	expected *containers.LogOptions,
@@ -911,6 +935,7 @@ type testYandexServerlessContainerParameters struct {
 	coreFraction        int
 	executionTimeout    string
 	concurrency         int
+	runtime             string
 	imageURL            string
 	workDir             string
 	command             string
@@ -939,6 +964,9 @@ resource "yandex_serverless_container" "test-container" {
   core_fraction      = %d
   execution_timeout  = "%s"
   concurrency        = %d
+  runtime {
+    type = "%s"
+  }
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
 	yandex_resourcemanager_folder_iam_member.payload-viewer,
@@ -1043,6 +1071,7 @@ resource "yandex_logging_group" "logging-group" {
 		params.coreFraction,
 		params.executionTimeout,
 		params.concurrency,
+		params.runtime,
 		params.secret.secretKey,
 		params.secret.secretEnvVar,
 		params.storageMount.storageMountPointPath,
