@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'redis: add parameters use_luajit and io_threads_allowed'
-time: 2024-11-18T19:04:17.722984+03:00
