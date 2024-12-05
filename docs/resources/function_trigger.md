@@ -44,7 +44,7 @@ The following arguments are supported:
 * `function.0.retry_attempts` - Retry attempts for Yandex.Cloud Function for Yandex Cloud Functions Trigger
 * `function.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Function for Yandex Cloud Functions Trigger
 
-* `` - [Yandex.Cloud Serverless Container](https://cloud.yandex.com/en-ru/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
+* `container` - [Yandex.Cloud Serverless Container](https://cloud.yandex.com/en-ru/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
 * `container.0.id` - Yandex.Cloud Serverless Container ID for Yandex Cloud Functions Trigger
 * `container.0.service_account_id` - Service account ID for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
 * `container.0.path` - Path for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
@@ -110,7 +110,7 @@ The following arguments are supported:
 * `data_streams.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `data_streams.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
-* `mail` - [Logging](https://cloud.yandex.com/en/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `mail` - [Mail](https://cloud.yandex.com/en/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `mail.0.attachments_bucket_id` - Object Storage Bucket ID for Yandex Cloud Functions Trigger
 * `mail.0.service_account_id` - Service account ID to access object storage for Yandex Cloud Functions Trigger
 * `mail.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
