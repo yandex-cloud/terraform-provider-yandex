@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'opensearch: use state hosts when no changes in node-groups configuration'
+time: 2024-12-02T13:36:18.18126+01:00
