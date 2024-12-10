@@ -104,6 +104,7 @@ The `stream_backend` block supports:
 * `load_balancing_config` - (Optional) Load Balancing Config specification that will be used by this backend. Structure is documented below.
 * `healthcheck` - (Optional) Healthcheck specification that will be used by this backend. Structure is documented below.
 * `tls` - (Optional) Tls specification that will be used by this backend. Structure is documented below.
+* `keep_connections_on_host_health_failure` - (Optional) If set, when a backend host becomes unhealthy (as determined by the configured health checks), keep connections to the failed host.
 
 The `grpc_backend` block supports:
 
@@ -154,6 +155,7 @@ The `http_healthcheck` block supports:
 * `host` - (Optional) "Host" HTTP header value.
 * `path` - (Required) HTTP path.
 * `http2` - (Optional) If set, health checks will use HTTP2.
+* `expected_statuses` - (Optional) A list of HTTP response statuses considered healthy.
 
 The `grpc_healthcheck` block supports:
 

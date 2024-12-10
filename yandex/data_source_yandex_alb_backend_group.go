@@ -132,6 +132,11 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						keepConnectionsOnHostHealthFailureSchemaKey: {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},
@@ -362,6 +367,13 @@ func dataSourceHealthCheck() *schema.Schema {
 							"http2": {
 								Type:     schema.TypeBool,
 								Optional: true,
+								Computed: true,
+							},
+							expectedStatusesSchemaKey: {
+								Type: schema.TypeList,
+								Elem: &schema.Schema{
+									Type: schema.TypeInt,
+								},
 								Computed: true,
 							},
 						},

@@ -68,6 +68,17 @@ The `config` block supports:
 * `version` - Version of Redis (6.2).
 * `client_output_buffer_limit_normal` - Normal clients output buffer limits.
 * `client_output_buffer_limit_pubsub` - Pubsub clients output buffer limits.
+* `lua_time_limit` - Maximum time in milliseconds for Lua scripts.
+* `repl_backlog_size_percent` - Replication backlog size as a percentage of flavor maxmemory.
+* `cluster_require_full_coverage` - Controls whether all hash slots must be covered by nodes.
+* `cluster_allow_reads_when_down` - Allows read operations when cluster is down.
+* `cluster_allow_pubsubshard_when_down` - Permits Pub/Sub shard operations when cluster is down.
+* `lfu_decay_time` - The time, in minutes, that must elapse in order for the key counter to be divided by two (or decremented if it has a value less <= 10).
+* `lfu_log_factor` - Determines how the frequency counter represents key hits.
+* `turn_before_switchover` - Allows to turn before switchover in RDSync.
+* `allow_data_loss` - Allows some data to be lost in favor of faster switchover/restart by RDSync.
+* `use_luajit` - Use JIT for lua scripts and functions.
+* `io_threads_allowed` - Allow Redis to use io-threads.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 The `backup_window_start` block supports:

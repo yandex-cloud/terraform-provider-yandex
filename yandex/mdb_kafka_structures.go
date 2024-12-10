@@ -459,6 +459,11 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 		result.Zookeeper.Resources = expandKafkaResources(d, "config.0.zookeeper.0.resources.0")
 	}
 
+	if _, ok := d.GetOk("config.0.kraft"); ok {
+		result.Kraft = &kafka.ConfigSpec_KRaft{}
+		result.Kraft.Resources = expandKafkaResources(d, "config.0.kraft.0.resources.0")
+	}
+
 	result.SetAccess(expandKafkaAccess(d))
 	result.DiskSizeAutoscaling = expandKafkaDiskSizeAutoscaling(d)
 
@@ -607,6 +612,17 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 		config["zookeeper"] = []map[string]interface{}{
 			{
 				"resources": []map[string]interface{}{zkResources},
+			},
+		}
+	}
+	if cluster.Config.Kraft != nil {
+		kRaftResources, err := flattenKafkaResources(cluster.Config.Kraft.Resources)
+		if err != nil {
+			return nil, err
+		}
+		config["kraft"] = []map[string]interface{}{
+			{
+				"resources": []map[string]interface{}{kRaftResources},
 			},
 		}
 	}

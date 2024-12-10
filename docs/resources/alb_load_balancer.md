@@ -192,6 +192,8 @@ The `stream_handler` and `handler`(from `stream`) block supports:
 
 * `backend_group_id` - (Optional) Backend group id.
 
+* `idle_timeout` - The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+
 ---
 
 The `http` block supports:

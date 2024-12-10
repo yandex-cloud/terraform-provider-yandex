@@ -4,11 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -26,9 +33,10 @@ import (
 )
 
 var (
-	_ resource.Resource                = &securityGroupRuleResource{}
-	_ resource.ResourceWithConfigure   = &securityGroupRuleResource{}
-	_ resource.ResourceWithImportState = &securityGroupRuleResource{}
+	_ resource.Resource                   = &securityGroupRuleResource{}
+	_ resource.ResourceWithConfigure      = &securityGroupRuleResource{}
+	_ resource.ResourceWithImportState    = &securityGroupRuleResource{}
+	_ resource.ResourceWithValidateConfig = &securityGroupRuleResource{}
 )
 
 type securityGroupRuleResource struct {
@@ -44,40 +52,168 @@ func NewResource() resource.Resource {
 
 func (r *securityGroupRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	tflog.Debug(ctx, "Initializing VPC SecurityGroupRule schema")
-	var attributes = security_group.RuleResourceAttributes
-	attributes["id"] = schema.StringAttribute{
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-			spm.RequiresRefreshIf(func(ctx context.Context, req planmodifier.StringRequest, resp *spm.RequiresRefreshIfFuncResponse) {
-				var plan securityGroupRuleModel
-				var state securityGroupRuleModel
-				resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-				resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-				if resp.Diagnostics.HasError() {
-					return
-				}
-				resp.RequiresRefresh = !state.BodyEqual(plan)
-			},
-				"Refresh if rule body modified",
-				"Refresh if rule body modified",
-			),
-		},
-	}
-	attributes["security_group_binding"] = schema.StringAttribute{
-		Required: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.RequiresReplace(),
-		},
-	}
-	attributes["direction"] = schema.StringAttribute{
-		Required: true,
-		Validators: []validator.String{
-			stringvalidator.OneOfCaseInsensitive("ingress", "egress"),
-		},
-	}
 	resp.Schema = schema.Schema{
-		Attributes: attributes,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					spm.RequiresRefreshIf(func(ctx context.Context, req planmodifier.StringRequest, resp *spm.RequiresRefreshIfFuncResponse) {
+						var plan securityGroupRuleModel
+						var state securityGroupRuleModel
+						resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+						resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+						if resp.Diagnostics.HasError() {
+							return
+						}
+						resp.RequiresRefresh = !state.BodyEqual(plan)
+					},
+						"Refresh if rule body modified",
+						"Refresh if rule body modified",
+					),
+				},
+			},
+			"security_group_binding": schema.StringAttribute{
+				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"direction": schema.StringAttribute{
+				Required: true,
+				Validators: []validator.String{
+					stringvalidator.OneOfCaseInsensitive("ingress", "egress"),
+				},
+			},
+			"description": schema.StringAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"labels": schema.MapAttribute{
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"protocol": schema.StringAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"port": schema.Int64Attribute{
+				Optional: true,
+				Computed: true,
+				Validators: []validator.Int64{
+					int64validator.Between(-1, 65535),
+					int64validator.ConflictsWith(
+						path.MatchRelative().AtParent().AtName("from_port"),
+						path.MatchRelative().AtParent().AtName("to_port"),
+					),
+					int64validator.AlsoRequires(
+						path.MatchRelative().AtParent().AtName("protocol"),
+					),
+				},
+				Default: int64default.StaticInt64(-1),
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"from_port": schema.Int64Attribute{
+				Optional: true,
+				Computed: true,
+				Validators: []validator.Int64{
+					int64validator.Between(-1, 65535),
+					int64validator.ConflictsWith(
+						path.MatchRelative().AtParent().AtName("port"),
+					),
+					int64validator.AlsoRequires(
+						path.MatchRelative().AtParent().AtName("protocol"),
+					),
+				},
+				Default: int64default.StaticInt64(-1),
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"to_port": schema.Int64Attribute{
+				Optional: true,
+				Computed: true,
+				Validators: []validator.Int64{
+					int64validator.Between(-1, 65535),
+					int64validator.ConflictsWith(
+						path.MatchRelative().AtParent().AtName("port"),
+					),
+					int64validator.AlsoRequires(
+						path.MatchRelative().AtParent().AtName("protocol"),
+					),
+				},
+				Default: int64default.StaticInt64(-1),
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"v4_cidr_blocks": schema.ListAttribute{
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.List{
+					listvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("security_group_id"),
+						path.MatchRelative().AtParent().AtName("predefined_target"),
+					}...),
+				},
+			},
+			"v6_cidr_blocks": schema.ListAttribute{
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.List{
+					listvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("security_group_id"),
+						path.MatchRelative().AtParent().AtName("predefined_target"),
+					}...),
+				},
+			},
+			"security_group_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("v4_cidr_blocks"),
+						path.MatchRelative().AtParent().AtName("v6_cidr_blocks"),
+						path.MatchRelative().AtParent().AtName("predefined_target"),
+					}...),
+				},
+			},
+			"predefined_target": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.Expressions{
+						path.MatchRelative().AtParent().AtName("v4_cidr_blocks"),
+						path.MatchRelative().AtParent().AtName("v6_cidr_blocks"),
+						path.MatchRelative().AtParent().AtName("security_group_id"),
+					}...),
+				},
+			},
+		},
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{
 				Create: true,
@@ -272,6 +408,36 @@ func (r *securityGroupRuleResource) Delete(ctx context.Context, req resource.Del
 	defer cancel()
 
 	sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDK, &resp.Diagnostics, sgID, nil, state.ID.ValueString())
+}
+
+// ValidateConfig implements resource.ResourceWithValidateConfig.
+func (r *securityGroupRuleResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var state securityGroupRuleModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if state.FromPort.IsUnknown() || state.ToPort.IsUnknown() {
+		return
+	}
+	if state.FromPort.IsNull() || state.ToPort.IsNull() {
+		return
+	}
+	if state.FromPort.ValueInt64() == -1 && state.ToPort.ValueInt64() == -1 {
+		return
+	}
+	if state.FromPort.ValueInt64() == state.ToPort.ValueInt64() {
+		resp.Diagnostics.AddError(
+			"Invalid SecurityGroupRule",
+			"Use port attribute to specify single port value",
+		)
+	} else if state.FromPort.ValueInt64() > state.ToPort.ValueInt64() {
+		resp.Diagnostics.AddError(
+			"Invalid SecurityGroupRule",
+			fmt.Sprintf("from_port (%d) must be less than to_port (%d)", state.FromPort.ValueInt64(), state.ToPort.ValueInt64()),
+		)
+	}
 }
 
 func (r *securityGroupRuleResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

@@ -13,12 +13,14 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
-
+	pc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/mdb/opensearch/plancheck"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -165,6 +167,11 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
 					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 		},
@@ -245,6 +252,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
@@ -274,6 +282,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
@@ -283,6 +292,46 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
 					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						pc.ExpectNoChangesAt(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			// change dashboards disk
+			{
+				Config: testSamlDashboardFlavorAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", randInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+					test.AccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 11*1024*1024*1024),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.enabled", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_entity_id", "https://test_identity_provider.com"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_metadata_file_content", "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 		},
@@ -337,6 +386,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						pc.ExpectNoChangesAt(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			// check 'deletion_protection'
@@ -346,6 +400,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						pc.ExpectNoChangesAt(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			// test 'deletion_protection
@@ -360,6 +419,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						pc.ExpectNoChangesAt(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Networks remove
@@ -369,6 +433,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Update OpenSearch Cluster (with Networks restore)
@@ -397,6 +466,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 						return nil
 					},
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Add nodegroups
@@ -411,6 +485,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 						return nil
 					},
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Remove nodegroups
@@ -435,6 +514,11 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					},
 					test.AccCheckCreatedAtAttr(openSearchResource),
 				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectUnknownValue(openSearchResource, tfjsonpath.New("hosts")),
+					},
+				},
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
 		},
@@ -700,6 +784,103 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         resources {
           resource_preset_id   = "s2.micro"
           disk_size            = 10737418240
+          disk_type_id         = "network-ssd"
+        }
+      }
+    }
+  }
+
+  auth_settings = {
+    saml = {
+      enabled = %t
+      idp_entity_id = "https://test_identity_provider.com"
+      idp_metadata_file_content = "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"
+      sp_entity_id = "https://some.db.yandex.net",
+      dashboards_url = "https://dashboards.example.com"
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
+  ]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
+}
+`, name, desc, environment, enabled)
+}
+
+func testSamlDashboardFlavorAccMDBOpenSearchClusterConfig(name, desc, environment string, randInt int, enabled bool) string {
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-d",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
+  description = "%s"
+  labels = {
+    test_key  = "test_value"
+  }
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = false
+
+  config {
+
+    admin_password = "password"
+
+    opensearch {
+      node_groups {
+        name             = "datamaster0"
+        assign_public_ip = false
+        hosts_count      = 1
+        zone_ids         = local.zones
+        subnet_ids = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles = ["DATA","MANAGER"]
+        resources {
+          resource_preset_id = "s2.micro"
+          disk_size          = 10737418240
+          disk_type_id       = "network-ssd"
+        }
+      }
+    }
+
+    dashboards {
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 11811160064
           disk_type_id         = "network-ssd"
         }
       }

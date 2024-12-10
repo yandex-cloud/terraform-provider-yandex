@@ -70,6 +70,14 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"use_luajit": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"io_threads_allowed": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 						"databases": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -80,6 +88,42 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 						},
 						"version": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"lua_time_limit": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"repl_backlog_size_percent": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"cluster_require_full_coverage": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"cluster_allow_reads_when_down": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"cluster_allow_pubsubshard_when_down": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"lfu_decay_time": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"lfu_log_factor": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"turn_before_switchover": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"allow_data_loss": {
+							Type:     schema.TypeBool,
 							Computed: true,
 						},
 
@@ -312,17 +356,28 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	conf := extractRedisConfig(cluster.Config)
 	err = d.Set("config", []map[string]interface{}{
 		{
-			"timeout":                           conf.timeout,
-			"maxmemory_policy":                  conf.maxmemoryPolicy,
-			"version":                           conf.version,
-			"notify_keyspace_events":            conf.notifyKeyspaceEvents,
-			"slowlog_log_slower_than":           conf.slowlogLogSlowerThan,
-			"slowlog_max_len":                   conf.slowlogMaxLen,
-			"databases":                         conf.databases,
-			"maxmemory_percent":                 conf.maxmemoryPercent,
-			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
-			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
-			"backup_window_start":               flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
+			"timeout":                             conf.timeout,
+			"maxmemory_policy":                    conf.maxmemoryPolicy,
+			"version":                             conf.version,
+			"notify_keyspace_events":              conf.notifyKeyspaceEvents,
+			"slowlog_log_slower_than":             conf.slowlogLogSlowerThan,
+			"slowlog_max_len":                     conf.slowlogMaxLen,
+			"databases":                           conf.databases,
+			"maxmemory_percent":                   conf.maxmemoryPercent,
+			"client_output_buffer_limit_normal":   conf.clientOutputBufferLimitNormal,
+			"client_output_buffer_limit_pubsub":   conf.clientOutputBufferLimitPubsub,
+			"lua_time_limit":                      conf.luaTimeLimit,
+			"repl_backlog_size_percent":           conf.replBacklogSizePercent,
+			"cluster_require_full_coverage":       conf.clusterRequireFullCoverage,
+			"cluster_allow_reads_when_down":       conf.clusterAllowReadsWhenDown,
+			"cluster_allow_pubsubshard_when_down": conf.clusterAllowPubsubshardWhenDown,
+			"lfu_decay_time":                      conf.lfuDecayTime,
+			"lfu_log_factor":                      conf.lfuLogFactor,
+			"turn_before_switchover":              conf.turnBeforeSwitchover,
+			"allow_data_loss":                     conf.allowDataLoss,
+			"use_luajit":                          conf.useLuajit,
+			"io_threads_allowed":                  conf.ioThreadsAllowed,
+			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})
 	if err != nil {

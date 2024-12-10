@@ -298,16 +298,20 @@ func getHostsToAdd(keysHosts map[string][]*clickhouse.HostSpec, mKeys []string) 
 
 	for _, key := range mKeys {
 		hs, ok := keysHosts[key]
-		if !ok {
+		// we already proccessed host with such key via update or delete action
+		if !ok || len(hs) == 0 {
 			continue
 		}
-		for _, h := range hs {
-			if h.Type == clickhouse.Host_ZOOKEEPER {
-				toAdd["zk"] = append(toAdd["zk"], h)
-			} else {
-				toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
-			}
-			break
+		h := hs[0]
+		if h.Type == clickhouse.Host_ZOOKEEPER {
+			toAdd["zk"] = append(toAdd["zk"], h)
+		} else {
+			toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
+		}
+		if len(hs) > 1 {
+			keysHosts[key] = hs[1:]
+		} else {
+			delete(keysHosts, key)
 		}
 	}
 
@@ -667,6 +671,10 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 }
 
 func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *clickhouseConfig.ClickhouseConfig_Kafka) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	res["security_protocol"] = c.SecurityProtocol.String()
@@ -709,6 +717,10 @@ func flattenClickhouseKafkaTopicsSettings(d *schema.ResourceData, c []*clickhous
 }
 
 func flattenClickhouseRabbitmqSettings(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfig_Rabbitmq) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	res["username"] = c.Username
@@ -791,6 +803,10 @@ func flattenClickhouseQueryMaskingRulesSettings(c []*clickhouseConfig.Clickhouse
 }
 
 func flattenClickhouseQueryCacheSettings(c *clickhouseConfig.ClickhouseConfig_QueryCache) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	res := map[string]interface{}{}
 
 	if c.MaxSizeInBytes != nil {

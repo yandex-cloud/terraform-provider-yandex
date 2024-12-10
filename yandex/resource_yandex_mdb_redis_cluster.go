@@ -115,9 +115,55 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"use_luajit": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"io_threads_allowed": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
 						"version": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+						"lua_time_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"repl_backlog_size_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"cluster_require_full_coverage": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"cluster_allow_reads_when_down": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"cluster_allow_pubsubshard_when_down": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"lfu_decay_time": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"lfu_log_factor": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"turn_before_switchover": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"allow_data_loss": {
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 						"backup_window_start": {
 							Type:     schema.TypeList,
@@ -516,18 +562,29 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 	err = d.Set("config", []map[string]interface{}{
 		{
-			"timeout":                           conf.timeout,
-			"maxmemory_policy":                  conf.maxmemoryPolicy,
-			"notify_keyspace_events":            conf.notifyKeyspaceEvents,
-			"slowlog_log_slower_than":           conf.slowlogLogSlowerThan,
-			"slowlog_max_len":                   conf.slowlogMaxLen,
-			"databases":                         conf.databases,
-			"maxmemory_percent":                 conf.maxmemoryPercent,
-			"version":                           conf.version,
-			"password":                          password,
-			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
-			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
-			"backup_window_start":               flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
+			"timeout":                             conf.timeout,
+			"maxmemory_policy":                    conf.maxmemoryPolicy,
+			"notify_keyspace_events":              conf.notifyKeyspaceEvents,
+			"slowlog_log_slower_than":             conf.slowlogLogSlowerThan,
+			"slowlog_max_len":                     conf.slowlogMaxLen,
+			"databases":                           conf.databases,
+			"maxmemory_percent":                   conf.maxmemoryPercent,
+			"version":                             conf.version,
+			"password":                            password,
+			"client_output_buffer_limit_normal":   conf.clientOutputBufferLimitNormal,
+			"client_output_buffer_limit_pubsub":   conf.clientOutputBufferLimitPubsub,
+			"lua_time_limit":                      conf.luaTimeLimit,
+			"repl_backlog_size_percent":           conf.replBacklogSizePercent,
+			"cluster_require_full_coverage":       conf.clusterRequireFullCoverage,
+			"cluster_allow_reads_when_down":       conf.clusterAllowReadsWhenDown,
+			"cluster_allow_pubsubshard_when_down": conf.clusterAllowPubsubshardWhenDown,
+			"lfu_decay_time":                      conf.lfuDecayTime,
+			"lfu_log_factor":                      conf.lfuLogFactor,
+			"turn_before_switchover":              conf.turnBeforeSwitchover,
+			"allow_data_loss":                     conf.allowDataLoss,
+			"use_luajit":                          conf.useLuajit,
+			"io_threads_allowed":                  conf.ioThreadsAllowed,
+			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
 	})
 	if err != nil {
@@ -712,6 +769,17 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"maxmemory_percent",
 			"client_output_buffer_limit_normal",
 			"client_output_buffer_limit_pubsub",
+			"lua_time_limit",
+			"repl_backlog_size_percent",
+			"cluster_require_full_coverage",
+			"cluster_allow_reads_when_down",
+			"cluster_allow_pubsubshard_when_down",
+			"lfu_decay_time",
+			"lfu_log_factor",
+			"turn_before_switchover",
+			"allow_data_loss",
+			"use_luajit",
+			"io_threads_allowed",
 		}
 		for _, field := range fields {
 			fullPath := "config_spec.redis." + field

@@ -3,6 +3,9 @@ package security_group_rule
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"testing"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -11,7 +14,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/resourceid"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 	testvpc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/vpc"
-	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -114,6 +116,23 @@ func TestAccVPCSecurityGroupRule_UpgradeFromSDKv2(t *testing.T) {
 						plancheck.ExpectEmptyPlan(),
 					},
 				},
+			},
+		},
+	})
+}
+
+func TestAccVPCSecurityGroupRule_invalid(t *testing.T) {
+	networkName := acctest.RandomWithPrefix("vpc-network")
+	sgName := acctest.RandomWithPrefix("vpc-security-group")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckVPCSecurityGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testVPCSecurityGroupRuleInvalid(networkName, sgName),
+				ExpectError: regexp.MustCompile("Use port attribute to specify single port value"),
 			},
 		},
 	})
@@ -236,6 +255,31 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
 		},
 	})
+}
+
+func testVPCSecurityGroupRuleInvalid(networkName, sgName string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_security_group" "sg1" {
+  name        = "%s"
+  description = "description for security group"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  folder_id   = "%s"
+}
+
+resource "yandex_vpc_security_group_rule" "sgr1" {
+  description            = "hello there"
+  direction              = "ingress"
+  v4_cidr_blocks         = ["10.0.1.0/24", "10.0.2.0/24"]
+  security_group_binding = yandex_vpc_security_group.sg1.id
+  from_port              = 443
+  to_port                = 443
+  protocol               = "TCP"
+}
+`, networkName, sgName, test.GetExampleFolderID())
 }
 
 func testVPCSecurityGroupRuleBasicWithV4CidrTarget(networkName, sgName string) string {

@@ -66,6 +66,7 @@ The `config` block supports:
 * `schema_registry` - (Optional) Enables managed schema registry on cluster. Can be either `true` or `false`.
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
+* `kraft` - (Optional) Configuration of the KRaft-controller subcluster. The structure is documented below.
 * `access` - (Optional) Access policy to the Kafka cluster. The structure is documented below.
 
 The `kafka` block supports:
@@ -92,6 +93,16 @@ The `resources` block supports:
 * `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 * `disk_size` - (Optional) Volume of the storage available to a ZooKeeper host, in gigabytes.
 * `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+
+The `kraft` block supports:
+
+* `resources` - (Optional) Resources allocated to hosts of the KRaft-controller subcluster. The structure is documented below.
+
+The `resources` block supports:
+
+* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+* `disk_size` - (Optional) Volume of the storage available to a KRaft-controller host, in gigabytes.
+* `disk_type_id` - (Optional) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
 
 The `access` block supports:
 

@@ -154,12 +154,12 @@ func TestExpandStaticRoutes(t *testing.T) {
 			),
 			expected: []*vpc.StaticRoute{
 				{
-					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "192.0.2.0/24"},
-					NextHop:     &vpc.StaticRoute_NextHopAddress{NextHopAddress: "192.0.2.1"},
-				},
-				{
 					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "0.0.0.0/0"},
 					NextHop:     &vpc.StaticRoute_GatewayId{GatewayId: "gateway-id"},
+				},
+				{
+					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "192.0.2.0/24"},
+					NextHop:     &vpc.StaticRoute_NextHopAddress{NextHopAddress: "192.0.2.1"},
 				},
 			},
 			shouldFail: false,

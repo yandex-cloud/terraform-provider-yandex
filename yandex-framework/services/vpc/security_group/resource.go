@@ -66,7 +66,7 @@ var (
 		},
 	}
 
-	RuleResourceAttributes = map[string]schema.Attribute{
+	ruleResourceAttributes = map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Computed: true,
 			PlanModifiers: []planmodifier.String{
@@ -226,12 +226,12 @@ func (g *securityGroupResource) Schema(ctx context.Context, req resource.SchemaR
 		Blocks: map[string]schema.Block{
 			"ingress": schema.SetNestedBlock{
 				NestedObject: schema.NestedBlockObject{
-					Attributes: RuleResourceAttributes,
+					Attributes: ruleResourceAttributes,
 				},
 			},
 			"egress": schema.SetNestedBlock{
 				NestedObject: schema.NestedBlockObject{
-					Attributes: RuleResourceAttributes,
+					Attributes: ruleResourceAttributes,
 				},
 			},
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{

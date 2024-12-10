@@ -1,13 +1,13 @@
-resource "yandex_mdb_kafka_cluster" "foo" {
+resource "yandex_mdb_kafka_cluster" "kraft-combine" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
   subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
 
   config {
-    version          = "2.8"
-    brokers_count    = 2
-    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+    version          = "3.6"
+    brokers_count    = 1
+    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
     kafka {
@@ -35,36 +35,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         offsets_retention_minutes       = 10080
         sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
       }
-    }
-    zookeeper {
-      resources {
-        resource_preset_id = "s2.micro"
-        disk_type_id       = "network-ssd"
-        disk_size          = 20
-      }
-    }
-  }
-
-  user {
-    name     = "producer-application"
-    password = "password"
-    permission {
-      topic_name  = "input"
-      role        = "ACCESS_ROLE_PRODUCER"
-      allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
-    }
-  }
-
-  user {
-    name     = "worker"
-    password = "password"
-    permission {
-      topic_name = "input"
-      role       = "ACCESS_ROLE_CONSUMER"
-    }
-    permission {
-      topic_name = "output"
-      role       = "ACCESS_ROLE_PRODUCER"
     }
   }
 }

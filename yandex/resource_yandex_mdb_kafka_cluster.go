@@ -212,6 +212,13 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				MaxItems: 1,
 				Elem:     resourceYandexMDBKafkaClusterZookeeperConfig(),
 			},
+			"kraft": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     resourceYandexMDBKafkaClusterKRaftControllerConfig(),
+			},
 			"disk_size_autoscaling": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -273,6 +280,29 @@ func resourceYandexMDBKafkaClusterResources() *schema.Resource {
 }
 
 func resourceYandexMDBKafkaZookeeperResources() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resource_preset_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"disk_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"disk_type_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaKRaftControllerResources() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"resource_preset_id": {
@@ -572,6 +602,20 @@ func resourceYandexMDBKafkaClusterZookeeperConfig() *schema.Resource {
 				Computed: true,
 				MaxItems: 1,
 				Elem:     resourceYandexMDBKafkaZookeeperResources(),
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaClusterKRaftControllerConfig() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resources": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     resourceYandexMDBKafkaKRaftControllerResources(),
 			},
 		},
 	}
@@ -998,6 +1042,9 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
+	"config.0.kraft.0.resources.0.resource_preset_id":                 "config_spec.kraft.resources.resource_preset_id",
+	"config.0.kraft.0.resources.0.disk_type_id":                       "config_spec.kraft.resources.disk_type_id",
+	"config.0.kraft.0.resources.0.disk_size":                          "config_spec.kraft.resources.disk_size",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {

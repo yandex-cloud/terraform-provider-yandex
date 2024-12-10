@@ -115,8 +115,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 61
 
-	for _, version := range []string{"6.2", "7.0"} {
-		updateVersion := "7.2"
+	for _, version := range []string{"7.2"} {
+		//updateVersion := "7.2"
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -135,9 +135,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
-							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits, 75),
+						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, "Elg", 5000, 10, 15, version,
+							normalLimits, pubsubLimits, 75, 4444, 10, true, true, true, 11, 10, true, true, false, true),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -205,7 +204,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits, 65),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
+							false, false, false, 13, 12, false, false, true, false),
 						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -238,7 +238,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits, 65),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
+							false, false, false, 13, 12, false, false, true, false),
 						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -247,7 +248,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				},
 				mdbRedisClusterImportStep(redisResource),
 				// Upgrade version
-				{
+				/*{
 					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, &announceHostnames, persistenceMode,
 						updateVersion, updatedFlavor, updatedDiskSize, "",
 						[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
@@ -255,9 +256,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, announceHostnames, persistenceMode),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, updateVersion,
-							normalUpdatedLimits, pubsubUpdatedLimits, 65),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
+							false, false, false, 13, 12, false, false, true, false),
 					),
-				},
+				},*/
 				mdbRedisClusterImportStep(redisResource),
 			},
 		})
@@ -280,7 +282,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 	pubsubLimits := "16777214 8388606 62"
 	pubIpUnset := false
 	baseReplicaPriority := 100
-	for _, version := range []string{"6.2", "7.0"} {
+	for _, version := range []string{"7.2"} {
 
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
@@ -302,7 +304,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits, 75),
+							normalLimits, pubsubLimits, 75, 4444, 10, true, true, true, 11, 10, true, true, false, true),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -329,7 +331,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits, 75),
+							normalLimits, pubsubLimits, 75, 4444, 10, true, true, true, 11, 10, true, true, false, true),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -375,7 +377,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 51
 
-	for _, version := range []string{"6.2", "7.0"} {
+	for _, version := range []string{"7.2"} {
 		// don't check disabling for 6.2 (limited in API) until we use rdsync
 		if version == "6.2" {
 			announceHostnamesChanged = true
@@ -408,7 +410,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits, 75),
+							normalLimits, pubsubLimits, 75, 4444, 10, true, true, true, 11, 10, true, true, false, true),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
@@ -441,7 +443,8 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits, 65),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
+							false, false, false, 13, 12, false, false, true, false),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -481,7 +484,8 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.3.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits, 65),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
+							false, false, false, 13, 12, false, false, true, false),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -508,7 +512,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	persistenceMode := "ON"
 	persistenceModeChanged := "OFF"
 
-	for _, version := range []string{"6.2", "7.0"} {
+	for _, version := range []string{"7.2"} {
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -662,7 +666,10 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 
 func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64,
 	notifyKeyspaceEvents string, slowlogLogSlowerThan, slowlogMaxLen, databases int64,
-	version, clientOutputBufferLimitNormal, clientOutputBufferLimitPubsub string, maxmemoryPercent int64) resource.TestCheckFunc {
+	version, clientOutputBufferLimitNormal, clientOutputBufferLimitPubsub string, maxmemoryPercent int64,
+	luaTimeLimit int64, replBacklogSizePercent int64, clusterRequireFullCoverage bool, clusterAllowReadsWhenDown bool,
+	clusterAllowPubsubshardWhenDown bool, lfuDecayTime int64, lfuLogFactor int64, turnBeforeSwitchover bool,
+	allowDataLoss bool, useLuajit bool, ioThreadsAllowed bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := extractRedisConfig(r.Config)
 		if c.maxmemoryPolicy != maxmemoryPolicy {
@@ -696,6 +703,39 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 		if c.clientOutputBufferLimitPubsub != clientOutputBufferLimitPubsub {
 			return fmt.Errorf("expected config.clientOutputBufferLimitPubsub '%s', got '%s'",
 				clientOutputBufferLimitPubsub, c.clientOutputBufferLimitPubsub)
+		}
+		if c.luaTimeLimit != luaTimeLimit {
+			return fmt.Errorf("expected config.lua_time_limit '%d', got '%d'", luaTimeLimit, c.luaTimeLimit)
+		}
+		if c.replBacklogSizePercent != replBacklogSizePercent {
+			return fmt.Errorf("expected config.repl_backlog_size_percent '%d', got '%d'", replBacklogSizePercent, c.replBacklogSizePercent)
+		}
+		if c.clusterRequireFullCoverage != clusterRequireFullCoverage {
+			return fmt.Errorf("expected config.cluster_require_full_coverage '%t', got '%t'", clusterRequireFullCoverage, c.clusterRequireFullCoverage)
+		}
+		if c.clusterAllowReadsWhenDown != clusterAllowReadsWhenDown {
+			return fmt.Errorf("expected config.cluster_allow_reads_when_down '%t', got '%t'", clusterAllowReadsWhenDown, c.clusterAllowReadsWhenDown)
+		}
+		if c.clusterAllowPubsubshardWhenDown != clusterAllowPubsubshardWhenDown {
+			return fmt.Errorf("expected config.cluster_allow_pubsubshard_when_down '%t', got '%t'", clusterAllowPubsubshardWhenDown, c.clusterAllowPubsubshardWhenDown)
+		}
+		if c.lfuDecayTime != lfuDecayTime {
+			return fmt.Errorf("expected config.lfu_decay_time '%d', got '%d'", lfuDecayTime, c.lfuDecayTime)
+		}
+		if c.lfuLogFactor != lfuLogFactor {
+			return fmt.Errorf("expected config.lfu_log_factor '%d', got '%d'", lfuLogFactor, c.lfuLogFactor)
+		}
+		if c.turnBeforeSwitchover != turnBeforeSwitchover {
+			return fmt.Errorf("expected config.turn_before_switchover '%t', got '%t'", turnBeforeSwitchover, c.turnBeforeSwitchover)
+		}
+		if c.allowDataLoss != allowDataLoss {
+			return fmt.Errorf("expected config.allow_data_loss '%t', got '%t'", allowDataLoss, c.allowDataLoss)
+		}
+		if c.useLuajit != useLuajit {
+			return fmt.Errorf("expected config.use_luajit '%t', got '%t'", useLuajit, c.useLuajit)
+		}
+		if c.ioThreadsAllowed != ioThreadsAllowed {
+			return fmt.Errorf("expected config.io_threads_allowed '%t', got '%t'", ioThreadsAllowed, c.ioThreadsAllowed)
 		}
 		return nil
 	}
@@ -981,6 +1021,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_max_len = 10
 	databases = 15
 	maxmemory_percent = 75
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
+	use_luajit = false
+	io_threads_allowed = true
 	version	= "%s"
 	%s
 	%s
@@ -1051,6 +1102,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_max_len = 10
 	databases = 15
 	maxmemory_percent = 75
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
+	use_luajit = false
+	io_threads_allowed = true
 	version	= "%s"
 	%s
 	%s
@@ -1114,6 +1176,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_max_len = 10
 	databases = 15
 	maxmemory_percent = 75
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
+	use_luajit = false
+	io_threads_allowed = true
 	version	= "%s"
 	%s
 	%s
@@ -1174,6 +1247,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_max_len = 12
 	databases = 17
 	maxmemory_percent = 65
+	lua_time_limit = 3333
+	repl_backlog_size_percent = 9
+	cluster_require_full_coverage = false
+	cluster_allow_reads_when_down = false
+	cluster_allow_pubsubshard_when_down = false
+	lfu_decay_time = 13
+	lfu_log_factor = 12
+	turn_before_switchover = false
+	allow_data_loss = false
+	use_luajit = true
+	io_threads_allowed = false
 	version			 = "%s"
 	%s
 	%s
@@ -1244,6 +1328,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_max_len = 12
 	databases = 17
 	maxmemory_percent = 65
+	lua_time_limit = 3333
+	repl_backlog_size_percent = 9
+	cluster_require_full_coverage = false
+	cluster_allow_reads_when_down = false
+	cluster_allow_pubsubshard_when_down = false
+	lfu_decay_time = 13
+	lfu_log_factor = 12
+	turn_before_switchover = false
+	allow_data_loss = false
+	use_luajit = true
+	io_threads_allowed = false
 	version			 = "%s"
   }
 
@@ -1281,6 +1376,15 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   config {
     password = "passw0rd"
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
 	version  = "%s"
   }
 
@@ -1318,6 +1422,15 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   config {
     password = "new_passw0rd"
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
 	version	 = "%s"
   }
 

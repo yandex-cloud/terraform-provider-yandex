@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"google.golang.org/protobuf/types/known/wrapperspb"
+
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
@@ -13,16 +15,27 @@ import (
 )
 
 type redisConfig struct {
-	timeout                       int64
-	maxmemoryPolicy               string
-	notifyKeyspaceEvents          string
-	slowlogLogSlowerThan          int64
-	slowlogMaxLen                 int64
-	databases                     int64
-	version                       string
-	clientOutputBufferLimitNormal string
-	clientOutputBufferLimitPubsub string
-	maxmemoryPercent              int64
+	timeout                         int64
+	maxmemoryPolicy                 string
+	notifyKeyspaceEvents            string
+	slowlogLogSlowerThan            int64
+	slowlogMaxLen                   int64
+	databases                       int64
+	version                         string
+	clientOutputBufferLimitNormal   string
+	clientOutputBufferLimitPubsub   string
+	maxmemoryPercent                int64
+	luaTimeLimit                    int64
+	replBacklogSizePercent          int64
+	clusterRequireFullCoverage      bool
+	clusterAllowReadsWhenDown       bool
+	clusterAllowPubsubshardWhenDown bool
+	lfuDecayTime                    int64
+	lfuLogFactor                    int64
+	turnBeforeSwitchover            bool
+	allowDataLoss                   bool
+	useLuajit                       bool
+	ioThreadsAllowed                bool
 }
 
 const defaultReplicaPriority = 100
@@ -207,7 +220,17 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		c.ClientOutputBufferLimitPubsub.SoftLimit,
 		c.ClientOutputBufferLimitPubsub.SoftSeconds,
 	)
-
+	res.luaTimeLimit = c.GetLuaTimeLimit().GetValue()
+	res.replBacklogSizePercent = c.GetReplBacklogSizePercent().GetValue()
+	res.clusterRequireFullCoverage = c.GetClusterRequireFullCoverage().GetValue()
+	res.clusterAllowReadsWhenDown = c.GetClusterAllowReadsWhenDown().GetValue()
+	res.clusterAllowPubsubshardWhenDown = c.GetClusterAllowPubsubshardWhenDown().GetValue()
+	res.lfuDecayTime = c.GetLfuDecayTime().GetValue()
+	res.lfuLogFactor = c.GetLfuLogFactor().GetValue()
+	res.turnBeforeSwitchover = c.GetTurnBeforeSwitchover().GetValue()
+	res.allowDataLoss = c.GetAllowDataLoss().GetValue()
+	res.useLuajit = c.GetUseLuajit().GetValue()
+	res.ioThreadsAllowed = c.GetIoThreadsAllowed().GetValue()
 	return res
 }
 
@@ -268,6 +291,51 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		version = v.(string)
 	}
 
+	var luaTimeLimit *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.lua_time_limit"); ok {
+		luaTimeLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var replBacklogSizePercent *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.repl_backlog_size_percent"); ok {
+		replBacklogSizePercent = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var clusterRequireFullCoverage *wrappers.BoolValue
+	if v := d.Get("config.0.cluster_require_full_coverage"); v != nil {
+		clusterRequireFullCoverage = wrapperspb.Bool(v.(bool))
+	}
+
+	var clusterAllowReadsWhenDown *wrappers.BoolValue
+	if v := d.Get("config.0.cluster_allow_reads_when_down"); v != nil {
+		clusterAllowReadsWhenDown = wrapperspb.Bool(v.(bool))
+	}
+
+	var clusterAllowPubsubshardWhenDown *wrappers.BoolValue
+	if v := d.Get("config.0.cluster_allow_pubsubshard_when_down"); v != nil {
+		clusterAllowPubsubshardWhenDown = wrapperspb.Bool(v.(bool))
+	}
+
+	var lfuDecayTime *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.lfu_decay_time"); ok {
+		lfuDecayTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var lfuLogFactor *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.lfu_log_factor"); ok {
+		lfuLogFactor = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var turnBeforeSwitchover *wrappers.BoolValue
+	if v := d.Get("config.0.turn_before_switchover"); v != nil {
+		turnBeforeSwitchover = wrapperspb.Bool(v.(bool))
+	}
+
+	var allowDataLoss *wrappers.BoolValue
+	if v := d.Get("config.0.allow_data_loss"); v != nil {
+		allowDataLoss = wrapperspb.Bool(v.(bool))
+	}
+
 	var err error
 	var expandedNormal []*wrappers.Int64Value
 	if v, ok := d.GetOk("config.0.client_output_buffer_limit_normal"); ok {
@@ -284,14 +352,35 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		}
 	}
 
+	var useLuajit *wrappers.BoolValue
+	if v := d.Get("config.0.use_luajit"); v != nil {
+		useLuajit = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	var ioThreadsAllowed *wrappers.BoolValue
+	if v := d.Get("config.0.io_threads_allowed"); v != nil {
+		ioThreadsAllowed = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
 	c := config.RedisConfig{
-		Password:             password,
-		Timeout:              timeout,
-		NotifyKeyspaceEvents: notifyKeyspaceEvents,
-		SlowlogLogSlowerThan: slowlogLogSlowerThan,
-		SlowlogMaxLen:        slowlogMaxLen,
-		Databases:            databases,
-		MaxmemoryPercent:     maxmemoryPercent,
+		Password:                        password,
+		Timeout:                         timeout,
+		NotifyKeyspaceEvents:            notifyKeyspaceEvents,
+		SlowlogLogSlowerThan:            slowlogLogSlowerThan,
+		SlowlogMaxLen:                   slowlogMaxLen,
+		Databases:                       databases,
+		MaxmemoryPercent:                maxmemoryPercent,
+		LuaTimeLimit:                    luaTimeLimit,
+		ReplBacklogSizePercent:          replBacklogSizePercent,
+		ClusterRequireFullCoverage:      clusterRequireFullCoverage,
+		ClusterAllowReadsWhenDown:       clusterAllowReadsWhenDown,
+		ClusterAllowPubsubshardWhenDown: clusterAllowPubsubshardWhenDown,
+		LfuDecayTime:                    lfuDecayTime,
+		LfuLogFactor:                    lfuLogFactor,
+		TurnBeforeSwitchover:            turnBeforeSwitchover,
+		AllowDataLoss:                   allowDataLoss,
+		UseLuajit:                       useLuajit,
+		IoThreadsAllowed:                ioThreadsAllowed,
 	}
 
 	if len(expandedNormal) != 0 {

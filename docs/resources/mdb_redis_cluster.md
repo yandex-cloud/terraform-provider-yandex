@@ -179,6 +179,28 @@ The `config` block supports:
 
 * `client_output_buffer_limit_pubsub` - (Optional) Pubsub clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1843).
 
+* `lua_time_limit` - (Optional) Maximum time in milliseconds for Lua scripts.
+
+* `repl_backlog_size_percent` - (Optional) Replication backlog size as a percentage of flavor maxmemory.
+
+* `cluster_require_full_coverage` - (Optional) Controls whether all hash slots must be covered by nodes.
+
+* `cluster_allow_reads_when_down` - (Optional) Allows read operations when cluster is down.
+
+* `cluster_allow_pubsubshard_when_down` - (Optional) Permits Pub/Sub shard operations when cluster is down.
+
+* `lfu_decay_time` - (Optional) The time, in minutes, that must elapse in order for the key counter to be divided by two (or decremented if it has a value less <= 10).
+
+* `lfu_log_factor` - (Optional) Determines how the frequency counter represents key hits.
+
+* `turn_before_switchover` - (Optional) Allows to turn before switchover in RDSync.
+
+* `allow_data_loss` - (Optional) Allows some data to be lost in favor of faster switchover/restart by RDSync.
+
+* `use_luajit` - (Optional) Use JIT for lua scripts and functions.
+
+* `io_threads_allowed` - (Optional) Allow Redis to use io-threads.
+
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 The `backup_window_start` block supports:

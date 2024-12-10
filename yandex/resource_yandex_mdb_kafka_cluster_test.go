@@ -52,6 +52,8 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-d" {
 }
 `
 
+var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"}
+
 func init() {
 	resource.AddTestSweepers("yandex_mdb_kafka_cluster", &resource.Sweeper{
 		Name: "yandex_mdb_kafka_cluster",
@@ -393,9 +395,144 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 	assert.Equal(t, expected, req)
 }
 
+func TestExpandKafkaKRaftCombineClusterConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"folder_id":   "",
+		"name":        "kafka-tf-name",
+		"environment": "PRESTABLE",
+		"config": []interface{}{
+			map[string]interface{}{
+				"version":       "3.6",
+				"brokers_count": 1,
+				"zones":         []interface{}{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
+				"kafka": []interface{}{
+					map[string]interface{}{
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "s2.micro",
+								"disk_size":          20,
+								"disk_type_id":       "network-ssd",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	config := &Config{FolderID: "folder-777"}
+	req, err := prepareKafkaCreateRequest(resourceData, config)
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.CreateClusterRequest{
+		FolderId:    "folder-777",
+		Name:        "kafka-tf-name",
+		Labels:      map[string]string{},
+		Environment: kafka.Cluster_PRESTABLE,
+		ConfigSpec: &kafka.ConfigSpec{
+			Version:      "3.6",
+			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
+			ZoneId:       []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
+			Kafka: &kafka.ConfigSpec_Kafka{
+				Resources: &kafka.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskSize:         21474836480,
+					DiskTypeId:       "network-ssd",
+				},
+				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_3{
+					KafkaConfig_3: &kafka.KafkaConfig3{},
+				},
+			},
+		},
+		SubnetId:  []string{},
+		UserSpecs: []*kafka.UserSpec{},
+	}
+
+	assert.Equal(t, expected, req)
+}
+
+func TestExpandKafkaKRaftSplitClusterConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"folder_id":   "",
+		"name":        "kafka-tf-name",
+		"environment": "PRESTABLE",
+		"config": []interface{}{
+			map[string]interface{}{
+				"version":       "3.6",
+				"brokers_count": 1,
+				"zones":         []interface{}{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
+				"kafka": []interface{}{
+					map[string]interface{}{
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "s2.micro",
+								"disk_size":          20,
+								"disk_type_id":       "network-ssd",
+							},
+						},
+					},
+				},
+				"kraft": []interface{}{
+					map[string]interface{}{
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "b2.medium",
+								"disk_size":          32,
+								"disk_type_id":       "network-ssd",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	config := &Config{FolderID: "folder-777"}
+	req, err := prepareKafkaCreateRequest(resourceData, config)
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.CreateClusterRequest{
+		FolderId:    "folder-777",
+		Name:        "kafka-tf-name",
+		Labels:      map[string]string{},
+		Environment: kafka.Cluster_PRESTABLE,
+		ConfigSpec: &kafka.ConfigSpec{
+			Version:      "3.6",
+			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
+			ZoneId:       []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
+			Kafka: &kafka.ConfigSpec_Kafka{
+				Resources: &kafka.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskSize:         21474836480,
+					DiskTypeId:       "network-ssd",
+				},
+				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_3{
+					KafkaConfig_3: &kafka.KafkaConfig3{},
+				},
+			},
+			Kraft: &kafka.ConfigSpec_KRaft{
+				Resources: &kafka.Resources{
+					ResourcePresetId: "b2.medium",
+					DiskSize:         34359738368,
+					DiskTypeId:       "network-ssd",
+				},
+			},
+		},
+		SubnetId:  []string{},
+		UserSpecs: []*kafka.UserSpec{},
+	}
+
+	assert.Equal(t, expected, req)
+}
+
 func TestExpandKafka3xClusterConfig(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
-	for _, version := range versions3x {
+	for _, version := range Versions3x {
 		raw := map[string]interface{}{
 			"config": []interface{}{
 				map[string]interface{}{
@@ -740,8 +877,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 }
 
 func TestKafka3xClusterUpdateRequest(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
-	for _, version := range versions3x {
+	for _, version := range Versions3x {
 		raw := map[string]interface{}{
 			"name":        "new-name",
 			"description": "new description",
@@ -786,6 +922,17 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 						},
 					},
 					"zookeeper": []interface{}{
+						map[string]interface{}{
+							"resources": []interface{}{
+								map[string]interface{}{
+									"resource_preset_id": "b2.medium",
+									"disk_size":          32,
+									"disk_type_id":       "network-ssd",
+								},
+							},
+						},
+					},
+					"kraft": []interface{}{
 						map[string]interface{}{
 							"resources": []interface{}{
 								map[string]interface{}{
@@ -868,6 +1015,13 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 						DiskTypeId:       "network-ssd",
 					},
 				},
+				Kraft: &kafka.ConfigSpec_KRaft{
+					Resources: &kafka.Resources{
+						ResourcePresetId: "b2.medium",
+						DiskSize:         34359738368,
+						DiskTypeId:       "network-ssd",
+					},
+				},
 				DiskSizeAutoscaling: &kafka.DiskSizeAutoscaling{
 					DiskSizeLimit:           200 * 1024 * 1024 * 1024,
 					PlannedUsageThreshold:   50,
@@ -908,6 +1062,9 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 				"config_spec.kafka.resources.disk_size",
 				"config_spec.kafka.resources.disk_type_id",
 				"config_spec.kafka.resources.resource_preset_id",
+				"config_spec.kraft.resources.disk_size",
+				"config_spec.kraft.resources.disk_type_id",
+				"config_spec.kraft.resources.resource_preset_id",
 				"config_spec.version",
 				"config_spec.zone_id",
 				"config_spec.zookeeper.resources.disk_size",
@@ -1005,8 +1162,7 @@ func TestUpdateKafkaClusterTopics(t *testing.T) {
 }
 
 func TestUpdateKafka3xClusterTopics(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
-	for _, version := range versions3x {
+	for _, version := range Versions3x {
 		rawInitial := map[string]interface{}{
 			"config": []interface{}{
 				map[string]interface{}{"version": version},

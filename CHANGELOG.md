@@ -1,3 +1,34 @@
+## 0.134.0 (December 3, 2024)
+
+FEATURES:
+* redis: add parameters use_luajit and io_threads_allowed
+* redis: added 9 new parameters to config spec
+* alb: add keep_connections_on_host_health_failure flag to yandex_alb_backend_group stream backend.
+* serverless: `yandex_serverless_container` resource and data source now have `runtime` parameter
+* cdn: add labels in cdn resource schema
+* alb: add support of custom healthcheck statuses for backend group http healthcheck
+
+BUG FIXES:
+* serverless: `yandex_serverless_container` resource and data source now correctly handle absence of revision
+
+## 0.133.0 (November 19, 2024)
+
+FEATURES:
+* alb: add rate limiter to virtual host
+* serverless: added new resources yandex_serverless_eventrouter_bus, yandex_serverless_eventrouter_connector, yandex_serverless_eventrouter_rule
+* serverless: added new data sources yandex_serverless_eventrouter_bus, yandex_serverless_eventrouter_connector, yandex_serverless_eventrouter_rule
+* alb: add `idle_timeout` attribute for Stream and TLS Stream handlers
+* postgresql: add postgresql 17 support
+
+BUG FIXES:
+* serverless: `yandex_function` resource and data source now correctly handle absence of version
+* lockbox: `yandex_lockbox_secret` no longer creates versions on its own.
+* clickhouse: fixed adding two hosts with same zone instead of one
+* ClickHouse: fix yandex_mdb_clickhouse_cluster segfault on empty kafka settings
+
+ENHANCEMENTS:
+* vpc: improve security_group_rule validation
+
 ## 0.132.0 (November 5, 2024)
 
 FEATURES:

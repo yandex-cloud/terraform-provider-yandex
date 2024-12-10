@@ -370,6 +370,10 @@ func dataSourceStreamHandler() *schema.Schema {
 					Type:     schema.TypeString,
 					Computed: true,
 				},
+				"idle_timeout": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 			},
 		},
 	}

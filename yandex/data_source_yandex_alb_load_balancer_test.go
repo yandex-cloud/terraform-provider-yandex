@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -118,6 +119,18 @@ func TestAccDataSourceALBLoadBalancer_streamListener(t *testing.T) {
 					),
 					testExistsFirstElementWithAttr(
 						albLoadBalancerDataSourceResource, "listener", "stream.0.handler.0.backend_group", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "stream.0.handler.0.idle_timeout", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "stream.0.handler.0.idle_timeout", func(value string) error {
+							idleTimeout := alb.GetListeners()[0].GetStream().GetHandler().GetIdleTimeout()
+							if realValue, _ := time.ParseDuration(value); realValue != idleTimeout.AsDuration() {
+								return fmt.Errorf("ALB Load Balancer's listener's stream handler idle timeout doesnt't match. %v != %v", realValue, idleTimeout)
+							}
+							return nil
+						},
 					),
 				),
 			},
@@ -413,6 +426,18 @@ func TestAccDataSourceALBLoadBalancer_tlsListenerWithStreamHandler(t *testing.T)
 					),
 					testExistsFirstElementWithAttr(
 						albLoadBalancerDataSourceResource, "listener", "tls.0.default_handler.0.stream_handler.0.backend_group", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "tls.0.default_handler.0.stream_handler.0.idle_timeout", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.stream_handler.0.idle_timeout", func(value string) error {
+							idleTimeout := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetStreamHandler().GetIdleTimeout()
+							if realValue, _ := time.ParseDuration(value); realValue != idleTimeout.AsDuration() {
+								return fmt.Errorf("ALB Load Balancer's listener's TLS stream handler idle timeout doesnt't match. %v != %v", realValue, idleTimeout)
+							}
+							return nil
+						},
 					),
 				),
 			},

@@ -48,6 +48,8 @@ The following arguments are supported:
 
 * `cname` (Required) - CDN endpoint CNAME, must be unique among resources.
 
+* `labels` - (Optional) Labels to assign to this CDN Resource. A list of key/value pairs.
+
 * `active` (Optional) - Flag to create Resource either in active or disabled state. True - the content from CDN is available to clients.
 
 * `options` (Optional) - CDN Resource settings and options to tune CDN edge behavior.

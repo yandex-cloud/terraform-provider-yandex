@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -74,6 +75,70 @@ func TestAccDataSourceYandexServerlessContainer_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceYandexServerlessContainer_noRevision(t *testing.T) {
+	t.Parallel()
+
+	var container containers.Container
+	tfName := "test-container"
+	resourcePath := "yandex_serverless_container." + tfName
+	dataSourcePath := "data.yandex_serverless_container." + tfName
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexServerlessContainerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: func() string {
+					sb := &strings.Builder{}
+					testWriteResourceYandexServerlessContainer(
+						sb,
+						tfName,
+						acctest.RandomWithPrefix("tf-container"),
+						128,
+						serverlessContainerTestImage1,
+						testResourceYandexServerlessContainerOptionFactory.WithDescription(acctest.RandomWithPrefix("tf-function-desc")),
+						testResourceYandexServerlessContainerOptionFactory.WithServiceAccountID("non-existent"), // prevent creation of revision
+					)
+					testWriteDataSourceYandexServerlessContainer(
+						sb,
+						tfName,
+						testDataSourceYandexServerlessContainerOptionFactory.WithContainerID("${"+resourcePath+".id}"),
+					)
+					return sb.String()
+				}(),
+				Check: resource.ComposeTestCheckFunc(
+					// container exists
+					testYandexServerlessContainerExists(resourcePath, &container),
+					// container revision not exists
+					testYandexServerlessContainerRevisionNotExists(resourcePath),
+					// all container attributes are set
+					resource.TestCheckResourceAttrPtr(serverlessContainerDataSource, "container_id", &container.Id),
+					resource.TestCheckResourceAttrPtr(serverlessContainerDataSource, "name", &container.Name),
+					resource.TestCheckResourceAttrPtr(serverlessContainerDataSource, "folder_id", &container.FolderId),
+					resource.TestCheckResourceAttrPtr(serverlessContainerDataSource, "description", &container.Description),
+					resource.TestCheckResourceAttrPtr(serverlessContainerDataSource, "url", &container.Url),
+					testAccCheckCreatedAtAttr(serverlessContainerDataSource),
+					// all revision attributes are not set
+					resource.TestCheckNoResourceAttr(dataSourcePath, "revision_id"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "memory"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "cores"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "core_fraction"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "execution_timeout"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "concurrency"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "service_account_id"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "secrets"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "storage_mounts"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "mounts"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "image"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "connectivity"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "log_options"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	t.Parallel()
 
@@ -89,6 +154,7 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	params.executionTimeout = strconv.FormatInt(int64(1+acctest.RandIntRange(1, 10)), 10) + "s"
 	params.concurrency = acctest.RandIntRange(1, 3)
 	params.imageURL = serverlessContainerTestImage1
+	params.runtime = "http"
 	params.workDir = acctest.RandomWithPrefix("tf-container-work-dir")
 	params.command = acctest.RandomWithPrefix("tf-container-command")
 	params.argument = acctest.RandomWithPrefix("tf-container-argument")
@@ -191,7 +257,8 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "mounts.2.object_storage.0.bucket", params.storageMount.storageMountBucket),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "mounts.2.object_storage.0.prefix", params.storageMount.storageMountPrefix),
 
-					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "runtime.#", "1"),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)), resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.min_level", params.logOptions.minLevel),
 					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "log_options.0.log_group_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),
@@ -400,4 +467,52 @@ resource "yandex_logging_group" "logging-group" {
 		params.secret.secretName,
 		params.secret.secretKey,
 		params.secret.secretValue)
+}
+
+type testDataSourceYandexServerlessContainerOptions struct {
+	name        *string
+	containerID *string
+}
+
+type testDataSourceYandexServerlessContainerOption func(o *testDataSourceYandexServerlessContainerOptions)
+
+type testDataSourceYandexServerlessContainerOptionFactoryImpl bool
+
+const testDataSourceYandexServerlessContainerOptionFactory = testDataSourceYandexServerlessContainerOptionFactoryImpl(true)
+
+func (testDataSourceYandexServerlessContainerOptionFactoryImpl) WithName(name string) testDataSourceYandexServerlessContainerOption {
+	return func(o *testDataSourceYandexServerlessContainerOptions) {
+		o.name = &name
+	}
+}
+
+func (testDataSourceYandexServerlessContainerOptionFactoryImpl) WithContainerID(containerID string) testDataSourceYandexServerlessContainerOption {
+	return func(o *testDataSourceYandexServerlessContainerOptions) {
+		o.containerID = &containerID
+	}
+}
+
+func testWriteDataSourceYandexServerlessContainer(
+	sb *strings.Builder,
+	resourceName string,
+	options ...testDataSourceYandexServerlessContainerOption,
+) {
+	var o testDataSourceYandexServerlessContainerOptions
+	for _, option := range options {
+		option(&o)
+	}
+
+	fprintfLn := func(sb *strings.Builder, format string, a ...any) {
+		_, _ = fmt.Fprintf(sb, format, a...)
+		sb.WriteRune('\n')
+	}
+
+	fprintfLn(sb, "data \"yandex_serverless_container\" \"%s\" {", resourceName)
+	if name := o.name; name != nil {
+		fprintfLn(sb, "  name = \"%s\"", *name)
+	}
+	if containerID := o.containerID; containerID != nil {
+		fprintfLn(sb, "  container_id = \"%s\"", *containerID)
+	}
+	fprintfLn(sb, "}")
 }

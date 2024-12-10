@@ -88,8 +88,6 @@ func sweepVPCSecurityGroupOnce(conf *Config, id string) error {
 }
 
 func TestAccVPCSecurityGroup_basic(t *testing.T) {
-	t.Parallel()
-
 	var securityGroup vpc.SecurityGroup
 
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -125,8 +123,6 @@ func TestAccVPCSecurityGroup_basic(t *testing.T) {
 }
 
 func TestAccVPCSecurityGroup_update(t *testing.T) {
-	t.Parallel()
-
 	var securityGroup vpc.SecurityGroup
 	var securityGroup2 vpc.SecurityGroup
 

@@ -42,6 +42,7 @@ const (
 var _ resource.Resource = &openSearchClusterResource{}
 var _ resource.ResourceWithImportState = &openSearchClusterResource{}
 var _ resource.ResourceWithUpgradeState = &openSearchClusterResource{}
+var _ resource.ResourceWithModifyPlan = &openSearchClusterResource{}
 
 func NewResource() resource.Resource {
 	return &openSearchClusterResource{}
@@ -86,6 +87,74 @@ func (o *openSearchClusterResource) UpgradeState(ctx context.Context) map[int64]
 		// State upgrade implementation from 1 (prior state version) to 2 (Schema.Version)
 		1: legacy.NewUpgraderFromV1(ctx),
 	}
+}
+
+func (o *openSearchClusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		tflog.Debug(ctx, "Skip ModifyPlan due plan is null")
+		return
+	}
+
+	if req.State.Raw.IsNull() {
+		tflog.Debug(ctx, "Skip ModifyPlan due state is null")
+		return
+	}
+
+	var plan model.OpenSearch
+	var state model.OpenSearch
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	planConfig, stateConfig, d := model.ParseGenerics(ctx, &plan, &state, model.ParseConfig)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Hosts will not change if OpenSearch.NodeGroups and Dashboards.NodeGroups configs are the same
+	if !planConfig.OpenSearch.Equal(stateConfig.OpenSearch) {
+		tflog.Debug(ctx, "config.OpenSearch potentially have been changed")
+		planOpenSearchBlock, stateOpenSearchBlock, diags := model.ParseGenerics(ctx, planConfig, stateConfig, model.ParseOpenSearchSubConfig)
+		if diags.HasError() {
+			return
+		}
+
+		if !planOpenSearchBlock.NodeGroups.Equal(stateOpenSearchBlock.NodeGroups) {
+			tflog.Debug(ctx, "Detected changes in config.opensearch.node_groups")
+			return
+		}
+	}
+
+	if !planConfig.Dashboards.Equal(stateConfig.Dashboards) {
+		tflog.Debug(ctx, "planConfig.Dashboards potentially have been changed")
+
+		planDashboardsBlock, stateDashboardsBlock, diags := model.ParseGenerics(ctx, planConfig, stateConfig, model.ParseDashboardSubConfig)
+		if diags.HasError() {
+			return
+		}
+
+		if stateDashboardsBlock == nil && planDashboardsBlock != nil {
+			tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups: state was nil but plan is not")
+			return
+		}
+
+		if stateDashboardsBlock != nil && planDashboardsBlock == nil {
+			tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups: state wasn't nil but plan is nil")
+			return
+		}
+
+		if !planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
+			tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups")
+			return
+		}
+	}
+
+	tflog.Debug(ctx, "Use state hosts, because config.opensearch.node_groups and config.dashboards.node_groups have not been changed")
+	plan.Hosts = state.Hosts
+	resp.Plan.Set(ctx, &plan)
 }
 
 // Create implements resource.Resource.

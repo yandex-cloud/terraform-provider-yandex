@@ -1,8 +1,10 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
@@ -11,7 +13,7 @@ import (
 
 func dataSourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexServerlessContainerRead,
+		ReadContext: dataSourceYandexServerlessContainerRead,
 
 		SchemaVersion: 0,
 
@@ -234,6 +236,23 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 				Computed: true,
 			},
 
+			"runtime": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"http", "task"}, true),
+						},
+					},
+				},
+				Required: false,
+				Optional: true,
+				Computed: true,
+			},
+
 			"connectivity": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -276,21 +295,22 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 	}
 }
 
-func dataSourceYandexServerlessContainerRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceYandexServerlessContainerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(ctx), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	err := checkOneOf(d, "container_id", "name")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	containerID := d.Get("container_id").(string)
 
 	if _, ok := d.GetOk("name"); ok {
 		containerID, err = resolveObjectID(ctx, config, d, sdkresolvers.ContainerResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve data source Yandex Cloud Serverless Container by name: %v", err)
+			return diag.Errorf("failed to resolve data source Yandex Cloud Serverless Container by name: %v", err)
 		}
 	}
 
@@ -300,17 +320,19 @@ func dataSourceYandexServerlessContainerRead(d *schema.ResourceData, meta interf
 
 	container, err := config.sdk.Serverless().Containers().Container().Get(ctx, &req)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id())))
 	}
 
 	revision, err := resolveContainerLastRevision(ctx, config, containerID)
 	if err != nil {
-		return fmt.Errorf("Failed to resolve last revision of data source Yandex Cloud Container: %s", err)
+		return diag.Errorf("Failed to resolve last revision of data source Yandex Cloud Container: %s", err)
 	}
 
 	d.SetId(container.Id)
 	d.Set("container_id", container.Id)
-	d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts)) // for backward compatibility
+	if revision != nil {
+		d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts)) // for backward compatibility
+	}
 
-	return flattenYandexServerlessContainer(d, container, revision, true)
+	return diag.FromErr(flattenYandexServerlessContainer(d, container, revision, true))
 }
