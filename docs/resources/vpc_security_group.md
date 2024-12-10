@@ -98,11 +98,3 @@ The `ingress` and `egress` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - Id of the rule.
-
-## Import
-
-A security group can be imported using the `id` of the resource, e.g.:
-
-```
-$ terraform import yandex_vpc_network.lab-net security_group_id
-```
