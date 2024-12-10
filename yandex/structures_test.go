@@ -30,6 +30,10 @@ func (r *DiskClientGetter) Get(ctx context.Context, in *compute.GetDiskRequest, 
 		ZoneId:      "",
 		Size:        4 * (1 << 30),
 		ProductIds:  nil,
+		KmsKey: &compute.KMSKey{
+			KeyId:     "mock-key-id",
+			VersionId: "mock-key-version",
+		},
 	}, nil
 }
 
@@ -329,6 +333,7 @@ func TestFlattenInstanceBootDisk(t *testing.T) {
 							"block_size":  0,
 							"type":        "network-hdd",
 							"image_id":    "",
+							"kms_key_id":  "mock-key-id",
 						},
 					},
 				},

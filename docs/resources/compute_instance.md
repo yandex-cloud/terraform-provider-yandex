@@ -126,6 +126,8 @@ The `boot_disk` block supports:
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created alongside the new instance. Either `initialize_params` or `disk_id` must be set. The structure is documented below.
 
+* `kms_key_id` - (Optional) ID of KMS symmetric key used to encrypt disk.
+
 ~> **NOTE:** Either `initialize_params` or `disk_id` must be specified.
 
 The `initialize_params` block supports:

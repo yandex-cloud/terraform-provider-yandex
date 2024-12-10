@@ -102,6 +102,10 @@ func dataSourceYandexComputeImage() *schema.Resource {
 				},
 				Computed: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -168,6 +172,10 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("min_disk_size", toGigabytes(image.MinDiskSize))
 	d.Set("size", toGigabytes(image.StorageSize))
 	d.Set("pooled", image.Pooled)
+
+	if image.KmsKey != nil {
+		d.Set("kms_key_id", image.KmsKey.KeyId)
+	}
 
 	if err := d.Set("labels", image.Labels); err != nil {
 		return err

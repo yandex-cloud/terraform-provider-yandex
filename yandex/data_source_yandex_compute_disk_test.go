@@ -15,9 +15,12 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 	diskName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeDiskDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceCustomDiskConfig(family, diskName, true),
@@ -40,6 +43,8 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
 						"block_size", "4096"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
+						"kms_key_id"),
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source", "hardware_generation.#", "1"),
 				),
 			},
@@ -54,9 +59,12 @@ func TestAccDataSourceComputeDisk_byName(t *testing.T) {
 	diskName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeDiskDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceCustomDiskConfig(family, diskName, false),
@@ -79,6 +87,8 @@ func TestAccDataSourceComputeDisk_byName(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
 						"block_size", "4096"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
+						"kms_key_id"),
 				),
 			},
 		},
@@ -90,6 +100,7 @@ func testAccDataSourceCustomDiskResourceConfig(family, name string) string {
 data "yandex_compute_image" "ubuntu" {
   family = "%s"
 }
+resource "yandex_kms_symmetric_key" "disk-encrypt" {}
 
 resource "yandex_compute_disk" "foo" {
   name       = "%s"
@@ -97,6 +108,7 @@ resource "yandex_compute_disk" "foo" {
   image_id   = "${data.yandex_compute_image.ubuntu.id}"
   size       = 8
   block_size = 4096
+  kms_key_id = "${yandex_kms_symmetric_key.disk-encrypt.id}"
 
   labels = {
     my-label = "my-label-value"

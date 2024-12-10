@@ -122,6 +122,10 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				},
 				Computed: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -176,6 +180,10 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())
 	d.Set("disk_placement_policy", diskPlacementPolicy)
+
+	if disk.KmsKey != nil {
+		d.Set("kms_key_id", disk.KmsKey.KeyId)
+	}
 
 	if err := d.Set("instance_ids", disk.InstanceIds); err != nil {
 		return err

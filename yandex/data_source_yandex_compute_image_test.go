@@ -161,6 +161,30 @@ func TestAccDataSourceComputeImage_StandardByFamily(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceComputeImage_encrypted(t *testing.T) {
+	t.Parallel()
+
+	family := "ubuntu-1804-lts"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeImageDestroy,
+			testAccCheckComputeDiskDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceEncryptedImageConfig(family),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source", "kms_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceCustomImageResourceConfig(family, name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "image" {
@@ -225,6 +249,31 @@ func testAccDataSourceStandardImageByFamily(family string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "by_family" {
   family = "%s"
+}
+`, family)
+}
+
+func testAccDataSourceEncryptedImageConfig(family string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "%s"
+}
+resource "yandex_kms_symmetric_key" "disk-encrypt" {}
+
+resource "yandex_compute_disk" "disk" {
+  zone       = "ru-central1-a"
+  image_id   = "${data.yandex_compute_image.ubuntu.id}"
+  size       = 8
+  block_size = 4096
+  kms_key_id = "${yandex_kms_symmetric_key.disk-encrypt.id}"
+}
+
+resource "yandex_compute_image" "image" {
+  source_disk   = "${yandex_compute_disk.disk.id}"
+}
+
+data "yandex_compute_image" "source" {
+  image_id = "${yandex_compute_image.image.id}"
 }
 `, family)
 }

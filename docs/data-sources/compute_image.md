@@ -66,6 +66,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Image creation timestamp.
 * `pooled` - Optimize the image to create a disk.
 * `hardware_generation` - Image hardware generation and its features. The structure is documented below.
+* `kms_key_id` - ID of KMS symmetric key used to encrypt image.
 
 ---
 

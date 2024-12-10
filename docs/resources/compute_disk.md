@@ -86,6 +86,8 @@ The following arguments are supported:
   disk. Provide this property if you wish to override this value, which
   otherwise is inherited from the source. The structure is documented below.
 
+* `kms_key_id` - (Optional) ID of KMS symmetric key used to encrypt disk.
+
 The `disk_placement_policy` block supports:
 
 * `disk_placement_group_id` - (Required) Specifies Disk Placement Group id.

@@ -176,6 +176,12 @@ func resourceYandexComputeInstance() *schema.Resource {
 										ForceNew:      true,
 										ConflictsWith: []string{"boot_disk.initialize_params.image_id"},
 									},
+
+									"kms_key_id": {
+										Type:     schema.TypeString,
+										ForceNew: true,
+										Optional: true,
+									},
 								},
 							},
 						},

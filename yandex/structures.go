@@ -238,6 +238,11 @@ func flattenInstanceBootDisk(ctx context.Context, instance *compute.Instance, di
 		return nil, err
 	}
 
+	var kmsKey string
+	if disk.KmsKey != nil {
+		kmsKey = disk.KmsKey.KeyId
+	}
+
 	bootDisk["initialize_params"] = []map[string]interface{}{{
 		"name":        disk.Name,
 		"description": disk.Description,
@@ -246,6 +251,7 @@ func flattenInstanceBootDisk(ctx context.Context, instance *compute.Instance, di
 		"type":        disk.TypeId,
 		"image_id":    disk.GetSourceImageId(),
 		"snapshot_id": disk.GetSourceSnapshotId(),
+		"kms_key_id":  kmsKey,
 	}}
 
 	return []map[string]interface{}{bootDisk}, nil
@@ -520,6 +526,10 @@ func expandBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.Attach
 
 	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.block_size"); ok {
 		diskSpec.BlockSize = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.kms_key_id"); ok {
+		diskSpec.KmsKeyId = v.(string)
 	}
 
 	if diskSpec.Size == 0 {

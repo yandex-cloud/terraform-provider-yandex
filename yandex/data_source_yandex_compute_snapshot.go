@@ -91,6 +91,10 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 				},
 				Computed: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -137,6 +141,10 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	d.Set("disk_size", toGigabytes(snapshot.DiskSize))
 	d.Set("status", strings.ToLower(snapshot.Status.String()))
 	d.Set("source_disk_id", snapshot.GetSourceDiskId())
+
+	if snapshot.KmsKey != nil {
+		d.Set("kms_key_id", snapshot.KmsKey.KeyId)
+	}
 
 	if err := d.Set("labels", snapshot.Labels); err != nil {
 		return err

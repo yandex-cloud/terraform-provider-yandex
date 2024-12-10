@@ -74,6 +74,7 @@ The `boot_disk` block supports:
 * `mode` - Access to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `disk_id` - ID of the attached disk.
 * `initialize_params` - Parameters used for creating a disk alongside the instance. The structure is documented below.
+* `kms_key_id` - ID of KMS symmetric key used to encrypt disk.
 
 The `initialize_params` block supports:
 

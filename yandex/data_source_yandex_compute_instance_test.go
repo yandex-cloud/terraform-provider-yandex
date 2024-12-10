@@ -16,9 +16,12 @@ func TestAccDataSourceComputeInstance_byID(t *testing.T) {
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeInstanceDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName, true),
@@ -39,9 +42,12 @@ func TestAccDataSourceComputeInstance_byName(t *testing.T) {
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeInstanceDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName, false),
@@ -126,6 +132,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.size", "4"),
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.block_size", "8192"),
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.type", "network-hdd"),
+		resource.TestCheckResourceAttrSet(datasourceName, "boot_disk.0.initialize_params.0.kms_key_id"),
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.0.nat", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "scheduling_policy.0.preemptible", "false"),
@@ -163,6 +170,7 @@ resource "yandex_compute_instance" "foo" {
       size       = 4
       block_size = 8192
       image_id   = "${data.yandex_compute_image.ubuntu.id}"
+      kms_key_id = "${yandex_kms_symmetric_key.disk-encrypt.id}"
     }
   }
 
@@ -191,6 +199,8 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
+
+resource "yandex_kms_symmetric_key" "disk-encrypt" {}
 `, instanceName, instanceName)
 }
 

@@ -184,6 +184,11 @@ func resourceYandexComputeDisk() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -259,6 +264,10 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	if v, ok := d.GetOk("kms_key_id"); ok {
+		req.KmsKeyId = v.(string)
+	}
+
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
@@ -324,6 +333,10 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())
 	d.Set("disk_placement_policy", diskPlacementPolicy)
+
+	if disk.KmsKey != nil {
+		d.Set("kms_key_id", disk.KmsKey.KeyId)
+	}
 
 	if err := d.Set("product_ids", disk.ProductIds); err != nil {
 		return err

@@ -21,6 +21,7 @@ func TestAccDataSourceComputeSnapshot_byID(t *testing.T) {
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckComputeSnapshotDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
 		),
 		Steps: []resource.TestStep{
 			{
@@ -36,6 +37,8 @@ func TestAccDataSourceComputeSnapshot_byID(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source",
 						"labels.test_label", label),
 					testAccCheckCreatedAtAttr("data.yandex_compute_snapshot.source"),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_snapshot.source",
+						"kms_key_id"),
 					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source", "hardware_generation.#", "1"),
 				),
 			},
@@ -56,6 +59,7 @@ func TestAccDataSourceComputeSnapshot_byName(t *testing.T) {
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckComputeSnapshotDestroy,
+			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
 		),
 		Steps: []resource.TestStep{
 			{
@@ -71,6 +75,8 @@ func TestAccDataSourceComputeSnapshot_byName(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source",
 						"labels.test_label", label),
 					testAccCheckCreatedAtAttr("data.yandex_compute_snapshot.source"),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_snapshot.source",
+						"kms_key_id"),
 				),
 			},
 		},
@@ -83,10 +89,13 @@ data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
 }
 
+resource "yandex_kms_symmetric_key" "disk-encrypt" {}
+
 resource "yandex_compute_disk" "foobar" {
-  name     = "%s"
-  image_id = "${data.yandex_compute_image.ubuntu.id}"
-  size     = 4
+  name       = "%s"
+  image_id   = "${data.yandex_compute_image.ubuntu.id}"
+  size       = 4
+  kms_key_id = "${yandex_kms_symmetric_key.disk-encrypt.id}"
 }
 
 resource "yandex_compute_snapshot" "foobar" {
