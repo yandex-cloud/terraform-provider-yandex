@@ -862,7 +862,6 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"cloud_storage": {
 				Type:     schema.TypeList,
