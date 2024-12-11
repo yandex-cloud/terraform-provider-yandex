@@ -293,6 +293,10 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
 	nodeUpdatedResource3.IPv4DNSFQDN = ""
 	nodeUpdatedResource3.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, "")
 
+	nodeUpdatedResource4 := nodeUpdatedResource3
+	nodeUpdatedResource4.constructNetworkInterfaces(clusterResource.SubnetResourceNameB, "")
+	nodeUpdatedResource4.LocationZone = "ru-central1-b"
+
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
@@ -326,6 +330,13 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
 				),
 			},
 		},
@@ -591,7 +602,8 @@ type resourceNodeGroupInfo struct {
 	TemplateLabelKey   string
 	TemplateLabelValue string
 
-	PodMTU int
+	PodMTU       int
+	LocationZone string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -639,6 +651,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		TemplateLabelKey:      "one",
 		TemplateLabelValue:    "1",
 		ContainerRuntimeType:  "containerd",
+		LocationZone:          "ru-central1-a",
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
@@ -881,7 +894,7 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   
   allocation_policy {
     location {
-      zone = "ru-central1-a"
+      zone = "{{.LocationZone}}"
     }
   }
 
