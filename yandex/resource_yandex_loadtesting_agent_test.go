@@ -135,6 +135,9 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.labels.purpose", "loadtesting-agent-updated"),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.labels.cpus", "4"),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.metadata.meta-field", "meta-value"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_labels.purpose", "loadtesting-agent-updated"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_labels.cpus", "4"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_metadata.meta-field", "meta-value"),
 					testAccCheckLoadtestingComputeInstanceName(&instance, newAgentName),
 					testAccCheckLoadtestingComputeInstanceDescription(&instance, newAgentDescription),
 					testAccCheckLoadtestingComputeInstanceServiceAccount(&instance, newSaName),
@@ -214,7 +217,7 @@ func testAccCheckLoadtestingAgentWasNotRecreated(agent *ltagent.Agent) resource.
 		}
 
 		if found.Id != agent.Id {
-			return fmt.Errorf("Loadtesting Agent was deleted and created anew insted of being updated")
+			return fmt.Errorf("Loadtesting Agent was deleted and created anew instead of being updated")
 		}
 
 		*agent = *found

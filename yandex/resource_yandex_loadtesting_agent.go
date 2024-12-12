@@ -507,7 +507,7 @@ func resourceYandexLoadtestingAgentUpdate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error while updating Agent %q: %s", d.Id(), err)
 	}
 
-	return nil
+	return resourceYandexLoadtestingAgentRead(d, meta)
 }
 
 func enrichUpdateMaskFromLoadtestingComputeInstanceTemplate(d *schema.ResourceData, req *lt.UpdateAgentRequest) {
