@@ -115,9 +115,10 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Computed: true,
 			},
 			"host_master_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "This field does not guarantee that a specific host will always be the master. We do not recommend using it. This functionality will be removed in future versions. If you are absolutely certain that you need this functionality, please contact technical support.",
 			},
 			"restore": {
 				Type:     schema.TypeList,
@@ -449,8 +450,9 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 				Computed: true,
 			},
 			"priority": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "The field has not affected anything. You can safely delete it.",
 			},
 			"replication_source_name": {
 				Type:     schema.TypeString,
@@ -1185,9 +1187,6 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
 		if hostInfo.inTargetSet {
 			var maskPaths []string
-			if hostInfo.oldPriority != hostInfo.newPriority {
-				maskPaths = append(maskPaths, "priority")
-			}
 			if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
 				maskPaths = append(maskPaths, "replication_source")
 			}
@@ -1198,7 +1197,6 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 				if err := updatePGHost(ctx, config, d, &postgresql.UpdateHostSpec{
 					HostName:          hostInfo.fqdn,
 					ReplicationSource: hostInfo.newReplicationSource,
-					Priority:          &wrappers.Int64Value{Value: int64(hostInfo.newPriority)},
 					AssignPublicIp:    hostInfo.newAssignPublicIP,
 					UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
 				}); err != nil {
@@ -1242,7 +1240,6 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 		}
 		if compareHostsInfo.haveHostWithName {
 			host.ReplicationSource = newHostInfo.newReplicationSource
-			host.Priority = &wrappers.Int64Value{Value: int64(newHostInfo.newPriority)}
 		}
 		if err := addPGHost(ctx, config, d, host); err != nil {
 			return err

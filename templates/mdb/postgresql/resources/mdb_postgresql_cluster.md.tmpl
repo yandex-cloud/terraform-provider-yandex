@@ -21,7 +21,7 @@ Example of creating a High-Availability (HA) PostgreSQL Cluster.
 
 {{tffile "examples/mdb/postgresql/resources/mdb_postgresql_cluster_example_2.tf"}}
 
-Example of creating a High-Availability (HA) PostgreSQL Cluster with priority and set master.
+Example of creating a High-Availability (HA) PostgreSQL Cluster.
 
 {{tffile "examples/mdb/postgresql/resources/mdb_postgresql_cluster_example_3.tf"}}
 
@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the PostgreSQL cluster.
 
-* `host_master_name` - (Optional) It sets name of master host. It works only when `host.name` is set.
+* `host_master_name` - (Optional, Deprecated) It sets name of master host. It works only when `host.name` is set.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
@@ -149,11 +149,11 @@ The `host` block supports:
 
 * `fqdn` - (Computed) The fully qualified domain name of the host.
 
-* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter. Also, this field is used to select which host will be selected as a master host. Please see `host_master_name` parameter.
+* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
 
 * `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
 
-* `priority` - Host priority in HA group. It works only when `name` is set.
+* `priority` - (Deprecated) Host priority in HA group. It works only when `name` is set.
 
 * `replication_source_name` - (Optional) Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
 

@@ -376,8 +376,9 @@ func dataSourceYandexMDBPostgreSQLClusterHostBlock() *schema.Resource {
 				Computed: true,
 			},
 			"priority": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:       schema.TypeInt,
+				Computed:   true,
+				Deprecated: "The field has not affected anything. You can safely delete it.",
 			},
 		},
 	}

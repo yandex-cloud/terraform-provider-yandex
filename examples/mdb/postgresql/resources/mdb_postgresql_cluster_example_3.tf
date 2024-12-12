@@ -1,11 +1,9 @@
 
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "test_ha"
-  description = "test High-Availability (HA) PostgreSQL Cluster with priority and set master"
+  description = "test High-Availability (HA) PostgreSQL Cluster"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
-
-  host_master_name = "host_name_c_2"
 
   config {
     version = 15
@@ -20,7 +18,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   host {
     zone      = "ru-central1-a"
     name      = "host_name_a"
-    priority  = 2
     subnet_id = yandex_vpc_subnet.a.id
   }
   host {

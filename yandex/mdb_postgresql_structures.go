@@ -392,12 +392,10 @@ type pgHostInfo struct {
 	role postgresql.Host_Role
 
 	oldAssignPublicIP        bool
-	oldPriority              int
 	oldReplicationSource     string
 	oldReplicationSourceName string
 
 	newAssignPublicIP        bool
-	newPriority              int
 	newReplicationSource     string
 	newReplicationSourceName string
 
@@ -419,7 +417,6 @@ func loadNewPGHostsInfo(newHosts []interface{}) ([]*pgHostInfo, error) {
 			subnetID:                 hni.Get("subnet_id").Str(),
 			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
 			newReplicationSourceName: hni.Get("replication_source_name").Str(),
-			newPriority:              hni.Get("priority").Int(),
 			rowNumber:                i,
 			inTargetSet:              true,
 		})
@@ -450,10 +447,6 @@ func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo,
 		}
 	}
 
-	if existsHostInfo.oldPriority == newHostInfo.newPriority {
-		compareWeight++
-	}
-
 	if existsHostInfo.oldAssignPublicIP == newHostInfo.newAssignPublicIP {
 		compareWeight++
 	}
@@ -464,10 +457,6 @@ func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo,
 func matchesPGNoNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo) bool {
 	if existsHostInfo.zone != newHostInfo.zone ||
 		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
-		return false
-	}
-
-	if existsHostInfo.oldPriority != newHostInfo.newPriority {
 		return false
 	}
 
@@ -610,7 +599,6 @@ func loadExistingPGHostsInfo(currentHosts []*postgresql.Host, oldHosts []interfa
 			subnetID:             h.SubnetId,
 			role:                 h.Role,
 			oldAssignPublicIP:    h.AssignPublicIp,
-			oldPriority:          int(h.Priority.GetValue()),
 			oldReplicationSource: h.ReplicationSource,
 
 			rowNumber: i,
@@ -714,7 +702,6 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 				existHostInfo.rowNumber = newHostInfo.rowNumber
 				existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
 				existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
-				existHostInfo.newPriority = newHostInfo.newPriority
 				existHostInfo.inTargetSet = true
 
 				nameToHost[existHostInfo.name] = existHostInfo.fqdn
@@ -769,7 +756,6 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 			existHostInfo.rowNumber = newHostInfo.rowNumber
 			existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
 			existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
-			existHostInfo.newPriority = newHostInfo.newPriority
 			existHostInfo.inTargetSet = true
 		} else {
 			log.Printf("[DEBUG] should create host %v", newHostInfo)
@@ -871,7 +857,6 @@ func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*pgH
 		m["assign_public_ip"] = hostInfo.oldAssignPublicIP
 		m["fqdn"] = hostInfo.fqdn
 		m["role"] = hostInfo.role.String()
-		m["priority"] = hostInfo.oldPriority
 		m["replication_source"] = hostInfo.oldReplicationSource
 		if !isDataSource && isNameFieldUsed {
 			m["name"] = hostInfo.name
@@ -1232,9 +1217,6 @@ func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 
 	if v, ok := m["replication_source_name"]; ok {
 		host.HostSpec.ReplicationSource = v.(string)
-	}
-	if v, ok := m["priority"]; ok {
-		host.HostSpec.Priority = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	return host, nil

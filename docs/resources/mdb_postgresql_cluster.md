@@ -105,16 +105,14 @@ resource "yandex_vpc_subnet" "bar" {
 }
 ```
 
-Example of creating a High-Availability (HA) PostgreSQL Cluster with priority and set master.
+Example of creating a High-Availability (HA) PostgreSQL Cluster.
 
 ```terraform
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "test_ha"
-  description = "test High-Availability (HA) PostgreSQL Cluster with priority and set master"
+  description = "test High-Availability (HA) PostgreSQL Cluster"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
-
-  host_master_name = "host_name_c_2"
 
   config {
     version = 15
@@ -129,7 +127,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   host {
     zone      = "ru-central1-a"
     name      = "host_name_a"
-    priority  = 2
     subnet_id = yandex_vpc_subnet.a.id
   }
   host {
@@ -237,7 +234,7 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the PostgreSQL cluster.
 
-* `host_master_name` - (Optional) It sets name of master host. It works only when `host.name` is set.
+* `host_master_name` - (Optional, Deprecated) It sets name of master host. It works only when `host.name` is set.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
@@ -335,11 +332,11 @@ The `host` block supports:
 
 * `fqdn` - (Computed) The fully qualified domain name of the host.
 
-* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter. Also, this field is used to select which host will be selected as a master host. Please see `host_master_name` parameter.
+* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
 
 * `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
 
-* `priority` - Host priority in HA group. It works only when `name` is set.
+* `priority` - (Deprecated) Host priority in HA group. It works only when `name` is set.
 
 * `replication_source_name` - (Optional) Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
 

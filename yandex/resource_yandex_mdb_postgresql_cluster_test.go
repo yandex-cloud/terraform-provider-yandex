@@ -376,6 +376,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
+			// 1. Create PostgreSQL Cluster
 			{
 				Config: testAccMDBPGClusterConfigHANamed(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -391,6 +392,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// 3. Change Public IP
 			{
 				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -403,6 +405,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// 5. Set cascade replication
 			{
 				Config: testAccMDBPGClusterConfigHANamedWithCascade(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -415,16 +418,20 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// 7. Unset cascade replication
 			{
-				Config: testAccMDBPGClusterConfigHANamedWithPriorities(clusterName, version),
+				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.priority", "5"),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.priority", "10"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source", ""),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", ""),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source", ""),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", ""),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// 9. Delete last host
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteLastHost(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -435,6 +442,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// 11. delete first host
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteFirstHost(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -1545,36 +1553,6 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 `, version)
 }
 
-func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string {
-	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host {
-    name                    = "na"
-    zone                    = "ru-central1-a"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
-
-  }
-
-  host {
-    name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
-    replication_source_name = "na"
-    
-    priority                = 5
-  }
-
-  host {
-    name                    = "nc"
-    zone                    = "ru-central1-d"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
-    assign_public_ip        = true
-    replication_source_name = "nb"
-    
-    priority         = 10
-  }
-`, version)
-}
-
 func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
@@ -1587,9 +1565,6 @@ func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
-    replication_source_name = "na"
-    
-    priority                = 5
   }
 `, version)
 }
@@ -1600,8 +1575,6 @@ func testAccMDBPGClusterConfigHANamedDeleteFirstHost(name, version string) strin
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
-    
-    priority                = 5
   }
 `, version)
 }
