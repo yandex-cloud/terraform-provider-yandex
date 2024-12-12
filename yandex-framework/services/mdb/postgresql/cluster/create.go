@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -64,6 +65,9 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 				ResourcePresetId: resources.ResourcePresetID.ValueString(),
 				DiskTypeId:       resources.DiskTypeID.ValueString(),
 				DiskSize:         utils.ToBytes(resources.DiskSize.ValueInt64()),
+			},
+			Autofailover: &wrappers.BoolValue{
+				Value: configSpec.Autofailover.ValueBool(),
 			},
 		},
 	}

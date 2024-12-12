@@ -135,6 +135,10 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Required:    true,
 						Description: "Version of the PostgreSQL cluster",
 					},
+					"autofailover": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+					},
 				},
 				Blocks: map[string]schema.Block{
 					"resources": schema.SingleNestedBlock{
@@ -478,14 +482,17 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		DiskSize:         types.Int64Value(utils.ToGigabytes(cluster.Config.Resources.DiskSize)),
 		DiskTypeID:       types.StringValue(cluster.Config.Resources.DiskTypeId),
 	})
+	autofailover := types.BoolValue(cluster.Config.GetAutofailover().GetValue())
+
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
 		return
 	}
 
 	config, diags := types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
-		Version:   version,
-		Resources: resources,
+		Version:      version,
+		Resources:    resources,
+		Autofailover: autofailover,
 	})
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {

@@ -36,13 +36,15 @@ var hostType = types.ObjectType{
 }
 
 type Config struct {
-	Version   types.String `tfsdk:"version"`
-	Resources types.Object `tfsdk:"resources"`
+	Version      types.String `tfsdk:"version"`
+	Resources    types.Object `tfsdk:"resources"`
+	Autofailover types.Bool   `tfsdk:"autofailover"`
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
-	"version":   types.StringType,
-	"resources": types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"version":      types.StringType,
+	"resources":    types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"autofailover": types.BoolType,
 }
 
 type Resources struct {

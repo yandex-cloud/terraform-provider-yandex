@@ -55,6 +55,7 @@ Required:
 
 Optional:
 
+- `autofailover` (Boolean)
 - `resources` (Block, Optional) (see [below for nested schema](#nestedblock--config--resources))
 
 <a id="nestedblock--config--resources"></a>

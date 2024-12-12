@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
@@ -82,6 +83,15 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 			DiskTypeId:       resources.DiskTypeID.ValueString(),
 		}
 		updateMaskPaths = append(updateMaskPaths, "config_spec.resources")
+	}
+
+	if !plan.Resources.IsUnknown() && !plan.Resources.IsNull() && !plan.Resources.Equal(state.Autofailover) {
+		config.SetAutofailover(
+			&wrapperspb.BoolValue{
+				Value: plan.Autofailover.ValueBool(),
+			},
+		)
+		updateMaskPaths = append(updateMaskPaths, "config_spec.autofailover")
 	}
 
 	return config, updateMaskPaths, diags
