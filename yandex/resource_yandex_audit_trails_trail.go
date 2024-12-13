@@ -533,7 +533,7 @@ func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace 
 		_, exists = data.GetOk(filterNamespace + "excluded_events")
 		if exists {
 			excludedEvents := packResourceDataIntoEventTypes(data, filterNamespace+"excluded_events.")
-			filter.SetIncludedEvents(excludedEvents)
+			filter.SetExcludedEvents(excludedEvents)
 		}
 
 		res = append(res, filter)
@@ -610,6 +610,7 @@ func pathFilterToResourceScopes(pathFilter *audittrails.Trail_PathFilter) []*aud
 		for _, anyFilter := range anyFilters {
 			result = append(result, anyFilter.GetAnyFilter().GetResource())
 		}
+		return result
 	}
 
 	panic("Shouldn't happen due to internal terraform resource validations")

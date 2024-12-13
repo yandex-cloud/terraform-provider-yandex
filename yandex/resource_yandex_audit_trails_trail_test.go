@@ -436,7 +436,33 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 					},
 				},
 			},
-			DataEventFilters: []trailDataEventFilter{},
+			DataEventFilters: []trailDataEventFilter{
+				{
+					Service: "kms",
+					ResourceScope: []trailResourceEntry{
+						{
+							ResourceId:   getExampleFolderID(),
+							ResourceType: "resource-manager.folder",
+						},
+					},
+					IncludedEvents: []string{
+						"yandex.cloud.audit.kms.Encrypt",
+						"yandex.cloud.audit.kms.Decrypt",
+					},
+				},
+				{
+					Service: "iam",
+					ResourceScope: []trailResourceEntry{
+						{
+							ResourceId:   getExampleFolderID(),
+							ResourceType: "resource-manager.folder",
+						},
+					},
+					ExcludedEvents: []string{
+						"yandex.cloud.audit.iam.oslogin.CheckSshPolicy",
+					},
+				},
+			},
 		},
 	}
 }
