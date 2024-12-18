@@ -1,4 +1,0 @@
-kind: WARNING
-body: 'clickhouse: field `service_account_id` is no longer requested from cluster
-  configuration and will alwayse be update to the set value from resource'
-time: 2024-12-10T12:38:23.591070847+03:00

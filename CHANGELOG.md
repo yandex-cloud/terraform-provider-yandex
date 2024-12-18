@@ -1,3 +1,20 @@
+## 0.135.0 (December 18, 2024)
+
+FEATURES:
+* kafka: `mdb_kafka_cluster` resource and data source now have `kraft` parameter`
+* compute: support disk encryption
+
+BUG FIXES:
+* audit_trails: `yandex_audit_trails_trail` fixed excluded_events block handling
+* loadtesting: fix terraform import acceptance test
+
+ENHANCEMENTS:
+* opensearch: use state hosts when no changes in node-groups configuration
+
+WARNING:
+* clickhouse: field `service_account_id` is no longer requested from cluster configuration and will alwayse be update to the set value from resource
+* postgresql: deprecate `host.priority` and `host_master_name` fields.
+
 ## 0.134.0 (December 3, 2024)
 
 FEATURES:

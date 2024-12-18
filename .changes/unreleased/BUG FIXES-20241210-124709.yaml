@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'audit_trails: `yandex_audit_trails_trail` fixed excluded_events block handling'
-time: 2024-12-10T12:47:09.456736+03:00
