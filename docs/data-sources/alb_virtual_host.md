@@ -136,7 +136,7 @@ The `redirect_action` block supports:
 
 * `replace_prefix` - Replace only matched prefix. Example:<br/> match:{ prefix_match: "/some" } <br/> redirect: { replace_prefix: "/other" } <br/> will redirect "/something" to "/otherthing".
 
-* `remove query` - If set, remove query part.
+* `remove_query` - If set, remove query part.
 
 * `response_code` - The HTTP status code to use in the redirect response. Supported values are: moved_permanently, found, see_other, temporary_redirect, permanent_redirect.
 
