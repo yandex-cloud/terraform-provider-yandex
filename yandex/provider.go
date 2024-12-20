@@ -328,6 +328,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_organizationmanager_saml_federation_user_account": resourceYandexOrganizationManagerSamlFederationUserAccount(),
 			"yandex_organizationmanager_group":                        resourceYandexOrganizationManagerGroup(),
 			"yandex_organizationmanager_group_iam_member":             resourceYandexOrganizationManagerGroupIAMMember(),
+			"yandex_organizationmanager_group_mapping":                resourceYandexOrganizationManagerGroupMapping(),
+			"yandex_organizationmanager_group_mapping_item":           resourceYandexOrganizationManagerGroupMappingItem(),
 			"yandex_organizationmanager_group_membership":             resourceYandexOrganizationManagerGroupMembership(),
 			"yandex_organizationmanager_os_login_settings":            resourceYandexOrganizationManagerOsLoginSettings(),
 			"yandex_organizationmanager_user_ssh_key":                 resourceYandexOrganizationManagerUserSshKey(),

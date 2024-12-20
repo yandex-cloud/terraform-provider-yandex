@@ -1,0 +1,26 @@
+---
+subcategory: "{{.SubCategory}}"
+page_title: "Yandex: {{.Name}}"
+description: |-
+  Allows management of a Yandex.Cloud Organization Manager Group Mapping Items.
+---
+
+# {{.Name}}
+
+{{ .Description }}
+
+## Example Usage
+
+NOTE: Group mapping items depends on group mapping. If you create group mapping via terraform use "depends_on" meta-argument to avoid errors (see example below)
+
+{{tffile "examples/organizationmanager/resources/organizationmanager_group_mapping_item_example.tf" }}
+
+{{ .SchemaMarkdown }}
+
+## Import
+
+Organization Manager Group Mapping Items can be imported using this format:
+
+```
+$ terraform import yandex_organizationmanager_group_mapping.foo {federation_id}/{internal_group_id}/{external_group_id}
+```
