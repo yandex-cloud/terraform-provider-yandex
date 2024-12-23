@@ -94,9 +94,6 @@ The `http_backend` block supports:
 * `load_balancing_config` - (Optional) Load Balancing Config specification that will be used by this backend. Structure is documented below.
 * `healthcheck` - (Optional) Healthcheck specification that will be used by this backend. Structure is documented below.
 * `tls` - (Optional) Tls specification that will be used by this backend. Structure is documented below.
-* `storage_bucket` - (Required) Name of bucket which should be used as a backend.
-
-~> **NOTE:** Only one of `target_group_ids` or `storage_bucket` should be specified.
 
 The `stream_backend` block supports:
 
