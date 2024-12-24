@@ -2,7 +2,7 @@
 subcategory: "SmartCaptcha"
 page_title: "Yandex: yandex_smartcaptcha_captcha"
 description: |-
-  
+  Documentation for the yandex_smartcaptcha_captcha resource
 ---
 
 # yandex_smartcaptcha_captcha
