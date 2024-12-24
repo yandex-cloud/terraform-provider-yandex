@@ -21,7 +21,7 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
   cluster_id  = yandex_kubernetes_cluster.my_cluster.id
   name        = "name"
   description = "description"
-  version     = "1.17"
+  version     = "1.30"
 
   labels = {
     "key" = "value"
@@ -102,7 +102,7 @@ The following arguments are supported:
 
 * `instance_group_id` - (Computed) ID of instance group that is used to manage this Kubernetes node group.
 
-* `maintenance_policy` - (Optional) (Computed) Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. 1.13. Minor version upgrades (e.g. 1.13->1.14) should be performed manually. The structure is documented below.
+* `maintenance_policy` - (Optional) (Computed) Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. 1.29. Minor version upgrades (e.g. 1.29->1.30) should be performed manually. The structure is documented below.
 
 * `node_labels` - (Optional, Forces new resource) A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
 
@@ -257,8 +257,8 @@ To allow maintenance only on specific days of week, please provide list of eleme
 
 The `version_info` block supports:
 
-* `current_version` - Current Kubernetes version, major.minor (e.g. 1.15).
-* `new_revision_available` - True/false flag. Newer revisions may include Kubernetes patches (e.g 1.15.1 -> 1.15.2) as well as some internal component updates - new features or bug fixes in yandex-specific components either on the master or nodes.
+* `current_version` - Current Kubernetes version, major.minor (e.g. 1.30).
+* `new_revision_available` - True/false flag. Newer revisions may include Kubernetes patches (e.g 1.30.1 -> 1.30.2) as well as some internal component updates - new features or bug fixes in yandex-specific components either on the master or nodes.
 
 * `new_revision_summary` - Human readable description of the changes to be applied when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule, component (master or node group) should be upgraded.

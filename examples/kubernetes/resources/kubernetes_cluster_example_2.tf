@@ -19,12 +19,12 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
       }
 
       location {
-        zone      = yandex_vpc_subnet.subnet_c_resource_name.zone
-        subnet_id = yandex_vpc_subnet.subnet_c_resource_name.id
+        zone      = yandex_vpc_subnet.subnet_d_resource_name.zone
+        subnet_id = yandex_vpc_subnet.subnet_d_resource_name.id
       }
     }
 
-    version   = "1.14"
+    version   = "1.30"
     public_ip = true
 
     maintenance_policy {
