@@ -41,10 +41,10 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20241125092406-f84a9a79c742
 	github.com/yandex-cloud/go-sdk v0.0.0-20241101143304-947cf519f6bd
-	github.com/ydb-platform/terraform-provider-ydb v0.0.22
-	golang.org/x/crypto v0.28.0
+	github.com/ydb-platform/terraform-provider-ydb v0.0.23
+	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
-	golang.org/x/net v0.30.0
+	golang.org/x/net v0.33.0
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d
 	google.golang.org/genproto v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38
@@ -123,7 +123,7 @@ require (
 	github.com/go-xmlfmt/xmlfmt v1.1.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golangci/check v0.0.0-20180506172741-cfe4005ccda2 // indirect
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
 	github.com/golangci/go-misc v0.0.0-20220329215616-d24fe342adfe // indirect
@@ -273,10 +273,10 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
 	golang.org/x/mod v0.19.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

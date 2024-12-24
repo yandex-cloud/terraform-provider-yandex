@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_ydb_table_changefeed: fix cdc import'
+time: 2024-12-23T00:55:02.211979+03:00
