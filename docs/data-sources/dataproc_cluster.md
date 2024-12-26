@@ -50,6 +50,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `ui_proxy` - Whether UI proxy feature is enabled.
 * `zone_id` - ID of the availability zone where the cluster resides.
 * `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
+* `log_group_id` - ID of the cloud logging group for cluster logs.
+* `environment` - Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
 ---
 

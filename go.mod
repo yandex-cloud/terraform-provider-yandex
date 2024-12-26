@@ -39,7 +39,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.9.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20241125092406-f84a9a79c742
+	github.com/yandex-cloud/go-genproto v0.0.0-20241220122821-aeb3b05efd1c
 	github.com/yandex-cloud/go-sdk v0.0.0-20241101143304-947cf519f6bd
 	github.com/ydb-platform/terraform-provider-ydb v0.0.23
 	golang.org/x/crypto v0.31.0

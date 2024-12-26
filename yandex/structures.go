@@ -1763,6 +1763,15 @@ func flattenDataprocAutoscalingConfig(r *dataproc.AutoscalingConfig) []map[strin
 	return []map[string]interface{}{res}
 }
 
+func parseDataprocEnv(e string) (dataproc.Cluster_Environment, error) {
+	v, ok := dataproc.Cluster_Environment_value[e]
+	if !ok {
+		return 0, fmt.Errorf("value for 'environment' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(dataproc.Cluster_Environment_value)), e)
+	}
+	return dataproc.Cluster_Environment(v), nil
+}
+
 func flattenSecurityGroupRulesProto(g *vpc.SecurityGroupRule) (port, fromPort, toPort int64) {
 	port = -1
 	fromPort = -1

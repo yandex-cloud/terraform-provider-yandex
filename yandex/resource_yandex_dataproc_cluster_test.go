@@ -216,6 +216,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 		Name:        "dataproc_cluster_777",
 		Description: "dataproc cluster 777",
 		Labels:      map[string]string{"label1": "val1", "label2": "val2"},
+		Environment: dataproc.Cluster_PRESTABLE,
 		ConfigSpec: &dataproc.CreateClusterConfigSpec{
 			VersionId: "1.1",
 			Hadoop: &dataproc.HadoopConfig{

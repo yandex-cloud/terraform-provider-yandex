@@ -322,6 +322,19 @@ func resourceYandexDataprocCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"log_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"environment": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "PRESTABLE",
+				ValidateFunc: validateParsableValue(parseDataprocEnv),
+			},
 		},
 	}
 }
@@ -432,6 +445,14 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 		return err
 	}
 
+	if err := d.Set("log_group_id", cluster.LogGroupId); err != nil {
+		return err
+	}
+
+	if err := d.Set("environment", cluster.Environment.String()); err != nil {
+		return err
+	}
+
 	if err := d.Set("cluster_config", flattenDataprocClusterConfig(cluster, subclusters)); err != nil {
 		return err
 	}
@@ -498,6 +519,12 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		return nil, fmt.Errorf("error getting folder ID while creating Data Proc Cluster: %s", err)
 	}
 
+	e := d.Get("environment").(string)
+	env, err := parseDataprocEnv(e)
+	if err != nil {
+		return nil, fmt.Errorf("error resolving environment while creating Data Proc Cluster: %s", err)
+	}
+
 	zoneID, err := getDataprocZoneID(d, meta)
 	if err != nil {
 		return nil, fmt.Errorf("error getting zone while creating Data Proc Cluster: %s", err)
@@ -526,6 +553,8 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		HostGroupIds:       expandHostGroupIds(d.Get("host_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		LogGroupId:         d.Get("log_group_id").(string),
+		Environment:        env,
 	}
 
 	return &req, nil
@@ -645,11 +674,12 @@ func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateCl
 		Bucket:             d.Get("bucket").(string),
 		UiProxy:            d.Get("ui_proxy").(bool),
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
+		LogGroupId:         d.Get("log_group_id").(string),
 		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	var updatePaths []string
-	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy", "security_group_ids", "deletion_protection"}
+	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy", "security_group_ids", "deletion_protection", "log_group_id"}
 	for _, fieldName := range fieldNames {
 		if d.HasChange(fieldName) {
 			updatePaths = append(updatePaths, fieldName)
