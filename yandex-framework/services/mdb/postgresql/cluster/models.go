@@ -6,15 +6,16 @@ import (
 )
 
 type Cluster struct {
-	Id          types.String `tfsdk:"id"`
-	FolderId    types.String `tfsdk:"folder_id"`
-	NetworkId   types.String `tfsdk:"network_id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Environment types.String `tfsdk:"environment"`
-	Labels      types.Map    `tfsdk:"labels"`
-	Config      types.Object `tfsdk:"config"`
-	HostSpecs   types.Map    `tfsdk:"hosts"`
+	Id                 types.String `tfsdk:"id"`
+	FolderId           types.String `tfsdk:"folder_id"`
+	NetworkId          types.String `tfsdk:"network_id"`
+	Name               types.String `tfsdk:"name"`
+	Description        types.String `tfsdk:"description"`
+	Environment        types.String `tfsdk:"environment"`
+	Labels             types.Map    `tfsdk:"labels"`
+	Config             types.Object `tfsdk:"config"`
+	HostSpecs          types.Map    `tfsdk:"hosts"`
+	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
 }
 
 type Host struct {

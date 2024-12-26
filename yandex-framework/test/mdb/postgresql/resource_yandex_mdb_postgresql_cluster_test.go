@@ -177,12 +177,14 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"}),
 					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, false),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -197,12 +199,14 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
 					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, false),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -244,7 +248,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterFull(resourceId, clusterName, description, environment, labels, version, true),
+				Config: testAccMDBPGClusterFull(resourceId, clusterName, description, environment, labels, version, true, true),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
@@ -253,17 +257,19 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
 				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"}),
 					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, true),
+					testAccCheckClusterDeletionProtectionExact(&cluster, true),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
 			{
-				Config: testAccMDBPGClusterFull(resourceId, clusterName, descriptionUpdated, environment, labelsUpdated, version, false),
+				Config: testAccMDBPGClusterFull(resourceId, clusterName, descriptionUpdated, environment, labelsUpdated, version, false, false),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
@@ -272,12 +278,14 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
 					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, false),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -309,7 +317,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 
 	stepsFullBasic := [2]resource.TestStep{
 		{
-			Config: testAccMDBPGClusterFull(resourceId, clusterName, descriptionFull, environment, labels, version, false),
+			Config: testAccMDBPGClusterFull(resourceId, clusterName, descriptionFull, environment, labels, version, false, false),
 			ConfigStateChecks: []statecheck.StateCheck{
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionFull)),
@@ -318,12 +326,14 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 			},
 			Check: resource.ComposeTestCheckFunc(
 				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
 				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 				testAccCheckClusterAutofailoverExact(&cluster, false),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
 			),
 		},
 		{
@@ -336,12 +346,14 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 			},
 			Check: resource.ComposeTestCheckFunc(
 				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
 				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
 				testAccCheckClusterAutofailoverExact(&cluster, false),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
 			),
 		},
 	}
@@ -563,6 +575,15 @@ func testAccCheckClusterAutofailoverExact(r *postgresql.Cluster, expected bool) 
 	}
 }
 
+func testAccCheckClusterDeletionProtectionExact(r *postgresql.Cluster, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if r.GetDeletionProtection() == expected {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config deletion_protection.\nActual:   %+v\nExpected: %+v", r.Name, r.GetDeletionProtection(), expected)
+	}
+}
+
 func testAccCheckClusterHasResources(r *postgresql.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := r.Config.Resources
@@ -610,7 +631,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 `, resourceId, name, description, environment, labels, version)
 }
 
-func testAccMDBPGClusterFull(resourceId, clusterName, description, environment, labels, version string, autofailover bool) string {
+func testAccMDBPGClusterFull(resourceId, clusterName, description, environment, labels, version string, autofailover, deletionProtection bool) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_beta" "%s" {
   name        = "%s"
@@ -638,8 +659,11 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
     }
 	autofailover = %t
   }
+
+  deletion_protection = %t
+
 }
-`, resourceId, clusterName, description, environment, labels, version, autofailover)
+`, resourceId, clusterName, description, environment, labels, version, autofailover, deletionProtection)
 }
 
 func testAccMDBPGClusterHostsStep0(name, version, hosts string) string {

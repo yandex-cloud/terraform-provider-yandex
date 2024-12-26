@@ -70,6 +70,7 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 				Value: configSpec.Autofailover.ValueBool(),
 			},
 		},
+		DeletionProtection: plan.DeletionProtection.ValueBool(),
 	}
 
 	return request, diags

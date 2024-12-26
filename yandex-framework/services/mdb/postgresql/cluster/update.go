@@ -58,6 +58,11 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, updateMaskPaths...)
 	}
 
+	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+		request.DeletionProtection = plan.DeletionProtection.ValueBool()
+		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "deletion_protection")
+	}
+
 	return request, diag.Diagnostics{}
 }
 

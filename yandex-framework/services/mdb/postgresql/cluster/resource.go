@@ -127,6 +127,11 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
+			"deletion_protection": schema.BoolAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "Inhibits deletion of the cluster. Can be either true or false.",
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"config": schema.SingleNestedBlock{
@@ -483,6 +488,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		DiskTypeID:       types.StringValue(cluster.Config.Resources.DiskTypeId),
 	})
 	autofailover := types.BoolValue(cluster.Config.GetAutofailover().GetValue())
+	deletionProtection := types.BoolValue(cluster.GetDeletionProtection())
 
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
@@ -514,4 +520,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Labels = labels
 	state.Config = config
 	state.HostSpecs = hostMapValue
+	state.DeletionProtection = deletionProtection
 }

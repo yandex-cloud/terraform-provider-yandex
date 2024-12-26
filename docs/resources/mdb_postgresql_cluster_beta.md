@@ -20,6 +20,7 @@ description: |-
 ### Optional
 
 - `config` (Block, Optional) (see [below for nested schema](#nestedblock--config))
+- `deletion_protection` (Boolean) Inhibits deletion of the cluster. Can be either true or false.
 - `description` (String)
 - `folder_id` (String) ID of the folder that the cluster belongs to.
 - `labels` (Map of String) Custom labels for the cluster as key-value pairs.
