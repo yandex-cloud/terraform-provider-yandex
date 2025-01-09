@@ -24,6 +24,7 @@ description: |-
 - `description` (String)
 - `folder_id` (String) ID of the folder that the cluster belongs to.
 - `labels` (Map of String) Custom labels for the cluster as key-value pairs.
+- `security_group_ids` (Set of String) A set of ids of security groups assigned to hosts of the cluster.
 
 ### Read-Only
 

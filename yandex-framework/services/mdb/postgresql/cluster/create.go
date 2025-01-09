@@ -52,6 +52,14 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		return nil, diags
 	}
 
+	securityGroupIds := make([]string, len(plan.SecurityGroupIds.Elements()))
+	if !(plan.SecurityGroupIds.IsUnknown() || plan.SecurityGroupIds.IsNull()) {
+		diags.Append(plan.SecurityGroupIds.ElementsAs(ctx, &securityGroupIds, false)...)
+		if diags.HasError() {
+			return nil, diags
+		}
+	}
+
 	request := &postgresql.CreateClusterRequest{
 		Name:        plan.Name.ValueString(),
 		Description: plan.Description.ValueString(),
@@ -71,6 +79,7 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 			},
 		},
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
+		SecurityGroupIds:   securityGroupIds,
 	}
 
 	return request, diags

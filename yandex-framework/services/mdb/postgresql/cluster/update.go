@@ -63,6 +63,17 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "deletion_protection")
 	}
 
+	if !plan.SecurityGroupIds.IsNull() && !plan.SecurityGroupIds.IsUnknown() && !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
+		securityGroupIds := make([]string, len(plan.SecurityGroupIds.Elements()))
+		diags := plan.SecurityGroupIds.ElementsAs(ctx, &securityGroupIds, false)
+		if diags.HasError() {
+			return nil, diags
+		}
+
+		request.SecurityGroupIds = securityGroupIds
+		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
+	}
+
 	return request, diag.Diagnostics{}
 }
 

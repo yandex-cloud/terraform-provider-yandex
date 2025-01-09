@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -131,6 +132,15 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Description: "Inhibits deletion of the cluster. Can be either true or false.",
+			},
+			"security_group_ids": schema.SetAttribute{
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+				Description: "A set of ids of security groups assigned to hosts of the cluster.",
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -511,6 +521,16 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
+	// cluster.SecurityGroupIds can be nil when attribute setted with empty set
+	sgSl := make([]string, len(cluster.SecurityGroupIds))
+	copy(sgSl, cluster.SecurityGroupIds)
+
+	securityGroupIds, diags := types.SetValueFrom(ctx, types.StringType, sgSl)
+	respDiagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
+
 	state.Id = types.StringValue(cluster.Id)
 	state.FolderId = types.StringValue(cluster.FolderId)
 	state.NetworkId = types.StringValue(cluster.NetworkId)
@@ -521,4 +541,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Config = config
 	state.HostSpecs = hostMapValue
 	state.DeletionProtection = deletionProtection
+	state.SecurityGroupIds = securityGroupIds
 }

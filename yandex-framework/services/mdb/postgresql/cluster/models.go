@@ -16,6 +16,7 @@ type Cluster struct {
 	Config             types.Object `tfsdk:"config"`
 	HostSpecs          types.Map    `tfsdk:"hosts"`
 	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
+	SecurityGroupIds   types.Set    `tfsdk:"security_group_ids"`
 }
 
 type Host struct {
