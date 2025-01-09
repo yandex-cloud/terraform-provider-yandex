@@ -3,12 +3,10 @@ package yandex
 import (
 	"context"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
@@ -40,11 +38,10 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"federation_id": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "Id of the OIDC workload identity federation.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "Id of the OIDC workload identity federation.",
 			},
 
 			"folder_id": {
@@ -56,10 +53,9 @@ func resourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), ""),
-				Description:  "Name of the OIDC workload identity federation. The name is unique within the folder.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Name of the OIDC workload identity federation. The name is unique within the folder.",
 			},
 
 			"description": {

@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -26,7 +25,6 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 				Type:          schema.TypeString,
 				Computed:      true,
 				Optional:      true,
-				ValidateFunc:  validation.StringLenBetween(0, 50),
 				ConflictsWith: []string{"name"},
 				Description:   "Id of the OIDC workload identity federation.",
 			},

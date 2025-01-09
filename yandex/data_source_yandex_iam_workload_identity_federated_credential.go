@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload"
 )
@@ -21,10 +20,9 @@ func dataSourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"federated_credential_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "Id of the federated credential.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Id of the federated credential.",
 			},
 
 			"service_account_id": {

@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload"
 )
@@ -37,28 +36,25 @@ func resourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"federation_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "Id of the federated credential.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Id of the federated credential.",
 			},
 
 			"service_account_id": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "Id of the service account that the federated credential belongs to.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Id of the service account that the federated credential belongs to.",
 			},
 
 			"external_subject_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "Id of the workload identity federation which is used for authentication.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Id of the workload identity federation which is used for authentication.",
 			},
 
 			"created_at": {
