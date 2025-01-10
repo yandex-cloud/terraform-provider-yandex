@@ -3,14 +3,15 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"sort"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
-	"reflect"
-	"sort"
-	"testing"
 )
 
 const lockboxSecretResource = "yandex_lockbox_secret.test-secret"

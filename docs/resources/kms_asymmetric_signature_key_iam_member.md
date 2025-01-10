@@ -1,21 +1,19 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: yandex_kms_asymmetric_signature_key_iam_binding"
+page_title: "Yandex: yandex_kms_asymmetric_signature_key_iam_member"
 description: |-
-  Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
+  Allows management of a single member for a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
 
-# yandex_kms_asymmetric_signature_key_iam_binding
+# yandex_kms_asymmetric_signature_key_iam_member
 
 
 
 
-Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Asymmetric Signature Key.
+Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex KMS Asymmetric Signature Key.
 
 ~> **Note:** Roles controlled by `yandex_kms_asymmetric_signature_key_iam_binding` should not be assigned using `yandex_kms_asymmetric_signature_key_iam_member`.
-
-~> **Note:** When you delete `yandex_kms_asymmetric_signature_key_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
 
 ## Example usage
 
@@ -24,13 +22,11 @@ resource "yandex_kms_asymmetric_signature_key" "your-key" {
   name      = "asymmetric-signature-key-name"
 }
 
-resource "yandex_kms_asymmetric_signature_key_iam_binding" "viewer" {
+resource "yandex_kms_asymmetric_signature_key_iam_member" "viewer" {
   asymmetric_signaturen_key_id = yandex_kms_asymmetric_signature_key.your-key.id
   role                         = "viewer"
 
-  members = [
-    "userAccount:foo_user_id",
-  ]
+  member = "userAccount:foo_user_id"
 }
 ```
 
@@ -42,7 +38,7 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/kms/security/).
 
-* `members` - (Required) Identities that will be granted the privilege in `role`. Each entry can have one of the following values:
+* `member` - (Required) The identity that will be granted the privilege that is specified in the `role` field. This field can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
   * **serviceAccount:{service_account_id}**: A unique service account ID.
   * **system:group:federation:{federation_id}:users**: All users in federation.
@@ -54,8 +50,8 @@ The following arguments are supported:
 
 ## Import
 
-IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `asymmetric_signature_key_id` and role, e.g.
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `asymmetric_signature_key_id`, role, and account, e.g.
 
 ```
-$ terraform import yandex_kms_asymmetric_signature_key_iam_binding.viewer "asymmetric_signature_key_id viewer"
+$ terraform import yandex_kms_asymmetric_signature_key_iam_member.viewer "asymmetric_signature_key_id viewer foo@example.com"
 ```
