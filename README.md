@@ -88,13 +88,13 @@ If it is a new service, first update `templates/categories.yaml`.
 
 #### Example of a Generated Template
 
-For reference, you can view a generated template for [container_repository](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/container_repository).
+For reference, you can view a generated template for [container_repository](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/container_repository).
 
 By default, these templates are generated automatically. However, if you want to enhance the documentation of your resource or data source, you can manually add or rewrite information in the template. To do this, you can use the available [template fields and functions](https://github.com/hashicorp/terraform-plugin-docs?tab=readme-ov-file#templates) that the Terraform documentation generator will process.
 
 #### Adding Examples to Documentation
 
-You can enhance your resource documentation by adding more examples. For instance, here’s an example from the [storage documentation template](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates):
+You can enhance your resource documentation by adding more examples. For instance, here’s an example from the [storage documentation template](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates):
 
 ```md
 ### Simple Private Bucket With Static Access Keys
@@ -126,9 +126,9 @@ make generate-docs-templates
 
 Here are some examples of how template variables resolve:
 
-- [{{.Name}}](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/dns/resources/dns_zone.md.tmpl#L8) resolves to [yandex_dns_zone](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/docs/resources/dns_zone.md#L8).
-- [{{.Description}}](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/dns/resources/dns_zone.md.tmpl#L10) resolves to [Manages a DNS Zone.](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/docs/resources/dns_zone.md#L10).
-- [{{ .SchemaMarkdown }}](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/dns/resources/dns_zone.md.tmpl#L11) resolves to the generated schema documentation, such as [Schema ...](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/docs/resources/dns_zone.md#L28).
+- [{{.Name}}](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/dns/resources/dns_zone.md.tmpl#L8) resolves to [yandex_dns_zone](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/docs/resources/dns_zone.md#L8).
+- [{{.Description}}](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/dns/resources/dns_zone.md.tmpl#L10) resolves to [Manages a DNS Zone.](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/docs/resources/dns_zone.md#L10).
+- [{{ .SchemaMarkdown }}](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/dns/resources/dns_zone.md.tmpl#L11) resolves to the generated schema documentation, such as [Schema ...](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/docs/resources/dns_zone.md#L28).
 
 #### General Recommendations
 
@@ -196,15 +196,15 @@ To build the documentation website locally, follow these steps:
 To migrate your document template to automatically generate resource/data source schema documentation, follow these steps:
 
 1. **Add a Description:**
-   Add a description to your resource in the Terraform provider. Example: [dns_zone](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/yandex/resource_yandex_dns_zone.go#L20).
+   Add a description to your resource in the Terraform provider. Example: [dns_zone](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/yandex/resource_yandex_dns_zone.go#L20).
 
 2. **Describe Schema Fields:**
-   Add a description to every schema field for the resource/data source. Example: [dns_zone.zone](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/yandex/resource_yandex_dns_zone.go#L45).
+   Add a description to every schema field for the resource/data source. Example: [dns_zone.zone](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/yandex/resource_yandex_dns_zone.go#L45).
 
 3. **Remove Manual Documentation:**
-   - Remove the manual description of the resource/data source in the template. Example: [datasource](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/datasphere/resources/datasphere_project.md.tmpl#L14).
-   - Remove the `Argument Reference` block. Example: [Argument Reference](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/datasphere/resources/datasphere_project.md.tmpl#L18-L27).
-   - Remove the `Attributes Reference` block. Example: [Attributes Reference](https://github.com/yandex-cloud/terraform-provider-yandex/blob/73a0085f4192c78cc657b6c6a92d9bc0b94c0a5d/templates/datasphere/resources/datasphere_project.md.tmpl#L29-L70).
+   - Remove the manual description of the resource/data source in the template. Example: [datasource](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/datasphere/resources/datasphere_project.md.tmpl#L14).
+   - Remove the `Argument Reference` block. Example: [Argument Reference](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/datasphere/resources/datasphere_project.md.tmpl#L18-L27).
+   - Remove the `Attributes Reference` block. Example: [Attributes Reference](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/templates/datasphere/resources/datasphere_project.md.tmpl#L29-L70).
 
 4. **Automate Schema Documentation:**
    Place the `{{ .SchemaMarkdown }}` field in the template to automatically generate documentation based on field descriptions.
