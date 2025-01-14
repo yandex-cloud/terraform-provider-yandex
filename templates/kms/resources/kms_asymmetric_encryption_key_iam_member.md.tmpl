@@ -2,7 +2,7 @@
 subcategory: "{{.SubCategory}}"
 page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
+  Allows management of a single member for a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
 
@@ -11,15 +11,13 @@ description: |-
 {{ .Description }}
 
 
-Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Asymmetric Encryption Key.
+Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex KMS Asymmetric Encryption Key.
 
 ~> **Note:** Roles controlled by `yandex_kms_asymmetric_encryption_key_iam_binding` should not be assigned using `yandex_kms_asymmetric_encryption_key_iam_member`.
 
-~> **Note:** When you delete `yandex_kms_asymmetric_encryption_key_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
-
 ## Example usage
 
-{{tffile "examples/kms/resources/kms_asymmetric_encryption_key_iam_binding_example_1.tf"}}
+{{tffile "examples/kms/resources/kms_asymmetric_encryption_key_iam_member_example_1.tf"}}
 
 ## Argument Reference
 
@@ -29,7 +27,7 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/kms/security/).
 
-* `members` - (Required) Identities that will be granted the privilege in `role`. Each entry can have one of the following values:
+* `member` - (Required) The identity that will be granted the privilege that is specified in the `role` field. This field can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
   * **serviceAccount:{service_account_id}**: A unique service account ID.
   * **system:group:federation:{federation_id}:users**: All users in federation.
@@ -41,8 +39,8 @@ The following arguments are supported:
 
 ## Import
 
-IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `asymmetric_encryption_key_id` and role, e.g.
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `asymmetric_encryption_key_id`, role, and account, e.g.
 
 ```
-$ terraform import yandex_kms_asymmetric_encryption_key_iam_binding.viewer "asymmetric_encryption_key_id viewer"
+$ terraform import {{.Name}}.viewer "asymmetric_encryption_key_id viewer foo@example.com"
 ```
