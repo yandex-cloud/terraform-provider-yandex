@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -12,6 +13,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/retry"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/utils"
 )
 
 const defaultMDBPageSize = 1000
@@ -87,6 +89,10 @@ func updateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, 
 	})
 
 	if err != nil {
+		if strings.EqualFold(utils.ErrorMessage(err), "no changes detected") {
+			diag.AddWarning("Can't update resource", "Resource is not changed after request: "+err.Error())
+			return
+		}
 		diag.AddError(
 			"Failed to Update resource",
 			"Error while requesting API to update PostgreSQL cluster: "+err.Error(),

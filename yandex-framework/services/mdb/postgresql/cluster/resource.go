@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -169,6 +170,35 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							"disk_size": schema.Int64Attribute{
 								Required:    true,
 								Description: "Size of the disk in bytes.",
+							},
+						},
+					},
+					"access": schema.SingleNestedBlock{
+						Description: "Access policy to the PostgreSQL cluster.",
+						Attributes: map[string]schema.Attribute{
+							"data_lens": schema.BoolAttribute{
+								Description: "Allow access for Yandex DataLens.",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
+							},
+							"web_sql": schema.BoolAttribute{
+								Description: "Allow access for SQL queries in the management console",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
+							},
+							"serverless": schema.BoolAttribute{
+								Description: "Allow access for connection to managed databases from functions",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
+							},
+							"data_transfer": schema.BoolAttribute{
+								Description: "Allow access for DataTransfer",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
 							},
 						},
 					},
@@ -505,10 +535,30 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
+	// Get cur config state
+	var stateConfig Config
+	respDiagnostics.Append(state.Config.As(ctx, &stateConfig, basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    true,
+		UnhandledUnknownAsEmpty: true,
+	})...)
+	if respDiagnostics.HasError() {
+		return
+	}
+
+	access := flattenAccess(ctx, nil, respDiagnostics)
+	// Config is null with state importing where need all config data
+	if state.Config.IsNull() || !stateConfig.Access.IsNull() && !stateConfig.Access.IsUnknown() {
+		access = flattenAccess(ctx, cluster.Config.Access, respDiagnostics)
+	}
+	if respDiagnostics.HasError() {
+		return
+	}
+
 	config, diags := types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
 		Version:      version,
 		Resources:    resources,
 		Autofailover: autofailover,
+		Access:       access,
 	})
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {

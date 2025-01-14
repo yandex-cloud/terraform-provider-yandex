@@ -57,8 +57,20 @@ Required:
 
 Optional:
 
+- `access` (Block, Optional) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--access))
 - `autofailover` (Boolean)
 - `resources` (Block, Optional) (see [below for nested schema](#nestedblock--config--resources))
+
+<a id="nestedblock--config--access"></a>
+### Nested Schema for `config.access`
+
+Optional:
+
+- `data_lens` (Boolean) Allow access for Yandex DataLens.
+- `data_transfer` (Boolean) Allow access for DataTransfer
+- `serverless` (Boolean) Allow access for connection to managed databases from functions
+- `web_sql` (Boolean) Allow access for SQL queries in the management console
+
 
 <a id="nestedblock--config--resources"></a>
 ### Nested Schema for `config.resources`

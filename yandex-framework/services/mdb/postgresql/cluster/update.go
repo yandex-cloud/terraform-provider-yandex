@@ -101,13 +101,18 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		updateMaskPaths = append(updateMaskPaths, "config_spec.resources")
 	}
 
-	if !plan.Resources.IsUnknown() && !plan.Resources.IsNull() && !plan.Resources.Equal(state.Autofailover) {
+	if !plan.Autofailover.IsUnknown() && !plan.Autofailover.IsNull() && !plan.Autofailover.Equal(state.Autofailover) {
 		config.SetAutofailover(
 			&wrapperspb.BoolValue{
 				Value: plan.Autofailover.ValueBool(),
 			},
 		)
 		updateMaskPaths = append(updateMaskPaths, "config_spec.autofailover")
+	}
+
+	if !plan.Access.Equal(state.Access) {
+		config.SetAccess(expandAccess(ctx, plan.Access, &diags))
+		updateMaskPaths = append(updateMaskPaths, "config_spec.access")
 	}
 
 	return config, updateMaskPaths, diags

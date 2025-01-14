@@ -41,12 +41,28 @@ type Config struct {
 	Version      types.String `tfsdk:"version"`
 	Resources    types.Object `tfsdk:"resources"`
 	Autofailover types.Bool   `tfsdk:"autofailover"`
+	Access       types.Object `tfsdk:"access"`
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
 	"version":      types.StringType,
 	"resources":    types.ObjectType{AttrTypes: ResourcesAttrTypes},
 	"autofailover": types.BoolType,
+	"access":       types.ObjectType{AttrTypes: AccessAttrTypes},
+}
+
+type Access struct {
+	DataLens     types.Bool `tfsdk:"data_lens"`
+	WebSql       types.Bool `tfsdk:"web_sql"`
+	Serverless   types.Bool `tfsdk:"serverless"`
+	DataTransfer types.Bool `tfsdk:"data_transfer"`
+}
+
+var AccessAttrTypes = map[string]attr.Type{
+	"data_lens":     types.BoolType,
+	"web_sql":       types.BoolType,
+	"serverless":    types.BoolType,
+	"data_transfer": types.BoolType,
 }
 
 type Resources struct {
