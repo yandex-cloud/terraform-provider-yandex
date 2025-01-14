@@ -1183,7 +1183,7 @@ func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*cli
 	if v, ok := d.GetOkExists(rootKey + ".sasl_password"); ok {
 		config.SaslPassword = v.(string)
 	}
-	if v, ok := d.GetOk(rootKey + ".enable_ssl_certificate_verification"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".enable_ssl_certificate_verification"); ok {
 		config.EnableSslCertificateVerification = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	if v, ok := d.GetOk(rootKey + ".max_poll_interval_ms"); ok {
