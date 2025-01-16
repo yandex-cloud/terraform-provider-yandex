@@ -34,7 +34,7 @@ import (
 const (
 	defaultExponentialBackoffBase = 50 * time.Millisecond
 	defaultExponentialBackoffCap  = 1 * time.Minute
-	sdkDialContextTimeout         = 1 * time.Second
+	sdkDialContextTimeout         = 15 * time.Second
 )
 
 type iamToken struct {
