@@ -10,7 +10,29 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+func prepareUpdateAfterCreateRequest(ctx context.Context, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var paths []string
+	mw := expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags)
+	if mw != nil {
+		paths = append(paths, "maintenance_window")
+	}
+
+	if diags.HasError() || len(paths) == 0 {
+		return nil, diags
+	}
+
+	return &postgresql.UpdateClusterRequest{
+		ClusterId:         plan.Id.ValueString(),
+		MaintenanceWindow: expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags),
+		UpdateMask:        &field_mask.FieldMask{Paths: paths},
+	}, nil
+}
+
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
 	request := &postgresql.UpdateClusterRequest{
 		ClusterId:  state.Id.ValueString(),
 		UpdateMask: &field_mask.FieldMask{},
@@ -63,7 +85,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "deletion_protection")
 	}
 
-	if !plan.SecurityGroupIds.IsNull() && !plan.SecurityGroupIds.IsUnknown() && !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
+	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
 		securityGroupIds := make([]string, len(plan.SecurityGroupIds.Elements()))
 		diags := plan.SecurityGroupIds.ElementsAs(ctx, &securityGroupIds, false)
 		if diags.HasError() {
@@ -72,6 +94,14 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 
 		request.SecurityGroupIds = securityGroupIds
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
+	}
+
+	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
+		request.MaintenanceWindow = expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags)
+		if diags.HasError() {
+			return nil, diags
+		}
+		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_window")
 	}
 
 	return request, diag.Diagnostics{}

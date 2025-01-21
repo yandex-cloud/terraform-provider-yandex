@@ -24,6 +24,7 @@ description: |-
 - `description` (String)
 - `folder_id` (String) ID of the folder that the cluster belongs to.
 - `labels` (Map of String) Custom labels for the cluster as key-value pairs.
+- `maintenance_window` (Attributes) Maintenance policy of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))
 - `security_group_ids` (Set of String) A set of ids of security groups assigned to hosts of the cluster.
 
 ### Read-Only
@@ -57,11 +58,11 @@ Required:
 
 Optional:
 
-- `access` (Block, Optional) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--access))
+- `access` (Attributes) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedatt--config--access))
 - `autofailover` (Boolean)
 - `resources` (Block, Optional) (see [below for nested schema](#nestedblock--config--resources))
 
-<a id="nestedblock--config--access"></a>
+<a id="nestedatt--config--access"></a>
 ### Nested Schema for `config.access`
 
 Optional:
@@ -80,3 +81,14 @@ Required:
 - `disk_size` (Number) Size of the disk in bytes.
 - `disk_type_id` (String) ID of the disk type that determines the disk performance characteristics.
 - `resource_preset_id` (String) ID of the resource preset that determines the number of CPU cores and memory size for the host.
+
+
+
+<a id="nestedatt--maintenance_window"></a>
+### Nested Schema for `maintenance_window`
+
+Optional:
+
+- `day` (String) Day of the week (in DDD format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT","SUN"
+- `hour` (Number) Hour of the day in UTC (in HH format). Allowed value is between 1 and 24.
+- `type` (String) Type of maintenance window. Can be either ANYTIME or WEEKLY. A day and hour of window need to be specified with weekly window.

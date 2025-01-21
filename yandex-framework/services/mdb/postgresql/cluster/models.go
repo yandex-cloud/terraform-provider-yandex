@@ -15,6 +15,7 @@ type Cluster struct {
 	Labels             types.Map    `tfsdk:"labels"`
 	Config             types.Object `tfsdk:"config"`
 	HostSpecs          types.Map    `tfsdk:"hosts"`
+	MaintenanceWindow  types.Object `tfsdk:"maintenance_window"`
 	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
 	SecurityGroupIds   types.Set    `tfsdk:"security_group_ids"`
 }
@@ -42,6 +43,18 @@ type Config struct {
 	Resources    types.Object `tfsdk:"resources"`
 	Autofailover types.Bool   `tfsdk:"autofailover"`
 	Access       types.Object `tfsdk:"access"`
+}
+
+type MaintenanceWindow struct {
+	Type types.String `tfsdk:"type"`
+	Day  types.String `tfsdk:"day"`
+	Hour types.Int64  `tfsdk:"hour"`
+}
+
+var MaintenanceWindowAttrTypes = map[string]attr.Type{
+	"type": types.StringType,
+	"day":  types.StringType,
+	"hour": types.Int64Type,
 }
 
 var ConfigAttrTypes = map[string]attr.Type{

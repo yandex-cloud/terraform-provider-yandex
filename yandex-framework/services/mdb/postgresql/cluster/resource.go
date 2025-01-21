@@ -5,17 +5,21 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -72,6 +76,9 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Description: "ID of the folder that the cluster belongs to.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"network_id": schema.StringAttribute{
 				Required:    true,
@@ -133,6 +140,9 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Optional:    true,
 				Computed:    true,
 				Description: "Inhibits deletion of the cluster. Can be either true or false.",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"security_group_ids": schema.SetAttribute{
 				Optional:    true,
@@ -142,6 +152,47 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					setplanmodifier.UseStateForUnknown(),
 				},
 				Description: "A set of ids of security groups assigned to hosts of the cluster.",
+			},
+			// Optional nested attribute maintenance_window required all optional nested attributes
+			// But if the block is specified explicitly, then the type attribute is required
+			"maintenance_window": schema.SingleNestedAttribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+				Description: "Maintenance policy of the PostgreSQL cluster.",
+				Validators: []validator.Object{
+					NewMaintenanceWindowStructValidator(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"type": schema.StringAttribute{
+						Description: "Type of maintenance window. Can be either ANYTIME or WEEKLY. A day and hour of window need to be specified with weekly window.",
+						Optional:    true,
+						Validators: []validator.String{
+							stringvalidator.OneOf("ANYTIME", "WEEKLY"),
+						},
+					},
+					"day": schema.StringAttribute{
+						Description: "Day of the week (in DDD format). Allowed values: \"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\",\"SUN\"",
+						Optional:    true,
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"MON", "TUE",
+								"WED", "THU",
+								"FRI", "SAT",
+								"SUN",
+							),
+						},
+					},
+					"hour": schema.Int64Attribute{
+						Description: "Hour of the day in UTC (in HH format). Allowed value is between 1 and 24.",
+						Optional:    true,
+						Validators: []validator.Int64{
+							int64validator.Between(1, 24),
+						},
+					},
+				},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -154,27 +205,18 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					"autofailover": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-					},
-				},
-				Blocks: map[string]schema.Block{
-					"resources": schema.SingleNestedBlock{
-						Attributes: map[string]schema.Attribute{
-							"resource_preset_id": schema.StringAttribute{
-								Required:    true,
-								Description: "ID of the resource preset that determines the number of CPU cores and memory size for the host.",
-							},
-							"disk_type_id": schema.StringAttribute{
-								Required:    true,
-								Description: "ID of the disk type that determines the disk performance characteristics.",
-							},
-							"disk_size": schema.Int64Attribute{
-								Required:    true,
-								Description: "Size of the disk in bytes.",
-							},
+						Default:  booldefault.StaticBool(true),
+						PlanModifiers: []planmodifier.Bool{
+							boolplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"access": schema.SingleNestedBlock{
+					"access": schema.SingleNestedAttribute{
+						Optional:    true,
+						Computed:    true,
 						Description: "Access policy to the PostgreSQL cluster.",
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
 						Attributes: map[string]schema.Attribute{
 							"data_lens": schema.BoolAttribute{
 								Description: "Allow access for Yandex DataLens.",
@@ -199,6 +241,24 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								Optional:    true,
 								Computed:    true,
 								Default:     booldefault.StaticBool(false),
+							},
+						},
+					},
+				},
+				Blocks: map[string]schema.Block{
+					"resources": schema.SingleNestedBlock{
+						Attributes: map[string]schema.Attribute{
+							"resource_preset_id": schema.StringAttribute{
+								Required:    true,
+								Description: "ID of the resource preset that determines the number of CPU cores and memory size for the host.",
+							},
+							"disk_type_id": schema.StringAttribute{
+								Required:    true,
+								Description: "ID of the disk type that determines the disk performance characteristics.",
+							},
+							"disk_size": schema.Int64Attribute{
+								Required:    true,
+								Description: "Size of the disk in bytes.",
 							},
 						},
 					},
@@ -334,9 +394,27 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	plan.Id = types.StringValue(cid)
+
+	if diags := r.updateClusterAfterCreate(ctx, &plan); diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
 	r.refreshResourceState(ctx, &plan, hosts, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (r *clusterResource) updateClusterAfterCreate(ctx context.Context, plan *Cluster) diag.Diagnostics {
+	req, diags := prepareUpdateAfterCreateRequest(ctx, plan)
+	if diags.HasError() {
+		return diags
+	}
+	updateCluster(ctx, r.providerConfig.SDK, &diags, req)
+	if diags.HasError() {
+		return diags
+	}
+	return nil
 }
 
 func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -535,30 +613,11 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
-	// Get cur config state
-	var stateConfig Config
-	respDiagnostics.Append(state.Config.As(ctx, &stateConfig, basetypes.ObjectAsOptions{
-		UnhandledNullAsEmpty:    true,
-		UnhandledUnknownAsEmpty: true,
-	})...)
-	if respDiagnostics.HasError() {
-		return
-	}
-
-	access := flattenAccess(ctx, nil, respDiagnostics)
-	// Config is null with state importing where need all config data
-	if state.Config.IsNull() || !stateConfig.Access.IsNull() && !stateConfig.Access.IsUnknown() {
-		access = flattenAccess(ctx, cluster.Config.Access, respDiagnostics)
-	}
-	if respDiagnostics.HasError() {
-		return
-	}
-
 	config, diags := types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
 		Version:      version,
 		Resources:    resources,
 		Autofailover: autofailover,
-		Access:       access,
+		Access:       flattenAccess(ctx, cluster.Config.Access, respDiagnostics),
 	})
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
@@ -574,7 +633,6 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	// cluster.SecurityGroupIds can be nil when attribute setted with empty set
 	sgSl := make([]string, len(cluster.SecurityGroupIds))
 	copy(sgSl, cluster.SecurityGroupIds)
-
 	securityGroupIds, diags := types.SetValueFrom(ctx, types.StringType, sgSl)
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
@@ -591,5 +649,6 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Config = config
 	state.HostSpecs = hostMapValue
 	state.DeletionProtection = deletionProtection
+	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, &diags)
 	state.SecurityGroupIds = securityGroupIds
 }

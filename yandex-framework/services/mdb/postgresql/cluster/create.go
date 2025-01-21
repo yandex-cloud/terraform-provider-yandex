@@ -52,8 +52,9 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		return nil, diags
 	}
 
-	securityGroupIds := make([]string, len(plan.SecurityGroupIds.Elements()))
+	var securityGroupIds []string
 	if !(plan.SecurityGroupIds.IsUnknown() || plan.SecurityGroupIds.IsNull()) {
+		securityGroupIds = make([]string, len(plan.SecurityGroupIds.Elements()))
 		diags.Append(plan.SecurityGroupIds.ElementsAs(ctx, &securityGroupIds, false)...)
 		if diags.HasError() {
 			return nil, diags

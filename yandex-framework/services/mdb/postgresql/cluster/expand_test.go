@@ -30,7 +30,7 @@ func buildTestAccessObj(dataLens, dataTransfer, webSql, serverless *bool) types.
 	)
 }
 
-func TestYandexProvider_MDBPostgresClusterConfigAccessExpansion(t *testing.T) {
+func TestYandexProvider_MDBPostgresClusterConfigAccessExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -104,6 +104,83 @@ func TestYandexProvider_MDBPostgresClusterConfigAccessExpansion(t *testing.T) {
 				c.expectedVal,
 				pgAccess,
 			)
+		}
+	}
+}
+
+var mwAttrsTestExpand = map[string]attr.Type{
+	"type": types.StringType,
+	"day":  types.StringType,
+	"hour": types.Int64Type,
+}
+
+func buildMWTestBlockObj(mwType, mwDay *string, mwHour *int64) types.Object {
+	testBlock, _ := types.ObjectValue(mwAttrsTestExpand, map[string]attr.Value{
+		"type": types.StringPointerValue(mwType),
+		"day":  types.StringPointerValue(mwDay),
+		"hour": types.Int64PointerValue(mwHour),
+	})
+
+	return testBlock
+}
+
+func TestYandexProvider_MDBPostgresClusterMaintenanceWindowExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	anytimeType := "ANYTIME"
+	weeklyType := "WEEKLY"
+
+	day := "MON"
+	var hour int64 = 1
+
+	cases := []struct {
+		testname       string
+		reqVal         types.Object
+		expectedPolicy postgresql.MaintenanceWindow_Policy
+		expectedError  bool
+	}{
+		{
+			testname:       "CheckNullObject",
+			reqVal:         types.ObjectNull(mwAttrsTestExpand),
+			expectedPolicy: nil,
+		},
+		{
+			testname: "CheckAnytimeMaintenanceWindow",
+			reqVal:   buildMWTestBlockObj(&anytimeType, nil, nil),
+			expectedPolicy: &postgresql.MaintenanceWindow_Anytime{
+				Anytime: &postgresql.AnytimeMaintenanceWindow{},
+			},
+		},
+		{
+			testname: "CheckWeeklyMaintenanceWindow",
+			reqVal:   buildMWTestBlockObj(&weeklyType, &day, &hour),
+			expectedPolicy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
+				WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
+					Hour: hour,
+					Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(1),
+				},
+			},
+		},
+		{
+			testname:      "CheckBlockWithRandomAttributes",
+			reqVal:        types.ObjectValueMust(map[string]attr.Type{"random": types.StringType}, map[string]attr.Value{"random": types.StringValue("s1")}),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		var diags diag.Diagnostics
+		res := expandClusterMaintenanceWindow(ctx, c.reqVal, &diags)
+		if c.expectedError {
+			if !diags.HasError() {
+				t.Errorf("Unexpected expancion error status: expected %v, actual %v", c.expectedError, diags.HasError())
+			}
+			continue
+		}
+
+		if c.expectedPolicy != nil && !reflect.DeepEqual(res.Policy, c.expectedPolicy) {
+			t.Errorf("Unexpected expancion result policy: expected %v, actual %v", c.expectedPolicy, res.Policy)
 		}
 	}
 }

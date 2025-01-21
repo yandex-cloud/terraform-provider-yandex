@@ -71,3 +71,86 @@ func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
 		}
 	}
 }
+
+var mwAttrsTestFlatten = map[string]attr.Type{
+	"type": types.StringType,
+	"day":  types.StringType,
+	"hour": types.Int64Type,
+}
+
+func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      *postgresql.MaintenanceWindow
+		expectedVal types.Object
+		hasErr      bool
+	}{
+		{
+			testname: "CheckWeeklyMaintenanceWindow",
+			reqVal: &postgresql.MaintenanceWindow{
+				Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
+					WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
+						Hour: 10,
+						Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(1),
+					},
+				},
+			},
+			expectedVal: types.ObjectValueMust(mwAttrsTestFlatten, map[string]attr.Value{
+				"type": types.StringValue("WEEKLY"),
+				"day":  types.StringValue("MON"),
+				"hour": types.Int64Value(10),
+			}),
+		},
+		{
+			testname: "CheckAnytimeMaintenanceWindow",
+			reqVal: &postgresql.MaintenanceWindow{
+				Policy: &postgresql.MaintenanceWindow_Anytime{
+					Anytime: &postgresql.AnytimeMaintenanceWindow{},
+				},
+			},
+			expectedVal: types.ObjectValueMust(mwAttrsTestFlatten, map[string]attr.Value{
+				"type": types.StringValue("ANYTIME"),
+				"day":  types.StringNull(),
+				"hour": types.Int64Null(),
+			}),
+		},
+		{
+			testname:    "CheckNullMaintenanceWindow",
+			reqVal:      nil,
+			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			hasErr:      true,
+		},
+		{
+			testname:    "CheckEmptyMaintenanceWindow",
+			reqVal:      &postgresql.MaintenanceWindow{},
+			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			hasErr:      true,
+		},
+		{
+			testname: "CheckPolicyNilMaintenanceWindow",
+			reqVal: &postgresql.MaintenanceWindow{
+				Policy: nil,
+			},
+			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			hasErr:      true,
+		},
+	}
+
+	for _, c := range cases {
+		var diags diag.Diagnostics
+		res := flattenMaintenanceWindow(ctx, c.reqVal, &diags)
+		if c.hasErr {
+			if !diags.HasError() {
+				t.Errorf("Unexpected flatten error status: expected %v, actual %v", c.hasErr, diags.HasError())
+			}
+			continue
+		}
+
+		if !c.expectedVal.Equal(res) {
+			t.Errorf("Unexpected flatten object result: expected %v, actual %v", c.expectedVal, res)
+		}
+	}
+}
