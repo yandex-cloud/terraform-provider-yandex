@@ -4781,8 +4781,6 @@ func testAccComputeInstance_detachFilesystem(fs, newFs, instance string) string 
 		zone = "ru-central1-a"
 		platform_id = "standard-v2"
 
-		allow_stopping_for_update = true
-
 		resources {
 			cores  = 2
 			memory = 2

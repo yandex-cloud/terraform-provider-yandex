@@ -1,0 +1,4 @@
+kind: BUG FIXES
+body: 'resource_yandex_compute_instance: remove allow_stopping_for_update for instance
+  file system changes'
+time: 2025-01-15T10:46:52.873204+03:00

@@ -1176,24 +1176,98 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			log.Printf("[DEBUG] Successfully attached disk %s", diskSpec.GetDiskId())
 		}
 	}
+	filesystemPropName := "filesystem"
+	if d.HasChange(filesystemPropName) {
+		o, n := d.GetChange(filesystemPropName)
+
+		currFs := map[string]struct{}{}
+		for _, fs := range instance.Filesystems {
+			currFs[fs.FilesystemId] = struct{}{}
+		}
+
+		oldFs := map[uint64]string{}
+		for _, fs := range o.(*schema.Set).List() {
+			fsConfig := fs.(map[string]interface{})
+			fsSpec, err := expandFilesystemSpec(fsConfig)
+			if err != nil {
+				return err
+			}
+			hash, err := hashstructure.Hash(fsSpec, nil)
+			if err != nil {
+				return err
+			}
+			if _, ok := currFs[fsSpec.GetFilesystemId()]; ok {
+				oldFs[hash] = fsSpec.GetFilesystemId()
+			}
+		}
+
+		newFs := map[uint64]struct{}{}
+		var attach []*compute.AttachedFilesystemSpec
+		for _, fs := range n.(*schema.Set).List() {
+			fsConfig := fs.(map[string]interface{})
+			fsSpec, err := expandFilesystemSpec(fsConfig)
+			if err != nil {
+				return err
+			}
+			hash, err := hashstructure.Hash(fsSpec, nil)
+			if err != nil {
+				return err
+			}
+			newFs[hash] = struct{}{}
+
+			if _, ok := oldFs[hash]; !ok {
+				attach = append(attach, fsSpec)
+			}
+		}
+
+		// Detach old filesystems
+		for hash, fsID := range oldFs {
+			if _, ok := newFs[hash]; !ok {
+				req := &compute.DetachInstanceFilesystemRequest{
+					InstanceId: d.Id(),
+					Filesystem: &compute.DetachInstanceFilesystemRequest_FilesystemId{
+						FilesystemId: fsID,
+					},
+				}
+
+				err = makeDetachFilesystemRequest(req, meta)
+				if err != nil {
+					return err
+				}
+				log.Printf("[DEBUG] Successfully detached filesystem %s", fsID)
+			}
+		}
+
+		// Attach the new filesystems
+		for _, fsSpec := range attach {
+			req := &compute.AttachInstanceFilesystemRequest{
+				InstanceId:             d.Id(),
+				AttachedFilesystemSpec: fsSpec,
+			}
+
+			err := makeAttachFilesystemRequest(req, meta)
+			if err != nil {
+				return err
+			}
+			log.Printf("[DEBUG] Successfully attached filesystem %s", fsSpec.GetFilesystemId())
+		}
+	}
 
 	resourcesPropName := "resources"
 	platformIDPropName := "platform_id"
 	networkAccelerationTypePropName := "network_acceleration_type"
 	schedulingPolicyName := "scheduling_policy"
 	placementPolicyPropName := "placement_policy"
-	filesystemPropName := "filesystem"
+
 	properties := []string{
 		resourcesPropName,
 		platformIDPropName,
 		networkAccelerationTypePropName,
 		schedulingPolicyName,
 		placementPolicyPropName,
-		filesystemPropName,
 	}
 	if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) ||
-		needUpdateInterfacesOnStoppedInstance || d.HasChange(schedulingPolicyName) || d.HasChange(placementPolicyPropName) ||
-		d.HasChange(filesystemPropName) {
+		needUpdateInterfacesOnStoppedInstance || d.HasChange(schedulingPolicyName) || d.HasChange(placementPolicyPropName) {
 		if err := ensureAllowStoppingForUpdate(d, properties...); err != nil {
 			return err
 		}
@@ -1301,83 +1375,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				if err != nil {
 					return err
 				}
-			}
-
-		}
-
-		if d.HasChange(filesystemPropName) {
-			o, n := d.GetChange(filesystemPropName)
-
-			currFs := map[string]struct{}{}
-			for _, fs := range instance.Filesystems {
-				currFs[fs.FilesystemId] = struct{}{}
-			}
-
-			oldFs := map[uint64]string{}
-			for _, fs := range o.(*schema.Set).List() {
-				fsConfig := fs.(map[string]interface{})
-				fsSpec, err := expandFilesystemSpec(fsConfig)
-				if err != nil {
-					return err
-				}
-				hash, err := hashstructure.Hash(fsSpec, nil)
-				if err != nil {
-					return err
-				}
-				if _, ok := currFs[fsSpec.GetFilesystemId()]; ok {
-					oldFs[hash] = fsSpec.GetFilesystemId()
-				}
-			}
-
-			newFs := map[uint64]struct{}{}
-			var attach []*compute.AttachedFilesystemSpec
-			for _, fs := range n.(*schema.Set).List() {
-				fsConfig := fs.(map[string]interface{})
-				fsSpec, err := expandFilesystemSpec(fsConfig)
-				if err != nil {
-					return err
-				}
-				hash, err := hashstructure.Hash(fsSpec, nil)
-				if err != nil {
-					return err
-				}
-				newFs[hash] = struct{}{}
-
-				if _, ok := oldFs[hash]; !ok {
-					attach = append(attach, fsSpec)
-				}
-			}
-
-			// Detach old filesystems
-			for hash, fsID := range oldFs {
-				if _, ok := newFs[hash]; !ok {
-					req := &compute.DetachInstanceFilesystemRequest{
-						InstanceId: d.Id(),
-						Filesystem: &compute.DetachInstanceFilesystemRequest_FilesystemId{
-							FilesystemId: fsID,
-						},
-					}
-
-					err = makeDetachFilesystemRequest(req, meta)
-					if err != nil {
-						return err
-					}
-					log.Printf("[DEBUG] Successfully detached filesystem %s", fsID)
-				}
-			}
-
-			// Attach the new filesystems
-			for _, fsSpec := range attach {
-				req := &compute.AttachInstanceFilesystemRequest{
-					InstanceId:             d.Id(),
-					AttachedFilesystemSpec: fsSpec,
-				}
-
-				err := makeAttachFilesystemRequest(req, meta)
-				if err != nil {
-					return err
-				}
-				log.Printf("[DEBUG] Successfully attached filesystem %s", fsSpec.GetFilesystemId())
 			}
 
 		}
