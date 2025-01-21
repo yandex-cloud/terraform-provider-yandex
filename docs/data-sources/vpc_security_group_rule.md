@@ -11,7 +11,7 @@ description: |-
 
 
 
-Get information about a Yandex VPC Security Group Rule. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
+Get information about a Yandex VPC Security Group Rule. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
 
 ## Example usage
 

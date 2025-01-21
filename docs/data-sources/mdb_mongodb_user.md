@@ -2,9 +2,8 @@
 subcategory: "Managed Service for MongoDB"
 page_title: "Yandex: yandex_mdb_mongodb_user"
 description: |-
-  Get information about a Yandex Managed MongoDB user.
+  Get information about a Yandex Managed MongoDB User.
 ---
-
 
 # yandex_mdb_mongodb_user
 

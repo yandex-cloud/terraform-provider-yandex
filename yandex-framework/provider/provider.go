@@ -17,25 +17,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	airflowcluster "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow/resource_cluster"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/disk"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/diskplacementgroup"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/filesystem"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/gpucluster"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/image"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/instance"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/placementgroup"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshot"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshotschedule"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/community"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/marketplace/helm_release"
-	mongodbdatabase "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
-	mongodbuser "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
-	postgresql_cluster "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/postgresql/cluster"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc/security_group_rule"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_placement_group_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_filesystem_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_gpu_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_image_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_instance_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_placement_group_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_snapshot_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_snapshot_schedule_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_database"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_beta"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
+	// "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group"
 )
 
 type saKeyValidator struct{}
@@ -249,46 +252,46 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		func() resource.Resource {
-			return billing.NewResource(
-				billing.BindingServiceInstanceCloudType,
-				billing.BindingServiceInstanceCloudIdFieldName)
+			return billing_cloud_binding.NewResource(
+				billing_cloud_binding.BindingServiceInstanceCloudType,
+				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
-		project.NewResource,
-		project.NewIamBinding,
-		community.NewResource,
-		community.NewIamBinding,
-		mongodbdatabase.NewResource,
-		mongodbuser.NewResource,
-		opensearch.NewResource,
-		disk.NewIamBinding,
-		diskplacementgroup.NewIamBinding,
-		filesystem.NewIamBinding,
-		gpucluster.NewIamBinding,
-		image.NewIamBinding,
-		instance.NewIamBinding,
-		placementgroup.NewIamBinding,
-		snapshot.NewIamBinding,
-		snapshotschedule.NewIamBinding,
-		airflowcluster.NewResource,
-		security_group_rule.NewResource,
-		postgresql_cluster.NewPostgreSQLClusterResourceBeta,
-		helm_release.NewResource,
+		datasphere_project.NewResource,
+		datasphere_project_iam_binding.NewIamBinding,
+		datasphere_community.NewResource,
+		datasphere_community_iam_binding.NewIamBinding,
+		mdb_mongodb_database.NewResource,
+		mdb_mongodb_user.NewResource,
+		mdb_opensearch_cluster.NewResource,
+		compute_disk_iam_binding.NewIamBinding,
+		compute_disk_placement_group_iam_binding.NewIamBinding,
+		compute_filesystem_iam_binding.NewIamBinding,
+		compute_gpu_cluster_iam_binding.NewIamBinding,
+		compute_image_iam_binding.NewIamBinding,
+		compute_instance_iam_binding.NewIamBinding,
+		compute_placement_group_iam_binding.NewIamBinding,
+		compute_snapshot_iam_binding.NewIamBinding,
+		compute_snapshot_schedule_iam_binding.NewIamBinding,
+		airflow_cluster.NewResource,
+		vpc_security_group_rule.NewResource,
+		mdb_postgresql_cluster_beta.NewPostgreSQLClusterResourceBeta,
+		kubernetes_marketplace_helm_release.NewResource,
 	}
 }
 
 func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		func() datasource.DataSource {
-			return billing.NewDataSource(
-				billing.BindingServiceInstanceCloudType,
-				billing.BindingServiceInstanceCloudIdFieldName)
+			return billing_cloud_binding.NewDataSource(
+				billing_cloud_binding.BindingServiceInstanceCloudType,
+				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
-		project.NewDataSource,
-		community.NewDataSource,
-		mongodbdatabase.NewDataSource,
-		mongodbuser.NewDataSource,
-		opensearch.NewDataSource,
-		security_group_rule.NewDataSource,
+		datasphere_project.NewDataSource,
+		datasphere_community.NewDataSource,
+		mdb_mongodb_database.NewDataSource,
+		mdb_mongodb_user.NewDataSource,
+		mdb_opensearch_cluster.NewDataSource,
+		vpc_security_group_rule.NewDataSource,
 	}
 }
 

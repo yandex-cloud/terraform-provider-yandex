@@ -4,13 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/tools/cmd/pkg/categories"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"io/fs"
 	"log"
 	"os"
@@ -56,7 +52,7 @@ type servicesSet struct {
 	dataSources map[string]struct{}
 }
 
-func getProviderServicesSet(ctx context.Context, sdkProvider *schema.Provider, frameworkProvider provider.Provider) (*servicesSet, error) {
+func getProviderServicesSet(sdkProvider *schema.Provider) (*servicesSet, error) {
 	log.Println("Loading services set from provider schema")
 	data := servicesSet{
 		resources:   make(map[string]struct{}),
@@ -69,20 +65,6 @@ func getProviderServicesSet(ctx context.Context, sdkProvider *schema.Provider, f
 
 	for name, _ := range sdkProvider.ResourcesMap {
 		data.resources[strings.TrimPrefix(name, "yandex_")] = struct{}{}
-	}
-
-	for _, dataSource := range frameworkProvider.DataSources(ctx) {
-		req := datasource.MetadataRequest{ProviderTypeName: "yandex"}
-		resp := datasource.MetadataResponse{}
-		dataSource().Metadata(context.Background(), req, &resp)
-		data.dataSources[strings.TrimPrefix(resp.TypeName, "yandex_")] = struct{}{}
-	}
-
-	for _, resource_ := range frameworkProvider.Resources(ctx) {
-		req := resource.MetadataRequest{ProviderTypeName: "yandex"}
-		resp := resource.MetadataResponse{}
-		resource_().Metadata(context.Background(), req, &resp)
-		data.resources[strings.TrimPrefix(resp.TypeName, "yandex_")] = struct{}{}
 	}
 
 	return &data, nil
@@ -209,9 +191,8 @@ func main() {
 
 	ctx := context.Background()
 	provider_ := yandex.NewSDKProvider()
-	frameworkProvider := yandex_framework.NewFrameworkProvider()
 
-	providerServicesSet, err := getProviderServicesSet(ctx, provider_, frameworkProvider)
+	providerServicesSet, err := getProviderServicesSet(provider_)
 	if err != nil {
 		log.Fatalf("Failed to get provider schema: %s", err)
 		return

@@ -3,13 +3,12 @@ subcategory: "Kubernetes Marketplace"
 page_title: "Yandex: yandex_kubernetes_marketplace_helm_release"
 description: |-
   Allows management of Kubernetes product installed from Yandex Cloud Marketplace.
-  For more information, see the official documentation https://yandex.cloud/ru/marketplace?type=K8S.
 ---
 
 # yandex_kubernetes_marketplace_helm_release
 
 Allows management of Kubernetes product installed from Yandex Cloud Marketplace.
-For more information, see [the official documentation](https://yandex.cloud/ru/marketplace?type=K8S).
+For more information, see [official documentation](https://yandex.cloud/marketplace?type=K8S).
 
 ## Example Usage
 
@@ -47,7 +46,7 @@ resource "yandex_kubernetes_marketplace_helm_release" "gatekeeper_helm_release" 
 ### Read-Only
 
 - `created_at` (String) The Helm Release creation (first installation) timestamp.
-- `id` (String) The ID of this resource.
+- `id` (String) The resource identifier.
 - `product_id` (String) The ID of the Marketplace product.
 - `product_name` (String) The name of the Marketplace product.
 - `status` (String) Status of the deployment.
@@ -61,11 +60,12 @@ Optional:
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 - `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 
-
 ## Import
 
-Import is supported using the following syntax:
+```bash
+# The resource can be imported by using their resource ID.
+# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
 
-```shell
+# Import is supported using the following syntax:
 terraform import yandex_kubernetes_marketpalce_helm_release.default helm_release_id
 ```

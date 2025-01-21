@@ -1,1 +1,0 @@
-terraform import yandex_kubernetes_marketpalce_helm_release.default helm_release_id

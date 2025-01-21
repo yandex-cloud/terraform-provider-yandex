@@ -26,6 +26,7 @@ output "bound_cloud_id" {
 }
 ```
 
+
 ## Argument Reference
 
 The following arguments are supported:

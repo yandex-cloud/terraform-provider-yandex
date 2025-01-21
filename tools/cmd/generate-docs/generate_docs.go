@@ -25,6 +25,13 @@ var newDescriptions = map[string]string{
 	"default": description,
 }
 
+// framework constants
+const (
+	frameworkTemplatesDocsDir   = "yandex-framework/docs-templates"
+	frameworkDatasourceFileName = "datasource-doctpl.md"
+	frameworkResourceFileName   = "resource-doctpl.md"
+)
+
 func postProcessingDocs(resourcePath string) error {
 	log.Printf("Post processing resource %s", resourcePath)
 
@@ -87,8 +94,8 @@ func replaceSubCategory(content, subCategory string) string {
 }
 
 func regroupTemplatesFiles(templatesDir, tmpDir string, categoryMapping categories.CategoryMapping) error {
-	log.Println("Reordering templates directory")
-	return filepath.WalkDir(templatesDir, func(path string, d fs.DirEntry, err error) error {
+	log.Println("Reordering templates directory for sdk provider")
+	err := filepath.WalkDir(templatesDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed while travising directory %s: %w", path, err)
 		}
@@ -119,6 +126,49 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categoryMapping categori
 		}
 		data = []byte(replaceSubCategory(string(data), subCategory))
 		err = os.WriteFile(file, data, os.FileMode(0644))
+
+		return err
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to reorder sdk templates directory %s: %w", templatesDir, err)
+	}
+
+	return filepath.WalkDir(frameworkTemplatesDocsDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("failed while travising directory %s: %w", path, err)
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+		if d.Name() != frameworkDatasourceFileName && d.Name() != frameworkResourceFileName {
+			return nil
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read file %s: %w", path, err)
+		}
+
+		relPath, err := filepath.Rel(frameworkTemplatesDocsDir, path)
+
+		if err != nil {
+			return fmt.Errorf("failed to get relative path of file %s: %w", path, err)
+		}
+
+		name := strings.TrimSuffix(relPath, "/"+d.Name()) + ".md.tmpl"
+
+		var res string
+
+		if d.Name() == frameworkDatasourceFileName {
+			res = filepath.Join(tmpDir, "data-sources", name)
+		} else {
+			res = filepath.Join(tmpDir, "resources", name)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to get subcategory by path %s: %w", path, err)
+		}
+		err = os.WriteFile(res, data, os.FileMode(0644))
 
 		return err
 	})
