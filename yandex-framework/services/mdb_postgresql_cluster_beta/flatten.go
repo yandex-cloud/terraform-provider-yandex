@@ -54,3 +54,20 @@ func flattenMaintenanceWindow(ctx context.Context, mw *postgresql.MaintenanceWin
 
 	return obj
 }
+
+func flattenPerformanceDiagnostics(ctx context.Context, pd *postgresql.PerformanceDiagnostics, diags *diag.Diagnostics) types.Object {
+	if pd == nil {
+		return types.ObjectNull(PerformanceDiagnosticsAttrTypes)
+	}
+
+	obj, d := types.ObjectValueFrom(
+		ctx, PerformanceDiagnosticsAttrTypes, PerformanceDiagnostics{
+			Enabled:                    types.BoolValue(pd.Enabled),
+			SessionsSamplingInterval:   types.Int64Value(pd.SessionsSamplingInterval),
+			StatementsSamplingInterval: types.Int64Value(pd.StatementsSamplingInterval),
+		},
+	)
+	diags.Append(d...)
+
+	return obj
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 )
 
 // Set access to default if null
@@ -42,7 +42,7 @@ func expandClusterMaintenanceWindow(ctx context.Context, mw types.Object, diags 
 	out := &postgresql.MaintenanceWindow{}
 	var mwConf MaintenanceWindow
 
-	diags.Append(mw.As(ctx, &mwConf, utils.DefaultOpts)...)
+	diags.Append(mw.As(ctx, &mwConf, datasize.DefaultOpts)...)
 	if diags.HasError() {
 		return nil
 	}
@@ -70,4 +70,22 @@ func expandClusterMaintenanceWindow(ctx context.Context, mw types.Object, diags 
 	}
 
 	return out
+}
+
+func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *diag.Diagnostics) *postgresql.PerformanceDiagnostics {
+	if pd.IsNull() || pd.IsUnknown() {
+		return nil
+	}
+	var pdConf PerformanceDiagnostics
+
+	diags.Append(pd.As(ctx, &pdConf, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &postgresql.PerformanceDiagnostics{
+		Enabled:                    pdConf.Enabled.ValueBool(),
+		SessionsSamplingInterval:   pdConf.SessionsSamplingInterval.ValueInt64(),
+		StatementsSamplingInterval: pdConf.StatementsSamplingInterval.ValueInt64(),
+	}
 }

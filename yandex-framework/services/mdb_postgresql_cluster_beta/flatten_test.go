@@ -154,3 +154,75 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 		}
 	}
 }
+
+var pdTestFlatten = map[string]attr.Type{
+	"enabled":                      types.BoolType,
+	"sessions_sampling_interval":   types.Int64Type,
+	"statements_sampling_interval": types.Int64Type,
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	cases := []struct {
+		testname       string
+		testData       *postgresql.PerformanceDiagnostics
+		expectedObject types.Object
+		hasErr         bool
+	}{
+		{
+			testname:       "CheckNullObject",
+			testData:       nil,
+			expectedObject: types.ObjectNull(pdTestFlatten),
+		},
+		{
+			testname: "CheckAllAttributes",
+			testData: &postgresql.PerformanceDiagnostics{
+				Enabled:                    true,
+				SessionsSamplingInterval:   10,
+				StatementsSamplingInterval: 5,
+			},
+			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+				"enabled":                      types.BoolValue(true),
+				"sessions_sampling_interval":   types.Int64Value(10),
+				"statements_sampling_interval": types.Int64Value(5),
+			}),
+		},
+		{
+			testname: "CheckPartialAttributes",
+			testData: &postgresql.PerformanceDiagnostics{
+				Enabled:                  true,
+				SessionsSamplingInterval: 10,
+			},
+			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+				"enabled":                      types.BoolValue(true),
+				"sessions_sampling_interval":   types.Int64Value(10),
+				"statements_sampling_interval": types.Int64Value(0),
+			}),
+		},
+		{
+			testname: "CheckEmptyAttributes",
+			testData: &postgresql.PerformanceDiagnostics{},
+			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+				"enabled":                      types.BoolValue(false),
+				"sessions_sampling_interval":   types.Int64Value(0),
+				"statements_sampling_interval": types.Int64Value(0),
+			}),
+		},
+	}
+
+	for _, c := range cases {
+		var diags diag.Diagnostics
+		res := flattenPerformanceDiagnostics(ctx, c.testData, &diags)
+		if c.hasErr {
+			if !diags.HasError() {
+				t.Errorf("Unexpected flatten error status: expected %v, actual %v", c.hasErr, diags.HasError())
+			}
+			continue
+		}
+
+		if !c.expectedObject.Equal(res) {
+			t.Errorf("Unexpected flatten object result: expected %v, actual %v", c.expectedObject, res)
+		}
+	}
+}

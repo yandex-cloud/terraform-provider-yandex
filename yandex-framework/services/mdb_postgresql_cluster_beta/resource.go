@@ -252,6 +252,36 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							},
 						},
 					},
+					"performance_diagnostics": schema.SingleNestedAttribute{
+						MarkdownDescription: "Cluster performance diagnostics settings. The structure is documented below.",
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								MarkdownDescription: "Enable performance diagnostics",
+								Optional:            true,
+								Computed:            true,
+								Default:             booldefault.StaticBool(false),
+							},
+							"sessions_sampling_interval": schema.Int64Attribute{
+								MarkdownDescription: "Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.",
+								Required:            true,
+								Validators: []validator.Int64{
+									int64validator.Between(1, 86400),
+								},
+							},
+							"statements_sampling_interval": schema.Int64Attribute{
+								MarkdownDescription: "Interval (in seconds) for pg_stat_statements sampling Acceptable values are 60 to 86400, inclusive.",
+								Required:            true,
+								Validators: []validator.Int64{
+									int64validator.Between(60, 86400),
+								},
+							},
+						},
+					},
 				},
 				Blocks: map[string]schema.Block{
 					"resources": schema.SingleNestedBlock{
@@ -623,10 +653,11 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	}
 
 	config, diags := types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
-		Version:      version,
-		Resources:    resources,
-		Autofailover: autofailover,
-		Access:       flattenAccess(ctx, cluster.Config.Access, respDiagnostics),
+		Version:                version,
+		Resources:              resources,
+		Autofailover:           autofailover,
+		Access:                 flattenAccess(ctx, cluster.Config.Access, respDiagnostics),
+		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, cluster.Config.PerformanceDiagnostics, respDiagnostics),
 	})
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {

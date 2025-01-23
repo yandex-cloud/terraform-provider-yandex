@@ -2,6 +2,7 @@ package mdb_postgresql_cluster_beta
 
 import (
 	"context"
+	"math/rand"
 	"reflect"
 	"testing"
 
@@ -181,6 +182,93 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowExpand(t *testing.T) 
 
 		if c.expectedPolicy != nil && !reflect.DeepEqual(res.Policy, c.expectedPolicy) {
 			t.Errorf("Unexpected expancion result policy: expected %v, actual %v", c.expectedPolicy, res.Policy)
+		}
+	}
+}
+
+var pdTestExpand = map[string]attr.Type{
+	"enabled":                      types.BoolType,
+	"sessions_sampling_interval":   types.Int64Type,
+	"statements_sampling_interval": types.Int64Type,
+}
+
+func buildPDTestBlockObj(enabled *bool, sessionsSi, statementsSi *int64) types.Object {
+	return types.ObjectValueMust(pdTestExpand, map[string]attr.Value{
+		"enabled":                      types.BoolPointerValue(enabled),
+		"sessions_sampling_interval":   types.Int64PointerValue(sessionsSi),
+		"statements_sampling_interval": types.Int64PointerValue(statementsSi),
+	})
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	rInt64 := rand.Int63n(86401)
+	rBool := rand.Intn(2) == 1
+
+	cases := []struct {
+		testname  string
+		testBlock types.Object
+		expected  *postgresql.PerformanceDiagnostics
+		hasErr    bool
+	}{
+
+		{
+			testname:  "CheckNullBlock",
+			testBlock: types.ObjectNull(mwAttrsTestExpand),
+			expected:  nil,
+		},
+		{
+			testname:  "CheckFullBlock",
+			testBlock: buildPDTestBlockObj(&rBool, &rInt64, &rInt64),
+			expected: &postgresql.PerformanceDiagnostics{
+				Enabled:                    rBool,
+				SessionsSamplingInterval:   rInt64,
+				StatementsSamplingInterval: rInt64,
+			},
+		},
+		{
+			testname:  "CheckPartialBlock",
+			testBlock: buildPDTestBlockObj(nil, &rInt64, &rInt64),
+			expected: &postgresql.PerformanceDiagnostics{
+				Enabled:                    false,
+				SessionsSamplingInterval:   rInt64,
+				StatementsSamplingInterval: rInt64,
+			},
+		},
+		{
+			testname:  "CheckEmptyBlock",
+			testBlock: buildPDTestBlockObj(nil, nil, nil),
+			expected: &postgresql.PerformanceDiagnostics{
+				Enabled:                    false,
+				SessionsSamplingInterval:   0,
+				StatementsSamplingInterval: 0,
+			},
+		},
+		{
+			testname: "CheckWithRandomAttributes",
+			testBlock: types.ObjectValueMust(map[string]attr.Type{
+				"attr1": types.Int64Type,
+			}, map[string]attr.Value{
+				"attr1": types.Int64Value(10),
+			}),
+			hasErr: true,
+		},
+	}
+
+	for _, c := range cases {
+		var diags diag.Diagnostics
+		res := expandPerformanceDiagnostics(ctx, c.testBlock, &diags)
+		if c.hasErr {
+			if !diags.HasError() {
+				t.Errorf("Unexpected expand error status: expected %v, actual %v", c.hasErr, diags.HasError())
+			}
+			continue
+		}
+
+		if !reflect.DeepEqual(res, c.expected) {
+			t.Errorf("Unexpected expancion result policy: expected %v, actual %v", c.expected, res)
 		}
 	}
 }

@@ -107,6 +107,7 @@ Optional:
 
 - `access` (Attributes) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedatt--config--access))
 - `autofailover` (Boolean) Configuration setting which enables/disables automatic failover in the cluster.
+- `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--config--performance_diagnostics))
 - `resources` (Block, Optional) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--resources))
 
 <a id="nestedatt--config--access"></a>
@@ -118,6 +119,19 @@ Optional:
 - `data_transfer` (Boolean) Allow access for DataTransfer
 - `serverless` (Boolean) Allow access for connection to managed databases from functions
 - `web_sql` (Boolean) Allow access for SQL queries in the management console
+
+
+<a id="nestedatt--config--performance_diagnostics"></a>
+### Nested Schema for `config.performance_diagnostics`
+
+Required:
+
+- `sessions_sampling_interval` (Number) Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+- `statements_sampling_interval` (Number) Interval (in seconds) for pg_stat_statements sampling Acceptable values are 60 to 86400, inclusive.
+
+Optional:
+
+- `enabled` (Boolean) Enable performance diagnostics
 
 
 <a id="nestedblock--config--resources"></a>

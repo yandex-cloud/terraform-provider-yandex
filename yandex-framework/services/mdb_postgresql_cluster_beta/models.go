@@ -39,10 +39,11 @@ var hostType = types.ObjectType{
 }
 
 type Config struct {
-	Version      types.String `tfsdk:"version"`
-	Resources    types.Object `tfsdk:"resources"`
-	Autofailover types.Bool   `tfsdk:"autofailover"`
-	Access       types.Object `tfsdk:"access"`
+	Version                types.String `tfsdk:"version"`
+	Resources              types.Object `tfsdk:"resources"`
+	Autofailover           types.Bool   `tfsdk:"autofailover"`
+	Access                 types.Object `tfsdk:"access"`
+	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
 }
 
 type MaintenanceWindow struct {
@@ -58,10 +59,11 @@ var MaintenanceWindowAttrTypes = map[string]attr.Type{
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
-	"version":      types.StringType,
-	"resources":    types.ObjectType{AttrTypes: ResourcesAttrTypes},
-	"autofailover": types.BoolType,
-	"access":       types.ObjectType{AttrTypes: AccessAttrTypes},
+	"version":                 types.StringType,
+	"resources":               types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"autofailover":            types.BoolType,
+	"access":                  types.ObjectType{AttrTypes: AccessAttrTypes},
+	"performance_diagnostics": types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 }
 
 type Access struct {
@@ -76,6 +78,18 @@ var AccessAttrTypes = map[string]attr.Type{
 	"web_sql":       types.BoolType,
 	"serverless":    types.BoolType,
 	"data_transfer": types.BoolType,
+}
+
+type PerformanceDiagnostics struct {
+	Enabled                    types.Bool  `tfsdk:"enabled"`
+	SessionsSamplingInterval   types.Int64 `tfsdk:"sessions_sampling_interval"`
+	StatementsSamplingInterval types.Int64 `tfsdk:"statements_sampling_interval"`
+}
+
+var PerformanceDiagnosticsAttrTypes = map[string]attr.Type{
+	"enabled":                      types.BoolType,
+	"sessions_sampling_interval":   types.Int64Type,
+	"statements_sampling_interval": types.Int64Type,
 }
 
 type Resources struct {

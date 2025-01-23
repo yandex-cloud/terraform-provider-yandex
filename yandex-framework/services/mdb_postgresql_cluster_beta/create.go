@@ -78,7 +78,8 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 			Autofailover: &wrappers.BoolValue{
 				Value: configSpec.Autofailover.ValueBool(),
 			},
-			Access: expandAccess(ctx, configSpec.Access, &diags),
+			Access:                 expandAccess(ctx, configSpec.Access, &diags),
+			PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, &diags),
 		},
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   securityGroupIds,
