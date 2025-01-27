@@ -80,6 +80,8 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 			},
 			Access:                 expandAccess(ctx, configSpec.Access, &diags),
 			PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, &diags),
+			BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, &diags),
+			BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, &diags),
 		},
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   securityGroupIds,

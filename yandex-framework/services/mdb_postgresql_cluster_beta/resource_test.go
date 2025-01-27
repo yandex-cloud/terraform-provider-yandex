@@ -21,7 +21,9 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 
+	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 
@@ -203,6 +205,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 							"serverless":    knownvalue.Bool(false),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -226,6 +233,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Enabled:                    false,
 						SessionsSamplingInterval:   60,
 						StatementsSamplingInterval: 600,
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   0,
+						Minutes: 0,
 					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
@@ -261,6 +273,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -284,6 +301,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Enabled:                    false,
 						SessionsSamplingInterval:   60,
 						StatementsSamplingInterval: 600,
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   0,
+						Minutes: 0,
 					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
@@ -350,6 +372,19 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		statements_sampling_interval = 1000
 	`
 
+	backupRetainPeriodDays := 7
+	backupRetainPeriodDaysUpdated := 14
+
+	backupWindowStart := `
+		hours = 5
+		minutes = 4
+	`
+
+	backupWindowStartUpdated := `
+		hours = 10
+		minutes = 3
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -371,7 +406,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resourceId, clusterName, description,
 					environment, labels, version, access,
 					performanceDiagnostics,
-					maintenanceWindow, true, true,
+					backupWindowStart,
+					maintenanceWindow,
+					backupRetainPeriodDays, true, true,
 					[]string{
 						"yandex_vpc_security_group.sgroup1.id",
 					},
@@ -398,6 +435,13 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"enabled":                      knownvalue.Bool(true),
 							"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 							"statements_sampling_interval": knownvalue.Int64Exact(600),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"hours":   knownvalue.Int64Exact(5),
+							"minutes": knownvalue.Int64Exact(4),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
@@ -437,6 +481,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 600,
 						},
 					),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   5,
+						Minutes: 4,
+					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
 							Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -456,7 +505,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resourceId, clusterName, descriptionUpdated,
 					environment, labelsUpdated, version, accessUpdated,
 					performanceDiagnosticsUpdated,
-					maintenanceWindowUpdated, false, false,
+					backupWindowStartUpdated,
+					maintenanceWindowUpdated,
+					backupRetainPeriodDaysUpdated, false, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
 					},
@@ -483,6 +534,13 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"enabled":                      knownvalue.Bool(false),
 							"sessions_sampling_interval":   knownvalue.Int64Exact(500),
 							"statements_sampling_interval": knownvalue.Int64Exact(1000),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(14)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"hours":   knownvalue.Int64Exact(10),
+							"minutes": knownvalue.Int64Exact(3),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
@@ -521,6 +579,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 1000,
 						},
 					),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   10,
+						Minutes: 3,
+					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
 							WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
@@ -579,11 +642,21 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		type = "ANYTIME"
 	`
 
+	backupRetainPeriodDays := 7
+	backupWindowStart := `
+		hours = 0
+		minutes = 0
+	`
+
 	stepsFullBasic := [2]resource.TestStep{
 		{
 			Config: testAccMDBPGClusterFull(
 				resourceId, clusterName, descriptionFull, environment, labels, version, access,
-				performanceDiagnostics, maintenanceWindow, true, false, []string{},
+				performanceDiagnostics,
+				backupWindowStart,
+				maintenanceWindow,
+				backupRetainPeriodDays,
+				true, false, []string{},
 			),
 			ConfigStateChecks: []statecheck.StateCheck{
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
@@ -609,6 +682,13 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
 				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -635,6 +715,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
 				}),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 					Policy: &postgresql.MaintenanceWindow_Anytime{
 						Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -669,6 +754,13 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
 				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -694,6 +786,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					Enabled:                    false,
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
 				}),
 				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 					Policy: &postgresql.MaintenanceWindow_Anytime{
@@ -975,6 +1072,24 @@ func testAccCheckClusterPerformanceDiagnosticsExact(r *postgresql.Cluster, expec
 	}
 }
 
+func testAccCheckClusterBackupRetainPeriodDaysExact(r *postgresql.Cluster, expected *wrapperspb.Int64Value) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetBackupRetainPeriodDays(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config backup_retain_period_days.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetBackupWindowStart(), expected)
+	}
+}
+
+func testAccCheckClusterBackupWindowStartExact(r *postgresql.Cluster, expected *timeofday.TimeOfDay) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetBackupWindowStart(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config backup_window_start.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetBackupWindowStart(), expected)
+	}
+}
+
 func testAccCheckClusterMaintenanceWindow(r *postgresql.Cluster, expected *postgresql.MaintenanceWindow) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetMaintenanceWindow(), expected) {
@@ -1031,7 +1146,11 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 `, resourceId, name, description, environment, labels, version)
 }
 
-func testAccMDBPGClusterFull(resourceId, clusterName, description, environment, labels, version, access, performanceDiagnostics, maintenanceWindow string, autofailover, deletionProtection bool, confSecurityGroupIds []string) string {
+func testAccMDBPGClusterFull(
+	resourceId, clusterName, description, environment, labels,
+	version, access, performanceDiagnostics, backupWindowStart,
+	maintenanceWindow string, backupRetainPeriodDays int, autofailover, deletionProtection bool, confSecurityGroupIds []string,
+) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_beta" "%s" {
   name        = "%s"
@@ -1064,6 +1183,10 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 	performance_diagnostics = {
 		%s
 	}
+	backup_retain_period_days = %d
+	backup_window_start = {
+	%s
+	}
   }
   
   maintenance_window = {
@@ -1075,8 +1198,10 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 
 }
 `, resourceId, clusterName, description, environment,
-		labels, version, autofailover, access, performanceDiagnostics,
-		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "))
+		labels, version, autofailover, access,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
+		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
+	)
 }
 
 func testAccMDBPGClusterHostsStep0(name, version, hosts string) string {

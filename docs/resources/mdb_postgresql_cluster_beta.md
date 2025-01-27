@@ -107,6 +107,8 @@ Optional:
 
 - `access` (Attributes) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedatt--config--access))
 - `autofailover` (Boolean) Configuration setting which enables/disables automatic failover in the cluster.
+- `backup_retain_period_days` (Number) The period in days during which backups are stored.
+- `backup_window_start` (Attributes) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedatt--config--backup_window_start))
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--config--performance_diagnostics))
 - `resources` (Block, Optional) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--resources))
 
@@ -119,6 +121,15 @@ Optional:
 - `data_transfer` (Boolean) Allow access for DataTransfer
 - `serverless` (Boolean) Allow access for connection to managed databases from functions
 - `web_sql` (Boolean) Allow access for SQL queries in the management console
+
+
+<a id="nestedatt--config--backup_window_start"></a>
+### Nested Schema for `config.backup_window_start`
+
+Optional:
+
+- `hours` (Number) The hour at which backup will be started (UTC).
+- `minutes` (Number) The minute at which backup will be started (UTC).
 
 
 <a id="nestedatt--config--performance_diagnostics"></a>

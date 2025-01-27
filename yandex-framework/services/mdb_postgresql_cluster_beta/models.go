@@ -44,6 +44,8 @@ type Config struct {
 	Autofailover           types.Bool   `tfsdk:"autofailover"`
 	Access                 types.Object `tfsdk:"access"`
 	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
+	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
+	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
 }
 
 type MaintenanceWindow struct {
@@ -59,11 +61,13 @@ var MaintenanceWindowAttrTypes = map[string]attr.Type{
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
-	"version":                 types.StringType,
-	"resources":               types.ObjectType{AttrTypes: ResourcesAttrTypes},
-	"autofailover":            types.BoolType,
-	"access":                  types.ObjectType{AttrTypes: AccessAttrTypes},
-	"performance_diagnostics": types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
+	"version":                   types.StringType,
+	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"autofailover":              types.BoolType,
+	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
+	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
+	"backup_retain_period_days": types.Int64Type,
+	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 }
 
 type Access struct {
@@ -102,4 +106,14 @@ var ResourcesAttrTypes = map[string]attr.Type{
 	"resource_preset_id": types.StringType,
 	"disk_size":          types.Int64Type,
 	"disk_type_id":       types.StringType,
+}
+
+type BackupWindowStart struct {
+	Hours   types.Int64 `tfsdk:"hours"`
+	Minutes types.Int64 `tfsdk:"minutes"`
+}
+
+var BackupWindowStartAttrTypes = map[string]attr.Type{
+	"hours":   types.Int64Type,
+	"minutes": types.Int64Type,
 }

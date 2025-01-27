@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
@@ -223,6 +225,143 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 
 		if !c.expectedObject.Equal(res) {
 			t.Errorf("Unexpected flatten object result: expected %v, actual %v", c.expectedObject, res)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigBackupRetainPeriodDaysFlattener(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      *wrapperspb.Int64Value
+		expectedVal types.Int64
+	}{
+		{
+			testname: "ExplicitCheck",
+			reqVal: &wrapperspb.Int64Value{
+				Value: 5,
+			},
+			expectedVal: types.Int64Value(5),
+		},
+		{
+			testname:    "NullCheck",
+			reqVal:      nil,
+			expectedVal: types.Int64Null(),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		brPd := flattenBackupRetainPeriodDays(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(brPd) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				brPd,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	expectedAccessAttrs := map[string]attr.Type{
+		"hours":   types.Int64Type,
+		"minutes": types.Int64Type,
+	}
+
+	cases := []struct {
+		testname    string
+		reqVal      *timeofday.TimeOfDay
+		expectedVal types.Object
+	}{
+		{
+			testname: "CheckAllAttributes",
+			reqVal: &timeofday.TimeOfDay{
+				Hours:   30,
+				Minutes: 30,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedAccessAttrs, map[string]attr.Value{
+					"hours":   types.Int64Value(30),
+					"minutes": types.Int64Value(30),
+				},
+			),
+		},
+		{
+			testname: "CheckAllAttributesWithDefaultValues",
+			reqVal:   &timeofday.TimeOfDay{},
+			expectedVal: types.ObjectValueMust(
+				expectedAccessAttrs, map[string]attr.Value{
+					"hours":   types.Int64Value(0),
+					"minutes": types.Int64Value(0),
+				},
+			),
+		},
+		{
+			testname: "CheckPartlyAttributesWithHours",
+			reqVal: &timeofday.TimeOfDay{
+				Hours: 30,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedAccessAttrs, map[string]attr.Value{
+					"hours":   types.Int64Value(30),
+					"minutes": types.Int64Value(0),
+				},
+			),
+		},
+		{
+			testname: "CheckPartlyAttributesWithMinutes",
+			reqVal: &timeofday.TimeOfDay{
+				Minutes: 30,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedAccessAttrs, map[string]attr.Value{
+					"hours":   types.Int64Value(0),
+					"minutes": types.Int64Value(30),
+				},
+			),
+		},
+		{
+			testname:    "CheckNullObject",
+			reqVal:      nil,
+			expectedVal: types.ObjectNull(expectedAccessAttrs),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		bws := flattenBackupWindowStart(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(bws) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				bws,
+			)
 		}
 	}
 }

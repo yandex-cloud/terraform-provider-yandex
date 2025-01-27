@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // Set access to default if null
@@ -87,5 +89,32 @@ func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *d
 		Enabled:                    pdConf.Enabled.ValueBool(),
 		SessionsSamplingInterval:   pdConf.SessionsSamplingInterval.ValueInt64(),
 		StatementsSamplingInterval: pdConf.StatementsSamplingInterval.ValueInt64(),
+	}
+}
+
+func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags *diag.Diagnostics) *wrapperspb.Int64Value {
+	var pgBws *wrapperspb.Int64Value
+	if !cfgBws.IsNull() && !cfgBws.IsUnknown() {
+		pgBws = &wrapperspb.Int64Value{
+			Value: cfgBws.ValueInt64(),
+		}
+	}
+
+	return pgBws
+}
+
+func expandBackupWindowStart(ctx context.Context, cfgBws types.Object, diags *diag.Diagnostics) *timeofday.TimeOfDay {
+	var backupWindowStart BackupWindowStart
+	diags.Append(cfgBws.As(ctx, &backupWindowStart, basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    true,
+		UnhandledUnknownAsEmpty: true,
+	})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &timeofday.TimeOfDay{
+		Hours:   int32(backupWindowStart.Hours.ValueInt64()),
+		Minutes: int32(backupWindowStart.Minutes.ValueInt64()),
 	}
 }

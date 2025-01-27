@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func flattenAccess(ctx context.Context, pgAccess *postgresql.Access, diags *diag.Diagnostics) types.Object {
@@ -70,4 +72,24 @@ func flattenPerformanceDiagnostics(ctx context.Context, pd *postgresql.Performan
 	diags.Append(d...)
 
 	return obj
+}
+
+func flattenBackupRetainPeriodDays(ctx context.Context, pgBrpd *wrapperspb.Int64Value, diags *diag.Diagnostics) types.Int64 {
+	if pgBrpd == nil {
+		return types.Int64Null()
+	}
+	return types.Int64Value(pgBrpd.GetValue())
+}
+
+func flattenBackupWindowStart(ctx context.Context, pgBws *timeofday.TimeOfDay, diags *diag.Diagnostics) types.Object {
+	if pgBws == nil {
+		return types.ObjectNull(BackupWindowStartAttrTypes)
+	}
+
+	bwsObj, d := types.ObjectValueFrom(ctx, BackupWindowStartAttrTypes, BackupWindowStart{
+		Hours:   types.Int64Value(int64(pgBws.GetHours())),
+		Minutes: types.Int64Value(int64(pgBws.GetMinutes())),
+	})
+	diags.Append(d...)
+	return bwsObj
 }

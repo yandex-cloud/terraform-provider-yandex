@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -278,6 +280,43 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								Required:            true,
 								Validators: []validator.Int64{
 									int64validator.Between(60, 86400),
+								},
+							},
+						},
+					},
+					"backup_retain_period_days": schema.Int64Attribute{
+						MarkdownDescription: "The period in days during which backups are stored.",
+						Optional:            true,
+						Computed:            true,
+						Default:             int64default.StaticInt64(7),
+						PlanModifiers: []planmodifier.Int64{
+							int64planmodifier.UseStateForUnknown(),
+						},
+					},
+					"backup_window_start": schema.SingleNestedAttribute{
+						MarkdownDescription: "Time to start the daily backup, in the UTC timezone.",
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Attributes: map[string]schema.Attribute{
+							"hours": schema.Int64Attribute{
+								MarkdownDescription: "The hour at which backup will be started (UTC).",
+								Computed:            true,
+								Optional:            true,
+								Default:             int64default.StaticInt64(0),
+								Validators: []validator.Int64{
+									int64validator.Between(0, 23),
+								},
+							},
+							"minutes": schema.Int64Attribute{
+								MarkdownDescription: "The minute at which backup will be started (UTC).",
+								Computed:            true,
+								Optional:            true,
+								Default:             int64default.StaticInt64(0),
+								Validators: []validator.Int64{
+									int64validator.Between(0, 59),
 								},
 							},
 						},
@@ -646,6 +685,10 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	})
 	autofailover := types.BoolValue(cluster.Config.GetAutofailover().GetValue())
 	deletionProtection := types.BoolValue(cluster.GetDeletionProtection())
+	respDiagnostics.Append(diags...)
+	if diags.HasError() {
+		return
+	}
 
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
@@ -656,8 +699,10 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		Version:                version,
 		Resources:              resources,
 		Autofailover:           autofailover,
-		Access:                 flattenAccess(ctx, cluster.Config.Access, respDiagnostics),
-		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, cluster.Config.PerformanceDiagnostics, respDiagnostics),
+		Access:                 flattenAccess(ctx, cluster.Config.Access, &diags),
+		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, cluster.Config.PerformanceDiagnostics, &diags),
+		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, cluster.Config.BackupRetainPeriodDays, &diags),
+		BackupWindowStart:      flattenBackupWindowStart(ctx, cluster.Config.BackupWindowStart, &diags),
 	})
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {

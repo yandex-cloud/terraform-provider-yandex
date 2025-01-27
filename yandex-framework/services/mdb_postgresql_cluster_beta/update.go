@@ -150,5 +150,15 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		updateMaskPaths = append(updateMaskPaths, "config_spec.performance_diagnostics")
 	}
 
+	if !plan.BackupRetainPeriodDays.Equal(state.BackupRetainPeriodDays) {
+		config.SetBackupRetainPeriodDays(expandBackupRetainPeriodDays(ctx, plan.BackupRetainPeriodDays, &diags))
+		updateMaskPaths = append(updateMaskPaths, "config_spec.backup_retain_period_days")
+	}
+
+	if !plan.BackupWindowStart.Equal(state.BackupWindowStart) {
+		config.SetBackupWindowStart(expandBackupWindowStart(ctx, plan.BackupWindowStart, &diags))
+		updateMaskPaths = append(updateMaskPaths, "config_spec.backup_window_start")
+	}
+
 	return config, updateMaskPaths, diags
 }

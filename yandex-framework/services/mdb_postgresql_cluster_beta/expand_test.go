@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
@@ -269,6 +271,145 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsExpand(t *t
 
 		if !reflect.DeepEqual(res, c.expected) {
 			t.Errorf("Unexpected expancion result policy: expected %v, actual %v", c.expected, res)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigBackupRetainPeriodDaysExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      types.Int64
+		expectedVal *wrapperspb.Int64Value
+	}{
+		{
+			testname: "ExplicitCheck",
+			reqVal:   types.Int64Value(5),
+			expectedVal: &wrapperspb.Int64Value{
+				Value: 5,
+			},
+		},
+		{
+			testname:    "NullCheck",
+			reqVal:      types.Int64Null(),
+			expectedVal: nil,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		pgBrpd := expandBackupRetainPeriodDays(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected expansion diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(pgBrpd, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expansion result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				pgBrpd,
+			)
+		}
+	}
+}
+
+var expectedBwsAttrTypes = map[string]attr.Type{
+	"hours":   types.Int64Type,
+	"minutes": types.Int64Type,
+}
+
+func buildTestBwsObj(h, m *int64) types.Object {
+	return types.ObjectValueMust(
+		expectedBwsAttrTypes, map[string]attr.Value{
+			"hours":   types.Int64PointerValue(h),
+			"minutes": types.Int64PointerValue(m),
+		},
+	)
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testInt64 := int64(30)
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Object
+		expectedVal   *timeofday.TimeOfDay
+		expectedError bool
+	}{
+		{
+			testname: "CheckAllExplicitAttributes",
+			reqVal:   buildTestBwsObj(&testInt64, &testInt64),
+			expectedVal: &timeofday.TimeOfDay{
+				Hours:   30,
+				Minutes: 30,
+			},
+		},
+		{
+			testname: "CheckPartlyAttributesWithHours",
+			reqVal:   buildTestBwsObj(&testInt64, nil),
+			expectedVal: &timeofday.TimeOfDay{
+				Hours: 30,
+			},
+		},
+		{
+			testname: "CheckPartlyAttributesWithMinutes",
+			reqVal:   buildTestBwsObj(nil, &testInt64),
+			expectedVal: &timeofday.TimeOfDay{
+				Minutes: 30,
+			},
+		},
+		{
+			testname:    "CheckWithoutAttributes",
+			reqVal:      buildTestBwsObj(nil, nil),
+			expectedVal: &timeofday.TimeOfDay{},
+		},
+		{
+			testname:    "CheckNullObj",
+			reqVal:      types.ObjectNull(expectedBwsAttrTypes),
+			expectedVal: &timeofday.TimeOfDay{},
+		},
+		{
+			testname: "CheckWithRandomAttributes",
+			reqVal: types.ObjectValueMust(
+				map[string]attr.Type{"random": types.StringType},
+				map[string]attr.Value{"random": types.StringValue("s1")},
+			),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		pgBws := expandBackupWindowStart(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(pgBws, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				pgBws,
+			)
 		}
 	}
 }
