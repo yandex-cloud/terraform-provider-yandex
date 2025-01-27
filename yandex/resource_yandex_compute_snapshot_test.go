@@ -94,7 +94,7 @@ func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {
 			if grpcStatus, ok := status.FromError(err); ok && grpcStatus != nil && grpcStatus.Code() == codes.NotFound {
 				return nil
 			} else if ok {
-				return fmt.Errorf("Error while requesting Yandex.Cloud: grpc code error : %d, http message error: %s", grpcStatus.Code(), grpcStatus.Message())
+				return fmt.Errorf("Error while requesting Yandex Cloud: grpc code error : %d, http message error: %s", grpcStatus.Code(), grpcStatus.Message())
 			}
 			return fmt.Errorf("Snapshot still exists")
 		}

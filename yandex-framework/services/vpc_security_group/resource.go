@@ -222,7 +222,7 @@ func NewResource() resource.Resource {
 func (g *securityGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	tflog.Debug(ctx, "Initializing VPC SecurityGroup schema")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages `Security Group` within the Yandex Cloud. For more information, see [Documentation](https://yandex.cloud/docs/vpc/concepts/security-groups).\n\n~> **NOTE:** Either one `port` argument or both `from_port` and `to_port` arguments can be specified.\n\n~> **NOTE:** If `port` or `from_port`/`to_port` aren't specified or set by -1, ANY port will be sent.\n\n~> **NOTE:** Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.\n\n~> **NOTE:** One of arguments `v4_cidr_blocks`/`v6_cidr_blocks` or `predefined_target` or `security_group_id` must be specified.\n\n",
+		MarkdownDescription: "Manages `Security Group` within the Yandex Cloud. For more information, see [Documentation](https://yandex.cloud/docs/vpc/concepts/security-groups).\n\n~> Either one `port` argument or both `from_port` and `to_port` arguments can be specified.\n\n~> If `port` or `from_port`/`to_port` aren't specified or set by -1, ANY port will be sent.\n\n~> Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.\n\n~> One of arguments `v4_cidr_blocks`/`v6_cidr_blocks` or `predefined_target` or `security_group_id` must be specified.\n\n",
 		Attributes:          groupResourceAttributes,
 		Blocks: map[string]schema.Block{
 			"ingress": schema.SetNestedBlock{

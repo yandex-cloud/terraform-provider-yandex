@@ -103,7 +103,7 @@ func (c *Config) ContextWithClientTraceID(ctx context.Context) context.Context {
 	return ctx
 }
 
-// Client configures and returns a fully initialized Yandex.Cloud sdk
+// Client configures and returns a fully initialized Yandex Cloud sdk
 func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string, sweeper bool) error {
 	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
 

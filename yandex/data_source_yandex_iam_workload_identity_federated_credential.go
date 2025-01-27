@@ -14,7 +14,7 @@ func dataSourceYandexIAMWorkloadIdentityFederatedCredential() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceYandexIAMWorkloadIdentityFederatedCredentialRead,
 
-		Description: "Get information about a [Yandex.Cloud IAM federated credential](https://yandex.cloud/docs/iam/concepts/workload-identity#federated-credentials).",
+		Description: "Get information about a [Yandex Cloud IAM federated credential](https://yandex.cloud/docs/iam/concepts/workload-identity#federated-credentials).",
 
 		SchemaVersion: 1,
 

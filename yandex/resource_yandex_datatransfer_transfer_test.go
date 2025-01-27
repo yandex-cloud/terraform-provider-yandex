@@ -556,7 +556,7 @@ resource "yandex_datatransfer_endpoint" "ydb_source" {
   settings {
     ydb_source {
       database = "xyz"
-      instance = "my-cute-ydb.cloud.yandex.ru:2135"
+      instance = "my-cute-ydb.yandex.cloud:2135"
       paths = [
         "path1/a/b/c",
         "path2/a/b/c",
@@ -618,7 +618,7 @@ resource "yandex_datatransfer_endpoint" "ydb_target" {
     settings {
         ydb_target {
           database = "xyz"
-          instance = "my-cute-ydb.cloud.yandex.ru"
+          instance = "my-cute-ydb.yandex.cloud"
           path = "/bushido/logs"
           security_groups = []
           cleanup_policy = "YDB_CLEANUP_POLICY_DROP"

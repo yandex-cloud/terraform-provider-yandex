@@ -86,8 +86,8 @@ func (r *helmReleaseResource) Schema(ctx context.Context, _ resource.SchemaReque
 				MarkdownDescription: "Values to be passed for the installation of the product. " +
 					"The block consists of attributes that accept string values. " +
 					"The exact structure depends on the particular product and may differ for different versions of the same product. " +
-					"Depending on the product, some values may be required, and the installation may fail if they are not provided. " +
-					"**Note:** `applicationName` and `namespace`, if provided in this block, override `name` and `namespace` arguments, respectively.",
+					"Depending on the product, some values may be required, and the installation may fail if they are not provided.\n" +
+					"~> `applicationName` and `namespace`, if provided in this block, override `name` and `namespace` arguments, respectively.\n",
 				ElementType: types.StringType,
 				Optional:    true,
 				Sensitive:   true,

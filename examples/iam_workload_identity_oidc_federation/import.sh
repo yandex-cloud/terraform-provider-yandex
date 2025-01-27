@@ -1,0 +1,3 @@
+#
+terraform import yandex_iam_workload_identity_oidc_federation.wlif federation_id
+

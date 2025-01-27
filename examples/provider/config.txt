@@ -1,0 +1,11 @@
+[prod]
+storage_access_key = prod_access_key_here
+storage_secret_key = prod_secret_key_here
+
+[testing]
+storage_access_key = testing_access_key_here
+storage_secret_key = testing_secret_key_here
+
+[default]
+storage_access_key = default_access_key_here
+storage_secret_key = default_secret_key_here

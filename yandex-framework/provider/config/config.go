@@ -79,7 +79,7 @@ type Config struct {
 	SDK       *ycsdk.SDK
 }
 
-// Client configures and returns a fully initialized Yandex.Cloud SDK
+// Client configures and returns a fully initialized Yandex Cloud SDK
 func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, sweeper bool) error {
 	ctx = requestid.ContextWithClientTraceID(ctx, uuid.New().String())
 

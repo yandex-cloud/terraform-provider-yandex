@@ -10,7 +10,7 @@ import (
 )
 
 // dataSourceYandexIamPolicy returns a *schema.Resource that allows a customer
-// to express a Yandex.Cloud IAM policy in a data resource. This is an example
+// to express a Yandex Cloud IAM policy in a data resource. This is an example
 // of how the schema would be used in a config:
 //
 // data "yandex_iam_policy" "admin" {
