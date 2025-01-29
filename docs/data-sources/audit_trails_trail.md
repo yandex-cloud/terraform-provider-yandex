@@ -1,25 +1,17 @@
 ---
 subcategory: "Audit Trails"
-page_title: "Yandex: yandex_audit_trails_trail"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a trail.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_audit_trails_trail
-
-
-
-
-Get information about a trail. For information about the trail concept, see [official documentation](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
+Get information about a trail. For information about the trail concept, see [official documentation](https://yandex.cloud/docs/audit-trails/concepts/trail)
 
 ## Example usage
 
-```terraform
-data "yandex_audit_trails_trail" "tf-trail-data" {
-  trail_id = "infosec-trail-id"
-}
-```
+{{ tffile "examples/audit_trails_trail/d_audit_trails_trail_1.tf" }}
 
 ## Argument Reference
 
@@ -39,25 +31,25 @@ The following attributes are exported:
 
 * `labels` - (Optional) Labels defined by the user.
 
-* `service_account_id` - ID of the [IAM service account](https://cloud.yandex.ru/en/docs/iam/concepts/users/service-accounts) that is used by the trail.
+* `service_account_id` - ID of the [IAM service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) that is used by the trail.
 
 * `status` - Status of the trail.
 
 * `storage_destination` - Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.
 
-  * `bucket_name` - Name of the [destination bucket](https://cloud.yandex.ru/en/docs/storage/concepts/bucket).
+  * `bucket_name` - Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
 
   * `object_prefix` - (Optional) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
 
 * `logging_destination` - Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.
 
-  * `log_group_id` - ID of the destination [Cloud Logging Group](https://cloud.yandex.ru/ru/docs/logging/concepts/log-group).
+  * `log_group_id` - ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
 
 * `data_stream_destination` - Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.
 
-  * `database_id` - ID of the [YDB](https://cloud.yandex.ru/ru/docs/ydb/concepts/resources) hosting the destination data stream.
+  * `database_id` - ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 
-  * `stream_name` - Name of the [YDS stream](https://cloud.yandex.ru/ru/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+  * `stream_name` - Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
 
 * `filter` - (Optional) Structure describing event filtering process for the trail. Deprecated. Use `filtering_policy` instead. Mutually exclusive with `filtering_policy`.
 

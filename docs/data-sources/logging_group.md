@@ -1,29 +1,17 @@
 ---
 subcategory: "Cloud Logging"
-page_title: "Yandex: yandex_logging_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Logging group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_logging_group
-
-
-
-
-Get information about a Yandex Cloud Logging group. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/logging/concepts/log-group).
+Get information about a Yandex Cloud Logging group. For more information, see [the official documentation](https://yandex.cloud/docs/logging/concepts/log-group).
 
 ## Example usage
 
-```terraform
-data "yandex_logging_group" "my_group" {
-  group_id = "some_yandex_logging_group_id"
-}
-
-output "log_group_retention_period" {
-  value = data.yandex_logging_group.my_group.retention_period
-}
-```
+{{ tffile "examples/logging_group/d_logging_group_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 * `name` - (Optional) The Yandex Cloud Logging group name.
 * `folder_id` - (Optional) ID of the folder that the Yandex Cloud Logging group belongs to. It will be deduced from provider configuration if not set explicitly.
 
-~> **NOTE:** If `group_id` is not specified `name` and `folder_id` will be used to designate Yandex Cloud Logging group.
+~> If `group_id` is not specified `name` and `folder_id` will be used to designate Yandex Cloud Logging group.
 
 ## Attributes Reference
 

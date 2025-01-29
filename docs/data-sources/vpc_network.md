@@ -1,25 +1,17 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_network"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC network.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_network
-
-
-
-
-Get information about a Yandex VPC network. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC network. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_network" "admin" {
-  network_id = "my-network-id"
-}
-```
+{{ tffile "examples/vpc_network/d_vpc_network_1.tf" }}
 
 This data source is used to define [VPC Networks](https://cloud.yandex.com/docs/vpc/concepts/network) that can be used by other resources.
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `network_id` (Optional) - ID of the network.
 * `name` (Optional) - Name of the network.
 
-~> **NOTE:** One of `network_id` or `name` should be specified.
+~> One of `network_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

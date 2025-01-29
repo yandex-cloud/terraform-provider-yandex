@@ -1,45 +1,17 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: yandex_sws_advanced_rate_limiter_profile"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Advanced Rate Limiter.
+  Manage a SWS Advanced Rate Limiter.
 ---
 
+# {{.Name}} ({{.Type}})
 
-Creates an ARL Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/quickstart/quickstart-arl).
-
-# yandex_sws_advanced_rate_limiter_profile
-
-
-
+Creates an ARL Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#arl).
 
 ## Example usage
 
-```terraform
-resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
-  name = "demo-profile"
-
-  advanced_rate_limiter_rule {
-    name        = "rule1"
-    priority    = 10
-    description = "First test rule"
-    dry_run     = true
-
-    static_quota {
-      action = "DENY"
-      limit  = 10000000
-      period = 1
-      condition {
-        request_uri {
-          path {
-            exact_match = "/api"
-          }
-        }
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/sws_advanced_rate_limiter_profile/r_sws_advanced_rate_limiter_profile_1.tf" }}
 
 ## Argument Reference
 
@@ -71,7 +43,7 @@ The `advanced_rate_limiter_rule` block supports:
 
 * `dynamic_quota` - (Optional) Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups. The structure is documented below.
 
-~> **NOTE:** Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
+~> Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
 
 ---
 
@@ -109,7 +81,7 @@ The `characteristics` block supports:
 
 * `case_insensitive` - (Optional) Determines case-sensitive or case-insensitive keys matching.
 
-~> **NOTE:** Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
+~> Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
 
 ---
 

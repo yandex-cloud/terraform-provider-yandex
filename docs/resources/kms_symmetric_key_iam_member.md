@@ -1,34 +1,19 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: yandex_kms_symmetric_key_iam_member"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single member for a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
-
-# yandex_kms_symmetric_key_iam_member
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex KMS Symmetric Key.
 
-~> **Note:** Roles controlled by `yandex_kms_symmetric_key_iam_binding` should not be assigned using `yandex_kms_symmetric_key_iam_member`.
+~> Roles controlled by `yandex_kms_symmetric_key_iam_binding` should not be assigned using `yandex_kms_symmetric_key_iam_member`.
 
 ## Example usage
 
-```terraform
-resource "yandex_kms_symmetric_key" "your-key" {
-  name      = "symmetric-key-name"
-}
-
-resource "yandex_kms_symmetric_key_iam_member" "viewer" {
-  symmetric_key_id = yandex_kms_symmetric_key.your-key.id
-  role             = "viewer"
-
-  member = "userAccount:foo_user_id"
-}
-```
+{{ tffile "examples/kms_symmetric_key_iam_member/r_kms_symmetric_key_iam_member_1.tf" }}
 
 ## Argument Reference
 
@@ -54,5 +39,5 @@ The following arguments are supported:
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `symmetric_key_id`, role, and account, e.g.
 
 ```
-$ terraform import yandex_kms_symmetric_key_iam_member.viewer "symmetric_key_id viewer foo@example.com"
+$ terraform import {{.Name}}.viewer "symmetric_key_id viewer foo@example.com"
 ```

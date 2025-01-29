@@ -1,46 +1,19 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: yandex_cdn_resource"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a Yandex.Cloud CDN Resource.
+  Allows management of a Yandex Cloud CDN Resource.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_cdn_resource
+Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
 
-
-
-
-Allows management of [Yandex.Cloud CDN Resource](https://cloud.yandex.ru/docs/cdn/concepts/resource).
-
-> ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
+~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
 ## Example usage
 
-```terraform
-resource "yandex_cdn_resource" "my_resource" {
-  cname = "cdn1.yandex-example.ru"
-
-  active = false
-
-  origin_protocol = "https"
-
-  secondary_hostnames = ["cdn-example-1.yandex.ru", "cdn-example-2.yandex.ru"]
-
-  origin_group_id = yandex_cdn_origin_group.foo_cdn_group_by_id.id
-
-  options {
-    edge_cache_settings = 345600
-    ignore_cookie       = true
-    static_request_headers = {
-      is-from-cdn = "yes"
-    }
-    static_response_headers = {
-      is-cdn = "yes"
-    }
-  }
-}
-```
+{{ tffile "examples/cdn_resource/r_cdn_resource_1.tf" }}
 
 ## Argument Reference
 

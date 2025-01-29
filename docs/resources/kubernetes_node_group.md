@@ -1,89 +1,17 @@
 ---
 subcategory: "Managed Service for Kubernetes (MK8S)"
-page_title: "Yandex: yandex_kubernetes_node_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of Yandex Kubernetes Node Group. For more information, see
-   [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
+  Allows management of Yandex Kubernetes Node Group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_kubernetes_node_group
-
-
-
-
-Creates a Yandex Kubernetes Node Group.
+Creates a Yandex Managed Kubernetes Cluster Node Group. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
 
 ## Example usage
 
-```terraform
-resource "yandex_kubernetes_node_group" "my_node_group" {
-  cluster_id  = yandex_kubernetes_cluster.my_cluster.id
-  name        = "name"
-  description = "description"
-  version     = "1.30"
-
-  labels = {
-    "key" = "value"
-  }
-
-  instance_template {
-    platform_id = "standard-v2"
-
-    network_interface {
-      nat        = true
-      subnet_ids = ["${yandex_vpc_subnet.my_subnet.id}"]
-    }
-
-    resources {
-      memory = 2
-      cores  = 2
-    }
-
-    boot_disk {
-      type = "network-hdd"
-      size = 64
-    }
-
-    scheduling_policy {
-      preemptible = false
-    }
-
-    container_runtime {
-      type = "containerd"
-    }
-  }
-
-  scale_policy {
-    fixed_scale {
-      size = 1
-    }
-  }
-
-  allocation_policy {
-    location {
-      zone = "ru-central1-a"
-    }
-  }
-
-  maintenance_policy {
-    auto_upgrade = true
-    auto_repair  = true
-
-    maintenance_window {
-      day        = "monday"
-      start_time = "15:00"
-      duration   = "3h"
-    }
-
-    maintenance_window {
-      day        = "friday"
-      start_time = "10:00"
-      duration   = "4h30m"
-    }
-  }
-}
-```
+{{ tffile "examples/kubernetes_node_group/r_kubernetes_node_group_1.tf" }}
 
 ## Argument Reference
 
@@ -143,7 +71,7 @@ The `instance_template` block supports:
   combination of {instance.zone_id} and {instance.index_in_zone}
   Example: my-instance-{instance.index}
   If not set, default is used: {instance_group.id}-{instance.short_id}
-  It may also contain another placeholders, see [Compute Instance group metadata doc](https://cloud.yandex.com/en-ru/docs/compute/api-ref/grpc/instance_group_service) for full list.
+  It may also contain another placeholders, see [Compute Instance group metadata doc](https://yandex.cloud/docs/compute/api-ref/grpc/instance_group_service) for full list.
 
 * `labels` - (Optional) Labels that will be assigned to compute nodes (instances), created by the Node Group.
 

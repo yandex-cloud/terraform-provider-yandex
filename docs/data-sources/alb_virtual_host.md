@@ -1,28 +1,19 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_virtual_host"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex ALB Virtual Host.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_alb_virtual_host
-
-
-
-
-Get information about a Yandex ALB Virtual Host. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
+Get information about a Yandex ALB Virtual Host. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_alb_virtual_host" "my-vh-data" {
-  name           = yandex_alb_virtual_host.my-vh.name
-  http_router_id = yandex_alb_virtual_host.my-router.id
-}
-```
+{{ tffile "examples/alb_virtual_host/d_alb_virtual_host_1.tf" }}
 
-This data source is used to define [Application Load Balancer Virtual Host](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
+This data source is used to define [Application Load Balancer Virtual Host](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
 
 ## Argument Reference
 
@@ -32,7 +23,7 @@ The following arguments are supported:
 * `name` - (Optional) Name of the Virtual Host.
 * `http_router_id` - (Optional) HTTP Router that the resource belongs to.
 
-~> **NOTE:** One of `virtual_host_id` or `name` with `http_router_id` should be specified.
+~> One of `virtual_host_id` or `name` with `http_router_id` should be specified.
 
 ## Attributes Reference
 
@@ -58,7 +49,7 @@ The `modify_request_headers` and `modify_response_headers` blocks support:
 
 * `remove` - If set, remove the header.
 
-~> **NOTE:** Only one type of actions `append` or `replace` or `remove` should be specified.
+~> Only one type of actions `append` or `replace` or `remove` should be specified.
 
 ---
 
@@ -70,7 +61,7 @@ The `route` block supports:
 
 * `grpc_route` - GRPC route resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of routes `http_route` or `grpc_route` should be specified.
+~> Exactly one type of routes `http_route` or `grpc_route` should be specified.
 
 ---
 
@@ -84,7 +75,7 @@ The `http_route` block supports:
 
 * `direct_response_action` - (Required) Direct response action resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
+~> Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
 
 ---
 
@@ -112,7 +103,7 @@ The `http_route_action` block supports:
 
 * `upgrade_types` - List of upgrade types. Only specified upgrade types will be allowed. For example, "websocket".
 
-~> **NOTE:** Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
 
 ---
 
@@ -140,7 +131,7 @@ The `redirect_action` block supports:
 
 * `response_code` - The HTTP status code to use in the redirect response. Supported values are: moved_permanently, found, see_other, temporary_redirect, permanent_redirect.
 
-~> **NOTE:** Only one type of paths `replace_path` or `replace_prefix` should be specified.
+~> Only one type of paths `replace_path` or `replace_prefix` should be specified.
 
 ---
 
@@ -152,7 +143,7 @@ The `grpc_route` block supports:
 
 * `grpc_status_response_action` - (Required) GRPC status response action resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
+~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
 
 ---
 
@@ -174,7 +165,7 @@ The `grpc_route_action` block supports:
 
 * `auto_host_rewrite` - If set, will automatically rewrite host.
 
-~> **NOTE:** Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
 
 ---
 
@@ -192,4 +183,4 @@ The `path` and `fqmn` blocks support:
 
 * `regex_match` - Match regex.
 
-~> **NOTE:** Exactly one type of string matches `exact_match`, `prefix_match` or `regex_match` should be specified.
+~> Exactly one type of string matches `exact_match`, `prefix_match` or `regex_match` should be specified.

@@ -1,113 +1,21 @@
 ---
 subcategory: "Managed Service for Redis"
-page_title: "Yandex: yandex_mdb_redis_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Manages a Redis cluster within Yandex.Cloud.
+  Manages a Redis cluster within Yandex Cloud.
 ---
 
+# {{.Name}}
 
-# yandex_mdb_redis_cluster
-
-
-
-
-Manages a Redis cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
+Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
 
 ## Example usage
 
-```terraform
-resource "yandex_mdb_redis_cluster" "foo" {
-  name        = "test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-
-  config {
-    password = "your_password"
-    version  = "6.2"
-  }
-
-  resources {
-    resource_preset_id = "hm1.nano"
-    disk_size          = 16
-  }
-
-  host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo.id
-  }
-
-  maintenance_window {
-    type = "ANYTIME"
-  }
-}
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
-}
-```
+{{ tffile "examples/mdb_redis_cluster/r_mdb_redis_cluster_1.tf" }}
 
 Example of creating a sharded Redis Cluster.
 
-```terraform
-resource "yandex_mdb_redis_cluster" "foo" {
-  name        = "test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  sharded     = true
-
-  config {
-    version  = "6.2"
-    password = "your_password"
-  }
-
-  resources {
-    resource_preset_id = "hm1.nano"
-    disk_size          = 16
-  }
-
-  host {
-    zone       = "ru-central1-a"
-    subnet_id  = yandex_vpc_subnet.foo.id
-    shard_name = "first"
-  }
-
-  host {
-    zone       = "ru-central1-b"
-    subnet_id  = yandex_vpc_subnet.bar.id
-    shard_name = "second"
-  }
-
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = yandex_vpc_subnet.baz.id
-    shard_name = "third"
-  }
-}
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.3.0.0/24"]
-}
-```
+{{ tffile "examples/mdb_redis_cluster/r_mdb_redis_cluster_2.tf" }}
 
 ## Argument Reference
 

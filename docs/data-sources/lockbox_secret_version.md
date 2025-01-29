@@ -1,52 +1,21 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: yandex_lockbox_secret_version"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about Yandex Cloud Lockbox secret version.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_lockbox_secret_version
-
-
-
-
-Get information about Yandex Cloud Lockbox secret version. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
+Get information about Yandex Cloud Lockbox secret version. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
 
 ## Example usage
 
-```terraform
-data "yandex_lockbox_secret_version" "my_secret_version" {
-  secret_id  = "some-secret-id"
-  version_id = "some-version-id" # if you don't indicate it, by default refers to the latest version
-}
-
-output "my_secret_entries" {
-  value = data.yandex_lockbox_secret_version.my_secret_version.entries
-}
-```
+{{ tffile "examples/lockbox_secret_version/d_lockbox_secret_version_1.tf" }}
 
 If you're creating the secret in the same project, then you should indicate `version_id`, since otherwise you may refer to a wrong version of the secret (e.g. the first version, when it is still empty).
 
-```terraform
-resource "yandex_lockbox_secret" "my_secret" {
-  # ...
-}
-
-resource "yandex_lockbox_secret_version" "my_version" {
-  secret_id = yandex_lockbox_secret.my_secret.id
-  # ...
-}
-
-data "yandex_lockbox_secret_version" "my_version" {
-  secret_id  = yandex_lockbox_secret.my_secret.id
-  version_id = yandex_lockbox_secret_version.my_version.id
-}
-
-output "my_secret_entries" {
-  value = data.yandex_lockbox_secret_version.my_version.entries
-}
-```
+{{ tffile "examples/lockbox_secret_version/d_lockbox_secret_version_2.tf" }}
 
 ## Argument Reference
 

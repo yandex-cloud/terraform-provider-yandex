@@ -1,33 +1,22 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: yandex_sws_security_profile"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about SmartWebSecurity SecurityProfile.
+  Get information about SmartWebSecurity Profile.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_sws_security_profile
+Get information about SecurityProfile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/profiles).
 
-
-
-
-Get information about SecurityProfile. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/concepts/profiles).
+This data source is used to define SecurityProfile that can be used by other resources.
 
 ## Example usage
 
-```terraform
-data "yandex_sws_security_profile" "by-id" {
-  security_profile_id = yandex_sws_security_profile.my-profile.id
-}
-```
+{{ tffile "examples/sws_security_profile/d_sws_security_profile_1.tf" }}
 
-```terraform
-data "yandex_sws_security_profile" "by-name" {
-  name = yandex_sws_security_profile.my-profile.name
-}
-```
+{{ tffile "examples/sws_security_profile/d_sws_security_profile_2.tf" }}
 
-This data source is used to define SecurityProfile that can be used by other resources.
 
 ## Argument Reference
 
@@ -36,7 +25,7 @@ The following arguments are supported:
 * `name` - (Optional) Name of the security profile.
 * `security_profile_id` - (Optional) ID of the security profile.
 
-~> **NOTE:** One of `security_profile_id` or `name` should be specified.
+~> One of `security_profile_id` or `name` should be specified.
 
 ## Attributes Reference
 
@@ -78,7 +67,7 @@ The `security_rule` block supports:
 
 * `waf` - Web Application Firewall (WAF) rule, see [WAF rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#waf-rules). The structure is documented below.
 
-~> **NOTE:** Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be specified.
+~> Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be specified.
 
 ---
 

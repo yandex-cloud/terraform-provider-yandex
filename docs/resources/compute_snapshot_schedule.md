@@ -1,58 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_snapshot_schedule"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Creates a new snapshot schedule.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_compute_snapshot_schedule
-
-
-
-
-Creates a new snapshot schedule. For more information, see [the official documentation](https://cloud.yandex.ru/docs/compute/concepts/snapshot-schedule).
+Creates a new snapshot schedule. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot-schedule).
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_snapshot_schedule" "default" {
-  name = "my-name"
-
-  schedule_policy {
-    expression = "0 0 * * *"
-  }
-
-  snapshot_count = 1
-
-  snapshot_spec {
-    description = "snapshot-description"
-    labels = {
-      snapshot-label = "my-snapshot-label-value"
-    }
-  }
-
-  labels = {
-    my-label = "my-label-value"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule" "default" {
-  schedule_policy {
-    expression = "0 0 * * *"
-  }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-```
+{{ tffile "examples/compute_snapshot_schedule/r_compute_snapshot_schedule_1.tf" }}
 
 ## Argument Reference
 

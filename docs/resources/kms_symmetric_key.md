@@ -1,32 +1,21 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: yandex_kms_symmetric_key"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
 ---
 
-
-# yandex_kms_symmetric_key
-
-
-
+# {{.Name}} ({{.Type}})
 
 Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
 
-~> **Note:** When Terraform destroys this key, any data previously encrypted with these key will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the resource to prevent accidental destruction.
+~> When Terraform destroys this key, any data previously encrypted with these key will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the resource to prevent accidental destruction.
 
 For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
 
 ## Example usage
 
-```terraform
-resource "yandex_kms_symmetric_key" "key-a" {
-  name              = "example-symetric-key"
-  description       = "description for key"
-  default_algorithm = "AES_128"
-  rotation_period   = "8760h" // equal to 1 year
-}
-```
+{{ tffile "examples/kms_symmetric_key/r_kms_symmetric_key_1.tf" }}
 
 ## Argument Reference
 

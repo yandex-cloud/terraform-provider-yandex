@@ -1,36 +1,24 @@
 ---
 subcategory: "Cloud Domain Name System (DNS)"
-page_title: "Yandex: yandex_dns_zone"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a DNS Zone within Yandex.Cloud.
+  Get information about a DNS Zone within Yandex Cloud.
 ---
 
-
-# yandex_dns_zone
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a DNS Zone.
 
 ## Example usage
 
-```terraform
-data "yandex_dns_zone" "foo" {
-  dns_zone_id = yandex_dns_zone.zone1.id
-}
-
-output "zone" {
-  value = data.yandex_dns_zone.foo.zone
-}
-```
+{{ tffile "examples/dns_zone/d_dns_zone_1.tf" }}
 
 ## Argument Reference
 
 * `dns_zone_id` - (Optional) The ID of the DNS Zone.
 * `name` - (Optional) - Name of the DNS Zone.
 
-~> **NOTE:** One of `dns_zone_id` or `name` should be specified.
+~> One of `dns_zone_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

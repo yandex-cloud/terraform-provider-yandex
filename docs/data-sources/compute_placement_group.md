@@ -1,29 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_placement_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Compute Placement Group.
 ---
 
-
-# yandex_compute_placement_group
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
-```terraform
-data "yandex_compute_placement_group" "my_group" {
-  group_id = "some_group_id"
-}
-
-output "placement_group_name" {
-  value = data.yandex_compute_placement_group.my_group.name
-}
-```
+{{ tffile "examples/compute_placement_group/d_compute_placement_group_1.tf" }}
 
 ## Argument Reference
 
@@ -35,7 +23,7 @@ The following arguments are supported:
 * `placement_strategy_spread` - placement strategy with spread policy
 * `placement_strategy_partitions` - placement strategy with partitions policy
 
-~> **NOTE:** One of `group_id` or `name` should be specified.
+~> One of `group_id` or `name` should be specified.
 
 ## Attributes Reference
 

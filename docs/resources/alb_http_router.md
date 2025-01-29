@@ -1,29 +1,17 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_http_router"
+page_title: "Yandex: {{.Name}}"
 description: |-
   The HTTP router defines the routing rules for HTTP requests to backend groups.
 ---
 
+# {{.Name}} ({{.Type}})
 
-Creates an HTTP Router in the specified folder. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/http-router).
-
-# yandex_alb_http_router
-
-
-
+Creates an HTTP Router in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/http-router).
 
 ## Example usage
 
-```terraform
-resource "yandex_alb_http_router" "tf-router" {
-  name = "my-http-router"
-  labels {
-    tf-label    = "tf-label-value"
-    empty-label = "s"
-  }
-}
-```
+{{ tffile "examples/alb_http_router/r_alb_http_router_1.tf" }}
 
 ## Argument Reference
 

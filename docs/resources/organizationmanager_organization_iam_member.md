@@ -1,31 +1,21 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_organization_iam_member"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single member for a single IAM binding on a Yandex.Cloud Organization Manager organization.
+  Allows management of a single member for a single IAM binding on a Yandex Cloud Organization Manager organization.
 ---
 
-
-# yandex_organizationmanager_organization_iam_member
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Organization Manager organization.
 
-~> **Note:** Roles controlled by `yandex_organizationmanager_organization_iam_binding` should not be assigned using `yandex_organizationmanager_organization_iam_member`.
+~> Roles controlled by `yandex_organizationmanager_organization_iam_binding` should not be assigned using `yandex_organizationmanager_organization_iam_member`.
 
-~> **Note:** When you delete `yandex_organizationmanager_organization_iam_binding` resource, the roles can be deleted from other users within the organization as well. Be careful!
+~> When you delete `yandex_organizationmanager_organization_iam_binding` resource, the roles can be deleted from other users within the organization as well. Be careful!
 
 ## Example usage
 
-```terraform
-resource "yandex_organizationmanager_organization_iam_member" "editor" {
-  organization_id = "some_organization_id"
-  role            = "editor"
-  member          = "userAccount:user_id"
-}
-```
+{{ tffile "examples/organizationmanager_organization_iam_member/r_organizationmanager_organization_iam_member_1.tf" }}
 
 ## Argument Reference
 

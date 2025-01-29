@@ -1,17 +1,13 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_subnet"
+page_title: "Yandex: {{.Name}}"
 description: |-
   A VPC network is a virtual version of the traditional physical networks that exist within and between physical data centers.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_subnet
-
-
-
-
-Manages a subnet within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
 
 * How-to Guides
   * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
@@ -19,17 +15,7 @@ Manages a subnet within the Yandex.Cloud. For more information, see [the officia
 
 ## Example usage
 
-```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_subnet" "lab-subnet-a" {
-  v4_cidr_blocks = ["10.2.0.0/16"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.lab-net.id
-}
-```
+{{ tffile "examples/vpc_subnet/r_vpc_subnet_1.tf" }}
 
 ## Argument Reference
 
@@ -39,7 +25,7 @@ The following arguments are supported:
 
 * `v4_cidr_blocks` - (Required) A list of blocks of internal IPv4 addresses that are owned by this subnet. Provide this property when you create the subnet. For example, 10.0.0.0/22 or 192.168.0.0/16. Blocks of addresses must be unique and non-overlapping within a network. Minimum subnet size is /28, and maximum subnet size is /16. Only IPv4 is supported.
 
-* `zone` - (Required) Name of the Yandex.Cloud zone for this subnet.
+* `zone` - (Required) Name of the Yandex Cloud zone for this subnet.
 
 ---
 

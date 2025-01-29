@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/yandex-cloud/terraform-provider-yandex/tools/cmd/pkg/categories"
+	"gopkg.in/yaml.v3"
 	"io/fs"
 	"log"
 	"os"
@@ -25,12 +26,32 @@ var newDescriptions = map[string]string{
 	"default": description,
 }
 
-// framework constants
 const (
-	frameworkTemplatesDocsDir   = "yandex-framework/docs-templates"
-	frameworkDatasourceFileName = "datasource-doctpl.md"
-	frameworkResourceFileName   = "resource-doctpl.md"
+	defaultTemplatesDir = "templates"
+	defaultDocsDir      = "docs"
 )
+
+// Header представляет структуру YAML-заголовка
+type Header struct {
+	Subcategory string `yaml:"subcategory"`
+}
+
+func extractSubcategory(input []byte) (string, error) {
+	content := string(input)
+
+	parts := strings.Split(content, "---")
+	if len(parts) < 2 {
+		return "", fmt.Errorf("не найден YAML-заголовок")
+	}
+
+	var header Header
+	err := yaml.Unmarshal([]byte(parts[1]), &header)
+	if err != nil {
+		return "", fmt.Errorf("ошибка парсинга YAML: %v", err)
+	}
+
+	return header.Subcategory, nil
+}
 
 func postProcessingDocs(resourcePath string) error {
 	log.Printf("Post processing resource %s", resourcePath)
@@ -89,13 +110,9 @@ func replaceTimeoutBlock(filePath string) error {
 	return nil
 }
 
-func replaceSubCategory(content, subCategory string) string {
-	return strings.ReplaceAll(content, `{{.SubCategory}}`, subCategory)
-}
-
-func regroupTemplatesFiles(templatesDir, tmpDir string, categoryMapping categories.CategoryMapping) error {
+func regroupTemplatesFiles(templatesDir, tmpDir string, categories categories.Categories) error {
 	log.Println("Reordering templates directory for sdk provider")
-	err := filepath.WalkDir(templatesDir, func(path string, d fs.DirEntry, err error) error {
+	return filepath.WalkDir(templatesDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed while travising directory %s: %w", path, err)
 		}
@@ -109,68 +126,37 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categoryMapping categori
 		if err != nil {
 			return fmt.Errorf("failed to read file %s: %w", path, err)
 		}
+		// We are checking that cats are registered
+		if strings.HasPrefix(filename, "d_") || strings.HasPrefix(filename, "r_") {
+			cat, err := extractSubcategory(data)
+			if err != nil {
+				log.Printf("Failed to extract subcategory for %s", path)
+				return nil
+			}
+			_, ok := categories.LookUpMap[cat]
+			if !ok {
+				log.Printf("Category is not registed %s", cat)
+				return nil
+			}
+		}
 
 		var file string
-		if strings.Contains(path, "data-sources") {
-			file = filepath.Join(tmpDir, "data-sources", filename)
-		} else if strings.Contains(path, "resources") {
-			file = filepath.Join(tmpDir, "resources", filename)
-		} else {
+		if strings.HasPrefix(filename, "d_") {
+			file = filepath.Join(tmpDir, "data-sources", filename[2:])
+		} else if strings.HasPrefix(filename, "r_") {
+			file = filepath.Join(tmpDir, "resources", filename[2:])
+		} else if filename == "index.md" {
 			file = filepath.Join(tmpDir, filename)
 			err = os.WriteFile(file, data, os.FileMode(0644))
 			return err
-		}
-		subCategory, err := categoryMapping.GetSubCategoryByPath(path)
-		if err != nil {
-			return fmt.Errorf("failed to get subcategory by path %s: %w", path, err)
-		}
-		data = []byte(replaceSubCategory(string(data), subCategory))
-		err = os.WriteFile(file, data, os.FileMode(0644))
-
-		return err
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to reorder sdk templates directory %s: %w", templatesDir, err)
-	}
-
-	return filepath.WalkDir(frameworkTemplatesDocsDir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("failed while travising directory %s: %w", path, err)
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-		if d.Name() != frameworkDatasourceFileName && d.Name() != frameworkResourceFileName {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("failed to read file %s: %w", path, err)
-		}
-
-		relPath, err := filepath.Rel(frameworkTemplatesDocsDir, path)
-
-		if err != nil {
-			return fmt.Errorf("failed to get relative path of file %s: %w", path, err)
-		}
-
-		name := strings.TrimSuffix(relPath, "/"+d.Name()) + ".md.tmpl"
-
-		var res string
-
-		if d.Name() == frameworkDatasourceFileName {
-			res = filepath.Join(tmpDir, "data-sources", name)
 		} else {
-			res = filepath.Join(tmpDir, "resources", name)
+			return nil
 		}
+		err = os.WriteFile(file, data, os.FileMode(0644))
 		if err != nil {
-			return fmt.Errorf("failed to get subcategory by path %s: %w", path, err)
+			return fmt.Errorf("failed to write file %s: %w", filename, err)
 		}
-		err = os.WriteFile(res, data, os.FileMode(0644))
-
-		return err
+		return nil
 	})
 }
 
@@ -178,13 +164,13 @@ func main() {
 	flag.Parse()
 	templatesDir := flag.Arg(0)
 	if templatesDir == "" {
-		log.Fatalln("Template directory is not set, please provider template directory path")
-		return
+		log.Println("Template directory is not set, using default")
+		templatesDir = defaultTemplatesDir
 	}
 	docsDir := flag.Arg(1)
 	if docsDir == "" {
-		log.Fatalln("Docs directory is not set, please provider docs directory path")
-		return
+		log.Println("Docs directory is not set, using default")
+		docsDir = defaultDocsDir
 	}
 	tmpDir, err := os.MkdirTemp(".", "templates-")
 
@@ -206,15 +192,15 @@ func main() {
 
 	defer os.RemoveAll(tmpDir)
 
-	var categoryMapping categories.CategoryMapping
-	err = categoryMapping.LoadCategoriesMapping(filepath.Join(templatesDir, "categories.yaml"))
+	var categories_ categories.Categories
+	err = categories_.LoadCategoriesMapping(filepath.Join(templatesDir, "categories.yaml"))
 
 	if err != nil {
 		log.Fatalf("Error loading category.yaml: %s", err)
 		return
 	}
 
-	if err := regroupTemplatesFiles(templatesDir, tmpDir, categoryMapping); err != nil {
+	if err := regroupTemplatesFiles(templatesDir, tmpDir, categories_); err != nil {
 		log.Fatalf("Error regrouping templates files: %v", err)
 		return
 	}
@@ -234,12 +220,6 @@ func main() {
 	err = postProcessingDocs(filepath.Join(docsDir, "resources"))
 	if err != nil {
 		log.Fatalf("Error post proccessing docs: %s\n", err)
-		return
-	}
-
-	err = os.Remove(filepath.Join(docsDir, "categories.yaml"))
-	if err != nil {
-		log.Fatalf("Error post cleaning docs: %v\n", err)
 		return
 	}
 

@@ -1,29 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_disk_placement_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Compute Disk Placement Group.
 ---
 
-
-# yandex_compute_disk_placement_group
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Compute Disk Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
 ## Example usage
 
-```terraform
-data "yandex_compute_disk_placement_group" "my_group" {
-  group_id = "some_group_id"
-}
-
-output "placement_group_name" {
-  value = data.yandex_compute_disk_placement_group.my_group.name
-}
-```
+{{ tffile "examples/compute_disk_placement_group/d_compute_disk_placement_group_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 * `name` - (Optional) Name of the group.
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
-~> **NOTE:** One of `group_id` or `name` should be specified.
+~> One of `group_id` or `name` should be specified.
 
 ## Attributes Reference
 

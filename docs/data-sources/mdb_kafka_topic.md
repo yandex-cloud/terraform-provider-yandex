@@ -1,30 +1,17 @@
 ---
 subcategory: "Managed Service for Apache Kafka"
-page_title: "Yandex: yandex_mdb_kafka_topic"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a topic of the Yandex Managed Kafka cluster.
 ---
 
-
-# yandex_mdb_kafka_topic
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_kafka_topic" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
-}
-
-output "replication_factor" {
-  value = data.yandex_mdb_kafka_topic.foo.replication_factor
-}
-```
+{{ tffile "examples/mdb_kafka_topic/d_mdb_kafka_topic_1.tf" }}
 
 ## Argument Reference
 
@@ -43,4 +30,4 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `topic_config` block supports:
 
-* `cleanup_policy`, `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`, `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate` - Kafka topic settings. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).
+* `cleanup_policy`, `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`, `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate` - Kafka topic settings. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).

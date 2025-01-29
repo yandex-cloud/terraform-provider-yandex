@@ -1,25 +1,17 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: yandex_function_trigger"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Functions Trigger.
 ---
 
-
-# yandex_function_trigger
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
 
 ## Example usage
 
-```terraform
-data "yandex_function_trigger" "my_trigger" {
-  trigger_id = "are1sampletrigger11"
-}
-```
+{{ tffile "examples/function_trigger/d_function_trigger_1.tf" }}
 
 This data source is used to define [Yandex Cloud Functions Trigger](https://cloud.yandex.com/docs/functions/concepts/trigger) that can be used by other resources.
 
@@ -33,7 +25,7 @@ The following arguments are supported:
 
 * `folder_id` - (Optional) Folder ID for the Yandex Cloud Functions Trigger
 
-~> **NOTE:** Either `trigger_id` or `name` must be specified.
+~> Either `trigger_id` or `name` must be specified.
 
 ## Attributes Reference
 
@@ -44,19 +36,19 @@ The following attributes are exported:
 * `labels` - A set of key/value label pairs to assign to the Yandex Cloud Functions Trigger
 * `created_at` - Creation timestamp of the Yandex Cloud Functions Trigger
 
-* `function` - [Yandex.Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
-* `function.0.id` - Yandex.Cloud Function ID for Yandex Cloud Functions Trigger
-* `function.0.service_account_id` - Service account ID for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.tag` - Tag for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.retry_attempts` - Retry attempts for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Function for Yandex Cloud Functions Trigger
+* `function` - [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
+* `function.0.id` - Yandex Cloud Function ID for Yandex Cloud Functions Trigger
+* `function.0.service_account_id` - Service account ID for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.tag` - Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.retry_attempts` - Retry attempts for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.retry_interval` - Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger
 
-* `` - [Yandex.Cloud Serverless Container](https://cloud.yandex.com/en-ru/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
-* `container.0.id` - Yandex.Cloud Serverless Container ID for Yandex Cloud Functions Trigger
-* `container.0.service_account_id` - Service account ID for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.path` - Path for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.retry_attempts` - Retry attempts for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `` - [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
+* `container.0.id` - Yandex Cloud Serverless Container ID for Yandex Cloud Functions Trigger
+* `container.0.service_account_id` - Service account ID for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.path` - Path for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_attempts` - Retry attempts for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_interval` - Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
 
 * `dlq` - Dead Letter Queue settings definition for Yandex Cloud Functions Trigger
 * `dlq.0.queue_id` - ID of Dead Letter Queue for Trigger (Queue ARN)

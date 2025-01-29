@@ -1,25 +1,17 @@
 ---
 subcategory: "Yandex API Gateway"
-page_title: "Yandex: yandex_api_gateway"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud API Gateway.
 ---
 
-
-# yandex_api_gateway
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Cloud API Gateway. For more information, see the official documentation [Yandex Cloud API Gateway](https://cloud.yandex.com/docs/api-gateway/).
 
 ## Example usage
 
-```terraform
-data "yandex_api_gateway" "my-api-gateway" {
-  name = "my-api-gateway"
-}
-```
+{{ tffile "examples/api_gateway/d_api_gateway_1.tf" }}
 
 ## Argument Reference
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `folder_id` (Optional) - Folder ID for the Yandex Cloud API Gateway.
 
-~> **NOTE:** Either `api_gateway_id` or `name` must be specified.
+~> Either `api_gateway_id` or `name` must be specified.
 
 ## Attributes Reference
 

@@ -1,26 +1,17 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_security_group_rule"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC Security Group Rule.
 ---
 
-
-# yandex_vpc_security_group_rule
-
-
-
+# {{.Name}}
 
 Get information about a Yandex VPC Security Group Rule. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_security_group_rule" "rule1" {
-  security_group_binding = "my-sg-id"
-  rule_id                = "my-rule-id"
-}
-```
+{{ tffile "examples/vpc_security_group_rule/d_vpc_security_group_rule_1.tf" }}
 
 This data source used to define Security Group Rule that can be used by other resources.
 

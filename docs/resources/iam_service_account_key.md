@@ -1,28 +1,17 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_service_account_key"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a Yandex.Cloud IAM service account key.
+  Allows management of a Yandex Cloud IAM service account key.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_service_account_key
-
-
-
-
-Allows management of [Yandex.Cloud IAM service account authorized keys](https://cloud.yandex.com/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token) for a [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+Allows management of [Yandex Cloud IAM service account authorized keys](https://cloud.yandex.com/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token) for a [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
 
 ## Example usage
 
-```terraform
-resource "yandex_iam_service_account_key" "sa-auth-key" {
-  service_account_id = "some_sa_id"
-  description        = "key for service account"
-  key_algorithm      = "RSA_4096"
-  pgp_key            = "keybase:keybaseusername"
-}
-```
+{{ tffile "examples/iam_service_account_key/r_iam_service_account_key_1.tf" }}
 
 ## Argument Reference
 

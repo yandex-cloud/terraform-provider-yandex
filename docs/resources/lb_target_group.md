@@ -1,36 +1,17 @@
 ---
 subcategory: "Network Load Balancer (NLB)"
-page_title: "Yandex: yandex_lb_target_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   A load balancer distributes the load across cloud resources that are combined into a target group.
 ---
 
+# {{.Name}} ({{.Type}})
 
 Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources).
 
-# yandex_lb_target_group
-
-
-
-
 ## Example usage
 
-```terraform
-resource "yandex_lb_target_group" "foo" {
-  name      = "my-target-group"
-  region_id = "ru-central1"
-
-  target {
-    subnet_id = yandex_vpc_subnet.my-subnet.id
-    address   = yandex_compute_instance.my-instance-1.network_interface.0.ip_address
-  }
-
-  target {
-    subnet_id = yandex_vpc_subnet.my-subnet.id
-    address   = yandex_compute_instance.my-instance-2.network_interface.0.ip_address
-  }
-}
-```
+{{ tffile "examples/lb_target_group/r_lb_target_group_1.tf" }}
 
 ## Argument Reference
 

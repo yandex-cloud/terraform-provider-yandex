@@ -1,83 +1,23 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: yandex_cm_certificate"
+page_title: "Yandex: {{.Name}}"
 description: |-
   A TLS certificate signed by a certification authority confirming that it belongs to the owner of the domain name.
 ---
 
+# {{.Name}} ({{.Type}})
 
-Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/certificate-manager/concepts/).
-
-# yandex_cm_certificate
-
-
-
+Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
 ## Example usage
 
-```terraform
-resource "yandex_cm_certificate" "example" {
-  name    = "example"
-  domains = ["example.com"]
+{{ tffile "examples/cm_certificate/r_cm_certificate_1.tf" }}
 
-  managed {
-    challenge_type = "DNS_CNAME"
-  }
-}
-```
+{{ tffile "examples/cm_certificate/r_cm_certificate_2.tf" }}
 
-```terraform
-resource "yandex_cm_certificate" "example" {
-  name    = "example"
-  domains = ["one.example.com", "two.example.com"]
+{{ tffile "examples/cm_certificate/r_cm_certificate_3.tf" }}
 
-  managed {
-    challenge_type  = "DNS_CNAME"
-    challenge_count = 2 # for each domain
-  }
-}
-
-resource "yandex_dns_recordset" "example" {
-  count   = yandex_cm_certificate.example.managed[0].challenge_count
-  zone_id = "example-zone-id"
-  name    = yandex_cm_certificate.example.challenges[count.index].dns_name
-  type    = yandex_cm_certificate.example.challenges[count.index].dns_type
-  data    = [yandex_cm_certificate.example.challenges[count.index].dns_value]
-  ttl     = 60
-}
-```
-
-```terraform
-resource "yandex_cm_certificate" "example" {
-  name    = "example"
-  domains = ["example.com", "*.example.com"]
-
-  managed {
-    challenge_type  = "DNS_CNAME"
-    challenge_count = 1 # "example.com" and "*.example.com" has the same DNS_CNAME challenge
-  }
-}
-
-resource "yandex_dns_recordset" "example" {
-  count   = yandex_cm_certificate.example.managed[0].challenge_count
-  zone_id = "example-zone-id"
-  name    = yandex_cm_certificate.example.challenges[count.index].dns_name
-  type    = yandex_cm_certificate.example.challenges[count.index].dns_type
-  data    = [yandex_cm_certificate.example.challenges[count.index].dns_value]
-  ttl     = 60
-}
-```
-
-```terraform
-resource "yandex_cm_certificate" "example" {
-  name = "example"
-
-  self_managed {
-    certificate = "-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- \n -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----"
-    private_key = "-----BEGIN RSA PRIVATE KEY----- ... -----END RSA PRIVATE KEY-----"
-  }
-}
-```
+{{ tffile "examples/cm_certificate/r_cm_certificate_4.tf" }}
 
 ## Argument Reference
 
@@ -91,7 +31,7 @@ The following arguments are supported:
 * `managed` - (Optional) Managed specification. Structure is documented below.
 * `self_managed` - (Optional) Self-managed specification. Structure is documented below.
 
-~> **NOTE:** Only one type `managed` or `self_managed` should be specified.
+~> Only one type `managed` or `self_managed` should be specified.
 
 The `managed` block supports:
 
@@ -101,7 +41,7 @@ The `managed` block supports:
   - "HTTP" - you will need to place specified value into specified url.
 * `challenge_count` - (Optional). Expected number of challenge count needed to validate certificate. Resource creation will fail if the specified value does not match the actual number of challenges received from issue provider. This argument is helpful for safe automatic resource creation for passing challenges for multi-domain certificates.
 
-~> **NOTE:** Resource creation awaits getting challenges from issue provider.
+~> Resource creation awaits getting challenges from issue provider.
 
 The `self_managed` block supports:
 
@@ -109,7 +49,7 @@ The `self_managed` block supports:
 * `private_key` - (Optional) Private key of certificate.
 * `private_key_lockbox_secret` - (Optional) Lockbox secret specification for getting private key. Structure is documented below.
 
-~> **NOTE:** Only one type `private_key` or `private_key_lockbox_secret` should be specified.
+~> Only one type `private_key` or `private_key_lockbox_secret` should be specified.
 
 The `private_key_lockbox_secret` block supports:
 

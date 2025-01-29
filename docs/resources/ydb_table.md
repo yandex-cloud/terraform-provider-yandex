@@ -1,49 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_table"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Yandex Database dedicated cluster.
 ---
 
-
-# yandex_ydb_table
-
-
-
+# {{.Name}} ({{.Type}})
 
 Yandex Database table resource.
 
 ## Example usage
 
-```terraform
-resource "yandex_ydb_table" "test_table" {
-  path = "test_dir/test_table_3_col"
-  connection_string = yandex_ydb_database_serverless.database1.ydb_full_endpoint
-
-column {
-      name = "a"
-      type = "Utf8"
-      not_null = true
-    }
-    column {
-      name = "b"
-      type = "Uint32"
-      not_null = true
-    }
-    column {
-      name = "c"
-      type = "Int32"
-      not_null = false
-    }
-    column {
-    name = "d"
-    type = "Timestamp"
-    }
-
-    primary_key = ["a","b”]
-
-}
-```
+{{ tffile "examples/ydb_table/r_ydb_table_1.tf" }}
 
 ## Argument Reference
 

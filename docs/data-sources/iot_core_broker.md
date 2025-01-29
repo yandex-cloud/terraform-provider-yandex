@@ -1,29 +1,19 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: yandex_iot_core_broker"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud IoT Core Broker.
+  Get information about a Yandex Cloud IoT Core Broker.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iot_core_broker
-
-
-
-
-Get information about a Yandex IoT Core Broker. For more information IoT Core, see [Yandex.Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart).
-
-The service is at the Preview stage.
+Get information about a Yandex IoT Core Broker. For more information IoT Core, see [Yandex Cloud IoT Broker](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_iot_core_broker" "my_broker" {
-  broker_id = "are1samplebroker11"
-}
-```
+{{ tffile "examples/iot_core_broker/d_iot_core_broker_1.tf" }}
 
-This data source is used to define [Yandex.Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 
@@ -35,7 +25,7 @@ The following arguments are supported:
 
 * `folder_id` (Optional) - Folder ID for the IoT Core Broker
 
-~> **NOTE:** Either `broker_id` or `name` must be specified.
+~> Either `broker_id` or `name` must be specified.
 
 ## Attributes Reference
 

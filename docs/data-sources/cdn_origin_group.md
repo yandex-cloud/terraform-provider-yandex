@@ -1,31 +1,19 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: yandex_cdn_origin_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex CDN Origin Group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_cdn_origin_group
+Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/origins).
 
-
-
-
-Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://cloud.yandex.ru/docs/cdn/concepts/origins).
-
-> ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
+~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
 ## Example usage
 
-```terraform
-data "yandex_cdn_origin_group" "my_group" {
-  origin_group_id = "some_instance_id"
-}
-
-output "origin_group_name" {
-  value = data.yandex_cdn_origin_group.my_group.name
-}
-```
+{{ tffile "examples/cdn_origin_group/d_cdn_origin_group_1.tf" }}
 
 ## Argument Reference
 
@@ -39,4 +27,4 @@ The following arguments are supported:
   * `enabled` (Optional) - the origin is enabled and used as a source for the CDN. Default is enabled.
   * `backup` (Optional) - specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
 
-~> **NOTE:** One of `origin_group_id` or `name` should be specified.
+~> One of `origin_group_id` or `name` should be specified.

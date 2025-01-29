@@ -1,48 +1,27 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: yandex_cm_certificate_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single IAM binding for a [Certificate](https://cloud.yandex.com/en/docs/certificate-manager/).
+  Allows management of a single IAM binding for a [Certificate](https://yandex.cloud/docs/certificate-manager/).
 ---
 
-
-# yandex_cm_certificate_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single binding within IAM policy for an existing Certificate.
 
-~> **Note:** Roles controlled by `yandex_cm_certificate_iam_binding` should not be assigned using `yandex_cm_certificate_iam_member`.
+~> Roles controlled by `yandex_cm_certificate_iam_binding` should not be assigned using `yandex_cm_certificate_iam_member`.
 
-~> **Note:** When you delete `yandex_cm_certificate_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
+~> When you delete `yandex_cm_certificate_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
 
 ## Example usage
 
-```terraform
-resource "yandex_cm_certificate" "your-certificate" {
-  name = "certificate-name"
-  domains = ["example.com"]
-  managed {
-    challenge_type = "DNS_CNAME"
-  }
-}
-
-resource "yandex_cm_certificate_iam_binding" "viewer" {
-  certificate_id = yandex_cm_certificate.your-certificate.id
-  role      = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
-}
-```
+{{ tffile "examples/cm_certificate_iam_binding/r_cm_certificate_iam_binding_1.tf" }}
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `certificate_id` - (Required) The [Certificate](https://cloud.yandex.com/en/docs/certificate-manager/) ID to apply a binding to.
+* `certificate_id` - (Required) The [Certificate](https://yandex.cloud/docs/certificate-manager/) ID to apply a binding to.
 
 * `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/certificate-manager/security/).
 
@@ -61,5 +40,5 @@ The following arguments are supported:
 IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `certificate_id` and role, e.g.
 
 ```
-$ terraform import yandex_cm_certificate_iam_binding.viewer "certificate_id viewer"
+$ terraform import {{.Name}}.viewer "certificate_id viewer"
 ```

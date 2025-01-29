@@ -1,38 +1,21 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: yandex_kms_asymmetric_encryption_key_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
-
-# yandex_kms_asymmetric_encryption_key_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Asymmetric Encryption Key.
 
-~> **Note:** Roles controlled by `yandex_kms_asymmetric_encryption_key_iam_binding` should not be assigned using `yandex_kms_asymmetric_encryption_key_iam_member`.
+~> Roles controlled by `yandex_kms_asymmetric_encryption_key_iam_binding` should not be assigned using `yandex_kms_asymmetric_encryption_key_iam_member`.
 
-~> **Note:** When you delete `yandex_kms_asymmetric_encryption_key_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
+~> When you delete `yandex_kms_asymmetric_encryption_key_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
 
 ## Example usage
 
-```terraform
-resource "yandex_kms_asymmetric_encryption_key" "your-key" {
-  name      = "asymmetric-encryption-key-name"
-}
-
-resource "yandex_kms_asymmetric_encryption_key_iam_binding" "viewer" {
-  asymmetric_encryption_key_id = yandex_kms_asymmetric_encryption_key.your-key.id
-  role                         = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
-}
-```
+{{ tffile "examples/kms_asymmetric_encryption_key_iam_binding/r_kms_asymmetric_encryption_key_iam_binding_1.tf" }}
 
 ## Argument Reference
 

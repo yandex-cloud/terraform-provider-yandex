@@ -1,65 +1,25 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_default_security_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Yandex VPC Default Security Group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_default_security_group
+Manages a Default Security Group within the Yandex Cloud. For more information, see the official documentation of [security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups) or [default security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups#default-security-group).
 
-
-
-
-Manages a Default Security Group within the Yandex.Cloud. For more information, see the official documentation of [security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups) or [default security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups#default-security-group).
-
-~> **NOTE:** This resource is not intended for managing security group in general case. To manage normal security group use [yandex_vpc_security_group](vpc_security_group.html)
+~> This resource is not intended for managing security group in general case. To manage normal security group use [yandex_vpc_security_group](vpc_security_group.html)
 
 When [network](https://cloud.yandex.com/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it. Life time of default security group cannot be controlled, so in fact the resource `yandex_vpc_default_security_group` does not create or delete any security groups, instead it simply takes or releases control of the default security group.
 
-~> **NOTE:** When Terraform takes over management of the default security group, it **deletes** all info in it (including security group rules) and replace it with specified configuration. When Terraform drops the management (i.e. when resource is deleted from statefile and management), the state of the security group **remains the same** as it was before the deletion.
+~> When Terraform takes over management of the default security group, it **deletes** all info in it (including security group rules) and replace it with specified configuration. When Terraform drops the management (i.e. when resource is deleted from statefile and management), the state of the security group **remains the same** as it was before the deletion.
 
-~> **NOTE:** Duplicating a resource (specifying same `network_id` for two different default security groups) will cause errors in the apply stage of your's configuration.
+~> Duplicating a resource (specifying same `network_id` for two different default security groups) will cause errors in the apply stage of your's configuration.
 
 ## Example usage
 
-```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_default_security_group" "default-sg" {
-  description = "description for default security group"
-  network_id  = yandex_vpc_network.lab-net.id
-
-  labels = {
-    my-label = "my-label-value"
-  }
-
-  ingress {
-    protocol       = "TCP"
-    description    = "rule1 description"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    port           = 8080
-  }
-
-  egress {
-    protocol       = "ANY"
-    description    = "rule2 description"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    from_port      = 8090
-    to_port        = 8099
-  }
-
-  egress {
-    protocol       = "UDP"
-    description    = "rule3 description"
-    v4_cidr_blocks = ["10.0.1.0/24"]
-    from_port      = 8090
-    to_port        = 8099
-  }
-}
-```
+{{ tffile "examples/vpc_default_security_group/r_vpc_default_security_group_1.tf" }}
 
 ## Argument Reference
 
@@ -98,7 +58,7 @@ The `ingress` and `egress` block supports:
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 
-~> **NOTE:** Either one `port` argument or both `from_port` and `to_port` arguments can be specified. ~> **NOTE:** If `port` or `from_port`/`to_port` aren't specified or set by -1, ANY port will be sent. ~> **NOTE:** Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.
+~> Either one `port` argument or both `from_port` and `to_port` arguments can be specified. ~> If `port` or `from_port`/`to_port` aren't specified or set by -1, ANY port will be sent. ~> Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.
 
 ## Attributes Reference
 

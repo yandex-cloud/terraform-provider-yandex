@@ -1,27 +1,19 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_load_balancer"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Application Load Balancer.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_alb_load_balancer
-
-
-
-
-Get information about a Yandex Application Load Balancer. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
+Get information about a Yandex Application Load Balancer. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_alb_load_balancer" "tf-alb-data" {
-  load_balancer_id = "my-alb-id"
-}
-```
+{{ tffile "examples/alb_load_balancer/d_alb_load_balancer_1.tf" }}
 
-This data source is used to define [Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/application-load-balancer) that can be used by other resources.
+This data source is used to define [Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/concepts/application-load-balancer) that can be used by other resources.
 
 ## Argument Reference
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` - Name of the Load Balancer.
 
-~> **NOTE:** One of `load_balancer_id` or `name` should be specified.
+~> One of `load_balancer_id` or `name` should be specified.
 
 * `folder_id` - Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
@@ -93,7 +85,7 @@ The `listener` block supports:
 
 * `stream` - Stream listener resource. The structure is documented below.
 
-~> **NOTE:** Exactly one listener type: `http` or `tls` or `stream` should be specified.
+~> Exactly one listener type: `http` or `tls` or `stream` should be specified.
 
 ---
 
@@ -113,7 +105,7 @@ The `address` block supports:
 
 * `external_ipv6_address` - External IPv6 address. The structure is documented below.
 
-~> **NOTE:** Exactly one type of addresses `external_ipv4_address` or `internal_ipv4_address` or `external_ipv6_address` should be specified.
+~> Exactly one type of addresses `external_ipv4_address` or `internal_ipv4_address` or `external_ipv6_address` should be specified.
 
 ---
 
@@ -163,7 +155,7 @@ The `default_handler` and `handler`(from `sni_handler`) block supports:
 
 * `certificate_ids` - Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
 
-~> **NOTE:** Exactly one handler type `http_handler` or `stream_handler` should be specified.
+~> Exactly one handler type `http_handler` or `stream_handler` should be specified.
 
 ---
 
@@ -179,7 +171,7 @@ The `http` block supports:
 
 * `redirects` - Shortcut for adding http -> https redirects. The structure is documented below.
 
-~> **NOTE:** Only one type of fields `handler` or `redirects` should be specified.
+~> Only one type of fields `handler` or `redirects` should be specified.
 
 ---
 
@@ -193,7 +185,7 @@ The `http_handler` and `handler`(from `http`) block supports:
 
 * `allow_http10` - If set, will enable only HTTP1 protocol with HTTP1.0 support.
 
-~> **NOTE:** Only one type of protocol settings `http2_options` or `allow_http10` should be specified.
+~> Only one type of protocol settings `http2_options` or `allow_http10` should be specified.
 
 ---
 

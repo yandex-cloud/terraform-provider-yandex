@@ -1,27 +1,19 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_http_router"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Application Load Balancer HTTP Router.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_alb_http_router
-
-
-
-
-Get information about a Yandex Application Load Balancer HTTP Router. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
+Get information about a Yandex Application Load Balancer HTTP Router. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_alb_http_router" "tf-router" {
-  http_router_id = "my-http-router-id"
-}
-```
+{{ tffile "examples/alb_http_router/d_alb_http_router_1.tf" }}
 
-This data source is used to define [Application Load Balancer HTTP Router](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
+This data source is used to define [Application Load Balancer HTTP Router](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
 
 ## Argument Reference
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` - (Optional) - Name of the HTTP Router.
 
-~> **NOTE:** One of `http_router_id` or `name` should be specified.
+~> One of `http_router_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

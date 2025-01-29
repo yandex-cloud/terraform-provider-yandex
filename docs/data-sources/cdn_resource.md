@@ -1,31 +1,19 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: yandex_cdn_resource"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex CDN Resource.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_cdn_resource
+Get information about a Yandex CDN Resource. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/resource).
 
-
-
-
-Get information about a Yandex CDN Resource. For more information, see [the official documentation](https://cloud.yandex.ru/docs/cdn/concepts/resource).
-
-> ***NOTE:*** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
+~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`
 
 ## Example usage
 
-```terraform
-data "yandex_cdn_resource" "my_resource" {
-  resource_id = "some resource id"
-}
-
-output "resource_cname" {
-  value = data.yandex_cdn_resource.my_resource.cname
-}
-```
+{{ tffile "examples/cdn_resource/d_cdn_resource_1.tf" }}
 
 ## Argument Reference
 

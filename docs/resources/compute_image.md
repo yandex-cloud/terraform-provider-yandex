@@ -1,38 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_image"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Creates a VM image for the Yandex Compute service from an existing tarball.
 ---
 
-
-# yandex_compute_image
-
-
-
+# {{.Name}} ({{.Type}})
 
 Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing tarball. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_image" "foo-image" {
-  name       = "my-custom-image"
-  source_url = "https://storage.yandexcloud.net/lucky-images/kube-it.img"
-}
-
-resource "yandex_compute_instance" "vm" {
-  name = "vm-from-custom-image"
-
-  # ...
-
-  boot_disk {
-    initialize_params {
-      image_id = yandex_compute_image.foo-image.id
-    }
-  }
-}
-```
+{{ tffile "examples/compute_image/r_compute_image_1.tf" }}
 
 ## Argument Reference
 
@@ -66,7 +45,7 @@ The following arguments are supported:
 
 * `product_ids` - (Optional) License IDs that indicate which licenses are attached to this image.
 
-~> **NOTE:** One of `source_family`, `source_image`, `source_snapshot`, `source_disk` or `source_url` must be specified.
+~> One of `source_family`, `source_image`, `source_snapshot`, `source_disk` or `source_url` must be specified.
 
 ## Attributes Reference
 

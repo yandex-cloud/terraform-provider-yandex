@@ -1,38 +1,21 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: yandex_lockbox_secret_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single IAM binding for a [Lockbox Secret](https://cloud.yandex.com/docs/lockbox/).
+  Allows management of a single IAM binding for a Lockbox Secret.
 ---
 
-
-# yandex_lockbox_secret_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Lockbox Secret.
 
-~> **Note:** Roles controlled by `yandex_lockbox_secret_iam_binding` should not be assigned using `yandex_lockbox_secret_iam_member`.
+~> Roles controlled by `yandex_lockbox_secret_iam_binding` should not be assigned using `yandex_lockbox_secret_iam_member`.
 
-~> **Note:** When you delete `yandex_lockbox_secret_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
+~> When you delete `yandex_lockbox_secret_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
 
 ## Example usage
 
-```terraform
-resource "yandex_lockbox_secret" "your-secret" {
-  name = "secret-name"
-}
-
-resource "yandex_lockbox_secret_iam_binding" "viewer" {
-  secret_id = yandex_lockbox_secret.your-secret.id
-  role      = "viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
-}
-```
+{{ tffile "examples/lockbox_secret_iam_binding/r_lockbox_secret_iam_binding_1.tf" }}
 
 ## Argument Reference
 

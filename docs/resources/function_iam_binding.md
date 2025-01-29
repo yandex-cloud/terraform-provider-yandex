@@ -1,28 +1,15 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: yandex_function_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single IAM binding for a [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/).
 ---
 
-
-# yandex_function_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 ## Example usage
 
-```terraform
-resource "yandex_function_iam_binding" "function-iam" {
-  function_id = "your-function-id"
-  role        = "serverless.functions.invoker"
-
-  members = [
-    "system:allUsers",
-  ]
-}
-```
+{{ tffile "examples/function_iam_binding/r_function_iam_binding_1.tf" }}
 
 ## Argument Reference
 

@@ -1,25 +1,17 @@
 ---
 subcategory: "Serverless Containers"
-page_title: "Yandex: yandex_serverless_container"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Serverless Container.
 ---
 
-
-# yandex_serverless_container
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Cloud Serverless Container.
 
 ## Example usage
 
-```terraform
-data "yandex_serverless_container" "my-container" {
-  container_id = "are1samplecontainer11"
-}
-```
+{{ tffile "examples/serverless_container/d_serverless_container_1.tf" }}
 
 This data source is used to define Yandex Cloud Container that can be used by other resources.
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 * `name` (Optional) - Yandex Cloud Serverless Container name used to define container
 * `folder_id` (Optional) - Folder ID for the Yandex Cloud Serverless Container
 
-~> **NOTE:** Either `container_id` or `name` must be specified.
+~> Either `container_id` or `name` must be specified.
 
 ## Attributes Reference
 

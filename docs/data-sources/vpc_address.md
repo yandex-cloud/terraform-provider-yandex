@@ -1,27 +1,19 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_address"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC address.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_address
-
-
-
-
-Get information about a Yandex VPC address. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/address).
+Get information about a Yandex VPC address. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_address" "addr" {
-  address_id = "my-address-id"
-}
-```
+{{ tffile "examples/vpc_address/d_vpc_address_1.tf" }}
 
-This data source is used to define [VPC Address](https://cloud.yandex.com/docs/vpc/concepts/address) that can be used by other resources.
+This data source is used to define [VPC Address](https://yandex.cloud/docs/vpc/concepts/address) that can be used by other resources.
 
 ## Argument Reference
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `address_id` (Optional) - ID of the address.
 * `name` (Optional) - Name of the address.
 
-~> **NOTE:** One of `address_id` or `name` should be specified.
+~> One of `address_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

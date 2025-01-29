@@ -1,35 +1,17 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_virtual_host"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Virtual hosts combine routes belonging to the same set of domains.
 ---
 
+# {{.Name}} ({{.Type}})
 
-Creates a virtual host that belongs to specified HTTP router and adds the specified routes to it. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/http-router).
-
-# yandex_alb_virtual_host
-
-
-
+Creates a virtual host that belongs to specified HTTP router and adds the specified routes to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/http-router).
 
 ## Example usage
 
-```terraform
-resource "yandex_alb_virtual_host" "my-virtual-host" {
-  name           = "my-virtual-host"
-  http_router_id = yandex_alb_http_router.my-router.id
-  route {
-    name = "my-route"
-    http_route {
-      http_route_action {
-        backend_group_id = yandex_alb_backend_group.my-bg.id
-        timeout          = "3s"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/alb_virtual_host/r_alb_virtual_host_1.tf" }}
 
 ## Argument Reference
 
@@ -61,7 +43,7 @@ The `modify_request_headers` and `modify_response_headers` blocks support:
 
 * `remove` - (Optional) If set, remove the header.
 
-~> **NOTE:** Only one type of actions `append` or `replace` or `remove` should be specified.
+~> Only one type of actions `append` or `replace` or `remove` should be specified.
 
 ---
 
@@ -73,7 +55,7 @@ The `route` block supports:
 
 * `grpc_route` - (Optional) GRPC route resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of routes `http_route` or `grpc_route` should be specified.
+~> Exactly one type of routes `http_route` or `grpc_route` should be specified.
 
 ---
 
@@ -87,7 +69,7 @@ The `http_route` block supports:
 
 * `direct_response_action` - (Required) Direct response action resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
+~> Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
 
 ---
 
@@ -115,7 +97,7 @@ The `http_route_action` block supports:
 
 * `upgrade_types` - (Optional) List of upgrade types. Only specified upgrade types will be allowed. For example, "websocket".
 
-~> **NOTE:** Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
 
 ---
 
@@ -143,7 +125,7 @@ The `redirect_action` block supports:
 
 * `response_code` - (Optional) The HTTP status code to use in the redirect response. Supported values are: moved_permanently, found, see_other, temporary_redirect, permanent_redirect.
 
-~> **NOTE:** Only one type of paths `replace_path` or `replace_prefix` should be specified.
+~> Only one type of paths `replace_path` or `replace_prefix` should be specified.
 
 ---
 
@@ -155,7 +137,7 @@ The `grpc_route` block supports:
 
 * `grpc_status_response_action` - (Required) GRPC status response action resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
+~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
 
 ---
 
@@ -177,7 +159,7 @@ The `grpc_route_action` block supports:
 
 * `auto_host_rewrite` - (Optional) If set, will automatically rewrite host.
 
-~> **NOTE:** Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
 
 ---
 
@@ -195,7 +177,7 @@ The `path` and `fqmn` blocks support:
 
 * `regex` - (Optional) Match regex.
 
-~> **NOTE:** Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
 
 ---
 

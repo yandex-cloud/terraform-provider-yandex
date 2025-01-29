@@ -1,25 +1,17 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_route_table"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC route table.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_route_table
-
-
-
-
-Get information about a Yandex VPC route table. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_route_table" "this" {
-  route_table_id = "my-rt-id"
-}
-```
+{{ tffile "examples/vpc_route_table/d_vpc_route_table_1.tf" }}
 
 This data source is used to define [VPC Route Table](https://cloud.yandex.com/docs/vpc/concepts/) that can be used by other resources.
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `route_table_id` (Optional) - Route table ID.
 * `name` - (Optional) - Name of the route table.
 
-~> **NOTE:** One of `route_table_id` or `name` should be specified.
+~> One of `route_table_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
@@ -50,4 +42,4 @@ The `static_route` block supports:
 * `next_hop_address` - Address of the next hop.
 * `gateway_id` - ID of the gateway used as next hop.
 
-~> **NOTE:** Only one of `next_hop_address` or `gateway_id` should be specified.
+~> Only one of `next_hop_address` or `gateway_id` should be specified.

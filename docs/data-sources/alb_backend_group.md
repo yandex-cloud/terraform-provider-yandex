@@ -1,27 +1,19 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_backend_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex Application Load Balancer Backend Group.
+  Get information about Yandex Application Load Balancer Backend Group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_alb_backend_group
-
-
-
-
-Get information about a Yandex Application Load Balancer Backend Group. For more information, see [Yandex.Cloud Application Load Balancer](https://cloud.yandex.com/en/docs/application-load-balancer/quickstart).
+Get information about a Yandex Application Load Balancer Backend Group. For more information, see [official documentation](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_alb_backend_group" "foo" {
-  backend_group_id = "my-backend-group-id"
-}
-```
+{{ tffile "examples/alb_backend_group/d_alb_backend_group_1.tf" }}
 
-This data source is used to define [Application Load Balancer Backend Groups](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/backend-group) that can be used by other resources.
+This data source is used to define [Application Load Balancer Backend Groups](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group) that can be used by other resources.
 
 ## Argument Reference
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` - (Optional) - Name of the Backend Group.
 
-~> **NOTE:** One of `backend_group_id` or `name` should be specified.
+~> One of `backend_group_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
@@ -47,7 +39,7 @@ The following attributes are exported:
 * `stream_backend` - Stream backend specification that will be used by the ALB Backend Group. Structure is documented below.
 * `created_at` - Creation timestamp of this backend group.
 
-~> **NOTE:** Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
+~> Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
 
 The `session_affinity` block supports:
 
@@ -55,7 +47,7 @@ The `session_affinity` block supports:
 * `cookie` - Requests with the same cookie value and the specified file name are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
 * `header` - Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
 
-~> **NOTE:** Only one type( `connection` or `cookie` or `header` ) of session affinity should be specified.
+~> Only one type( `connection` or `cookie` or `header` ) of session affinity should be specified.
 
 The `connection` block supports:
 
@@ -108,7 +100,7 @@ The `tls` block supports:
 * `validation_context.0.trusted_ca_id` - Trusted CA certificate ID in the Certificate Manager.
 * `validation_context.0.trusted_ca_bytes` - PEM-encoded trusted CA certificate chain.
 
-~> **NOTE:** Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
 
 The `load_balancing_config` block supports:
 
@@ -129,7 +121,7 @@ The `healthcheck` block supports:
 * `http_healthcheck` - Http Healthcheck specification that will be used by this healthcheck. Structure is documented below.
 * `grpc_healthcheck` - Grpc Healthcheck specification that will be used by this healthcheck. Structure is documented below.
 
-~> **NOTE:** Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
 
 The `stream_healthcheck` block supports:
 

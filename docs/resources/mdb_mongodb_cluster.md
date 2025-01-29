@@ -1,82 +1,17 @@
 ---
 subcategory: "Managed Service for MongoDB"
-page_title: "Yandex: yandex_mdb_mongodb_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Manages a MongoDB cluster within Yandex.Cloud.
+  Manages a MongoDB cluster within Yandex Cloud.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_mdb_mongodb_cluster
-
-
-
-
-Manages a MongoDB cluster within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
+Manages a MongoDB cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
 
 ## Example usage
 
-```terraform
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_mdb_mongodb_cluster" "foo" {
-  name        = "test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-
-  cluster_config {
-    version = "4.2"
-  }
-
-  labels = {
-    test_key = "test_value"
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-    }
-  }
-
-  resources_mongod {
-    resource_preset_id = "s2.small"
-    disk_size          = 16
-    disk_type_id       = "network-hdd"
-  }
-
-  resources_mongos {
-    resource_preset_id = "s2.small"
-    disk_size          = 14
-    disk_type_id       = "network-hdd"
-  }
-
-  resources_mongocfg {
-    resource_preset_id = "s2.small"
-    disk_size          = 14
-    disk_type_id       = "network-hdd"
-  }
-
-  host {
-    zone_id   = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo.id
-  }
-
-  maintenance_window {
-    type = "ANYTIME"
-  }
-}
-```
+{{ tffile "examples/mdb_mongodb_cluster/r_mdb_mongodb_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -315,7 +250,7 @@ The `kmip` block supports:
 
 The `restore` block supports:
 
-* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://cloud.yandex.com/en-ru/docs/managed-mongodb/operations/cluster-backups)
+* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-mongodb/operations/cluster-backups)
 
 * `time` - (Optional, ForceNew) Timestamp of the moment to which the MongoDB cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
 

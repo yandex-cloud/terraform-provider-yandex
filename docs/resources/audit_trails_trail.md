@@ -1,64 +1,17 @@
 ---
 subcategory: "Audit Trails"
-page_title: "Yandex: yandex_audit_trails_trail"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages a trail resource.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_audit_trails_trail
-
-
-
-
-Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
+Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail)
 
 ## Example usage
 
-```terraform
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
-  folder_id   = "home-folder"
-  description = "Some trail description"
-
-  labels = {
-    key = "value"
-  }
-
-  service_account_id = "trail-service-account"
-
-  logging_destination {
-    log_group_id = "some-log-group"
-  }
-
-  filtering_policy {
-    management_events_filter {
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
-    data_events_filter {
-      service = "storage"
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
-    data_events_filter {
-      service = "dns"
-      resource_scope {
-        resource_id   = "vpc-net-id-1"
-        resource_type = "vpc.network"
-      }
-      resource_scope {
-        resource_id   = "vpc-net-id-2"
-        resource_type = "vpc.network"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_1.tf" }}
 
 Trail delivering events to YDS and gathering such events:
 
@@ -66,87 +19,14 @@ Trail delivering events to YDS and gathering such events:
 * DNS data events from the 'some-organization' organization
 * Object Storage data events from the 'some-organization' organization
 
-```terraform
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
-  folder_id   = "home-folder"
-  description = "Some trail description"
-
-  labels = {
-    key = "value"
-  }
-
-  service_account_id = "trail-service-account"
-
-  data_stream_destination {
-    database_id = "some-database"
-    stream_name = "some-stream"
-  }
-
-  filtering_policy {
-    management_events_filter {
-      resource_scope {
-        resource_id   = "some-organization"
-        resource_type = "organization-manager.organization"
-      }
-    }
-    data_events_filter {
-      service = "storage"
-      resource_scope {
-        resource_id   = "some-organization"
-        resource_type = "organization-manager.organization"
-      }
-    }
-    data_events_filter {
-      service = "dns"
-      resource_scope {
-        resource_id   = "some-organization"
-        resource_type = "organization-manager.organization"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_2.tf" }}
 
 Trail delivering events to Object Storage and gathering such events:
 
 * Management events from the 'home-folder' folder
 * Managed PostgreSQL data events from the 'home-folder' folder
 
-```terraform
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
-  folder_id   = "home-folder"
-  description = "Some trail description"
-
-  labels = {
-    key = "value"
-  }
-
-  service_account_id = "trail-service-account"
-
-  storage_destination {
-    bucket_name   = "some-bucket"
-    object_prefix = "some-prefix"
-  }
-
-  filtering_policy {
-    management_events_filter {
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
-    data_events_filter {
-      service = "mdb.postgresql"
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_3.tf" }}
 
 ## Argument Reference
 
@@ -158,23 +38,23 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 
 * `labels` - (Optional) Labels defined by the user.
 
-* `service_account_id` - (Required) ID of the [IAM service account](https://cloud.yandex.ru/en/docs/iam/concepts/users/service-accounts) that is used by the trail.
+* `service_account_id` - (Required) ID of the [IAM service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) that is used by the trail.
 
 * `storage_destination` - Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.
 
-  * `bucket_name` - (Required) Name of the [destination bucket](https://cloud.yandex.ru/en/docs/storage/concepts/bucket).
+  * `bucket_name` - (Required) Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
 
   * `object_prefix` - (Optional) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
 
 * `logging_destination` - Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.
 
-  * `log_group_id` - (Required) ID of the destination [Cloud Logging Group](https://cloud.yandex.ru/ru/docs/logging/concepts/log-group).
+  * `log_group_id` - (Required) ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
 
 * `data_stream_destination` - Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.
 
-  * `database_id` - (Required) ID of the [YDB](https://cloud.yandex.ru/ru/docs/ydb/concepts/resources) hosting the destination data stream.
+  * `database_id` - (Required) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 
-  * `stream_name` - (Required) Name of the [YDS stream](https://cloud.yandex.ru/ru/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+  * `stream_name` - (Required) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
 
 * `filter` - Structure describing event filtering process for the trail.
 
@@ -267,65 +147,19 @@ In order to migrate from unsing `filter` to the `filtering_policy`, you will hav
 
 Before
 
-```terraform
-event_filters {
-  path_filter {
-    some_filter {
-      resource_id   = "home-folder"
-      resource_type = "resource-manager.folder"
-      any_filters {
-        resource_id   = "vpc-net-id-1"
-        resource_type = "vpc.network"
-      }
-      any_filters {
-        resource_id   = "vpc-net-id-2"
-        resource_type = "vpc.network"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_4.tf" }}
 
 After
 
-```terraform
-data_events_filter {
-  service = "dns"
-  resource_scope {
-    resource_id   = "vpc-net-id-1"
-    resource_type = "vpc.network"
-  }
-  resource_scope {
-    resource_id   = "vpc-net-id-2"
-    resource_type = "vpc.network"
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_5.tf" }}
 
 * Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
 
 Before
 
-```terraform
-filter {
-  path_filter {
-    any_filter {
-      resource_id   = "home-folder"
-      resource_type = "resource-manager.folder"
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_6.tf" }}
 
 After
 
-```terraform
-filtering_policy {
-  management_events_filter {
-    resource_scope {
-      resource_id   = "home-folder"
-      resource_type = "resource-manager.folder"
-    }
-  }
-}
-```
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_7.tf" }}
+

@@ -1,25 +1,17 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_subnet"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC subnet.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_subnet
-
-
-
-
-Get information about a Yandex VPC subnet. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_subnet" "admin" {
-  subnet_id = "my-subnet-id"
-}
-```
+{{ tffile "examples/vpc_subnet/d_vpc_subnet_1.tf" }}
 
 This data source is used to define [VPC Subnets](https://cloud.yandex.com/docs/vpc/concepts/network#subnet) that can be used by other resources.
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `subnet_id` (Optional) - Subnet ID.
 * `name` - (Optional) - Name of the subnet.
 
-~> **NOTE:** One of `subnet_id` or `name` should be specified.
+~> One of `subnet_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
@@ -48,7 +40,7 @@ The following attributes are exported:
 * `dhcp_options` - Options for DHCP client. The structure is documented below.
 * `created_at` - Creation timestamp of this subnet.
 
-~> **Note:** `v6_cidr_blocks` attribute is currently not supported. It will be available in the future.
+~> `v6_cidr_blocks` attribute is currently not supported. It will be available in the future.
 
 ---
 

@@ -1,27 +1,19 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_gateway"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC gateway.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_gateway
-
-
-
-
-Get information about a Yandex VPC gateway. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC gateway. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_gateway" "default" {
-  gateway_id = "my-gateway-id"
-}
-```
+{{ tffile "examples/vpc_gateway/d_vpc_gateway_1.tf" }}
 
-This data source is used to define [VPC Gateways](https://cloud.yandex.com/docs/vpc/concepts/gateway) that can be used by other resources.
+This data source is used to define [VPC Gateways](https://yandex.cloud/docs/vpc/concepts/gateways) that can be used by other resources.
 
 ## Argument Reference
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `gateway_id` (Optional) - ID of the VPC Gateway.
 * `name` (Optional) - Name of the VPC Gateway.
 
-~> **NOTE:** One of `gateway_id` or `name` should be specified.
+~> One of `gateway_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

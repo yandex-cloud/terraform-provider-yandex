@@ -1,30 +1,17 @@
 ---
 subcategory: "Object Storage (S3)"
-page_title: "Yandex: yandex_storage_object"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a Yandex.Cloud Storage Object.
+  Allows management of a Yandex Cloud Storage Object.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_storage_object
-
-
-
-
-Allows management of [Yandex.Cloud Storage Object](https://cloud.yandex.com/docs/storage/concepts/object).
+Allows management of [Yandex Cloud Storage Object](https://cloud.yandex.com/docs/storage/concepts/object).
 
 ## Example usage
 
-```terraform
-resource "yandex_storage_object" "cute-cat-picture" {
-  bucket = "cat-pictures"
-  key    = "cute-cat"
-  source = "/images/cats/cute-cat.jpg"
-  tags = {
-    test = "value"
-  }
-}
-```
+{{ tffile "examples/storage_object/r_storage_object_1.tf" }}
 
 ## Argument Reference
 
@@ -50,9 +37,9 @@ The following arguments are supported:
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
 
-~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
+~> To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
 
-* `object_lock_legal_hold_status` - (Optional) Specifies a [legal hold status](https://cloud.yandex.com/en/docs/storage/concepts/object-lock#types) of an object. Requires `object_lock_configuration` to be enabled on a bucket.
+* `object_lock_legal_hold_status` - (Optional) Specifies a [legal hold status](https://yandex.cloud/docs/storage/concepts/object-lock#types) of an object. Requires `object_lock_configuration` to be enabled on a bucket.
 
 * `object_lock_mode` - (Optional) Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
 

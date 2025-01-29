@@ -1,31 +1,19 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_service_account_api_key"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a Yandex.Cloud IAM service account API key.
+  Allows management of a Yandex Cloud IAM service account API key.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_service_account_api_key
-
-
-
-
-Allows management of a [Yandex.Cloud IAM service account API key](https://cloud.yandex.com/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex.Cloud API. API keys are only used for [service accounts](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+Allows management of a [Yandex Cloud IAM service account API key](https://cloud.yandex.com/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex Cloud API. API keys are only used for [service accounts](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
 
 API keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token).
 
 ## Example usage
 
-```terraform
-resource "yandex_iam_service_account_api_key" "sa-api-key" {
-  service_account_id = "some_sa_id"
-  description        = "api key for authorization"
-  scope              = "yc.ydb.topics.manage"
-  expires_at         = "2024-11-11T00:00:00Z"
-  pgp_key            = "keybase:keybaseusername"
-}
-```
+{{ tffile "examples/iam_service_account_api_key/r_iam_service_account_api_key_1.tf" }}
 
 ## Argument Reference
 

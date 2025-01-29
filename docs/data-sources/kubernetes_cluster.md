@@ -1,30 +1,17 @@
 ---
 subcategory: "Managed Service for Kubernetes (MK8S)"
-page_title: "Yandex: yandex_kubernetes_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex Kubernetes Cluster. For more information, see
-  [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#kubernetes-cluster).
+  Get information about a Yandex Kubernetes Cluster.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_kubernetes_cluster
-
-
-
-
-Get information about a Yandex Kubernetes Cluster.
+Get information about a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#kubernetes-cluster).
 
 ## Example usage
 
-```terraform
-data "yandex_kubernetes_cluster" "my_cluster" {
-  cluster_id = "some_k8s_cluster_id"
-}
-
-output "cluster_external_v4_endpoint" {
-  value = data.yandex_kubernetes_cluster.my_cluster.master.0.external_v4_endpoint
-}
-```
+{{ tffile "examples/kubernetes_cluster/d_kubernetes_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +20,7 @@ The following arguments are supported:
 * `cluster_id` - (Optional) ID of a specific Kubernetes cluster.
 * `name` - (Optional) Name of a specific Kubernetes cluster.
 
-~> **NOTE:** One of `cluster_id` or `name` should be specified.
+~> One of `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

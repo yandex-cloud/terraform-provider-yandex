@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for MongoDB"
-page_title: "Yandex: yandex_mdb_mongodb_user"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed MongoDB User.
 ---
 
-# yandex_mdb_mongodb_user
-
-
-
+# {{.Name}}
 
 Get information about a Yandex Managed MongoDB user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_mongodb_user" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
-}
-
-output "permission" {
-  value = data.yandex_mdb_mongodb_user.foo.permission
-}
-```
+{{ tffile "examples/mdb_mongodb_user/d_mdb_mongodb_user_1.tf" }}
 
 ## Argument Reference
 

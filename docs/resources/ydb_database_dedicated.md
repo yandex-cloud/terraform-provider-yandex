@@ -1,49 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_database_dedicated"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Yandex Database dedicated cluster.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_ydb_database_dedicated
-
-
-
-
-Yandex Database (dedicated) resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
+Yandex Database (dedicated) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
 
 ## Example usage
 
-```terraform
-resource "yandex_ydb_database_dedicated" "database1" {
-  name      = "test-ydb-dedicated"
-  folder_id = data.yandex_resourcemanager_folder.test_folder.id
-
-  network_id = yandex_vpc_network.my-inst-group-network.id
-  subnet_ids = ["${yandex_vpc_subnet.my-inst-group-subnet.id}"]
-
-  resource_preset_id  = "medium"
-  deletion_protection = true
-
-  scale_policy {
-    fixed_scale {
-      size = 1
-    }
-  }
-
-  storage_config {
-    group_count     = 1
-    storage_type_id = "ssd"
-  }
-
-  location {
-    region {
-      id = "ru-central1"
-    }
-  }
-}
-```
+{{ tffile "examples/ydb_database_dedicated/r_ydb_database_dedicated_1.tf" }}
 
 ## Argument Reference
 
@@ -81,7 +49,7 @@ The `scale_policy` block supports:
 
 * `fixed_scale` - (Required) Fixed scaling policy for the Yandex Database cluster. The structure is documented below.
 
-~> **NOTE:** Currently, only `fixed_scale` is supported.
+~> Currently, only `fixed_scale` is supported.
 
 ---
 

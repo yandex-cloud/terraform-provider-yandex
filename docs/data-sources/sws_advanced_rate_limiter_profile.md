@@ -1,33 +1,22 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: yandex_sws_advanced_rate_limiter_profile"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about SmartWebSecurity ARL Profile.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_sws_advanced_rate_limiter_profile
+Get information about ARL Profile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#arl).
 
-
-
-
-Get information about ARL Profile. For more information, see [the official documentation](https://yandex.cloud/en/docs/smartwebsecurity/quickstart/quickstart-arl).
+This data source is used to define [ARL Profile](https://yandex.cloud/docs/smartwebsecurity/concepts/profiles) that can be used by other resources.
 
 ## Example usage
 
-```terraform
-data "yandex_sws_advanced_rate_limiter_profile" "by-id" {
-  advanced_rate_limiter_profile_id = yandex_sws_advanced_rate_limiter_profile.my-profile.id
-}
-```
+{{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_1.tf" }}
 
-```terraform
-data "yandex_sws_advanced_rate_limiter_profile" "by-name" {
-  name = yandex_sws_advanced_rate_limiter_profile.my-profile.name
-}
-```
+{{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_2.tf" }}
 
-This data source is used to define ARL Profile that can be used by other resources.
 
 ## Argument Reference
 
@@ -36,7 +25,7 @@ The following arguments are supported:
 * `name` - (Optional) Name of the ARL profile.
 * `advanced_rate_limiter_profile_id` - (Optional) ID of the ARL profile.
 
-~> **NOTE:** One of `advanced_rate_limiter_profile_id` or `name` should be specified.
+~> One of `advanced_rate_limiter_profile_id` or `name` should be specified.
 
 ## Attributes Reference
 
@@ -72,7 +61,7 @@ The `advanced_rate_limiter_rule` block supports:
 
 * `dynamic_quota` - Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups. The structure is documented below.
 
-~> **NOTE:** Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
+~> Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
 
 ---
 
@@ -110,7 +99,7 @@ The `characteristics` block supports:
 
 * `case_insensitive` - Determines case-sensitive or case-insensitive keys matching.
 
-~> **NOTE:** Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
+~> Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
 
 ---
 

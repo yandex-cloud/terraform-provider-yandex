@@ -1,25 +1,17 @@
 ---
 subcategory: "Monitoring"
-page_title: "Yandex: yandex_monitoring_dashboard"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Monitoring dashboard.
 ---
 
-
-# yandex_monitoring_dashboard
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Monitoring dashboard.
 
 ## Example usage
 
-```terraform
-data "yandex_monitoring_dashboard" "my_dashboard" {
-  dashboard_id = "some_instance_dashboard_id"
-}
-```
+{{ tffile "examples/monitoring_dashboard/d_monitoring_dashboard_1.tf" }}
 
 ## Argument Reference
 
@@ -29,7 +21,7 @@ The following arguments are supported:
 * `name` - (Optional) - Name of the Dashboard.
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
-~> **NOTE:** One of `dashboard_id` or `name` should be specified.
+~> One of `dashboard_id` or `name` should be specified.
 
 ## Attributes Reference
 

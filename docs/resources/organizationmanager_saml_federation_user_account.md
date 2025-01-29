@@ -1,28 +1,19 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_saml_federation_user_account"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single SAML Federation user account within an existing Yandex.Cloud Organization.
+  Allows management of a single SAML Federation user account within an existing Yandex Cloud Organization.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_organizationmanager_saml_federation_user_account
+Allows management of a single SAML Federation user account within an existing Yandex Cloud Organization.. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/operations/federations/integration-common).
 
-
-
-
-Allows management of a single SAML Federation user account within an existing Yandex.Cloud Organization.. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/operations/federations/integration-common).
-
-~> **Note:** If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
+~> If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
 
 ## Example usage
 
-```terraform
-resource "yandex_organizationmanager_saml_federation_user_account" "account" {
-  federation_id = "some_federation_id"
-  name_id       = "example@example.org"
-}
-```
+{{ tffile "examples/organizationmanager_saml_federation_user_account/r_organizationmanager_saml_federation_user_account_1.tf" }}
 
 ## Argument Reference
 

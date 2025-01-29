@@ -1,30 +1,17 @@
 ---
 subcategory: "Managed Service for PostgreSQL"
-page_title: "Yandex: yandex_mdb_postgresql_user"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed PostgreSQL user.
 ---
 
-
-# yandex_mdb_postgresql_user
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Managed PostgreSQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_postgresql_user" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
-}
-
-output "permission" {
-  value = data.yandex_mdb_postgresql_user.foo.permission
-}
-```
+{{ tffile "examples/mdb_postgresql_user/d_mdb_postgresql_user_1.tf" }}
 
 ## Argument Reference
 

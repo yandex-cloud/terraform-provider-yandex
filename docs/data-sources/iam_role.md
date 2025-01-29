@@ -1,32 +1,18 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_role"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Generates an IAM role that can be referenced by other resources, applying
   the role to them.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_role
-
-
-
-
-Generates an [IAM](https://cloud.yandex.com/docs/iam/) role document that may be referenced by and applied to other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/roles).
+Generates an [IAM](https://cloud.yandex.com/docs/iam/) role document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/roles).
 
 ## Example usage
 
-```terraform
-data "yandex_iam_role" "admin" {
-  binding {
-    role = "admin"
-
-    members = [
-      "userAccount:user_id_1"
-    ]
-  }
-}
-```
+{{ tffile "examples/iam_role/d_iam_role_1.tf" }}
 
 This data source is used to define [IAM](https://cloud.yandex.com/docs/iam/) roles in order to apply them to other resources. Currently, defining a role through a data source and referencing that role from another resource is the only way to apply an IAM role to a resource.
 

@@ -1,22 +1,18 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_disk"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Persistent disks are durable storage devices that function similarly to
   the physical disks in a desktop or a server.
 ---
 
-
-# yandex_compute_disk
-
-
-
+# {{.Name}} ({{.Type}})
 
 Persistent disks are used for data storage and function similarly to physical hard and solid state drives.
 
 A disk can be attached or detached from the virtual machine and can be located locally. A disk can be moved between virtual machines within the same availability zone. Each disk can be attached to only one virtual machine at a time.
 
-For more information about disks in Yandex.Cloud, see:
+For more information about disks in Yandex Cloud, see:
 
 * [Documentation](https://cloud.yandex.com/docs/compute/concepts/disk)
 * How-to Guides
@@ -25,35 +21,9 @@ For more information about disks in Yandex.Cloud, see:
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_disk" "default" {
-  name     = "disk-name"
-  type     = "network-ssd"
-  zone     = "ru-central1-a"
-  image_id = "ubuntu-16.04-v20180727"
+{{ tffile "examples/compute_disk/r_compute_disk_1.tf" }}
 
-  labels = {
-    environment = "test"
-  }
-}
-```
-
-```terraform
-resource "yandex_compute_disk" "nr" {
-  name = "non-replicated-disk-name"
-  size = 93 // NB size must be divisible by 93  
-  type = "network-ssd-nonreplicated"
-  zone = "ru-central1-b"
-
-  disk_placement_policy {
-    disk_placement_group_id = yandex_compute_disk_placement_group.this.id
-  }
-}
-
-resource "yandex_compute_disk_placement_group" "this" {
-  zone = "ru-central1-b"
-}
-```
+{{ tffile "examples/compute_disk/r_compute_disk_2.tf" }}
 
 ## Argument Reference
 
@@ -98,7 +68,7 @@ The `hardware_generation` consists of one of the following blocks:
   * `pci_topology` - A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
 * `generation2_features` - A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
 
-~> **NOTE:** Only one of `image_id` or `snapshot_id` can be specified.
+~> Only one of `image_id` or `snapshot_id` can be specified.
 
 ## Attributes Reference
 

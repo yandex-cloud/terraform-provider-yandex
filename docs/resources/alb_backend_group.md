@@ -1,52 +1,17 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: yandex_alb_backend_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   An application load balancer distributes the load across cloud resources that are combined into a backend group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-Creates a backend group in the specified folder and adds the specified backends to it. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/application-load-balancer/concepts/backend-group).
-
-# yandex_alb_backend_group
-
-
-
+Creates a backend group in the specified folder and adds the specified backends to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group).
 
 ## Example usage
 
-```terraform
-resource "yandex_alb_backend_group" "test-backend-group" {
-  name = "my-backend-group"
-
-  session_affinity {
-    connection {
-      source_ip = "127.0.0.1"
-    }
-  }
-
-  http_backend {
-    name             = "test-http-backend"
-    weight           = 1
-    port             = 8080
-    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
-    tls {
-      sni = "backend-domain.internal"
-    }
-    load_balancing_config {
-      panic_threshold = 50
-    }
-    healthcheck {
-      timeout  = "1s"
-      interval = "1s"
-      http_healthcheck {
-        path = "/"
-      }
-    }
-    http2 = "true"
-  }
-}
-```
+{{ tffile "examples/alb_backend_group/r_alb_backend_group_1.tf" }}
 
 ## Argument Reference
 
@@ -61,7 +26,7 @@ The following arguments are supported:
 * `grpc_backend` - (Optional) Grpc backend specification that will be used by the ALB Backend Group. Structure is documented below.
 * `stream_backend` - (Optional) Stream backend specification that will be used by the ALB Backend Group. Structure is documented below.
 
-~> **NOTE:** Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
+~> Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
 
 The `session_affinity` block supports:
 
@@ -69,7 +34,7 @@ The `session_affinity` block supports:
 * `cookie` - (Optional) Requests with the same cookie value and the specified file name are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
 * `header` - (Optional) Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
 
-~> **NOTE:** Only one type( `connection` or `cookie` or `header` ) of session affinity should be specified.
+~> Only one type( `connection` or `cookie` or `header` ) of session affinity should be specified.
 
 The `connection` block supports:
 
@@ -96,7 +61,7 @@ The `http_backend` block supports:
 * `tls` - (Optional) Tls specification that will be used by this backend. Structure is documented below.
 * `storage_bucket` - (Required) Name of bucket which should be used as a backend.
 
-~> **NOTE:** Only one of `target_group_ids` or `storage_bucket` should be specified.
+~> Only one of `target_group_ids` or `storage_bucket` should be specified.
 
 The `stream_backend` block supports:
 
@@ -125,7 +90,7 @@ The `tls` block supports:
 * `validation_context.0.trusted_ca_id` - (Optional) Trusted CA certificate ID in the Certificate Manager.
 * `validation_context.0.trusted_ca_bytes` - (Optional) PEM-encoded trusted CA certificate chain.
 
-~> **NOTE:** Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
 
 The `load_balancing_config` block supports:
 
@@ -146,7 +111,7 @@ The `healthcheck` block supports:
 * `http_healthcheck` - (Optional) Http Healthcheck specification that will be used by this healthcheck. Structure is documented below.
 * `grpc_healthcheck` - (Optional) Grpc Healthcheck specification that will be used by this healthcheck. Structure is documented below.
 
-~> **NOTE:** Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
 
 The `stream_healthcheck` block supports:
 

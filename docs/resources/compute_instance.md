@@ -1,54 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_instance"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages a VM instance resource.
 ---
 
-
-# yandex_compute_instance
-
-
-
+# {{.Name}} ({{.Type}})
 
 A VM instance resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_instance" "default" {
-  name        = "test"
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
-
-  resources {
-    cores  = 2
-    memory = 4
-  }
-
-  boot_disk {
-    disk_id = yandex_compute_disk.boot-disk.id
-  }
-
-  network_interface {
-    index     = 1
-    subnet_id = yandex_vpc_subnet.foo.id
-  }
-
-  metadata = {
-    foo      = "bar"
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
-  }
-}
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
-}
-```
+{{ tffile "examples/compute_instance/r_compute_instance_1.tf" }}
 
 ## Argument Reference
 
@@ -128,7 +91,7 @@ The `boot_disk` block supports:
 
 * `kms_key_id` - (Optional) ID of KMS symmetric key used to encrypt disk.
 
-~> **NOTE:** Either `initialize_params` or `disk_id` must be specified.
+~> Either `initialize_params` or `disk_id` must be specified.
 
 The `initialize_params` block supports:
 
@@ -146,7 +109,7 @@ The `initialize_params` block supports:
 
 * `snapshot_id` - (Optional) A snapshot to initialize this disk from.
 
-~> **NOTE:** Either `image_id` or `snapshot_id` must be specified.
+~> Either `image_id` or `snapshot_id` must be specified.
 
 The `network_interface` block supports:
 
@@ -224,7 +187,7 @@ The `placement_policy` block supports:
 
 * `host_affinity_rules` - (Optional) List of host affinity rules. The structure is documented below.
 
-~> **NOTE:** Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:
+~> Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:
 
 ```
 placement_policy {
@@ -245,7 +208,7 @@ The `local_disk` block supports:
 
 * `size_bytes` - (Required) Size of the disk, specified in bytes.
 
-~> **NOTE:** Local disks are not available for all users by default.
+~> Local disks are not available for all users by default.
 
 The `filesystem` block supports:
 

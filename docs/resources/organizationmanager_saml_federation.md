@@ -1,30 +1,17 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_saml_federation"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single SAML Federation within an existing Yandex.Cloud Organization.
+  Allows management of a single SAML Federation within an existing Yandex Cloud Organization.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_organizationmanager_saml_federation
-
-
-
-
-Allows management of a single SAML Federation within an existing Yandex.Cloud Organization.
+Allows management of a single SAML Federation within an existing Yandex Cloud Organization.
 
 ## Example usage
 
-```terraform
-resource "yandex_organizationmanager_saml_federation" "federation" {
-  name            = "my-federation"
-  description     = "My new SAML federation"
-  organization_id = "sdf4*********3fr"
-  sso_url         = "https://my-sso.url"
-  issuer          = "my-issuer"
-  sso_binding     = "POST"
-}
-```
+{{ tffile "examples/organizationmanager_saml_federation/r_organizationmanager_saml_federation_1.tf" }}
 
 ## Argument Reference
 

@@ -1,45 +1,17 @@
 ---
 subcategory: "Network Load Balancer (NLB)"
-page_title: "Yandex: yandex_lb_network_load_balancer"
+page_title: "Yandex: {{.Name}}"
 description: |-
   A network load balancer is used to evenly distribute the load across cloud resources.
 ---
 
+# {{.Name}} ({{.Type}})
 
 Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts).
 
-# yandex_lb_network_load_balancer
-
-
-
-
 ## Example usage
 
-```terraform
-resource "yandex_lb_network_load_balancer" "foo" {
-  name = "my-network-load-balancer"
-
-  listener {
-    name = "my-listener"
-    port = 8080
-    external_address_spec {
-      ip_version = "ipv4"
-    }
-  }
-
-  attached_target_group {
-    target_group_id = yandex_lb_target_group.my-target-group.id
-
-    healthcheck {
-      name = "http"
-      http_options {
-        port = 8080
-        path = "/ping"
-      }
-    }
-  }
-}
-```
+{{ tffile "examples/lb_network_load_balancer/r_lb_network_load_balancer_1.tf" }}
 
 ## Argument Reference
 
@@ -89,7 +61,7 @@ The `healthcheck` block supports:
 
 * `tcp_options` - (Optional) Options for TCP health check. The structure is documented below.
 
-~> **NOTE:** One of `http_options` or `tcp_options` should be specified.
+~> One of `http_options` or `tcp_options` should be specified.
 
 ---
 
@@ -121,7 +93,7 @@ The `listener` block supports:
 
 * `internal_address_spec` - (Optional) Internal IP address specification. The structure is documented below.
 
-~> **NOTE:** One of `external_address_spec` or `internal_address_spec` should be specified.
+~> One of `external_address_spec` or `internal_address_spec` should be specified.
 
 ---
 

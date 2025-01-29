@@ -1,30 +1,17 @@
 ---
 subcategory: "Managed Service for MongoDB"
-page_title: "Yandex: yandex_mdb_mongodb_database"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed MongoDB database.
 ---
 
-
-# yandex_mdb_mongodb_database
-
-
-
+# {{.Name}}
 
 Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_mongodb_database" "foo" {
-  cluster_id = "some_cluster_id"
-  name       = "test"
-}
-
-output "owner" {
-  value = data.yandex_mdb_mongodb_database.foo.name
-}
-```
+{{ tffile "examples/mdb_mongodb_database/d_mdb_mongodb_database_1.tf" }}
 
 ## Argument Reference
 

@@ -1,25 +1,17 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_private_endpoint"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex VPC Private Endpoint.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_private_endpoint
-
-
-
-
-Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ## Example usage
 
-```terraform
-data "yandex_vpc_private_endpoint" "pe" {
-  private_endpoint_id = "my-private-endpoint-id"
-}
-```
+{{ tffile "examples/vpc_private_endpoint/d_vpc_private_endpoint_1.tf" }}
 
 This data source is used to define [VPC Private Endpoint](https://cloud.yandex.com/docs/vpc/concepts/private-endpoint) that can be used by other resources.
 
@@ -30,7 +22,7 @@ The following arguments are supported:
 * `private_endpoint_id` (Optional) - ID of the private endpoint.
 * `name` (Optional) - Name of the private endpoint.
 
-~> **NOTE:** One of `private_endpoint_id` or `name` should be specified.
+~> One of `private_endpoint_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

@@ -1,27 +1,19 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: yandex_iot_core_device"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud IoT Core Device.
+  Get information about a Yandex Cloud IoT Core Device.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iot_core_device
-
-
-
-
-Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
+Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_iot_core_device" "my_device" {
-  device_id = "are1sampleregistry11"
-}
-```
+{{ tffile "examples/iot_core_device/d_iot_core_device_1.tf" }}
 
-This data source is used to define [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` (Optional) - IoT Core Device name used to define device
 
-~> **NOTE:** Either `device_id` or `name` must be specified.
+~> Either `device_id` or `name` must be specified.
 
 ## Attributes Reference
 

@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for Redis"
-page_title: "Yandex: yandex_mdb_redis_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed Redis cluster.
 ---
 
-
-# yandex_mdb_redis_cluster
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Managed Redis cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_redis_cluster" "foo" {
-  name = "test"
-}
-
-output "network_id" {
-  value = data.yandex_mdb_redis_cluster.foo.network_id
-}
-```
+{{ tffile "examples/mdb_redis_cluster/d_mdb_redis_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -32,7 +20,7 @@ The following arguments are supported:
 * `cluster_id` - (Optional) The ID of the Redis cluster.
 * `name` - (Optional) The name of the Redis cluster.
 
-~> **NOTE:** Either `cluster_id` or `name` should be specified.
+~> Either `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

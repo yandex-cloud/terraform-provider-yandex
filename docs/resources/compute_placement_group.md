@@ -1,27 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_placement_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages a Placement group resource.
 ---
 
-
-# yandex_compute_placement_group
-
-
-
+# {{.Name}} ({{.Type}})
 
 A Placement group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_placement_group" "group1" {
-  name        = "test-pg"
-  folder_id   = "abc*********123"
-  description = "my description"
-}
-```
+{{ tffile "examples/compute_placement_group/r_compute_placement_group_1.tf" }}
 
 ## Argument Reference
 

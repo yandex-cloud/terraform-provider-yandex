@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for Elasticsearch"
-page_title: "Yandex: yandex_mdb_elasticsearch_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed Elasticsearch cluster.
 ---
 
-
-# yandex_mdb_elasticsearch_cluster
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_elasticsearch_cluster" "foo" {
-  name = "test"
-}
-
-output "network_id" {
-  value = data.yandex_mdb_elasticsearch_cluster.foo.network_id
-}
-```
+{{ tffile "examples/mdb_elasticsearch_cluster/d_mdb_elasticsearch_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the Elasticsearch cluster.
 
-~> **NOTE:** Either `cluster_id` or `name` should be specified.
+~> Either `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
 
@@ -57,7 +45,7 @@ The `config` block supports:
 
 * `version` - Version of Elasticsearch.
 
-* `edition` - Edition of Elasticsearch. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-elasticsearch/concepts/es-editions).
+* `edition` - Edition of Elasticsearch. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts/es-editions).
 
 * `plugins` - A set of requested Elasticsearch plugins.
 
@@ -75,14 +63,14 @@ The `master_node` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a Elasticsearch host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-elasticsearch/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a Elasticsearch host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a Elasticsearch host, in gigabytes.
 * `disk_type_id` - Type of the storage of Elasticsearch hosts.
 
 The `host` block supports:
 
 * `fqdn` - The fully qualified domain name of the host.
-* `type` - The type of the host to be deployed. For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-elasticsearch/concepts/hosts-roles).
+* `type` - The type of the host to be deployed. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts/hosts-roles).
 * `zone` - The availability zone where the Elasticsearch host will be created.
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation.

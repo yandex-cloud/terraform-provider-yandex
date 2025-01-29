@@ -1,28 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_database_serverless"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Yandex Database serverless cluster.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_ydb_database_serverless
-
-
-
-
-Yandex Database (serverless) resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
+Yandex Database (serverless) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
 
 ## Example usage
 
-```terraform
-resource "yandex_ydb_database_serverless" "database1" {
-  name      = "test-ydb-serverless"
-  folder_id = data.yandex_resourcemanager_folder.test_folder.id
-
-  deletion_protection = true
-}
-```
+{{ tffile "examples/ydb_database_serverless/r_ydb_database_serverless_1.tf" }}
 
 ## Argument Reference
 

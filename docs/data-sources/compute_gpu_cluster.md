@@ -1,32 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_gpu_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Compute GPU cluster.
 ---
 
-
-# yandex_compute_gpu_cluster
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Compute GPU cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/gpu-cluster).
 
 ## Example usage
 
-```terraform
-data "yandex_compute_gpu_cluster" "my_gpu_cluster" {
-  gpu_cluster_id = "some_gpu_cluster_id"
-}
-
-resource "yandex_compute_instance" "default" {
-  ...
-
-  gpu_cluster_id = data.yandex_compute_gpu_cluster.my_gpu_cluster.id
-
-}
-```
+{{ tffile "examples/compute_gpu_cluster/d_compute_gpu_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -36,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) Name of the GPU cluster.
 
-~> **NOTE:** One of `gpu_cluster_id` or `name` should be specified.
+~> One of `gpu_cluster_id` or `name` should be specified.
 
 ## Attributes Reference
 

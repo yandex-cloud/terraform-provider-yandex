@@ -1,29 +1,17 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_service_agent"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud Service Agent.
+  Get information about a Yandex Cloud Service Agent.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_service_agent
-
-
+Get information about a Yandex Cloud Service Agent.
 
 ## Example usage
 
-
-```terraform
-data "yandex_iam_service_agent" "my_service_agent" {
-  cloud_id        = "some_cloud_id"
-  sevice_id       = "som_service_id"
-  microservice_id = "some_microservice_id"
-}
-
-output "my_service_agent_id" {
-  value = "data.yandex_iam_service_agent.my_service_agent.id"
-}
-```
+{{ tffile "examples/iam_service_agent/d_iam_service_agent_1.tf" }}
 
 ## Argument Reference
 

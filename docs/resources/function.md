@@ -1,114 +1,21 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: yandex_function"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a Yandex Cloud Function.
 ---
 
-
-# yandex_function
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows management of [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/)
 
 ## Example usage
 
-```terraform
-resource "yandex_function" "test-function" {
-  name               = "some_name"
-  description        = "any description"
-  user_hash          = "any_user_defined_string"
-  runtime            = "python37"
-  entrypoint         = "main"
-  memory             = "128"
-  execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
-  tags               = ["my_tag"]
-  secrets {
-    id                   = yandex_lockbox_secret.secret.id
-    version_id           = yandex_lockbox_secret_version.secret_version.id
-    key                  = "secret-key"
-    environment_variable = "ENV_VARIABLE"
-  }
-  content {
-    zip_filename = "function.zip"
-  }
-  mounts {
-    name = "mnt"
-    ephemeral_disk {
-      size_gb = 32
-    }
-  }
-  async_invocation {
-    retries_count       = "3"
-    services_account_id = "ajeihp9qsfg2l6f838kk"
-    ymq_failure_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:fail"
-    }
-    ymq_success_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:success"
-    }
-  }
-  log_options {
-    log_group_id = "e2392vo6d1bne2aeq9fr"
-    min_level    = "ERROR"
-  }
-}
-```
+{{ tffile "examples/function/r_function_1.tf" }}
 
 ### Function with Mounted Object Storage Bucket
 
-```terraform
-locals {
-  folder_id = "folder_id"
-}
-
-resource "yandex_function" "test-function" {
-  name               = "some_name"
-  user_hash          = "v1"
-  runtime            = "python37"
-  entrypoint         = "index.handler"
-  memory             = "128"
-  execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
-  content {
-    zip_filename = "function.zip"
-  }
-  mounts {
-    name = "mnt"
-    mode = "ro"
-    object_storage {
-      bucket = yandex_storage_bucket.my-bucket.bucket
-    }
-  }
-}
-
-resource "yandex_iam_service_account" "sa" {
-  folder_id = local.folder_id
-  name      = "test-sa"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
-  folder_id = local.folder_id
-  role      = "storage.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = yandex_iam_service_account.sa.id
-  description        = "static access key for object storage"
-}
-
-resource "yandex_storage_bucket" "my-bucket" {
-  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
-  bucket     = "bucket"
-}
-```
+{{ tffile "examples/function/r_function_2.tf" }}
 
 ## Argument Reference
 

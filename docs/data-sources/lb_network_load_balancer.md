@@ -1,25 +1,17 @@
 ---
 subcategory: "Network Load Balancer (NLB)"
-page_title: "Yandex: yandex_lb_network_load_balancer"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Load Balancer network load balancer.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_lb_network_load_balancer
-
-
-
-
-Get information about a Yandex Load Balancer network load balancer. For more information, see [Yandex.Cloud Network Load Balancer](https://cloud.yandex.com/docs/load-balancer/concepts/).
+Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/).
 
 ## Example usage
 
-```terraform
-data "yandex_lb_network_load_balancer" "foo" {
-  network_load_balancer_id = "my-network-load-balancer"
-}
-```
+{{ tffile "examples/lb_network_load_balancer/d_lb_network_load_balancer_1.tf" }}
 
 This data source is used to define [Load Balancer Network Load Balancers](https://cloud.yandex.com/docs/load-balancer/concepts/) that can be used by other resources.
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` - (Optional) - Name of the network load balancer.
 
-~> **NOTE:** One of `network_load_balancer_id` or `name` should be specified.
+~> One of `network_load_balancer_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

@@ -1,26 +1,15 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_os_login_settings"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud OsLogin Settings.
+  Get information about a Yandex Cloud OsLogin Settings.
 ---
 
-
-# yandex_organizationmanager_os_login_settings
-
-
+# {{.Name}} ({{.Type}})
 
 ## Example usage
 
-```terraform
-data "yandex_organizationmanager_os_login_settings" "my_os_login_settings_settings" {
-  organization_id = "some_organization_id"
-}
-
-output "my_organization_ssh_certificates_enabled" {
-  value = "data.yandex_organizationmanager_os_login_settings.my_os_login_settings.ssh_certificate_settings.0.enabled"
-}
-```
+{{ tffile "examples/organizationmanager_os_login_settings/d_organizationmanager_os_login_settings_1.tf" }}
 
 ## Argument Reference
 

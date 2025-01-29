@@ -1,25 +1,17 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_user"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex IAM user account.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_user
-
-
-
-
-Get information about a Yandex IAM user account. For more information about accounts, see [Yandex.Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
+Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
 
 ## Example usage
 
-```terraform
-data "yandex_iam_user" "admin" {
-  login = "my-yandex-login"
-}
-```
+{{ tffile "examples/iam_user/d_iam_user_1.tf" }}
 
 This data source is used to define [IAM User](https://cloud.yandex.com/docs/iam/concepts/#passport) that can be used by other resources.
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `user_id` (Optional) - User ID used to manage IAM access bindings.
 
-~> **NOTE:** Either `login` or `user_id` must be specified.
+~> Either `login` or `user_id` must be specified.
 
 ## Attributes Reference
 

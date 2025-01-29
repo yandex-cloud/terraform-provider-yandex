@@ -1,104 +1,23 @@
 ---
 subcategory: "Cloud Backup"
-page_title: "Yandex: yandex_backup_policy"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of Yandex.Cloud Backup Policy.
+  Allows management of Yandex Cloud Backup Policy.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_backup_policy
+Allows management of [Yandex Cloud Backup Policy](https://yandex.cloud/docs/backup/concepts/policy).
 
-
-
-
-Allows management of [Yandex.Cloud Backup Policy](https://cloud.yandex.ru/docs/backup/concepts/policy).
-
-> **NOTE:\_** Cloud Backup Provider must be activated in order to manipulate with policies. Active it either by UI Console or by `yc` command.
+~> Cloud Backup Provider must be activated in order to manipulate with policies. Active it either by UI Console or by `yc` command.
 
 ## Example usage
 
-```terraform
-resource "yandex_backup_policy" "basic_policy" {
-  name = "basic policy"
-
-  scheduling {
-    enabled = false
-    backup_sets {
-      execute_by_interval = 86400
-    }
-  }
-
-  retention {
-    after_backup = false
-  }
-
-  reattempts {}
-
-  vm_snapshot_reattempts {}
-}
-```
+{{ tffile "examples/backup_policy/r_backup_policy_1.tf" }}
 
 For the full policy attributes, take a look at the following example:
 
-```terraform
-resource "yandex_backup_policy" "my_policy" {
-  archive_name                      = "[Machine Name]-[Plan ID]-[Unique ID]a"
-  cbt                               = "USE_IF_ENABLED"
-  compression                       = "NORMAL"
-  fast_backup_enabled               = true
-  format                            = "AUTO"
-  multi_volume_snapshotting_enabled = true
-  name                              = "example_name"
-  performance_window_enabled        = true
-  preserve_file_security_settings   = true
-  quiesce_snapshotting_enabled      = true
-  silent_mode_enabled               = true
-  splitting_bytes                   = "9223372036854775807"
-  vss_provider                      = "NATIVE"
-
-  reattempts {
-    enabled      = true
-    interval     = "1m"
-    max_attempts = 10
-  }
-
-  retention {
-    after_backup = false
-
-    rules {
-      max_age       = "365d"
-      repeat_period = []
-    }
-  }
-
-  scheduling {
-    enabled              = false
-    max_parallel_backups = 0
-    random_max_delay     = "30m"
-    scheme               = "ALWAYS_INCREMENTAL"
-    weekly_backup_day    = "MONDAY"
-
-
-    backup_sets {
-      execute_by_time {
-        include_last_day_of_month = true
-        monthdays                 = []
-        months                    = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        repeat_at                 = ["04:10"]
-        repeat_every              = "30m"
-        type                      = "MONTHLY"
-        weekdays                  = []
-      }
-    }
-  }
-
-  vm_snapshot_reattempts {
-    enabled      = true
-    interval     = "1m"
-    max_attempts = 10
-  }
-}
-```
+{{ tffile "examples/backup_policy/r_backup_policy_2.tf" }}
 
 ## Argument Reference
 

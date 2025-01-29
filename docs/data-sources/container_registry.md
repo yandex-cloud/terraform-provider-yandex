@@ -1,25 +1,17 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: yandex_container_registry"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Container Registry.
 ---
 
-
-# yandex_container_registry
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Container Registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
 
 ## Example usage
 
-```terraform
-data "yandex_container_registry" "source" {
-  registry_id = "some_registry_id"
-}
-```
+{{ tffile "examples/container_registry/d_container_registry_1.tf" }}
 
 ## Argument Reference
 

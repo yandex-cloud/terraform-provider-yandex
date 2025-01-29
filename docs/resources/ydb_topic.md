@@ -1,41 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_topic"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex YDB Topics.
+  Manage a YDB Topic.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_ydb_topic
-
-
-
-
-Get information about a Yandex YDB Topics. For more information, see [the official documentation](https://cloud.yandex.ru/docs/ydb/concepts/#ydb).
+Manage a YDB Topic. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/#ydb).
 
 ## Example usage
 
-```terraform
-resource "yandex_ydb_database_serverless" "database_name" {
-  name        = "database-name"
-  location_id = "ru-central1"
-}
-
-
-resource "yandex_ydb_topic" "topic" {
-  database_endpoint = yandex_ydb_database_serverless.database_name.ydb_full_endpoint
-  name              = "topic-test"
-
-  supported_codecs    = ["raw", "gzip"]
-  partitions_count    = 1
-  retention_period_ms = 2000000
-  consumer {
-    name                          = "consumer-name"
-    supported_codecs              = ["raw", "gzip"]
-    starting_message_timestamp_ms = 0
-  }
-}
-```
+{{ tffile "examples/ydb_topic/r_ydb_topic_1.tf" }}
 
 ## Attributes Reference
 

@@ -1,29 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_instance_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Compute Instance Group.
 ---
 
-
-# yandex_compute_instance_group
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Compute instance group.
 
 ## Example usage
 
-```terraform
-data "yandex_compute_instance_group" "my_group" {
-  instance_group_id = "some_instance_group_id"
-}
-
-output "instance_external_ip" {
-  value = data.yandex_compute_instance_group.my_group.instances.*.network_interface.0.nat_ip_address
-}
-```
+{{ tffile "examples/compute_instance_group/d_compute_instance_group_1.tf" }}
 
 ## Argument Reference
 

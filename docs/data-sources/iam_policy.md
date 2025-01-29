@@ -1,39 +1,17 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: yandex_iam_policy"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Generates an IAM policy that can be referenced by other resources and applied to them.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iam_policy
-
-
-
-
-Generates an [IAM](https://cloud.yandex.com/docs/iam/) policy document that may be referenced by and applied to other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.
+Generates an [IAM](https://cloud.yandex.com/docs/iam/) policy document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.
 
 ## Example usage
 
-```terraform
-data "yandex_iam_policy" "admin" {
-  binding {
-    role = "admin"
-
-    members = [
-      "userAccount:user_id_1"
-    ]
-  }
-
-  binding {
-    role = "viewer"
-
-    members = [
-      "userAccount:user_id_2"
-    ]
-  }
-}
-```
+{{ tffile "examples/iam_policy/d_iam_policy_1.tf" }}
 
 This data source is used to define [IAM](https://cloud.yandex.com/docs/iam/) policies to apply to other resources. Currently, defining a policy through a data source and referencing that policy from another resource is the only way to apply an IAM policy to a resource.
 

@@ -1,44 +1,25 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: yandex_cm_certificate_iam_member"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single member for a single IAM binding for a [Certificate](https://cloud.yandex.com/en/docs/certificate-manager/).
+  Allows management of a single member for a single IAM binding for a [Certificate](https://yandex.cloud/docs/certificate-manager/).
 ---
 
-
-# yandex_cm_certificate_iam_member
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Certificate.
 
-~> **Note:** Roles controlled by `yandex_cm_certificate_iam_binding` should not be assigned using `yandex_cm_certificate_iam_member`.
+~> Roles controlled by `yandex_cm_certificate_iam_binding` should not be assigned using `yandex_cm_certificate_iam_member`.
 
 ## Example usage
 
-```terraform
-resource "yandex_cm_certificate" "your-certificate" {
-  name = "certificate-name"
-  domains = ["example.com"]
-  managed {
-    challenge_type = "DNS_CNAME"
-  }
-}
-
-resource "yandex_cm_certificate_iam_member" "viewer" {
-  certificate_id = yandex_cm_certificate.your-certificate.id
-  role      = "viewer"
-
-  member = "userAccount:foo_user_id"
-}
-```
+{{ tffile "examples/cm_certificate_iam_member/r_cm_certificate_iam_member_1.tf" }}
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `certificate_id` - (Required) The [Certificate](https://cloud.yandex.com/en/docs/certificate-manager/) ID to apply a binding to.
+* `certificate_id` - (Required) The [Certificate](https://yandex.cloud/docs/certificate-manager/) ID to apply a binding to.
 
 * `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/certificate-manager/security/).
 
@@ -57,5 +38,5 @@ The following arguments are supported:
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `certificate_id`, role, and account, e.g.
 
 ```
-$ terraform import yandex_cm_certificate_iam_member.viewer "certificate_id viewer foo@example.com"
+$ terraform import {{.Name}}.viewer "certificate_id viewer foo@example.com"
 ```

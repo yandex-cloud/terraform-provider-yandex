@@ -1,26 +1,17 @@
 ---
 subcategory: "Cloud Logging"
-page_title: "Yandex: yandex_logging_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Yandex Cloud Logging group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_logging_group
-
-
-
-
-Yandex Cloud Logging group resource. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/logging/concepts/log-group).
+Yandex Cloud Logging group resource. For more information, see [the official documentation](https://yandex.cloud/docs/logging/concepts/log-group).
 
 ## Example usage
 
-```terraform
-resource "yandex_logging_group" "group1" {
-  name      = "test-logging-group"
-  folder_id = data.yandex_resourcemanager_folder.test_folder.id
-}
-```
+{{ tffile "examples/logging_group/r_logging_group_1.tf" }}
 
 ## Argument Reference
 

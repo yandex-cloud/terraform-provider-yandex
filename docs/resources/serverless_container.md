@@ -1,115 +1,25 @@
 ---
 subcategory: "Serverless Containers"
-page_title: "Yandex: yandex_serverless_container"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a Yandex Cloud Serverless Container.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_serverless_container
-
-
-
-
-Allows management of Yandex Cloud Serverless Containers
+Allows management of Yandex Cloud Serverless Containers.
 
 ## Example usage
 
-```terraform
-resource "yandex_serverless_container" "test-container" {
-  name               = "some_name"
-  description        = "any description"
-  memory             = 256
-  execution_timeout  = "15s"
-  cores              = 1
-  core_fraction      = 100
-  service_account_id = "are1service2account3id"
-  runtime {
-    type = "task"
-  }
-  secrets {
-    id                   = yandex_lockbox_secret.secret.id
-    version_id           = yandex_lockbox_secret_version.secret_version.id
-    key                  = "secret-key"
-    environment_variable = "ENV_VARIABLE"
-  }
-  mounts {
-    mount_point_path = "/mount/point"
-    ephemeral_disk {
-      size_gb = 5
-    }
-  }
-  image {
-    url = "cr.yandex/yc/test-image:v1"
-  }
-  log_options {
-    log_group_id = "e2392vo6d1bne2aeq9fr"
-    min_level    = "ERROR"
-  }
-  provision_policy {
-    min_instances = 1
-  }
-}
-```
+{{ tffile "examples/serverless_container/r_serverless_container_1.tf" }}
 
 ### Serverless Container with Image Digest
 
-```terraform
-resource "yandex_serverless_container" "test-container-with-digest" {
-  name   = "some_name"
-  memory = 128
-  image {
-    url    = "cr.yandex/yc/test-image:v1"
-    digest = "sha256:e1d772fa8795adac847a2420c87d0d2e3d38fb02f168cab8c0b5fe2fb95c47f4"
-  }
-}
-```
+{{ tffile "examples/serverless_container/r_serverless_container_2.tf" }}
 
 ### Serverless Container with Mounted Object Storage Bucket
 
-```terraform
-locals {
-  folder_id = "folder_id"
-}
-
-resource "yandex_serverless_container" "test-container-object-storage-mount" {
-  name               = "some_name"
-  memory             = 128
-  service_account_id = yandex_iam_service_account.sa.id
-  image {
-    url = "cr.yandex/yc/test-image:v1"
-  }
-  mounts {
-    mount_point_path = "/mount/point"
-    mode             = "ro"
-    object_storage {
-      bucket = yandex_storage_bucket.my-bucket.bucket
-    }
-  }
-}
-
-resource "yandex_iam_service_account" "sa" {
-  folder_id = local.folder_id
-  name      = "test-sa"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
-  folder_id = local.folder_id
-  role      = "storage.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = yandex_iam_service_account.sa.id
-  description        = "static access key for object storage"
-}
-
-resource "yandex_storage_bucket" "my-bucket" {
-  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
-  bucket     = "bucket"
-}
-```
+{{ tffile "examples/serverless_container/r_serverless_container_3.tf" }}
 
 ## Argument Reference
 

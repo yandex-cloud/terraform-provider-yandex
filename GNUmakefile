@@ -80,10 +80,7 @@ changie-lint:
 install-yfm:
 	npm i @diplodoc/cli -g
 
-generate-docs-templates:
-	go run tools/cmd/generate-templates/generate_templates.go ./templates
-
-generate-docs: generate-docs-templates
+generate-docs:
 	go run tools/cmd/generate-docs/generate_docs.go ./templates ./docs
 
 affected-lint-provider-docs:

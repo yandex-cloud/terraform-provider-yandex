@@ -1,25 +1,17 @@
 ---
 subcategory: "Network Load Balancer (NLB)"
-page_title: "Yandex: yandex_lb_target_group"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Load Balancer target group.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_lb_target_group
-
-
-
-
-Get information about a Yandex Load Balancer target group. For more information, see [Yandex.Cloud Load Balancer](https://cloud.yandex.com/docs/load-balancer/quickstart).
+Get information about a Yandex Load Balancer target group. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_lb_target_group" "foo" {
-  target_group_id = "my-target-group-id"
-}
-```
+{{ tffile "examples/lb_target_group/d_lb_target_group_1.tf" }}
 
 This data source is used to define [Load Balancer Target Groups](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources) that can be used by other resources.
 
@@ -31,7 +23,7 @@ The following arguments are supported:
 
 * `name` - (Optional) - Name of the Target Group.
 
-~> **NOTE:** One of `target_group_id` or `name` should be specified.
+~> One of `target_group_id` or `name` should be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 

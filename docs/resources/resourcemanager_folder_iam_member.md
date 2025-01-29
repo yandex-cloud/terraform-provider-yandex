@@ -1,34 +1,19 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: yandex_resourcemanager_folder_iam_member"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single member for a single IAM binding for a Yandex Resource Manager folder.
 ---
 
-
-# yandex_resourcemanager_folder_iam_member
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Resource Manager folder.
 
-~> **Note:** This resource *must not* be used in conjunction with `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy should be. Similarly, roles controlled by `yandex_resourcemanager_folder_iam_binding` should not be assigned using `yandex_resourcemanager_folder_iam_member`.
+~> This resource *must not* be used in conjunction with `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy should be. Similarly, roles controlled by `yandex_resourcemanager_folder_iam_binding` should not be assigned using `yandex_resourcemanager_folder_iam_member`.
 
 ## Example usage
 
-```terraform
-data "yandex_resourcemanager_folder" "department1" {
-  folder_id = "some_folder_id"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "admin" {
-  folder_id = data.yandex_resourcemanager.department1.name
-
-  role   = "editor"
-  member = "userAccount:user_id"
-}
-```
+{{ tffile "examples/resourcemanager_folder_iam_member/r_resourcemanager_folder_iam_member_1.tf" }}
 
 ## Argument Reference
 

@@ -1,52 +1,17 @@
 ---
 subcategory: "Cloud Domain Name System (DNS)"
-page_title: "Yandex: yandex_dns_recordset"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Manages a DNS Recordset within Yandex.Cloud.
+  Manages a DNS Recordset within Yandex Cloud.
 ---
 
-
-# yandex_dns_recordset
-
-
-
+# {{.Name}} ({{.Type}})
 
 Manages a DNS Recordset.
 
 ## Example usage
 
-```terraform
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_dns_zone" "zone1" {
-  name        = "my_private_zone"
-  description = "desc"
-
-  labels = {
-    label1 = "label-1-value"
-  }
-
-  zone             = "example.com."
-  public           = false
-  private_networks = [yandex_vpc_network.foo.id]
-}
-
-resource "yandex_dns_recordset" "rs1" {
-  zone_id = yandex_dns_zone.zone1.id
-  name    = "srv.example.com."
-  type    = "A"
-  ttl     = 200
-  data    = ["10.1.0.1"]
-}
-
-resource "yandex_dns_recordset" "rs2" {
-  zone_id = yandex_dns_zone.zone1.id
-  name    = "srv2"
-  type    = "A"
-  ttl     = 200
-  data    = ["10.1.0.2"]
-}
-```
+{{ tffile "examples/dns_recordset/r_dns_recordset_1.tf" }}
 
 ## Argument Reference
 

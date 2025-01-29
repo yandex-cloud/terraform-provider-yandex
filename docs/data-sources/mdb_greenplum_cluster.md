@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for Greenplum"
-page_title: "Yandex: yandex_mdb_greenplum_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed Greenplum cluster.
 ---
 
-
-# yandex_mdb_greenplum_cluster
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-greenplum/).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_greenplum_cluster" "foo" {
-  name = "test"
-}
-
-output "network_id" {
-  value = data.yandex_mdb_greenplum_cluster.foo.network_id
-}
-```
+{{ tffile "examples/mdb_greenplum_cluster/d_mdb_greenplum_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the Greenplum cluster.
 
-~> **NOTE:** Either `cluster_id` or `name` should be specified.
+~> Either `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
 

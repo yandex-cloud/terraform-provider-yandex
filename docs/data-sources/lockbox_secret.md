@@ -1,29 +1,17 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: yandex_lockbox_secret"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about Yandex Cloud Lockbox secret.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_lockbox_secret
-
-
-
-
-Get information about Yandex Cloud Lockbox secret. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
+Get information about Yandex Cloud Lockbox secret. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
 
 ## Example usage
 
-```terraform
-data "yandex_lockbox_secret" "my_secret" {
-  secret_id = "some ID"
-}
-
-output "my_secret_created_at" {
-  value = data.yandex_lockbox_secret.my_secret.created_at
-}
-```
+{{ tffile "examples/lockbox_secret/d_lockbox_secret_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 * `name` - (Optional) Name of the Lockbox secret.
 * `folder_id` - (Optional) Folder that the secret belongs to. If value is omitted, the default provider folder is used.
 
-~> **NOTE:** One of `secret_id` or `name` should be specified.
+~> One of `secret_id` or `name` should be specified.
 
 ## Attributes Reference
 

@@ -1,32 +1,17 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: yandex_function_trigger"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a Yandex Cloud Functions Trigger.
 ---
 
-
-# yandex_function_trigger
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows management of [Yandex Cloud Functions Trigger](https://cloud.yandex.com/docs/functions/)
 
 ## Example usage
 
-```terraform
-resource "yandex_function_trigger" "my_trigger" {
-  name        = "some_name"
-  description = "any description"
-  timer {
-    cron_expression = "* * * * ? *"
-  }
-  function {
-    id = "tf-test"
-  }
-}
-```
+{{ tffile "examples/function_trigger/r_function_trigger_1.tf" }}
 
 ## Argument Reference
 
@@ -37,19 +22,19 @@ The following arguments are supported:
 * `description` - Description of the Yandex Cloud Functions Trigger
 * `labels` - A set of key/value label pairs to assign to the Yandex Cloud Functions Trigger
 
-* `function` - [Yandex.Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
-* `function.0.id` - Yandex.Cloud Function ID for Yandex Cloud Functions Trigger
-* `function.0.service_account_id` - Service account ID for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.tag` - Tag for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.retry_attempts` - Retry attempts for Yandex.Cloud Function for Yandex Cloud Functions Trigger
-* `function.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Function for Yandex Cloud Functions Trigger
+* `function` - [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
+* `function.0.id` - Yandex Cloud Function ID for Yandex Cloud Functions Trigger
+* `function.0.service_account_id` - Service account ID for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.tag` - Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.retry_attempts` - Retry attempts for Yandex Cloud Function for Yandex Cloud Functions Trigger
+* `function.0.retry_interval` - Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger
 
-* `container` - [Yandex.Cloud Serverless Container](https://cloud.yandex.com/en-ru/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
-* `container.0.id` - Yandex.Cloud Serverless Container ID for Yandex Cloud Functions Trigger
-* `container.0.service_account_id` - Service account ID for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.path` - Path for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.retry_attempts` - Retry attempts for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
-* `container.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container` - [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
+* `container.0.id` - Yandex Cloud Serverless Container ID for Yandex Cloud Functions Trigger
+* `container.0.service_account_id` - Service account ID for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.path` - Path for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_attempts` - Retry attempts for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_interval` - Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger
 
 * `dlq` - Dead Letter Queue settings definition for Yandex Cloud Functions Trigger
 * `dlq.0.queue_id` - ID of Dead Letter Queue for Trigger (Queue ARN)
@@ -92,7 +77,7 @@ The following arguments are supported:
 * `logging.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `logging.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
-* `container_registry` - [Container Registry](https://cloud.yandex.com/en/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `container_registry` - [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `container_registry.0.registry_id` - Container Registry ID for Yandex Cloud Functions Trigger
 * `container_registry.0.image_name` - Image name filter setting for Yandex Cloud Functions Trigger
 * `container_registry.0.tag` - Image tag filter setting for Yandex Cloud Functions Trigger
@@ -103,14 +88,14 @@ The following arguments are supported:
 * `container_registry.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `container_registry.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
-* `data_streams` - [Data Streams](https://cloud.yandex.com/en/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `data_streams` - [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `data_streams.0.stream_name` - Stream name for Yandex Cloud Functions Trigger
 * `data_streams.0.database` - Stream database for Yandex Cloud Functions Trigger
 * `data_streams.0.service_account_id` - Service account ID to access data stream for Yandex Cloud Functions Trigger
 * `data_streams.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `data_streams.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
-* `mail` - [Mail](https://cloud.yandex.com/en/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `mail` - [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `mail.0.attachments_bucket_id` - Object Storage Bucket ID for Yandex Cloud Functions Trigger
 * `mail.0.service_account_id` - Service account ID to access object storage for Yandex Cloud Functions Trigger
 * `mail.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger

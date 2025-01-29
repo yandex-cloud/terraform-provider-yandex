@@ -1,39 +1,17 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_image"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Compute image.
 ---
 
-
-# yandex_compute_image
-
-
-
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Compute image. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
 
 ## Example usage
 
-```terraform
-data "yandex_compute_image" "my_image" {
-  family = "ubuntu-1804-lts"
-}
-
-resource "yandex_compute_instance" "default" {
-  ...
-
-  boot_disk {
-    initialize_params {
-      image_id = "${data.yandex_compute_image.my_image.id}"
-    }
-  }
-  ...
-  lifecycle {
-    ignore_changes = [boot_disk[0].initialize_params[0].image_id]
-  }
-}
-```
+{{ tffile "examples/compute_image/d_compute_image_1.tf" }}
 
 ## Argument Reference
 
@@ -45,11 +23,11 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the image.
 
-~> **NOTE:** Either `image_id`, `family` or `name` must be specified.
+~> Either `image_id`, `family` or `name` must be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
-~> **NOTE:** If you specify `family` without `folder_id` then lookup takes place in the 'standard-images' folder.
+~> If you specify `family` without `folder_id` then lookup takes place in the 'standard-images' folder.
 
 ## Attributes Reference
 

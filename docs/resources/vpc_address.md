@@ -1,46 +1,25 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: yandex_vpc_address"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Manages a VPC address within Yandex.Cloud.
+  Manages a VPC address within Yandex Cloud.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_vpc_address
-
-
-
-
-Manages a address within the Yandex.Cloud. You can only create a reserved (static) address via this resource. An ephemeral address could be obtained via implicit creation at a compute instance creation only. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/address).
+Manages a address within the Yandex Cloud. You can only create a reserved (static) address via this resource. An ephemeral address could be obtained via implicit creation at a compute instance creation only. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
-  * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
+  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)
 
 ## Example usage
 
-```terraform
-resource "yandex_vpc_address" "addr" {
-  name = "exampleAddress"
-
-  external_ipv4_address {
-    zone_id = "ru-central1-a"
-  }
-}
-```
+{{ tffile "examples/vpc_address/r_vpc_address_1.tf" }}
 
 ### Address with DDoS protection
 
-```terraform
-resource "yandex_vpc_address" "vpnaddr" {
-  name = "vpnaddr"
-
-  external_ipv4_address {
-    zone_id                  = "ru-central1-a"
-    ddos_protection_provider = "qrator"
-  }
-}
-```
+{{ tffile "examples/vpc_address/r_vpc_address_2.tf" }}
 
 ## Argument Reference
 
@@ -64,7 +43,7 @@ The `external_ipv4_address` block supports:
 * `ddos_protection_provider` - (Optional) Enable DDOS protection. Possible values are: "qrator"
 * `outgoing_smtp_capability` - (Optional) Wanted outgoing smtp capability.
 
-~> **NOTE:** Either one `address` or `zone_id` arguments can be specified. ~> **NOTE:** Either one `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified. ~> **NOTE:** Change any argument in `external_ipv4_address` will cause an address recreate
+~> Either one `address` or `zone_id` arguments can be specified. ~> Either one `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified. ~> Change any argument in `external_ipv4_address` will cause an address recreate
 
 ---
 

@@ -1,34 +1,17 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: yandex_lockbox_secret_version_hashed"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Yandex Cloud Lockbox secret version (with values hashed in state).
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_lockbox_secret_version_hashed
-
-
-
-
-Yandex Cloud Lockbox secret version resource (with values hashed in state). For more information, see [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
+Yandex Cloud Lockbox secret version resource (with values hashed in state). For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
 
 ## Example usage
 
-```terraform
-resource "yandex_lockbox_secret" "my_secret" {
-  name = "test secret"
-}
-
-resource "yandex_lockbox_secret_version_hashed" "my_version" {
-  secret_id    = yandex_lockbox_secret.my_secret.id
-  key_1        = "key1"
-  text_value_1 = "sensitive value 1" // in Terraform state, these values will be stored in hash format
-  key_2        = "k2"
-  text_value_2 = "sensitive value 2"
-  // etc. (up to 10 entries)
-}
-```
+{{ tffile "examples/lockbox_secret_version_hashed/r_lockbox_secret_version_hashed_1.tf" }}
 
 ## Argument Reference
 

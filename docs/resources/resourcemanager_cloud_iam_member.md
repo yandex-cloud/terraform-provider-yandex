@@ -1,35 +1,21 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: yandex_resourcemanager_cloud_iam_member"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single member for a single IAM binding on a Yandex Resource Manager cloud.
 ---
 
-
-# yandex_resourcemanager_cloud_iam_member
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Resource Manager cloud.
 
-~> **Note:** Roles controlled by `yandex_resourcemanager_cloud_iam_binding` should not be assigned using `yandex_resourcemanager_cloud_iam_member`.
+~> Roles controlled by `yandex_resourcemanager_cloud_iam_binding` should not be assigned using `yandex_resourcemanager_cloud_iam_member`.
 
-~> **Note:** When you delete `yandex_resourcemanager_cloud_iam_binding` resource, the roles can be deleted from other users within the cloud as well. Be careful!
+~> When you delete `yandex_resourcemanager_cloud_iam_binding` resource, the roles can be deleted from other users within the cloud as well. Be careful!
 
 ## Example usage
 
-```terraform
-data "yandex_resourcemanager_cloud" "department1" {
-  name = "Department 1"
-}
-
-resource "yandex_resourcemanager_cloud_iam_member" "admin" {
-  cloud_id = data.yandex_resourcemanager_cloud.department1.id
-  role     = "editor"
-  member   = "userAccount:user_id"
-}
-```
+{{ tffile "examples/resourcemanager_cloud_iam_member/r_resourcemanager_cloud_iam_member_1.tf" }}
 
 ## Argument Reference
 

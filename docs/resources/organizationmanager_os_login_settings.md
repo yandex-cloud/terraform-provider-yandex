@@ -1,30 +1,15 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_os_login_settings"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of OsLogin Settings within an existing Yandex.Cloud Organization.
+  Allows management of OsLogin Settings within an existing Yandex Cloud Organization.
 ---
 
-
-# yandex_organizationmanager_os_login_settings
-
-
-
+# {{.Name}} ({{.Type}})
 
 ## Example usage
 
-```terraform
-resource "yandex_organizationmanager_os_login_settings" "my_os_login_settings" {
-  organization_id = "sdf4*********3fr"
-  user_ssh_key_settings {
-    enabled               = true
-    allow_manage_own_keys = true
-  }
-  ssh_certificate_settings {
-    enabled = true
-  }
-}
-```
+{{ tffile "examples/organizationmanager_os_login_settings/r_organizationmanager_os_login_settings_1.tf" }}
 
 ## Argument Reference
 

@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for PostgreSQL"
-page_title: "Yandex: yandex_mdb_postgresql_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed PostgreSQL cluster.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_mdb_postgresql_cluster
-
-
-
-
-Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://cloud.yandex.com/en-ru/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
+Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_postgresql_cluster" "foo" {
-  name = "test"
-}
-
-output "fqdn" {
-  value = data.yandex_mdb_postgresql_cluster.foo.host.0.fqdn
-}
-```
+{{ tffile "examples/mdb_postgresql_cluster/d_mdb_postgresql_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the PostgreSQL cluster.
 
-~> **NOTE:** Either `cluster_id` or `name` should be specified.
+~> Either `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
 

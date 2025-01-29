@@ -1,27 +1,19 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: yandex_iot_core_registry"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud IoT Core Registry.
+  Get information about a Yandex Cloud IoT Core Registry.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_iot_core_registry
-
-
-
-
-Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex.Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
+Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-```terraform
-data "yandex_iot_core_registry" "my_registry" {
-  registry_id = "are1sampleregistry11"
-}
-```
+{{ tffile "examples/iot_core_registry/d_iot_core_registry_1.tf" }}
 
-This data source is used to define [Yandex.Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 
@@ -33,7 +25,7 @@ The following arguments are supported:
 
 * `folder_id` (Optional) - Folder ID for the IoT Core Registry
 
-~> **NOTE:** Either `registry_id` or `name` must be specified.
+~> Either `registry_id` or `name` must be specified.
 
 ## Attributes Reference
 

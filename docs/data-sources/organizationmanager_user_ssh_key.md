@@ -1,27 +1,17 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: yandex_organizationmanager_user_ssh_key"
+page_title: "Yandex: {{.Name}}"
 description: |-
-  Get information about a Yandex.Cloud User Ssh Key.
+  Get information about a Yandex Cloud User SSH Key.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_organizationmanager_user_ssh_key
-
-
-
+Get information about a Yandex Cloud User SSH Key.
 
 ## Example usage
 
-```terraform
-data "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
-  user_ssh_key_id = "some_user_ssh_key_id"
-}
-
-output "my_user_ssh_key_name" {
-  value = "data.yandex_organizationmanager_user_ssh_key.my_user_ssh_key.name"
-}
-```
+{{ tffile "examples/organizationmanager_user_ssh_key/d_organizationmanager_user_ssh_key_1.tf" }}
 
 ## Argument Reference
 

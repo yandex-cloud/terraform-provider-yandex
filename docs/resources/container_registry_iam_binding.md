@@ -1,35 +1,17 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: yandex_container_registry_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single IAM binding for a [Yandex Container Registry](https://cloud.yandex.com/docs/container-registry/).
 ---
 
-
-# yandex_container_registry_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Container Registry.
 
 ## Example usage
 
-```terraform
-resource "yandex_container_registry" "your-registry" {
-  folder_id = "your-folder-id"
-  name      = "registry-name"
-}
-
-resource "yandex_container_registry_iam_binding" "puller" {
-  registry_id = yandex_container_registry.your-registry.id
-  role        = "container-registry.images.puller"
-
-  members = [
-    "system:allUsers",
-  ]
-}
-```
+{{ tffile "examples/container_registry_iam_binding/r_container_registry_iam_binding_1.tf" }}
 
 ## Argument Reference
 

@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_database_serverless"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Database serverless cluster.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_ydb_database_serverless
-
-
-
-
-Get information about a Yandex Database serverless cluster. For more information, see [the official documentation](https://cloud.yandex.com/en/docs/ydb/concepts/serverless_and_dedicated).
+Get information about a Yandex Database serverless cluster. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
 
 ## Example usage
 
-```terraform
-data "yandex_ydb_database_serverless" "my_database" {
-  database_id = "some_ydb_serverless_database_id"
-}
-
-output "ydb_api_endpoint" {
-  value = data.yandex_ydb_database_serverless.my_database.ydb_api_endpoint
-}
-```
+{{ tffile "examples/ydb_database_serverless/d_ydb_database_serverless_1.tf" }}
 
 ## Argument Reference
 
@@ -35,7 +23,7 @@ The following arguments are supported:
 
 * `folder_id` - (Optional) ID of the folder that the Yandex Database serverless cluster belongs to. It will be deduced from provider configuration if not set explicitly.
 
-~> **NOTE:** If `database_id` is not specified `name` and `folder_id` will be used to designate Yandex Database serverless cluster.
+~> If `database_id` is not specified `name` and `folder_id` will be used to designate Yandex Database serverless cluster.
 
 ## Attributes Reference
 

@@ -1,25 +1,17 @@
 ---
 subcategory: "Message Queue"
-page_title: "Yandex: yandex_message_queue"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Message Queue.
 ---
 
+# {{.Name}} ({{.Type}})
 
-# yandex_message_queue
-
-
-
-
-Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see [Yandex.Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
+Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see [Yandex Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
 
 ## Example usage
 
-```terraform
-data "yandex_message_queue" "example_queue" {
-  name = "ymq_terraform_example"
-}
-```
+{{ tffile "examples/message_queue/d_message_queue_1.tf" }}
 
 ## Argument Reference
 

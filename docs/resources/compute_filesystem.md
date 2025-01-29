@@ -1,15 +1,11 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: yandex_compute_filesystem"
+page_title: "Yandex: {{.Name}}"
 description: |-
   File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.
 ---
 
-
-# yandex_compute_filesystem
-
-
-
+# {{.Name}} ({{.Type}})
 
 File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.
 
@@ -17,27 +13,16 @@ Users can share files in storage and use them from different VMs.
 
 Storage is attached to a VM through the [Filesystem in Userspace](https://en.wikipedia.org/wiki/Filesystem_in_Userspace) (FUSE) interface as a [virtiofs](https://www.kernel.org/doc/html/latest/filesystems/virtiofs.html) device that is not linked to the host file system directly.
 
-For more information about filesystems in Yandex.Cloud, see:
+For more information about filesystems in Yandex Cloud, see:
 
 * [Documentation](https://cloud.yandex.com/docs/compute/concepts/filesystem)
 * How-to Guides
-  * [Attach filesystem to a VM](https://cloud.yandex.com/en-ru/docs/compute/operations/filesystem/attach-to-vm)
-  * [Detach filesystem from VM](https://cloud.yandex.com/en-ru/docs/compute/operations/filesystem/detach-from-vm)
+  * [Attach filesystem to a VM](https://yandex.cloud/docs/compute/operations/filesystem/attach-to-vm)
+  * [Detach filesystem from VM](https://yandex.cloud/docs/compute/operations/filesystem/detach-from-vm)
 
 ## Example usage
 
-```terraform
-resource "yandex_compute_filesystem" "default" {
-  name = "fs-name"
-  type = "network-ssd"
-  zone = "ru-central1-a"
-  size = 10
-
-  labels = {
-    environment = "test"
-  }
-}
-```
+{{ tffile "examples/compute_filesystem/r_compute_filesystem_1.tf" }}
 
 ## Argument Reference
 

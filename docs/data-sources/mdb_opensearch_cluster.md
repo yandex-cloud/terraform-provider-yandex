@@ -1,29 +1,17 @@
 ---
 subcategory: "Managed Service for OpenSearch"
-page_title: "Yandex: yandex_mdb_opensearch_cluster"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Managed OpenSearch cluster.
 ---
 
-
-# yandex_mdb_opensearch_cluster
-
-
-
+# {{.Name}}
 
 Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
 
 ## Example usage
 
-```terraform
-data "yandex_mdb_opensearch_cluster" "foo" {
-  name = "test"
-}
-
-output "network_id" {
-  value = data.yandex_mdb_opensearch_cluster.foo.network_id
-}
-```
+{{ tffile "examples/mdb_opensearch_cluster/d_mdb_opensearch_cluster_1.tf" }}
 
 ## Argument Reference
 
@@ -33,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the OpenSearch cluster.
 
-~> **NOTE:** Either `cluster_id` or `name` should be specified.
+~> Either `cluster_id` or `name` should be specified.
 
 * `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
 
@@ -100,7 +88,7 @@ The Dashboards `node_groups` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a OpenSearch host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-opensearch/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a OpenSearch host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a OpenSearch host, in gigabytes.
 * `disk_type_id` - Type of the storage of OpenSearch hosts.
 

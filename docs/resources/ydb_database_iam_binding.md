@@ -1,35 +1,17 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: yandex_ydb_database_iam_binding"
+page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a single IAM binding for a [Managed service for YDB](https://cloud.yandex.com/docs/ydb/).
 ---
 
-
-# yandex_ydb_database_iam_binding
-
-
-
+# {{.Name}} ({{.Type}})
 
 Allows creation and management of a single binding within IAM policy for an existing Managed YDB Database instance.
 
 ## Example usage
 
-```terraform
-resource "yandex_ydb_database_serverless" "database1" {
-  name      = "test-ydb-serverless"
-  folder_id = data.yandex_resourcemanager_folder.test_folder.id
-}
-
-resource "yandex_ydb_database_iam_binding" "viewer" {
-  database_id = yandex_ydb_database_serverless.database1.id
-  role        = "ydb.viewer"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
-}
-```
+{{ tffile "examples/ydb_database_iam_binding/r_ydb_database_iam_binding_1.tf" }}
 
 ## Argument Reference
 
