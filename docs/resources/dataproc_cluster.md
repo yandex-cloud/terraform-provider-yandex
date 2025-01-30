@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a Data Proc cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
+Manages a Yandex Data Processing cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
 
 ## Example usage
 
@@ -17,16 +17,16 @@ Manages a Data Proc cluster. For more information, see [the official documentati
 
 The following arguments are supported:
 
-* `name` - (Required) Name of a specific Data Proc cluster.
+* `name` - (Required) Name of a specific Yandex Data Processing cluster.
 * `cluster_config` - (Required) Configuration and resources for hosts that should be created with the cluster. The structure is documented below.
-* `service_account_id` - (Required) Service account to be used by the Data Proc agent to access resources of Yandex Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Data Proc cluster will be located.
+* `service_account_id` - (Required) Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
 
 ---
 
 * `folder_id` - (Optional) ID of the folder to create a cluster in. If it is not provided, the default provider folder is used.
-* `bucket` - (Optional) Name of the Object Storage bucket to use for Data Proc jobs. Data Proc Agent saves output of job driver's process to specified bucket. In order for this to work service account (specified by the `service_account_id` argument) should be given permission to create objects within this bucket.
-* `description` - (Optional) Description of the Data Proc cluster.
-* `labels` - (Optional) A set of key/value label pairs to assign to the Data Proc cluster.
+* `bucket` - (Optional) Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of job driver's process to specified bucket. In order for this to work service account (specified by the `service_account_id` argument) should be given permission to create objects within this bucket.
+* `description` - (Optional) Description of the Yandex Data Processing cluster.
+* `labels` - (Optional) A set of key/value label pairs to assign to the Yandex Data Processing cluster.
 * `zone_id` - (Optional) ID of the availability zone to create cluster in. If it is not provided, the default provider zone is used.
 * `ui_proxy` - (Optional) Whether to enable UI Proxy feature.
 * `security_group_ids` - (Optional) A list of security group IDs that the cluster belongs to.
@@ -39,15 +39,15 @@ The following arguments are supported:
 
 The `cluster_config` block supports:
 
-* `version_id` - (Required) Version of Data Proc image.
-* `hadoop` - (Optional) Data Proc specific options. The structure is documented below.
-* `subcluster_spec` - (Required) Configuration of the Data Proc subcluster. The structure is documented below.
+* `version_id` - (Required) Version of Yandex Data Processing image.
+* `hadoop` - (Optional) Yandex Data Processing specific options. The structure is documented below.
+* `subcluster_spec` - (Required) Configuration of the Yandex Data Processing subcluster. The structure is documented below.
 
 ---
 
 The `hadoop` block supports:
 
-* `services` - (Optional) List of services to run on Data Proc cluster.
+* `services` - (Optional) List of services to run on Yandex Data Processing cluster.
 * `properties` - (Optional) A set of key/value pairs that are used to configure cluster services.
 * `ssh_public_keys` - (Optional) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://cloud.yandex.com/docs/data-proc/operations/connect).
 * `initialization_action` - (Optional) List of initialization scripts. The structure is documented below.
@@ -64,11 +64,11 @@ The `initialization_action` block supports:
 
 The `subcluster_spec` block supports:
 
-* `name` - (Required) Name of the Data Proc subcluster.
-* `role` - (Required) Role of the subcluster in the Data Proc cluster.
-* `resources` - (Required) Resources allocated to each host of the Data Proc subcluster. The structure is documented below.
+* `name` - (Required) Name of the Yandex Data Processing subcluster.
+* `role` - (Required) Role of the subcluster in the Yandex Data Processing cluster.
+* `resources` - (Required) Resources allocated to each host of the Yandex Data Processing subcluster. The structure is documented below.
 * `subnet_id` - (Required) The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.
-* `hosts_count` - (Required) Number of hosts within Data Proc subcluster.
+* `hosts_count` - (Required) Number of hosts within Yandex Data Processing subcluster.
 * `assign_public_ip` - (Optional) If true then assign public IP addresses to the hosts of the subclusters.
 * `autoscaling_config` - (Optional) Autoscaling configuration for compute subclusters.
 
@@ -94,8 +94,8 @@ The `autoscaling_config` block supports:
 
 ## Attributes Reference
 
-* `id` - (Computed) ID of a new Data Proc cluster.
-* `created_at` - (Computed) The Data Proc cluster creation timestamp.
+* `id` - (Computed) ID of a new Yandex Data Processing cluster.
+* `created_at` - (Computed) The Yandex Data Processing cluster creation timestamp.
 * `cluster_config.0.subcluster_spec.X.id` - (Computed) ID of the subcluster.
 
 ## Import

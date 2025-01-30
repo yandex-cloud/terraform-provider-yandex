@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Data Proc cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
+Get information about a Yandex Data Processing cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
 
 ## Example usage
 
@@ -17,8 +17,8 @@ Get information about a Yandex Data Proc cluster. For more information, see [the
 
 The following arguments are supported:
 
-* `cluster_id` - (Optional) The ID of the Data Proc cluster.
-* `name` - (Optional) The name of the Data Proc cluster.
+* `cluster_id` - (Optional) The ID of the Yandex Data Processing cluster.
+* `name` - (Optional) The name of the Yandex Data Processing cluster.
 
 ~> Either `cluster_id` or `name` should be specified.
 
@@ -28,13 +28,13 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `bucket` - Name of the Object Storage bucket used for Data Proc jobs.
+* `bucket` - Name of the Object Storage bucket used for Yandex Data Processing jobs.
 * `cluster_config` - Configuration and resources of the cluster. The structure is documented below.
-* `created_at` - The Data Proc cluster creation timestamp.
-* `description` - Description of the Data Proc cluster.
-* `id` - Id of the Data Proc cluster.
-* `labels` - A set of key/value label pairs assigned to the Data Proc cluster.
-* `service_account_id` - Service account used by the Data Proc agent to access resources of Yandex Cloud.
+* `created_at` - The Yandex Data Processing cluster creation timestamp.
+* `description` - Description of the Yandex Data Processing cluster.
+* `id` - Id of the Yandex Data Processing cluster.
+* `labels` - A set of key/value label pairs assigned to the Yandex Data Processing cluster.
+* `service_account_id` - Service account used by the Yandex Data Processing agent to access resources of Yandex Cloud.
 * `ui_proxy` - Whether UI proxy feature is enabled.
 * `zone_id` - ID of the availability zone where the cluster resides.
 * `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
@@ -45,15 +45,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `cluster_config` block supports:
 
-* `version_id` - Version of Data Proc image.
-* `hadoop` - Data Proc specific options. The structure is documented below.
-* `subcluster_spec` - Configuration of the Data Proc subcluster. The structure is documented below.
+* `version_id` - Version of Yandex Data Processing image.
+* `hadoop` - Yandex Data Processing specific options. The structure is documented below.
+* `subcluster_spec` - Configuration of the Yandex Data Processing subcluster. The structure is documented below.
 
 ---
 
 The `hadoop` block supports:
 
-* `services` - List of services launched on Data Proc cluster.
+* `services` - List of services launched on Yandex Data Processing cluster.
 * `properties` - A set of key/value pairs used to configure cluster services.
 * `ssh_public_keys` - List of SSH public keys distributed to the hosts of the cluster.
 
@@ -61,12 +61,12 @@ The `hadoop` block supports:
 
 The `subcluster_spec` block supports:
 
-* `id` - ID of the Data Proc subcluster.
-* `name` - Name of the Data Proc subcluster.
-* `role` - Role of the subcluster in the Data Proc cluster.
-* `resources` - Resources allocated to each host of the Data Proc subcluster. The structure is documented below.
+* `id` - ID of the Yandex Data Processing subcluster.
+* `name` - Name of the Yandex Data Processing subcluster.
+* `role` - Role of the subcluster in the Yandex Data Processing cluster.
+* `resources` - Resources allocated to each host of the Yandex Data Processing subcluster. The structure is documented below.
 * `subnet_id` - The ID of the subnet, to which hosts of the subcluster belong.
-* `hosts_count` - Number of hosts within Data Proc subcluster.
+* `hosts_count` - Number of hosts within Yandex Data Processing subcluster.
 * `assign_public_ip` - The hosts of the subclusters have public IP addresses.
 * `autoscaling_config` - Optional autoscaling configuration for compute subclusters.
 

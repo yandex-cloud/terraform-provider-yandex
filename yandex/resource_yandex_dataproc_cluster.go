@@ -352,28 +352,28 @@ func resourceYandexDataprocClusterCreate(d *schema.ResourceData, meta interface{
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Create(ctx, req))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create Data Proc Cluster: %s", err)
+		return fmt.Errorf("error while requesting API to create Yandex Data Processing Cluster: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("error while getting Data Proc Cluster create operation metadata: %s", err)
+		return fmt.Errorf("error while getting Yandex Data Processing Cluster create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*dataproc.CreateClusterMetadata)
 	if !ok {
-		return fmt.Errorf("could not get Data Proc Cluster ID from create operation metadata")
+		return fmt.Errorf("could not get Yandex Data Processing Cluster ID from create operation metadata")
 	}
 
 	d.SetId(md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while waiting for operation to create Data Proc Cluster: %s", err)
+		return fmt.Errorf("error while waiting for operation to create Yandex Data Processing Cluster: %s", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("failed to create Data Proc Cluster: %s", err)
+		return fmt.Errorf("failed to create Yandex Data Processing Cluster: %s", err)
 	}
 
 	return resourceYandexDataprocClusterRead(d, meta)
@@ -516,28 +516,28 @@ func getDataprocZoneID(d *schema.ResourceData, config *Config) (string, error) {
 func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (*dataproc.CreateClusterRequest, error) {
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("error getting folder ID while creating Data Proc Cluster: %s", err)
+		return nil, fmt.Errorf("error getting folder ID while creating Yandex Data Processing Cluster: %s", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseDataprocEnv(e)
 	if err != nil {
-		return nil, fmt.Errorf("error resolving environment while creating Data Proc Cluster: %s", err)
+		return nil, fmt.Errorf("error resolving environment while creating Yandex Data Processing Cluster: %s", err)
 	}
 
 	zoneID, err := getDataprocZoneID(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("error getting zone while creating Data Proc Cluster: %s", err)
+		return nil, fmt.Errorf("error getting zone while creating Yandex Data Processing Cluster: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding labels on Data Proc Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding labels on Yandex Data Processing Cluster create: %s", err)
 	}
 
 	configSpec, err := expandDataprocCreateClusterConfigSpec(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding config on Data Proc Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding config on Yandex Data Processing Cluster create: %s", err)
 	}
 
 	req := dataproc.CreateClusterRequest{
@@ -570,7 +570,7 @@ func listDataprocSubclusters(ctx context.Context, config *Config, id string) ([]
 			PageToken: pageToken,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("error while getting list of subclusters for Data Proc Cluster %q: %s", id, err)
+			return nil, fmt.Errorf("error while getting list of subclusters for Yandex Data Processing Cluster %q: %s", id, err)
 		}
 		subclusters = append(subclusters, resp.Subclusters...)
 		if resp.NextPageToken == "" {
@@ -584,7 +584,7 @@ func listDataprocSubclusters(ctx context.Context, config *Config, id string) ([]
 func resourceYandexDataprocClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Deleting Data Proc Cluster %q", d.Id())
+	log.Printf("[DEBUG] Deleting Yandex Data Processing Cluster %q", d.Id())
 
 	req := &dataproc.DeleteClusterRequest{
 		ClusterId: d.Id(),
@@ -595,7 +595,7 @@ func resourceYandexDataprocClusterDelete(d *schema.ResourceData, meta interface{
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Delete(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Data Proc Cluster %q", d.Get("name").(string)))
+		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Data Processing Cluster %q", d.Get("name").(string)))
 	}
 
 	err = op.Wait(ctx)
@@ -608,12 +608,12 @@ func resourceYandexDataprocClusterDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting Data Proc Cluster %q", d.Id())
+	log.Printf("[DEBUG] Finished deleting Yandex Data Processing Cluster %q", d.Id())
 	return nil
 }
 
 func resourceYandexDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating Data Proc Cluster %q", d.Id())
+	log.Printf("[DEBUG] Updating Yandex Data Processing Cluster %q", d.Id())
 
 	d.Partial(true)
 
@@ -629,7 +629,7 @@ func resourceYandexDataprocClusterUpdate(d *schema.ResourceData, meta interface{
 
 	d.Partial(false)
 
-	log.Printf("[DEBUG] Finished updating Data Proc Cluster %q", d.Id())
+	log.Printf("[DEBUG] Finished updating Yandex Data Processing Cluster %q", d.Id())
 	return resourceYandexDataprocClusterRead(d, meta)
 }
 
@@ -648,12 +648,12 @@ func updateDataprocClusterParams(d *schema.ResourceData, meta interface{}) error
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Update(ctx, req))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update Data Proc Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to update Yandex Data Processing Cluster %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating Data Proc Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while updating Yandex Data Processing Cluster %q: %s", d.Id(), err)
 	}
 
 	return nil
@@ -662,7 +662,7 @@ func updateDataprocClusterParams(d *schema.ResourceData, meta interface{}) error
 func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding labels on Data Proc Cluster update: %s", err)
+		return nil, fmt.Errorf("error while expanding labels on Yandex Data Processing Cluster update: %s", err)
 	}
 
 	req := &dataproc.UpdateClusterRequest{
@@ -832,7 +832,7 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 	for _, fieldName := range constFields {
 		field := path + "." + fieldName
 		if d.HasChange(field) {
-			return nil, fmt.Errorf("error while trying to update Data Proc Subcluster %q:"+
+			return nil, fmt.Errorf("error while trying to update Yandex Data Processing Subcluster %q:"+
 				" changing %q of existing subcluster is not supported", req.SubclusterId, fieldName)
 		}
 	}
@@ -878,62 +878,62 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 }
 
 func deleteDataprocSubcluster(deleteReq *dataproc.DeleteSubclusterRequest, config *Config, timeout time.Duration) error {
-	log.Printf("[DEBUG] Deleting Data Proc Subcluster %q", deleteReq.SubclusterId)
+	log.Printf("[DEBUG] Deleting Yandex Data Processing Subcluster %q", deleteReq.SubclusterId)
 
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Delete(ctx, deleteReq))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to delete Data Proc Subcluster %q: %s", deleteReq.SubclusterId, err)
+		return fmt.Errorf("error while requesting API to delete Yandex Data Processing Subcluster %q: %s", deleteReq.SubclusterId, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while deleting Data Proc Subcluster %q: %s", deleteReq.SubclusterId, err)
+		return fmt.Errorf("error while deleting Yandex Data Processing Subcluster %q: %s", deleteReq.SubclusterId, err)
 	}
 
-	log.Printf("[DEBUG] Deleted Data Proc Subcluster %q", deleteReq.SubclusterId)
+	log.Printf("[DEBUG] Deleted Yandex Data Processing Subcluster %q", deleteReq.SubclusterId)
 	return nil
 }
 
 func createDataprocSubcluster(createReq *dataproc.CreateSubclusterRequest, config *Config, timeout time.Duration) error {
-	log.Printf("[DEBUG] Creating Data Proc Subcluster %q", createReq.Name)
+	log.Printf("[DEBUG] Creating Yandex Data Processing Subcluster %q", createReq.Name)
 
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Create(ctx, createReq))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create Data Proc Subcluster %q: %s", createReq.Name, err)
+		return fmt.Errorf("error while requesting API to create Yandex Data Processing Subcluster %q: %s", createReq.Name, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while creating Data Proc Subcluster %q: %s", createReq.Name, err)
+		return fmt.Errorf("error while creating Yandex Data Processing Subcluster %q: %s", createReq.Name, err)
 	}
 
-	log.Printf("[DEBUG] Created Data Proc Subcluster %q", createReq.Name)
+	log.Printf("[DEBUG] Created Yandex Data Processing Subcluster %q", createReq.Name)
 	return nil
 }
 
 func updateDataprocSubcluster(updateReq *dataproc.UpdateSubclusterRequest, config *Config, timeout time.Duration) error {
-	log.Printf("[DEBUG] Updating Data Proc Subcluster %q", updateReq.SubclusterId)
+	log.Printf("[DEBUG] Updating Yandex Data Processing Subcluster %q", updateReq.SubclusterId)
 
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Update(ctx, updateReq))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update Data Proc Subcluster %q: %s", updateReq.SubclusterId, err)
+		return fmt.Errorf("error while requesting API to update Yandex Data Processing Subcluster %q: %s", updateReq.SubclusterId, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating Data Proc Subcluster %q: %s", updateReq.SubclusterId, err)
+		return fmt.Errorf("error while updating Yandex Data Processing Subcluster %q: %s", updateReq.SubclusterId, err)
 	}
 
-	log.Printf("[DEBUG] Updated Data Proc Subcluster %q", updateReq.SubclusterId)
+	log.Printf("[DEBUG] Updated Yandex Data Processing Subcluster %q", updateReq.SubclusterId)
 	return nil
 }
 

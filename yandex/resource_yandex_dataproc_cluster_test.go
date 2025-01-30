@@ -51,13 +51,13 @@ func testSweepDataprocCluster(_ string) error {
 		PageSize: defaultMDBPageSize,
 	})
 	if err != nil {
-		return fmt.Errorf("error getting Data Proc clusters: %s", err)
+		return fmt.Errorf("error getting Yandex Data Processing clusters: %s", err)
 	}
 
 	result := &multierror.Error{}
 	for _, c := range resp.Clusters {
 		if !sweepDataprocCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep Data Proc cluster %q", c.Id))
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Yandex Data Processing cluster %q", c.Id))
 		}
 	}
 
@@ -65,7 +65,7 @@ func testSweepDataprocCluster(_ string) error {
 }
 
 func sweepDataprocCluster(conf *Config, id string) bool {
-	return sweepWithRetry(sweepDataprocClusterOnce, conf, "Data Proc cluster", id)
+	return sweepWithRetry(sweepDataprocClusterOnce, conf, "Yandex Data Processing cluster", id)
 }
 
 func sweepDataprocClusterOnce(conf *Config, id string) error {
@@ -1139,7 +1139,7 @@ func testAccCheckDataprocClusterDestroy(s *terraform.State) error {
 		})
 
 		if err == nil {
-			return fmt.Errorf("expected Data Proc to be deleted, but it still exists")
+			return fmt.Errorf("expected Yandex Data Processing to be deleted, but it still exists")
 		}
 	}
 

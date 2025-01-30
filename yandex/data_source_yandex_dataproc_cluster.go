@@ -39,7 +39,7 @@ func dataSourceYandexDataprocClusterRead(d *schema.ResourceData, meta interface{
 	if clusterNameOk {
 		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.DataprocClusterResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve data source Data Proc Cluster by name: %v", err)
+			return fmt.Errorf("failed to resolve data source Yandex Data Processing Cluster by name: %v", err)
 		}
 	}
 
