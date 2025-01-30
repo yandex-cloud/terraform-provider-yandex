@@ -1,3 +1,23 @@
+## 0.136.0 (January 30, 2025)
+
+FEATURES:
+* OrganizationManager: Added resources for organization manager group mapping and group mapping items
+* YandexDataProcessing: Added log_group_id field
+* YandexDataProcessing: Added environment field
+* CertificateManager: added resources `yandex_cm_certificate_iam_binding` and `yandex_cm_certificate_iam_member`
+* Lockbox: added resource `yandex_lockbox_secret_iam_member`
+* KMS: added resources `yandex_kms_symmetric_key_iam_member`, `yandex_kms_asymmetric_signature_key_iam_member` and `yandex_kms_asymmetric_encryption_key_iam_member`
+
+BUG FIXES:
+* yandex_ydb_table_changefeed: fix cdc import
+* smartcapcha: fix documentation for the resource and datasource
+* IAM: remove field length validation for WLI resources and data-sources
+* clickhouse: fix enable_ssl_certificate_verification setting on update
+* resource_yandex_compute_instance: remove allow_stopping_for_update for instance file system changes
+
+ENHANCEMENTS:
+* YandexDataProcessing: Actualize name of Yandex Data Processing service
+
 ## 0.135.0 (December 18, 2024)
 
 FEATURES:

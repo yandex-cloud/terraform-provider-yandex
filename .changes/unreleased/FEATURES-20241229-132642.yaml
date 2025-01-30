@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'CertificateManager: added resources `yandex_cm_certificate_iam_binding` and `yandex_cm_certificate_iam_member`'
-time: 2024-12-29T13:26:42.71542+03:00

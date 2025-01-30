@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'IAM: remove field length validation for WLI resources and data-sources'
-time: 2025-01-09T12:40:13.257735+03:00
