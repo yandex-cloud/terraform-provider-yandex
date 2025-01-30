@@ -1,17 +1,44 @@
 ---
 subcategory: "Load Testing"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_loadtesting_agent"
 description: |-
   Manages an Yandex Cloud Load Testing Agent resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_loadtesting_agent (Resource)
 
 A Load Testing Agent resource. For more information, see [the official documentation](https://yandex.cloud/docs/load-testing/concepts/agent).
 
 ## Example usage
 
-{{ tffile "examples/loadtesting_agent/r_loadtesting_agent_1.tf" }}
+```terraform
+resource "yandex_loadtesting_agent" "my-agent" {
+  name        = "my-agent"
+  description = "2 core 4 GB RAM agent"
+  folder_id   = data.yandex_resourcemanager_folder.test_folder.id
+  labels = {
+    jmeter = "5"
+  }
+
+  compute_instance {
+    zone_id            = "ru-central1-b"
+    service_account_id = yandex_iam_service_account.test_account.id
+    resources {
+      memory = 4
+      cores  = 2
+    }
+    boot_disk {
+      initialize_params {
+        size = 15
+      }
+      auto_delete = true
+    }
+    network_interface {
+      subnet_id = yandex_vpc_subnet.my-subnet-a.id
+    }
+  }
+}
+```
 
 ## Argument Reference
 

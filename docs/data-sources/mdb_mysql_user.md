@@ -1,17 +1,26 @@
 ---
 subcategory: "Managed Service for MySQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_mysql_user"
 description: |-
   Get information about a Yandex Managed MySQL user.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_mysql_user (Data Source)
 
 Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
 ## Example usage
 
-{{ tffile "examples/mdb_mysql_user/d_mdb_mysql_user_1.tf" }}
+```terraform
+data "yandex_mdb_mysql_user" "foo" {
+  cluster_id = "some_cluster_id"
+  name       = "test"
+}
+
+output "permission" {
+  value = data.yandex_mdb_mysql_user.foo.permission
+}
+```
 
 ## Argument Reference
 

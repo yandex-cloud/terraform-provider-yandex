@@ -1,17 +1,25 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_cloud"
 description: |-
   Retrieve Yandex RM Cloud details.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_cloud (Data Source)
 
 Use this data source to get cloud details. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud).
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_cloud/d_resourcemanager_cloud_1.tf" }}
+```terraform
+data "yandex_resourcemanager_cloud" "foo" {
+  name = "foo-cloud"
+}
+
+output "cloud_create_timestamp" {
+  value = data.yandex_resourcemanager_cloud.foo.created_at
+}
+```
 
 ## Argument Reference
 

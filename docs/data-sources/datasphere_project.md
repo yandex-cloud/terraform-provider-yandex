@@ -1,17 +1,21 @@
 ---
 subcategory: "Datasphere"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_datasphere_project"
 description: |-
   Get information about a Yandex Cloud Datasphere Project.
 ---
 
-# {{.Name}}
+# yandex_datasphere_project
 
 Get information about a Yandex Cloud Datasphere Project.
 
 ## Example usage
 
-{{ tffile "examples/datasphere_project/d_datasphere_project_1.tf" }}
+```terraform
+data "yandex_datasphere_project" "my_datasphere_project" {
+  project_id = "project-id"
+}
+```
 
 This data source is used to define Yandex Cloud Datasphere project that can be used by other resources.
 

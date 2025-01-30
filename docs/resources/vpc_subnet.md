@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_subnet"
 description: |-
   A VPC network is a virtual version of the traditional physical networks that exist within and between physical data centers.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_subnet (Resource)
 
 Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
 
@@ -15,7 +15,17 @@ Manages a subnet within the Yandex Cloud. For more information, see [the officia
 
 ## Example usage
 
-{{ tffile "examples/vpc_subnet/r_vpc_subnet_1.tf" }}
+```terraform
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_subnet" "lab-subnet-a" {
+  v4_cidr_blocks = ["10.2.0.0/16"]
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.lab-net.id
+}
+```
 
 ## Argument Reference
 

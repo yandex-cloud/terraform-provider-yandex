@@ -1,17 +1,25 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_instance"
 description: |-
   Get information about a Yandex Compute Instance.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_instance (Data Source)
 
 Get information about a Yandex Compute instance. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
 
 ## Example usage
 
-{{ tffile "examples/compute_instance/d_compute_instance_1.tf" }}
+```terraform
+data "yandex_compute_instance" "my_instance" {
+  instance_id = "some_instance_id"
+}
+
+output "instance_external_ip" {
+  value = data.yandex_compute_instance.my_instance.network_interface.0.nat_ip_address
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,28 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_function_trigger"
 description: |-
   Allows management of a Yandex Cloud Functions Trigger.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_function_trigger (Resource)
 
 Allows management of [Yandex Cloud Functions Trigger](https://cloud.yandex.com/docs/functions/)
 
 ## Example usage
 
-{{ tffile "examples/function_trigger/r_function_trigger_1.tf" }}
+```terraform
+resource "yandex_function_trigger" "my_trigger" {
+  name        = "some_name"
+  description = "any description"
+  timer {
+    cron_expression = "* * * * ? *"
+  }
+  function {
+    id = "tf-test"
+  }
+}
+```
 
 ## Argument Reference
 

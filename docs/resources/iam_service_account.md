@@ -1,17 +1,22 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iam_service_account"
 description: |-
   Allows management of a Yandex Cloud IAM service account.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iam_service_account (Resource)
 
 Allows management of a Yandex Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts). To assign roles and permissions, use the [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html), [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html) and [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html) resources.
 
 ## Example usage
 
-{{ tffile "examples/iam_service_account/r_iam_service_account_1.tf" }}
+```terraform
+resource "yandex_iam_service_account" "sa" {
+  name        = "vmmanager"
+  description = "service account to manage VMs"
+}
+```
 
 ## Argument Reference
 

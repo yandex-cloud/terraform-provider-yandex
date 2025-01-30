@@ -1,21 +1,147 @@
 ---
 subcategory: "Managed Service for Elasticsearch"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_elasticsearch_cluster"
 description: |-
   Manages a Elasticsearch cluster within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_elasticsearch_cluster (Resource)
 
 Manages a Elasticsearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_elasticsearch_cluster/r_mdb_elasticsearch_cluster_1.tf" }}
+```terraform
+resource "yandex_mdb_elasticsearch_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  config {
+
+    admin_password = "super-password"
+
+    data_node {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 100
+      }
+    }
+
+  }
+
+  host {
+    name             = "node"
+    zone             = "ru-central1-a"
+    type             = "DATA_NODE"
+    assign_public_ip = true
+    subnet_id        = yandex_vpc_subnet.foo.id
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 Example of creating a high available Elasticsearch Cluster.
 
-{{ tffile "examples/mdb_elasticsearch_cluster/r_mdb_elasticsearch_cluster_2.tf" }}
+```terraform
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-c",
+  ]
+}
+
+resource "yandex_mdb_elasticsearch_cluster" "foo" {
+  name        = "my-cluster"
+  environment = "PRODUCTION"
+  network_id  = yandex_vpc_network.es-net.id
+
+  config {
+
+    edition = "platinum"
+
+    admin_password = "super-password"
+
+    data_node {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 100
+      }
+    }
+
+    master_node {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 10
+      }
+    }
+
+    plugins = ["analysis-icu"]
+
+  }
+
+  dynamic "host" {
+    for_each = toset(range(0, 6))
+    content {
+      name             = "datanode${host.value}"
+      zone             = local.zones[(host.value) % 3]
+      type             = "DATA_NODE"
+      assign_public_ip = true
+    }
+  }
+
+  dynamic "host" {
+    for_each = toset(range(0, 3))
+    content {
+      name = "masternode${host.value}"
+      zone = local.zones[host.value % 3]
+      type = "MASTER_NODE"
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.es-subnet-a,
+    yandex_vpc_subnet.es-subnet-b,
+    yandex_vpc_subnet.es-subnet-c,
+  ]
+
+}
+
+resource "yandex_vpc_network" "es-net" {}
+
+resource "yandex_vpc_subnet" "es-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.es-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "es-subnet-b" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.es-net.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "es-subnet-c" {
+  zone           = "ru-central1-c"
+  network_id     = yandex_vpc_network.es-net.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
 
 ## Argument Reference
 

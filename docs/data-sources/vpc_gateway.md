@@ -1,17 +1,21 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_gateway"
 description: |-
   Get information about a Yandex VPC gateway.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_gateway (Data Source)
 
 Get information about a Yandex VPC gateway. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).
 
 ## Example usage
 
-{{ tffile "examples/vpc_gateway/d_vpc_gateway_1.tf" }}
+```terraform
+data "yandex_vpc_gateway" "default" {
+  gateway_id = "my-gateway-id"
+}
+```
 
 This data source is used to define [VPC Gateways](https://yandex.cloud/docs/vpc/concepts/gateways) that can be used by other resources.
 

@@ -1,17 +1,22 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_waf_rule_set_descriptor"
 description: |-
   Get information about SmartWebSecurity WAF rule sets.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_waf_rule_set_descriptor (Data Source)
 
 Get information about WAF rule sets. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#rules-set).
 
 ## Example usage
 
-{{ tffile "examples/sws_waf_rule_set_descriptor/d_sws_waf_rule_set_descriptor_1.tf" }}
+```terraform
+data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
+  name    = "OWASP Core Ruleset"
+  version = "4.0.0"
+}
+```
 
 This data source is used to get list of rules that can be used by `yandex_sws_waf_profile`.
 

@@ -1,17 +1,23 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_asymmetric_signature_key"
 description: |-
   Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_asymmetric_signature_key (Resource)
 
 Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.
 
 ## Example usage
 
-{{ tffile "examples/kms_asymmetric_signature_key/r_kms_asymmetric_signature_key_1.tf" }}
+```terraform
+resource "yandex_kms_asymmetric_signature_key" "key-a" {
+  name                = "example-asymetric-signature-key"
+  description         = "description for key"
+  signature_algorithm = "RSA_2048_SIGN_PSS_SHA_256"
+}
+```
 
 ## Argument Reference
 

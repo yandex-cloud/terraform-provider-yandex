@@ -1,17 +1,21 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_subnet"
 description: |-
   Get information about a Yandex VPC subnet.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_subnet (Data Source)
 
 Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ## Example usage
 
-{{ tffile "examples/vpc_subnet/d_vpc_subnet_1.tf" }}
+```terraform
+data "yandex_vpc_subnet" "admin" {
+  subnet_id = "my-subnet-id"
+}
+```
 
 This data source is used to define [VPC Subnets](https://cloud.yandex.com/docs/vpc/concepts/network#subnet) that can be used by other resources.
 

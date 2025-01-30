@@ -1,29 +1,321 @@
 ---
 subcategory: "Managed Service for Apache Kafka"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_kafka_cluster"
 description: |-
   Manages a Kafka cluster within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_kafka_cluster (Resource)
 
 Manages a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_kafka_cluster/r_mdb_kafka_cluster_1.tf" }}
+```terraform
+resource "yandex_mdb_kafka_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}"]
+
+  config {
+    version          = "2.8"
+    brokers_count    = 1
+    zones            = ["ru-central1-a"]
+    assign_public_ip = false
+    schema_registry  = false
+    kafka {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 32
+      }
+      kafka_config {
+        compression_type                = "COMPRESSION_TYPE_ZSTD"
+        log_flush_interval_messages     = 1024
+        log_flush_interval_ms           = 1000
+        log_flush_scheduler_interval_ms = 1000
+        log_retention_bytes             = 1073741824
+        log_retention_hours             = 168
+        log_retention_minutes           = 10080
+        log_retention_ms                = 86400000
+        log_segment_bytes               = 134217728
+        log_preallocate                 = true
+        num_partitions                  = 10
+        default_replication_factor      = 1
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
+      }
+    }
+  }
+
+  user {
+    name     = "producer-application"
+    password = "password"
+    permission {
+      topic_name  = "input"
+      role        = "ACCESS_ROLE_PRODUCER"
+      allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
+    }
+  }
+
+  user {
+    name     = "worker"
+    password = "password"
+    permission {
+      topic_name = "input"
+      role       = "ACCESS_ROLE_CONSUMER"
+    }
+    permission {
+      topic_name = "output"
+      role       = "ACCESS_ROLE_PRODUCER"
+    }
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 Example of creating a HA Kafka Cluster with two brokers per AZ (6 brokers + 3 Zookepeers)
 
-{{ tffile "examples/mdb_kafka_cluster/r_mdb_kafka_cluster_2.tf" }}
+```terraform
+resource "yandex_mdb_kafka_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
+
+  config {
+    version          = "2.8"
+    brokers_count    = 2
+    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+    assign_public_ip = true
+    schema_registry  = false
+    kafka {
+      resources {
+        resource_preset_id = "s2.medium"
+        disk_type_id       = "network-ssd"
+        disk_size          = 128
+      }
+      kafka_config {
+        compression_type                = "COMPRESSION_TYPE_ZSTD"
+        log_flush_interval_messages     = 1024
+        log_flush_interval_ms           = 1000
+        log_flush_scheduler_interval_ms = 1000
+        log_retention_bytes             = 1073741824
+        log_retention_hours             = 168
+        log_retention_minutes           = 10080
+        log_retention_ms                = 86400000
+        log_segment_bytes               = 134217728
+        log_preallocate                 = true
+        num_partitions                  = 10
+        default_replication_factor      = 6
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
+      }
+    }
+    zookeeper {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 20
+      }
+    }
+  }
+
+  user {
+    name     = "producer-application"
+    password = "password"
+    permission {
+      topic_name  = "input"
+      role        = "ACCESS_ROLE_PRODUCER"
+      allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
+    }
+  }
+
+  user {
+    name     = "worker"
+    password = "password"
+    permission {
+      topic_name = "input"
+      role       = "ACCESS_ROLE_CONSUMER"
+    }
+    permission {
+      topic_name = "output"
+      role       = "ACCESS_ROLE_PRODUCER"
+    }
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
 
 Example of creating Kafka Cluster with KRaft-controller subcluster instead of Zookeeper subcluster.
 
-{{ tffile "examples/mdb_kafka_cluster/r_mdb_kafka_cluster_3.tf" }}
+```terraform
+resource "yandex_mdb_kafka_cluster" "kraft-split" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
+
+  config {
+    version          = "3.6"
+    brokers_count    = 2
+    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+    assign_public_ip = true
+    schema_registry  = false
+    kafka {
+      resources {
+        resource_preset_id = "s2.medium"
+        disk_type_id       = "network-ssd"
+        disk_size          = 128
+      }
+      kafka_config {
+        compression_type                = "COMPRESSION_TYPE_ZSTD"
+        log_flush_interval_messages     = 1024
+        log_flush_interval_ms           = 1000
+        log_flush_scheduler_interval_ms = 1000
+        log_retention_bytes             = 1073741824
+        log_retention_hours             = 168
+        log_retention_minutes           = 10080
+        log_retention_ms                = 86400000
+        log_segment_bytes               = 134217728
+        log_preallocate                 = true
+        num_partitions                  = 10
+        default_replication_factor      = 6
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
+      }
+    }
+    kraft {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 20
+      }
+    }
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
 
 Example of creating multihost Kafka Cluster without subcluster of controllers, using KRaft-combine quorum.
 
-{{ tffile "examples/mdb_kafka_cluster/r_mdb_kafka_cluster_4.tf" }}
+```terraform
+resource "yandex_mdb_kafka_cluster" "kraft-combine" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
+
+  config {
+    version          = "3.6"
+    brokers_count    = 1
+    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+    assign_public_ip = true
+    schema_registry  = false
+    kafka {
+      resources {
+        resource_preset_id = "s2.medium"
+        disk_type_id       = "network-ssd"
+        disk_size          = 128
+      }
+      kafka_config {
+        compression_type                = "COMPRESSION_TYPE_ZSTD"
+        log_flush_interval_messages     = 1024
+        log_flush_interval_ms           = 1000
+        log_flush_scheduler_interval_ms = 1000
+        log_retention_bytes             = 1073741824
+        log_retention_hours             = 168
+        log_retention_minutes           = 10080
+        log_retention_ms                = 86400000
+        log_segment_bytes               = 134217728
+        log_preallocate                 = true
+        num_partitions                  = 10
+        default_replication_factor      = 6
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
+      }
+    }
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,23 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_disk_placement_group"
 description: |-
   Manages a Disk Placement Group resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_disk_placement_group (Resource)
 
 A Disk Placement Group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
 ## Example usage
 
-{{ tffile "examples/compute_disk_placement_group/r_compute_disk_placement_group_1.tf" }}
+```terraform
+resource "yandex_compute_disk_placement_group" "group1" {
+  name        = "test-pg"
+  folder_id   = "abc*********123"
+  description = "my description"
+}
+```
 
 ## Argument Reference
 

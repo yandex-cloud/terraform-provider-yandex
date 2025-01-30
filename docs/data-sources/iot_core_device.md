@@ -1,17 +1,21 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iot_core_device"
 description: |-
   Get information about a Yandex Cloud IoT Core Device.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iot_core_device (Data Source)
 
 Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/iot_core_device/d_iot_core_device_1.tf" }}
+```terraform
+data "yandex_iot_core_device" "my_device" {
+  device_id = "are1sampleregistry11"
+}
+```
 
 This data source is used to define [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
 

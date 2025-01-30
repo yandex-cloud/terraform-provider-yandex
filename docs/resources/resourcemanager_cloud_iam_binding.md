@@ -1,17 +1,31 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_cloud_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex Resource Manager cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_cloud_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Resource Manager cloud.
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_cloud_iam_binding/r_resourcemanager_cloud_iam_binding_1.tf" }}
+```terraform
+data "yandex_resourcemanager_cloud" "project1" {
+  name = "Project 1"
+}
+
+resource "yandex_resourcemanager_cloud_iam_binding" "admin" {
+  cloud_id = data.yandex_resourcemanager_cloud.project1.id
+
+  role = "editor"
+
+  members = [
+    "userAccount:some_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 

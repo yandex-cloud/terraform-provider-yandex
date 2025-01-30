@@ -1,11 +1,11 @@
 ---
 subcategory: "Datasphere"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_datasphere_community"
 description: |-
   Get information about a Yandex Cloud Datasphere Community.
 ---
 
-# {{.Name}}
+# yandex_datasphere_community
 
 Get information about a Yandex Cloud Datasphere Community.
 
@@ -13,7 +13,11 @@ This data source is used to define Yandex Cloud Datasphere Community that can be
 
 ## Example usage
 
-{{ tffile "examples/datasphere_community/d_datasphere_community_1.tf" }}
+```terraform
+data "yandex_datasphere_community" "my_datasphere_community" {
+  community_id = "community-id"
+}
+```
 
 ## Argument Reference
 

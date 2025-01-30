@@ -1,17 +1,21 @@
 ---
 subcategory: "Yandex API Gateway"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_api_gateway"
 description: |-
   Get information about a Yandex Cloud API Gateway.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_api_gateway (Data Source)
 
 Get information about a Yandex Cloud API Gateway. For more information, see the official documentation [Yandex Cloud API Gateway](https://cloud.yandex.com/docs/api-gateway/).
 
 ## Example usage
 
-{{ tffile "examples/api_gateway/d_api_gateway_1.tf" }}
+```terraform
+data "yandex_api_gateway" "my-api-gateway" {
+  name = "my-api-gateway"
+}
+```
 
 ## Argument Reference
 

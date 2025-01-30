@@ -1,11 +1,11 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_filesystem"
 description: |-
   File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_filesystem (Resource)
 
 File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.
 
@@ -22,7 +22,18 @@ For more information about filesystems in Yandex Cloud, see:
 
 ## Example usage
 
-{{ tffile "examples/compute_filesystem/r_compute_filesystem_1.tf" }}
+```terraform
+resource "yandex_compute_filesystem" "default" {
+  name = "fs-name"
+  type = "network-ssd"
+  zone = "ru-central1-a"
+  size = 10
+
+  labels = {
+    environment = "test"
+  }
+}
+```
 
 ## Argument Reference
 

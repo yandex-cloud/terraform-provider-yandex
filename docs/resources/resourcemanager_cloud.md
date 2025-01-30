@@ -1,17 +1,21 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_cloud"
 description: |-
   Allows management of the Cloud resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_cloud (Resource)
 
 Allows creation and management of Cloud resources for an existing Yandex Cloud Organization. See [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy) for additional info. Note: deletion of clouds may take up to 30 minutes as it requires a lot of communication between cloud services.
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_cloud/r_resourcemanager_cloud_1.tf" }}
+```terraform
+resource "yandex_resourcemanager_cloud" "cloud1" {
+  organization_id = "my_organization_id"
+}
+```
 
 ## Argument Reference
 

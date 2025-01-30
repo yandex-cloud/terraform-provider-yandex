@@ -1,12 +1,12 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_disk"
 description: |-
   Persistent disks are durable storage devices that function similarly to
   the physical disks in a desktop or a server.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_disk (Resource)
 
 Persistent disks are used for data storage and function similarly to physical hard and solid state drives.
 
@@ -21,9 +21,35 @@ For more information about disks in Yandex Cloud, see:
 
 ## Example usage
 
-{{ tffile "examples/compute_disk/r_compute_disk_1.tf" }}
+```terraform
+resource "yandex_compute_disk" "default" {
+  name     = "disk-name"
+  type     = "network-ssd"
+  zone     = "ru-central1-a"
+  image_id = "ubuntu-16.04-v20180727"
 
-{{ tffile "examples/compute_disk/r_compute_disk_2.tf" }}
+  labels = {
+    environment = "test"
+  }
+}
+```
+
+```terraform
+resource "yandex_compute_disk" "nr" {
+  name = "non-replicated-disk-name"
+  size = 93 // NB size must be divisible by 93  
+  type = "network-ssd-nonreplicated"
+  zone = "ru-central1-b"
+
+  disk_placement_policy {
+    disk_placement_group_id = yandex_compute_disk_placement_group.this.id
+  }
+}
+
+resource "yandex_compute_disk_placement_group" "this" {
+  zone = "ru-central1-b"
+}
+```
 
 ## Argument Reference
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cdn_origin_group"
 description: |-
   Get information about a Yandex CDN Origin Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cdn_origin_group (Data Source)
 
 Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/origins).
 
@@ -13,7 +13,15 @@ Get information about a Yandex CDN Origin Group. For more information, see [the 
 
 ## Example usage
 
-{{ tffile "examples/cdn_origin_group/d_cdn_origin_group_1.tf" }}
+```terraform
+data "yandex_cdn_origin_group" "my_group" {
+  origin_group_id = "some_instance_id"
+}
+
+output "origin_group_name" {
+  value = data.yandex_cdn_origin_group.my_group.name
+}
+```
 
 ## Argument Reference
 

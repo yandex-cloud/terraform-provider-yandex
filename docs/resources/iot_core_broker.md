@@ -1,17 +1,33 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iot_core_broker"
 description: |-
   Allows management of a Yandex Cloud IoT Core Broker.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iot_core_broker (Resource)
 
 Allows management of [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/iot_core_broker/r_iot_core_broker_1.tf" }}
+```terraform
+resource "yandex_iot_core_broker" "my_broker" {
+  name        = "some_name"
+  description = "any description"
+  labels = {
+    my-label = "my-label-value"
+  }
+  log_options {
+    log_group_id = "log-group-id"
+    min_level    = "ERROR"
+  }
+  certificates = [
+    "public part of certificate1",
+    "public part of certificate2"
+  ]
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,31 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_alb_target_group"
 description: |-
   An application load balancer distributes the load across cloud resources that are combined into a target group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_alb_target_group (Resource)
 
 Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/target-group).
 
 ## Example usage
 
-{{ tffile "examples/alb_target_group/r_alb_target_group_1.tf" }}
+```terraform
+resource "yandex_alb_target_group" "foo" {
+  name = "my-target-group"
+
+  target {
+    subnet_id  = yandex_vpc_subnet.my-subnet.id
+    ip_address = yandex_compute_instance.my-instance-1.network_interface.0.ip_address
+  }
+
+  target {
+    subnet_id  = yandex_vpc_subnet.my-subnet.id
+    ip_address = yandex_compute_instance.my-instance-2.network_interface.0.ip_address
+  }
+}
+```
 
 ## Argument Reference
 

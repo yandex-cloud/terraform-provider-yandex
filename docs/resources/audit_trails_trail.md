@@ -1,17 +1,60 @@
 ---
 subcategory: "Audit Trails"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_audit_trails_trail"
 description: |-
   Manages a trail resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_audit_trails_trail (Resource)
 
 Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail)
 
 ## Example usage
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_1.tf" }}
+```terraform
+resource "yandex_audit_trails_trail" "basic_trail" {
+  name        = "a-trail"
+  folder_id   = "home-folder"
+  description = "Some trail description"
+
+  labels = {
+    key = "value"
+  }
+
+  service_account_id = "trail-service-account"
+
+  logging_destination {
+    log_group_id = "some-log-group"
+  }
+
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+    data_events_filter {
+      service = "storage"
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+    data_events_filter {
+      service = "dns"
+      resource_scope {
+        resource_id   = "vpc-net-id-1"
+        resource_type = "vpc.network"
+      }
+      resource_scope {
+        resource_id   = "vpc-net-id-2"
+        resource_type = "vpc.network"
+      }
+    }
+  }
+}
+```
 
 Trail delivering events to YDS and gathering such events:
 
@@ -19,14 +62,87 @@ Trail delivering events to YDS and gathering such events:
 * DNS data events from the 'some-organization' organization
 * Object Storage data events from the 'some-organization' organization
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_2.tf" }}
+```terraform
+resource "yandex_audit_trails_trail" "basic_trail" {
+  name        = "a-trail"
+  folder_id   = "home-folder"
+  description = "Some trail description"
+
+  labels = {
+    key = "value"
+  }
+
+  service_account_id = "trail-service-account"
+
+  data_stream_destination {
+    database_id = "some-database"
+    stream_name = "some-stream"
+  }
+
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
+      }
+    }
+    data_events_filter {
+      service = "storage"
+      resource_scope {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
+      }
+    }
+    data_events_filter {
+      service = "dns"
+      resource_scope {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
+      }
+    }
+  }
+}
+```
 
 Trail delivering events to Object Storage and gathering such events:
 
 * Management events from the 'home-folder' folder
 * Managed PostgreSQL data events from the 'home-folder' folder
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_3.tf" }}
+```terraform
+resource "yandex_audit_trails_trail" "basic_trail" {
+  name        = "a-trail"
+  folder_id   = "home-folder"
+  description = "Some trail description"
+
+  labels = {
+    key = "value"
+  }
+
+  service_account_id = "trail-service-account"
+
+  storage_destination {
+    bucket_name   = "some-bucket"
+    object_prefix = "some-prefix"
+  }
+
+  filtering_policy {
+    management_events_filter {
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+    data_events_filter {
+      service = "mdb.postgresql"
+      resource_scope {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -147,19 +263,66 @@ In order to migrate from unsing `filter` to the `filtering_policy`, you will hav
 
 Before
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_4.tf" }}
+```terraform
+event_filters {
+  path_filter {
+    some_filter {
+      resource_id   = "home-folder"
+      resource_type = "resource-manager.folder"
+      any_filters {
+        resource_id   = "vpc-net-id-1"
+        resource_type = "vpc.network"
+      }
+      any_filters {
+        resource_id   = "vpc-net-id-2"
+        resource_type = "vpc.network"
+      }
+    }
+  }
+}
+```
 
 After
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_5.tf" }}
+```terraform
+data_events_filter {
+  service = "dns"
+  resource_scope {
+    resource_id   = "vpc-net-id-1"
+    resource_type = "vpc.network"
+  }
+  resource_scope {
+    resource_id   = "vpc-net-id-2"
+    resource_type = "vpc.network"
+  }
+}
+```
 
 * Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
 
 Before
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_6.tf" }}
+```terraform
+filter {
+  path_filter {
+    any_filter {
+      resource_id   = "home-folder"
+      resource_type = "resource-manager.folder"
+    }
+  }
+}
+```
 
 After
 
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_7.tf" }}
+```terraform
+filtering_policy {
+  management_events_filter {
+    resource_scope {
+      resource_id   = "home-folder"
+      resource_type = "resource-manager.folder"
+    }
+  }
+}
+```
 

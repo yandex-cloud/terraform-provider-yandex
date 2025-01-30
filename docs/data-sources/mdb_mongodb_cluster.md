@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for MongoDB"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_mongodb_cluster"
 description: |-
   Get information about a Yandex Managed MongoDB cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_mongodb_cluster (Data Source)
 
 Get information about a Yandex Managed MongoDB cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_mongodb_cluster/d_mdb_mongodb_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_mongodb_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_mongodb_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

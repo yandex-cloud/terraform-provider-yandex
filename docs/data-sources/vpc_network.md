@@ -1,17 +1,21 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_network"
 description: |-
   Get information about a Yandex VPC network.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_network (Data Source)
 
 Get information about a Yandex VPC network. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ## Example usage
 
-{{ tffile "examples/vpc_network/d_vpc_network_1.tf" }}
+```terraform
+data "yandex_vpc_network" "admin" {
+  network_id = "my-network-id"
+}
+```
 
 This data source is used to define [VPC Networks](https://cloud.yandex.com/docs/vpc/concepts/network) that can be used by other resources.
 

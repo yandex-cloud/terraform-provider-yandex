@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_ydb_database_dedicated"
 description: |-
   Get information about a Yandex Database dedicated cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_ydb_database_dedicated (Data Source)
 
 Get information about a Yandex Database (dedicated) cluster. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
 
 ## Example usage
 
-{{ tffile "examples/ydb_database_dedicated/d_ydb_database_dedicated_1.tf" }}
+```terraform
+data "yandex_ydb_database_dedicated" "my_database" {
+  database_id = "some_ydb_dedicated_database_id"
+}
+
+output "ydb_api_endpoint" {
+  value = data.yandex_ydb_database_dedicated.my_database.ydb_api_endpoint
+}
+```
 
 ## Argument Reference
 

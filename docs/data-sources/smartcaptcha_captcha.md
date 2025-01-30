@@ -1,11 +1,11 @@
 ---
 subcategory: "Smart Captcha"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_smartcaptcha_captcha"
 description: |-
   Get information about Yandex SmartCaptcha.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_smartcaptcha_captcha (Data Source)
 
 Get information about Yandex SmartCaptcha. For more information, see [the official documentation](https://yandex.cloud/docs/smartcaptcha/).
 
@@ -13,9 +13,23 @@ This data source is used to define Captcha that can be used by other resources.
 
 ## Example Usage
 
-{{ tffile "examples/smartcaptcha_captcha/d_smartcaptcha_captcha_1.tf" }}
+```terraform
+//
+// Get SmartCaptcha details by Id
+//
+data "yandex_smartcaptcha_captcha" "by-id" {
+  captcha_id = yandex_smartcaptcha_captcha.my-captcha.id
+}
+```
 
-{{ tffile "examples/smartcaptcha_captcha/d_smartcaptcha_captcha_2.tf" }}
+```terraform
+//
+// Get SmartCaptcha details by Name
+//
+data "yandex_smartcaptcha_captcha" "by-name" {
+  name = yandex_smartcaptcha_captcha.my-captcha.name
+}
+```
 
 
 ## Argument Reference

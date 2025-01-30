@@ -1,17 +1,41 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_advanced_rate_limiter_profile"
 description: |-
   Manage a SWS Advanced Rate Limiter.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_advanced_rate_limiter_profile (Resource)
 
 Creates an ARL Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#arl).
 
 ## Example usage
 
-{{ tffile "examples/sws_advanced_rate_limiter_profile/r_sws_advanced_rate_limiter_profile_1.tf" }}
+```terraform
+resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
+  name = "demo-profile"
+
+  advanced_rate_limiter_rule {
+    name        = "rule1"
+    priority    = 10
+    description = "First test rule"
+    dry_run     = true
+
+    static_quota {
+      action = "DENY"
+      limit  = 10000000
+      period = 1
+      condition {
+        request_uri {
+          path {
+            exact_match = "/api"
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 

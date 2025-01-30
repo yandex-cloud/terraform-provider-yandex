@@ -1,17 +1,41 @@
 ---
 subcategory: "Network Load Balancer (NLB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_lb_network_load_balancer"
 description: |-
   A network load balancer is used to evenly distribute the load across cloud resources.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_lb_network_load_balancer (Resource)
 
 Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts).
 
 ## Example usage
 
-{{ tffile "examples/lb_network_load_balancer/r_lb_network_load_balancer_1.tf" }}
+```terraform
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
+  listener {
+    name = "my-listener"
+    port = 8080
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.my-target-group.id
+
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 8080
+        path = "/ping"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 

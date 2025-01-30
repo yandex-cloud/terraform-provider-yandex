@@ -1,17 +1,25 @@
 ---
 subcategory: "Cloud Backup"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_backup_policy"
 description: |-
   Get information about Yandex Cloud Backup Policy.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_backup_policy (Data Source)
 
 Get information about a Yandex Backup Policy. For more information, see [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).
 
 ## Example usage
 
-{{ tffile "examples/backup_policy/d_backup_policy_1.tf" }}
+```terraform
+data "yandex_backup_policy" "my_policy" {
+  name = "some_policy_name"
+}
+
+output "my_policy_name" {
+  value = data.yandex_backup_policy.my_policy.name
+}
+```
 
 ## Argument Reference
 

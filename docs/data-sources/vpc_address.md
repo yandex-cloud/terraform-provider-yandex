@@ -1,17 +1,21 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_address"
 description: |-
   Get information about a Yandex VPC address.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_address (Data Source)
 
 Get information about a Yandex VPC address. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
 
 ## Example usage
 
-{{ tffile "examples/vpc_address/d_vpc_address_1.tf" }}
+```terraform
+data "yandex_vpc_address" "addr" {
+  address_id = "my-address-id"
+}
+```
 
 This data source is used to define [VPC Address](https://yandex.cloud/docs/vpc/concepts/address) that can be used by other resources.
 

@@ -1,17 +1,26 @@
 ---
 subcategory: "Object Storage (S3)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_storage_object"
 description: |-
   Allows management of a Yandex Cloud Storage Object.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_storage_object (Resource)
 
 Allows management of [Yandex Cloud Storage Object](https://cloud.yandex.com/docs/storage/concepts/object).
 
 ## Example usage
 
-{{ tffile "examples/storage_object/r_storage_object_1.tf" }}
+```terraform
+resource "yandex_storage_object" "cute-cat-picture" {
+  bucket = "cat-pictures"
+  key    = "cute-cat"
+  source = "/images/cats/cute-cat.jpg"
+  tags = {
+    test = "value"
+  }
+}
+```
 
 ## Argument Reference
 

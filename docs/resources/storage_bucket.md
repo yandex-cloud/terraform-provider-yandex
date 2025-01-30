@@ -1,11 +1,11 @@
 ---
 subcategory: "Object Storage (S3)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_storage_bucket"
 description: |-
   Allows management of a Yandex Cloud Storage Bucket.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_storage_bucket (Resource)
 
 Allows management of [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).
 
@@ -24,59 +24,371 @@ folder_id does not need to be specified unless you want to create the resource i
 
 ## Example usage
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_1.tf" }}
+```terraform
+provider "yandex" {
+  zone = "ru-central1-a"
+}
+
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket"
+}
+```
 
 ### Simple Private Bucket With Static Access Keys
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_2.tf" }}
+```terraform
+locals {
+  folder_id = "<folder-id>"
+}
+
+provider "yandex" {
+  zone = "ru-central1-a"
+}
+
+// Create SA
+resource "yandex_iam_service_account" "sa" {
+  folder_id = local.folder_id
+  name      = "tf-test-sa"
+}
+
+// Grant permissions
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = local.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
+}
+
+// Create Static Access Keys
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.sa.id
+  description        = "static access key for object storage"
+}
+
+// Use keys to create bucket
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket     = "tf-test-bucket"
+}
+```
 
 ### Static Website Hosting
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_3.tf" }}
+```terraform
+resource "yandex_storage_bucket" "test" {
+  bucket = "storage-website-test.hashicorp.com"
+  acl    = "public-read"
+
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules  = <<EOF
+[{
+    "Condition": {
+        "KeyPrefixEquals": "docs/"
+    },
+    "Redirect": {
+        "ReplaceKeyPrefixWith": "documents/"
+    }
+}]
+EOF
+  }
+
+}
+```
 
 ### Using ACL policy grants
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_4.tf" }}
+```terraform
+resource "yandex_storage_bucket" "test" {
+  bucket = "mybucket"
+
+  grant {
+    id          = "myuser"
+    type        = "CanonicalUser"
+    permissions = ["FULL_CONTROL"]
+  }
+
+  grant {
+    type        = "Group"
+    permissions = ["READ", "WRITE"]
+    uri         = "http://acs.amazonaws.com/groups/global/AllUsers"
+  }
+}
+```
 
 ### Using CORS
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_5.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "s3-website-test.hashicorp.com"
+  acl    = "public-read"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST"]
+    allowed_origins = ["https://s3-website-test.hashicorp.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+```
 
 ### Using versioning
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_6.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+}
+```
 
 ### Using Object Lock Configuration
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_11.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::my-policy-bucket/*",
+        "arn:aws:s3:::my-policy-bucket"
+      ]
+    },
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:PutObject",
+      "Resource": [
+        "arn:aws:s3:::my-policy-bucket/*",
+        "arn:aws:s3:::my-policy-bucket"
+      ]
+    }
+  ]
+}
+POLICY
+}
+```
 
 ### Bucket Tagging
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_12.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  tags = {
+    test_key  = "test_value"
+    other_key = "other_value"
+  }
+}
+```
 
 ### Bucket Max Size
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_13.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  max_size = 1048576
+}
+```
 
 ### Bucket Folder Id
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_14.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  folder_id = "<folder_id>"
+}
+```
 
 ### Bucket Anonymous Access Flags
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_15.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  anonymous_access_flags {
+    read        = true
+    list        = false
+    config_read = true
+  }
+}
+```
 
 ### Bucket HTTPS Certificate
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_16.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  https {
+    certificate_id = "<certificate_id_from_certificate_manager>"
+  }
+}
+```
 
 ### Bucket Default Storage Class
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_17.tf" }}
+```terraform
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  default_storage_class = "COLD"
+}
+```
 
 ### All settings example
 
-{{ tffile "examples/storage_bucket/r_storage_bucket_18.tf" }}
+```terraform
+//
+// All in one example
+//
+provider "yandex" {
+  token              = "<iam-token>"
+  folder_id          = "<folder-id>"
+  storage_access_key = "<storage-access-key>"
+  storage_secret_key = "<storage-secret-key>"
+}
+
+resource "yandex_storage_bucket" "log_bucket" {
+  bucket = "my-tf-log-bucket"
+
+  lifecycle_rule {
+    id      = "cleanupoldlogs"
+    enabled = true
+    expiration {
+      days = 365
+    }
+  }
+}
+
+resource "yandex_kms_symmetric_key" "key-a" {
+  name              = "example-symetric-key"
+  description       = "description for key"
+  default_algorithm = "AES_128"
+  rotation_period   = "8760h" // equal to 1 year
+}
+
+resource "yandex_storage_bucket" "all_settings" {
+  bucket = "example-tf-settings-bucket"
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+  }
+
+  lifecycle_rule {
+    id      = "test"
+    enabled = true
+    prefix  = "prefix/"
+    expiration {
+      days = 30
+    }
+  }
+  lifecycle_rule {
+    id      = "log"
+    enabled = true
+
+    prefix = "log/"
+
+    transition {
+      days          = 30
+      storage_class = "COLD"
+    }
+
+    expiration {
+      days = 90
+    }
+  }
+
+  lifecycle_rule {
+    id      = "everything180"
+    prefix  = ""
+    enabled = true
+
+    expiration {
+      days = 180
+    }
+  }
+  lifecycle_rule {
+    id      = "cleanupoldversions"
+    prefix  = "config/"
+    enabled = true
+
+    noncurrent_version_transition {
+      days          = 30
+      storage_class = "COLD"
+    }
+
+    noncurrent_version_expiration {
+      days = 90
+    }
+  }
+  lifecycle_rule {
+    id                                     = "abortmultiparts"
+    prefix                                 = ""
+    enabled                                = true
+    abort_incomplete_multipart_upload_days = 7
+  }
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT"]
+    allowed_origins = ["https://storage-cloud.example.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  logging {
+    target_bucket = yandex_storage_bucket.log_bucket.id
+    target_prefix = "tf-logs/"
+  }
+
+  max_size = 1024
+
+  folder_id = "<folder_id>"
+
+  default_storage_class = "COLD"
+
+  anonymous_access_flags {
+    read = true
+    list = true
+  }
+
+  https = {
+    certificate_id = "<certificate_id>"
+  }
+
+  tags = {
+    some_key = "some_value"
+  }
+}
+```
 
 
 ## Argument Reference

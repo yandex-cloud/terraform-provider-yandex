@@ -1,17 +1,26 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_registry"
 description: |-
   Creates a new container registry.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_registry (Resource)
 
 Creates a new container registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
 
 ## Example usage
 
-{{ tffile "examples/container_registry/r_container_registry_1.tf" }}
+```terraform
+resource "yandex_container_registry" "default" {
+  name      = "test-registry"
+  folder_id = "test_folder_id"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+```
 
 ## Argument Reference
 

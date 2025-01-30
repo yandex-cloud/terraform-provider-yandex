@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for ClickHouse"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_clickhouse_cluster"
 description: |-
   Get information about a Yandex Managed ClickHouse cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_clickhouse_cluster (Data Source)
 
 Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_clickhouse_cluster/d_mdb_clickhouse_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_clickhouse_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_clickhouse_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

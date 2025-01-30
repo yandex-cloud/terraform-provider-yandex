@@ -1,17 +1,21 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iot_core_broker"
 description: |-
   Get information about a Yandex Cloud IoT Core Broker.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iot_core_broker (Data Source)
 
 Get information about a Yandex IoT Core Broker. For more information IoT Core, see [Yandex Cloud IoT Broker](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/iot_core_broker/d_iot_core_broker_1.tf" }}
+```terraform
+data "yandex_iot_core_broker" "my_broker" {
+  broker_id = "are1samplebroker11"
+}
+```
 
 This data source is used to define [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
 

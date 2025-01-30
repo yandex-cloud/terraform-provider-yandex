@@ -1,17 +1,26 @@
 ---
 subcategory: "Managed Service for PostgreSQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_postgresql_database"
 description: |-
   Get information about a Yandex Managed PostgreSQL database.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_postgresql_database (Data Source)
 
 Get information about a Yandex Managed PostgreSQL database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
 
 ## Example usage
 
-{{ tffile "examples/mdb_postgresql_database/d_mdb_postgresql_database_1.tf" }}
+```terraform
+data "yandex_mdb_postgresql_database" "foo" {
+  cluster_id = "some_cluster_id"
+  name       = "test"
+}
+
+output "owner" {
+  value = data.yandex_mdb_postgresql_database.foo.owner
+}
+```
 
 ## Argument Reference
 

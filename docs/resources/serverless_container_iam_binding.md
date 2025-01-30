@@ -1,19 +1,28 @@
 ---
 subcategory: "Serverless Containers"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_serverless_container_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex Serverless Container.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_serverless_container_iam_binding (Resource)
 
-{{ .Description }}
+
 
 Allows management of a single IAM binding for a [Yandex Serverless Container](https://cloud.yandex.com/docs/serverless-containers/).
 
 ## Example usage
 
-{{ tffile "examples/serverless_container_iam_binding/r_serverless_container_iam_binding_1.tf" }}
+```terraform
+resource "yandex_serverless_container_iam_binding" "container-iam" {
+  container_id = "your-container-id"
+  role         = "serverless.containers.invoker"
+
+  members = [
+    "system:allUsers",
+  ]
+}
+```
 
 ## Argument Reference
 

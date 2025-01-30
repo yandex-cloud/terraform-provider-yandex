@@ -1,11 +1,11 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cm_certificate_iam_member"
 description: |-
   Allows management of a single member for a single IAM binding for a [Certificate](https://yandex.cloud/docs/certificate-manager/).
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cm_certificate_iam_member (Resource)
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Certificate.
 
@@ -13,7 +13,22 @@ Allows creation and management of a single member for a single binding within th
 
 ## Example usage
 
-{{ tffile "examples/cm_certificate_iam_member/r_cm_certificate_iam_member_1.tf" }}
+```terraform
+resource "yandex_cm_certificate" "your-certificate" {
+  name = "certificate-name"
+  domains = ["example.com"]
+  managed {
+    challenge_type = "DNS_CNAME"
+  }
+}
+
+resource "yandex_cm_certificate_iam_member" "viewer" {
+  certificate_id = yandex_cm_certificate.your-certificate.id
+  role      = "viewer"
+
+  member = "userAccount:foo_user_id"
+}
+```
 
 ## Argument Reference
 
@@ -38,5 +53,5 @@ The following arguments are supported:
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `certificate_id`, role, and account, e.g.
 
 ```
-$ terraform import {{.Name}}.viewer "certificate_id viewer foo@example.com"
+$ terraform import yandex_cm_certificate_iam_member.viewer "certificate_id viewer foo@example.com"
 ```

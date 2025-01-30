@@ -1,17 +1,26 @@
 ---
 subcategory: "Managed Service for Apache Kafka"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_kafka_connector"
 description: |-
   Get information about a connector of the Yandex Managed Kafka cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_kafka_connector (Data Source)
 
 Get information about a connector of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_kafka_connector/d_mdb_kafka_connector_1.tf" }}
+```terraform
+data "yandex_mdb_kafka_connector" "foo" {
+  cluster_id = "some_cluster_id"
+  name       = "test"
+}
+
+output "tasks_max" {
+  value = data.yandex_mdb_kafka_connector.foo.tasks_max
+}
+```
 
 ## Argument Reference
 

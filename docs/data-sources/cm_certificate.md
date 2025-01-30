@@ -1,21 +1,57 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cm_certificate"
 description: |-
   Get information about a Yandex Certificate Manager Certificate.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cm_certificate (Data Source)
 
 Get information about a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
 ## Example usage
 
-{{ tffile "examples/cm_certificate/d_cm_certificate_1.tf" }}
+```terraform
+data "yandex_cm_certificate" "example_by_id" {
+  certificate_id = "certificate-id"
+}
+
+data "yandex_cm_certificate" "example_by_name" {
+  folder_id = "folder-id"
+  name      = "example"
+}
+```
 
 This data source is used to define [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
 
-{{ tffile "examples/cm_certificate/d_cm_certificate_2.tf" }}
+```terraform
+resource "yandex_cm_certificate" "example" {
+  name    = "example"
+  domains = ["example.com", "*.example.com"]
+
+  managed {
+    challenge_type  = "DNS_CNAME"
+    challenge_count = 1 # "example.com" and "*.example.com" has the same challenge
+  }
+}
+
+resource "yandex_dns_recordset" "example" {
+  count   = yandex_cm_certificate.example.managed[0].challenge_count
+  zone_id = "example-zone-id"
+  name    = yandex_cm_certificate.example.challenges[count.index].dns_name
+  type    = yandex_cm_certificate.example.challenges[count.index].dns_type
+  data    = [yandex_cm_certificate.example.challenges[count.index].dns_value]
+  ttl     = 60
+}
+
+data "yandex_cm_certificate" "example" {
+  depends_on      = [yandex_dns_recordset.example]
+  certificate_id  = yandex_cm_certificate.example.id
+  wait_validation = true
+}
+
+# Use data.yandex_cm_certificate.example.id to get validated certificate
+```
 
 ## Argument Reference
 

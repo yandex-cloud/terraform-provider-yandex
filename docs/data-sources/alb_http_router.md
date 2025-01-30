@@ -1,17 +1,21 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_alb_http_router"
 description: |-
   Get information about a Yandex Application Load Balancer HTTP Router.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_alb_http_router (Data Source)
 
 Get information about a Yandex Application Load Balancer HTTP Router. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/alb_http_router/d_alb_http_router_1.tf" }}
+```terraform
+data "yandex_alb_http_router" "tf-router" {
+  http_router_id = "my-http-router-id"
+}
+```
 
 This data source is used to define [Application Load Balancer HTTP Router](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
 

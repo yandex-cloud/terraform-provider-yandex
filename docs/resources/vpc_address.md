@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_address"
 description: |-
   Manages a VPC address within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_address (Resource)
 
 Manages a address within the Yandex Cloud. You can only create a reserved (static) address via this resource. An ephemeral address could be obtained via implicit creation at a compute instance creation only. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
 
@@ -15,11 +15,28 @@ Manages a address within the Yandex Cloud. You can only create a reserved (stati
 
 ## Example usage
 
-{{ tffile "examples/vpc_address/r_vpc_address_1.tf" }}
+```terraform
+resource "yandex_vpc_address" "addr" {
+  name = "exampleAddress"
+
+  external_ipv4_address {
+    zone_id = "ru-central1-a"
+  }
+}
+```
 
 ### Address with DDoS protection
 
-{{ tffile "examples/vpc_address/r_vpc_address_2.tf" }}
+```terraform
+resource "yandex_vpc_address" "vpnaddr" {
+  name = "vpnaddr"
+
+  external_ipv4_address {
+    zone_id                  = "ru-central1-a"
+    ddos_protection_provider = "qrator"
+  }
+}
+```
 
 ## Argument Reference
 

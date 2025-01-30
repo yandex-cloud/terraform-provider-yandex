@@ -1,11 +1,11 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_lockbox_secret_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Lockbox Secret.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_lockbox_secret_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Lockbox Secret.
 
@@ -15,7 +15,20 @@ Allows creation and management of a single binding within IAM policy for an exis
 
 ## Example usage
 
-{{ tffile "examples/lockbox_secret_iam_binding/r_lockbox_secret_iam_binding_1.tf" }}
+```terraform
+resource "yandex_lockbox_secret" "your-secret" {
+  name = "secret-name"
+}
+
+resource "yandex_lockbox_secret_iam_binding" "viewer" {
+  secret_id = yandex_lockbox_secret.your-secret.id
+  role      = "viewer"
+
+  members = [
+    "userAccount:foo_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 

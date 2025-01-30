@@ -1,11 +1,11 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cdn_resource"
 description: |-
   Get information about a Yandex CDN Resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cdn_resource (Data Source)
 
 Get information about a Yandex CDN Resource. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/resource).
 
@@ -13,7 +13,15 @@ Get information about a Yandex CDN Resource. For more information, see [the offi
 
 ## Example usage
 
-{{ tffile "examples/cdn_resource/d_cdn_resource_1.tf" }}
+```terraform
+data "yandex_cdn_resource" "my_resource" {
+  resource_id = "some resource id"
+}
+
+output "resource_cname" {
+  value = data.yandex_cdn_resource.my_resource.cname
+}
+```
 
 ## Argument Reference
 

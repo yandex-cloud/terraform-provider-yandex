@@ -1,17 +1,21 @@
 ---
 subcategory: "Audit Trails"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_audit_trails_trail"
 description: |-
   Get information about a trail.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_audit_trails_trail (Data Source)
 
 Get information about a trail. For information about the trail concept, see [official documentation](https://yandex.cloud/docs/audit-trails/concepts/trail)
 
 ## Example usage
 
-{{ tffile "examples/audit_trails_trail/d_audit_trails_trail_1.tf" }}
+```terraform
+data "yandex_audit_trails_trail" "tf-trail-data" {
+  trail_id = "infosec-trail-id"
+}
+```
 
 ## Argument Reference
 

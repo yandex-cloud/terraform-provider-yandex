@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for Apache Kafka"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_kafka_cluster"
 description: |-
   Get information about a Yandex Managed Kafka cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_kafka_cluster (Data Source)
 
 Get information about a Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_kafka_cluster/d_mdb_kafka_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_kafka_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_kafka_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

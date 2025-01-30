@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_default_security_group"
 description: |-
   Yandex VPC Default Security Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_default_security_group (Resource)
 
 Manages a Default Security Group within the Yandex Cloud. For more information, see the official documentation of [security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups) or [default security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups#default-security-group).
 
@@ -19,7 +19,43 @@ When [network](https://cloud.yandex.com/docs/vpc/concepts/network) is created, a
 
 ## Example usage
 
-{{ tffile "examples/vpc_default_security_group/r_vpc_default_security_group_1.tf" }}
+```terraform
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_default_security_group" "default-sg" {
+  description = "description for default security group"
+  network_id  = yandex_vpc_network.lab-net.id
+
+  labels = {
+    my-label = "my-label-value"
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "rule2 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+
+  egress {
+    protocol       = "UDP"
+    description    = "rule3 description"
+    v4_cidr_blocks = ["10.0.1.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+```
 
 ## Argument Reference
 

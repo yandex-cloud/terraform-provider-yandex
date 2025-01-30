@@ -1,11 +1,11 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_security_profile"
 description: |-
   Get information about SmartWebSecurity Profile.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_security_profile (Data Source)
 
 Get information about SecurityProfile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/profiles).
 
@@ -13,9 +13,17 @@ This data source is used to define SecurityProfile that can be used by other res
 
 ## Example usage
 
-{{ tffile "examples/sws_security_profile/d_sws_security_profile_1.tf" }}
+```terraform
+data "yandex_sws_security_profile" "by-id" {
+  security_profile_id = yandex_sws_security_profile.my-profile.id
+}
+```
 
-{{ tffile "examples/sws_security_profile/d_sws_security_profile_2.tf" }}
+```terraform
+data "yandex_sws_security_profile" "by-name" {
+  name = yandex_sws_security_profile.my-profile.name
+}
+```
 
 
 ## Argument Reference

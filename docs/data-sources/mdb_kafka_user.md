@@ -1,17 +1,27 @@
 ---
 subcategory: "Managed Service for Apache Kafka"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_kafka_user"
 description: |-
   Get information about a user of the Yandex Managed Kafka cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_kafka_user (Data Source)
 
 Get information about a user of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_kafka_user/d_mdb_kafka_user_1.tf" }}
+```terraform
+data "yandex_mdb_kafka_user" "foo" {
+  cluster_id = "some_cluster_id"
+  name       = "test"
+  password   = "pass123"
+}
+
+output "username" {
+  value = data.yandex_mdb_kafka_user.foo.name
+}
+```
 
 ## Argument Reference
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_symmetric_key"
 description: |-
   Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_symmetric_key (Resource)
 
 Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
 
@@ -15,7 +15,14 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 
 ## Example usage
 
-{{ tffile "examples/kms_symmetric_key/r_kms_symmetric_key_1.tf" }}
+```terraform
+resource "yandex_kms_symmetric_key" "key-a" {
+  name              = "example-symetric-key"
+  description       = "description for key"
+  default_algorithm = "AES_128"
+  rotation_period   = "8760h" // equal to 1 year
+}
+```
 
 ## Argument Reference
 

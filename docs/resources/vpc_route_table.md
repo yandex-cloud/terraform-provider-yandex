@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_route_table"
 description: |-
   A VPC route table is a virtual version of the traditional route table on router device.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_route_table (Resource)
 
 Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts).
 
@@ -14,7 +14,30 @@ Manages a route table within the Yandex Cloud. For more information, see [the of
 
 ## Example usage
 
-{{ tffile "examples/vpc_route_table/r_vpc_route_table_1.tf" }}
+```terraform
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_gateway" "egress-gateway" {
+  name = "egress-gateway"
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "lab-rt-a" {
+  network_id = yandex_vpc_network.lab-net.id
+
+  static_route {
+    destination_prefix = "10.2.0.0/16"
+    next_hop_address   = "172.16.10.10"
+  }
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    gateway_id         = yandex_vpc_gateway.egress-gateway.id
+  }
+}
+```
 
 ## Argument Reference
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Cloud Content Delivery Network (CDN)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cdn_resource"
 description: |-
   Allows management of a Yandex Cloud CDN Resource.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cdn_resource (Resource)
 
 Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
 
@@ -13,7 +13,30 @@ Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/c
 
 ## Example usage
 
-{{ tffile "examples/cdn_resource/r_cdn_resource_1.tf" }}
+```terraform
+resource "yandex_cdn_resource" "my_resource" {
+  cname = "cdn1.yandex-example.ru"
+
+  active = false
+
+  origin_protocol = "https"
+
+  secondary_hostnames = ["cdn-example-1.yandex.ru", "cdn-example-2.yandex.ru"]
+
+  origin_group_id = yandex_cdn_origin_group.foo_cdn_group_by_id.id
+
+  options {
+    edge_cache_settings = 345600
+    ignore_cookie       = true
+    static_request_headers = {
+      is-from-cdn = "yes"
+    }
+    static_response_headers = {
+      is-cdn = "yes"
+    }
+  }
+}
+```
 
 ## Argument Reference
 

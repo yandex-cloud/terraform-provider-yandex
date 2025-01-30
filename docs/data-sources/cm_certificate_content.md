@@ -1,17 +1,26 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cm_certificate_content"
 description: |-
   Get content from a Yandex Certificate Manager Certificate.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cm_certificate_content (Data Source)
 
 Get content (certificate, private key) from a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
 ## Example usage
 
-{{ tffile "examples/cm_certificate_content/d_cm_certificate_content_1.tf" }}
+```terraform
+data "yandex_cm_certificate_content" "example_by_id" {
+  certificate_id = "certificate-id"
+}
+
+data "yandex_cm_certificate_content" "example_by_name" {
+  folder_id = "folder-id"
+  name      = "example"
+}
+```
 
 This data source is used to define contents of [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
 

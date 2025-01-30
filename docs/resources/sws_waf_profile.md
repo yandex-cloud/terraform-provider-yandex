@@ -1,19 +1,74 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_waf_profile"
 description: |-
   Manage a Web Application Firewall in Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_waf_profile (Resource)
 
 Creates a WAF Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#waf).
 
 ## Example usage
 
-{{ tffile "examples/sws_waf_profile/r_sws_waf_profile_1.tf" }}
+```terraform
+resource "yandex_sws_waf_profile" "empty" {
+  // NOTE: this WAF profile do not contains any rules enabled.
+  // See the next example to see how to enable default set of rules. 
+  name = "waf-profile-dummy"
 
-{{ tffile "examples/sws_waf_profile/r_sws_waf_profile_2.tf" }}
+  core_rule_set {
+    inbound_anomaly_score = 2
+    paranoia_level        = 1
+    rule_set {
+      name    = "OWASP Core Ruleset"
+      version = "4.0.0"
+    }
+  }
+}
+```
+
+```terraform
+locals {
+  waf_paranoia_level = 1
+}
+
+data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
+  name    = "OWASP Core Ruleset"
+  version = "4.0.0"
+}
+
+resource "yandex_sws_waf_profile" "default" {
+  name = "waf-profile-default"
+
+  core_rule_set {
+    inbound_anomaly_score = 2
+    paranoia_level        = local.waf_paranoia_level
+    rule_set {
+      name    = "OWASP Core Ruleset"
+      version = "4.0.0"
+    }
+  }
+
+  dynamic "rule" {
+    for_each = [
+      for rule in data.yandex_sws_waf_rule_set_descriptor.owasp4.rules : rule
+      if rule.paranoia_level >= local.waf_paranoia_level
+    ]
+    content {
+      rule_id     = rule.value.id
+      is_enabled  = true
+      is_blocking = false
+    }
+  }
+
+  analyze_request_body {
+    is_enabled        = true
+    size_limit        = 8
+    size_limit_action = "IGNORE"
+  }
+}
+```
 
 ## Argument Reference
 

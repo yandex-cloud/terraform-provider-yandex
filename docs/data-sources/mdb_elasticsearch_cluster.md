@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for Elasticsearch"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_elasticsearch_cluster"
 description: |-
   Get information about a Yandex Managed Elasticsearch cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_elasticsearch_cluster (Data Source)
 
 Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_elasticsearch_cluster/d_mdb_elasticsearch_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_elasticsearch_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_elasticsearch_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

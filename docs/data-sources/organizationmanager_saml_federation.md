@@ -1,17 +1,26 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_saml_federation"
 description: |-
   Get information about a Yandex Cloud SAML Federation.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_saml_federation (Data Source)
 
 Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/add-federation).
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_saml_federation/d_organizationmanager_saml_federation_1.tf" }}
+```terraform
+data "yandex_organizationmanager_saml_federation" "federation" {
+  federation_id   = "some_federation_id"
+  organization_id = "some_organization_id"
+}
+
+output "my_federation.name" {
+  value = data.yandex_organizationmanager_saml_federation.federation.name
+}
+```
 
 ## Argument Reference
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iam_service_account_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex IAM service account.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iam_service_account_iam_binding (Resource)
 
 **IAM policy for a service account**
 
@@ -23,7 +23,16 @@ There are three different resources that help you manage your IAM policy for a s
 
 ## Example usage
 
-{{ tffile "examples/iam_service_account_iam_binding/r_iam_service_account_iam_binding_1.tf" }}
+```terraform
+resource "yandex_iam_service_account_iam_binding" "admin-account-iam" {
+  service_account_id = "your-service-account-id"
+  role               = "admin"
+
+  members = [
+    "userAccount:foo_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 

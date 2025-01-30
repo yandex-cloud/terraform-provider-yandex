@@ -1,17 +1,28 @@
 ---
 subcategory: "Cloud Domain Name System (DNS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_dns_zone_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [DNS Zone](https://cloud.yandex.com/docs/dns/).
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_dns_zone_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing DNS Zone.
 
 ## Example usage
 
-{{ tffile "examples/dns_zone_iam_binding/r_dns_zone_iam_binding_1.tf" }}
+```terraform
+resource "yandex_dns_zone" "zone1" {
+  name = "my-private-zone"
+  zone = "example.com."
+}
+
+resource "yandex_dns_zone_iam_binding" "viewer" {
+  dns_zone_id = yandex_dns_zone.zone1.id
+  role        = "dns.viewer"
+  members     = ["userAccount:foo_user_id"]
+}
+```
 
 ## Argument Reference
 

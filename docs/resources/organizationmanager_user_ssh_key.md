@@ -1,17 +1,23 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_user_ssh_key"
 description: |-
   Allows management of User SSH Keys within an existing Yandex Cloud Organization and Subject.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_user_ssh_key (Resource)
 
 Allows management of User SSH Keys within an existing Yandex Cloud Organization and Subject.
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_user_ssh_key/r_organizationmanager_user_ssh_key_1.tf" }}
+```terraform
+resource "yandex_organizationmanager_user_ssh_key" "my_user_ssh_key" {
+  organization_id = "some_organization_id"
+  subject_id      = "some_subject_id"
+  data            = "ssh_key_data"
+}
+```
 
 ## Argument Reference
 

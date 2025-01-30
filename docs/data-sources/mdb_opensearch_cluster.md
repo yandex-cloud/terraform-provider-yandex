@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for OpenSearch"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_opensearch_cluster"
 description: |-
   Get information about a Yandex Managed OpenSearch cluster.
 ---
 
-# {{.Name}}
+# yandex_mdb_opensearch_cluster
 
 Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
 
 ## Example usage
 
-{{ tffile "examples/mdb_opensearch_cluster/d_mdb_opensearch_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_opensearch_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_opensearch_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

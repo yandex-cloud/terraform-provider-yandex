@@ -1,17 +1,21 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_folder"
 description: |-
   Allows management of the Cloud Folder.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_folder (Resource)
 
 Allows creation and management of Cloud Folders for an existing Yandex Cloud. See [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy) for additional info. Note: deletion of folders may take up to 30 minutes as it requires a lot of communication between cloud services.
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_folder/r_resourcemanager_folder_1.tf" }}
+```terraform
+resource "yandex_resourcemanager_folder" "folder1" {
+  cloud_id = "my_cloud_id"
+}
+```
 
 ## Argument Reference
 

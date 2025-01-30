@@ -1,17 +1,21 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_alb_backend_group"
 description: |-
   Get information about Yandex Application Load Balancer Backend Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_alb_backend_group (Data Source)
 
 Get information about a Yandex Application Load Balancer Backend Group. For more information, see [official documentation](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/alb_backend_group/d_alb_backend_group_1.tf" }}
+```terraform
+data "yandex_alb_backend_group" "foo" {
+  backend_group_id = "my-backend-group-id"
+}
+```
 
 This data source is used to define [Application Load Balancer Backend Groups](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group) that can be used by other resources.
 

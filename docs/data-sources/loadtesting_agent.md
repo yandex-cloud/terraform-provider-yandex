@@ -1,17 +1,25 @@
 ---
 subcategory: "Load Testing"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_loadtesting_agent"
 description: |-
   Get information about a Yandex Load Testing Agent.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_loadtesting_agent (Data Source)
 
 Get information about a Yandex Load Testing Agent.
 
 ## Example usage
 
-{{ tffile "examples/loadtesting_agent/d_loadtesting_agent_1.tf" }}
+```terraform
+data "yandex_loadtesting_agent" "my_agent" {
+  agent_id = "some_agent_id"
+}
+
+output "instance_external_ip" {
+  value = data.yandex_loadtesting_agent.my_agent.compute_instance.0.network_interface.0.nat_ip_address
+}
+```
 
 ## Argument Reference
 

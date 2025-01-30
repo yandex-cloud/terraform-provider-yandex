@@ -1,17 +1,31 @@
 ---
 subcategory: "Client Config"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_client_config"
 description: |-
   Get attributes used by provider to configure client connection.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_client_config (Data Source)
 
 Get attributes used by provider to configure client connection.
 
 ## Example usage
 
-{{ tffile "examples/client_config/d_client_config_1.tf" }}
+```terraform
+data "yandex_client_config" "client" {}
+
+data "yandex_kubernetes_cluster" "kubernetes" {
+  name = "kubernetes"
+}
+
+provider "kubernetes" {
+  load_config_file = false
+
+  host                   = data.yandex_kubernetes_cluster.kubernetes.master.0.external_v4_endpoint
+  cluster_ca_certificate = data.yandex_kubernetes_cluster.kubernetes.master.0.cluster_ca_certificate
+  token                  = data.yandex_client_config.client.iam_token
+}
+```
 
 ## Attributes Reference
 

@@ -1,17 +1,38 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_repository_lifecycle_policy"
 description: |-
   Creates a new container repository lifecycle policy.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_repository_lifecycle_policy (Resource)
 
 Creates a new container repository lifecycle policy. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).
 
 ## Example usage
 
-{{ tffile "examples/container_repository_lifecycle_policy/r_container_repository_lifecycle_policy_1.tf" }}
+```terraform
+resource "yandex_container_registry" "my_registry" {
+  name = "test-registry"
+}
+
+resource "yandex_container_repository" "my_repository" {
+  name = "${yandex_container_registry.my_registry.id}/test-repository"
+}
+
+resource "yandex_container_repository_lifecycle_policy" "my_lifecycle_policy" {
+  name          = "test-lifecycle-policy-name"
+  status        = "active"
+  repository_id = yandex_container_repository.my_repository.id
+
+  rule {
+    description  = "my description"
+    untagged     = true
+    tag_regexp   = ".*"
+    retained_top = 1
+  }
+}
+```
 
 ## Argument Reference
 

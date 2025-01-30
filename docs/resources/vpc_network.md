@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_network"
 description: |-
   Manages a network within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_network (Resource)
 
 Manages a network within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#network).
 
@@ -15,7 +15,11 @@ Manages a network within the Yandex Cloud. For more information, see [the offici
 
 ## Example usage
 
-{{ tffile "examples/vpc_network/r_vpc_network_1.tf" }}
+```terraform
+resource "yandex_vpc_network" "default" {
+  name = "foobar"
+}
+```
 
 ## Argument Reference
 

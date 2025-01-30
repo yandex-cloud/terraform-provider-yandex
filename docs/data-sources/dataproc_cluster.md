@@ -1,17 +1,25 @@
 ---
 subcategory: "Data Processing"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_dataproc_cluster"
 description: |-
   Get information about a Yandex Data Processing cluster
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_dataproc_cluster (Data Source)
 
 Get information about a Yandex Data Processing cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
 
 ## Example usage
 
-{{ tffile "examples/dataproc_cluster/d_dataproc_cluster_1.tf" }}
+```terraform
+data "yandex_dataproc_cluster" "foo" {
+  name = "test"
+}
+
+output "service_account_id" {
+  value = data.yandex_dataproc_cluster.foo.service_account_id
+}
+```
 
 ## Argument Reference
 

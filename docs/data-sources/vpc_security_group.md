@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_security_group"
 description: |-
   Get information about a Yandex VPC Security Group Rule.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_security_group (Data Source)
 
 Get information about a Yandex VPC Security Group Rule. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/security-groups).
 
@@ -13,9 +13,17 @@ This data source used to define Security Group Rule that can be used by other re
 
 ## Example Usage
 
-{{ tffile "examples/vpc_security_group/d_vpc_security_group_1.tf" }}
+```terraform
+data "yandex_vpc_security_group" "group1" {
+  security_group_id = "my-id"
+}
+```
 
-{{ tffile "examples/vpc_security_group/d_vpc_security_group_2.tf" }}
+```terraform
+data "yandex_vpc_security_group" "group1" {
+  name = "my-group1"
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,36 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_folder"
 description: |-
   Get information about a Yandex RM Folder.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_folder (Data Source)
 
 Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder).
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_folder/d_resourcemanager_folder_1.tf" }}
+```terraform
+# Get folder by ID
+data "yandex_resourcemanager_folder" "my_folder_1" {
+  folder_id = "folder_id_number_1"
+}
+
+# Get folder by name in specific cloud
+data "yandex_resourcemanager_folder" "my_folder_2" {
+  name     = "folder_name"
+  cloud_id = "some_cloud_id"
+}
+
+output "my_folder_1_name" {
+  value = data.yandex_resourcemanager_folder.my_folder_1.name
+}
+
+output "my_folder_2_cloud_id" {
+  value = data.yandex_resourcemanager_folder.my_folder_2.cloud_id
+}
+```
 
 ## Argument Reference
 

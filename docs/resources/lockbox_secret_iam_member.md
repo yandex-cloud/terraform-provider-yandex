@@ -1,11 +1,11 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_lockbox_secret_iam_member"
 description: |-
   Allows management of a single member for a single IAM binding for a Lockbox Secret.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_lockbox_secret_iam_member (Resource)
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Lockbox Secret.
 
@@ -13,7 +13,18 @@ Allows creation and management of a single member for a single binding within th
 
 ## Example usage
 
-{{ tffile "examples/lockbox_secret_iam_member/r_lockbox_secret_iam_member_1.tf" }}
+```terraform
+resource "yandex_lockbox_secret" "your-secret" {
+  name = "secret-name"
+}
+
+resource "yandex_lockbox_secret_iam_member" "viewer" {
+  secret_id = yandex_lockbox_secret.your-secret.id
+  role      = "viewer"
+
+  member = "userAccount:foo_user_id"
+}
+```
 
 ## Argument Reference
 
@@ -38,5 +49,5 @@ The following arguments are supported:
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `secret_id`, role, and account, e.g.
 
 ```
-$ terraform import {{.Name}}.viewer "secret_id viewer foo@example.com"
+$ terraform import yandex_lockbox_secret_iam_member.viewer "secret_id viewer foo@example.com"
 ```

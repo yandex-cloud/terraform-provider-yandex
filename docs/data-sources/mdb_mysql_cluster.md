@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for MySQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_mysql_cluster"
 description: |-
   Get information about a Yandex Managed MySQL cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_mysql_cluster (Data Source)
 
 Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
 ## Example usage
 
-{{ tffile "examples/mdb_mysql_cluster/d_mdb_mysql_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_mysql_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_mysql_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

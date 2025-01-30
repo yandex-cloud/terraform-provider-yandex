@@ -1,17 +1,35 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iot_core_device"
 description: |-
   Allows management of a Yandex Cloud IoT Core Device.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iot_core_device (Resource)
 
 Allows management of [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/iot_core_device/r_iot_core_device_1.tf" }}
+```terraform
+resource "yandex_iot_core_device" "my_device" {
+  registry_id = "are1sampleregistryid11"
+  name        = "some_name"
+  description = "any description"
+  aliases = {
+    "some_alias1/subtopic" = "$devices/{id}/events/somesubtopic",
+    "some_alias2/subtopic" = "$devices/{id}/events/aaa/bbb",
+  }
+  passwords = [
+    "my-password1",
+    "my-password2"
+  ]
+  certificates = [
+    "public part of certificate1",
+    "public part of certificate2"
+  ]
+}
+```
 
 ## Argument Reference
 

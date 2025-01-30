@@ -1,11 +1,11 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_secret_ciphertext"
 description: |-
   Encrypts given plaintext with the specified Yandex KMS key and provides access to the ciphertext.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_secret_ciphertext (Resource)
 
 Encrypts given plaintext with the specified Yandex KMS key and provides access to the ciphertext.
 
@@ -15,7 +15,18 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 
 ## Example usage
 
-{{ tffile "examples/kms_secret_ciphertext/r_kms_secret_ciphertext_1.tf" }}
+```terraform
+resource "yandex_kms_symmetric_key" "example" {
+  name        = "example-symetric-key"
+  description = "description for key"
+}
+
+resource "yandex_kms_secret_ciphertext" "password" {
+  key_id      = yandex_kms_symmetric_key.example.id
+  aad_context = "additional authenticated data"
+  plaintext   = "strong password"
+}
+```
 
 ## Argument Reference
 

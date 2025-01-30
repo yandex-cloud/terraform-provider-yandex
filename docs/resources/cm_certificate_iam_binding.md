@@ -1,11 +1,11 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cm_certificate_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [Certificate](https://yandex.cloud/docs/certificate-manager/).
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cm_certificate_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Certificate.
 
@@ -15,7 +15,24 @@ Allows creation and management of a single binding within IAM policy for an exis
 
 ## Example usage
 
-{{ tffile "examples/cm_certificate_iam_binding/r_cm_certificate_iam_binding_1.tf" }}
+```terraform
+resource "yandex_cm_certificate" "your-certificate" {
+  name = "certificate-name"
+  domains = ["example.com"]
+  managed {
+    challenge_type = "DNS_CNAME"
+  }
+}
+
+resource "yandex_cm_certificate_iam_binding" "viewer" {
+  certificate_id = yandex_cm_certificate.your-certificate.id
+  role      = "viewer"
+
+  members = [
+    "userAccount:foo_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -40,5 +57,5 @@ The following arguments are supported:
 IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `certificate_id` and role, e.g.
 
 ```
-$ terraform import {{.Name}}.viewer "certificate_id viewer"
+$ terraform import yandex_cm_certificate_iam_binding.viewer "certificate_id viewer"
 ```

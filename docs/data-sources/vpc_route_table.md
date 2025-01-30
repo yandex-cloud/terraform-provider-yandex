@@ -1,17 +1,21 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_route_table"
 description: |-
   Get information about a Yandex VPC route table.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_route_table (Data Source)
 
 Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts).
 
 ## Example usage
 
-{{ tffile "examples/vpc_route_table/d_vpc_route_table_1.tf" }}
+```terraform
+data "yandex_vpc_route_table" "this" {
+  route_table_id = "my-rt-id"
+}
+```
 
 This data source is used to define [VPC Route Table](https://cloud.yandex.com/docs/vpc/concepts/) that can be used by other resources.
 

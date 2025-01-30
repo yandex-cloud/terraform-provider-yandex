@@ -1,17 +1,31 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_snapshot"
 description: |-
   Get information about a Yandex Compute Snapshot.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_snapshot (Data Source)
 
 Get information about a Yandex Compute snapshot. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
 
 ## Example usage
 
-{{ tffile "examples/compute_snapshot/d_compute_snapshot_1.tf" }}
+```terraform
+data "yandex_compute_snapshot" "my_snapshot" {
+  snapshot_id = "some_snapshot_id"
+}
+
+resource "yandex_compute_instance" "default" {
+  ...
+
+  boot_disk {
+    initialize_params {
+      snapshot_id = "${data.yandex_compute_snapshot.my_snapshot.id}"
+    }
+  }
+}
+```
 
 ## Argument Reference
 

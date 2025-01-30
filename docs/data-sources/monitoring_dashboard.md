@@ -1,17 +1,21 @@
 ---
 subcategory: "Monitoring"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_monitoring_dashboard"
 description: |-
   Get information about a Yandex Monitoring dashboard.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_monitoring_dashboard (Data Source)
 
 Get information about a Yandex Monitoring dashboard.
 
 ## Example usage
 
-{{ tffile "examples/monitoring_dashboard/d_monitoring_dashboard_1.tf" }}
+```terraform
+data "yandex_monitoring_dashboard" "my_dashboard" {
+  dashboard_id = "some_instance_dashboard_id"
+}
+```
 
 ## Argument Reference
 

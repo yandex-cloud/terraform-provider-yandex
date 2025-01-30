@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for SQLServer"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_sqlserver_cluster"
 description: |-
   Get information about a Yandex Managed SQLServer cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_sqlserver_cluster (Data Source)
 
 Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/).
 
 ## Example usage
 
-{{ tffile "examples/mdb_sqlserver_cluster/d_mdb_sqlserver_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_sqlserver_cluster" "foo" {
+  name = "test"
+}
+
+output "network_id" {
+  value = data.yandex_mdb_sqlserver_cluster.foo.network_id
+}
+```
 
 ## Argument Reference
 

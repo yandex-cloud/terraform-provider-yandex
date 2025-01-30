@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for PostgreSQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_postgresql_cluster"
 description: |-
   Get information about a Yandex Managed PostgreSQL cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_postgresql_cluster (Data Source)
 
 Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example usage
 
-{{ tffile "examples/mdb_postgresql_cluster/d_mdb_postgresql_cluster_1.tf" }}
+```terraform
+data "yandex_mdb_postgresql_cluster" "foo" {
+  name = "test"
+}
+
+output "fqdn" {
+  value = data.yandex_mdb_postgresql_cluster.foo.host.0.fqdn
+}
+```
 
 ## Argument Reference
 

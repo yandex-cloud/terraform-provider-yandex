@@ -1,21 +1,34 @@
 ---
 subcategory: "Lockbox (Secret Management)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_lockbox_secret"
 description: |-
   Manages Yandex Cloud Lockbox secret.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_lockbox_secret (Resource)
 
 Yandex Cloud Lockbox secret resource. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
 
 ## Example usage
 
-{{ tffile "examples/lockbox_secret/r_lockbox_secret_1.tf" }}
+```terraform
+resource "yandex_lockbox_secret" "my_secret" {
+  name = "test secret"
+}
+```
 
 Use `yandex_lockbox_secret_version` to add entries to the secret.
 
-{{ tffile "examples/lockbox_secret/r_lockbox_secret_2.tf" }}
+```terraform
+resource "yandex_lockbox_secret" "my_secret" {
+  name = "test secret with passowrd"
+
+  password_payload_specification {
+    password_key = "some_password"
+    length       = 12
+  }
+}
+```
 
 The created secret will contain a version with the generated password. You can use `yandex_lockbox_secret_version` to create new versions.
 

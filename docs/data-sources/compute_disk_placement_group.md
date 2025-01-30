@@ -1,17 +1,25 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_disk_placement_group"
 description: |-
   Get information about a Yandex Compute Disk Placement Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_disk_placement_group (Data Source)
 
 Get information about a Yandex Compute Disk Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
 ## Example usage
 
-{{ tffile "examples/compute_disk_placement_group/d_compute_disk_placement_group_1.tf" }}
+```terraform
+data "yandex_compute_disk_placement_group" "my_group" {
+  group_id = "some_group_id"
+}
+
+output "placement_group_name" {
+  value = data.yandex_compute_disk_placement_group.my_group.name
+}
+```
 
 ## Argument Reference
 

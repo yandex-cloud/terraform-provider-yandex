@@ -1,17 +1,25 @@
 ---
 subcategory: "Cloud Logging"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_logging_group"
 description: |-
   Get information about a Yandex Cloud Logging group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_logging_group (Data Source)
 
 Get information about a Yandex Cloud Logging group. For more information, see [the official documentation](https://yandex.cloud/docs/logging/concepts/log-group).
 
 ## Example usage
 
-{{ tffile "examples/logging_group/d_logging_group_1.tf" }}
+```terraform
+data "yandex_logging_group" "my_group" {
+  group_id = "some_yandex_logging_group_id"
+}
+
+output "log_group_retention_period" {
+  value = data.yandex_logging_group.my_group.retention_period
+}
+```
 
 ## Argument Reference
 

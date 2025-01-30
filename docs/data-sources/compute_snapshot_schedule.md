@@ -1,17 +1,21 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_snapshot_schedule"
 description: |-
   Get information about a Yandex Compute SnapshotSchedule.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_snapshot_schedule (Data Source)
 
 Get information about a Yandex Compute snapshot schedule. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot-schedule).
 
 ## Example usage
 
-{{ tffile "examples/compute_snapshot_schedule/d_compute_snapshot_schedule_1.tf" }}
+```terraform
+data "yandex_compute_snapshot_schedule" "my_snapshot_schedule" {
+  snapshot_schedule_id = "some_snapshot_schedule_id"
+}
+```
 
 ## Argument Reference
 

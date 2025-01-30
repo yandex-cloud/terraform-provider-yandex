@@ -1,17 +1,37 @@
 ---
 subcategory: "IoT Core"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iot_core_registry"
 description: |-
   Allows management of a Yandex Cloud IoT Core Registry.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iot_core_registry (Resource)
 
 Allows management of [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/iot_core_registry/r_iot_core_registry_1.tf" }}
+```terraform
+resource "yandex_iot_core_registry" "my_registry" {
+  name        = "some_name"
+  description = "any description"
+  labels = {
+    my-label = "my-label-value"
+  }
+  log_options {
+    log_group_id = "log-group-id"
+    min_level    = "ERROR"
+  }
+  passwords = [
+    "my-password1",
+    "my-password2"
+  ]
+  certificates = [
+    "public part of certificate1",
+    "public part of certificate2"
+  ]
+}
+```
 
 ## Argument Reference
 

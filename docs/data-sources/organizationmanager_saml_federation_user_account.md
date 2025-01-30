@@ -1,11 +1,11 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_saml_federation_user_account"
 description: |-
   Get information about a user of a Yandex SAML Federation.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_saml_federation_user_account (Data Source)
 
 Get information about a user of Yandex SAML Federation. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/operations/federations/integration-common).
 
@@ -13,7 +13,16 @@ Get information about a user of Yandex SAML Federation. For more information, se
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_saml_federation_user_account/d_organizationmanager_saml_federation_user_account_1.tf" }}
+```terraform
+data "yandex_organizationmanager_saml_federation_user_account" "account" {
+  federation_id = "some_federation_id"
+  name_id       = "example@example.org"
+}
+
+output "my_federation.id" {
+  value = data.yandex_organizationmanager_saml_federation_user_account.account.id
+}
+```
 
 ## Argument Reference
 

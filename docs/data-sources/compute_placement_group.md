@@ -1,17 +1,25 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_placement_group"
 description: |-
   Get information about a Yandex Compute Placement Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_placement_group (Data Source)
 
 Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
-{{ tffile "examples/compute_placement_group/d_compute_placement_group_1.tf" }}
+```terraform
+data "yandex_compute_placement_group" "my_group" {
+  group_id = "some_group_id"
+}
+
+output "placement_group_name" {
+  value = data.yandex_compute_placement_group.my_group.name
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,29 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_filesystem"
 description: |-
   Get information about a Yandex Compute filesystem.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_filesystem (Data Source)
 
 Get information about a Yandex Compute filesystem. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/filesystem).
 
 ## Example usage
 
-{{ tffile "examples/compute_filesystem/d_compute_filesystem_1.tf" }}
+```terraform
+data "yandex_compute_filesystem" "my_fs" {
+  filesystem_id = "some_fs_id"
+}
+
+resource "yandex_compute_instance" "default" {
+  ...
+
+  filesystem {
+    filesystem_id = "${data.yandex_compute_filesystem.my_fs.id}"
+  }
+}
+```
 
 ## Argument Reference
 

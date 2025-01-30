@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for Kubernetes (MK8S)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kubernetes_node_group"
 description: |-
   Get information about a Yandex Kubernetes Node Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kubernetes_node_group (Data Source)
 
 Get information about a Yandex Kubernetes Node Group. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
 
 ## Example usage
 
-{{ tffile "examples/kubernetes_node_group/d_kubernetes_node_group_1.tf" }}
+```terraform
+data "yandex_kubernetes_node_group" "my_node_group" {
+  node_group_id = "some_k8s_node_group_id"
+}
+
+output "my_node_group.status" {
+  value = data.yandex_kubernetes_node_group.my_node_group.status
+}
+```
 
 ## Argument Reference
 

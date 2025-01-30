@@ -1,17 +1,23 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_group_iam_member"
 description: |-
   Allows management of a single member for a single IAM binding on a Yandex Cloud Organization Manager Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_group_iam_member (Resource)
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Organization Manager Group.
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_group_iam_member/r_organizationmanager_group_iam_member_1.tf" }}
+```terraform
+resource "yandex_organizationmanager_group_iam_member" "editor" {
+  group_id = "some_group_id"
+  role     = "editor"
+  member   = "userAccount:user_id"
+}
+```
 
 ## Argument Reference
 

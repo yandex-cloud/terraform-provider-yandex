@@ -1,17 +1,31 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_function_scaling_policy"
 description: |-
   Allows management of a Yandex Cloud Function Scaling Policy.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_function_scaling_policy (Resource)
 
 Allows management of [Yandex Cloud Function Scaling Policies](https://cloud.yandex.com/docs/functions/)
 
 ## Example usage
 
-{{ tffile "examples/function_scaling_policy/r_function_scaling_policy_1.tf" }}
+```terraform
+resource "yandex_function_scaling_policy" "my_scaling_policy" {
+  function_id = "are1samplefunction11"
+  policy {
+    tag                  = "$latest"
+    zone_instances_limit = 3
+    zone_requests_limit  = 100
+  }
+  policy {
+    tag                  = "my_tag"
+    zone_instances_limit = 4
+    zone_requests_limit  = 150
+  }
+}
+```
 
 ## Argument Reference
 

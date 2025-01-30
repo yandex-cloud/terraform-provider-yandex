@@ -1,19 +1,27 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_waf_profile"
 description: |-
   Get information about SmartWebSecurity WAF Profile.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_waf_profile (Data Source)
 
 Get information about WAF Profile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#waf).
 
 ## Example usage
 
-{{ tffile "examples/sws_waf_profile/d_sws_waf_profile_1.tf" }}
+```terraform
+data "yandex_sws_waf_profile" "by-id" {
+  waf_profile_id = yandex_sws_waf_profile.my-profile.id
+}
+```
 
-{{ tffile "examples/sws_waf_profile/d_sws_waf_profile_2.tf" }}
+```terraform
+data "yandex_sws_waf_profile" "by-name" {
+  name = yandex_sws_waf_profile.my-profile.name
+}
+```
 
 This data source is used to define WAF Profile that can be used by other resources.
 

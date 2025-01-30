@@ -1,11 +1,11 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_asymmetric_encryption_key_iam_binding"
 description: |-
   Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_asymmetric_encryption_key_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Asymmetric Encryption Key.
 
@@ -15,7 +15,20 @@ Allows creation and management of a single binding within IAM policy for an exis
 
 ## Example usage
 
-{{ tffile "examples/kms_asymmetric_encryption_key_iam_binding/r_kms_asymmetric_encryption_key_iam_binding_1.tf" }}
+```terraform
+resource "yandex_kms_asymmetric_encryption_key" "your-key" {
+  name      = "asymmetric-encryption-key-name"
+}
+
+resource "yandex_kms_asymmetric_encryption_key_iam_binding" "viewer" {
+  asymmetric_encryption_key_id = yandex_kms_asymmetric_encryption_key.your-key.id
+  role                         = "viewer"
+
+  members = [
+    "userAccount:foo_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_gpu_cluster"
 description: |-
   GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_gpu_cluster (Resource)
 
 GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.
 
@@ -17,7 +17,17 @@ For more information about GPU cluster in Yandex Cloud, see:
 
 ## Example usage
 
-{{ tffile "examples/compute_gpu_cluster/r_compute_gpu_cluster_1.tf" }}
+```terraform
+resource "yandex_compute_gpu_cluster" "default" {
+  name              = "gpu-cluster-name"
+  interconnect_type = "infiniband"
+  zone              = "ru-central1-a"
+
+  labels = {
+    environment = "test"
+  }
+}
+```
 
 ## Argument Reference
 

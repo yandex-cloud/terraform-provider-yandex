@@ -1,17 +1,23 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_group"
 description: |-
   Allows management of a single Group within an existing Yandex Cloud Organization.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_group (Resource)
 
 Allows management of a single Group within an existing Yandex Cloud Organization. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups).
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_group/r_organizationmanager_group_1.tf" }}
+```terraform
+resource "yandex_organizationmanager_group" "group" {
+  name            = "my-group"
+  description     = "My new Group"
+  organization_id = "sdf4*********3fr"
+}
+```
 
 ## Argument Reference
 

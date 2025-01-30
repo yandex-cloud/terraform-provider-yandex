@@ -1,17 +1,27 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_registry_ip_permission"
 description: |-
   Creates a new Container Registry IP Permission.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_registry_ip_permission (Resource)
 
 Creates a new Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access)
 
 ## Example usage
 
-{{ tffile "examples/container_registry_ip_permission/r_container_registry_ip_permission_1.tf" }}
+```terraform
+resource "yandex_container_registry" "my_registry" {
+  name = "test-registry"
+}
+
+resource "yandex_container_registry_ip_permission" "my_ip_permission" {
+  registry_id = yandex_container_registry.my_registry.id
+  push        = ["10.1.0.0/16", "10.2.0.0/16", "10.3.0.0/16"]
+  pull        = ["10.1.0.0/16", "10.5.0/16"]
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,26 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_snapshot"
 description: |-
   Creates a new snapshot of a disk.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_snapshot (Resource)
 
 Creates a new snapshot of a disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
 
 ## Example usage
 
-{{ tffile "examples/compute_snapshot/r_compute_snapshot_1.tf" }}
+```terraform
+resource "yandex_compute_snapshot" "default" {
+  name           = "test-snapshot"
+  source_disk_id = "test_disk_id"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+```
 
 ## Argument Reference
 

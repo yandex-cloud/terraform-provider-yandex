@@ -1,11 +1,11 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_asymmetric_encryption_key"
 description: |-
   Creates a Yandex KMS asymmetric encryption key that can be used for cryptographic operation.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_asymmetric_encryption_key (Resource)
 
 Creates a Yandex KMS asymmetric encryption key that can be used for cryptographic operation.
 
@@ -15,7 +15,13 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 
 ## Example usage
 
-{{ tffile "examples/kms_asymmetric_encryption_key/r_kms_asymmetric_encryption_key_1.tf" }}
+```terraform
+resource "yandex_kms_asymmetric_encryption_key" "key-a" {
+  name                 = "example-asymetric-encryption-key"
+  description          = "description for key"
+  encryption_algorithm = "RSA_2048_ENC_OAEP_SHA_256"
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,48 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_repository_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex Container Repository.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_repository_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/repository).
 
 ## Example usage
 
-{{ tffile "examples/container_repository_iam_binding/r_container_repository_iam_binding_1.tf" }}
+```terraform
+resource yandex_container_registry your-registry {
+  folder_id = "your-folder-id"
+  name      = "registry-name"
+}
+
+resource yandex_container_repository repo-1 {
+  name      = "${yandex_container_registry.your-registry.id}/repo-1"
+}
+
+resource "yandex_container_repository_iam_binding" "puller" {
+  repository_id = yandex_container_repository.repo-1.id
+  role        = "container-registry.images.puller"
+
+  members = [
+    "system:allUsers",
+  ]
+}
+
+data "yandex_container_repository" "repo-2" {
+  name = "some_repository_name"
+}
+
+resource "yandex_container_repository_iam_binding" "pusher" {
+  repository_id = yandex_container_repository.repo-2.id
+  role        = "container-registry.images.pusher"
+
+  members = [
+    "serviceAccount:your-service-account-id",
+  ]
+}
+```
 
 ## Argument Reference
 

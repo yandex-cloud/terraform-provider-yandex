@@ -1,17 +1,25 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_repository"
 description: |-
   Get information about a Yandex Container Repository.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_repository (Data Source)
 
 Get information about a Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/repository).
 
 ## Example usage
 
-{{ tffile "examples/container_repository/d_container_repository_1.tf" }}
+```terraform
+data "yandex_container_repository" "repo-1" {
+  name = "some_repository_name"
+}
+
+data "yandex_container_repository" "repo-2" {
+  repository_id = "some_repository_id"
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,29 @@
 ---
 subcategory: "Compute Cloud"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_compute_disk"
 description: |-
   Get information about a Yandex Compute disk.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_compute_disk (Data Source)
 
 Get information about a Yandex Compute disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk).
 
 ## Example usage
 
-{{ tffile "examples/compute_disk/d_compute_disk_1.tf" }}
+```terraform
+data "yandex_compute_disk" "my_disk" {
+  disk_id = "some_disk_id"
+}
+
+resource "yandex_compute_instance" "default" {
+  ...
+
+  secondary_disk {
+    disk_id = "${data.yandex_compute_disk.my_disk.id}"
+  }
+}
+```
 
 ## Argument Reference
 

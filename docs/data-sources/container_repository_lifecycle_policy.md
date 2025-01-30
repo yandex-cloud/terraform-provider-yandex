@@ -1,17 +1,21 @@
 ---
 subcategory: "Container Registry"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_container_repository_lifecycle_policy"
 description: |-
   Get information about a Yandex Container Repository Lifecycle Policy.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_container_repository_lifecycle_policy (Data Source)
 
 Get information about a Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/lifecycle-policy).
 
 ## Example usage
 
-{{ tffile "examples/container_repository_lifecycle_policy/d_container_repository_lifecycle_policy_1.tf" }}
+```terraform
+data "yandex_container_repository_lifecycle_policy" "my_lifecycle_policy_by_id" {
+  lifecycle_policy_id = yandex_container_repository_lifecycle_policy.my_lifecycle_policy.id
+}
+```
 
 ## Argument Reference
 

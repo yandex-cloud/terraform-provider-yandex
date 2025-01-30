@@ -1,11 +1,11 @@
 ---
 subcategory: "Key Management Service (KMS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kms_asymmetric_encryption_key_iam_member"
 description: |-
   Allows management of a single member for a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kms_asymmetric_encryption_key_iam_member (Resource)
 
 Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex KMS Asymmetric Encryption Key.
 
@@ -13,7 +13,18 @@ Allows creation and management of a single member for a single binding within th
 
 ## Example usage
 
-{{ tffile "examples/kms_asymmetric_encryption_key_iam_member/r_kms_asymmetric_encryption_key_iam_member_1.tf" }}
+```terraform
+resource "yandex_kms_asymmetric_encryption_key" "your-key" {
+  name      = "asymmetric-encryption-key-name"
+}
+
+resource "yandex_kms_asymmetric_encryption_key_iam_member" "viewer" {
+  asymmetric_encryption_key_id = yandex_kms_asymmetric_encryption_key.your-key.id
+  role                         = "viewer"
+
+  member = "userAccount:foo_user_id"
+}
+```
 
 ## Argument Reference
 
@@ -38,5 +49,5 @@ The following arguments are supported:
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `asymmetric_encryption_key_id`, role, and account, e.g.
 
 ```
-$ terraform import {{.Name}}.viewer "asymmetric_encryption_key_id viewer foo@example.com"
+$ terraform import yandex_kms_asymmetric_encryption_key_iam_member.viewer "asymmetric_encryption_key_id viewer foo@example.com"
 ```

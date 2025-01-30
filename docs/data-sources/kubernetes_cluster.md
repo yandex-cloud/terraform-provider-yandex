@@ -1,17 +1,25 @@
 ---
 subcategory: "Managed Service for Kubernetes (MK8S)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kubernetes_cluster"
 description: |-
   Get information about a Yandex Kubernetes Cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kubernetes_cluster (Data Source)
 
 Get information about a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#kubernetes-cluster).
 
 ## Example usage
 
-{{ tffile "examples/kubernetes_cluster/d_kubernetes_cluster_1.tf" }}
+```terraform
+data "yandex_kubernetes_cluster" "my_cluster" {
+  cluster_id = "some_k8s_cluster_id"
+}
+
+output "cluster_external_v4_endpoint" {
+  value = data.yandex_kubernetes_cluster.my_cluster.master.0.external_v4_endpoint
+}
+```
 
 ## Argument Reference
 

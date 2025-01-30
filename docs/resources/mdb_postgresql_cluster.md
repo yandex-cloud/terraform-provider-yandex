@@ -1,29 +1,212 @@
 ---
 subcategory: "Managed Service for PostgreSQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_postgresql_cluster"
 description: |-
   Manages a PostgreSQL cluster within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_postgresql_cluster (Resource)
 
 Manages a PostgreSQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example usage
 
-{{ tffile "examples/mdb_postgresql_cluster/r_mdb_postgresql_cluster_1.tf" }}
+```terraform
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  config {
+    version = 15
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+    postgresql_config = {
+      max_connections                = 395
+      enable_parallel_hash           = true
+      autovacuum_vacuum_scale_factor = 0.34
+      default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
+      shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 Example of creating a High-Availability (HA) PostgreSQL Cluster.
 
-{{ tffile "examples/mdb_postgresql_cluster/r_mdb_postgresql_cluster_2.tf" }}
+```terraform
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "ha"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  config {
+    version = 15
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
 
 Example of creating a High-Availability (HA) PostgreSQL Cluster.
 
-{{ tffile "examples/mdb_postgresql_cluster/r_mdb_postgresql_cluster_3.tf" }}
+```terraform
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "test_ha"
+  description = "test High-Availability (HA) PostgreSQL Cluster"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  config {
+    version = 15
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "host_name_a"
+    subnet_id = yandex_vpc_subnet.a.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "host_name_b"
+    replication_source_name = "host_name_c"
+    subnet_id               = yandex_vpc_subnet.b.id
+  }
+  host {
+    zone      = "ru-central1-c"
+    name      = "host_name_c"
+    subnet_id = yandex_vpc_subnet.c.id
+  }
+  host {
+    zone      = "ru-central1-c"
+    name      = "host_name_c_2"
+    subnet_id = yandex_vpc_subnet.c.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "b" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "c" {
+  zone           = "ru-central1-c"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
 
 Example of creating a Single Node PostgreSQL from backup.
 
-{{ tffile "examples/mdb_postgresql_cluster/r_mdb_postgresql_cluster_4.tf" }}
+```terraform
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  restore {
+    backup_id = "c9q99999999999999994cm:base_000000010000005F000000B4"
+    time      = "2021-02-11T15:04:05"
+  }
+
+  config {
+    version = 15
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+    postgresql_config = {
+      max_connections                = 395
+      enable_parallel_hash           = true
+      autovacuum_vacuum_scale_factor = 0.34
+      default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
+      shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 
 ## Argument Reference

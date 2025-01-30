@@ -1,37 +1,303 @@
 ---
 subcategory: "Managed Service for MySQL"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_mdb_mysql_cluster"
 description: |-
   Manages a MySQL cluster within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_mdb_mysql_cluster (Resource)
 
 Manages a MySQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
 
 ## Example usage
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_1.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  mysql_config = {
+    sql_mode                      = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    max_connections               = 100
+    default_authentication_plugin = "MYSQL_NATIVE_PASSWORD"
+    innodb_print_all_deadlocks    = true
+
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 Example of creating a High-Availability(HA) MySQL Cluster.
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_2.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
 
 Example of creating a MySQL Cluster with cascade replicas: HA-group consist of 'na-1' and 'na-2', cascade replicas form a chain 'na-1' -> 'nb-1' -> 'nb-2'
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_3.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-2"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "nb-1"
+    replication_source_name = "na-1"
+    subnet_id               = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "nb-2"
+    replication_source_name = "nb-1"
+    subnet_id               = yandex_vpc_subnet.bar.id
+  }
+
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
 
 Example of creating a MySQL Cluster with different backup priorities. Backup will be created from nb-2, if it's not master. na-2 will be used as a backup source as a last resort.
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_4.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-1"
+    backup_priority = 5
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-2"
+    backup_priority = 10
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
 
 Example of creating a MySQL Cluster with different host priorities. During failover master will be set to nb-2
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_5.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone      = "ru-central1-b"
+    name      = "nb-1"
+    priority  = 5
+    subnet_id = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone      = "ru-central1-b"
+    name      = "nb-2"
+    priority  = 10
+    subnet_id = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
 
 Example of creating a Single Node MySQL with user params.
 
-{{ tffile "examples/mdb_mysql_cluster/r_mdb_mysql_cluster_6.tf" }}
+```terraform
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 ## Argument Reference
 

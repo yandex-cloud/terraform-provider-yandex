@@ -1,11 +1,11 @@
 ---
 subcategory: "Smart Web Security (SWS)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_sws_advanced_rate_limiter_profile"
 description: |-
   Get information about SmartWebSecurity ARL Profile.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_sws_advanced_rate_limiter_profile (Data Source)
 
 Get information about ARL Profile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#arl).
 
@@ -13,9 +13,17 @@ This data source is used to define [ARL Profile](https://yandex.cloud/docs/smart
 
 ## Example usage
 
-{{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_1.tf" }}
+```terraform
+data "yandex_sws_advanced_rate_limiter_profile" "by-id" {
+  advanced_rate_limiter_profile_id = yandex_sws_advanced_rate_limiter_profile.my-profile.id
+}
+```
 
-{{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_2.tf" }}
+```terraform
+data "yandex_sws_advanced_rate_limiter_profile" "by-name" {
+  name = yandex_sws_advanced_rate_limiter_profile.my-profile.name
+}
+```
 
 
 ## Argument Reference

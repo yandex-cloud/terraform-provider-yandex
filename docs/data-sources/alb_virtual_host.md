@@ -1,17 +1,22 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_alb_virtual_host"
 description: |-
   Get information about a Yandex ALB Virtual Host.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_alb_virtual_host (Data Source)
 
 Get information about a Yandex ALB Virtual Host. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
 
 ## Example usage
 
-{{ tffile "examples/alb_virtual_host/d_alb_virtual_host_1.tf" }}
+```terraform
+data "yandex_alb_virtual_host" "my-vh-data" {
+  name           = yandex_alb_virtual_host.my-vh.name
+  http_router_id = yandex_alb_virtual_host.my-router.id
+}
+```
 
 This data source is used to define [Application Load Balancer Virtual Host](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
 

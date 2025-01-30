@@ -1,21 +1,42 @@
 ---
 subcategory: "Message Queue"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_message_queue"
 description: |-
   Allows management of a Yandex Cloud Message Queue.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_message_queue (Resource)
 
 Allows management of [Yandex Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
 
 ## Example usage
 
-{{ tffile "examples/message_queue/r_message_queue_1.tf" }}
+```terraform
+resource "yandex_message_queue" "example_queue" {
+  name                       = "ymq_terraform_example"
+  visibility_timeout_seconds = 600
+  receive_wait_time_seconds  = 20
+  message_retention_seconds  = 1209600
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = yandex_message_queue.example_deadletter_queue.arn
+    maxReceiveCount     = 3
+  })
+}
+
+resource "yandex_message_queue" "example_deadletter_queue" {
+  name = "ymq_terraform_deadletter_example"
+}
+```
 
 ## FIFO queue
 
-{{ tffile "examples/message_queue/r_message_queue_2.tf" }}
+```terraform
+resource "yandex_message_queue" "example_fifo_queue" {
+  name                        = "ymq_terraform_fifo_example.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
+}
+```
 
 ## Argument Reference
 

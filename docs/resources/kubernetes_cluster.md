@@ -1,19 +1,137 @@
 ---
 subcategory: "Managed Service for Kubernetes (MK8S)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_kubernetes_cluster"
 description: |-
   Allows management of Yandex Kubernetes Cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_kubernetes_cluster (Resource)
 
 Creates a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#kubernetes-cluster).
 
 ## Example usage
 
-{{ tffile "examples/kubernetes_cluster/r_kubernetes_cluster_1.tf" }}
+```terraform
+resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
+  name        = "name"
+  description = "description"
 
-{{ tffile "examples/kubernetes_cluster/r_kubernetes_cluster_2.tf" }}
+  network_id = yandex_vpc_network.network_resource_name.id
+
+  master {
+    version = "1.30"
+    zonal {
+      zone      = yandex_vpc_subnet.subnet_resource_name.zone
+      subnet_id = yandex_vpc_subnet.subnet_resource_name.id
+    }
+
+    public_ip = true
+
+    security_group_ids = ["${yandex_vpc_security_group.security_group_name.id}"]
+
+    maintenance_policy {
+      auto_upgrade = true
+
+      maintenance_window {
+        start_time = "15:00"
+        duration   = "3h"
+      }
+    }
+
+    master_logging {
+      enabled                    = true
+      log_group_id               = yandex_logging_group.log_group_resoruce_name.id
+      kube_apiserver_enabled     = true
+      cluster_autoscaler_enabled = true
+      events_enabled             = true
+      audit_enabled              = true
+    }
+  }
+
+  service_account_id      = yandex_iam_service_account.service_account_resource_name.id
+  node_service_account_id = yandex_iam_service_account.node_service_account_resource_name.id
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+
+  release_channel         = "RAPID"
+  network_policy_provider = "CALICO"
+
+  kms_provider {
+    key_id = yandex_kms_symmetric_key.kms_key_resource_name.id
+  }
+}
+```
+
+```terraform
+resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
+  name        = "name"
+  description = "description"
+
+  network_id = yandex_vpc_network.network_resource_name.id
+
+  master {
+    regional {
+      region = "ru-central1"
+
+      location {
+        zone      = yandex_vpc_subnet.subnet_a_resource_name.zone
+        subnet_id = yandex_vpc_subnet.subnet_a_resource_name.id
+      }
+
+      location {
+        zone      = yandex_vpc_subnet.subnet_b_resource_name.zone
+        subnet_id = yandex_vpc_subnet.subnet_b_resource_name.id
+      }
+
+      location {
+        zone      = yandex_vpc_subnet.subnet_d_resource_name.zone
+        subnet_id = yandex_vpc_subnet.subnet_d_resource_name.id
+      }
+    }
+
+    version   = "1.30"
+    public_ip = true
+
+    maintenance_policy {
+      auto_upgrade = true
+
+      maintenance_window {
+        day        = "monday"
+        start_time = "15:00"
+        duration   = "3h"
+      }
+
+      maintenance_window {
+        day        = "friday"
+        start_time = "10:00"
+        duration   = "4h30m"
+      }
+    }
+
+    master_logging {
+      enabled                    = true
+      folder_id                  = data.yandex_resourcemanager_folder.folder_resource_name.id
+      kube_apiserver_enabled     = true
+      cluster_autoscaler_enabled = true
+      events_enabled             = true
+      audit_enabled              = true
+    }
+  }
+
+  service_account_id      = yandex_iam_service_account.service_account_resource_name.id
+  node_service_account_id = yandex_iam_service_account.node_service_account_resource_name.id
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+
+  release_channel = "STABLE"
+}
+```
 
 ## Argument Reference
 
@@ -40,7 +158,12 @@ The following arguments are supported:
 
 **Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources, it is necessary to add dependency on these access resources to cluster config:
 
-{{ tffile "examples/kubernetes_cluster/r_kubernetes_cluster_3.tf" }}
+```terraform
+depends_on = [
+  "yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
+  "yandex_resourcemanager_folder_iam_member.NodeServiceAccountResourceName"
+]
+```
 
 Without it, on destroy, terraform will delete cluster and remove access rights for service account(s) simultaneously, that will cause problems for cluster and related node group deletion.
 

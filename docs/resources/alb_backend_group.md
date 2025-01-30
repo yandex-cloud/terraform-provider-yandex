@@ -1,17 +1,48 @@
 ---
 subcategory: "Application Load Balancer (ALB)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_alb_backend_group"
 description: |-
   An application load balancer distributes the load across cloud resources that are combined into a backend group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_alb_backend_group (Resource)
 
 Creates a backend group in the specified folder and adds the specified backends to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group).
 
 ## Example usage
 
-{{ tffile "examples/alb_backend_group/r_alb_backend_group_1.tf" }}
+```terraform
+resource "yandex_alb_backend_group" "test-backend-group" {
+  name = "my-backend-group"
+
+  session_affinity {
+    connection {
+      source_ip = "127.0.0.1"
+    }
+  }
+
+  http_backend {
+    name             = "test-http-backend"
+    weight           = 1
+    port             = 8080
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    tls {
+      sni = "backend-domain.internal"
+    }
+    load_balancing_config {
+      panic_threshold = 50
+    }
+    healthcheck {
+      timeout  = "1s"
+      interval = "1s"
+      http_healthcheck {
+        path = "/"
+      }
+    }
+    http2 = "true"
+  }
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,36 @@
 ---
 subcategory: "Resource Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_resourcemanager_folder_iam_policy"
 description: |-
   Allows management of the IAM policy for a Yandex Resource Manager folder.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_resourcemanager_folder_iam_policy (Resource)
 
 Allows creation and management of the IAM policy for an existing Yandex Resource Manager folder.
 
 ## Example usage
 
-{{ tffile "examples/resourcemanager_folder_iam_policy/r_resourcemanager_folder_iam_policy_1.tf" }}
+```terraform
+data "yandex_resourcemanager_folder" "project1" {
+  folder_id = "my_folder_id"
+}
+
+data "yandex_iam_policy" "admin" {
+  binding {
+    role = "editor"
+
+    members = [
+      "userAccount:some_user_id",
+    ]
+  }
+}
+
+resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
+  folder_id   = data.yandex_folder.project1.id
+  policy_data = data.yandex_iam_policy.admin.policy_data
+}
+```
 
 ## Argument Reference
 

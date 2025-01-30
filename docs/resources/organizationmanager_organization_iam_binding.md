@@ -1,17 +1,27 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_organization_iam_binding"
 description: |-
   Allows management of a single IAM binding for a Yandex Organization Manager organization.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_organization_iam_binding (Resource)
 
 Allows creation and management of a single binding within IAM policy for an existing Yandex Cloud Organization Manager organization.
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_organization_iam_binding/r_organizationmanager_organization_iam_binding_1.tf" }}
+```terraform
+resource "yandex_organizationmanager_organization_iam_binding" "editor" {
+  organization_id = "some_organization_id"
+
+  role = "editor"
+
+  members = [
+    "userAccount:some_user_id",
+  ]
+}
+```
 
 ## Argument Reference
 

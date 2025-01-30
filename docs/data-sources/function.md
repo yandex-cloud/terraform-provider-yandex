@@ -1,17 +1,21 @@
 ---
 subcategory: "Cloud Functions"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_function"
 description: |-
   Get information about a Yandex Cloud Function.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_function (Data Source)
 
 Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
 
 ## Example usage
 
-{{ tffile "examples/function/d_function_1.tf" }}
+```terraform
+data "yandex_function" "my_function" {
+  function_id = "are1samplefunction11"
+}
+```
 
 This data source is used to define [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) that can be used by other resources.
 

@@ -142,9 +142,9 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categories categories.Ca
 
 		var file string
 		if strings.HasPrefix(filename, "d_") {
-			file = filepath.Join(tmpDir, "data-sources", filename[2:])
+			file = filepath.Join(tmpDir, "data-sources", filename[2:]+".tmpl")
 		} else if strings.HasPrefix(filename, "r_") {
-			file = filepath.Join(tmpDir, "resources", filename[2:])
+			file = filepath.Join(tmpDir, "resources", filename[2:]+".tmpl")
 		} else if filename == "index.md" {
 			file = filepath.Join(tmpDir, filename)
 			err = os.WriteFile(file, data, os.FileMode(0644))

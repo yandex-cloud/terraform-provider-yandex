@@ -1,17 +1,54 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_security_group"
 description: |-
   Manage a Yandex VPC Security Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_security_group (Resource)
 
 Manages a Security Group within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/security-groups).
 
 ## Example Usage
 
-{{ tffile "examples/vpc_security_group/r_vpc_security_group_1.tf" }}
+```terraform
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_security_group" "group1" {
+  name        = "My security group"
+  description = "description for my security group"
+  network_id  = yandex_vpc_network.lab-net.id
+
+  labels = {
+    my-label = "my-label-value"
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "rule2 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+
+  egress {
+    protocol       = "UDP"
+    description    = "rule3 description"
+    v4_cidr_blocks = ["10.0.1.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+```
 
 ## Argument Reference
 
@@ -67,4 +104,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 Import is supported using the following syntax:
 
-{{ codefile "shell" "examples/vpc_security_group/import.sh" }}
+```shell
+# The resource can be imported by using their resource ID.
+# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+
+# terraform import yandex_vpc_security_group.<sg-name> <resource-ID>
+terraform import yandex_vpc_security_group.vm1-sg enphq**********cjsw4
+```

@@ -1,11 +1,11 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_iam_service_account_static_access_key"
 description: |-
   Allows management of a Yandex Cloud IAM service account static access key.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_iam_service_account_static_access_key (Resource)
 
 Allows management of [Yandex Cloud IAM service account static access keys](https://cloud.yandex.com/docs/iam/operations/sa/create-access-key). Generated pair of keys is used to access [Yandex Object Storage](https://cloud.yandex.com/docs/storage) on behalf of service account.
 
@@ -13,7 +13,13 @@ Before using keys do not forget to [assign a proper role](https://cloud.yandex.c
 
 ## Example usage
 
-{{ tffile "examples/iam_service_account_static_access_key/r_iam_service_account_static_access_key_1.tf" }}
+```terraform
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = "some_sa_id"
+  description        = "static access key for object storage"
+  pgp_key            = "keybase:keybaseusername"
+}
+```
 
 ## Argument Reference
 

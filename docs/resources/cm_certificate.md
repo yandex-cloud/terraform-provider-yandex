@@ -1,23 +1,79 @@
 ---
 subcategory: "Certificate Manager"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_cm_certificate"
 description: |-
   A TLS certificate signed by a certification authority confirming that it belongs to the owner of the domain name.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_cm_certificate (Resource)
 
 Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
 ## Example usage
 
-{{ tffile "examples/cm_certificate/r_cm_certificate_1.tf" }}
+```terraform
+resource "yandex_cm_certificate" "example" {
+  name    = "example"
+  domains = ["example.com"]
 
-{{ tffile "examples/cm_certificate/r_cm_certificate_2.tf" }}
+  managed {
+    challenge_type = "DNS_CNAME"
+  }
+}
+```
 
-{{ tffile "examples/cm_certificate/r_cm_certificate_3.tf" }}
+```terraform
+resource "yandex_cm_certificate" "example" {
+  name    = "example"
+  domains = ["one.example.com", "two.example.com"]
 
-{{ tffile "examples/cm_certificate/r_cm_certificate_4.tf" }}
+  managed {
+    challenge_type  = "DNS_CNAME"
+    challenge_count = 2 # for each domain
+  }
+}
+
+resource "yandex_dns_recordset" "example" {
+  count   = yandex_cm_certificate.example.managed[0].challenge_count
+  zone_id = "example-zone-id"
+  name    = yandex_cm_certificate.example.challenges[count.index].dns_name
+  type    = yandex_cm_certificate.example.challenges[count.index].dns_type
+  data    = [yandex_cm_certificate.example.challenges[count.index].dns_value]
+  ttl     = 60
+}
+```
+
+```terraform
+resource "yandex_cm_certificate" "example" {
+  name    = "example"
+  domains = ["example.com", "*.example.com"]
+
+  managed {
+    challenge_type  = "DNS_CNAME"
+    challenge_count = 1 # "example.com" and "*.example.com" has the same DNS_CNAME challenge
+  }
+}
+
+resource "yandex_dns_recordset" "example" {
+  count   = yandex_cm_certificate.example.managed[0].challenge_count
+  zone_id = "example-zone-id"
+  name    = yandex_cm_certificate.example.challenges[count.index].dns_name
+  type    = yandex_cm_certificate.example.challenges[count.index].dns_type
+  data    = [yandex_cm_certificate.example.challenges[count.index].dns_value]
+  ttl     = 60
+}
+```
+
+```terraform
+resource "yandex_cm_certificate" "example" {
+  name = "example"
+
+  self_managed {
+    certificate = "-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- \n -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----"
+    private_key = "-----BEGIN RSA PRIVATE KEY----- ... -----END RSA PRIVATE KEY-----"
+  }
+}
+```
 
 ## Argument Reference
 

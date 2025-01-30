@@ -1,17 +1,28 @@
 ---
 subcategory: "Managed Service for YDB"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_ydb_table_changefeed"
 description: |-
   Manages Yandex Database dedicated cluster.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_ydb_table_changefeed (Resource)
 
 Yandex Database [table changefeed](https://ydb.tech/en/docs/concepts/cdc), or Change Data Capture (CDC) resource, keeps you informed about changes in a given table. When you add, update, or delete a table row, the CDC mechanism generates a change record where it specifies the primary key of the row and writes it to the topic partition corresponding to this key. A [topic](https://ydb.tech/en/docs/concepts/topic) is an entity for storing unstructured messages and delivering them to multiple subscribers. Basically, a topic is a named set of messages.
 
 ## Example Usage
 
-{{ tffile "examples/ydb_table_changefeed/r_ydb_table_changefeed_1.tf" }}
+```terraform
+resource "yandex_ydb_table_changefeed" "ydb_changefeed" {
+  table_id = yandex_ydb_table.test_table_2.id
+  name = "changefeed"
+  mode = "NEW_IMAGE"
+  format = "JSON"
+
+  consumer {
+    name = "test_consumer"
+  }
+}
+```
 
 ## Argument Reference 
 

@@ -1,11 +1,11 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_vpc_gateway"
 description: |-
   Manages a gateway within Yandex Cloud.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_vpc_gateway (Resource)
 
 Manages a gateway within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/gateways).
 
@@ -14,7 +14,12 @@ Manages a gateway within the Yandex Cloud. For more information, see [the offici
 
 ## Example usage
 
-{{ tffile "examples/vpc_gateway/r_vpc_gateway_1.tf" }}
+```terraform
+resource "yandex_vpc_gateway" "default" {
+  name = "foobar"
+  shared_egress_gateway {}
+}
+```
 
 ## Argument Reference
 

@@ -1,17 +1,26 @@
 ---
 subcategory: "Cloud Organization"
-page_title: "Yandex: {{.Name}}"
+page_title: "Yandex: yandex_organizationmanager_group"
 description: |-
   Get information about a Yandex Cloud Group.
 ---
 
-# {{.Name}} ({{.Type}})
+# yandex_organizationmanager_group (Data Source)
 
 Get information about a Yandex Cloud Organization Manager Group. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups).
 
 ## Example usage
 
-{{ tffile "examples/organizationmanager_group/d_organizationmanager_group_1.tf" }}
+```terraform
+data "yandex_organizationmanager_group" "group" {
+  group_id        = "some_group_id"
+  organization_id = "some_organization_id"
+}
+
+output "my_group.name" {
+  value = data.yandex_organizationmanager_group.group.name
+}
+```
 
 ## Argument Reference
 
