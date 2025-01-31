@@ -668,7 +668,13 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return resourceYandexMDBPostgreSQLClusterRestore(d, meta, request, backupID.(string))
 	}
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	// This is a dirty hack to avoid the issue with the timeout of the create operation.
+	// We are investigating the issue on the MDB side
+	createTimeout := d.Timeout(schema.TimeoutCreate)
+	if createTimeout < 5*time.Minute {
+		createTimeout = 5 * time.Minute
+	}
+	ctx, cancel := config.ContextWithTimeout(createTimeout)
 	defer cancel()
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
