@@ -15,6 +15,12 @@ import (
 	//dataspheretest "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/tests/datasphere"
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccDatasphereProjectResourceIamBinding(t *testing.T) {
 	var (
 		communityName = test.ResourceName(63)

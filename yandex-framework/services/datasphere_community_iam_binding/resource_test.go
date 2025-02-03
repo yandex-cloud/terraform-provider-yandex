@@ -14,6 +14,12 @@ import (
 	iam_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community_iam_binding"
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccDatasphereCommunityResourceIamBinding(t *testing.T) {
 	var (
 		communityName = test.ResourceName(63)
