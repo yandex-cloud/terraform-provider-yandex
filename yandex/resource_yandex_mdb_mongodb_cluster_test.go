@@ -924,6 +924,21 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 				),
 			},
 			mdbMongoDBClusterImportStep(),
+			// web_sql enable
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Access": map[string]bool{
+						"web_sql":       true,
+						"data_lens":     true,
+						"data_transfer": true,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 4),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.web_sql", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
 		},
 	})
 }

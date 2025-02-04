@@ -96,6 +96,7 @@ The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `web_sql` - (Optional) Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/)
 
 The `user` block supports:
 

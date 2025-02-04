@@ -469,6 +469,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Optional: true,
 										Default:  false,
 									},
+									"web_sql": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
 								},
 							},
 						},
@@ -909,6 +914,7 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		configSpec.Access = &mongodb.Access{
 			DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
 			DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
+			WebSql:       d.Get("cluster_config.0.access.0.web_sql").(bool),
 		}
 	}
 
@@ -1479,6 +1485,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 			Access: &mongodb.Access{
 				DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
 				DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
+				WebSql:       d.Get("cluster_config.0.access.0.web_sql").(bool),
 			},
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
@@ -1614,7 +1621,17 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		req.DeletionProtection = d.Get("deletion_protection").(bool)
 		updatePath = append(updatePath, "deletion_protection")
 	}
-
+	if d.HasChange("config_spec.access") {
+		if d.HasChange("config_spec.access.0.web_sql") {
+			updatePath = append(updatePath, "config_spec.access.web_sql")
+		}
+		if d.HasChange("config_spec.access.0.data_lens") {
+			updatePath = append(updatePath, "config_spec.access.data_lens")
+		}
+		if d.HasChange("config_spec.access.0.data_transfer") {
+			updatePath = append(updatePath, "config_spec.access.data_transfer")
+		}
+	}
 	if len(updatePath) == 0 {
 		return nil
 	}

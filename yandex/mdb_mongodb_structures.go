@@ -551,6 +551,7 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 				map[string]interface{}{
 					"data_lens":     cc.Access.DataLens,
 					"data_transfer": cc.Access.DataTransfer,
+					"web_sql":       cc.Access.WebSql,
 				},
 			},
 			"performance_diagnostics": []interface{}{
