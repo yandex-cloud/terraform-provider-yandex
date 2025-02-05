@@ -49,8 +49,6 @@ func (d *projectDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 					"service_account_id":   schema.StringAttribute{Computed: true},
 					"subnet_id":            schema.StringAttribute{Computed: true},
 					"data_proc_cluster_id": schema.StringAttribute{Computed: true},
-					"commit_mode":          schema.StringAttribute{Computed: true},
-					"ide":                  schema.StringAttribute{Computed: true},
 					"security_group_ids": schema.SetAttribute{
 						Computed:    true,
 						ElementType: types.StringType,

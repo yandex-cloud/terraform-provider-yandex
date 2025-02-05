@@ -78,13 +78,8 @@ Optional:
 
 Optional:
 
-- `commit_mode` (String) Commit mode that is assigned to the project. The following modes can be used:
-  * `STANDARD`: Commit happens after the execution of a cell or group of cells or after completion with an error.
-  * `AUTO`: Commit happens periodically. Also, automatic saving of state occurs when switching to another type of computing resource.
 - `data_proc_cluster_id` (String) ID of the DataProcessing cluster.
 - `default_folder_id` (String) Default project folder ID.
-- `ide` (String) Project IDE. The following IDEs can be used:
-  * `JUPYTER_LAB`: Project running on JupyterLab IDE.
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
 - `stale_exec_timeout_mode` (String) The timeout to automatically stop stale executions. The following modes can be used:

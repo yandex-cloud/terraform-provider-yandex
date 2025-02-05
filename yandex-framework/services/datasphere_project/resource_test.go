@@ -166,8 +166,6 @@ func TestAccDatasphereProjectResource_fullData(t *testing.T) {
 					resource.TestCheckResourceAttr(test.ProjectResourceName, "limits.max_units_per_hour", "10"),
 					resource.TestCheckResourceAttr(test.ProjectResourceName, "limits.max_units_per_execution", "10"),
 					resource.TestCheckResourceAttr(test.ProjectResourceName, "limits.balance", "10"),
-					resource.TestCheckResourceAttr(test.ProjectResourceName, "settings.commit_mode", "AUTO"),
-					resource.TestCheckResourceAttr(test.ProjectResourceName, "settings.ide", "JUPYTER_LAB"),
 					resource.TestCheckResourceAttr(test.ProjectResourceName, "settings.stale_exec_timeout_mode", "ONE_HOUR"),
 					test.AccCheckCreatedAtAttr(test.ProjectResourceName),
 				),
@@ -298,9 +296,7 @@ resource "yandex_datasphere_project" "test-project" {
   settings = {
 	service_account_id = yandex_iam_service_account.test-account.id
  	subnet_id = yandex_vpc_subnet.test-subnet.id
-	commit_mode = "AUTO"
 	security_group_ids = [yandex_vpc_security_group.test-security-group.id]
-	ide = "JUPYTER_LAB"
 	default_folder_id = "%s"
 	stale_exec_timeout_mode = "ONE_HOUR"
   }

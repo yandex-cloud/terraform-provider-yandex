@@ -594,28 +594,6 @@ func (r *projectResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"commit_mode": schema.StringAttribute{
-						MarkdownDescription: "Commit mode that is assigned to the project. The following modes can be used:\n  * `STANDARD`: Commit happens after the execution of a cell or group of cells or after completion with an error.\n  * `AUTO`: Commit happens periodically. Also, automatic saving of state occurs when switching to another type of computing resource.\n",
-						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
-						Validators: []validator.String{
-							stringvalidator.OneOf("COMMIT_MODE_UNSPECIFIED", "STANDARD", "AUTO"),
-						},
-					},
-					"ide": schema.StringAttribute{
-						MarkdownDescription: "Project IDE. The following IDEs can be used:\n  * `JUPYTER_LAB`: Project running on JupyterLab IDE.\n",
-						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
-						Validators: []validator.String{
-							stringvalidator.OneOf("IDE_UNSPECIFIED", "JUPYTER_LAB"),
-						},
-					},
 					"security_group_ids": schema.SetAttribute{
 						MarkdownDescription: common.ResourceDescriptions["security_group_ids"],
 						Optional:            true,
