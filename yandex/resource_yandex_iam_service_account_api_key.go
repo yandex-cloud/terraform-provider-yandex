@@ -3,9 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 )
@@ -24,17 +26,24 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// There is no Update method for IAM API Key resource,
-			// so "description" attr set as 'ForceNew:true'
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+			},
+
+			"scopes": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Optional:    true,
+				Description: "List of scopes.",
 			},
 
 			"scope": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "Attribute `scope` deprecated and will be removed in the next major version of the provider. Use attribute `scopes` instead.",
 			},
 
 			"expires_at": {
@@ -84,6 +93,10 @@ func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta in
 	req := iam.CreateApiKeyRequest{
 		ServiceAccountId: serviceAccountID,
 		Description:      d.Get("description").(string),
+	}
+
+	if v, ok := d.GetOk("scopes"); ok {
+		req.SetScopes(expandStringSlice(v.([]interface{})))
 	}
 
 	if v, ok := d.GetOk("scope"); ok {
@@ -147,6 +160,10 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 	d.Set("created_at", getTimestamp(ak.CreatedAt))
 	d.Set("description", ak.Description)
 
+	if ak.Scopes != nil {
+		d.Set("scopes", ak.Scopes)
+	}
+
 	if ak.Scope != "" {
 		d.Set("scope", ak.Scope)
 	}
@@ -165,6 +182,55 @@ func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta in
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
+
+	apiKeyId := d.Id()
+	log.Printf("[INFO] Updating API key %q", apiKeyId)
+
+	d.Partial(true)
+
+	req := &iam.UpdateApiKeyRequest{
+		ApiKeyId:   apiKeyId,
+		UpdateMask: &field_mask.FieldMask{},
+	}
+
+	if d.HasChange("description") {
+		req.SetDescription(d.Get("description").(string))
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if d.HasChange("scopes") {
+		scopes := expandStringSlice(d.Get("scopes").([]interface{}))
+		req.SetScopes(scopes)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "scopes")
+	}
+
+	if d.HasChange("expires_at") {
+		expiresAt, err := parseTimestamp(d.Get("expires_at").(string))
+		if err != nil {
+			return fmt.Errorf("Error during parsing field expires_at while updating API key %s: %s", apiKeyId, err)
+		}
+		req.SetExpiresAt(expiresAt)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "expires_at")
+	}
+
+	if len(req.UpdateMask.Paths) > 0 {
+		op, err := config.sdk.WrapOperation(config.sdk.IAM().ApiKey().Update(ctx, req))
+		if err != nil {
+			return fmt.Errorf("error while requesting API to update API Key %s: %s", apiKeyId, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while waiting operation to update API key %s: %s", apiKeyId, err)
+
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("API Key %s update failed: %s", apiKeyId, err)
+		}
+	}
+
+	d.Partial(false)
 
 	err := resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
 	if err != nil {

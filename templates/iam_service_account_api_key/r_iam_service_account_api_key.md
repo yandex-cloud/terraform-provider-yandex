@@ -25,7 +25,7 @@ The following arguments are supported:
 
 * `description` - (Optional) The description of the key.
 
-* `scope` - (Optional) The scope of the key.
+* `scopes` - (Optional) The list of scopes of the key.
 
 * `expires_at` - (Optional) The key will be no longer valid after expiration timestamp.
 
