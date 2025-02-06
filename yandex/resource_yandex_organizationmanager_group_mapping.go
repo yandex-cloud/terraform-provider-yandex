@@ -22,6 +22,8 @@ func resourceYandexOrganizationManagerGroupMapping() *schema.Resource {
 		UpdateContext: resourceYandexOrganizationManagerGroupMappingUpdate,
 		DeleteContext: resourceYandexOrganizationManagerGroupMappingDelete,
 
+		Description: "Allows management of [Yandex Cloud Organization Manager Group Mapping](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping). It supports the creation, updating(enabling/disabling), and deletion of group mapping.",
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),
 			Read:   schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),

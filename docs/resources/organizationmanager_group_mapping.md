@@ -7,7 +7,7 @@ description: |-
 
 # yandex_organizationmanager_group_mapping (Resource)
 
-
+Allows management of [Yandex Cloud Organization Manager Group Mapping](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping). It supports the creation, updating(enabling/disabling), and deletion of group mapping.
 
 ## Example Usage
 
