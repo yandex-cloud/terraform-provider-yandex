@@ -73,6 +73,10 @@ The following arguments are supported:
 * `provision_policy` - Provision policy. If specified the revision will have prepared instances
 * `provision_policy.0.min_instances` - Minimum number of prepared instances that are always ready to serve requests
 
+* `metadata_options` - Options set the access mode to revision's metadata endpoints.
+* `metadata_options.0.gce_http_endpoint` - Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled
+* `metadata_options.0.aws_v1_http_endpoint` Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

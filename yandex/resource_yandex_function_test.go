@@ -272,6 +272,9 @@ func TestAccYandexFunction_full(t *testing.T) {
 	}
 	paramsUpdated.tmpfsSize = "1024"
 	paramsUpdated.concurrency = "3"
+	paramsUpdated.metadataOptions = metadataOptions{
+		awsV1HTTPEndpoint: 2,
+	}
 
 	testConfigFunc := func(params testYandexFunctionParameters) resource.TestStep {
 		return resource.TestStep{
@@ -319,6 +322,8 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttrSet(functionResource, "log_options.0.log_group_id"),
 				resource.TestCheckResourceAttr(functionResource, "tmpfs_size", params.tmpfsSize),
 				resource.TestCheckResourceAttr(functionResource, "concurrency", params.concurrency),
+				resource.TestCheckResourceAttr(functionResource, "metadata_options.0.aws_v1_http_endpoint", strconv.Itoa(params.metadataOptions.awsV1HTTPEndpoint)),
+				resource.TestCheckResourceAttr(functionResource, "metadata_options.0.gce_http_endpoint", strconv.Itoa(params.metadataOptions.gceHTTPEndpoint)),
 				testAccCheckCreatedAtAttr(functionResource),
 			),
 		}
@@ -851,6 +856,12 @@ type testYandexFunctionParameters struct {
 	logOptions          testLogOptions
 	tmpfsSize           string
 	concurrency         string
+	metadataOptions     metadataOptions
+}
+
+type metadataOptions struct {
+	awsV1HTTPEndpoint int
+	gceHTTPEndpoint   int
 }
 
 type testSecretParameters struct {
@@ -952,6 +963,10 @@ resource "yandex_function" "test-function" {
   }
   tmpfs_size = "%s"
   concurrency = "%s"
+  metadata_options {
+    aws_v1_http_endpoint = %d
+    gce_http_endpoint    = %d
+  }
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -1028,6 +1043,8 @@ resource "yandex_logging_group" "logging-group" {
 		params.logOptions.minLevel,
 		params.tmpfsSize,
 		params.concurrency,
+		params.metadataOptions.awsV1HTTPEndpoint,
+		params.metadataOptions.gceHTTPEndpoint,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

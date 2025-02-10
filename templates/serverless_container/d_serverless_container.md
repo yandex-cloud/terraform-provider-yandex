@@ -69,3 +69,7 @@ The following attributes are exported:
 * `connectivity` - Network access. If specified the revision will be attached to specified network
 * `connectivity.0.network_id` - Network the revision will have access to
 * `log_options` - Options for logging from Yandex Cloud Serverless Container
+
+* `metadata_options` - Options set the access mode to revision's metadata endpoints.
+* `metadata_options.0.gce_http_endpoint` - Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled
+* `metadata_options.0.aws_v1_http_endpoint` Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled

@@ -316,6 +316,9 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		disabled: false,
 		minLevel: "WARN",
 	}
+	paramsUpdated.metadataOptions = metadataOptions{
+		awsV1HTTPEndpoint: 2,
+	}
 
 	testConfigFunc := func(params testYandexServerlessContainerParameters) resource.TestStep {
 		return resource.TestStep{
@@ -364,6 +367,10 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				// metadata
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
+
+				resource.TestCheckResourceAttr(serverlessContainerResource, "metadata_options.0.aws_v1_http_endpoint", strconv.Itoa(params.metadataOptions.awsV1HTTPEndpoint)),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "metadata_options.0.gce_http_endpoint", strconv.Itoa(params.metadataOptions.gceHTTPEndpoint)),
+
 				testAccCheckCreatedAtAttr(serverlessContainerResource),
 			),
 		}
@@ -948,6 +955,7 @@ type testYandexServerlessContainerParameters struct {
 	ephemeralDiskMounts testEphemeralDiskParameters
 	objectStorageMounts testObjectStorageParameters
 	logOptions          testLogOptions
+	metadataOptions     metadataOptions
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -1013,6 +1021,10 @@ resource "yandex_serverless_container" "test-container" {
   	disabled = "%t"
 	log_group_id = yandex_logging_group.logging-group.id
 	min_level = "%s"
+  }
+  metadata_options {
+    aws_v1_http_endpoint = %d
+    gce_http_endpoint    = %d
   }
 }
 
@@ -1091,6 +1103,8 @@ resource "yandex_logging_group" "logging-group" {
 		params.envVarValue,
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
+		params.metadataOptions.awsV1HTTPEndpoint,
+		params.metadataOptions.gceHTTPEndpoint,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

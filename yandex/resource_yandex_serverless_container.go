@@ -331,6 +331,29 @@ func resourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+
+			"metadata_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gce_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -515,7 +538,7 @@ func resourceYandexServerlessContainerUpdate(ctx context.Context, d *schema.Reso
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
 		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "mounts", "log_options", "provision_policy",
-		"runtime",
+		"runtime", "metadata_options",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -769,7 +792,21 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 		revisionReq.Runtime = expandServerlessContainerRuntime(v)
 	}
 
+	revisionReq.MetadataOptions = expandServerlessContainerMetadataOptions(d)
+
 	return revisionReq, nil
+}
+
+func expandServerlessContainerMetadataOptions(d *schema.ResourceData) *containers.MetadataOptions {
+	metadataOptions := containers.MetadataOptions{}
+	if v, ok := d.GetOk("metadata_options.0.gce_http_endpoint"); ok {
+		metadataOptions.GceHttpEndpoint = containers.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v1_http_endpoint"); ok {
+		metadataOptions.AwsV1HttpEndpoint = containers.MetadataOption(v.(int))
+	}
+
+	return &metadataOptions
 }
 
 func expandServerlessContainerRuntime(v interface{}) *containers.Runtime {
@@ -874,7 +911,24 @@ func flattenYandexServerlessContainer(
 		d.Set("runtime", flattenServerlessContainerRuntime(revision.GetRuntime()))
 	}
 
+	d.Set("metadata_options", flattenServerlessContainerMetadataOptions(revision))
+
 	return nil
+}
+
+func flattenServerlessContainerMetadataOptions(revision *containers.Revision) []map[string]interface{} {
+	var gceHttpEndpoint, awsV1HttpEndpoint int
+	if revision.MetadataOptions != nil {
+		gceHttpEndpoint = int(revision.MetadataOptions.GceHttpEndpoint)
+		awsV1HttpEndpoint = int(revision.MetadataOptions.AwsV1HttpEndpoint)
+	}
+
+	metadataOptions := map[string]interface{}{
+		"gce_http_endpoint":    gceHttpEndpoint,
+		"aws_v1_http_endpoint": awsV1HttpEndpoint,
+	}
+
+	return []map[string]interface{}{metadataOptions}
 }
 
 func flattenServerlessContainerRuntime(runtime *containers.Runtime) interface{} {

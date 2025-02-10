@@ -391,6 +391,29 @@ func resourceYandexFunction() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"metadata_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gce_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -510,7 +533,7 @@ func resourceYandexFunctionUpdate(ctx context.Context, d *schema.ResourceData, m
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
 		"environment", "tags", "package", "content", "secrets", "connectivity", "async_invocation",
-		"storage_mounts", "mounts", "log_options", "tmpfs_size", "concurrency",
+		"storage_mounts", "mounts", "log_options", "tmpfs_size", "concurrency", "metadata_options",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -849,7 +872,21 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		versionReq.Concurrency = int64(v.(int))
 	}
 
+	versionReq.MetadataOptions = expandFunctionMetadataOptions(d)
+
 	return versionReq, nil
+}
+
+func expandFunctionMetadataOptions(d *schema.ResourceData) *functions.MetadataOptions {
+	metadataOptions := functions.MetadataOptions{}
+	if v, ok := d.GetOk("metadata_options.0.gce_http_endpoint"); ok {
+		metadataOptions.GceHttpEndpoint = functions.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v1_http_endpoint"); ok {
+		metadataOptions.AwsV1HttpEndpoint = functions.MetadataOption(v.(int))
+	}
+
+	return &metadataOptions
 }
 
 func mapFunctionModeFromTF(mode string) functions.Mount_Mode {
@@ -930,8 +967,24 @@ func flattenYandexFunction(
 	d.Set("mounts", flattenVersionMounts(version.Mounts))
 	d.Set("tmpfs_size", int(version.TmpfsSize/int64(datasize.MB.Bytes())))
 	d.Set("concurrency", version.Concurrency)
+	d.Set("metadata_options", flattenFunctionMetadataOptions(version))
 
 	return nil
+}
+
+func flattenFunctionMetadataOptions(version *functions.Version) []map[string]interface{} {
+	var gceHttpEndpoint, awsV1HttpEndpoint int
+	if version.MetadataOptions != nil {
+		gceHttpEndpoint = int(version.MetadataOptions.GceHttpEndpoint)
+		awsV1HttpEndpoint = int(version.MetadataOptions.AwsV1HttpEndpoint)
+	}
+
+	metadataOptions := map[string]interface{}{
+		"gce_http_endpoint":    gceHttpEndpoint,
+		"aws_v1_http_endpoint": awsV1HttpEndpoint,
+	}
+
+	return []map[string]interface{}{metadataOptions}
 }
 
 func zipPathToWriter(root string, buffer io.Writer) error {
