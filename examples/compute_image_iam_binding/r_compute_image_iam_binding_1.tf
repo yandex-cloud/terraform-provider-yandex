@@ -1,3 +1,6 @@
+//
+// Create a new Compute Image and new IAM Binding for it.
+//
 resource "yandex_compute_image" "image1" {
   name       = "my-custom-image"
   source_url = "https://storage.yandexcloud.net/lucky-images/kube-it.img"

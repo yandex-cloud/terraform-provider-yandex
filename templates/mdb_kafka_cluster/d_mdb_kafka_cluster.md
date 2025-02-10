@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+Get information about a Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 
 ## Example usage
 
@@ -64,13 +64,13 @@ The `kafka` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a Kafka host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a Kafka host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 * `disk_size` - (Required) Volume of the storage available to a Kafka host, in gigabytes.
-* `disk_type_id` - (Required) Type of the storage of Kafka hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+* `disk_type_id` - (Required) Type of the storage of Kafka hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
 
 The `kafka_config` block supports:
 
-* `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`, `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`, `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes`, `sasl_enabled_mechanisms` - (Optional) Kafka server settings. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-update) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
+* `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`, `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`, `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes`, `sasl_enabled_mechanisms` - (Optional) Kafka server settings. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/operations/cluster-update) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
 The `zookeeper` block supports:
 
@@ -78,9 +78,9 @@ The `zookeeper` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 * `disk_size` - (Optional) Volume of the storage available to a ZooKeeper host, in gigabytes.
-* `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+* `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
 
 The `kraft` block supports:
 
@@ -88,13 +88,13 @@ The `kraft` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 * `disk_size` - (Optional) Volume of the storage available to a KRaft-controller host, in gigabytes.
-* `disk_type_id` - (Optional) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+* `disk_type_id` - (Optional) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
 
 The `access` block supports:
 
-* `data_transfer` - Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `data_transfer` - Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
 The `user` block supports:
 
@@ -117,7 +117,7 @@ The `topic` block supports:
 
 The `topic_config` block supports:
 
-* `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`, `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate`, - (Optional) Kafka topic settings. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-topics#update-topic) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
+* `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`, `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate`, - (Optional) Kafka topic settings. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/operations/cluster-topics#update-topic) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
 The `host` block supports:
 

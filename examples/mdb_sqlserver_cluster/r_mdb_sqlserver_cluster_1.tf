@@ -1,4 +1,7 @@
-resource "yandex_mdb_sqlserver_cluster" "foo" {
+//
+// Create a new MDB SQL Server Cluster.
+//
+resource "yandex_mdb_sqlserver_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -74,6 +77,7 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   host_group_ids     = ["host_group_1", "host_group_2"]
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

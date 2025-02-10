@@ -1,3 +1,9 @@
+//
+// Create Trail for delivering events to YDS and gathering such events:
+// * Management events from the 'some-organization' organization.
+// * DNS data events from the 'some-organization' organization.
+// * Object Storage data events from the 'some-organization' organization.
+//
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
   folder_id   = "home-folder"

@@ -12,11 +12,14 @@ Yandex Database [table changefeed](https://ydb.tech/en/docs/concepts/cdc), or Ch
 ## Example Usage
 
 ```terraform
+//
+// Create a new YDB Table Change feed.
+//
 resource "yandex_ydb_table_changefeed" "ydb_changefeed" {
   table_id = yandex_ydb_table.test_table_2.id
-  name = "changefeed"
-  mode = "NEW_IMAGE"
-  format = "JSON"
+  name     = "changefeed"
+  mode     = "NEW_IMAGE"
+  format   = "JSON"
 
   consumer {
     name = "test_consumer"
@@ -63,3 +66,12 @@ The `consumer` section supports:
 * `supported_codecs` - (Optional) Supported data encodings
 
 * `starting_message_timestamp_ms` - (Optional) Timestamp in the UNIX timestamp format, from which the consumer will start reading data
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_ydb_table_changefeed.<resource Name> <resource Id>
+terraform import yandex_ydb_table_changefeed.ydb_changefeed ...
+```

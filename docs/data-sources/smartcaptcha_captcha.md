@@ -15,7 +15,7 @@ This data source is used to define Captcha that can be used by other resources.
 
 ```terraform
 //
-// Get SmartCaptcha details by Id
+// Get SmartCaptcha details by Id.
 //
 data "yandex_smartcaptcha_captcha" "by-id" {
   captcha_id = yandex_smartcaptcha_captcha.my-captcha.id
@@ -24,7 +24,7 @@ data "yandex_smartcaptcha_captcha" "by-id" {
 
 ```terraform
 //
-// Get SmartCaptcha details by Name
+// Get SmartCaptcha details by Name.
 //
 data "yandex_smartcaptcha_captcha" "by-name" {
   name = yandex_smartcaptcha_captcha.my-captcha.name

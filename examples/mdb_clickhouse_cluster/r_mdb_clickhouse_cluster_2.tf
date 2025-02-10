@@ -1,4 +1,7 @@
-resource "yandex_mdb_clickhouse_cluster" "foo" {
+//
+// Create a new MDB High Availability Clickhouse Cluster.
+//
+resource "yandex_mdb_clickhouse_cluster" "my_cluster" {
   name        = "ha"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -72,7 +75,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "ZOOKEEPER"
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.baz.id
   }
 
@@ -81,6 +84,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -96,7 +100,7 @@ resource "yandex_vpc_subnet" "bar" {
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }

@@ -46,7 +46,7 @@ The `ingress` and `egress` block supports:
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
 * `security_group_id` (Optional) - Target security group ID for this rule.
-* `predefined_target` (Optional) - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://cloud.yandex.com/docs/network-load-balancer/concepts/health-check).
+* `predefined_target` (Optional) - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 
@@ -63,8 +63,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - Id of the rule.
 
+
 ## Import
 
-Import is supported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-{{ codefile "shell" "examples/vpc_security_group/import.sh" }}
+{{codefile "shell" "examples/vpc_security_group/import.sh" }}

@@ -1,3 +1,6 @@
+//
+// Simple Private Bucket With Static Access Keys.
+//
 locals {
   folder_id = "<folder-id>"
 }

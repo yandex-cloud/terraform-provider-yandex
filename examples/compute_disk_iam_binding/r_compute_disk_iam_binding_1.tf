@@ -1,3 +1,6 @@
+//
+// Create a new Compute Disk and new IAM Binding for it.
+//
 resource "yandex_compute_disk" "disk1" {
   name     = "disk-name"
   type     = "network-ssd"

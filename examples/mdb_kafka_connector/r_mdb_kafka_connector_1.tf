@@ -1,22 +1,8 @@
-resource "yandex_mdb_kafka_cluster" "foo" {
-  name       = "foo"
-  network_id = "c64vs98keiqc7f24pvkd"
-
-  config {
-    version = "2.8"
-    zones   = ["ru-central1-a"]
-    kafka {
-      resources {
-        resource_preset_id = "s2.micro"
-        disk_type_id       = "network-hdd"
-        disk_size          = 16
-      }
-    }
-  }
-}
-
-resource "yandex_mdb_kafka_connector" "connector" {
-  cluster_id = yandex_mdb_kafka_cluster.foo.id
+//
+// Create a new MDB Kafka Connector.
+//
+resource "yandex_mdb_kafka_connector" "my_conn" {
+  cluster_id = yandex_mdb_kafka_cluster.my_cluster.id
   name       = "replication"
   tasks_max  = 3
   properties = {
@@ -43,7 +29,7 @@ resource "yandex_mdb_kafka_connector" "connector" {
 }
 
 resource "yandex_mdb_kafka_connector" "connector" {
-  cluster_id = yandex_mdb_kafka_cluster.foo.id
+  cluster_id = yandex_mdb_kafka_cluster.my_cluster.id
   name       = "s3-sink"
   tasks_max  = 3
   properties = {
@@ -64,6 +50,23 @@ resource "yandex_mdb_kafka_connector" "connector" {
         endpoint          = "storage.yandexcloud.net"
         access_key_id     = "some_access_key_id"
         secret_access_key = "some_secret_access_key"
+      }
+    }
+  }
+}
+
+resource "yandex_mdb_kafka_cluster" "my_cluster" {
+  name       = "foo"
+  network_id = "c64vs98keiqc7f24pvkd"
+
+  config {
+    version = "2.8"
+    zones   = ["ru-central1-a"]
+    kafka {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-hdd"
+        disk_size          = 16
       }
     }
   }

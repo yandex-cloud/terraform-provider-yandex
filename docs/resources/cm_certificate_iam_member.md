@@ -14,17 +14,20 @@ Allows creation and management of a single member for a single binding within th
 ## Example usage
 
 ```terraform
+//
+// Create a new CM Certificate IAM Member.
+//
 resource "yandex_cm_certificate" "your-certificate" {
-  name = "certificate-name"
+  name    = "certificate-name"
   domains = ["example.com"]
   managed {
     challenge_type = "DNS_CNAME"
   }
 }
 
-resource "yandex_cm_certificate_iam_member" "viewer" {
+resource "yandex_cm_certificate_iam_member" "viewer_member" {
   certificate_id = yandex_cm_certificate.your-certificate.id
-  role      = "viewer"
+  role           = "viewer"
 
   member = "userAccount:foo_user_id"
 }
@@ -36,7 +39,7 @@ The following arguments are supported:
 
 * `certificate_id` - (Required) The [Certificate](https://yandex.cloud/docs/certificate-manager/) ID to apply a binding to.
 
-* `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/certificate-manager/security/).
+* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/certificate-manager/security/).
 
 * `member` - (Required) The identity that will be granted the privilege that is specified in the `role` field. This field can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
@@ -46,12 +49,14 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `certificate_id`, role, and account, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_cm_certificate_iam_member.viewer "certificate_id viewer foo@example.com"
+```bash
+# terraform import yandex_cm_certificate_iam_member.<resource Name> "<resource Id> <role Id> <subject id>"
+terraform import yandex_cm_certificate_iam_member.viewer_member "... viewer foo@example.com"
 ```

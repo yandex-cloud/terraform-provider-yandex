@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: yandex_function"
 description: |-
   Get information about a Yandex Cloud Function.
@@ -7,17 +7,20 @@ description: |-
 
 # yandex_function (Data Source)
 
-Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
+Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Yandex Cloud Function
+//
 data "yandex_function" "my_function" {
-  function_id = "are1samplefunction11"
+  function_id = "d4e45**********pqvd3"
 }
 ```
 
-This data source is used to define [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) that can be used by other resources.
+This data source is used to define [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) that can be used by other resources.
 
 ## Argument Reference
 

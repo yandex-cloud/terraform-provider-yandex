@@ -1,3 +1,7 @@
+//
+// Creating multi-host Kafka Cluster without sub-cluster of controllers, 
+// using KRaft-combine quorum.
+//
 resource "yandex_mdb_kafka_cluster" "kraft-combine" {
   name        = "test"
   environment = "PRESTABLE"
@@ -39,6 +43,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

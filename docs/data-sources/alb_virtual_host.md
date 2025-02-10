@@ -12,7 +12,10 @@ Get information about a Yandex ALB Virtual Host. For more information, see [Yand
 ## Example usage
 
 ```terraform
-data "yandex_alb_virtual_host" "my-vh-data" {
+//
+// Get information about existing ALB Virtual Host
+//
+data "yandex_alb_virtual_host" "my-vhost" {
   name           = yandex_alb_virtual_host.my-vh.name
   http_router_id = yandex_alb_virtual_host.my-router.id
 }

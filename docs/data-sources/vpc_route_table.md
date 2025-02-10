@@ -7,17 +7,20 @@ description: |-
 
 # yandex_vpc_route_table (Data Source)
 
-Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts).
+Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).
 
 ## Example usage
 
 ```terraform
-data "yandex_vpc_route_table" "this" {
+//
+// Get information about existing VPC Route Table.
+//
+data "yandex_vpc_route_table" "my_rt" {
   route_table_id = "my-rt-id"
 }
 ```
 
-This data source is used to define [VPC Route Table](https://cloud.yandex.com/docs/vpc/concepts/) that can be used by other resources.
+This data source is used to define [VPC Route Table](https://yandex.cloud/docs/vpc/concepts/) that can be used by other resources.
 
 ## Argument Reference
 

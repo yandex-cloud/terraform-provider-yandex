@@ -7,12 +7,15 @@ description: |-
 
 # yandex_lb_network_load_balancer (Resource)
 
-Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts).
+Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts).
 
 ## Example usage
 
 ```terraform
-resource "yandex_lb_network_load_balancer" "foo" {
+//
+// Create a new Network Load Balancer (NLB).
+//
+resource "yandex_lb_network_load_balancer" "my_nlb" {
   name = "my-network-load-balancer"
 
   listener {
@@ -155,8 +158,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A network load balancer can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_lb_network_load_balancer.default network_load_balancer_id
+```shell
+# terraform import yandex_lb_network_load_balancer.<resource Name> <resource Id>
+terraform import yandex_lb_network_load_balancer.my_nlb ...
 ```

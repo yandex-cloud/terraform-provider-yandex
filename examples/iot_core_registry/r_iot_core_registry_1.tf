@@ -1,3 +1,6 @@
+//
+// Create a new IoT Core Registry.
+//
 resource "yandex_iot_core_registry" "my_registry" {
   name        = "some_name"
   description = "any description"

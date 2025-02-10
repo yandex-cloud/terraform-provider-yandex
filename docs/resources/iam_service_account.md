@@ -7,12 +7,15 @@ description: |-
 
 # yandex_iam_service_account (Resource)
 
-Allows management of a Yandex Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts). To assign roles and permissions, use the [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html), [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html) and [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html) resources.
+Allows management of a Yandex Cloud IAM [service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts). To assign roles and permissions, use the [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html), [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html) and [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html) resources.
 
 ## Example usage
 
 ```terraform
-resource "yandex_iam_service_account" "sa" {
+//
+// Create a new IAM Service Account (SA).
+//
+resource "yandex_iam_service_account" "builder" {
   name        = "vmmanager"
   description = "service account to manage VMs"
 }
@@ -30,8 +33,9 @@ The following arguments are supported:
 
 ## Import
 
-A service account can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_iam_service_account.sa account_id
+```shell
+# terraform import yandex_iam_service_account.<resource Name> <resource Id>
+terraform import yandex_iam_service_account.builder aje5a**********qspd3
 ```

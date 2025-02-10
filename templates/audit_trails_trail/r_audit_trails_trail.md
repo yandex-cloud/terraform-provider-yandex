@@ -13,20 +13,7 @@ Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/tra
 
 {{ tffile "examples/audit_trails_trail/r_audit_trails_trail_1.tf" }}
 
-Trail delivering events to YDS and gathering such events:
-
-* Management events from the 'some-organization' organization
-* DNS data events from the 'some-organization' organization
-* Object Storage data events from the 'some-organization' organization
-
 {{ tffile "examples/audit_trails_trail/r_audit_trails_trail_2.tf" }}
-
-Trail delivering events to Object Storage and gathering such events:
-
-* Management events from the 'home-folder' folder
-* Managed PostgreSQL data events from the 'home-folder' folder
-
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_3.tf" }}
 
 ## Argument Reference
 
@@ -121,6 +108,21 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Status of this trail.
 * `trail_id` - ID of the trail resource.
 
+
+## Migration from deprecated filter field
+
+In order to migrate from unsing `filter` to the `filtering_policy`, you will have to:
+
+* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.
+
+* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
+
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_3.tf" }}
+
+* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.
+
+{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_4.tf" }}
+
 ## Timeouts
 
 `yandex_audit_trails_trail` provides the following configuration options for [timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
@@ -131,35 +133,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A trail can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```bash
-$ terraform import yandex_audit_trails_trail.infosec-trail trail_id
-```
-
-## Migration from deprecated filter field
-
-In order to migrate from unsing `filter` to the `filtering_policy`, you will have to:
-
-* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.
-
-* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
-
-Before
-
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_4.tf" }}
-
-After
-
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_5.tf" }}
-
-* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
-
-Before
-
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_6.tf" }}
-
-After
-
-{{ tffile "examples/audit_trails_trail/r_audit_trails_trail_7.tf" }}
-
+{{ codefile "bash" "examples/audit_trails_trail/import.sh" }}

@@ -1,3 +1,6 @@
+//
+// Create a new LoadTesting Agent.
+//
 resource "yandex_loadtesting_agent" "my-agent" {
   name        = "my-agent"
   description = "2 core 4 GB RAM agent"

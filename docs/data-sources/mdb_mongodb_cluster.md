@@ -7,11 +7,14 @@ description: |-
 
 # yandex_mdb_mongodb_cluster (Data Source)
 
-Get information about a Yandex Managed MongoDB cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
+Get information about a Yandex Managed MongoDB cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB MongoDB Cluster.
+//
 data "yandex_mdb_mongodb_cluster" "foo" {
   name = "test"
 }
@@ -53,9 +56,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
-* `disk_type_id` - The ID of the storage type. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/storage)
+* `disk_type_id` - The ID of the storage type. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/storage)
 
 The `disk_size_autoscaling_mongod`, `disk_size_autoscaling_mongos`, `disk_size_autoscaling_mongoinfra`, `disk_size_autoscaling_mongocfg` blocks support:
 
@@ -94,9 +97,14 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
+<<<<<<< HEAD
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 * `web_sql` - (Optional) Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/)
+=======
+* `data_lens` - Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
+>>>>>>> 30931d5f (Refactoring all doc templates and examples)
 
 The `user` block supports:
 
@@ -106,7 +114,7 @@ The `user` block supports:
 The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
-* `roles` - (Optional) List of strings. The roles of the user in this database. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/users-and-roles).
+* `roles` - (Optional) List of strings. The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).
 
 The `database` block supports:
 

@@ -23,3 +23,9 @@ The following arguments are supported:
 * `text_value_<NUMBER>` - (Optional) Each of the entry values in the Yandex Cloud Lockbox secret version.
 
 The `<NUMBER>` can range from `1` to `10`. If you only need one entry, use `key_1`/`text_value_1`. If you need a second entry, use `key_2`/`text_value_2`, and so on.
+
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

@@ -1,4 +1,7 @@
-resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
+//
+// Create a new Managed Kubernetes zonal Cluster.
+//
+resource "yandex_kubernetes_cluster" "zonal_cluster" {
   name        = "name"
   description = "description"
 

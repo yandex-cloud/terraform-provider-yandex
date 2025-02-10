@@ -5,7 +5,7 @@ description: |-
   Get information about a Yandex Cloud Datasphere Community.
 ---
 
-# yandex_datasphere_community
+# yandex_datasphere_community (Data Source)
 
 Get information about a Yandex Cloud Datasphere Community.
 
@@ -14,6 +14,9 @@ This data source is used to define Yandex Cloud Datasphere Community that can be
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Datasphere Community.
+//
 data "yandex_datasphere_community" "my_datasphere_community" {
   community_id = "community-id"
 }

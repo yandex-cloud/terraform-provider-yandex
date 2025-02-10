@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
+Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
 {{ tffile "examples/iot_core_registry/d_iot_core_registry_1.tf" }}
 
-This data source is used to define [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 

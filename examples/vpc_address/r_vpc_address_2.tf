@@ -1,3 +1,6 @@
+//
+// Create a new VPC IPv4 Address with DDoS Protection.
+//
 resource "yandex_vpc_address" "vpnaddr" {
   name = "vpnaddr"
 

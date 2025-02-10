@@ -7,9 +7,9 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows management of a [Yandex Cloud IAM service account API key](https://cloud.yandex.com/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex Cloud API. API keys are only used for [service accounts](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+Allows management of a [Yandex Cloud IAM service account API key](https://yandex.cloud/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex Cloud API. API keys are only used for [service accounts](https://yandex.cloud/docs/iam/concepts/users/service-accounts).
 
-API keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token).
+API keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token).
 
 ## Example usage
 
@@ -51,3 +51,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the static access key.
 
 * `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `output_to_lockbox` is removed.
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

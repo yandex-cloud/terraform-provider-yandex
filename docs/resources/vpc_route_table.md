@@ -7,23 +7,17 @@ description: |-
 
 # yandex_vpc_route_table (Resource)
 
-Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts).
+Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
 
 ## Example usage
 
 ```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_gateway" "egress-gateway" {
-  name = "egress-gateway"
-  shared_egress_gateway {}
-}
-
+//
+// Create a new VPC Route Table.
+//
 resource "yandex_vpc_route_table" "lab-rt-a" {
   network_id = yandex_vpc_network.lab-net.id
 
@@ -36,6 +30,16 @@ resource "yandex_vpc_route_table" "lab-rt-a" {
     destination_prefix = "0.0.0.0/0"
     gateway_id         = yandex_vpc_gateway.egress-gateway.id
   }
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_gateway" "egress-gateway" {
+  name = "egress-gateway"
+  shared_egress_gateway {}
 }
 ```
 
@@ -71,10 +75,12 @@ The `static_route` block supports:
 
 * `created_at` - Creation timestamp of the route table.
 
+
 ## Import
 
-A route table can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_route_table.default route_table_id
+```shell
+# terraform import yandex_vpc_route_table.<resource Name> <resource Id>
+terraform import yandex_vpc_route_table.lab-rt-a ...
 ```

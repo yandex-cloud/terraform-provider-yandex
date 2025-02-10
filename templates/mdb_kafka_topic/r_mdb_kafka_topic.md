@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a topic of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+Manages a topic of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 
 ## Example usage
 
@@ -29,10 +29,9 @@ The `topic_config` block supports:
 
 * `cleanup_policy`, `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`, `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate` - (Optional) Kafka topic settings. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).
 
+
 ## Import
 
-Kafka topic can be imported using following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_kafka_topic.foo {cluster_id}:{topic_name}
-```
+{{ codefile "shell" "examples/mdb_kafka_topic/import.sh" }}

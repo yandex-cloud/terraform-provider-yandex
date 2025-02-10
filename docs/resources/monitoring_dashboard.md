@@ -12,6 +12,9 @@ Get information about a Yandex Monitoring dashboard.
 ## Example usage
 
 ```terraform
+//
+// Create a new Monitoring Dashboard.
+//
 resource "yandex_monitoring_dashboard" "my-dashboard" {
   name        = "local-id-resource"
   description = "Description"
@@ -463,8 +466,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A Monitoring dashboard can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_monitoring_dashboard.default dashboard_id
+```shell
+# terraform import yandex_monitoring.<resource Name> <resource Id>
+terraform import yandex_monitoring.my-dashboard ...
 ```

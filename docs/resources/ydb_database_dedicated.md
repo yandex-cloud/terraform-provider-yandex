@@ -12,6 +12,9 @@ Yandex Database (dedicated) resource. For more information, see [the official do
 ## Example usage
 
 ```terraform
+//
+// Create a new YDB Dedicated Database.
+//
 resource "yandex_ydb_database_dedicated" "database1" {
   name      = "test-ydb-dedicated"
   folder_id = data.yandex_resourcemanager_folder.test_folder.id
@@ -122,3 +125,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - The Yandex Database cluster creation timestamp.
 
 * `status` - Status of the Yandex Database cluster.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_ydb_database_dedicated.<resource Name> <resource Id>
+terraform import yandex_ydb_database_dedicated.my_ydb ...
+```

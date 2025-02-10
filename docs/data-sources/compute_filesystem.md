@@ -7,20 +7,25 @@ description: |-
 
 # yandex_compute_filesystem (Data Source)
 
-Get information about a Yandex Compute filesystem. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/filesystem).
+Get information about a Yandex Compute filesystem. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/filesystem).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Compute Filesystem.
+//
 data "yandex_compute_filesystem" "my_fs" {
   filesystem_id = "some_fs_id"
 }
 
+// You can use "data.yandex_compute_filesystem.my_fs.id" identifier 
+// as reference to the existing resource.
 resource "yandex_compute_instance" "default" {
-  ...
+  # ...
 
   filesystem {
-    filesystem_id = "${data.yandex_compute_filesystem.my_fs.id}"
+    filesystem_id = data.yandex_compute_filesystem.my_fs.id
   }
 }
 ```
@@ -46,5 +51,5 @@ In addition to the arguments listed above, the following computed attributes are
 * `block_size` - The block size of the filesystem in bytes.
 * `type` - ID of the filesystem type.
 * `status` - Current status of the filesystem.
-* `labels` - Filesystem labels as `key:value` pairs. For details about the concept, see [documentation](https://cloud.yandex.com/docs/overview/concepts/services#labels).
+* `labels` - Filesystem labels as `key:value` pairs. For details about the concept, see [documentation](https://yandex.cloud/docs/overview/concepts/services#labels).
 * `created_at` - Creation timestamp.

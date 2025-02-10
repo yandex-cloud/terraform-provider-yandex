@@ -1,4 +1,7 @@
-resource "yandex_alb_backend_group" "test-backend-group" {
+//
+// Create a new ALB Backend Group.
+//
+resource "yandex_alb_backend_group" "my_alb_bg" {
   name = "my-backend-group"
 
   session_affinity {

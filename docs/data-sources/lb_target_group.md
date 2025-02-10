@@ -7,17 +7,20 @@ description: |-
 
 # yandex_lb_target_group (Data Source)
 
-Get information about a Yandex Load Balancer target group. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/quickstart).
+Get information about a Yandex Load Balancer target group. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/quickstart).
 
 ## Example usage
 
 ```terraform
-data "yandex_lb_target_group" "foo" {
+//
+// Get information about existing NLB Target Group.
+//
+data "yandex_lb_target_group" "my_tg" {
   target_group_id = "my-target-group-id"
 }
 ```
 
-This data source is used to define [Load Balancer Target Groups](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources) that can be used by other resources.
+This data source is used to define [Load Balancer Target Groups](https://yandex.cloud/docs/load-balancer/concepts/target-resources) that can be used by other resources.
 
 ## Argument Reference
 

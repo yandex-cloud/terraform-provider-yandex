@@ -15,8 +15,6 @@ This data source used to define Security Group Rule that can be used by other re
 
 {{ tffile "examples/vpc_security_group/d_vpc_security_group_1.tf" }}
 
-{{ tffile "examples/vpc_security_group/d_vpc_security_group_2.tf" }}
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -35,6 +33,6 @@ The following attribute is exported:
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).
 * `security_group_id` - Target security group ID for this rule.
-* `predefined_target` - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://cloud.yandex.com/docs/network-load-balancer/concepts/health-check).
+* `predefined_target` - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
 * `v4_cidr_blocks` - The blocks of  IPv4 addresses for this rule.
 * `v6_cidr_blocks` - The blocks of  IPv6 addresses for this rule.

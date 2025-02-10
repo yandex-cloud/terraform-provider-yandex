@@ -1,3 +1,6 @@
+//
+// Get information about existing Yandex Cloud Function
+//
 data "yandex_function" "my_function" {
-  function_id = "are1samplefunction11"
+  function_id = "d4e45**********pqvd3"
 }

@@ -12,6 +12,9 @@ Get attributes used by provider to configure client connection.
 ## Example usage
 
 ```terraform
+//
+// Example of using Yandex Cloud client configuration
+//
 data "yandex_client_config" "client" {}
 
 data "yandex_kubernetes_cluster" "kubernetes" {

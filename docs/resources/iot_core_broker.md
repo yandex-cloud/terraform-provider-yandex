@@ -7,11 +7,14 @@ description: |-
 
 # yandex_iot_core_broker (Resource)
 
-Allows management of [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart).
+Allows management of [Yandex Cloud IoT Broker](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new IoT Core Broker.
+//
 resource "yandex_iot_core_broker" "my_broker" {
   name        = "some_name"
   description = "any description"
@@ -58,3 +61,7 @@ The `log_options` block supports:
 * `log_group_id` - Log entries are written to specified log group
 * `folder_id` - Log entries are written to default log group for specified folder
 * `min_level` - Minimum log entry level
+
+## Import
+
+~> Import for this resource is not implemented yet.

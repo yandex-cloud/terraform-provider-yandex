@@ -40,10 +40,9 @@ The `security_settings` block supports:
 
 * `created_at` - (Computed) The SAML Federation creation timestamp.
 
+
 ## Import
 
-A Yandex SAML Federation can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_organizationmanager_saml_federation.federation "federation_id"
-```
+{{ codefile "shell" "examples/organizationmanager_saml_federation/import.sh" }}

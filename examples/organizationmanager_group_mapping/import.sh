@@ -1,3 +1,3 @@
-#
-terraform import yandex_organizationmanager_group_mapping.foo federation_id
+# terraform import yandex_organizationmanager_group_mapping.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_group.my_group_map ...
 

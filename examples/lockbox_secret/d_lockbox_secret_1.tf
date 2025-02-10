@@ -1,3 +1,6 @@
+//
+// Get information about existing Lockbox Secret.
+//
 data "yandex_lockbox_secret" "my_secret" {
   secret_id = "some ID"
 }

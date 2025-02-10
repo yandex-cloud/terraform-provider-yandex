@@ -43,12 +43,13 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-Service account IAM binding resources can be imported using the service account ID and role.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_iam_service_account_iam_binding.admin-account-iam "service_account_id roles/editor"
-```
+Service Account IAM binding resource can be imported using the service account ID and resource role.
+
+{{ codefile "shell" "examples/iam_service_account_iam_binding/import.sh" }}

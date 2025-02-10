@@ -7,11 +7,14 @@ description: |-
 
 # yandex_organizationmanager_saml_federation (Data Source)
 
-Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/add-federation).
+Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://yandex.cloud/docs/organization/add-federation).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing OrganizationManager SAML Federation.
+//
 data "yandex_organizationmanager_saml_federation" "federation" {
   federation_id   = "some_federation_id"
   organization_id = "some_organization_id"

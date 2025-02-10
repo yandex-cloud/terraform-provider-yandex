@@ -1,3 +1,6 @@
+//
+// Create a new Lockbox Secret and new IAM Binding for it.
+//
 resource "yandex_lockbox_secret" "your-secret" {
   name = "secret-name"
 }

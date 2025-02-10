@@ -43,8 +43,6 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-An HTTP Router can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_http_router.default http_router_id
-```
+{{ codefile "bash" "examples/alb_http_router/import.sh" }}

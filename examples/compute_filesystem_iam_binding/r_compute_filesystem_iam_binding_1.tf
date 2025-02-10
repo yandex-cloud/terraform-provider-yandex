@@ -1,3 +1,6 @@
+//
+// Create a new Compute Filesystem and new IAM Binding for it.
+//
 resource "yandex_compute_filesystem" "fs1" {
   name = "fs-name"
   type = "network-ssd"

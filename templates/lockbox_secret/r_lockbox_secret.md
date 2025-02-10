@@ -48,3 +48,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The Yandex Cloud Lockbox secret creation timestamp.
 * `status` - The Yandex Cloud Lockbox secret status.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "shell" "examples/lockbox_secret/import.sh" }}

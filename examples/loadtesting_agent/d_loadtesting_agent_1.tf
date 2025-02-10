@@ -1,3 +1,6 @@
+//
+// Get information about existing LoadTesting Agent.
+//
 data "yandex_loadtesting_agent" "my_agent" {
   agent_id = "some_agent_id"
 }

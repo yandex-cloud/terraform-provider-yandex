@@ -1,8 +1,7 @@
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_security_group" "group1" {
+//
+// Create a new VPC Security Group.
+//
+resource "yandex_vpc_security_group" "sg1" {
   name        = "My security group"
   description = "description for my security group"
   network_id  = yandex_vpc_network.lab-net.id
@@ -34,3 +33,9 @@ resource "yandex_vpc_security_group" "group1" {
     to_port        = 8099
   }
 }
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+

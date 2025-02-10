@@ -1,3 +1,6 @@
+//
+// Get information about existing Logging Group.
+//
 data "yandex_logging_group" "my_group" {
   group_id = "some_yandex_logging_group_id"
 }

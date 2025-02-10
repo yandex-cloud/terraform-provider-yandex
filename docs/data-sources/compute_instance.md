@@ -7,11 +7,14 @@ description: |-
 
 # yandex_compute_instance (Data Source)
 
-Get information about a Yandex Compute instance. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
+Get information about a Yandex Compute instance. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Compute Instance.
+//
 data "yandex_compute_instance" "my_instance" {
   instance_id = "some_instance_id"
 }

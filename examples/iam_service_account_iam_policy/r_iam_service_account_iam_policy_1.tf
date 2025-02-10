@@ -1,3 +1,6 @@
+//
+// Create a new IAM Service Account IAM Policy.
+//
 data "yandex_iam_policy" "admin" {
   binding {
     role = "admin"
@@ -9,6 +12,6 @@ data "yandex_iam_policy" "admin" {
 }
 
 resource "yandex_iam_service_account_iam_policy" "admin-account-iam" {
-  service_account_id = "your-service-account-id"
+  service_account_id = "aje5a**********qspd3"
   policy_data        = data.yandex_iam_policy.admin.policy_data
 }

@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Data Processing cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
+Get information about a Yandex Data Processing cluster. For more information, see [the official documentation](https://yandex.cloud/docs/data-proc/).
 
 ## Example usage
 
@@ -74,7 +74,7 @@ The `subcluster_spec` block supports:
 
 The `resources` block supports:
 
-* `resource_preset_id` - The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://cloud.yandex.com/docs/data-proc/concepts/instance-types).
+* `resource_preset_id` - The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://yandex.cloud/docs/data-proc/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of a host.
 
@@ -83,7 +83,7 @@ The `resources` block supports:
 The `autoscaling_config` block supports:
 
 * `max_hosts_count` - Maximum number of nodes in autoscaling subclusters.
-* `preemptible` - Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://cloud.yandex.com/docs/compute/concepts/preemptible-vm).
+* `preemptible` - Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).
 * `warmup_duration` - The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
 * `stabilization_duration` - Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
 * `measurement_duration` - Time in seconds allotted for averaging metrics.

@@ -107,8 +107,6 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A origin group can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_cdn_resource.default origin_group_id
-```
+{{ codefile "bash" "examples/cdn_resource/import.sh" }}

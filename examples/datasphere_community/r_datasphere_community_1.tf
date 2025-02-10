@@ -1,3 +1,6 @@
+//
+// Create a new Datasphere Community.
+//
 resource "yandex_datasphere_community" "my-community" {
   name               = "example-datasphere-community"
   description        = "Description of community"

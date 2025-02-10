@@ -5,7 +5,7 @@ description: |-
   Retrieve Yandex Billing cloud to billing account bind details.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
 {{ .Description }}
 

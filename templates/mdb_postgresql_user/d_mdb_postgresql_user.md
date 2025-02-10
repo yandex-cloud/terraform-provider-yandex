@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed PostgreSQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
+Get information about a Yandex Managed PostgreSQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
 
 ## Example usage
 
@@ -37,7 +37,7 @@ The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
 
-The `settings` block supports: [Full description](https://yandex.cloud/en-ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
+The `settings` block supports: [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
 
 * `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
   - 0: "unspecified"

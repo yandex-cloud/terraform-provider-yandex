@@ -12,6 +12,24 @@ Allows creation and management of a single binding within IAM policy for an exis
 ## Example usage
 
 ```terraform
+//
+// Create a new Datasphere Project and new IAM Binding for it.
+//
+resource "yandex_datasphere_community" "my-community" {
+  name               = "example-datasphere-community"
+  description        = "Description of community"
+  billing_account_id = "example-organization-id"
+  organization_id    = "example-organization-id"
+}
+
+resource "yandex_datasphere_project" "my-project" {
+  name        = "example-datasphere-project"
+  description = "Datasphere Project description"
+
+  community_id = yandex_datasphere_community.my-community.id
+  # ...
+}
+
 resource "yandex_datasphere_project_iam_binding" "project-iam" {
   project_id = "your-datasphere-project-id"
   role       = "datasphere.community-projects.developer"
@@ -43,14 +61,4 @@ resource "yandex_datasphere_project_iam_binding" "project-iam" {
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
-
-# IAM binding imports use space-delimited identifiers;
-# first the resource in question and then the role. 
-
-# These bindings can be imported using the project_id and role, e.g.
-terraform import yandex_datasphere_project_iam_binding.datasphere.community-projects.developer \
-  "project_id datasphere.community-projects.developer"
-```
+~> Import for this resource is not implemented yet.

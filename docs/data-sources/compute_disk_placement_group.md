@@ -7,11 +7,14 @@ description: |-
 
 # yandex_compute_disk_placement_group (Data Source)
 
-Get information about a Yandex Compute Disk Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
+Get information about a Yandex Compute Disk Placement group. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk#nr-disks).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Disk Placement Group.
+//
 data "yandex_compute_disk_placement_group" "my_group" {
   group_id = "some_group_id"
 }

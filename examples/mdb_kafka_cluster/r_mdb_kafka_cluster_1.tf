@@ -1,4 +1,7 @@
-resource "yandex_mdb_kafka_cluster" "foo" {
+//
+// Create a new MDB Kafka Cluster.
+//
+resource "yandex_mdb_kafka_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -62,6 +65,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

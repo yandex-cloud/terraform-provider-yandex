@@ -52,3 +52,9 @@ The `consumer` section supports:
 * `supported_codecs` - (Optional) Supported data encodings
 
 * `starting_message_timestamp_ms` - (Optional) Timestamp in the UNIX timestamp format, from which the consumer will start reading data
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "shell" "examples/ydb_table_changefeed/import.sh" }}

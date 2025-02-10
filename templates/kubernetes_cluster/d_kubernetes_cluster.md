@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#kubernetes-cluster).
+Get information about a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#kubernetes-cluster).
 
 ## Example usage
 
@@ -136,8 +136,8 @@ The `network_implementation` block can contain one of:
 
 The `master_logging` block supports:
 
-* `enabled` - (Optional) Boolean flag that specifies if master components logs should be sent to [Yandex Cloud Logging](https://cloud.yandex.com/docs/logging/). The exact components that will send their logs must be configured via the options described below.
-* `log_group_id` - (Optional) ID of the Yandex Cloud Logging [Log group](https://cloud.yandex.com/docs/logging/concepts/log-group).
+* `enabled` - (Optional) Boolean flag that specifies if master components logs should be sent to [Yandex Cloud Logging](https://yandex.cloud/docs/logging/). The exact components that will send their logs must be configured via the options described below.
+* `log_group_id` - (Optional) ID of the Yandex Cloud Logging [Log group](https://yandex.cloud/docs/logging/concepts/log-group).
 * `folder_id` - (Optional) ID of the folder default Log group of which should be used to collect logs.
 * `kube_apiserver_enabled` - (Optional) Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
 * `cluster_autoscaler_enabled` - (Optional) Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.

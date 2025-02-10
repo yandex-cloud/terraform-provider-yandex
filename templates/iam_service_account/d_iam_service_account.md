@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
+Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
 
 ## Example usage
 

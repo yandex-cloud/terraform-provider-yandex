@@ -1,3 +1,6 @@
+//
+// Get information about existing Compute Instance.
+//
 data "yandex_compute_instance" "my_instance" {
   instance_id = "some_instance_id"
 }

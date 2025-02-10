@@ -7,12 +7,14 @@ description: |-
 
 # yandex_resourcemanager_folder (Data Source)
 
-Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder).
+Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder).
 
 ## Example usage
 
 ```terraform
-# Get folder by ID
+//
+// Get information about existing Folder.
+//
 data "yandex_resourcemanager_folder" "my_folder_1" {
   folder_id = "folder_id_number_1"
 }

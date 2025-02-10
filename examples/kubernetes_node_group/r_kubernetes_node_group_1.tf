@@ -1,3 +1,6 @@
+//
+// Create a new Managed Kubernetes Node Group.
+//
 resource "yandex_kubernetes_node_group" "my_node_group" {
   cluster_id  = yandex_kubernetes_cluster.my_cluster.id
   name        = "name"

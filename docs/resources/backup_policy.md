@@ -14,6 +14,9 @@ Allows management of [Yandex Cloud Backup Policy](https://yandex.cloud/docs/back
 ## Example usage
 
 ```terraform
+//
+// Create a new basic Cloud Backup Policy
+//
 resource "yandex_backup_policy" "basic_policy" {
   name = "basic policy"
 
@@ -34,9 +37,10 @@ resource "yandex_backup_policy" "basic_policy" {
 }
 ```
 
-For the full policy attributes, take a look at the following example:
-
 ```terraform
+//
+// Create a new full Cloud Backup Policy
+//
 resource "yandex_backup_policy" "my_policy" {
   archive_name                      = "[Machine Name]-[Plan ID]-[Unique ID]a"
   cbt                               = "USE_IF_ENABLED"
@@ -171,3 +175,12 @@ A string type, that accepts the following values: `"ALWAYS_INCREMENTAL"`, `"ALWA
 ### backup_set_type
 
 `"TYPE_AUTO"`, `"TYPE_FULL"`, `"TYPE_INCREMENTAL"`, `'TYPE_DIFFERENTIAL"`.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```bash
+# terraform import yandex_backup_policy.<resource Name> <Resource Id>
+terraform import yandex_backup_policy.my_backup_policy ...
+```

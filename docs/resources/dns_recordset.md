@@ -12,8 +12,9 @@ Manages a DNS Recordset.
 ## Example usage
 
 ```terraform
-resource "yandex_vpc_network" "foo" {}
-
+//
+// Create a new DNS Zone & two DNS Records on it.
+//
 resource "yandex_dns_zone" "zone1" {
   name        = "my_private_zone"
   description = "desc"
@@ -42,6 +43,9 @@ resource "yandex_dns_recordset" "rs2" {
   ttl     = 200
   data    = ["10.1.0.2"]
 }
+
+// Auxiliary resource for DNS Zone
+resource "yandex_vpc_network" "foo" {}
 ```
 
 ## Argument Reference
@@ -56,8 +60,9 @@ The following arguments are supported:
 
 ## Import
 
-DNS recordset can be imported using this format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_dns_recordset.rs1 {zone_id}/{name}/{type}
+```bash
+# terraform import yandex_dns_recordset.<resource Name> <{zone_id}/{name}/{type}>
+terraform import yandex_dns_recordset.rs1 dns9m**********tducf/srv.example.com./A
 ```

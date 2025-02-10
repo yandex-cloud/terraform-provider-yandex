@@ -12,6 +12,9 @@ Yandex Cloud Lockbox secret resource. For more information, see [the official do
 ## Example usage
 
 ```terraform
+//
+// Create a new LockBox Secret.
+//
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret"
 }
@@ -20,6 +23,9 @@ resource "yandex_lockbox_secret" "my_secret" {
 Use `yandex_lockbox_secret_version` to add entries to the secret.
 
 ```terraform
+//
+// Create a new LockBox Secret with password.
+//
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret with passowrd"
 
@@ -61,3 +67,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The Yandex Cloud Lockbox secret creation timestamp.
 * `status` - The Yandex Cloud Lockbox secret status.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_lockbox_secret.<resource Name> <resource Id>
+terraform import yandex_lockbox_secret.my_secret ...
+```

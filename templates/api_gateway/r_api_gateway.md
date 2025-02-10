@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows management of [Yandex Cloud API Gateway](https://cloud.yandex.com/docs/api-gateway/).
+Allows management of [Yandex Cloud API Gateway](https://yandex.cloud/docs/api-gateway/).
 
 ## Example usage
 
@@ -49,3 +49,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `log_group_id` - Log entries are written to specified log group
 * `folder_id` - Log entries are written to default log group for specified folder
 * `min_level` - Minimum log entry level
+
+## Import
+
+~> Import for this resource is not implemented yet.

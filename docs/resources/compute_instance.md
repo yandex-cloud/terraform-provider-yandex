@@ -7,14 +7,17 @@ description: |-
 
 # yandex_compute_instance (Resource)
 
-A VM instance resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
+A VM instance resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Compute Instance
+//
 resource "yandex_compute_instance" "default" {
   name        = "test"
-  platform_id = "standard-v1"
+  platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
   resources {
@@ -33,10 +36,11 @@ resource "yandex_compute_instance" "default" {
 
   metadata = {
     foo      = "bar"
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys = "ubuntu:${file("~/.ssh/id_ed25519.pub")}"
   }
 }
 
+// Auxiliary resources for Compute Instance
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -277,8 +281,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-Instances can be imported using the `ID` of an instance, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_instance.default instance_id
+```bash
+# terraform import yandex_compute_instance.<resource Name> <resource Id>
+terraform import yandex_compute_instance.my_vm1 fhmur**********j51ah
 ```

@@ -12,6 +12,9 @@ Get information about Yandex Cloud Lockbox secret. For more information, see [th
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Lockbox Secret.
+//
 data "yandex_lockbox_secret" "my_secret" {
   secret_id = "some ID"
 }

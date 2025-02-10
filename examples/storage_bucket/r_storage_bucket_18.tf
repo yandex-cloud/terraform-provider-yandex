@@ -1,5 +1,5 @@
 //
-// All in one example
+// All Bucket settings example.
 //
 provider "yandex" {
   token              = "<iam-token>"

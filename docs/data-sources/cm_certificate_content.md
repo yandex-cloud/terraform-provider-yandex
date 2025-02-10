@@ -12,6 +12,9 @@ Get content (certificate, private key) from a Yandex Certificate Manager Certifi
 ## Example usage
 
 ```terraform
+// 
+// Get CM Certificate payload. Can be used for Certificate Validation.
+//
 data "yandex_cm_certificate_content" "example_by_id" {
   certificate_id = "certificate-id"
 }
@@ -21,8 +24,6 @@ data "yandex_cm_certificate_content" "example_by_name" {
   name      = "example"
 }
 ```
-
-This data source is used to define contents of [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
 
 ## Argument Reference
 

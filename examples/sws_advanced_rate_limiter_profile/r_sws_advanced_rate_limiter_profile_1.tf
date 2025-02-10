@@ -1,3 +1,6 @@
+//
+// Create a new SWS Advanced Rate Limiter Profile.
+//
 resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
   name = "demo-profile"
 

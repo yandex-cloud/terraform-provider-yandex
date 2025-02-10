@@ -1,3 +1,6 @@
+//
+// Create a new Compute Filesystem.
+//
 resource "yandex_compute_filesystem" "default" {
   name = "fs-name"
   type = "network-ssd"

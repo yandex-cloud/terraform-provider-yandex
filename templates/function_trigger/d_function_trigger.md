@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Functions Trigger.
@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
+Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).
 
 ## Example usage
 
 {{ tffile "examples/function_trigger/d_function_trigger_1.tf" }}
 
-This data source is used to define [Yandex Cloud Functions Trigger](https://cloud.yandex.com/docs/functions/concepts/trigger) that can be used by other resources.
+This data source is used to define [Yandex Cloud Functions Trigger](https://yandex.cloud/docs/functions/concepts/trigger) that can be used by other resources.
 
 ## Argument Reference
 
@@ -36,7 +36,7 @@ The following attributes are exported:
 * `labels` - A set of key/value label pairs to assign to the Yandex Cloud Functions Trigger
 * `created_at` - Creation timestamp of the Yandex Cloud Functions Trigger
 
-* `function` - [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
+* `function` - [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger
 * `function.0.id` - Yandex Cloud Function ID for Yandex Cloud Functions Trigger
 * `function.0.service_account_id` - Service account ID for Yandex Cloud Function for Yandex Cloud Functions Trigger
 * `function.0.tag` - Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger
@@ -54,19 +54,19 @@ The following attributes are exported:
 * `dlq.0.queue_id` - ID of Dead Letter Queue for Trigger (Queue ARN)
 * `dlq.0.service_account_id` - Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger
 
-* `iot` - [IoT](https://cloud.yandex.com/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `iot` - [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `iot.0.registry_id` - IoT Registry ID for Yandex Cloud Functions Trigger
 * `iot.0.device_id` - IoT Device ID for Yandex Cloud Functions Trigger
 * `iot.0.topic` - IoT Topic for Yandex Cloud Functions Trigger
 
-* `message_queue` - [Message Queue](https://cloud.yandex.com/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `message_queue` - [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `message_queue.0.queue_id` - Message Queue ID for Yandex Cloud Functions Trigger
 * `message_queue.0.service_account_id` - Message Queue Service Account ID for Yandex Cloud Functions Trigger
 * `message_queue.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `message_queue.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 * `message_queue.0.visibility_timeout` - Visibility timeout for Yandex Cloud Functions Trigger
 
-* `object_storage` - [Object Storage](https://cloud.yandex.com/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `object_storage` - [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `object_storage.0.bucket_id` - Object Storage Bucket ID for Yandex Cloud Functions Trigger
 * `object_storage.0.prefix` - Prefix for Object Storage for Yandex Cloud Functions Trigger
 * `object_storage.0.suffix` - Suffix for Object Storage for Yandex Cloud Functions Trigger
@@ -74,5 +74,5 @@ The following attributes are exported:
 * `object_storage.0.update` - Boolean flag for setting update event for Yandex Cloud Functions Trigger
 * `object_storage.0.delete` - Boolean flag for setting delete event for Yandex Cloud Functions Trigger
 
-* `timer` - [Timer](https://cloud.yandex.com/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present
+* `timer` - [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present
 * `timer.0.cron_expression` - Cron expression for timer for Yandex Cloud Functions Trigger

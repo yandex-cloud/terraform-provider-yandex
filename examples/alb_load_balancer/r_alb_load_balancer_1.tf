@@ -1,4 +1,7 @@
-resource "yandex_alb_load_balancer" "test-balancer" {
+//
+// Create a new Application Load Balancer (ALB)
+//
+resource "yandex_alb_load_balancer" "my_alb" {
   name = "my-load-balancer"
 
   network_id = yandex_vpc_network.test-network.id

@@ -1,4 +1,6 @@
-
+//
+// Create a new full Cloud Backup Policy
+//
 resource "yandex_backup_policy" "my_policy" {
   archive_name                      = "[Machine Name]-[Plan ID]-[Unique ID]a"
   cbt                               = "USE_IF_ENABLED"

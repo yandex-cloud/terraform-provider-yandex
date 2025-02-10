@@ -12,7 +12,10 @@ Manages an Apache Airflow cluster within Yandex Cloud. For more information, see
 ## Example usage
 
 ```terraform
-resource "yandex_airflow_cluster" "this" {
+//
+// Create a new Airflow Cluster.
+//
+resource "yandex_airflow_cluster" "my_airflow_cluster" {
   name               = "airflow-created-with-terraform"
   subnet_ids         = [yandex_vpc_subnet.a.id, yandex_vpc_subnet.b.id, yandex_vpc_subnet.d.id]
   service_account_id = yandex_iam_service_account.for-airflow.id
@@ -182,10 +185,9 @@ Required:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# terraform import yandex_airflow_cluster.<cluster-name> <resource-ID>
-terraform import yandex_airflow_cluster.afcluster enphq**********cjsw4
+```bash
+# terraform import yandex_airflow_cluster.<resource Name> <resource Id>
+terraform import yandex_airflow_cluster.my_airflow_cluster enphq**********cjsw4
 ```

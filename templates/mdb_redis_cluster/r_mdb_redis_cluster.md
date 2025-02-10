@@ -5,9 +5,9 @@ description: |-
   Manages a Redis cluster within Yandex Cloud.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
-Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
+Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
 
 ## Example usage
 
@@ -119,7 +119,7 @@ The `backup_window_start` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
 
 * `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
 
@@ -129,7 +129,7 @@ The `host` block supports:
 
 * `fqdn` (Computed) - The fully qualified domain name of the host.
 
-* `zone` - (Required) The availability zone where the Redis host will be created. For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* `zone` - (Required) The availability zone where the Redis host will be created. For more information see [the official documentation](https://yandex.cloud/docs/overview/concepts/geo-scope).
 
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
@@ -157,14 +157,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
-* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-redis/api-ref/Cluster/).
+* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
 
-* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-redis/api-ref/Cluster/).
+* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_redis_cluster.foo cluster_id
-```
+{{ codefile "shell" "examples/mdb_redis_cluster/import.sh" }}

@@ -1,3 +1,8 @@
+//
+// Create a new pair of Data Transfer Endpoints Source & Target and Data Transfer.
+//
+
+// Create Data Transfer Endpoint "Source"
 resource "yandex_datatransfer_endpoint" "pg_source" {
   name = "pg-test-source"
   settings {
@@ -11,8 +16,8 @@ resource "yandex_datatransfer_endpoint" "pg_source" {
         }
       }
       slot_gigabyte_lag_limit = 100
-      database = "db1"
-      user = "user1"
+      database                = "db1"
+      user                    = "user1"
       password {
         raw = "123"
       }
@@ -20,16 +25,17 @@ resource "yandex_datatransfer_endpoint" "pg_source" {
   }
 }
 
+// Create Data Transfer Endpoint "Target"
 resource "yandex_datatransfer_endpoint" "pg_target" {
   folder_id = "some_folder_id"
-  name = "pg-test-target2"
+  name      = "pg-test-target2"
   settings {
     postgres_target {
       connection {
         mdb_cluster_id = "some_cluster_id"
       }
       database = "db2"
-      user = "user2"
+      user     = "user2"
       password {
         raw = "321"
       }
@@ -37,28 +43,29 @@ resource "yandex_datatransfer_endpoint" "pg_target" {
   }
 }
 
+// Create Data Transfer from "Source" to "Target"
 resource "yandex_datatransfer_transfer" "pgpg_transfer" {
   folder_id = "some_folder_id"
-  name = "pgpg"
+  name      = "pgpg"
   source_id = yandex_datatransfer_endpoint.pg_source.id
   target_id = yandex_datatransfer_endpoint.pg_target.id
-  type = "SNAPSHOT_AND_INCREMENT"
+  type      = "SNAPSHOT_AND_INCREMENT"
   runtime {
     yc_runtime {
       job_count = 1
       upload_shard_params {
-        job_count = 4
+        job_count     = 4
         process_count = 1
       }
     }
   }
   transformation {
-    transformers{
-      one of transfomer
+    transformers {
+      # one of transformer
     }
-    transformers{
-      one of transfomers
+    transformers {
+      # one of transformer
     }
-    ...
+    # ...
   }
 }

@@ -1,3 +1,6 @@
+//
+// Get information about existing Compute Instance Group (IG)
+//
 data "yandex_compute_instance_group" "my_group" {
   instance_group_id = "some_instance_group_id"
 }

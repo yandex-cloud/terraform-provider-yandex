@@ -1,3 +1,6 @@
+//
+// Get information about existing CM Certificate
+//
 data "yandex_cm_certificate" "example_by_id" {
   certificate_id = "certificate-id"
 }

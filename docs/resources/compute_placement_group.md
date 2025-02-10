@@ -7,11 +7,14 @@ description: |-
 
 # yandex_compute_placement_group (Resource)
 
-A Placement group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
+A Placement group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Compute Placement Group.
+//
 resource "yandex_compute_placement_group" "group1" {
   name        = "test-pg"
   folder_id   = "abc*********123"
@@ -45,8 +48,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A Placement Group can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_placement_group.default placement_group_id
+```bash
+# terraform import yandex_compute_placement_group.<resource Name> <resource Id>
+terraform import yandex_compute_placement_group.my_pg1 ...
 ```

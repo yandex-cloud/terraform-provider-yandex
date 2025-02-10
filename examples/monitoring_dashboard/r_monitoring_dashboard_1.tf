@@ -1,3 +1,6 @@
+//
+// Create a new Monitoring Dashboard.
+//
 resource "yandex_monitoring_dashboard" "my-dashboard" {
   name        = "local-id-resource"
   description = "Description"

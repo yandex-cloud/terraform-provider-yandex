@@ -14,8 +14,11 @@ NOTE: Group mapping items depends on [group mapping](organizationmanager_group_m
 ## Example Usage
 
 ```terraform
+//
+// Create a new OrganizationManager Group Mapping Item.
+//
 resource "yandex_organizationmanager_group_mapping_item" "group_mapping_item" {
-  federation_id = "my-federation_id"
+  federation_id     = "my-federation_id"
   internal_group_id = "my_internal_group_id"
   external_group_id = "my_external_group_id"
 
@@ -54,10 +57,10 @@ Optional:
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-#
-terraform import yandex_organizationmanager_group_mapping.foo {federation_id}/{internal_group_id}/{external_group_id}
+# terraform import yandex_organizationmanager_group_mapping_item.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_group_mapping_item.group_mapping_item .../.../...
 ```
 

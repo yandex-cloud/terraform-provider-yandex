@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/).
+Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/).
 
 ## Example usage
 
@@ -49,7 +49,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a SQLServer host, in gigabytes.
 * `disk_type_id` - Type of the storage for SQLServer hosts.
 

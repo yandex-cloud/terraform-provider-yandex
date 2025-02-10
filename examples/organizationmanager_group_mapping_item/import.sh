@@ -1,3 +1,2 @@
-#
-terraform import yandex_organizationmanager_group_mapping.foo {federation_id}/{internal_group_id}/{external_group_id}
-
+# terraform import yandex_organizationmanager_group_mapping_item.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_group_mapping_item.group_mapping_item .../.../...

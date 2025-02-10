@@ -5,9 +5,9 @@ description: |-
   Get information about a Yandex Managed MongoDB database.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
+Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).
 
 ## Example usage
 

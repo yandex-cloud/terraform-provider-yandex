@@ -14,6 +14,9 @@ Allows members management of a single Yandex Cloud Organization Manager Group. F
 ## Example usage
 
 ```terraform
+//
+// Create a new OrganizationManager Group Membership.
+//
 resource "yandex_organizationmanager_group_membership" "group" {
   group_id = "sdf4*********3fr"
   members = [
@@ -28,3 +31,8 @@ The following arguments are supported:
 
 * `group_id` - (Required, Forces new resource) The Group to add/remove members to/from.
 * `members` - A set of members of the Group. Each member is represented by an id.
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

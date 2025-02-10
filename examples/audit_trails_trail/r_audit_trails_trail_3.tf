@@ -1,32 +1,34 @@
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
-  folder_id   = "home-folder"
-  description = "Some trail description"
+//
+// Migration from deprecated filter field
+//
 
-  labels = {
-    key = "value"
-  }
-
-  service_account_id = "trail-service-account"
-
-  storage_destination {
-    bucket_name   = "some-bucket"
-    object_prefix = "some-prefix"
-  }
-
-  filtering_policy {
-    management_events_filter {
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
+// Before replacing "filter.event_filters.path_filter" to the "resource_scope" block.
+event_filters {
+  path_filter {
+    some_filter {
+      resource_id   = "home-folder"
+      resource_type = "resource-manager.folder"
+      any_filters {
+        resource_id   = "vpc-net-id-1"
+        resource_type = "vpc.network"
+      }
+      any_filters {
+        resource_id   = "vpc-net-id-2"
+        resource_type = "vpc.network"
       }
     }
-    data_events_filter {
-      service = "mdb.postgresql"
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
+  }
+}
+
+// After replacing "filter.event_filters.path_filter" to the "resource_scope" block.
+data_events_filter {
+  service = "dns"
+  resource_scope {
+    resource_id   = "vpc-net-id-1"
+    resource_type = "vpc.network"
+  }
+  resource_scope {
+    resource_id   = "vpc-net-id-2"
+    resource_type = "vpc.network"
   }
 }

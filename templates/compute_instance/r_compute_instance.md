@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-A VM instance resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
+A VM instance resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).
 
 ## Example usage
 
@@ -244,8 +244,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-Instances can be imported using the `ID` of an instance, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_instance.default instance_id
-```
+{{ codefile "bash" "examples/compute_instance/import.sh" }}

@@ -1,3 +1,6 @@
+//
+// Create a new KMS Assymetric Signature Key.
+//
 resource "yandex_kms_asymmetric_signature_key" "key-a" {
   name                = "example-asymetric-signature-key"
   description         = "description for key"

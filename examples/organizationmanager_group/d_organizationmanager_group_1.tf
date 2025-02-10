@@ -1,3 +1,6 @@
+//
+// Get information about existing OrganizationManager Group.
+//
 data "yandex_organizationmanager_group" "group" {
   group_id        = "some_group_id"
   organization_id = "some_organization_id"

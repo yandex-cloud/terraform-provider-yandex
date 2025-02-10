@@ -1,3 +1,6 @@
+//
+// Create a new API Gateway
+//
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "some_name"
   description = "any description"

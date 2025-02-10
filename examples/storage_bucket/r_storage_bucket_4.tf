@@ -1,3 +1,6 @@
+//
+// Using ACL policy grants.
+//
 resource "yandex_storage_bucket" "test" {
   bucket = "mybucket"
 

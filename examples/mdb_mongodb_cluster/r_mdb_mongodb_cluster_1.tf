@@ -1,12 +1,7 @@
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_mdb_mongodb_cluster" "foo" {
+//
+// Create a new MDB MongoDB Cluster.
+//
+resource "yandex_mdb_mongodb_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -50,11 +45,20 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   host {
-    zone_id   = "ru-central1-a"
+    zone_id   = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 
   maintenance_window {
     type = "ANYTIME"
   }
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
 }

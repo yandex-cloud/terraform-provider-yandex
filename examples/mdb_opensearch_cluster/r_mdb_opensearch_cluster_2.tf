@@ -1,12 +1,11 @@
+//
+// Create a new MDB OpenSearch Cluster.
+//
 locals {
-  zones = [
-    "ru-central1-a",
-    "ru-central1-b",
-    "ru-central1-c",
-  ]
+  zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
+resource "yandex_mdb_opensearch_cluster" "my_cluster" {
   name        = "my-cluster"
   environment = "PRODUCTION"
   network_id  = yandex_vpc_network.es-net.id
@@ -73,7 +72,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     }
   }
 
-
   auth_settings = {
     saml = {
       idp_entity_id             = "urn:dev.auth0.example.com"
@@ -86,11 +84,12 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.es-subnet-a,
     yandex_vpc_subnet.es-subnet-b,
-    yandex_vpc_subnet.es-subnet-c,
+    yandex_vpc_subnet.es-subnet-d,
   ]
 
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "es-net" {}
 
 resource "yandex_vpc_subnet" "es-subnet-a" {
@@ -105,9 +104,8 @@ resource "yandex_vpc_subnet" "es-subnet-b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "es-subnet-c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "es-subnet-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.es-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
-

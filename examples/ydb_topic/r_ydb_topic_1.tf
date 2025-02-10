@@ -1,10 +1,7 @@
-resource "yandex_ydb_database_serverless" "database_name" {
-  name        = "database-name"
-  location_id = "ru-central1"
-}
-
-
-resource "yandex_ydb_topic" "topic" {
+//
+// Create a new YDB Topic.
+//
+resource "yandex_ydb_topic" "my_topic" {
   database_endpoint = yandex_ydb_database_serverless.database_name.ydb_full_endpoint
   name              = "topic-test"
 
@@ -18,3 +15,7 @@ resource "yandex_ydb_topic" "topic" {
   }
 }
 
+resource "yandex_ydb_database_serverless" "database_name" {
+  name        = "database-name"
+  location_id = "ru-central1"
+}

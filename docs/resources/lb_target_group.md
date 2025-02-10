@@ -7,12 +7,15 @@ description: |-
 
 # yandex_lb_target_group (Resource)
 
-Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources).
+Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/target-resources).
 
 ## Example usage
 
 ```terraform
-resource "yandex_lb_target_group" "foo" {
+//
+// Create a new NLB Target Group.
+//
+resource "yandex_lb_target_group" "my_tg" {
   name      = "my-target-group"
   region_id = "ru-central1"
 
@@ -70,8 +73,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A target group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_lb_target_group.default target_group_id
+```shell
+# terraform import yandex_lb_target_group.<resource Name> <resource Id>
+terraform import yandex_lb_target_group.my_tg ...
 ```

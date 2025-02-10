@@ -7,11 +7,14 @@ description: |-
 
 # yandex_container_repository (Data Source)
 
-Get information about a Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/repository).
+Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Container Repository
+//
 data "yandex_container_repository" "repo-1" {
   name = "some_repository_name"
 }

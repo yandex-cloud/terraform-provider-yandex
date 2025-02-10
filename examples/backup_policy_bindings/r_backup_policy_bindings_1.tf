@@ -1,3 +1,6 @@
+//
+// Create a new Cloud Backup Policy Binding
+//
 resource "yandex_iam_service_account" "test_sa" {
   name = "sa-backup-editor"
 }

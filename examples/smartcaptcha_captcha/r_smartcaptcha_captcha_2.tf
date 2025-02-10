@@ -1,5 +1,5 @@
 //
-// Adanced SmartCaptcha example
+// Advanced SmartCaptcha example.
 //
 resource "yandex_smartcaptcha_captcha" "demo-captcha-advanced" {
   deletion_protection = true

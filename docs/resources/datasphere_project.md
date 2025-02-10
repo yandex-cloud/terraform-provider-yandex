@@ -12,6 +12,9 @@ Allows management of Yandex Cloud Datasphere Projects.
 ## Example usage
 
 ```terraform
+//
+// Create a new Datasphere Project.
+//
 resource "yandex_datasphere_project" "my-project" {
   name        = "example-datasphere-project"
   description = "Datasphere Project description"
@@ -38,6 +41,16 @@ resource "yandex_datasphere_project" "my-project" {
     default_folder_id       = "foo-folder-id"
     stale_exec_timeout_mode = "ONE_HOUR"
   }
+}
+
+resource "yandex_datasphere_community" "my-community" {
+  name               = "example-datasphere-community"
+  description        = "Description of community"
+  billing_account_id = "example-organization-id"
+  labels = {
+    "foo" : "bar"
+  }
+  organization_id = "example-organization-id"
 }
 ```
 
@@ -100,10 +113,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# A Datasphere Project can be imported using the id of the resource, e.g.:
-terraform import yandex_datasphere_project.default id
+```bash
+# terraform import yandex_datasphere_project.<resource Name> <resource Id>
+terraform import yandex_datasphere_project.my-project ...
 ```

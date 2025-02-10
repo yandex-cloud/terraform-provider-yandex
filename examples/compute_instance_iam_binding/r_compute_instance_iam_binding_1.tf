@@ -1,57 +1,37 @@
-resource "yandex_compute_instance_group" "group1" {
-  name                = "test-ig"
-  folder_id           = data.yandex_resourcemanager_folder.test_folder.id
-  service_account_id  = yandex_iam_service_account.test_account.id
-  deletion_protection = true
-  instance_template {
-    platform_id = "standard-v1"
-    resources {
-      memory = 2
-      cores  = 2
-    }
-    boot_disk {
-      mode = "READ_WRITE"
-      initialize_params {
-        image_id = data.yandex_compute_image.ubuntu.id
-        size     = 4
-      }
-    }
-    network_interface {
-      network_id = yandex_vpc_network.my-inst-group-network.id
-      subnet_ids = ["${yandex_vpc_subnet.my-inst-group-subnet.id}"]
-    }
-    labels = {
-      label1 = "label1-value"
-      label2 = "label2-value"
-    }
-    metadata = {
-      foo      = "bar"
-      ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
-    }
-    network_settings {
-      type = "STANDARD"
-    }
+//
+// Create a new Compute Instance and new IAM Binding for it.
+//
+resource "yandex_compute_instance" "vm1" {
+  name        = "test"
+  platform_id = "standard-v3"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 4
   }
 
-  variables = {
-    test_key1 = "test_value1"
-    test_key2 = "test_value2"
+  boot_disk {
+    disk_id = yandex_compute_disk.boot-disk.id
   }
 
-  scale_policy {
-    fixed_scale {
-      size = 3
-    }
+  network_interface {
+    index     = 1
+    subnet_id = yandex_vpc_subnet.foo.id
   }
 
-  allocation_policy {
-    zones = ["ru-central1-a"]
+  metadata = {
+    foo      = "bar"
+    ssh-keys = "ubuntu:${file("~/.ssh/id_ed25519.pub")}"
   }
+}
 
-  deploy_policy {
-    max_unavailable = 2
-    max_creating    = 2
-    max_expansion   = 2
-    max_deleting    = 2
-  }
+resource "yandex_compute_instance_iam_binding" "editor" {
+  image_id = data.yandex_compute_instance.vm1.id
+
+  role = "editor"
+
+  members = [
+    "userAccount:some_user_id",
+  ]
 }

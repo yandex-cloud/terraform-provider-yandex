@@ -21,10 +21,9 @@ Manages `Security Group Rule` within the Yandex Cloud. For more information, see
 ## Example usage
 
 ```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
+//
+// Create a new VPC Security Group Rule.
+//
 resource "yandex_vpc_security_group" "group1" {
   name        = "My security group"
   description = "description for my security group"
@@ -52,6 +51,11 @@ resource "yandex_vpc_security_group_rule" "rule2" {
   from_port              = 8090
   to_port                = 8099
   protocol               = "UDP"
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
 }
 ```
 
@@ -92,10 +96,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# terraform import yandex_vpc_security_group.<rule-name> <resource-ID>
+```bash
+# terraform import yandex_vpc_security_group.<resource Name> <resource Id>
 terraform import yandex_vpc_security_group_rule.myrule enphq**********cjsw4
 ```

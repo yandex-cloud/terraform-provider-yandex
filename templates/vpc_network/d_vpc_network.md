@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex VPC network. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC network. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
 
 ## Example usage
 
 {{ tffile "examples/vpc_network/d_vpc_network_1.tf" }}
 
-This data source is used to define [VPC Networks](https://cloud.yandex.com/docs/vpc/concepts/network) that can be used by other resources.
+This data source is used to define [VPC Networks](https://yandex.cloud/docs/vpc/concepts/network) that can be used by other resources.
 
 ## Argument Reference
 

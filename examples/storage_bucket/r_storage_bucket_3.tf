@@ -1,3 +1,6 @@
+//
+// Static Website Hosting.
+//
 resource "yandex_storage_bucket" "test" {
   bucket = "storage-website-test.hashicorp.com"
   acl    = "public-read"

@@ -12,13 +12,10 @@ Manage a YDB Topic. For more information, see [the official documentation](https
 ## Example usage
 
 ```terraform
-resource "yandex_ydb_database_serverless" "database_name" {
-  name        = "database-name"
-  location_id = "ru-central1"
-}
-
-
-resource "yandex_ydb_topic" "topic" {
+//
+// Create a new YDB Topic.
+//
+resource "yandex_ydb_topic" "my_topic" {
   database_endpoint = yandex_ydb_database_serverless.database_name.ydb_full_endpoint
   name              = "topic-test"
 
@@ -30,6 +27,11 @@ resource "yandex_ydb_topic" "topic" {
     supported_codecs              = ["raw", "gzip"]
     starting_message_timestamp_ms = 0
   }
+}
+
+resource "yandex_ydb_database_serverless" "database_name" {
+  name        = "database-name"
+  location_id = "ru-central1"
 }
 ```
 
@@ -52,3 +54,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `supported_codecs` - Supported data encodings. Types:Types: array[string], optional. Default value: ["gzip", "raw", "zstd"].
 * `starting_message_timestamp_ms` - Timestamp in UNIX timestamp format from which the reader will start reading data. Type: integer, optional. Default value: 0.
 * `important` - Defines an important consumer. No data will be deleted from the topic until all the important consumers read them. Value type: boolean, default value: false.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_ydb_topic.<resource Name> <resource Id>
+terraform import yandex_ydb_topic.my_topic ...
+```

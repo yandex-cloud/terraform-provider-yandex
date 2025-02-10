@@ -7,13 +7,16 @@ description: |-
 
 # yandex_mdb_mysql_user (Resource)
 
-Manages a MySQL user within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Manages a MySQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
 ```terraform
-resource "yandex_mdb_mysql_user" "john" {
-  cluster_id = yandex_mdb_mysql_cluster.foo.id
+//
+// Create a new MDB MySQL Database User.
+//
+resource "yandex_mdb_mysql_user" "my_user" {
+  cluster_id = yandex_mdb_mysql_cluster.my_cluster.id
   name       = "john"
   password   = "password"
 
@@ -39,7 +42,7 @@ resource "yandex_mdb_mysql_user" "john" {
   authentication_plugin = "SHA256_PASSWORD"
 }
 
-resource "yandex_mdb_mysql_cluster" "foo" {
+resource "yandex_mdb_mysql_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -54,15 +57,16 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
@@ -103,10 +107,12 @@ The `permission` block supports:
 
 * `roles` - (Optional) List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.
 
+
 ## Import
 
-A MySQL user can be imported using the following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_mysql_user.foo {cluster_id}:{username}
+```shell
+# terraform import yandex_mdb_mysql_user.<resource Name> <resource Id>
+terraform import yandex_mdb_mysql_user.my_user ...
 ```

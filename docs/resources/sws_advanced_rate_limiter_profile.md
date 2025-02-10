@@ -12,6 +12,9 @@ Creates an ARL Profile in the specified folder. For more information, see [the o
 ## Example usage
 
 ```terraform
+//
+// Create a new SWS Advanced Rate Limiter Profile.
+//
 resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
   name = "demo-profile"
 
@@ -131,10 +134,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The ARL Profile creation timestamp.
 
+
 ## Import
 
-An ARL Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_advanced_rate_limiter_profile.demo-profile arl_profile_id
+```shell
+# terraform import yandex_sws_advanced_rate_limiter_profile.<resource Name> <resource Id>
+terraform import yandex_sws_advanced_rate_limiter_profile.demo-profile ...
 ```

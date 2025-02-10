@@ -1,4 +1,7 @@
-resource "yandex_mdb_greenplum_cluster" "foo" {
+//
+// Create a new MDB Greenplum Cluster.
+//
+resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   name               = "test"
   description        = "test greenplum cluster"
   environment        = "PRESTABLE"

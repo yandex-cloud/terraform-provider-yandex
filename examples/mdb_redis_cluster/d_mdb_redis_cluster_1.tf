@@ -1,3 +1,6 @@
+//
+// Get information about existing MDB Redis Cluster.
+//
 data "yandex_mdb_redis_cluster" "foo" {
   name = "test"
 }

@@ -7,11 +7,14 @@ description: |-
 
 # yandex_container_registry (Data Source)
 
-Get information about a Yandex Container Registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
+Get information about a Yandex Container Registry. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/registry)
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Container Registry.
+//
 data "yandex_container_registry" "source" {
   registry_id = "some_registry_id"
 }

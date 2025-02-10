@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts).
+Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).
 
 ## Example usage
 
 {{ tffile "examples/vpc_route_table/d_vpc_route_table_1.tf" }}
 
-This data source is used to define [VPC Route Table](https://cloud.yandex.com/docs/vpc/concepts/) that can be used by other resources.
+This data source is used to define [VPC Route Table](https://yandex.cloud/docs/vpc/concepts/) that can be used by other resources.
 
 ## Argument Reference
 

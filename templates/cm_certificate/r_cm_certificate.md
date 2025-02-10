@@ -9,6 +9,11 @@ description: |-
 
 Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
+~> At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.
+
+In this case, the service does not provide the parameters of the required type of challenges.
+
+
 ## Example usage
 
 {{ tffile "examples/cm_certificate/r_cm_certificate_1.tf" }}
@@ -97,14 +102,6 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A certificate can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_cm_certificate.default certificate_id
-```
-
-## Limitations
-
-At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.
-
-In this case, the service does not provide the parameters of the required type of challenges.
+{{ codefile "bash" "examples/cm_certificate/import.sh" }}

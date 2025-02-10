@@ -7,15 +7,18 @@ description: |-
 
 # yandex_iam_service_account_static_access_key (Resource)
 
-Allows management of [Yandex Cloud IAM service account static access keys](https://cloud.yandex.com/docs/iam/operations/sa/create-access-key). Generated pair of keys is used to access [Yandex Object Storage](https://cloud.yandex.com/docs/storage) on behalf of service account.
+Allows management of [Yandex Cloud IAM service account static access keys](https://yandex.cloud/docs/iam/operations/sa/create-access-key). Generated pair of keys is used to access [Yandex Object Storage](https://yandex.cloud/docs/storage) on behalf of service account.
 
-Before using keys do not forget to [assign a proper role](https://cloud.yandex.com/docs/iam/operations/sa/assign-role-for-sa) to the service account.
+Before using keys do not forget to [assign a proper role](https://yandex.cloud/docs/iam/operations/sa/assign-role-for-sa) to the service account.
 
 ## Example usage
 
 ```terraform
+//
+// Create a new IAM Service Account Static Access SKey.
+//
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = "some_sa_id"
+  service_account_id = "aje5a**********qspd3"
   description        = "static access key for object storage"
   pgp_key            = "keybase:keybaseusername"
 }
@@ -56,3 +59,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the static access key.
 
 * `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the values of `access_key` and `secret_key`. This is only populated when `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `output_to_lockbox` is removed.
+
+## Import
+
+~> Import for this resource is not implemented yet.

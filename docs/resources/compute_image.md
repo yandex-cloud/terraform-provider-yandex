@@ -7,16 +7,21 @@ description: |-
 
 # yandex_compute_image (Resource)
 
-Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing tarball. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
+Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing tarball. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Compute Image.
+//
 resource "yandex_compute_image" "foo-image" {
   name       = "my-custom-image"
   source_url = "https://storage.yandexcloud.net/lucky-images/kube-it.img"
 }
 
+// You can use "data.yandex_compute_image.my_image.id" identifier 
+// as reference to existing resource.
 resource "yandex_compute_instance" "vm" {
   name = "vm-from-custom-image"
 
@@ -82,8 +87,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A VM image can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_image.web-image image_id
+```bash
+# terraform import yandex_compute_image.<resource Name> <resource Id>
+terraform import yandex_compute_image.my_image fd8go**********trjsd
 ```

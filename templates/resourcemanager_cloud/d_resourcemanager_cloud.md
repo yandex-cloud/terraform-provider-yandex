@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Use this data source to get cloud details. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud).
+Use this data source to get cloud details. For more information, see [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud).
 
 ## Example usage
 

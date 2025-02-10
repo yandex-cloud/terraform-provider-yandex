@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Creates a new container repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/repository).
+Creates a new container repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).
 
 ## Example usage
 
@@ -21,8 +21,6 @@ The following arguments are supported:
 
 ## Import
 
-A repository can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_container_repository.my-repository repository_id
-```
+{{ codefile "bash" "examples/container_repository/import.sh" }}

@@ -1,4 +1,7 @@
-resource "yandex_compute_snapshot_schedule" "default" {
+//
+// Create a new Compute Snapshot Schedule.
+//
+resource "yandex_compute_snapshot_schedule" "vm_snap_sch1" {
   name = "my-name"
 
   schedule_policy {
@@ -16,20 +19,6 @@ resource "yandex_compute_snapshot_schedule" "default" {
 
   labels = {
     my-label = "my-label-value"
-  }
-
-  disk_ids = ["test_disk_id", "another_test_disk_id"]
-}
-
-resource "yandex_compute_snapshot_schedule" "default" {
-  schedule_policy {
-    expression = "0 0 * * *"
-  }
-
-  retention_period = "12h"
-
-  snapshot_spec {
-    description = "retention-snapshot"
   }
 
   disk_ids = ["test_disk_id", "another_test_disk_id"]

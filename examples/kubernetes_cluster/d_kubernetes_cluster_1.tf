@@ -1,3 +1,6 @@
+//
+// Get information about existing Managed Kubernetes Cluster (MK8S).
+//
 data "yandex_kubernetes_cluster" "my_cluster" {
   cluster_id = "some_k8s_cluster_id"
 }

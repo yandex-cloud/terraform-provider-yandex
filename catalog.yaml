@@ -1,0 +1,1331 @@
+---
+# Category - Doc's category for publication from categories.yaml
+# Type - Resource type: "sdk" (Terraform Plugin SDKv2) or "fw" (Terraform Plugin Framework)
+# HasR - Resource has a Resource
+# HasD - Resource has a DataSource
+# HasI - Resource has a Import implementation
+# HasF - Resource has a Functions (for Future use)
+# HasE - Resource has a Ephemeral Resource (For Future use)
+
+# Examples
+
+# List of all resources
+# yq '.Resources | to_entries | .[] | .key' catalog.yaml
+
+# List only FW resources
+# yq '.Resources | to_entries | .[] | select(.value.Type == "fw") | .key' catalog.yaml
+
+# List only SDKv2 resources
+# yq '.Resources | to_entries | .[] | select(.value.Type == "sdk") | .key' catalog.yaml
+
+# List resources with no Imports
+# yq '.Resources | to_entries | .[] | select(.value.HasI == false) | .key' catalog.yaml
+
+# List resources with no DataSource
+# yq '.Resources | to_entries | .[] | select(.value.HasD == false) | .key' catalog.yaml
+
+Resources:
+  airflow_cluster:
+    Category: "Managed Service for Apache Airflow"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  alb_backend_group:
+    Category: "Application Load Balancer (ALB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  alb_http_router:
+    Category: "Application Load Balancer (ALB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  alb_load_balancer:
+    Category: "Application Load Balancer (ALB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  alb_target_group:
+    Category: "Application Load Balancer (ALB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  alb_virtual_host:
+    Category: "Application Load Balancer (ALB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  api_gateway:
+    Category: "Yandex API Gateway"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  audit_trails_trail:
+    Category: "Audit Trails"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  backup_policy:
+    Category: "Cloud Backup"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  backup_policy_bindings:
+    Category: "Cloud Backup"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  billing_cloud_binding:
+    Category: "Cloud Billing"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cdn_origin_group:
+    Category: "Cloud Content Delivery Network (CDN)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cdn_resource:
+    Category: "Cloud Content Delivery Network (CDN)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  client_config:
+    Category: "Client Config"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  cm_certificate:
+    Category: "Certificate Manager"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cm_certificate_content:
+    Category: "Certificate Manager"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  cm_certificate_iam_binding:
+    Category: "Certificate Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cm_certificate_iam_member:
+    Category: "Certificate Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_disk:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_disk_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_disk_placement_group:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_disk_placement_group_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_filesystem:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_filesystem_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_gpu_cluster:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_gpu_cluster_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_image:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_image_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_instance:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_instance_group:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_instance_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_placement_group:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_placement_group_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_snapshot:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_snapshot_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  compute_snapshot_schedule:
+    Category: "Compute Cloud"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  compute_snapshot_schedule_iam_binding:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  container_registry:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  container_registry_iam_binding:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  container_registry_ip_permission:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  container_repository:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  container_repository_iam_binding:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  container_repository_lifecycle_policy:
+    Category: "Container Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  dataproc_cluster:
+    Category: "Data Processing"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  datasphere_community:
+    Category: "Datasphere"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  datasphere_community_iam_binding:
+    Category: "Datasphere"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  datasphere_project:
+    Category: "Datasphere"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  datasphere_project_iam_binding:
+    Category: "Datasphere"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  datatransfer_endpoint:
+    Category: "Data Transfer"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  datatransfer_transfer:
+    Category: "Data Transfer"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  dns_recordset:
+    Category: "Cloud Domain Name System (DNS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  dns_zone:
+    Category: "Cloud Domain Name System (DNS)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  dns_zone_iam_binding:
+    Category: "Cloud Domain Name System (DNS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  eventrouter_bus:
+    Category: "Serverless Event Router"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  eventrouter_connector:
+    Category: "Serverless Integrations"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  eventrouter_rule:
+    Category: "Serverless Integrations"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  function:
+    Category: "Serverless Cloud Functions"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  function_iam_binding:
+    Category: "Serverless Cloud Functions"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  function_scaling_policy:
+    Category: "Serverless Cloud Functions"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  function_trigger:
+    Category: "Serverless Cloud Functions"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_policy:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_role:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_service_account:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_service_account_api_key:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_service_account_iam_binding:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_service_account_iam_member:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_service_account_iam_policy:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_service_account_key:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_service_account_static_access_key:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_service_agent:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_user:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iam_workload_identity_federated_credential:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iam_workload_identity_oidc_federation:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  iot_core_broker:
+    Category: "IoT Core"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iot_core_device:
+    Category: "IoT Core"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  iot_core_registry:
+    Category: "IoT Core"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_encryption_key:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_encryption_key_iam_binding:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_encryption_key_iam_member:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_signature_key:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_signature_key_iam_binding:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_asymmetric_signature_key_iam_member:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_secret_ciphertext:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  kms_symmetric_key:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_symmetric_key_iam_binding:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kms_symmetric_key_iam_member:
+    Category: "Key Management Service (KMS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kubernetes_cluster:
+    Category: "Managed Service for Kubernetes (MK8S)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kubernetes_node_group:
+    Category: "Managed Service for Kubernetes (MK8S)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  kubernetes_marketplace_helm_release:
+    Category: "MK8S Marketplace"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lb_network_load_balancer:
+    Category: "Network Load Balancer (NLB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lb_target_group:
+    Category: "Network Load Balancer (NLB)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  loadtesting_agent:
+    Category: "Load Testing"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lockbox_secret:
+    Category: "Lockbox (Secret Management)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lockbox_secret_iam_binding:
+    Category: "Lockbox (Secret Management)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lockbox_secret_iam_member:
+    Category: Lockbox (Secret Management)""
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  lockbox_secret_version:
+    Category: "Lockbox (Secret Management)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  lockbox_secret_version_hashed:
+    Category: "Lockbox (Secret Management)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  logging_group:
+    Category: "Cloud Logging"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_clickhouse_cluster:
+    Category: "Managed Service for ClickHouse"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_elasticsearch_cluster:
+    Category: "Managed Service for Elasticsearch"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_greenplum_cluster:
+    Category: "Managed Service for Greenplum"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_kafka_cluster:
+    Category: "Managed Service for Apache Kafka"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_kafka_connector:
+    Category: "Managed Service for Apache Kafka"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_kafka_topic:
+    Category: "Managed Service for Apache Kafka"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_kafka_user:
+    Category: "Managed Service for Apache Kafka"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mongodb_cluster:
+    Category: "Managed Service for MongoDB"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mongodb_database:
+    Category: "Managed Service for MongoDB"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mongodb_user:
+    Category: "Managed Service for MongoDB"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mysql_cluster:
+    Category: "Managed Service for MySQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mysql_database:
+    Category: "Managed Service for MySQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mysql_user:
+    Category: "Managed Service for MySQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_opensearch_cluster:
+    Category: "Managed Service for OpenSearch"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_postgresql_cluster:
+    Category: "Managed Service for PostgreSQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_postgresql_database:
+    Category: "Managed Service for PostgreSQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_postgresql_user:
+    Category: "Managed Service for PostgreSQL"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_postgresql_cluster_beta:
+    Category: "Beta Resources"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_redis_cluster:
+    Category: "Managed Service for Redis"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_sqlserver_cluster:
+    Category: "Managed Service for SQLServer"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  message_queue:
+    Category: "Message Queue"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  monitoring_dashboard:
+    Category: "Monitoring"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_group:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_group_iam_member:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_group_mapping:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_group_mapping_item:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_group_membership:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  organizationmanager_organization_iam_binding:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_organization_iam_member:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_os_login_settings:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_saml_federation:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_saml_federation_user_account:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  organizationmanager_user_ssh_key:
+    Category: "Cloud Organization"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_cloud:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_cloud_iam_binding:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_cloud_iam_member:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_folder:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_folder_iam_binding:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_folder_iam_member:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  resourcemanager_folder_iam_policy:
+    Category: "Resource Manager"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  serverless_container:
+    Category: "Serverless Containers"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  serverless_container_iam_binding:
+    Category: "Serverless Containers"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  smartcaptcha_captcha:
+    Category: "Smart Captcha"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  storage_bucket:
+    Category: "Object Storage (S3)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  storage_object:
+    Category: "Object Storage (S3)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
+  sws_advanced_rate_limiter_profile:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  sws_security_profile:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  sws_waf_profile:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  sws_waf_rule_set_descriptor:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
+  vpc_address:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_default_security_group:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_gateway:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_network:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_private_endpoint:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_route_table:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_security_group:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_security_group_rule:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  vpc_subnet:
+    Category: "Virtual Private Cloud (VPC)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_database_dedicated:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_database_iam_binding:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_database_serverless:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_table:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_table_changefeed:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_table_index:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  ydb_topic:
+    Category: "Managed Service for YDB"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false

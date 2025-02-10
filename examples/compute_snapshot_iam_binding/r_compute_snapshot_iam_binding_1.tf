@@ -1,3 +1,6 @@
+//
+// Create a new Compute Snapshot and new IAM Binding for it.
+//
 resource "yandex_compute_snapshot" "snapshot1" {
   name           = "test-snapshot"
   source_disk_id = "test_disk_id"

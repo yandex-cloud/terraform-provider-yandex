@@ -7,17 +7,20 @@ description: |-
 
 # yandex_mdb_postgresql_cluster (Data Source)
 
-Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
+Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example usage
 
 ```terraform
-data "yandex_mdb_postgresql_cluster" "foo" {
+//
+// Get information about existing MDB PostgreSQL Cluster.
+//
+data "yandex_mdb_postgresql_cluster" "my_cluster" {
   name = "test"
 }
 
 output "fqdn" {
-  value = data.yandex_mdb_postgresql_cluster.foo.host.0.fqdn
+  value = data.yandex_mdb_postgresql_cluster.my_cluster.host.0.fqdn
 }
 ```
 
@@ -60,13 +63,13 @@ The `config` block supports:
 * `pooler_config` - Configuration of the connection pooler. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the PostgreSQL cluster. The structure is documented below.
-* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
+* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
 * `disk_size_autoscaling` - Cluster disk size autoscaling settings. The structure is documented below.
 * `postgresql_config` - PostgreSQL cluster config.
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a PostgreSQL host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a PostgreSQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a PostgreSQL host, in gigabytes.
 * `disk_type_id` - Type of the storage for PostgreSQL hosts.
 
@@ -82,10 +85,10 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `web_sql` - Allow access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query)
-* `serverless` - Allow access for [connection to managed databases from functions](https://cloud.yandex.com/docs/functions/operations/database-connection)
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `data_lens` - Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `web_sql` - Allow access for [SQL queries in the management console](https://yandex.cloud/docs/managed-postgresql/operations/web-sql-query)
+* `serverless` - Allow access for [connection to managed databases from functions](https://yandex.cloud/docs/functions/operations/database-connection)
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
 The `performance_diagnostics` block supports:
 * `enabled` - Flag, when true, performance diagnostics is enabled
@@ -122,7 +125,7 @@ The `database` block supports:
 
 The `extension` block supports:
 
-* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
+* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
 * `version` - Version of the extension.
 
 The `user` block supports:
@@ -137,7 +140,7 @@ The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
 
-The `settings` block supports: [Full description](https://yandex.cloud/en-ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
+The `settings` block supports: [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
 
 * `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
   - 0: "unspecified"

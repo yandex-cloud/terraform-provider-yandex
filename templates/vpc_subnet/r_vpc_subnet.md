@@ -7,11 +7,11 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/network#subnet).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
-  * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
+  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)
 
 ## Example usage
 
@@ -65,8 +65,6 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A subnet can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_subnet.default subnet_id
-```
+{{codefile "shell" "examples/vpc_subnet/import.sh" }}

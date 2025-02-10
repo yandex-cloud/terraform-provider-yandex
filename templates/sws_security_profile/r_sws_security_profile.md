@@ -91,13 +91,10 @@ The `waf` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - ID of the security profile.
-
 * `created_at` - The Security Profile creation timestamp.
 
 ## Import
 
-A Security Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_security_profile.demo-profile-simple security_profile_id
-```
+{{codefile "shell" "examples/sws_security_profile/import.sh" }}

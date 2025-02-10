@@ -7,11 +7,14 @@ description: |-
 
 # yandex_container_repository_lifecycle_policy (Data Source)
 
-Get information about a Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/lifecycle-policy).
+Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Container Repository Lifecycle Policy.
+//
 data "yandex_container_repository_lifecycle_policy" "my_lifecycle_policy_by_id" {
   lifecycle_policy_id = yandex_container_repository_lifecycle_policy.my_lifecycle_policy.id
 }

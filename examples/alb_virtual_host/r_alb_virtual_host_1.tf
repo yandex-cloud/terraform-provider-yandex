@@ -1,4 +1,7 @@
-resource "yandex_alb_virtual_host" "my-virtual-host" {
+//
+// Create a new ALB Virtual Host
+//
+resource "yandex_alb_virtual_host" "my-vhost" {
   name           = "my-virtual-host"
   http_router_id = yandex_alb_http_router.my-router.id
   route {

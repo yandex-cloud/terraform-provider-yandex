@@ -5,20 +5,23 @@ description: |-
   Manages a MongoDB User within Yandex Cloud.
 ---
 
-# yandex_mdb_mongodb_user
+# yandex_mdb_mongodb_user (Resource)
 
 Manages a MongoDB user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).
 
 ## Example Usage
 
 ```terraform
-resource "yandex_mdb_mongodb_user" "foo" {
-  cluster_id = yandex_mdb_mongodb_cluster.foo.id
+//
+// Create a new MDB MongoDB User.
+//
+resource "yandex_mdb_mongodb_user" "my_user" {
+  cluster_id = yandex_mdb_mongodb_cluster.my_cluster.id
   name       = "alice"
   password   = "password"
 }
 
-resource "yandex_mdb_mongodb_cluster" "foo" {
+resource "yandex_mdb_mongodb_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -28,7 +31,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   host {
-    zone_id   = "ru-central1-a"
+    zone_id   = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
   resources_mongod {
@@ -38,10 +41,11 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
@@ -77,10 +81,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# A MongoDB User can be imported using the following format:
-terraform import yandex_mdb_mongodb_user.foo {cluster_id}:{username}
+```bash
+# terraform import yandex_mdb_mongodb_user.<resource Name> <cluster_id>:<database_name>
+terraform import yandex_mdb_mongodb_user.my_user ...:my_user
 ```

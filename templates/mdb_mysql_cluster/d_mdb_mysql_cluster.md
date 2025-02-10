@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
@@ -45,12 +45,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `mysql_config` - MySQL cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `maintenance_window` - Maintenance window settings of the MySQL cluster. The structure is documented below.
-* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
+* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
 * `backup_retain_period_days` - The period in days during which backups are stored.
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a MySQL host, in gigabytes.
 * `disk_type_id` - Type of the storage for MySQL hosts.
 
@@ -61,9 +61,9 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
 The `user` block supports:
 
@@ -103,8 +103,8 @@ The `host` block supports:
 
 The `access` block supports:
 
-* `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
+* `data_lens` - Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `web_sql` - Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
 
 The `maintenance_window` block supports:
 

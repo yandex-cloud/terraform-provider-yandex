@@ -12,6 +12,9 @@ Creates a target group in the specified folder and adds the specified targets to
 ## Example usage
 
 ```terraform
+//
+// Create a new ALB Target Group
+//
 resource "yandex_alb_target_group" "foo" {
   name = "my-target-group"
 
@@ -65,10 +68,12 @@ This resource provides the following configuration options for timeouts:
 - `update` - Default is 5 minute.
 - `delete` - Default is 5 minute.
 
+
 ## Import
 
-A target group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_target_group.default target_group_id
+```bash
+# terraform import yandex_alb_target_group.<resource Name> <resource Id>
+terraform import yandex_alb_target_group.my_target_group ds77d**********g4pqc
 ```

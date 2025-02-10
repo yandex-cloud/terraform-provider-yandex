@@ -12,8 +12,16 @@ Creates a new Container Registry IP Permission. For more information, see [the o
 ## Example usage
 
 ```terraform
+//
+// Create a new Container Registry and new IP Permissions for it.
+//
 resource "yandex_container_registry" "my_registry" {
-  name = "test-registry"
+  name      = "test-registry"
+  folder_id = "test_folder_id"
+
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 resource "yandex_container_registry_ip_permission" "my_ip_permission" {
@@ -33,10 +41,12 @@ The following arguments are supported:
 
 * `pull` - List of configured CIDRs, from which pull is allowed.
 
+
 ## Import
 
-An ip premission can be imported using the `id` of the Container Registry it is applied to, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```bash
-terraform import yandex_container_registry_ip_permission.my_ip_permission registry_id
+# terraform import yandex_container_registry_ip_permission.<resource Name> <registry_id>
+terraform import yandex_container_registry_ip_permission.my_ip_permission crps9**********k9psn
 ```

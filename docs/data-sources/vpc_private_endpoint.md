@@ -7,17 +7,20 @@ description: |-
 
 # yandex_vpc_private_endpoint (Data Source)
 
-Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing VPC Private Endpoint.
+//
 data "yandex_vpc_private_endpoint" "pe" {
   private_endpoint_id = "my-private-endpoint-id"
 }
 ```
 
-This data source is used to define [VPC Private Endpoint](https://cloud.yandex.com/docs/vpc/concepts/private-endpoint) that can be used by other resources.
+This data source is used to define [VPC Private Endpoint](https://yandex.cloud/docs/vpc/concepts/private-endpoint) that can be used by other resources.
 
 ## Argument Reference
 

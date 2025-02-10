@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Creates a new snapshot of a disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
+Creates a new snapshot of a disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).
 
 ## Example usage
 
@@ -58,8 +58,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A snapshot can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_snapshot.disk-snapshot shapshot_id
-```
+{{ codefile "bash" "examples/compute_snapshot/import.sh" }}

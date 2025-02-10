@@ -1,4 +1,7 @@
-resource "yandex_mdb_redis_cluster" "foo" {
+//
+// Create a new MDB Redis Cluster.
+//
+resource "yandex_mdb_redis_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -14,7 +17,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 
@@ -26,7 +29,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }

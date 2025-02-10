@@ -7,12 +7,15 @@ description: |-
 
 # yandex_mdb_mysql_user (Data Source)
 
-Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
 ```terraform
-data "yandex_mdb_mysql_user" "foo" {
+//
+// Get information about existing MDB MySQL Database User.
+//
+data "yandex_mdb_mysql_user" "my_user" {
   cluster_id = "some_cluster_id"
   name       = "test"
 }

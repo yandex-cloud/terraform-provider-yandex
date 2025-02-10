@@ -12,7 +12,10 @@ Creates a new snapshot schedule. For more information, see [the official documen
 ## Example usage
 
 ```terraform
-resource "yandex_compute_snapshot_schedule" "default" {
+//
+// Create a new Compute Snapshot Schedule.
+//
+resource "yandex_compute_snapshot_schedule" "vm_snap_sch1" {
   name = "my-name"
 
   schedule_policy {
@@ -34,8 +37,13 @@ resource "yandex_compute_snapshot_schedule" "default" {
 
   disk_ids = ["test_disk_id", "another_test_disk_id"]
 }
+```
 
-resource "yandex_compute_snapshot_schedule" "default" {
+```terraform
+//
+// Create a new Compute Snapshot Schedule with retention period.
+//
+resource "yandex_compute_snapshot_schedule" "vm_snap_sch2" {
   schedule_policy {
     expression = "0 0 * * *"
   }
@@ -99,8 +107,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A snapshot schedule can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_snapshot_schedule.my-schedule snapshot_schedule_id
+```bash
+# terraform import yandex_compute_snapshot_schedule.<resource Name> <resource Id>
+terraform import yandex_compute_snapshot_schedule.my_snapshot_schedule fd8hc**********o4qe2
 ```

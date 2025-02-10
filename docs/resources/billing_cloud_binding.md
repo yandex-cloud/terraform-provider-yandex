@@ -15,6 +15,9 @@ Bind cloud to billing account. Creating the bind, which connect the cloud to the
 ## Example usage
 
 ```terraform
+//
+// Create a new Billing Cloud Binding
+//
 resource "yandex_billing_cloud_binding" "foo" {
   billing_account_id = "foo-ba-id"
   cloud_id           = "foo-cloud-id"
@@ -35,15 +38,11 @@ resource "yandex_billing_cloud_binding" "foo" {
 
 ## Import
 
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+The `resource ID` for the Billing Cloud Binding is defined as its `billing_account_id` separated by the `/cloud/` string and followed the `cloud_id`.
+
 ```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
-
-# cloud-binding-id has the following structure - {billing_account_id}/cloud/{cloud_id}`: 
-# * {billing_account_id} refers to the billing account id (`foo-ba-id` in example below).
-# * {cloud_id}` refers to the cloud id (`foo-cloud-id` in example below). 
-# This way `cloud-binding-id` must be equals to `foo-ba-id/cloud/foo-cloud-id`.
-
-# terraform import yandex_billing_cloud_binding.foo cloud-binding-id
-terraform import yandex_billing_cloud_binding.foo ...
+# terraform import yandex_billing_cloud_binding.<resource Name> <ba_id>/cloud/<cloud_id>
+terraform import yandex_billing_cloud_binding.my_ba_binding dn217**********7m4jq/cloud/b1g5q**********qa4f3
 ```

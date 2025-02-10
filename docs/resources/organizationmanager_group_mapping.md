@@ -12,7 +12,10 @@ Allows management of [Yandex Cloud Organization Manager Group Mapping](https://y
 ## Example Usage
 
 ```terraform
-resource "yandex_organizationmanager_group_mapping" "group_mapping" {
+//
+// Create a new OrganizationManager Group Mapping.
+//
+resource "yandex_organizationmanager_group_mapping" "my_group_map" {
   federation_id = "my-federation-id"
   enabled       = true
 }
@@ -49,9 +52,9 @@ Optional:
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-#
-terraform import yandex_organizationmanager_group_mapping.foo federation_id
+# terraform import yandex_organizationmanager_group_mapping.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_group.my_group_map ...
 ```

@@ -1,3 +1,6 @@
+//
+// Create KMS Symmetric Key.
+//
 resource "yandex_kms_symmetric_key" "key-a" {
   name              = "example-symetric-key"
   description       = "description for key"

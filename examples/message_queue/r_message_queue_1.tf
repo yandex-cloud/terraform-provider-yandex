@@ -1,4 +1,7 @@
-resource "yandex_message_queue" "example_queue" {
+//
+// Create a new Message Queue.
+//
+resource "yandex_message_queue" "my_queue" {
   name                       = "ymq_terraform_example"
   visibility_timeout_seconds = 600
   receive_wait_time_seconds  = 20
@@ -9,6 +12,6 @@ resource "yandex_message_queue" "example_queue" {
   })
 }
 
-resource "yandex_message_queue" "example_deadletter_queue" {
+resource "yandex_message_queue" "my_deadletter_queue" {
   name = "ymq_terraform_deadletter_example"
 }

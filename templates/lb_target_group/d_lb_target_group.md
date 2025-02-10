@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Load Balancer target group. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/quickstart).
+Get information about a Yandex Load Balancer target group. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/quickstart).
 
 ## Example usage
 
 {{ tffile "examples/lb_target_group/d_lb_target_group_1.tf" }}
 
-This data source is used to define [Load Balancer Target Groups](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources) that can be used by other resources.
+This data source is used to define [Load Balancer Target Groups](https://yandex.cloud/docs/load-balancer/concepts/target-resources) that can be used by other resources.
 
 ## Argument Reference
 

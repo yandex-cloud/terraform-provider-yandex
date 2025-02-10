@@ -9,9 +9,17 @@ description: |-
 
 Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
 
+~> At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.
+
+In this case, the service does not provide the parameters of the required type of challenges.
+
+
 ## Example usage
 
 ```terraform
+//
+// Create a new Certificate for specific Domain name.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["example.com"]
@@ -23,6 +31,10 @@ resource "yandex_cm_certificate" "example" {
 ```
 
 ```terraform
+//
+// Create a new Certificates for the set of domains
+// with specific DNS challenge for each domain.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["one.example.com", "two.example.com"]
@@ -44,6 +56,10 @@ resource "yandex_dns_recordset" "example" {
 ```
 
 ```terraform
+//
+// Create a new Certificates for the set of domains
+// with the same DNS challenge for both domains.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["example.com", "*.example.com"]
@@ -65,6 +81,9 @@ resource "yandex_dns_recordset" "example" {
 ```
 
 ```terraform
+//
+// Create a new self-managed Certificate.
+//
 resource "yandex_cm_certificate" "example" {
   name = "example"
 
@@ -153,14 +172,9 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A certificate can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
+```bash
+# terraform import yandex_cm_certificate.<resource Name> <resource Id>
+terraform import yandex_cm_certificate.my_cm_cert fpqn8********** cg27q
 ```
-$ terraform import yandex_cm_certificate.default certificate_id
-```
-
-## Limitations
-
-At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.
-
-In this case, the service does not provide the parameters of the required type of challenges.

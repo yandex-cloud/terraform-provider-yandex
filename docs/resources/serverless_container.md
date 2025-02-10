@@ -12,6 +12,9 @@ Allows management of Yandex Cloud Serverless Containers.
 ## Example usage
 
 ```terraform
+//
+// Create a new Serverless Container.
+//
 resource "yandex_serverless_container" "test-container" {
   name               = "some_name"
   description        = "any description"
@@ -51,6 +54,9 @@ resource "yandex_serverless_container" "test-container" {
 ### Serverless Container with Image Digest
 
 ```terraform
+//
+// Create a new Serverless Container with Image digest.
+//
 resource "yandex_serverless_container" "test-container-with-digest" {
   name   = "some_name"
   memory = 128
@@ -64,6 +70,9 @@ resource "yandex_serverless_container" "test-container-with-digest" {
 ### Serverless Container with Mounted Object Storage Bucket
 
 ```terraform
+//
+// Create a new Serverless Container with Storage mount.
+//
 locals {
   folder_id = "folder_id"
 }
@@ -84,6 +93,7 @@ resource "yandex_serverless_container" "test-container-object-storage-mount" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_iam_service_account" "sa" {
   folder_id = local.folder_id
   name      = "test-sa"
@@ -187,3 +197,12 @@ The `secrets` block supports:
 * `log_group_id` - Log entries are written to specified log group
 * `folder_id` - Log entries are written to default log group for specified folder
 * `min_level` - Minimum log entry level
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_serverless_container.<resource Name> <resource Id>
+terraform import yandex_serverless_container.test-container ...
+```

@@ -38,9 +38,9 @@ DocsCategories:
 
   # Serverless services
   - "Yandex API Gateway"
-  - "Cloud Functions"
+  - "Serverless Cloud Functions"
   - "Serverless Containers"
-  - "Serverless Event Router"
+  - "Serverless Integrations"
   - "IoT Core"
   
   # Security services
@@ -62,5 +62,5 @@ DocsCategories:
   # Services for developers
   - "Container Registry"
   - "Managed Service for Kubernetes (MK8S)"
-  - "Kubernetes Marketplace"
+  - "Managed Kubernetes (MK8S) Marketplace"
   - "Load Testing"

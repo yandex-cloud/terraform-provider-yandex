@@ -7,11 +7,14 @@ description: |-
 
 # yandex_mdb_greenplum_cluster (Data Source)
 
-Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-greenplum/).
+Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB Greenplum Cluster.
+//
 data "yandex_mdb_greenplum_cluster" "foo" {
   name = "test"
 }
@@ -87,7 +90,7 @@ The `segment_hosts` block supports:
 * `fqdn` - The fully qualified domain name of the host.
 
 The `resources` block supports:
-* `resources_preset_id` - The ID of the preset for computational resources available to a Greenplum host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-greenplum/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a Greenplum host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a Greenplum host, in gigabytes.
 * `disk_type_id` - Type of the storage for Greenplum hosts.
 
@@ -98,10 +101,10 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
-* `yandex_query` - (Optional) Allow access for [Yandex Query](https://cloud.yandex.com/services/query)
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
+* `yandex_query` - (Optional) Allow access for [Yandex Query](https://yandex.cloud/services/query)
 
 The `maintenance_window` block supports:
 

@@ -1,3 +1,6 @@
+//
+// Create a new Datasphere Project.
+//
 resource "yandex_datasphere_project" "my-project" {
   name        = "example-datasphere-project"
   description = "Datasphere Project description"
@@ -24,4 +27,14 @@ resource "yandex_datasphere_project" "my-project" {
     default_folder_id       = "foo-folder-id"
     stale_exec_timeout_mode = "ONE_HOUR"
   }
+}
+
+resource "yandex_datasphere_community" "my-community" {
+  name               = "example-datasphere-community"
+  description        = "Description of community"
+  billing_account_id = "example-organization-id"
+  labels = {
+    "foo" : "bar"
+  }
+  organization_id = "example-organization-id"
 }

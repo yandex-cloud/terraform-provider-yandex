@@ -1,3 +1,6 @@
+//
+// Create a new VPC regular IPv4 Address.
+//
 resource "yandex_vpc_address" "addr" {
   name = "exampleAddress"
 

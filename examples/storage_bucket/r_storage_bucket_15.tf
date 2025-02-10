@@ -1,3 +1,6 @@
+//
+// Using Bucket Anonymous Access Flags.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 

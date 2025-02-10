@@ -12,7 +12,10 @@ Yandex Database (serverless) resource. For more information, see [the official d
 ## Example usage
 
 ```terraform
-resource "yandex_ydb_database_serverless" "database1" {
+//
+// Create a new YDB Serverless Database.
+//
+resource "yandex_ydb_database_serverless" "my_ydb" {
   name      = "test-ydb-serverless"
   folder_id = data.yandex_resourcemanager_folder.test_folder.id
 
@@ -55,3 +58,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - The Yandex Database serverless cluster creation timestamp.
 
 * `status` - Status of the Yandex Database serverless cluster.
+
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_ydb_database_serverless.<resource Name> <resource Id>
+terraform import yandex_ydb_database_serverless.my_ydb ...
+```

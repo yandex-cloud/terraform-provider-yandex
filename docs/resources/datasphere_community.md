@@ -12,6 +12,9 @@ Allows management of Yandex Cloud Datasphere Communities.
 ## Example usage
 
 ```terraform
+//
+// Create a new Datasphere Community.
+//
 resource "yandex_datasphere_community" "my-community" {
   name               = "example-datasphere-community"
   description        = "Description of community"
@@ -55,10 +58,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# A Datasphere Community can be imported using the id of the resource, e.g.:
-terraform import yandex_datasphere_community.default id
+```bash
+# terraform import yandex_datasphere_community.<resource Name> <resource Id>
+terraform import yandex_datasphere_community.my-community ...
 ```

@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Compute GPU cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/gpu-cluster).
+Get information about a Yandex Compute GPU cluster. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/gpu-cluster).
 
 ## Example usage
 
@@ -32,5 +32,5 @@ In addition to the arguments listed above, the following computed attributes are
 * `zone` - ID of the zone where the GPU cluster resides.
 * `interconnect_type` - type of interconnect used between nodes in GPU cluster.
 * `status` - Current status of the GPU cluster.
-* `labels` - GPU cluster labels as `key:value` pairs. For details about the concept, see [documentation](https://cloud.yandex.com/docs/overview/concepts/services#labels).
+* `labels` - GPU cluster labels as `key:value` pairs. For details about the concept, see [documentation](https://yandex.cloud/docs/overview/concepts/services#labels).
 * `created_at` - Creation timestamp.

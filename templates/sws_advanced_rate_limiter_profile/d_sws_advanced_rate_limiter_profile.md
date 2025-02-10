@@ -15,9 +15,6 @@ This data source is used to define [ARL Profile](https://yandex.cloud/docs/smart
 
 {{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_1.tf" }}
 
-{{ tffile "examples/sws_advanced_rate_limiter_profile/d_sws_advanced_rate_limiter_profile_2.tf" }}
-
-
 ## Argument Reference
 
 The following arguments are supported:

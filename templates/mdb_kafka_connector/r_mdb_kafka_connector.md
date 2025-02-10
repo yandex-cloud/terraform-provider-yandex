@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a connector of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+Manages a connector of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 
 ## Example usage
 
@@ -56,10 +56,9 @@ The `external_s3` blocks support:
 * `secret_access_key` - (Optional) Secret key of aws-compatible static key.
 * `region` - (Optional) region of s3-compatible storage. [Available region list](https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/regions/Regions.html).
 
+
 ## Import
 
-Kafka connector can be imported using following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_kafka_connector.foo {cluster_id}:{connector_name}
-```
+{{ codefile "shell" "examples/mdb_kafka_connector/import.sh" }}

@@ -1,5 +1,5 @@
 // 
-// Simple SmartCaptcha example
+// Simple SmartCaptcha example.
 //
 resource "yandex_smartcaptcha_captcha" "demo-captcha-simple" {
   deletion_protection = true

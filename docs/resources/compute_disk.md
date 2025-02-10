@@ -14,15 +14,18 @@ A disk can be attached or detached from the virtual machine and can be located l
 
 For more information about disks in Yandex Cloud, see:
 
-* [Documentation](https://cloud.yandex.com/docs/compute/concepts/disk)
+* [Documentation](https://yandex.cloud/docs/compute/concepts/disk)
 * How-to Guides
-  * [Attach and detach a disk](https://cloud.yandex.com/docs/compute/concepts/disk#attach-detach)
-  * [Backup operation](https://cloud.yandex.com/docs/compute/concepts/disk#backup)
+  * [Attach and detach a disk](https://yandex.cloud/docs/compute/concepts/disk#attach-detach)
+  * [Backup operation](https://yandex.cloud/docs/compute/concepts/disk#backup)
 
 ## Example usage
 
 ```terraform
-resource "yandex_compute_disk" "default" {
+//
+// Create a new Compute Disk.
+//
+resource "yandex_compute_disk" "my_disk" {
   name     = "disk-name"
   type     = "network-ssd"
   zone     = "ru-central1-a"
@@ -35,18 +38,21 @@ resource "yandex_compute_disk" "default" {
 ```
 
 ```terraform
-resource "yandex_compute_disk" "nr" {
+//
+// Create a new Compute Disk and put it to the specific Placement Group.
+//
+resource "yandex_compute_disk" "my_vm" {
   name = "non-replicated-disk-name"
-  size = 93 // NB size must be divisible by 93  
+  size = 93 // Non-replicated SSD disk size must be divisible by 93G
   type = "network-ssd-nonreplicated"
   zone = "ru-central1-b"
 
   disk_placement_policy {
-    disk_placement_group_id = yandex_compute_disk_placement_group.this.id
+    disk_placement_group_id = yandex_compute_disk_placement_group.my_pg.id
   }
 }
 
-resource "yandex_compute_disk_placement_group" "this" {
+resource "yandex_compute_disk_placement_group" "my_pg" {
   zone = "ru-central1-b"
 }
 ```
@@ -113,8 +119,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A disk can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_disk.default disk_id
+```bash
+# terraform import yandex_compute_disk.<resource Name> <resource Id>
+terraform import yandex_compute_disk.my_disk fhmrm**********90r5f
 ```

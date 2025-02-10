@@ -1,3 +1,6 @@
+//
+// Create a new Serverless Container with Storage mount.
+//
 locals {
   folder_id = "folder_id"
 }
@@ -18,6 +21,7 @@ resource "yandex_serverless_container" "test-container-object-storage-mount" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_iam_service_account" "sa" {
   folder_id = local.folder_id
   name      = "test-sa"

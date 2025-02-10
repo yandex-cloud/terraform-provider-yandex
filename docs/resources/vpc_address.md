@@ -16,6 +16,9 @@ Manages a address within the Yandex Cloud. You can only create a reserved (stati
 ## Example usage
 
 ```terraform
+//
+// Create a new VPC regular IPv4 Address.
+//
 resource "yandex_vpc_address" "addr" {
   name = "exampleAddress"
 
@@ -28,6 +31,9 @@ resource "yandex_vpc_address" "addr" {
 ### Address with DDoS protection
 
 ```terraform
+//
+// Create a new VPC IPv4 Address with DDoS Protection.
+//
 resource "yandex_vpc_address" "vpnaddr" {
   name = "vpnaddr"
 
@@ -84,10 +90,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `reserved` - `false` means that address is ephemeral.
 * `used` - `true` if address is used.
 
+
 ## Import
 
-A address can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_address.addr address_id
+```shell
+# terraform import yandex_vpc_address.<resource Name> <resource Id>
+terraform import yandex_vpc_address.addr ...
 ```

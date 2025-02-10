@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-A Placement group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
+A Placement group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
@@ -39,8 +39,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A Placement Group can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_placement_group.default placement_group_id
-```
+{{ codefile "bash" "examples/compute_placement_group/import.sh" }}

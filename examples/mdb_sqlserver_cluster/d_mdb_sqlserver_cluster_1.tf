@@ -1,3 +1,6 @@
+//
+// Get information about existing MDB SQL Server Cluster.
+//
 data "yandex_mdb_sqlserver_cluster" "foo" {
   name = "test"
 }

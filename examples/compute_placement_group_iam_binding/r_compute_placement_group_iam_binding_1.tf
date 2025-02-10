@@ -1,3 +1,6 @@
+//
+// Create a new Compute Placement Group and new IAM Binding for it.
+//
 resource "yandex_compute_placement_group" "pg1" {
   name        = "test-pg"
   folder_id   = "abc*********123"

@@ -7,17 +7,20 @@ description: |-
 
 # yandex_vpc_subnet (Data Source)
 
-Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing VPC Subnet.
+//
 data "yandex_vpc_subnet" "admin" {
   subnet_id = "my-subnet-id"
 }
 ```
 
-This data source is used to define [VPC Subnets](https://cloud.yandex.com/docs/vpc/concepts/network#subnet) that can be used by other resources.
+This data source is used to define [VPC Subnets](https://yandex.cloud/docs/vpc/concepts/network#subnet) that can be used by other resources.
 
 ## Argument Reference
 

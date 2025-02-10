@@ -1,3 +1,6 @@
+//
+// Create a new KMS Symmetric Encryption Key and Cipher Secret for it.
+//
 resource "yandex_kms_symmetric_key" "example" {
   name        = "example-symetric-key"
   description = "description for key"

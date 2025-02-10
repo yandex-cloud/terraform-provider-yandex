@@ -5,9 +5,9 @@ description: |-
   Get information about a Yandex Managed MongoDB User.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed MongoDB user. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
+Get information about a Yandex Managed MongoDB user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).
 
 ## Example usage
 
@@ -31,4 +31,4 @@ In addition to the arguments listed above, the following computed attributes are
 The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
-* `roles` - List of strings. The roles of the user in this database. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/users-and-roles).
+* `roles` - List of strings. The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).

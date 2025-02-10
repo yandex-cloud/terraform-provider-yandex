@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/).
+Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/).
 
 ## Example usage
 
 {{ tffile "examples/lb_network_load_balancer/d_lb_network_load_balancer_1.tf" }}
 
-This data source is used to define [Load Balancer Network Load Balancers](https://cloud.yandex.com/docs/load-balancer/concepts/) that can be used by other resources.
+This data source is used to define [Load Balancer Network Load Balancers](https://yandex.cloud/docs/load-balancer/concepts/) that can be used by other resources.
 
 ## Argument Reference
 

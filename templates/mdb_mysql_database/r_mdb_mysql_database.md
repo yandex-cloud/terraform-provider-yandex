@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
@@ -21,8 +21,6 @@ The following arguments are supported:
 
 ## Import
 
-A MySQL database can be imported using the following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_mysql_database.foo {cluster_id}:{database_name}
-```
+{{ codefile "shell" "examples/mdb_mysql_database/import.sh" }}

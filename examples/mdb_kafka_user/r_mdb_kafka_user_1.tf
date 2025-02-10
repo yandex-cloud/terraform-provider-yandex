@@ -1,4 +1,30 @@
-resource "yandex_mdb_kafka_cluster" "foo" {
+//
+// Create a new MDB Kafka User.
+//
+resource "yandex_mdb_kafka_user" "user_events" {
+  cluster_id = yandex_mdb_kafka_cluster.foo.id
+  name       = "user-events"
+  password   = "pass1231232332"
+  permission {
+    topic_name  = "events"
+    role        = "ACCESS_ROLE_CONSUMER"
+    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
+  }
+  permission {
+    topic_name = "events"
+    role       = "ACCESS_ROLE_PRODUCER"
+  }
+}
+
+// Auxiliary resources
+resource "yandex_mdb_kafka_topic" "events" {
+  cluster_id         = yandex_mdb_kafka_cluster.my_cluster.id
+  name               = "events"
+  partitions         = 4
+  replication_factor = 1
+}
+
+resource "yandex_mdb_kafka_cluster" "my_cluster" {
   name       = "foo"
   network_id = "c64vs98keiqc7f24pvkd"
 
@@ -12,27 +38,5 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         disk_size          = 16
       }
     }
-  }
-}
-
-resource "yandex_mdb_kafka_topic" "events" {
-  cluster_id         = yandex_mdb_kafka_cluster.foo.id
-  name               = "events"
-  partitions         = 4
-  replication_factor = 1
-}
-
-resource "yandex_mdb_kafka_user" "user_events" {
-  cluster_id = yandex_mdb_kafka_cluster.foo.id
-  name       = "user-events"
-  password   = "pass1231232332"
-  permission {
-    topic_name  = "events"
-    role        = "ACCESS_ROLE_CONSUMER"
-    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
-  }
-  permission {
-    topic_name = "events"
-    role       = "ACCESS_ROLE_PRODUCER"
   }
 }

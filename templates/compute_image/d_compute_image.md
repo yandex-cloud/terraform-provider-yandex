@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Compute image. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
+Get information about a Yandex Compute image. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).
 
 ## Example usage
 

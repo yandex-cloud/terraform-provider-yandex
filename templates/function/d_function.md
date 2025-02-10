@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Function.
@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
+Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions).
 
 ## Example usage
 
 {{ tffile "examples/function/d_function_1.tf" }}
 
-This data source is used to define [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/concepts/function) that can be used by other resources.
+This data source is used to define [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) that can be used by other resources.
 
 ## Argument Reference
 

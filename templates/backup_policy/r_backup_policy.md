@@ -15,8 +15,6 @@ Allows management of [Yandex Cloud Backup Policy](https://yandex.cloud/docs/back
 
 {{ tffile "examples/backup_policy/r_backup_policy_1.tf" }}
 
-For the full policy attributes, take a look at the following example:
-
 {{ tffile "examples/backup_policy/r_backup_policy_2.tf" }}
 
 ## Argument Reference
@@ -94,3 +92,9 @@ A string type, that accepts the following values: `"ALWAYS_INCREMENTAL"`, `"ALWA
 ### backup_set_type
 
 `"TYPE_AUTO"`, `"TYPE_FULL"`, `"TYPE_INCREMENTAL"`, `'TYPE_DIFFERENTIAL"`.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "bash" "examples/backup_policy/import.sh" }}

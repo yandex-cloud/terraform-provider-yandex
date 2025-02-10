@@ -14,16 +14,15 @@ Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/c
 ## Example usage
 
 ```terraform
+//
+// Create a new CDN Resource
+//
 resource "yandex_cdn_resource" "my_resource" {
-  cname = "cdn1.yandex-example.ru"
-
-  active = false
-
-  origin_protocol = "https"
-
+  cname               = "cdn1.yandex-example.ru"
+  active              = false
+  origin_protocol     = "https"
   secondary_hostnames = ["cdn-example-1.yandex.ru", "cdn-example-2.yandex.ru"]
-
-  origin_group_id = yandex_cdn_origin_group.foo_cdn_group_by_id.id
+  origin_group_id     = yandex_cdn_origin_group.foo_cdn_group_by_id.id
 
   options {
     edge_cache_settings = 345600
@@ -130,8 +129,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A origin group can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_cdn_resource.default origin_group_id
+```bash
+# terraform import yandex_cdn_resource.<resource Name> <resource Id>
+terraform import yandex_cdn_resource.my_cdn_resource ...
 ```

@@ -1,3 +1,6 @@
+//
+// Create a new Serverless Container with Image digest.
+//
 resource "yandex_serverless_container" "test-container-with-digest" {
   name   = "some_name"
   memory = 128

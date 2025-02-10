@@ -1,4 +1,7 @@
-resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
+//
+// Create a new Managed Kubernetes regional Cluster.
+//
+resource "yandex_kubernetes_cluster" "regional_cluster" {
   name        = "name"
   description = "description"
 

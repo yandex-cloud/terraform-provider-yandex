@@ -1,4 +1,7 @@
-resource "yandex_mdb_elasticsearch_cluster" "foo" {
+//
+// Create a new MDB ElasticSearch Cluster.
+//
+resource "yandex_mdb_elasticsearch_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id

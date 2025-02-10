@@ -7,9 +7,9 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a SQLServer cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/).
+Manages a SQLServer cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/).
 
-Please read [Pricing for Managed Service for SQL Server](https://cloud.yandex.com/docs/managed-sqlserver/pricing#prices) before using SQLServer cluster.
+Please read [Pricing for Managed Service for SQL Server](https://yandex.cloud/docs/managed-sqlserver/pricing#prices) before using SQLServer cluster.
 
 ## Example usage
 
@@ -59,7 +59,7 @@ The following arguments are supported:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/concepts/instance-types).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/concepts/instance-types).
 
 * `disk_size` - (Required) Volume of the storage available to a SQLServer host, in gigabytes.
 
@@ -109,13 +109,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` - Status of the cluster.
 
+
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_sqlserver_cluster.foo cluster_id
-```
+{{ codefile "shell" "examples/mdb_sqlserver_cluster/import.sh" }}
+
 
 ## SQLServer config
 

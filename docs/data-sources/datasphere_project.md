@@ -5,13 +5,16 @@ description: |-
   Get information about a Yandex Cloud Datasphere Project.
 ---
 
-# yandex_datasphere_project
+# yandex_datasphere_project (Data Source)
 
 Get information about a Yandex Cloud Datasphere Project.
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Datasphere Project.
+//
 data "yandex_datasphere_project" "my_datasphere_project" {
   project_id = "project-id"
 }

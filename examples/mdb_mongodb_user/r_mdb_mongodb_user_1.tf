@@ -1,10 +1,13 @@
-resource "yandex_mdb_mongodb_user" "foo" {
-  cluster_id = yandex_mdb_mongodb_cluster.foo.id
+//
+// Create a new MDB MongoDB User.
+//
+resource "yandex_mdb_mongodb_user" "my_user" {
+  cluster_id = yandex_mdb_mongodb_cluster.my_cluster.id
   name       = "alice"
   password   = "password"
 }
 
-resource "yandex_mdb_mongodb_cluster" "foo" {
+resource "yandex_mdb_mongodb_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -14,7 +17,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   host {
-    zone_id   = "ru-central1-a"
+    zone_id   = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
   resources_mongod {
@@ -24,10 +27,11 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }

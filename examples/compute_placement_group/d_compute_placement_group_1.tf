@@ -1,3 +1,6 @@
+//
+// Get information about existing Compute Placement Group
+//
 data "yandex_compute_placement_group" "my_group" {
   group_id = "some_group_id"
 }

@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a MySQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Manages a MySQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
@@ -81,7 +81,7 @@ The following arguments are supported:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/concepts/instance-types).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/concepts/instance-types).
 
 * `disk_size` - (Required) Volume of the storage available to a MySQL host, in gigabytes.
 
@@ -152,15 +152,15 @@ The `host` block supports:
 
 The `access` block supports: If not specified then does not make any changes.
 
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
 
-* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
+* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
 
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
 The `restore` block supports:
 
-* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://cloud.yandex.com/docs/managed-mysql/operations/cluster-backups).
+* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups).
 
 * `time` - (Optional, ForceNew) Timestamp of the moment to which the MySQL cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
 
@@ -192,11 +192,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_mysql_cluster.foo cluster_id
-```
+{{ codefile "shell" "examples/mdb_mysql_cluster/import.sh" }}
+
 
 ## MySQL config
 

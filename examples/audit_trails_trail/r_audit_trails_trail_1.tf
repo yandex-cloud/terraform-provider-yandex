@@ -1,5 +1,8 @@
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
+//
+// Create a new basic Audit Trails Trail
+//
+resource "yandex_audit_trails_trail" "basic-trail" {
+  name        = "basic-trail"
   folder_id   = "home-folder"
   description = "Some trail description"
 

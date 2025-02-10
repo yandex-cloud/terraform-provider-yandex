@@ -1,3 +1,6 @@
+//
+// Set Bucket Default Storage Class.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 

@@ -1,3 +1,6 @@
+//
+// Create a new IAM Binding for existing Folder.
+//
 data "yandex_resourcemanager_folder" "project1" {
   folder_id = "some_folder_id"
 }

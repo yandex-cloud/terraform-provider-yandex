@@ -234,8 +234,6 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-An Application Load Balancer can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_load_balancer.default load_balancer_id
-```
+{{ codefile "bash" "examples/alb_load_balancer/import.sh" }}

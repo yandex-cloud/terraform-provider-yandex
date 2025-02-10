@@ -15,7 +15,7 @@ Storage is attached to a VM through the [Filesystem in Userspace](https://en.wik
 
 For more information about filesystems in Yandex Cloud, see:
 
-* [Documentation](https://cloud.yandex.com/docs/compute/concepts/filesystem)
+* [Documentation](https://yandex.cloud/docs/compute/concepts/filesystem)
 * How-to Guides
   * [Attach filesystem to a VM](https://yandex.cloud/docs/compute/operations/filesystem/attach-to-vm)
   * [Detach filesystem from VM](https://yandex.cloud/docs/compute/operations/filesystem/detach-from-vm)
@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `folder_id` - (Optional) The ID of the folder that the filesystem belongs to. If it is not provided, the default provider folder is used.
 
-* `labels` - (Optional) Labels to assign to this filesystem. A list of key/value pairs. For details about the concept, see [documentation](https://cloud.yandex.com/docs/overview/concepts/services#labels).
+* `labels` - (Optional) Labels to assign to this filesystem. A list of key/value pairs. For details about the concept, see [documentation](https://yandex.cloud/docs/overview/concepts/services#labels).
 
 * `zone` - (Optional) Availability zone where the filesystem will reside.
 
@@ -61,8 +61,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A filesystem can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_filesystem.default filesystem_id
-```
+{{ codefile "bash" "examples/compute_filesystem/import.sh" }}

@@ -93,10 +93,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The WAF Profile creation timestamp.
 
+
 ## Import
 
-A WAF Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_waf_profile.default waf_profile_id
-```
+{{ codefile "shell" "examples/sws_waf_profile/import.sh" }}

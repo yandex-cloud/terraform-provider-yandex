@@ -1,5 +1,7 @@
-
-resource "yandex_mdb_postgresql_cluster" "foo" {
+//
+// Create a new MDB High Availability PostgreSQL Cluster.
+//
+resource "yandex_mdb_postgresql_cluster" "my_cluster" {
   name        = "test_ha"
   description = "test High-Availability (HA) PostgreSQL Cluster"
   environment = "PRESTABLE"
@@ -12,7 +14,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       disk_size          = 10
       disk_type_id       = "network-ssd"
     }
-
   }
 
   host {
@@ -20,24 +21,28 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     name      = "host_name_a"
     subnet_id = yandex_vpc_subnet.a.id
   }
+
   host {
     zone                    = "ru-central1-b"
     name                    = "host_name_b"
-    replication_source_name = "host_name_c"
+    replication_source_name = "host_name_d"
     subnet_id               = yandex_vpc_subnet.b.id
   }
+
   host {
-    zone      = "ru-central1-c"
-    name      = "host_name_c"
-    subnet_id = yandex_vpc_subnet.c.id
+    zone      = "ru-central1-d"
+    name      = "host_name_d"
+    subnet_id = yandex_vpc_subnet.d.id
   }
+
   host {
-    zone      = "ru-central1-c"
-    name      = "host_name_c_2"
-    subnet_id = yandex_vpc_subnet.c.id
+    zone      = "ru-central1-d"
+    name      = "host_name_d_2"
+    subnet_id = yandex_vpc_subnet.d.id
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "a" {
@@ -52,8 +57,8 @@ resource "yandex_vpc_subnet" "b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }

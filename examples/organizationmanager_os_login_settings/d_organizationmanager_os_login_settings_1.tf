@@ -1,3 +1,6 @@
+//
+// Get information about existing OrganizationManager OS Login Settings.
+//
 data "yandex_organizationmanager_os_login_settings" "my_os_login_settings_settings" {
   organization_id = "some_organization_id"
 }

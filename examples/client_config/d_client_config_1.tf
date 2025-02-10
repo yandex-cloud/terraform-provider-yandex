@@ -1,3 +1,6 @@
+//
+// Example of using Yandex Cloud client configuration
+//
 data "yandex_client_config" "client" {}
 
 data "yandex_kubernetes_cluster" "kubernetes" {

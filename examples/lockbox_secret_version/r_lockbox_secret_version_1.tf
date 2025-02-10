@@ -1,3 +1,6 @@
+//
+// Create a new Lockbox Secret Version.
+//
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret"
 }

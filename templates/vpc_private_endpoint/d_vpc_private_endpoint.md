@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
 
 ## Example usage
 
 {{ tffile "examples/vpc_private_endpoint/d_vpc_private_endpoint_1.tf" }}
 
-This data source is used to define [VPC Private Endpoint](https://cloud.yandex.com/docs/vpc/concepts/private-endpoint) that can be used by other resources.
+This data source is used to define [VPC Private Endpoint](https://yandex.cloud/docs/vpc/concepts/private-endpoint) that can be used by other resources.
 
 ## Argument Reference
 

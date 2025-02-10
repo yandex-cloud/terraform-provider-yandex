@@ -1,4 +1,7 @@
-resource "yandex_mdb_opensearch_cluster" "foo" {
+//
+// Create a new MDB OpenSearch Cluster.
+//
+resource "yandex_mdb_opensearch_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -13,7 +16,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         assign_public_ip = true
         hosts_count      = 1
         subnet_ids       = ["${yandex_vpc_subnet.foo.id}"]
-        zone_ids         = ["ru-central1-a"]
+        zone_ids         = ["ru-central1-d"]
         roles            = ["data", "manager"]
         resources {
           resource_preset_id = "s2.micro"
@@ -29,10 +32,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }

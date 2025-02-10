@@ -1,0 +1,3 @@
+# terraform import yandex_compute_disk_placement_group.<resource Name> <resource Id>
+terraform import yandex_compute_disk_placement_group.my_disk_group ...
+

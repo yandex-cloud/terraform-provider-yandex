@@ -1,3 +1,6 @@
+//
+// Create a new ALB Target Group
+//
 resource "yandex_alb_target_group" "foo" {
   name = "my-target-group"
 

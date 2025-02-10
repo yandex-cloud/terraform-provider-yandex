@@ -11,7 +11,7 @@ Creates a Yandex KMS asymmetric encryption key that can be used for cryptographi
 
 ~> When Terraform destroys this key, any data previously encrypted with this key will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the resource to prevent accidental destruction.
 
-For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
+For more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).
 
 ## Example usage
 
@@ -48,8 +48,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A KMS asymmetric encryption key can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_kms_asymmetric_encryption_key.top-secret kms_asymmetric_encryption_key_id
-```
+{{ codefile "shell" "examples/kms_asymmetric_encryption_key/import.sh" }}

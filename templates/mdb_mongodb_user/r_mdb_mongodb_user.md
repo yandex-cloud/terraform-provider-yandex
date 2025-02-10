@@ -5,7 +5,7 @@ description: |-
   Manages a MongoDB User within Yandex Cloud.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
 {{ .Description | trimspace }}
 
@@ -16,5 +16,7 @@ description: |-
 {{ .SchemaMarkdown | trimspace }}
 
 ## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 {{ codefile "bash" "examples/mdb_mongodb_user/import.sh" }}

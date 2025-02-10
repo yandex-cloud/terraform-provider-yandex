@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Container Registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
+Get information about a Yandex Container Registry. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/registry)
 
 ## Example usage
 

@@ -1,5 +1,6 @@
-resource "yandex_vpc_network" "foo" {}
-
+//
+// Create a new DNS Zone.
+//
 resource "yandex_dns_zone" "zone1" {
   name        = "my-private-zone"
   description = "desc"
@@ -22,3 +23,6 @@ resource "yandex_dns_recordset" "rs1" {
   ttl     = 200
   data    = ["10.1.0.1"]
 }
+
+// Auxiliary resource for DNS Zone
+resource "yandex_vpc_network" "foo" {}

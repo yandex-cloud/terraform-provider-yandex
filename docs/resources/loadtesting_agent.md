@@ -12,6 +12,9 @@ A Load Testing Agent resource. For more information, see [the official documenta
 ## Example usage
 
 ```terraform
+//
+// Create a new LoadTesting Agent.
+//
 resource "yandex_loadtesting_agent" "my-agent" {
   name        = "my-agent"
   description = "2 core 4 GB RAM agent"
@@ -149,3 +152,12 @@ This resource provides the following configuration options for [timeouts](https:
 - `create` - Default 10 minutes
 - `delete` - Default 10 minutes
 - `update` - Default 10 minutes
+
+ ## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_loadtesting_agent.<resource Name> <resource Id>
+terraform import yandex_loadtesting_agent.my-agent ...
+```

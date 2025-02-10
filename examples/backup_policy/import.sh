@@ -1,0 +1,3 @@
+# terraform import yandex_backup_policy.<resource Name> <Resource Id>
+terraform import yandex_backup_policy.my_backup_policy ...
+

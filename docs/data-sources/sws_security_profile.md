@@ -14,17 +14,17 @@ This data source is used to define SecurityProfile that can be used by other res
 ## Example usage
 
 ```terraform
+//
+// Get information about existing SWS Security Profile.
+//
 data "yandex_sws_security_profile" "by-id" {
   security_profile_id = yandex_sws_security_profile.my-profile.id
 }
-```
 
-```terraform
 data "yandex_sws_security_profile" "by-name" {
   name = yandex_sws_security_profile.my-profile.name
 }
 ```
-
 
 ## Argument Reference
 

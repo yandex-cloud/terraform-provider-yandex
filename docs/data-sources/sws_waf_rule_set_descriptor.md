@@ -12,6 +12,9 @@ Get information about WAF rule sets. For more information, see [the official doc
 ## Example usage
 
 ```terraform
+//
+// Get information about existing SWS WAF Rule Descriptor
+//
 data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
   name    = "OWASP Core Ruleset"
   version = "4.0.0"
@@ -32,7 +35,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - ID of the rule set.
-
 * `rules` - List of rules. The structure is documented below.
 
 ---

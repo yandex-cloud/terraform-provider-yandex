@@ -1,4 +1,7 @@
-resource "yandex_lb_target_group" "foo" {
+//
+// Create a new NLB Target Group.
+//
+resource "yandex_lb_target_group" "my_tg" {
   name      = "my-target-group"
   region_id = "ru-central1"
 

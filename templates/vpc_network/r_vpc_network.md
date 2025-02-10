@@ -7,11 +7,11 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a network within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#network).
+Manages a network within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/network#network).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
-  * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
+  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)
 
 ## Example usage
 
@@ -37,10 +37,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `default_security_group_id` - ID of default Security Group of this network.
 
+
 ## Import
 
-A network can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_network.default network_id
-```
+{{ codefile "shell" "examples/vpc_network/import.sh" }}

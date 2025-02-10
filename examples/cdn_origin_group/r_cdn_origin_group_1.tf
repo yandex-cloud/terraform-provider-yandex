@@ -1,7 +1,8 @@
+//
+// Create a new CDN Origin Group
+//
 resource "yandex_cdn_origin_group" "my_group" {
-
-  name = "My Origin group"
-
+  name     = "My Origin group"
   use_next = true
 
   origin {

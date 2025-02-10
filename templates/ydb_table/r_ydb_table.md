@@ -66,3 +66,9 @@ The `ttl` block supports allow you to create a special column type, [TTL column]
 * `column_name` - (Required) Column name for TTL
 
 * `expire_interval` - (Required) Interval in the ISO 8601 format
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "shell" "examples/ydb_table/import.sh" }}

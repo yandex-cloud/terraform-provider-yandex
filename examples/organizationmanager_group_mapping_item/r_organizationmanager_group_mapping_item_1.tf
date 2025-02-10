@@ -1,5 +1,8 @@
+//
+// Create a new OrganizationManager Group Mapping Item.
+//
 resource "yandex_organizationmanager_group_mapping_item" "group_mapping_item" {
-  federation_id = "my-federation_id"
+  federation_id     = "my-federation_id"
   internal_group_id = "my_internal_group_id"
   external_group_id = "my_external_group_id"
 

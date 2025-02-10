@@ -13,6 +13,8 @@ Creates a new snapshot schedule. For more information, see [the official documen
 
 {{ tffile "examples/compute_snapshot_schedule/r_compute_snapshot_schedule_1.tf" }}
 
+{{ tffile "examples/compute_snapshot_schedule/r_compute_snapshot_schedule_2.tf" }}
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -62,8 +64,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A snapshot schedule can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_snapshot_schedule.my-schedule snapshot_schedule_id
-```
+{{ codefile "bash" "examples/compute_snapshot_schedule/import.sh" }}

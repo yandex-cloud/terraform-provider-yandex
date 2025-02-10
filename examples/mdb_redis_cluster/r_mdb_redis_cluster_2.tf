@@ -1,3 +1,6 @@
+//
+// Create a new MDB Sharded Redis Cluster.
+//
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "test"
   environment = "PRESTABLE"
@@ -27,12 +30,13 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = yandex_vpc_subnet.baz.id
     shard_name = "third"
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -48,7 +52,7 @@ resource "yandex_vpc_subnet" "bar" {
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }

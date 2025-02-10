@@ -1,7 +1,6 @@
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
+//
+// Create a new VPC Security Group Rule.
+//
 resource "yandex_vpc_security_group" "group1" {
   name        = "My security group"
   description = "description for my security group"
@@ -29,4 +28,9 @@ resource "yandex_vpc_security_group_rule" "rule2" {
   from_port              = 8090
   to_port                = 8099
   protocol               = "UDP"
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
 }

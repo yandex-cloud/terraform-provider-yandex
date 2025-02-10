@@ -13,7 +13,10 @@ Creates an Application Load Balancer in the specified folder. For more informati
 ## Example usage
 
 ```terraform
-resource "yandex_alb_load_balancer" "test-balancer" {
+//
+// Create a new Application Load Balancer (ALB)
+//
+resource "yandex_alb_load_balancer" "my_alb" {
   name = "my-load-balancer"
 
   network_id = yandex_vpc_network.test-network.id
@@ -270,8 +273,9 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-An Application Load Balancer can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_load_balancer.default load_balancer_id
+```bash
+# terraform import yandex_alb_load_balancer.<resource Name> <resource Id>
+terraform import yandex_alb_load_balancer.my_alb ds705**********q7qvl
 ```

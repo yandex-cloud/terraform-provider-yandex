@@ -1,4 +1,8 @@
-resource "yandex_mdb_kafka_cluster" "foo" {
+//
+// Create a new MDB HA Kafka Cluster with two brokers per AZ.
+// (6 brokers & 3 Zookeepers)
+//
+resource "yandex_mdb_kafka_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -7,7 +11,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   config {
     version          = "2.8"
     brokers_count    = 2
-    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
     kafka {
@@ -69,6 +73,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

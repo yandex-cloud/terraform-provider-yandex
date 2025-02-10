@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a Data Transfer transfer. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-transfer/).
+Manages a Data Transfer transfer. For more information, see [the official documentation](https://yandex.cloud/docs/data-transfer/).
 
 ## Example usage
 
@@ -165,8 +165,6 @@ The `tables` block supports:
 
 ## Import
 
-A transfer can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_datatransfer_transfer.foo transfer_id
-```
+{{ codefile "bash" "examples/datatransfer_transfer/import.sh" }}

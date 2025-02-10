@@ -13,8 +13,6 @@ Get information about WAF Profile. For more information, see [the official docum
 
 {{ tffile "examples/sws_waf_profile/d_sws_waf_profile_1.tf" }}
 
-{{ tffile "examples/sws_waf_profile/d_sws_waf_profile_2.tf" }}
-
 This data source is used to define WAF Profile that can be used by other resources.
 
 ## Argument Reference

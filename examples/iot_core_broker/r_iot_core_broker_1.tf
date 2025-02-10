@@ -1,3 +1,6 @@
+//
+// Create a new IoT Core Broker.
+//
 resource "yandex_iot_core_broker" "my_broker" {
   name        = "some_name"
   description = "any description"

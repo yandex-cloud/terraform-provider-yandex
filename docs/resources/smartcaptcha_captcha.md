@@ -13,7 +13,7 @@ Creates a Captcha in the specified folder. For more information, see [the offici
 
 ```terraform
 // 
-// Simple SmartCaptcha example
+// Simple SmartCaptcha example.
 //
 resource "yandex_smartcaptcha_captcha" "demo-captcha-simple" {
   deletion_protection = true
@@ -31,7 +31,7 @@ resource "yandex_smartcaptcha_captcha" "demo-captcha-simple" {
 
 ```terraform
 //
-// Adanced SmartCaptcha example
+// Advanced SmartCaptcha example.
 //
 resource "yandex_smartcaptcha_captcha" "demo-captcha-advanced" {
   deletion_protection = true
@@ -243,17 +243,14 @@ The `security_rule` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - ID of the captcha.
-
 * `created_at` - The Captcha creation timestamp.
-
 * `client_key` - Client key of the captcha, see [CAPTCHA keys](https://yandex.cloud/docs/smartcaptcha/concepts/keys).
-
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-# A Captcha can be imported using the `id` of the resource, e.g.:
-terraform import yandex_smartcaptcha_captcha.demo-captcha-simple captcha_id
+# terraform import yandex_smartcaptcha_captcha.<resource Name> <resource Id>
+terraform import yandex_smartcaptcha_captcha.demo-captcha-simple ...
 ```

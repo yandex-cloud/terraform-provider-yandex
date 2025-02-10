@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
+Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
 {{ tffile "examples/iot_core_device/d_iot_core_device_1.tf" }}
 
-This data source is used to define [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 

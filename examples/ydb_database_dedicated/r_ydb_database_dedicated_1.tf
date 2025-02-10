@@ -1,3 +1,6 @@
+//
+// Create a new YDB Dedicated Database.
+//
 resource "yandex_ydb_database_dedicated" "database1" {
   name      = "test-ydb-dedicated"
   folder_id = data.yandex_resourcemanager_folder.test_folder.id

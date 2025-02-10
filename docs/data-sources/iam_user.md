@@ -7,17 +7,20 @@ description: |-
 
 # yandex_iam_user (Data Source)
 
-Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
+Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing IAM User.
+//
 data "yandex_iam_user" "admin" {
   login = "my-yandex-login"
 }
 ```
 
-This data source is used to define [IAM User](https://cloud.yandex.com/docs/iam/concepts/#passport) that can be used by other resources.
+This data source is used to define [IAM User](https://yandex.cloud/docs/iam/concepts/#passport) that can be used by other resources.
 
 ## Argument Reference
 

@@ -7,12 +7,15 @@ description: |-
 
 # yandex_mdb_elasticsearch_cluster (Resource)
 
-Manages a Elasticsearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
+Manages a Elasticsearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
 
 ## Example usage
 
 ```terraform
-resource "yandex_mdb_elasticsearch_cluster" "foo" {
+//
+// Create a new MDB ElasticSearch Cluster.
+//
+resource "yandex_mdb_elasticsearch_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -56,23 +59,21 @@ resource "yandex_vpc_subnet" "foo" {
 Example of creating a high available Elasticsearch Cluster.
 
 ```terraform
+//
+// Create a new MDB ElasticSearch Cluster.
+//
+
 locals {
-  zones = [
-    "ru-central1-a",
-    "ru-central1-b",
-    "ru-central1-c",
-  ]
+  zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 }
 
-resource "yandex_mdb_elasticsearch_cluster" "foo" {
+resource "yandex_mdb_elasticsearch_cluster" "my_cluster" {
   name        = "my-cluster"
   environment = "PRODUCTION"
   network_id  = yandex_vpc_network.es-net.id
 
   config {
-
-    edition = "platinum"
-
+    edition        = "platinum"
     admin_password = "super-password"
 
     data_node {
@@ -117,11 +118,12 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.es-subnet-a,
     yandex_vpc_subnet.es-subnet-b,
-    yandex_vpc_subnet.es-subnet-c,
+    yandex_vpc_subnet.es-subnet-d,
   ]
 
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "es-net" {}
 
 resource "yandex_vpc_subnet" "es-subnet-a" {
@@ -136,8 +138,8 @@ resource "yandex_vpc_subnet" "es-subnet-b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "es-subnet-c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "es-subnet-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.es-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -197,7 +199,7 @@ The `master_node` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
 
 * `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
 
@@ -209,7 +211,7 @@ The `host` block supports:
 
 * `fqdn` (Computed) - The fully qualified domain name of the host.
 
-* `zone` - (Required) The availability zone where the Elasticsearch host will be created. For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* `zone` - (Required) The availability zone where the Elasticsearch host will be created. For more information see [the official documentation](https://yandex.cloud/docs/overview/concepts/geo-scope).
 
 * `type` - (Required) The type of the host to be deployed. Can be either `DATA_NODE` or `MASTER_NODE`.
 
@@ -229,14 +231,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
-* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/api-ref/Cluster/).
+* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/api-ref/Cluster/).
 
-* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/api-ref/Cluster/).
+* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/api-ref/Cluster/).
+
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_elasticsearch_cluster.foo cluster_id
+```shell
+# terraform import yandex_mdb_elasticsearch_cluster.<resource Name> <resource Id>
+terraform import yandex_mdb_elasticsearch_cluster.my_cluster ...
 ```

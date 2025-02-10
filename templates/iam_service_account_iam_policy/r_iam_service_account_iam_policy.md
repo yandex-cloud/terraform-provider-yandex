@@ -42,7 +42,7 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 * `role` - (Required) The role that should be applied. Only one `yandex_iam_service_account_iam_binding` can be used per role.
 
@@ -50,8 +50,6 @@ The following arguments are supported:
 
 ## Import
 
-Service account IAM policy resources can be imported using the service account ID.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_iam_service_account_iam_policy.admin-account-iam service_account_id
-```
+{{ codefile "shell" "examples/iam_service_account_iam_policy/import.sh" }}

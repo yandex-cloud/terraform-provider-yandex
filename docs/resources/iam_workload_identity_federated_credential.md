@@ -12,7 +12,10 @@ Allows management of [Yandex Cloud IAM federated credentials](https://yandex.clo
 ## Example Usage
 
 ```terraform
-resource "yandex_iam_workload_identity_federated_credential" "fc" {
+//
+// Create a new IAM Workload Identity Federated Credential.
+//
+resource "yandex_iam_workload_identity_federated_credential" "fed_cred" {
   service_account_id  = "some_sa_id"
   federation_id       = "some_wli_federation_id"
   external_subject_id = "some_external_subject_id"
@@ -52,9 +55,9 @@ Optional:
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-# 
-terraform import yandex_iam_workload_identity_federated_credential.fed-cred <federated_credential_id>
+# terraform import yandex_iam_workload_identity_federated_credential.<resource Name> <resource Id>
+terraform import yandex_iam_workload_identity_federated_credential.fed_cred ...
 ```

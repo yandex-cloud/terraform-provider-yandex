@@ -12,6 +12,9 @@ Get information about a Yandex Monitoring dashboard.
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Monitoring Dashboard.
+//
 data "yandex_monitoring_dashboard" "my_dashboard" {
   dashboard_id = "some_instance_dashboard_id"
 }

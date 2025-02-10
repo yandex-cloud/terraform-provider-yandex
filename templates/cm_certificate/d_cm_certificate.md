@@ -13,8 +13,6 @@ Get information about a Yandex Certificate Manager Certificate. For more informa
 
 {{ tffile "examples/cm_certificate/d_cm_certificate_1.tf" }}
 
-This data source is used to define [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
-
 {{ tffile "examples/cm_certificate/d_cm_certificate_2.tf" }}
 
 ## Argument Reference

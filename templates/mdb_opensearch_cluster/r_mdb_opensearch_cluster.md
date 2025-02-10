@@ -5,7 +5,7 @@ description: |-
   Manages a OpenSearch cluster within Yandex Cloud.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
 {{ .Description | trimspace }}
 
@@ -21,4 +21,6 @@ Example of creating a high available OpenSearch Cluster.
 
 ## Import
 
-{{ codefile "bash" "examples/mdb_mongodb_user/import.sh" }}
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "bash" "examples/mdb_opensearch_cluster/import.sh" }}

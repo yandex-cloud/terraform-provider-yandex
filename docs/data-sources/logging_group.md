@@ -12,6 +12,9 @@ Get information about a Yandex Cloud Logging group. For more information, see [t
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Logging Group.
+//
 data "yandex_logging_group" "my_group" {
   group_id = "some_yandex_logging_group_id"
 }

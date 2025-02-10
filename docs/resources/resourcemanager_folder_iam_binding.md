@@ -16,6 +16,9 @@ Allows creation and management of a single binding within IAM policy for an exis
 ## Example usage
 
 ```terraform
+//
+// Create a new IAM Binding for existing Folder.
+//
 data "yandex_resourcemanager_folder" "project1" {
   folder_id = "some_folder_id"
 }
@@ -49,12 +52,13 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 ## Import
 
-IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `folder_id` and role, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_resourcemanager_folder_iam_binding.viewer "folder_id viewer"
+```shell
+# terraform import yandex_resourcemanager_folder_iam_binding.<resource Name> "<resource Id> <resource Role>"
+terraform import yandex_resourcemanager_folder_iam_binding.admin "b1g5r**********dqmsp admin"
 ```

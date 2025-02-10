@@ -25,11 +25,14 @@ folder_id does not need to be specified unless you want to create the resource i
 ## Example usage
 
 ```terraform
+//
+// Create a new Storage Bucket. 
+//
 provider "yandex" {
   zone = "ru-central1-a"
 }
 
-resource "yandex_storage_bucket" "test" {
+resource "yandex_storage_bucket" "test_bucket" {
   bucket = "tf-test-bucket"
 }
 ```
@@ -37,6 +40,9 @@ resource "yandex_storage_bucket" "test" {
 ### Simple Private Bucket With Static Access Keys
 
 ```terraform
+//
+// Simple Private Bucket With Static Access Keys.
+//
 locals {
   folder_id = "<folder-id>"
 }
@@ -75,6 +81,9 @@ resource "yandex_storage_bucket" "test" {
 ### Static Website Hosting
 
 ```terraform
+//
+// Static Website Hosting.
+//
 resource "yandex_storage_bucket" "test" {
   bucket = "storage-website-test.hashicorp.com"
   acl    = "public-read"
@@ -100,6 +109,9 @@ EOF
 ### Using ACL policy grants
 
 ```terraform
+//
+// Using ACL policy grants.
+//
 resource "yandex_storage_bucket" "test" {
   bucket = "mybucket"
 
@@ -120,6 +132,9 @@ resource "yandex_storage_bucket" "test" {
 ### Using CORS
 
 ```terraform
+//
+// Using CORS.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "s3-website-test.hashicorp.com"
   acl    = "public-read"
@@ -137,6 +152,9 @@ resource "yandex_storage_bucket" "b" {
 ### Using versioning
 
 ```terraform
+//
+// Using versioning.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-tf-test-bucket"
   acl    = "private"
@@ -150,6 +168,9 @@ resource "yandex_storage_bucket" "b" {
 ### Using Object Lock Configuration
 
 ```terraform
+//
+// Using Object Lock Configuration.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -184,6 +205,9 @@ POLICY
 ### Bucket Tagging
 
 ```terraform
+//
+// Using Bucket Tagging
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -197,6 +221,9 @@ resource "yandex_storage_bucket" "b" {
 ### Bucket Max Size
 
 ```terraform
+//
+// Set Bucket Max Size.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -207,6 +234,9 @@ resource "yandex_storage_bucket" "b" {
 ### Bucket Folder Id
 
 ```terraform
+//
+// Set Bucket Folder Id.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -217,6 +247,9 @@ resource "yandex_storage_bucket" "b" {
 ### Bucket Anonymous Access Flags
 
 ```terraform
+//
+// Using Bucket Anonymous Access Flags.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -231,6 +264,9 @@ resource "yandex_storage_bucket" "b" {
 ### Bucket HTTPS Certificate
 
 ```terraform
+//
+// Bucket HTTPS Certificate.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -243,6 +279,9 @@ resource "yandex_storage_bucket" "b" {
 ### Bucket Default Storage Class
 
 ```terraform
+//
+// Set Bucket Default Storage Class.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"
 
@@ -254,7 +293,7 @@ resource "yandex_storage_bucket" "b" {
 
 ```terraform
 //
-// All in one example
+// All Bucket settings example.
 //
 provider "yandex" {
   token              = "<iam-token>"
@@ -403,11 +442,11 @@ The following arguments are supported:
 
 * `secret_key` - (Optional) The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
+* `acl` - (Optional) The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
 ~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 
-* `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.com/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+* `grant` - (Optional) An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
   - `id` - (Optional) Canonical user id to grant for. Used only when type is `CanonicalUser`.
 
@@ -421,19 +460,19 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 
-* `website` - (Optional) A [website object](https://cloud.yandex.com/docs/storage/concepts/hosting) (documented below).
+* `website` - (Optional) A [website object](https://yandex.cloud/docs/storage/concepts/hosting) (documented below).
 
-* `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/concepts/cors) (documented below).
+* `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (documented below).
 
-* `versioning` - (Optional) A state of [versioning](https://cloud.yandex.com/docs/storage/concepts/versioning) (documented below)
+* `versioning` - (Optional) A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning) (documented below)
 
 ~> To manage `versioning` argument, service account with `storage.admin` role should be used.
 
 * `object_lock_configuration` - (Optional) A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock) (documented below).
 
-* `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.com/docs/storage/concepts/server-logs) (documented below).
+* `logging` - (Optional) A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs) (documented below).
 
-* `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://cloud.yandex.com/docs/storage/concepts/lifecycles) (documented below).
+* `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles) (documented below).
 
 The `website` object supports the following:
 
@@ -443,7 +482,7 @@ The `website` object supports the following:
 
 * `redirect_all_requests_to` - (Optional) A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
 
-* `routing_rules` - (Optional) A json array containing [routing rules](https://cloud.yandex.com/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
+* `routing_rules` - (Optional) A json array containing [routing rules](https://yandex.cloud/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
 
 The `CORS` object supports the following:
 
@@ -556,7 +595,7 @@ The `apply_server_side_encryption_by_default` object supports the following:
 
 * `kms_master_key_id` - (Optional) The KMS master key ID used for the SSE-KMS encryption.
 
-The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://cloud.yandex.com/docs/storage/concepts/policy) for more information on policy format.
+The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 
 Extended parameters of the bucket:
 
@@ -594,19 +633,18 @@ The `tags` object for setting tags (or labels) for bucket. See [tags](https://ya
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - The name of the bucket.
-
 * `bucket_domain_name` - The bucket domain name.
-
 * `website_endpoint` - The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
-
 * `website_domain` - The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+
 
 ## Import
 
-Storage bucket can be imported using the `bucket`, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_storage_bucket.bucket bucket-name
+```shell
+# terraform import yandex_storage_bucket.<resource Name> <resource Id>
+terraform import yandex_storage_bucket.test_bucket ...
 ```
 
 ~> Terraform will import this resource with `force_destroy` set to `false` in state. If you've set it to `true` in config, run `terraform apply` to update the value set in state. If you delete this resource before updating the value, objects in the bucket will not be destroyed.

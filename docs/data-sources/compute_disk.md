@@ -7,20 +7,25 @@ description: |-
 
 # yandex_compute_disk (Data Source)
 
-Get information about a Yandex Compute disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk).
+Get information about a Yandex Compute disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Compute Disk.
+//
 data "yandex_compute_disk" "my_disk" {
   disk_id = "some_disk_id"
 }
 
+// You can use "data.yandex_compute_disk.my_disk.id" identifier 
+// as reference to the existing resource.
 resource "yandex_compute_instance" "default" {
-  ...
+  # ...
 
   secondary_disk {
-    disk_id = "${data.yandex_compute_disk.my_disk.id}"
+    disk_id = data.yandex_compute_disk.my_disk.id
   }
 }
 ```

@@ -15,6 +15,9 @@ Creates a Security Profile in the specified folder. For more information, see [t
 ## Example usage
 
 ```terraform
+//
+// Create a new SWS Security Profile (Simple).
+//
 resource "yandex_sws_security_profile" "demo-profile-simple" {
   name           = "demo-profile-simple"
   default_action = "ALLOW"
@@ -31,6 +34,9 @@ resource "yandex_sws_security_profile" "demo-profile-simple" {
 ```
 
 ```terraform
+//
+// Create a new SWS Security Profile (Advanced).
+//
 resource "yandex_sws_security_profile" "demo-profile-advanced" {
   name                             = "demo-profile-advanced"
   default_action                   = "ALLOW"
@@ -228,13 +234,13 @@ The `waf` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - ID of the security profile.
-
 * `created_at` - The Security Profile creation timestamp.
 
 ## Import
 
-A Security Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_security_profile.demo-profile-simple security_profile_id
+```shell
+# terraform import yandex_sws_security_profile.<resource Name> <resource Id>
+terraform import yandex_sws_security_profile.demo-profile-simple ...
 ```

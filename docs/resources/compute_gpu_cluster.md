@@ -13,11 +13,14 @@ Users can create a cluster from several VMs and use GPUDirectRDMA to directly se
 
 For more information about GPU cluster in Yandex Cloud, see:
 
-* [Documentation](https://cloud.yandex.com/docs/compute/concepts/gpu_cluster)
+* [Documentation](https://yandex.cloud/docs/compute/concepts/gpu_cluster)
 
 ## Example usage
 
 ```terraform
+//
+// Create a new GPU Cluster.
+//
 resource "yandex_compute_gpu_cluster" "default" {
   name              = "gpu-cluster-name"
   interconnect_type = "infiniband"
@@ -39,7 +42,7 @@ The following arguments are supported:
 
 * `folder_id` - (Optional) The ID of the folder that the GPU cluster belongs to. If it is not provided, the default provider folder is used.
 
-* `labels` - (Optional) Labels to assign to this GPU cluster. A list of key/value pairs. For details about the concept, see [documentation](https://cloud.yandex.com/docs/overview/concepts/services#labels).
+* `labels` - (Optional) Labels to assign to this GPU cluster. A list of key/value pairs. For details about the concept, see [documentation](https://yandex.cloud/docs/overview/concepts/services#labels).
 
 * `zone` - (Optional) Availability zone where the GPU cluster will reside.
 
@@ -62,8 +65,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A GPU cluster can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_gpu_cluster.default gpu_cluster_id
+```bash
+# terraform import yandex_compute_gpu_cluster.<resource Name> <resource Id>
+terraform import yandex_compute_gpu_cluster.my_gpu_cluster fv4h4**********u4dpa
 ```

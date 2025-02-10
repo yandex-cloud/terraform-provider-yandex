@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Compute snapshot. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
+Get information about a Yandex Compute snapshot. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).
 
 ## Example usage
 

@@ -7,11 +7,14 @@ description: |-
 
 # yandex_dataproc_cluster (Resource)
 
-Manages a Yandex Data Processing cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/data-proc/).
+Manages a Yandex Data Processing cluster. For more information, see [the official documentation](https://yandex.cloud/docs/data-proc/).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Data Processing Cluster.
+//
 resource "yandex_dataproc_cluster" "foo" {
   depends_on = [yandex_resourcemanager_folder_iam_binding.dataproc]
 
@@ -99,6 +102,7 @@ resource "yandex_dataproc_cluster" "foo" {
   }
 }
 
+// Auxiliary resources for Data Processing Cluster
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -184,7 +188,7 @@ The `hadoop` block supports:
 
 * `services` - (Optional) List of services to run on Yandex Data Processing cluster.
 * `properties` - (Optional) A set of key/value pairs that are used to configure cluster services.
-* `ssh_public_keys` - (Optional) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://cloud.yandex.com/docs/data-proc/operations/connect).
+* `ssh_public_keys` - (Optional) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://yandex.cloud/docs/data-proc/operations/connect).
 * `initialization_action` - (Optional) List of initialization scripts. The structure is documented below.
 
 ---
@@ -211,7 +215,7 @@ The `subcluster_spec` block supports:
 
 The `resources` block supports:
 
-* `resource_preset_id` - (Required) The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://cloud.yandex.com/docs/data-proc/concepts/instance-types).
+* `resource_preset_id` - (Required) The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://yandex.cloud/docs/data-proc/concepts/instance-types).
 * `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - (Optional) Type of the storage of a host. One of `network-hdd` (default) or `network-ssd`.
 
@@ -220,7 +224,7 @@ The `resources` block supports:
 The `autoscaling_config` block supports:
 
 * `max_hosts_count` - (Required) Maximum number of nodes in autoscaling subclusters.
-* `preemptible` - (Optional) Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://cloud.yandex.com/docs/compute/concepts/preemptible-vm).
+* `preemptible` - (Optional) Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).
 * `warmup_duration` - (Optional) The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
 * `stabilization_duration` - (Optional) Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
 * `measurement_duration` - (Optional) Time in seconds allotted for averaging metrics.
@@ -235,8 +239,9 @@ The `autoscaling_config` block supports:
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_dataproc_cluster.foo cluster_id
+```bash
+# terraform import yandex_dataproc_cluster.<resource Name> <resource Id> 
+terraform import yandex_dataproc_cluster.foo c9q85**********gpn21
 ```

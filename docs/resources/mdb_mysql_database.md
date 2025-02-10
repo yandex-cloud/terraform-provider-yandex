@@ -7,17 +7,20 @@ description: |-
 
 # yandex_mdb_mysql_database (Resource)
 
-Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/).
+Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
 
 ## Example usage
 
 ```terraform
-resource "yandex_mdb_mysql_database" "foo" {
-  cluster_id = yandex_mdb_mysql_cluster.foo.id
+//
+// Create a new MDB MySQL Database.
+//
+resource "yandex_mdb_mysql_database" "my_db" {
+  cluster_id = yandex_mdb_mysql_cluster.my_cluster.id
   name       = "testdb"
 }
 
-resource "yandex_mdb_mysql_cluster" "foo" {
+resource "yandex_mdb_mysql_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -30,15 +33,16 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
@@ -52,8 +56,9 @@ The following arguments are supported:
 
 ## Import
 
-A MySQL database can be imported using the following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_mysql_database.foo {cluster_id}:{database_name}
+```shell
+# terraform import yandex_mdb_mysql_database.<resource Name> "<cluster Id>:<database Name>"
+terraform import yandex_mdb_mysql_database.my_db ...
 ```

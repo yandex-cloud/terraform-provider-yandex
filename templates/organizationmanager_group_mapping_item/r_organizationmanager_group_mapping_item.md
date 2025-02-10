@@ -19,7 +19,7 @@ NOTE: Group mapping items depends on [group mapping](organizationmanager_group_m
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 {{ codefile "shell" "examples/organizationmanager_group_mapping_item/import.sh" }}
 

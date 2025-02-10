@@ -12,6 +12,9 @@ Creates an HTTP Router in the specified folder. For more information, see [the o
 ## Example usage
 
 ```terraform
+//
+// Create a new ALB HTTP Router
+//
 resource "yandex_alb_http_router" "tf-router" {
   name = "my-http-router"
   labels {
@@ -51,8 +54,9 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-An HTTP Router can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_http_router.default http_router_id
+```bash
+# terraform import yandex_alb_http_router.<resource Name> <resource Id>
+terraform import yandex_alb_http_router.my_router ds7ph**********hm4in
 ```

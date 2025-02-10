@@ -7,11 +7,14 @@ description: |-
 
 # yandex_mdb_postgresql_database (Data Source)
 
-Get information about a Yandex Managed PostgreSQL database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
+Get information about a Yandex Managed PostgreSQL database. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB PostgreSQL Database.
+//
 data "yandex_mdb_postgresql_database" "foo" {
   cluster_id = "some_cluster_id"
   name       = "test"
@@ -43,5 +46,5 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `extension` block supports:
 
-* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
+* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
 * `version` - Version of the extension.

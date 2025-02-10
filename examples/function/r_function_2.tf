@@ -1,7 +1,6 @@
-locals {
-  folder_id = "folder_id"
-}
-
+//
+// Create a new Yandex Cloud Function with mounted Object Storage Bucket.
+//
 resource "yandex_function" "test-function" {
   name               = "some_name"
   user_hash          = "v1"
@@ -9,7 +8,7 @@ resource "yandex_function" "test-function" {
   entrypoint         = "index.handler"
   memory             = "128"
   execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
+  service_account_id = yandex_iam_service_account.sa.id
   content {
     zip_filename = "function.zip"
   }
@@ -20,6 +19,10 @@ resource "yandex_function" "test-function" {
       bucket = yandex_storage_bucket.my-bucket.bucket
     }
   }
+}
+
+locals {
+  folder_id = "folder_id"
 }
 
 resource "yandex_iam_service_account" "sa" {

@@ -7,11 +7,14 @@ description: |-
 
 # yandex_iam_policy (Data Source)
 
-Generates an [IAM](https://cloud.yandex.com/docs/iam/) policy document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.
+Generates an [IAM](https://yandex.cloud/docs/iam/) policy document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing IAM Policy.
+//
 data "yandex_iam_policy" "admin" {
   binding {
     role = "admin"
@@ -31,7 +34,7 @@ data "yandex_iam_policy" "admin" {
 }
 ```
 
-This data source is used to define [IAM](https://cloud.yandex.com/docs/iam/) policies to apply to other resources. Currently, defining a policy through a data source and referencing that policy from another resource is the only way to apply an IAM policy to a resource.
+This data source is used to define [IAM](https://yandex.cloud/docs/iam/) policies to apply to other resources. Currently, defining a policy through a data source and referencing that policy from another resource is the only way to apply an IAM policy to a resource.
 
 ## Argument Reference
 
@@ -41,7 +44,7 @@ The following arguments are supported:
 
 Each policy document configuration must have one or more `binding` blocks. Each block accepts the following arguments:
 
-* `role` (Required) - The role/permission that will be granted to the members. See the [IAM Roles](https://cloud.yandex.com/docs/iam/concepts/access-control/roles) documentation for a complete list of roles.
+* `role` (Required) - The role/permission that will be granted to the members. See the [IAM Roles](https://yandex.cloud/docs/iam/concepts/access-control/roles) documentation for a complete list of roles.
 
 * `members` (Required) - An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
@@ -53,7 +56,7 @@ Each policy document configuration must have one or more `binding` blocks. Each 
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 ## Attributes Reference
 

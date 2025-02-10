@@ -12,6 +12,9 @@ Get information about a Yandex Database serverless cluster. For more information
 ## Example usage
 
 ```terraform
+//
+// Get information about existing YDB Serverless Database.
+//
 data "yandex_ydb_database_serverless" "my_database" {
   database_id = "some_ydb_serverless_database_id"
 }

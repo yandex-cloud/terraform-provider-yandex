@@ -7,11 +7,14 @@ description: |-
 
 # yandex_compute_placement_group (Data Source)
 
-Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
+Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Compute Placement Group
+//
 data "yandex_compute_placement_group" "my_group" {
   group_id = "some_group_id"
 }

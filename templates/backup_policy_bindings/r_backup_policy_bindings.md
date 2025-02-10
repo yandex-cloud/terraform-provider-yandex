@@ -29,3 +29,9 @@ The following attributes are exported:
 * `created_at` (Computed) - Creation timestamp of the Yandex Cloud Policy Bindings.
 * `processing` (Computed) - Boolean flag that specifies whether the policy is in the process of binding to an instance.
 * `enabled` (Computed) - Boolean flag that specifies whether the policy application is enabled. May be `false` if `processing` flag is `true`.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "bash" "examples/backup_policy_bindings/import.sh" }}

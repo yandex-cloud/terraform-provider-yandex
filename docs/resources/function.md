@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: yandex_function"
 description: |-
   Allows management of a Yandex Cloud Function.
@@ -7,11 +7,14 @@ description: |-
 
 # yandex_function (Resource)
 
-Allows management of [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/)
+Allows management of [Yandex Cloud Function](https://yandex.cloud/docs/functions)
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Yandex Cloud Function
+//
 resource "yandex_function" "test-function" {
   name               = "some_name"
   description        = "any description"
@@ -20,7 +23,7 @@ resource "yandex_function" "test-function" {
   entrypoint         = "main"
   memory             = "128"
   execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
+  service_account_id = "ajeih**********838kk"
   tags               = ["my_tag"]
   secrets {
     id                   = yandex_lockbox_secret.secret.id
@@ -39,30 +42,27 @@ resource "yandex_function" "test-function" {
   }
   async_invocation {
     retries_count       = "3"
-    services_account_id = "ajeihp9qsfg2l6f838kk"
+    services_account_id = "ajeih**********838kk"
     ymq_failure_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:fail"
+      service_account_id = "ajeqr**********qb76m"
+      arn                = "yrn:yc:ymq:ru-central1:b1glr**********9hsfp:fail"
     }
     ymq_success_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:success"
+      service_account_id = "ajeqr**********qb76m"
+      arn                = "yrn:yc:ymq:ru-central1:b1glr**********9hsfp:success"
     }
   }
   log_options {
-    log_group_id = "e2392vo6d1bne2aeq9fr"
+    log_group_id = "e2392**********eq9fr"
     min_level    = "ERROR"
   }
 }
 ```
 
-### Function with Mounted Object Storage Bucket
-
 ```terraform
-locals {
-  folder_id = "folder_id"
-}
-
+//
+// Create a new Yandex Cloud Function with mounted Object Storage Bucket.
+//
 resource "yandex_function" "test-function" {
   name               = "some_name"
   user_hash          = "v1"
@@ -70,7 +70,7 @@ resource "yandex_function" "test-function" {
   entrypoint         = "index.handler"
   memory             = "128"
   execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
+  service_account_id = yandex_iam_service_account.sa.id
   content {
     zip_filename = "function.zip"
   }
@@ -81,6 +81,10 @@ resource "yandex_function" "test-function" {
       bucket = yandex_storage_bucket.my-bucket.bucket
     }
   }
+}
+
+locals {
+  folder_id = "folder_id"
 }
 
 resource "yandex_iam_service_account" "sa" {
@@ -205,3 +209,12 @@ The `log_options` block supports:
 * `log_group_id` - Log entries are written to specified log group
 * `folder_id` - Log entries are written to default log group for specified folder
 * `min_level` - Minimum log entry level
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_function.<resource Name> <resource Id>
+terraform import yandex_function.test-function d4e45**********pqvd3
+```

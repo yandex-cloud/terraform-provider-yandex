@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://cloud.yandex.com/docs/organization/add-federation).
+Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://yandex.cloud/docs/organization/add-federation).
 
 ## Example usage
 

@@ -32,3 +32,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `cloud_id` - ID of the cloud that the Yandex Cloud Logging group belong to.
 * `created_at` - The Yandex Cloud Logging group creation timestamp.
 * `status` - The Yandex Cloud Logging group status.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "shell" "examples/logging_group/import.sh" }}

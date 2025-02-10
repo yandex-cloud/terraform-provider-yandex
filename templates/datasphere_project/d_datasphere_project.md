@@ -5,7 +5,7 @@ description: |-
   Get information about a Yandex Cloud Datasphere Project.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
 Get information about a Yandex Cloud Datasphere Project.
 

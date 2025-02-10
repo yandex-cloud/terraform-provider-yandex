@@ -5,14 +5,17 @@ description: |-
   Manages a OpenSearch cluster within Yandex Cloud.
 ---
 
-# yandex_mdb_opensearch_cluster
+# yandex_mdb_opensearch_cluster (Resource)
 
 Manages a OpenSearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).
 
 ## Example Usage
 
 ```terraform
-resource "yandex_mdb_opensearch_cluster" "foo" {
+//
+// Create a new MDB OpenSearch Cluster.
+//
+resource "yandex_mdb_opensearch_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -27,7 +30,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         assign_public_ip = true
         hosts_count      = 1
         subnet_ids       = ["${yandex_vpc_subnet.foo.id}"]
-        zone_ids         = ["ru-central1-a"]
+        zone_ids         = ["ru-central1-d"]
         roles            = ["data", "manager"]
         resources {
           resource_preset_id = "s2.micro"
@@ -43,10 +46,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
@@ -55,15 +59,14 @@ resource "yandex_vpc_subnet" "foo" {
 Example of creating a high available OpenSearch Cluster.
 
 ```terraform
+//
+// Create a new MDB OpenSearch Cluster.
+//
 locals {
-  zones = [
-    "ru-central1-a",
-    "ru-central1-b",
-    "ru-central1-c",
-  ]
+  zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
+resource "yandex_mdb_opensearch_cluster" "my_cluster" {
   name        = "my-cluster"
   environment = "PRODUCTION"
   network_id  = yandex_vpc_network.es-net.id
@@ -130,7 +133,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     }
   }
 
-
   auth_settings = {
     saml = {
       idp_entity_id             = "urn:dev.auth0.example.com"
@@ -143,11 +145,12 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.es-subnet-a,
     yandex_vpc_subnet.es-subnet-b,
-    yandex_vpc_subnet.es-subnet-c,
+    yandex_vpc_subnet.es-subnet-d,
   ]
 
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "es-net" {}
 
 resource "yandex_vpc_subnet" "es-subnet-a" {
@@ -162,8 +165,8 @@ resource "yandex_vpc_subnet" "es-subnet-b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "es-subnet-c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "es-subnet-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.es-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -360,10 +363,9 @@ Read-Only:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# A MongoDB User can be imported using the following format:
-terraform import yandex_mdb_mongodb_user.foo {cluster_id}:{username}
+```bash
+# terraform import yandex_mdb_opensearch_cluster.<resource Name> <resource Id>
+terraform import yandex_mdb_opensearch_cluster.my_cluster ...
 ```

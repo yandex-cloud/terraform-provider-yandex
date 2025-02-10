@@ -12,6 +12,9 @@ Get information about a DNS Zone.
 ## Example usage
 
 ```terraform
+//
+// Get information about existing DNS Zone.
+//
 data "yandex_dns_zone" "foo" {
   dns_zone_id = yandex_dns_zone.zone1.id
 }

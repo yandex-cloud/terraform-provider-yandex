@@ -1,3 +1,6 @@
+//
+// Get information about existing IAM Role.
+//
 data "yandex_iam_role" "admin" {
   binding {
     role = "admin"

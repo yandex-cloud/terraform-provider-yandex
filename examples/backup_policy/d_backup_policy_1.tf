@@ -1,3 +1,6 @@
+//
+// Get information about existing Cloud Backup Policy
+//
 data "yandex_backup_policy" "my_policy" {
   name = "some_policy_name"
 }

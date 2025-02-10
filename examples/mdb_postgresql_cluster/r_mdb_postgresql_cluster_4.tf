@@ -1,4 +1,7 @@
-resource "yandex_mdb_postgresql_cluster" "foo" {
+//
+// Create a new MDB PostgreSQL Single Node Cluster from backup.
+//
+resource "yandex_mdb_postgresql_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -25,15 +28,16 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }

@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows management of [Yandex Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
+Allows management of [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
@@ -34,3 +34,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `created_at` - Creation timestamp of the IoT Core Device
+
+## Import
+
+~> Import for this resource is not implemented yet.

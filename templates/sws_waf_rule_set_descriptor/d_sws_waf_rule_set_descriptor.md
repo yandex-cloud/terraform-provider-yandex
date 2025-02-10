@@ -27,7 +27,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - ID of the rule set.
-
 * `rules` - List of rules. The structure is documented below.
 
 ---

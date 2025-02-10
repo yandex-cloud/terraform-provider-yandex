@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: {{.Name}}"
 description: |-
   Allows management of a Yandex Cloud Function.
@@ -7,13 +7,11 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows management of [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/)
+Allows management of [Yandex Cloud Function](https://yandex.cloud/docs/functions)
 
 ## Example usage
 
 {{ tffile "examples/function/r_function_1.tf" }}
-
-### Function with Mounted Object Storage Bucket
 
 {{ tffile "examples/function/r_function_2.tf" }}
 
@@ -116,3 +114,9 @@ The `log_options` block supports:
 * `log_group_id` - Log entries are written to specified log group
 * `folder_id` - Log entries are written to default log group for specified folder
 * `min_level` - Minimum log entry level
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "shell" "examples/function/import.sh" }}

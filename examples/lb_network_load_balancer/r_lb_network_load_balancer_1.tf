@@ -1,4 +1,7 @@
-resource "yandex_lb_network_load_balancer" "foo" {
+//
+// Create a new Network Load Balancer (NLB).
+//
+resource "yandex_lb_network_load_balancer" "my_nlb" {
   name = "my-network-load-balancer"
 
   listener {

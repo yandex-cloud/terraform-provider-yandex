@@ -1,11 +1,11 @@
 ---
-subcategory: "Kubernetes Marketplace"
+subcategory: "Managed Kubernetes (MK8S) Marketplace"
 page_title: "Yandex: yandex_kubernetes_marketplace_helm_release"
 description: |-
   Allows management of Kubernetes product installed from Yandex Cloud Marketplace.
 ---
 
-# yandex_kubernetes_marketplace_helm_release
+# yandex_kubernetes_marketplace_helm_release (Resource)
 
 Allows management of Kubernetes product installed from Yandex Cloud Marketplace.
 For more information, see [official documentation](https://yandex.cloud/marketplace?type=K8S).
@@ -13,6 +13,9 @@ For more information, see [official documentation](https://yandex.cloud/marketpl
 ## Example Usage
 
 ```terraform
+//
+// Create a new Kubernetes Marketplace Helm Release. 
+//
 resource "yandex_kubernetes_marketplace_helm_release" "gatekeeper_helm_release" {
   cluster_id = yandex_kubernetes_cluster.cluster_resource_name.id
 
@@ -63,10 +66,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# Import is supported using the following syntax:
-terraform import yandex_kubernetes_marketpalce_helm_release.default helm_release_id
+```bash
+# terraform import yandex_kubernetes_marketpalce_helm_release.<resource Name> <resource Id>
+terraform import yandex_kubernetes_marketpalce_helm_release.default ...
 ```

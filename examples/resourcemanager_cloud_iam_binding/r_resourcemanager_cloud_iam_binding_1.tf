@@ -1,3 +1,6 @@
+//
+// Create a new Cloud and new IAM Binding for it.
+//
 data "yandex_resourcemanager_cloud" "project1" {
   name = "Project 1"
 }

@@ -1,3 +1,6 @@
+//
+// Create a new Compute Instance Group (IG)
+//
 resource "yandex_compute_instance_group" "group1" {
   name                = "test-ig"
   folder_id           = data.yandex_resourcemanager_folder.test_folder.id

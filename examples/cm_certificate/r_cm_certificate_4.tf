@@ -1,3 +1,6 @@
+//
+// Create a new self-managed Certificate.
+//
 resource "yandex_cm_certificate" "example" {
   name = "example"
 

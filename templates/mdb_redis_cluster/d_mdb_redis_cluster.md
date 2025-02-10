@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed Redis cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts).
+Get information about a Yandex Managed Redis cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
 
 ## Example usage
 
@@ -76,7 +76,7 @@ The `backup_window_start` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of a host.
 

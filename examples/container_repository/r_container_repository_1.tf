@@ -1,3 +1,6 @@
+//
+// Create a new Container Registry and new Repository with it.
+//
 resource "yandex_container_registry" "my-registry" {
   name = "test-registry"
 }

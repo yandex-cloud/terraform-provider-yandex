@@ -12,6 +12,9 @@ Creates a WAF Profile in the specified folder. For more information, see [the of
 ## Example usage
 
 ```terraform
+//
+// Create a new SWS WAF Profile (Empty).
+//
 resource "yandex_sws_waf_profile" "empty" {
   // NOTE: this WAF profile do not contains any rules enabled.
   // See the next example to see how to enable default set of rules. 
@@ -29,6 +32,9 @@ resource "yandex_sws_waf_profile" "empty" {
 ```
 
 ```terraform
+//
+// Create a new SWS WAF Profile (Default).
+//
 locals {
   waf_paranoia_level = 1
 }
@@ -148,10 +154,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The WAF Profile creation timestamp.
 
+
 ## Import
 
-A WAF Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_waf_profile.default waf_profile_id
+```shell
+# terraform import yandex_sws_waf_profile.<resource Name> <resource Id>
+terraform import yandex_sws_waf_profile.default ...
 ```

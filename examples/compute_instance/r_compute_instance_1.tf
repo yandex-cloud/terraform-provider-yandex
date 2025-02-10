@@ -1,6 +1,9 @@
+//
+// Create a new Compute Instance
+//
 resource "yandex_compute_instance" "default" {
   name        = "test"
-  platform_id = "standard-v1"
+  platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
   resources {
@@ -19,10 +22,11 @@ resource "yandex_compute_instance" "default" {
 
   metadata = {
     foo      = "bar"
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys = "ubuntu:${file("~/.ssh/id_ed25519.pub")}"
   }
 }
 
+// Auxiliary resources for Compute Instance
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

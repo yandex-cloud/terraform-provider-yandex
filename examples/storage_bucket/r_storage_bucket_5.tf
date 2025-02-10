@@ -1,3 +1,6 @@
+//
+// Using CORS.
+//
 resource "yandex_storage_bucket" "b" {
   bucket = "s3-website-test.hashicorp.com"
   acl    = "public-read"

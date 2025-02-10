@@ -12,11 +12,10 @@ Manages a Security Group within the Yandex Cloud. For more information, see [the
 ## Example Usage
 
 ```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_security_group" "group1" {
+//
+// Create a new VPC Security Group.
+//
+resource "yandex_vpc_security_group" "sg1" {
   name        = "My security group"
   description = "description for my security group"
   network_id  = yandex_vpc_network.lab-net.id
@@ -47,6 +46,11 @@ resource "yandex_vpc_security_group" "group1" {
     from_port      = 8090
     to_port        = 8099
   }
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
 }
 ```
 
@@ -83,7 +87,7 @@ The `ingress` and `egress` block supports:
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
 * `security_group_id` (Optional) - Target security group ID for this rule.
-* `predefined_target` (Optional) - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://cloud.yandex.com/docs/network-load-balancer/concepts/health-check).
+* `predefined_target` (Optional) - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 
@@ -100,14 +104,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - Id of the rule.
 
+
 ## Import
 
-Import is supported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
-
-# terraform import yandex_vpc_security_group.<sg-name> <resource-ID>
-terraform import yandex_vpc_security_group.vm1-sg enphq**********cjsw4
+# terraform import yandex_vpc_security_group.<resource Name> <resource Id>
+terraform import yandex_vpc_security_group.sg1 enphq**********cjsw4
 ```

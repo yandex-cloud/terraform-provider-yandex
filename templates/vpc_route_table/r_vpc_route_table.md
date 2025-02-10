@@ -7,10 +7,10 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts).
+Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
 
 ## Example usage
 
@@ -48,10 +48,9 @@ The `static_route` block supports:
 
 * `created_at` - Creation timestamp of the route table.
 
+
 ## Import
 
-A route table can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_route_table.default route_table_id
-```
+{{ codefile "shell" "examples/vpc_route_table/import.sh" }}

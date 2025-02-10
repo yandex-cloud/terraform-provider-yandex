@@ -10,7 +10,10 @@ description: |-
 ## Example usage
 
 ```terraform
-resource "yandex_organizationmanager_os_login_settings" "my_os_login_settings" {
+//
+// Create a new OrganizationManager OS Login Settings.
+//
+resource "yandex_organizationmanager_os_login_settings" "my_settings" {
   organization_id = "sdf4*********3fr"
   user_ssh_key_settings {
     enabled               = true
@@ -36,3 +39,12 @@ The `user_ssh_key_settings` block supports:
 
 The `ssh_certificate_settings` block supports:
 * `enabled` - Enables or disables usage of ssh certificates signed by trusted CA.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_organizationmanager_os_login_settings.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_os_login_settings.my_settings ...
+```

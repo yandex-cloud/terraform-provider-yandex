@@ -14,10 +14,10 @@ A disk can be attached or detached from the virtual machine and can be located l
 
 For more information about disks in Yandex Cloud, see:
 
-* [Documentation](https://cloud.yandex.com/docs/compute/concepts/disk)
+* [Documentation](https://yandex.cloud/docs/compute/concepts/disk)
 * How-to Guides
-  * [Attach and detach a disk](https://cloud.yandex.com/docs/compute/concepts/disk#attach-detach)
-  * [Backup operation](https://cloud.yandex.com/docs/compute/concepts/disk#backup)
+  * [Attach and detach a disk](https://yandex.cloud/docs/compute/concepts/disk#attach-detach)
+  * [Backup operation](https://yandex.cloud/docs/compute/concepts/disk#backup)
 
 ## Example usage
 
@@ -87,8 +87,6 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A disk can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_disk.default disk_id
-```
+{{ codefile "bash" "examples/compute_disk/import.sh" }}

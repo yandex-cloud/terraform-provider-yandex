@@ -1,8 +1,8 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: yandex_function_iam_binding"
 description: |-
-  Allows management of a single IAM binding for a [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/).
+  Allows management of a single IAM binding for a Yandex Cloud Function.
 ---
 
 # yandex_function_iam_binding (Resource)
@@ -10,8 +10,11 @@ description: |-
 ## Example usage
 
 ```terraform
+//
+// Create a new Cloud Function IAM Binding.
+//
 resource "yandex_function_iam_binding" "function-iam" {
-  function_id = "your-function-id"
+  function_id = "dns9m**********tducf"
   role        = "serverless.functions.invoker"
 
   members = [
@@ -24,9 +27,9 @@ resource "yandex_function_iam_binding" "function-iam" {
 
 The following arguments are supported:
 
-* `function_id` - (Required) The [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/) ID to apply a binding to.
+* `function_id` - (Required) The [Yandex Cloud Function](https://yandex.cloud/docs/functions/) ID to apply a binding to.
 
-* `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/functions/security/)
+* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/functions/security/)
 
 * `members` - (Required) Identities that will be granted the privilege in `role`. Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
@@ -38,4 +41,15 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `id` and role.
+
+```shell
+# terraform import yandex_function_iam_binding.<resource Name> <resource Id> <resource Role>
+terraform import yandex_function_iam_binding.fn_viewer dns9m**********tducf functions.viewer
+```

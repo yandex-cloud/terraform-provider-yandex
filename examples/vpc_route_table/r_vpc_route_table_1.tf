@@ -1,12 +1,6 @@
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_gateway" "egress-gateway" {
-  name = "egress-gateway"
-  shared_egress_gateway {}
-}
-
+//
+// Create a new VPC Route Table.
+//
 resource "yandex_vpc_route_table" "lab-rt-a" {
   network_id = yandex_vpc_network.lab-net.id
 
@@ -19,4 +13,14 @@ resource "yandex_vpc_route_table" "lab-rt-a" {
     destination_prefix = "0.0.0.0/0"
     gateway_id         = yandex_vpc_gateway.egress-gateway.id
   }
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_gateway" "egress-gateway" {
+  name = "egress-gateway"
+  shared_egress_gateway {}
 }

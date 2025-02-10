@@ -12,6 +12,9 @@ Yandex Cloud Logging group resource. For more information, see [the official doc
 ## Example usage
 
 ```terraform
+//
+// Create a new Logging Group.
+//
 resource "yandex_logging_group" "group1" {
   name      = "test-logging-group"
   folder_id = data.yandex_resourcemanager_folder.test_folder.id
@@ -37,3 +40,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `cloud_id` - ID of the cloud that the Yandex Cloud Logging group belong to.
 * `created_at` - The Yandex Cloud Logging group creation timestamp.
 * `status` - The Yandex Cloud Logging group status.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_logging_group.<resource Name> <resource Id>
+terraform import yandex_logging_group.group1 ...
+```

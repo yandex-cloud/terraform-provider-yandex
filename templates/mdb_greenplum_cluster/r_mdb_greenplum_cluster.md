@@ -96,13 +96,13 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
 
-* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
+* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
 
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
-* `yandex_query` - (Optional) Allow access for [Yandex Query](https://cloud.yandex.com/services/query)
+* `yandex_query` - (Optional) Allow access for [Yandex Query](https://yandex.cloud/services/query)
 
 The `maintenance_window` block supports:
 
@@ -189,11 +189,10 @@ The `segment_hosts` block supports:
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_greenplum_cluster.foo cluster_id
-```
+{{ codefile "shell" "examples/mdb_greenplum_cluster/import.sh" }}
+
 
 ## Greenplum cluster settings
 

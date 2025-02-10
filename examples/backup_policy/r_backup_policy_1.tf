@@ -1,3 +1,6 @@
+//
+// Create a new basic Cloud Backup Policy
+//
 resource "yandex_backup_policy" "basic_policy" {
   name = "basic policy"
 

@@ -7,39 +7,29 @@ description: |-
 
 # yandex_container_repository_iam_binding (Resource)
 
-Allows creation and management of a single binding within IAM policy for an existing Yandex Container Repository. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/repository).
+Allows creation and management of a single binding within IAM policy for an existing Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).
 
 ## Example usage
 
 ```terraform
-resource yandex_container_registry your-registry {
+//
+// Create a new Container Repository and new IAM Binding for it.
+//
+resource "yandex_container_registry" "your-registry" {
   folder_id = "your-folder-id"
   name      = "registry-name"
 }
 
-resource yandex_container_repository repo-1 {
-  name      = "${yandex_container_registry.your-registry.id}/repo-1"
+resource "yandex_container_repository" "repo-1" {
+  name = "${yandex_container_registry.your-registry.id}/repo-1"
 }
 
 resource "yandex_container_repository_iam_binding" "puller" {
   repository_id = yandex_container_repository.repo-1.id
-  role        = "container-registry.images.puller"
+  role          = "container-registry.images.puller"
 
   members = [
     "system:allUsers",
-  ]
-}
-
-data "yandex_container_repository" "repo-2" {
-  name = "some_repository_name"
-}
-
-resource "yandex_container_repository_iam_binding" "pusher" {
-  repository_id = yandex_container_repository.repo-2.id
-  role        = "container-registry.images.pusher"
-
-  members = [
-    "serviceAccount:your-service-account-id",
   ]
 }
 ```
@@ -48,9 +38,9 @@ resource "yandex_container_repository_iam_binding" "pusher" {
 
 The following arguments are supported:
 
-* `repository_id` - (Required) The [Yandex Container Repository](https://cloud.yandex.com/docs/container-registry/concepts/repository) ID to apply a binding to.
+* `repository_id` - (Required) The [Yandex Container Repository](https://yandex.cloud/docs/container-registry/concepts/repository) ID to apply a binding to.
 
-* `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/container-registry/security/).
+* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/container-registry/security/).
 
 * `members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -63,13 +53,16 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users. 
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-IAM binding imports use space-delimited identifiers; first the resource in question and then the role.
-These bindings can be imported using the `repository_id` and role, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_container_repository_iam_binding.puller "repository_id container-registry.images.puller"
+IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `repository_id` and role.
+
+```bash
+# terraform import yandex_container_registry_iam_binding.<binding Name> "<registry_id> <resource Role>"
+terraform import yandex_container_registry_iam_binding.puller "crps9**********k9psn container-registry.images.puller"
 ```

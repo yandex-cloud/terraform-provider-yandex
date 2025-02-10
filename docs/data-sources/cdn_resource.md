@@ -14,6 +14,9 @@ Get information about a Yandex CDN Resource. For more information, see [the offi
 ## Example usage
 
 ```terraform
+//
+// Get information about existing CDN Resource
+//
 data "yandex_cdn_resource" "my_resource" {
   resource_id = "some resource id"
 }

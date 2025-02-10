@@ -13,8 +13,6 @@ Get content (certificate, private key) from a Yandex Certificate Manager Certifi
 
 {{ tffile "examples/cm_certificate_content/d_cm_certificate_content_1.tf" }}
 
-This data source is used to define contents of [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
-
 ## Argument Reference
 
 The following arguments are supported:

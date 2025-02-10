@@ -7,13 +7,16 @@ description: |-
 
 # yandex_iam_service_account_key (Resource)
 
-Allows management of [Yandex Cloud IAM service account authorized keys](https://cloud.yandex.com/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://cloud.yandex.com/docs/iam/concepts/authorization/iam-token) for a [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+Allows management of [Yandex Cloud IAM service account authorized keys](https://yandex.cloud/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) for a [service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new IAM Service Account Key.
+//
 resource "yandex_iam_service_account_key" "sa-auth-key" {
-  service_account_id = "some_sa_id"
+  service_account_id = "aje5a**********qspd3"
   description        = "key for service account"
   key_algorithm      = "RSA_4096"
   pgp_key            = "keybase:keybaseusername"
@@ -32,7 +35,7 @@ The following arguments are supported:
 
 * `format` - (Optional) The output format of the keys. `PEM_FILE` is the default format.
 
-* `key_algorithm` - (Optional) The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API reference](https://cloud.yandex.com/docs/iam/api-ref/Key).
+* `key_algorithm` - (Optional) The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API reference](https://yandex.cloud/docs/iam/api-ref/Key).
 
 * `pgp_key` - (Optional) An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
 
@@ -58,3 +61,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the static access key.
 
 * `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the value of `private_key`. This is only populated when `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `output_to_lockbox` is removed.
+
+## Import
+
+~> Import for this resource is not implemented yet.

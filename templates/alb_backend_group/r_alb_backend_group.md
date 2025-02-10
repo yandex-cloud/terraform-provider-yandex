@@ -147,8 +147,6 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A backend group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_backend_group.default backend_group_id
-```
+{{ codefile "bash" "examples/alb_backend_group/import.sh" }}

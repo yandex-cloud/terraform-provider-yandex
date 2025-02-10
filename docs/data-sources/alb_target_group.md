@@ -12,6 +12,9 @@ Get information about a Yandex Application Load Balancer target group. For more 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing ALB Target Group
+//
 data "yandex_alb_target_group" "foo" {
   target_group_id = "my-target-group-id"
 }

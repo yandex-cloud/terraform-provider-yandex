@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: yandex_function_scaling_policy"
 description: |-
   Get information about a Yandex Cloud Functions Scaling Policy.
@@ -7,17 +7,20 @@ description: |-
 
 # yandex_function_scaling_policy (Data Source)
 
-Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
+Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Cloud Function Scaling Policy.
+//
 data "yandex_function_scaling_policy" "my_scaling_policy" {
-  function_id = "are1samplefunction11"
+  function_id = "d4e45**********pqvd3"
 }
 ```
 
-This data source is used to define [Yandex Cloud Function Scaling Policy](https://cloud.yandex.com/docs/functions/) that can be used by other resources.
+This data source is used to define [Yandex Cloud Function Scaling Policy](https://yandex.cloud/docs/functions/) that can be used by other resources.
 
 ## Argument Reference
 

@@ -7,12 +7,15 @@ description: |-
 
 # yandex_mdb_clickhouse_cluster (Resource)
 
-Manages a ClickHouse cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+Manages a ClickHouse cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 
 ## Example usage
 
 ```terraform
-resource "yandex_mdb_clickhouse_cluster" "foo" {
+//
+// Create a new MDB Clickhouse Cluster.
+//
+resource "yandex_mdb_clickhouse_cluster" "my_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -201,7 +204,10 @@ resource "yandex_vpc_subnet" "foo" {
 Example of creating a HA ClickHouse Cluster.
 
 ```terraform
-resource "yandex_mdb_clickhouse_cluster" "foo" {
+//
+// Create a new MDB High Availability Clickhouse Cluster.
+//
+resource "yandex_mdb_clickhouse_cluster" "my_cluster" {
   name        = "ha"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -275,7 +281,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "ZOOKEEPER"
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.baz.id
   }
 
@@ -284,6 +290,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -299,7 +306,7 @@ resource "yandex_vpc_subnet" "bar" {
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -308,7 +315,10 @@ resource "yandex_vpc_subnet" "baz" {
 Example of creating a sharded ClickHouse Cluster.
 
 ```terraform
-resource "yandex_mdb_clickhouse_cluster" "foo" {
+//
+// Create a new MDB Sharded Clickhouse Cluster.
+//
+resource "yandex_mdb_clickhouse_cluster" "my_cluster" {
   name        = "sharded"
   environment = "PRODUCTION"
   network_id  = yandex_vpc_network.foo.id
@@ -389,7 +399,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type       = "CLICKHOUSE"
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = yandex_vpc_subnet.baz.id
     shard_name = "shard2"
   }
@@ -407,6 +417,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
@@ -422,7 +433,7 @@ resource "yandex_vpc_subnet" "bar" {
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -496,11 +507,11 @@ The `clickhouse` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a ClickHouse host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `resources_preset_id` - (Required) The ID of the preset for computational resources available to a ClickHouse host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 
 * `disk_size` - (Required) Volume of the storage available to a ClickHouse host, in gigabytes.
 
-* `disk_type_id` - (Required) Type of the storage of ClickHouse hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
+* `disk_type_id` - (Required) Type of the storage of ClickHouse hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
 
 The `zookeeper` block supports:
 
@@ -508,11 +519,11 @@ The `zookeeper` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `resources_preset_id` - (Optional) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 
 * `disk_size` - (Optional) Volume of the storage available to a ZooKeeper host, in gigabytes.
 
-* `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
+* `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
 
 The `user` block supports:
 
@@ -869,7 +880,7 @@ The `host` block supports:
 
 * `type` - (Required) The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.
 
-* `zone` - (Required) The availability zone where the ClickHouse host will be created. For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* `zone` - (Required) The availability zone where the ClickHouse host will be created. For more information see [the official documentation](https://yandex.cloud/docs/overview/concepts/geo-scope).
 
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
@@ -887,7 +898,7 @@ The `shard` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of hosts.
 
@@ -937,7 +948,7 @@ The `access` block supports:
 
 The `config` block supports:
 
-* `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`, `max_table_size_to_drop`, `max_partition_size_to_drop`, `timezone`, `geobase_uri`, `query_log_retention_size`, `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`, `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`, `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`, `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`,`background_merges_mutations_concurrency_ratio`, `background_move_pool_size`, `background_distributed_schedule_pool_size`, `background_common_pool_size` `default_database`, `total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - (Optional) ClickHouse server parameters. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
+* `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`, `max_table_size_to_drop`, `max_partition_size_to_drop`, `timezone`, `geobase_uri`, `query_log_retention_size`, `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`, `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`, `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`, `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`,`background_merges_mutations_concurrency_ratio`, `background_move_pool_size`, `background_distributed_schedule_pool_size`, `background_common_pool_size` `default_database`, `total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - (Optional) ClickHouse server parameters. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - (Optional) MergeTree engine configuration. The structure is documented below.
 * `kafka` - (Optional) Kafka connection configuration. The structure is documented below.
@@ -1056,14 +1067,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Timestamp of cluster creation.
 
-* `health` - Aggregated health of the cluster. Can be `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/api-ref/Cluster/).
+* `health` - Aggregated health of the cluster. Can be `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-clickhouse/api-ref/Cluster/).
 
-* `status` - Status of the cluster. Can be `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/api-ref/Cluster/).
+* `status` - Status of the cluster. Can be `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-clickhouse/api-ref/Cluster/).
+
 
 ## Import
 
-A cluster can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_clickhouse_cluster.foo cluster_id
+```shell
+# terraform import yandex_mdb_clickhouse_cluster.<resource Name> <resource Id>
+terraform import yandex_mdb_clickhouse_cluster.my_cluster ...
 ```

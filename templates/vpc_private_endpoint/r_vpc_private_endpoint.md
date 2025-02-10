@@ -10,7 +10,7 @@ description: |-
 Manages a VPC Private Endpoint within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/private-endpoint).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
 
 ## Example usage
 
@@ -51,8 +51,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-Private endpoint can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_private_endpoint.pe private_endpoint_id
-```
+{{ codefile "shell" "examples/vpc_private_endpoint/import.sh" }}
+

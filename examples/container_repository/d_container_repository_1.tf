@@ -1,3 +1,6 @@
+//
+// Get information about existing Container Repository
+//
 data "yandex_container_repository" "repo-1" {
   name = "some_repository_name"
 }

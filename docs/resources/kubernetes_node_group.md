@@ -7,11 +7,14 @@ description: |-
 
 # yandex_kubernetes_node_group (Resource)
 
-Creates a Yandex Managed Kubernetes Cluster Node Group. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
+Creates a Yandex Managed Kubernetes Cluster Node Group. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#node-group).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Managed Kubernetes Node Group.
+//
 resource "yandex_kubernetes_node_group" "my_node_group" {
   cluster_id  = yandex_kubernetes_cluster.my_cluster.id
   name        = "name"
@@ -294,10 +297,13 @@ This resource provides the following configuration options for [timeouts](/docs/
 - `update` - Default is 60 minute.
 - `delete` - Default is 20 minute.
 
+
 ## Import
 
-A Yandex Kubernetes Node Group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
+```shell
+# terraform import yandex_kubernetes_node_group.<resource Name> <resource Id>
+terraform import yandex_kubernetes_node_group.my_node_group ...
 ```
-$ terraform import yandex_kubernetes_node_group.default node_group_id
-```
+

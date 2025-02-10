@@ -23,10 +23,9 @@ The following arguments are supported:
 
 * `pull` - List of configured CIDRs, from which pull is allowed.
 
+
 ## Import
 
-An ip premission can be imported using the `id` of the Container Registry it is applied to, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```bash
-terraform import yandex_container_registry_ip_permission.my_ip_permission registry_id
-```
+{{ codefile "bash" "examples/container_registry_ip_permission/import.sh" }}

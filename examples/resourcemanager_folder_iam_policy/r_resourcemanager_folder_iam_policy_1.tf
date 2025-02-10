@@ -1,3 +1,6 @@
+//
+// Create a new IAM Policy for existing Folder.
+//
 data "yandex_resourcemanager_folder" "project1" {
   folder_id = "my_folder_id"
 }

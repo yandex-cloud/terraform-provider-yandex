@@ -15,7 +15,10 @@ Manages a gateway within the Yandex Cloud. For more information, see [the offici
 ## Example usage
 
 ```terraform
-resource "yandex_vpc_gateway" "default" {
+//
+// Create a new VPC NAT Gateway.
+//
+resource "yandex_vpc_gateway" "my_gw" {
   name = "foobar"
   shared_egress_gateway {}
 }
@@ -41,10 +44,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
+
 ## Import
 
-A gateway can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_gateway.default gateway_id
+```shell
+# terraform import yandex_vpc_gateway.<resource Name> <resource Id>
+terraform import yandex_vpc_gateway.my_gw ...
 ```

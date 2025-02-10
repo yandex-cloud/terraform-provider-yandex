@@ -51,10 +51,9 @@ This resource provides the following configuration options for timeouts:
 - `update` - Default is 5 minute.
 - `delete` - Default is 5 minute.
 
+
 ## Import
 
-A target group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_target_group.default target_group_id
-```
+{{ codefile "bash" "examples/alb_target_group/import.sh" }}

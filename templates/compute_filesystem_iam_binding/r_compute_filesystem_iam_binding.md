@@ -17,4 +17,4 @@ description: |-
 
 ## Import
 
-{{ codefile "bash" "examples/compute_disk_iam_binding/import.sh" }}
+~> Import for this resource is not implemented yet.

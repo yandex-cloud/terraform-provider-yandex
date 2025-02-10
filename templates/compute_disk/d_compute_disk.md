@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Compute disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk).
+Get information about a Yandex Compute disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk).
 
 ## Example usage
 

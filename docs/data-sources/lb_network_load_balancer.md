@@ -7,17 +7,20 @@ description: |-
 
 # yandex_lb_network_load_balancer (Data Source)
 
-Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/).
+Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/).
 
 ## Example usage
 
 ```terraform
-data "yandex_lb_network_load_balancer" "foo" {
+//
+// Get information about existing Network Load Balancer (NLB).
+//
+data "yandex_lb_network_load_balancer" "my_nlb" {
   network_load_balancer_id = "my-network-load-balancer"
 }
 ```
 
-This data source is used to define [Load Balancer Network Load Balancers](https://cloud.yandex.com/docs/load-balancer/concepts/) that can be used by other resources.
+This data source is used to define [Load Balancer Network Load Balancers](https://yandex.cloud/docs/load-balancer/concepts/) that can be used by other resources.
 
 ## Argument Reference
 

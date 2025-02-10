@@ -1,3 +1,6 @@
+//
+// Create a new SWS WAF Profile (Default).
+//
 locals {
   waf_paranoia_level = 1
 }

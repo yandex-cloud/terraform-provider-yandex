@@ -9,23 +9,15 @@ description: |-
 
 {{ .Description | trimspace }}
 
-{{- /* Uncomment this block as you add example files
-
 ## Example Usage
 
 {{ tffile "examples/ydb_table_index/r_ydb_table_index_1.tf" }}
 
-*/ -}}
 
 {{ .SchemaMarkdown | trimspace }}
 
-
-{{- /* Uncomment this block as you add import script
-
 ## Import
 
-Import is supported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-{{codefile "shell" "examples/ydb_table_index/import.sh" }}
-
-*/ -}}
+{{ codefile "shell" "examples/ydb_table_index/import.sh" }}

@@ -12,8 +12,11 @@ Get information about a trail. For information about the trail concept, see [off
 ## Example usage
 
 ```terraform
-data "yandex_audit_trails_trail" "tf-trail-data" {
-  trail_id = "infosec-trail-id"
+//
+// Get information about existing Audit Trails Trail
+//
+data "yandex_audit_trails_trail" "basic-trail" {
+  trail_id = "cnpqe**********sh835"
 }
 ```
 

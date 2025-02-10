@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
+Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
 
 ## Example usage
 
 {{ tffile "examples/iam_user/d_iam_user_1.tf" }}
 
-This data source is used to define [IAM User](https://cloud.yandex.com/docs/iam/concepts/#passport) that can be used by other resources.
+This data source is used to define [IAM User](https://yandex.cloud/docs/iam/concepts/#passport) that can be used by other resources.
 
 ## Argument Reference
 

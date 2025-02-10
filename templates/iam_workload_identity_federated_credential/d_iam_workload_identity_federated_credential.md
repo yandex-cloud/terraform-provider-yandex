@@ -12,3 +12,5 @@ description: |-
 ## Example Usage
 
 {{ tffile "examples/iam_workload_identity_federated_credential/d_iam_workload_identity_federated_credential_1.tf" }}
+
+{{ .SchemaMarkdown }}

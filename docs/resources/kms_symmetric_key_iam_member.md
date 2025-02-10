@@ -2,7 +2,7 @@
 subcategory: "Key Management Service (KMS)"
 page_title: "Yandex: yandex_kms_symmetric_key_iam_member"
 description: |-
-  Allows management of a single member for a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
+  Allows management of a single member for a single IAM binding for a Key Management Service.
 ---
 
 # yandex_kms_symmetric_key_iam_member (Resource)
@@ -14,8 +14,11 @@ Allows creation and management of a single member for a single binding within th
 ## Example usage
 
 ```terraform
+//
+// Create a new KMS Symmetric Key and new IAM Member for it.
+//
 resource "yandex_kms_symmetric_key" "your-key" {
-  name      = "symmetric-key-name"
+  name = "symmetric-key-name"
 }
 
 resource "yandex_kms_symmetric_key_iam_member" "viewer" {
@@ -30,9 +33,9 @@ resource "yandex_kms_symmetric_key_iam_member" "viewer" {
 
 The following arguments are supported:
 
-* `symmetric_key_id` - (Required) The [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/) Symmetric Key ID to apply a binding to.
+* `symmetric_key_id` - (Required) The [Yandex Key Management Service](https://yandex.cloud/docs/kms/) Symmetric Key ID to apply a binding to.
 
-* `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/kms/security/).
+* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/kms/security/).
 
 * `member` - (Required) The identity that will be granted the privilege that is specified in the `role` field. This field can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
@@ -43,12 +46,14 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `symmetric_key_id`, role, and account, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_kms_symmetric_key_iam_member.viewer "symmetric_key_id viewer foo@example.com"
+```shell
+# terraform import yandex_kms_symmetric_key_iam_member.<resource Name> "<resource Id> <resource Role> <subject Id>"
+terraform import yandex_kms_symmetric_key_iam_member.viewer "abjjf**********p3gp8 viewer foo@example.com"
 ```

@@ -7,17 +7,20 @@ description: |-
 
 # yandex_mdb_elasticsearch_cluster (Data Source)
 
-Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-elasticsearch/concepts).
+Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
 
 ## Example usage
 
 ```terraform
-data "yandex_mdb_elasticsearch_cluster" "foo" {
+//
+// Get information about existing MDB ElasticSearch Cluster.
+//
+data "yandex_mdb_elasticsearch_cluster" "my_cluster" {
   name = "test"
 }
 
 output "network_id" {
-  value = data.yandex_mdb_elasticsearch_cluster.foo.network_id
+  value = data.yandex_mdb_elasticsearch_cluster.my_cluster.network_id
 }
 ```
 

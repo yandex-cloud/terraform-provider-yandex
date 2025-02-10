@@ -1,3 +1,6 @@
+//
+// Create a new DNS Zone and new IAM Binding for it.
+//
 resource "yandex_dns_zone" "zone1" {
   name = "my-private-zone"
   zone = "example.com."

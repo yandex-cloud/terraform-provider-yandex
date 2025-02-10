@@ -7,11 +7,14 @@ description: |-
 
 # yandex_container_registry (Resource)
 
-Creates a new container registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
+Creates a new container registry. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/registry)
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Container Registry.
+//
 resource "yandex_container_registry" "default" {
   name      = "test-registry"
   folder_id = "test_folder_id"
@@ -41,8 +44,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A registry can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_container_registry.default registry_id
+```bash
+# terraform import yandex_container_registry.<resource Name> <resource Id>
+terraform import yandex_container_registry.my_registry crps9**********k9psn
 ```

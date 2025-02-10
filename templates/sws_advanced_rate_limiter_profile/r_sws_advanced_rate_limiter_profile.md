@@ -107,10 +107,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - The ARL Profile creation timestamp.
 
+
 ## Import
 
-An ARL Profile can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_sws_advanced_rate_limiter_profile.demo-profile arl_profile_id
-```
+{{codefile "shell" "examples/sws_advanced_rate_limiter_profile/import.sh" }}

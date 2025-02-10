@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Kubernetes Node Group. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kubernetes/concepts/#node-group).
+Get information about a Yandex Kubernetes Node Group. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#node-group).
 
 ## Example usage
 

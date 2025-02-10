@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
+Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
 
 ## Example usage
 

@@ -203,8 +203,8 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A virtual host can be imported using the `id` of the resource, which for a virtual host is defined as its http router id separated by `/` from the virtual host's name, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_virtual_host.default http_router_id/vhost_name
-```
+The `resource ID` for the ALB virtual host is defined as its `http router id` separated by `/` from the `virtual host's name`.
+
+{{ codefile "bash" "examples/alb_virtual_host/import.sh" }}

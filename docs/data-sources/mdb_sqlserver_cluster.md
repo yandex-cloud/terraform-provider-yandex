@@ -7,11 +7,14 @@ description: |-
 
 # yandex_mdb_sqlserver_cluster (Data Source)
 
-Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/).
+Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB SQL Server Cluster.
+//
 data "yandex_mdb_sqlserver_cluster" "foo" {
   name = "test"
 }
@@ -57,7 +60,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-sqlserver/concepts/instance-types).
+* `resources_preset_id` - The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a SQLServer host, in gigabytes.
 * `disk_type_id` - Type of the storage for SQLServer hosts.
 

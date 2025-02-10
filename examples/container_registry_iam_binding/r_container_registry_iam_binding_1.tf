@@ -1,3 +1,6 @@
+//
+// Create a new Container Registry and new IAM Binding for it.
+//
 resource "yandex_container_registry" "your-registry" {
   folder_id = "your-folder-id"
   name      = "registry-name"

@@ -11,12 +11,8 @@ Create a MySQL database at MySQL Cluster.
 
 {{ .Description | trimspace }}
 
-{{- /* Uncomment this block as you add file with example
-
 ## Example Usage
 
 {{ tffile "examples/mdb_mysql_database/d_mdb_mysql_database_1.tf" }}
-
-*/ -}}
 
 {{ .SchemaMarkdown | trimspace }}

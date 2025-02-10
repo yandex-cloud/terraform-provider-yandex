@@ -1,4 +1,6 @@
-# Get folder by ID
+//
+// Get information about existing Folder.
+//
 data "yandex_resourcemanager_folder" "my_folder_1" {
   folder_id = "folder_id_number_1"
 }
@@ -16,4 +18,3 @@ output "my_folder_1_name" {
 output "my_folder_2_cloud_id" {
   value = data.yandex_resourcemanager_folder.my_folder_2.cloud_id
 }
-

@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-An Instance group resource. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/instance-groups/).
+An Instance group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/instance-groups/).
 
 ## Example usage
 
@@ -470,3 +470,9 @@ This resource provides the following configuration options for [timeouts](https:
 - `create` - Default 30 minutes
 - `update` - Default 30 minutes
 - `delete` - Default 30 minutes
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+{{ codefile "bash" "examples/compute_instance_group/import.sh" }}

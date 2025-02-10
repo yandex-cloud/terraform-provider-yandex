@@ -7,17 +7,20 @@ description: |-
 
 # yandex_iot_core_registry (Data Source)
 
-Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart).
+Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing IoT Core Registry.
+//
 data "yandex_iot_core_registry" "my_registry" {
   registry_id = "are1sampleregistry11"
 }
 ```
 
-This data source is used to define [Yandex Cloud IoT Registry](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 

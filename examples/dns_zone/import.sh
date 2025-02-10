@@ -1,2 +1,2 @@
-# DNS zone can be imported using this format:
-terraform import yandex_dns_zone.zone1 {zone_id}
+# terraform import yandex_dns_zone.<resource Name> <resource Id>
+terraform import yandex_dns_zone.zone1 dns9m**********tducf

@@ -5,20 +5,23 @@ description: |-
   Manages a PostgreSQL cluster within Yandex Cloud.
 ---
 
-# yandex_mdb_postgresql_cluster_beta
+# yandex_mdb_postgresql_cluster_beta (Resource)
 
 Manages a PostgreSQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example Usage
 
 ```terraform
-resource "yandex_mdb_postgresql_cluster" "foo" {
+//
+// Create a new MDB PostgreSQL Cluster (Beta).
+//
+resource "yandex_mdb_postgresql_cluster_beta" "my_beta_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
 
   config {
-    version = 15
+    version = 17
     resources {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
@@ -40,15 +43,16 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo.id
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
@@ -167,10 +171,9 @@ Optional:
 
 ## Import
 
-```bash
-# The resource can be imported by using their resource ID.
-# For getting a resource ID you can use Yandex Cloud Web UI or YC CLI.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-# A cluster can be imported using the ID of the resource, e.g.
-terraform import yandex_mdb_postgresql_cluster.foo id
+```bash
+# terraform import yandex_mdb_postgresql_cluster_beta.<resource Name> <resource Id>
+terraform import yandex_mdb_postgresql_cluster_beta.my_beta_cluster ...
 ```

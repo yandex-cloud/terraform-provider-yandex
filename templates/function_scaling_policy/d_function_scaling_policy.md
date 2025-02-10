@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: {{.Name}}"
 description: |-
   Get information about a Yandex Cloud Functions Scaling Policy.
@@ -7,13 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://cloud.yandex.com/docs/functions/).
+Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).
 
 ## Example usage
 
 {{ tffile "examples/function_scaling_policy/d_function_scaling_policy_1.tf" }}
 
-This data source is used to define [Yandex Cloud Function Scaling Policy](https://cloud.yandex.com/docs/functions/) that can be used by other resources.
+This data source is used to define [Yandex Cloud Function Scaling Policy](https://yandex.cloud/docs/functions/) that can be used by other resources.
 
 ## Argument Reference
 

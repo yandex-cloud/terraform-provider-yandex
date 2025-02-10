@@ -11,7 +11,7 @@ Encrypts given plaintext with the specified Yandex KMS key and provides access t
 
 ~> Using this resource will allow you to conceal secret data within your resource definitions, but it does not take care of protecting that data in the logging output, plan output, or state output. Please take care to secure your secret data outside of resource definitions.
 
-For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
+For more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).
 
 ## Example usage
 
@@ -41,3 +41,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 - `create` - Default 1 minute
 - `delete` - Default 1 minute
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

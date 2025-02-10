@@ -1,3 +1,6 @@
+//
+// Create a new SWS Security Profile (Advanced).
+//
 resource "yandex_sws_security_profile" "demo-profile-advanced" {
   name                             = "demo-profile-advanced"
   default_action                   = "ALLOW"

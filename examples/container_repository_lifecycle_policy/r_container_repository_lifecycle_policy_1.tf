@@ -1,3 +1,6 @@
+//
+// Create new Container Repository and Container Repository Lifecycle Policy for it.
+//
 resource "yandex_container_registry" "my_registry" {
   name = "test-registry"
 }

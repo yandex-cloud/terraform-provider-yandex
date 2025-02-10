@@ -11,11 +11,14 @@ Encrypts given plaintext with the specified Yandex KMS key and provides access t
 
 ~> Using this resource will allow you to conceal secret data within your resource definitions, but it does not take care of protecting that data in the logging output, plan output, or state output. Please take care to secure your secret data outside of resource definitions.
 
-For more information, see [the official documentation](https://cloud.yandex.com/docs/kms/concepts/).
+For more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new KMS Symmetric Encryption Key and Cipher Secret for it.
+//
 resource "yandex_kms_symmetric_key" "example" {
   name        = "example-symetric-key"
   description = "description for key"
@@ -52,3 +55,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 - `create` - Default 1 minute
 - `delete` - Default 1 minute
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

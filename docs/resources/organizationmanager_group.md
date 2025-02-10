@@ -12,7 +12,10 @@ Allows management of a single Group within an existing Yandex Cloud Organization
 ## Example usage
 
 ```terraform
-resource "yandex_organizationmanager_group" "group" {
+//
+// Create a new OrganizationManager Group.
+//
+resource "yandex_organizationmanager_group" "my_group" {
   name            = "my-group"
   description     = "My new Group"
   organization_id = "sdf4*********3fr"
@@ -31,10 +34,12 @@ The following arguments are supported:
 
 * `created_at` - (Computed) The SAML Federation creation timestamp.
 
+
 ## Import
 
-A Yandex Cloud Organization Manager Group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_organizationmanager_group.group "group_id"
+```shell
+# terraform import yandex_organizationmanager_group.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_group.my_group ...
 ```

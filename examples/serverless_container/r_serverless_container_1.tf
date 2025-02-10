@@ -1,3 +1,6 @@
+//
+// Create a new Serverless Container.
+//
 resource "yandex_serverless_container" "test-container" {
   name               = "some_name"
   description        = "any description"

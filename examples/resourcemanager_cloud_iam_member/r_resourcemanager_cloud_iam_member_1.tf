@@ -1,3 +1,6 @@
+//
+// Create a new Cloud and new IAM Member for it.
+//
 data "yandex_resourcemanager_cloud" "department1" {
   name = "Department 1"
 }

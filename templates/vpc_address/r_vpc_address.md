@@ -67,10 +67,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `reserved` - `false` means that address is ephemeral.
 * `used` - `true` if address is used.
 
+
 ## Import
 
-A address can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_address.addr address_id
-```
+{{ codefile "shell" "examples/vpc_address/import.sh" }}

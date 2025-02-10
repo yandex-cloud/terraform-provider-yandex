@@ -1,3 +1,6 @@
+//
+// Create a new IoT Core Device.
+//
 resource "yandex_iot_core_device" "my_device" {
   registry_id = "are1sampleregistryid11"
   name        = "some_name"

@@ -1,3 +1,6 @@
+//
+// Create a new SWS WAF Profile (Empty).
+//
 resource "yandex_sws_waf_profile" "empty" {
   // NOTE: this WAF profile do not contains any rules enabled.
   // See the next example to see how to enable default set of rules. 

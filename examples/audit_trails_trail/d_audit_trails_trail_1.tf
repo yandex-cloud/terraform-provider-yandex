@@ -1,3 +1,6 @@
-data "yandex_audit_trails_trail" "tf-trail-data" {
-  trail_id = "infosec-trail-id"
+//
+// Get information about existing Audit Trails Trail
+//
+data "yandex_audit_trails_trail" "basic-trail" {
+  trail_id = "cnpqe**********sh835"
 }

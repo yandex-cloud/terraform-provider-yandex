@@ -5,9 +5,9 @@ description: |-
   Get information about a Yandex Managed OpenSearch cluster.
 ---
 
-# {{.Name}}
+# {{.Name}} ({{.Type}})
 
-Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
+Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).
 
 ## Example usage
 
@@ -96,7 +96,7 @@ The `hosts` block supports:
 
 * `fqdn` - The fully qualified domain name of the host.
 
-* `zone` - The availability zone where the OpenSearch host was created. For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* `zone` - The availability zone where the OpenSearch host was created. For more information see [the official documentation](https://yandex.cloud/docs/overview/concepts/geo-scope).
 
 * `type` - The type of the deployed host. Can be either `OPENSEARCH` or `DASHBOARDS`.
 

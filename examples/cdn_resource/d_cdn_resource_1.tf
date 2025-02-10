@@ -1,3 +1,6 @@
+//
+// Get information about existing CDN Resource
+//
 data "yandex_cdn_resource" "my_resource" {
   resource_id = "some resource id"
 }

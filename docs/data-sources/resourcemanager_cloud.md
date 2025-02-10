@@ -7,17 +7,20 @@ description: |-
 
 # yandex_resourcemanager_cloud (Data Source)
 
-Use this data source to get cloud details. For more information, see [the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud).
+Use this data source to get cloud details. For more information, see [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud).
 
 ## Example usage
 
 ```terraform
-data "yandex_resourcemanager_cloud" "foo" {
+//
+// Get information about existing Cloud.
+//
+data "yandex_resourcemanager_cloud" "my_cloud" {
   name = "foo-cloud"
 }
 
 output "cloud_create_timestamp" {
-  value = data.yandex_resourcemanager_cloud.foo.created_at
+  value = data.yandex_resourcemanager_cloud.my_cloud.created_at
 }
 ```
 

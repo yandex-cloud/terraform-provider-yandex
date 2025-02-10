@@ -1,3 +1,7 @@
+//
+// Create a new Certificates for the set of domains
+// with specific DNS challenge for each domain.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["one.example.com", "two.example.com"]

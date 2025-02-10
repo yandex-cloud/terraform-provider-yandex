@@ -5,20 +5,23 @@ description: |-
   Get information about a Yandex Managed MongoDB database.
 ---
 
-# yandex_mdb_mongodb_database
+# yandex_mdb_mongodb_database (Data Source)
 
-Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/).
+Get information about a Yandex Managed MongoDB database. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).
 
 ## Example usage
 
 ```terraform
-data "yandex_mdb_mongodb_database" "foo" {
+//
+// Get information about existing MDB MongoDB Database.
+//
+data "yandex_mdb_mongodb_database" "my_db" {
   cluster_id = "some_cluster_id"
   name       = "test"
 }
 
 output "owner" {
-  value = data.yandex_mdb_mongodb_database.foo.name
+  value = data.yandex_mdb_mongodb_database.my_db.name
 }
 ```
 

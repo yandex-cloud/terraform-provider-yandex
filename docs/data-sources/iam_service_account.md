@@ -7,13 +7,16 @@ description: |-
 
 # yandex_iam_service_account (Data Source)
 
-Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
+Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing IAM Service Account (SA).
+//
 data "yandex_iam_service_account" "builder" {
-  service_account_id = "sa_id"
+  service_account_id = "aje5a**********qspd3"
 }
 
 data "yandex_iam_service_account" "deployer" {

@@ -44,8 +44,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A KMS asymmetric signature key can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_kms_asymmetric_signature_key.top-secret kms_asymmetric_signature_key_id
-```
+{{ codefile "shell" "examples/kms_asymmetric_signature_key/import.sh" }}

@@ -1,3 +1,6 @@
+//
+// Create a new Yandex Cloud Function
+//
 resource "yandex_function" "test-function" {
   name               = "some_name"
   description        = "any description"
@@ -6,7 +9,7 @@ resource "yandex_function" "test-function" {
   entrypoint         = "main"
   memory             = "128"
   execution_timeout  = "10"
-  service_account_id = "are1service2account3id"
+  service_account_id = "ajeih**********838kk"
   tags               = ["my_tag"]
   secrets {
     id                   = yandex_lockbox_secret.secret.id
@@ -25,18 +28,18 @@ resource "yandex_function" "test-function" {
   }
   async_invocation {
     retries_count       = "3"
-    services_account_id = "ajeihp9qsfg2l6f838kk"
+    services_account_id = "ajeih**********838kk"
     ymq_failure_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:fail"
+      service_account_id = "ajeqr**********qb76m"
+      arn                = "yrn:yc:ymq:ru-central1:b1glr**********9hsfp:fail"
     }
     ymq_success_target {
-      service_account_id = "ajeqr0pjpbrkovcqb76m"
-      arn                = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:success"
+      service_account_id = "ajeqr**********qb76m"
+      arn                = "yrn:yc:ymq:ru-central1:b1glr**********9hsfp:success"
     }
   }
   log_options {
-    log_group_id = "e2392vo6d1bne2aeq9fr"
+    log_group_id = "e2392**********eq9fr"
     min_level    = "ERROR"
   }
 }

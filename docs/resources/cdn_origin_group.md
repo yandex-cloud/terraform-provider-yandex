@@ -14,10 +14,11 @@ Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/
 ## Example usage
 
 ```terraform
+//
+// Create a new CDN Origin Group
+//
 resource "yandex_cdn_origin_group" "my_group" {
-
-  name = "My Origin group"
-
+  name     = "My Origin group"
   use_next = true
 
   origin {
@@ -68,8 +69,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A origin group can be imported using any of these accepted formats:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_cdn_origin_group.default origin_group_id
+```bash
+# terraform import yandex_cdn_origin_group.<resource Name> <resource Id>
+terraform import yandex_cdn_origin_group.my_cdn_group ...
 ```

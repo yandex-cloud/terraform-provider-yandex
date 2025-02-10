@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a PostgreSQL user within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
+Manages a PostgreSQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
 
 ## Example usage
 
@@ -37,7 +37,7 @@ The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
 
-The `settings` block supports: [Full description](https://yandex.cloud/en-ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
+The `settings` block supports: [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings)
 
 * `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
   - 0: "unspecified"
@@ -82,10 +82,9 @@ The `settings` block supports: [Full description](https://yandex.cloud/en-ru/doc
 
 * `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer
 
+
 ## Import
 
-A PostgreSQL user can be imported using the following format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_mdb_postgresql_user.foo {cluster_id}:{username}
-```
+{{ codefile "shell" "examples/mdb_postgresql_user/import.sh" }}

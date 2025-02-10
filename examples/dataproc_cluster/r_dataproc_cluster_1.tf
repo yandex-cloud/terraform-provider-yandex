@@ -1,3 +1,6 @@
+//
+// Create a new Data Processing Cluster.
+//
 resource "yandex_dataproc_cluster" "foo" {
   depends_on = [yandex_resourcemanager_folder_iam_binding.dataproc]
 
@@ -85,6 +88,7 @@ resource "yandex_dataproc_cluster" "foo" {
   }
 }
 
+// Auxiliary resources for Data Processing Cluster
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

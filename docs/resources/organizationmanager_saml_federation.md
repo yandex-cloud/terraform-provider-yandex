@@ -12,7 +12,10 @@ Allows management of a single SAML Federation within an existing Yandex Cloud Or
 ## Example usage
 
 ```terraform
-resource "yandex_organizationmanager_saml_federation" "federation" {
+//
+// Create a new OrganizationManager SAML Federation.
+//
+resource "yandex_organizationmanager_saml_federation" "saml_fed" {
   name            = "my-federation"
   description     = "My new SAML federation"
   organization_id = "sdf4*********3fr"
@@ -49,10 +52,12 @@ The `security_settings` block supports:
 
 * `created_at` - (Computed) The SAML Federation creation timestamp.
 
+
 ## Import
 
-A Yandex SAML Federation can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_organizationmanager_saml_federation.federation "federation_id"
+```shell
+# terraform import yandex_organizationmanager_saml_federation.<resource Name> <resource Id>
+terraform import yandex_organizationmanager_saml_federation.saml_fed ...
 ```

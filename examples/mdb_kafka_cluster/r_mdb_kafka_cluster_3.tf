@@ -1,3 +1,7 @@
+//
+// Create a new MDB Kafka Cluster with
+// KRaft-controller sub-cluster instead of Zookeeper sub-cluster.
+//
 resource "yandex_mdb_kafka_cluster" "kraft-split" {
   name        = "test"
   environment = "PRESTABLE"
@@ -46,6 +50,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
   }
 }
 
+// Auxiliary resources
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {

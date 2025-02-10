@@ -12,6 +12,9 @@ Creates a Yandex KMS asymmetric signature key that can be used for cryptographic
 ## Example usage
 
 ```terraform
+//
+// Create a new KMS Assymetric Signature Key.
+//
 resource "yandex_kms_asymmetric_signature_key" "key-a" {
   name                = "example-asymetric-signature-key"
   description         = "description for key"
@@ -50,8 +53,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A KMS asymmetric signature key can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_kms_asymmetric_signature_key.top-secret kms_asymmetric_signature_key_id
+```shell
+# terraform import yandex_kms_asymmetric_signature_key.<resource Name> <resource Id>
+terraform import yandex_kms_asymmetric_signature_key.key-a abjjf**********p3gp8
 ```

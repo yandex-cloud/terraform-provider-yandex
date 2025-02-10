@@ -12,7 +12,10 @@ Creates a backend group in the specified folder and adds the specified backends 
 ## Example usage
 
 ```terraform
-resource "yandex_alb_backend_group" "test-backend-group" {
+//
+// Create a new ALB Backend Group.
+//
+resource "yandex_alb_backend_group" "my_alb_bg" {
   name = "my-backend-group"
 
   session_affinity {
@@ -178,8 +181,9 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A backend group can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_alb_backend_group.default backend_group_id
+```bash
+# terraform import yandex_alb_backend_group.<resource Name> <resource ID>
+terraform import yandex_alb_backend_group.my_alb_bg ds7io**********9bike
 ```

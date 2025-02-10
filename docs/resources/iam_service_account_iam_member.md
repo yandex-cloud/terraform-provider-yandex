@@ -24,6 +24,9 @@ There are three different resources that help you manage your IAM policy for a s
 ## Example usage
 
 ```terraform
+//
+// Create a new IAM Service Account IAM Member.
+//
 resource "yandex_iam_service_account_iam_member" "admin-account-iam" {
   service_account_id = "your-service-account-id"
   role               = "admin"
@@ -49,12 +52,16 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-Service account IAM member resources can be imported using the service account ID, role and member.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_iam_service_account_iam_member.admin-account-iam "service_account_id roles/editor foo@example.com"
+Service Account IAM member resource can be imported using the service account ID, resource role and member ID.
+
+```shell
+# terraform import yandex_iam_service_account_iam_member.<resource Name> "service_account_id roles/<resource Role> <member Id>"
+terraform import yandex_iam_service_account_iam_member.admin-account-iam "aje5a**********qspd3 roles/admin foo@example.com"
 ```

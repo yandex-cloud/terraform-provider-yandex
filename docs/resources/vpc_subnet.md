@@ -7,23 +7,26 @@ description: |-
 
 # yandex_vpc_subnet (Resource)
 
-Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/network#subnet).
 
 * How-to Guides
-  * [Cloud Networking](https://cloud.yandex.com/docs/vpc/)
-  * [VPC Addressing](https://cloud.yandex.com/docs/vpc/concepts/address)
+  * [Cloud Networking](https://yandex.cloud/docs/vpc/)
+  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)
 
 ## Example usage
 
 ```terraform
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
-resource "yandex_vpc_subnet" "lab-subnet-a" {
+//
+// Create a new VPC Subnet.
+//
+resource "yandex_vpc_subnet" "my_subnet" {
   v4_cidr_blocks = ["10.2.0.0/16"]
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.lab-net.id
+}
+
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
 }
 ```
 
@@ -75,8 +78,9 @@ This resource provides the following configuration options for [timeouts](/docs/
 
 ## Import
 
-A subnet can be imported using the `id` of the resource, e.g.:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_vpc_subnet.default subnet_id
+```shell
+# terraform import yandex_vpc_subnet.<resource Name> <resource Id>
+terraform import yandex_vpc_subnet.my_subnet ...
 ```

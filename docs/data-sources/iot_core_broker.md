@@ -12,12 +12,15 @@ Get information about a Yandex IoT Core Broker. For more information IoT Core, s
 ## Example usage
 
 ```terraform
+//
+// Get information about existing IoT Core Broker.
+//
 data "yandex_iot_core_broker" "my_broker" {
   broker_id = "are1samplebroker11"
 }
 ```
 
-This data source is used to define [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Broker](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 

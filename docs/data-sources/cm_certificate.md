@@ -12,6 +12,9 @@ Get information about a Yandex Certificate Manager Certificate. For more informa
 ## Example usage
 
 ```terraform
+//
+// Get information about existing CM Certificate
+//
 data "yandex_cm_certificate" "example_by_id" {
   certificate_id = "certificate-id"
 }
@@ -22,9 +25,11 @@ data "yandex_cm_certificate" "example_by_name" {
 }
 ```
 
-This data source is used to define [Certificate Manager Certificate](https://yandex.cloud/docs/certificate-manager/concepts/) that can be used by other resources. Can also be used to wait for certificate validation.
-
 ```terraform
+//
+// Example of Certificate Validation. 
+// Use "data.yandex_cm_certificate.example.id" to get validated certificate.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["example.com", "*.example.com"]
@@ -49,8 +54,6 @@ data "yandex_cm_certificate" "example" {
   certificate_id  = yandex_cm_certificate.example.id
   wait_validation = true
 }
-
-# Use data.yandex_cm_certificate.example.id to get validated certificate
 ```
 
 ## Argument Reference

@@ -1,7 +1,6 @@
-resource "yandex_vpc_network" "lab-net" {
-  name = "lab-network"
-}
-
+//
+// Update rules in Default Security Group.
+//
 resource "yandex_vpc_default_security_group" "default-sg" {
   description = "description for default security group"
   network_id  = yandex_vpc_network.lab-net.id
@@ -32,4 +31,9 @@ resource "yandex_vpc_default_security_group" "default-sg" {
     from_port      = 8090
     to_port        = 8099
   }
+}
+
+// Auxiliary resources
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
 }

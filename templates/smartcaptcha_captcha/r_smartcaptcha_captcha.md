@@ -107,14 +107,11 @@ The `security_rule` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - ID of the captcha.
-
 * `created_at` - The Captcha creation timestamp.
-
 * `client_key` - Client key of the captcha, see [CAPTCHA keys](https://yandex.cloud/docs/smartcaptcha/concepts/keys).
-
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 {{ codefile "shell" "examples/smartcaptcha_captcha/import.sh" }}

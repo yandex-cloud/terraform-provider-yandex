@@ -1,4 +1,7 @@
-resource "yandex_airflow_cluster" "this" {
+//
+// Create a new Airflow Cluster.
+//
+resource "yandex_airflow_cluster" "my_airflow_cluster" {
   name               = "airflow-created-with-terraform"
   subnet_ids         = [yandex_vpc_subnet.a.id, yandex_vpc_subnet.b.id, yandex_vpc_subnet.d.id]
   service_account_id = yandex_iam_service_account.for-airflow.id

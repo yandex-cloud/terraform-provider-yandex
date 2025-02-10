@@ -1,3 +1,6 @@
+//
+// Get information about existing IAM Policy.
+//
 data "yandex_iam_policy" "admin" {
   binding {
     role = "admin"

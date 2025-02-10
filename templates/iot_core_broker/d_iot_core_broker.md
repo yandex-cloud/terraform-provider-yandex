@@ -13,7 +13,7 @@ Get information about a Yandex IoT Core Broker. For more information IoT Core, s
 
 {{ tffile "examples/iot_core_broker/d_iot_core_broker_1.tf" }}
 
-This data source is used to define [Yandex Cloud IoT Broker](https://cloud.yandex.com/docs/iot-core/quickstart) that can be used by other resources.
+This data source is used to define [Yandex Cloud IoT Broker](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
 
 ## Argument Reference
 

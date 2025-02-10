@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Creates a new container registry. For more information, see [the official documentation](https://cloud.yandex.com/docs/container-registry/concepts/registry)
+Creates a new container registry. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/registry)
 
 ## Example usage
 
@@ -32,8 +32,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-A registry can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_container_registry.default registry_id
-```
+{{ codefile "bash" "examples/container_registry/import.sh" }}

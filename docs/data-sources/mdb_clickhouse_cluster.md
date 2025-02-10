@@ -7,17 +7,20 @@ description: |-
 
 # yandex_mdb_clickhouse_cluster (Data Source)
 
-Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 
 ## Example usage
 
 ```terraform
-data "yandex_mdb_clickhouse_cluster" "foo" {
+//
+// Get information about existing MDB Clickhouse Cluster.
+//
+data "yandex_mdb_clickhouse_cluster" "my_cluster" {
   name = "test"
 }
 
 output "network_id" {
-  value = data.yandex_mdb_clickhouse_cluster.foo.network_id
+  value = data.yandex_mdb_clickhouse_cluster.my_cluster.network_id
 }
 ```
 
@@ -73,7 +76,7 @@ The `zookeeper` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of hosts.
 
@@ -293,7 +296,7 @@ The `shard` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of hosts.
 
@@ -331,7 +334,7 @@ The `access` block supports:
 
 The `config` block supports:
 
-* `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`, `max_table_size_to_drop`, `max_partition_size_to_drop`, `timezone`, `geobase_uri`, `query_log_retention_size`, `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`, `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`, `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`, `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_buffer_flush_schedule_pool_size`, `background_move_pool_size`, `background_distributed_schedule_pool_size`, `background_common_pool_size`, `background_merges_mutations_concurrency_ratio`, `default_database`, `total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - ClickHouse server parameters. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
+* `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`, `max_table_size_to_drop`, `max_partition_size_to_drop`, `timezone`, `geobase_uri`, `query_log_retention_size`, `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`, `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`, `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`, `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_buffer_flush_schedule_pool_size`, `background_move_pool_size`, `background_distributed_schedule_pool_size`, `background_common_pool_size`, `background_merges_mutations_concurrency_ratio`, `default_database`, `total_memory_profiler_step`, `dictionaries_lazy_load`, `opentelemetry_span_log_enabled`, `opentelemetry_span_log_retention_size`, `opentelemetry_span_log_retention_time`, `query_views_log_enabled`, `query_views_log_retention_size`, `query_views_log_retention_time`, `asynchronous_metric_log_enabled`, `asynchronous_metric_log_retention_size`, `asynchronous_metric_log_retention_time`, `session_log_enabled`, `session_log_retention_size`, `session_log_retention_time`, `zookeeper_log_enabled`, `zookeeper_log_retention_size`, `zookeeper_log_retention_time`, `asynchronous_insert_log_enabled`, `asynchronous_insert_log_retention_size`, `asynchronous_insert_log_retention_time` - ClickHouse server parameters. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - MergeTree engine configuration. The structure is documented below.
 * `kafka` - Kafka connection configuration. The structure is documented below.

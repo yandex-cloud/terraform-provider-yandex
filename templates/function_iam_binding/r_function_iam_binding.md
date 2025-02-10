@@ -1,8 +1,8 @@
 ---
-subcategory: "Cloud Functions"
+subcategory: "Serverless Cloud Functions"
 page_title: "Yandex: {{.Name}}"
 description: |-
-  Allows management of a single IAM binding for a [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/).
+  Allows management of a single IAM binding for a Yandex Cloud Function.
 ---
 
 # {{.Name}} ({{.Type}})
@@ -15,9 +15,9 @@ description: |-
 
 The following arguments are supported:
 
-* `function_id` - (Required) The [Yandex Cloud Function](https://cloud.yandex.com/docs/functions/) ID to apply a binding to.
+* `function_id` - (Required) The [Yandex Cloud Function](https://yandex.cloud/docs/functions/) ID to apply a binding to.
 
-* `role` - (Required) The role that should be applied. See [roles](https://cloud.yandex.com/docs/functions/security/)
+* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/functions/security/)
 
 * `members` - (Required) Identities that will be granted the privilege in `role`. Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
@@ -29,4 +29,12 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+IAM binding imports use space-delimited identifiers; first the resource in question and then the role. These bindings can be imported using the `id` and role.
+
+{{ codefile "shell" "examples/function_iam_binding/import.sh" }}

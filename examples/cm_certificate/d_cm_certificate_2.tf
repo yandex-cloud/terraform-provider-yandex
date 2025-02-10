@@ -1,3 +1,7 @@
+//
+// Example of Certificate Validation. 
+// Use "data.yandex_cm_certificate.example.id" to get validated certificate.
+//
 resource "yandex_cm_certificate" "example" {
   name    = "example"
   domains = ["example.com", "*.example.com"]
@@ -22,6 +26,3 @@ data "yandex_cm_certificate" "example" {
   certificate_id  = yandex_cm_certificate.example.id
   wait_validation = true
 }
-
-# Use data.yandex_cm_certificate.example.id to get validated certificate
-

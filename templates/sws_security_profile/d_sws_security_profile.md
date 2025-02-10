@@ -15,9 +15,6 @@ This data source is used to define SecurityProfile that can be used by other res
 
 {{ tffile "examples/sws_security_profile/d_sws_security_profile_1.tf" }}
 
-{{ tffile "examples/sws_security_profile/d_sws_security_profile_2.tf" }}
-
-
 ## Argument Reference
 
 The following arguments are supported:

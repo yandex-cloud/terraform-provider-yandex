@@ -12,6 +12,9 @@ Yandex Cloud Lockbox secret version resource. For more information, see [the off
 ## Example usage
 
 ```terraform
+//
+// Create a new Lockbox Secret Version.
+//
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret"
 }
@@ -33,6 +36,9 @@ resource "yandex_lockbox_secret_version" "my_version" {
 ```
 
 ```terraform
+//
+// Create a new Lockbox Secret Version.
+//
 resource "yandex_lockbox_secret" "my_secret" {
   name = "test secret"
 }
@@ -74,3 +80,8 @@ The `command` block contains:
 * `path` - (Required) The path to the script or command to execute.
 * `args` - (Optional) List of arguments to be passed to the script/command.
 * `env` - (Optional) Map of environment variables to set before calling the script/command.
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

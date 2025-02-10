@@ -12,8 +12,11 @@ Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/tra
 ## Example usage
 
 ```terraform
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
+//
+// Create a new basic Audit Trails Trail
+//
+resource "yandex_audit_trails_trail" "basic-trail" {
+  name        = "basic-trail"
   folder_id   = "home-folder"
   description = "Some trail description"
 
@@ -56,13 +59,13 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 }
 ```
 
-Trail delivering events to YDS and gathering such events:
-
-* Management events from the 'some-organization' organization
-* DNS data events from the 'some-organization' organization
-* Object Storage data events from the 'some-organization' organization
-
 ```terraform
+//
+// Create Trail for delivering events to YDS and gathering such events:
+// * Management events from the 'some-organization' organization.
+// * DNS data events from the 'some-organization' organization.
+// * Object Storage data events from the 'some-organization' organization.
+//
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
   folder_id   = "home-folder"
@@ -98,46 +101,6 @@ resource "yandex_audit_trails_trail" "basic_trail" {
       resource_scope {
         resource_id   = "some-organization"
         resource_type = "organization-manager.organization"
-      }
-    }
-  }
-}
-```
-
-Trail delivering events to Object Storage and gathering such events:
-
-* Management events from the 'home-folder' folder
-* Managed PostgreSQL data events from the 'home-folder' folder
-
-```terraform
-resource "yandex_audit_trails_trail" "basic_trail" {
-  name        = "a-trail"
-  folder_id   = "home-folder"
-  description = "Some trail description"
-
-  labels = {
-    key = "value"
-  }
-
-  service_account_id = "trail-service-account"
-
-  storage_destination {
-    bucket_name   = "some-bucket"
-    object_prefix = "some-prefix"
-  }
-
-  filtering_policy {
-    management_events_filter {
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
-      }
-    }
-    data_events_filter {
-      service = "mdb.postgresql"
-      resource_scope {
-        resource_id   = "home-folder"
-        resource_type = "resource-manager.folder"
       }
     }
   }
@@ -237,21 +200,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Status of this trail.
 * `trail_id` - ID of the trail resource.
 
-## Timeouts
-
-`yandex_audit_trails_trail` provides the following configuration options for [timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
-
-- `create` - Default 5 minutes.
-- `update` - Default 5 minutes.
-- `delete` - Default 5 minutes.
-
-## Import
-
-A trail can be imported using the `id` of the resource, e.g.
-
-```bash
-$ terraform import yandex_audit_trails_trail.infosec-trail trail_id
-```
 
 ## Migration from deprecated filter field
 
@@ -261,9 +209,12 @@ In order to migrate from unsing `filter` to the `filtering_policy`, you will hav
 
 * Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
 
-Before
-
 ```terraform
+//
+// Migration from deprecated filter field
+//
+
+// Before replacing "filter.event_filters.path_filter" to the "resource_scope" block.
 event_filters {
   path_filter {
     some_filter {
@@ -280,11 +231,8 @@ event_filters {
     }
   }
 }
-```
 
-After
-
-```terraform
+// After replacing "filter.event_filters.path_filter" to the "resource_scope" block.
 data_events_filter {
   service = "dns"
   resource_scope {
@@ -298,11 +246,14 @@ data_events_filter {
 }
 ```
 
-* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`
-
-Before
+* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.
 
 ```terraform
+//
+// Migration from deprecated filter field
+//
+
+// Before replacing "filter.path_filter block to the "filtering_policy.management_events_filter" block.
 filter {
   path_filter {
     any_filter {
@@ -311,11 +262,8 @@ filter {
     }
   }
 }
-```
 
-After
-
-```terraform
+// After replacing "filter.path_filter block to the "filtering_policy.management_events_filter" block.
 filtering_policy {
   management_events_filter {
     resource_scope {
@@ -326,3 +274,19 @@ filtering_policy {
 }
 ```
 
+## Timeouts
+
+`yandex_audit_trails_trail` provides the following configuration options for [timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default 5 minutes.
+- `update` - Default 5 minutes.
+- `delete` - Default 5 minutes.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```bash
+# terraform import yandex_audit_trails_trail.<resource Name> <resource Id>
+terraform import yandex_audit_trails_trail.basic-trail cnpqe**********sh835
+```

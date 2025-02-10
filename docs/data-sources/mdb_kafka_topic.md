@@ -7,11 +7,14 @@ description: |-
 
 # yandex_mdb_kafka_topic (Data Source)
 
-Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts).
+Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB Kafka Topic.
+//
 data "yandex_mdb_kafka_topic" "foo" {
   cluster_id = "some_cluster_id"
   name       = "test"

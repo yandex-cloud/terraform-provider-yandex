@@ -12,15 +12,18 @@ Allows management of [Yandex Cloud IAM workload identity OIDC federations](https
 ## Example Usage
 
 ```terraform
+//
+// Create a new IAM Workload Identity OIDC Federation.
+//
 resource "yandex_iam_workload_identity_oidc_federation" "wlif" {
   name        = "some_wlif_name"
   folder_id   = "some_folder_id"
   description = "some description"
   disabled    = false
-  audiences   = ["aud1","aud2"]
+  audiences   = ["aud1", "aud2"]
   issuer      = "https://example-issuer.com"
   jwks_url    = "https://example-issuer.com/jwks"
-  labels      = {
+  labels = {
     key1 = "value1"
     key2 = "value2"
   }
@@ -67,9 +70,9 @@ Optional:
 
 ## Import
 
-Resource can be imported using the following syntax:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-#
-terraform import yandex_iam_workload_identity_oidc_federation.wlif federation_id
+# terraform import yandex_iam_workload_identity_oidc_federation.<resource Name> <resource Id>
+terraform import yandex_iam_workload_identity_oidc_federation.wlif ...
 ```

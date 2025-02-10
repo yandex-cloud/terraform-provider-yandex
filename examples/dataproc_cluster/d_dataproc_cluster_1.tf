@@ -1,3 +1,6 @@
+//
+// Get information about existing Data Processing Cluster.
+//
 data "yandex_dataproc_cluster" "foo" {
   name = "test"
 }

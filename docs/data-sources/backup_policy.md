@@ -12,6 +12,9 @@ Get information about a Yandex Backup Policy. For more information, see [the off
 ## Example usage
 
 ```terraform
+//
+// Get information about existing Cloud Backup Policy
+//
 data "yandex_backup_policy" "my_policy" {
   name = "some_policy_name"
 }

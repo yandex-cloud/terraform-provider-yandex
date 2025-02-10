@@ -14,6 +14,9 @@ Allows creation and management of a single member for a single binding within th
 ## Example usage
 
 ```terraform
+//
+// Create a new IAM Member for existing Folder.
+//
 data "yandex_resourcemanager_folder" "department1" {
   folder_id = "some_folder_id"
 }
@@ -44,12 +47,14 @@ The following arguments are supported:
   * **system:allAuthenticatedUsers**: All authenticated users.
   * **system:allUsers**: All users, including unauthenticated ones.
 
-  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
+  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account. This member resource can be imported using the `folder id`, role, and account, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_resourcemanager_folder_iam_member.my_project "folder_id viewer foo@example.com"
+```shell
+# terraform import yandex_resourcemanager_folder_iam_member.<resource Name> "<resource Id> <resource Role> <subject>"
+terraform import yandex_resourcemanager_folder_iam_member.admin "b1g5r**********dqmsp admin foo@example.com"
 ```

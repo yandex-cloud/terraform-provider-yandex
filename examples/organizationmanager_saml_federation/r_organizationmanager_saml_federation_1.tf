@@ -1,4 +1,7 @@
-resource "yandex_organizationmanager_saml_federation" "federation" {
+//
+// Create a new OrganizationManager SAML Federation.
+//
+resource "yandex_organizationmanager_saml_federation" "saml_fed" {
   name            = "my-federation"
   description     = "My new SAML federation"
   organization_id = "sdf4*********3fr"

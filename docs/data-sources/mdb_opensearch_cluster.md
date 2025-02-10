@@ -5,13 +5,16 @@ description: |-
   Get information about a Yandex Managed OpenSearch cluster.
 ---
 
-# yandex_mdb_opensearch_cluster
+# yandex_mdb_opensearch_cluster (Data Source)
 
-Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
+Get information about a Yandex Managed OpenSearch cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).
 
 ## Example usage
 
 ```terraform
+//
+// Get information about existing MDB OpenSearch Cluster.
+//
 data "yandex_mdb_opensearch_cluster" "foo" {
   name = "test"
 }
@@ -104,7 +107,7 @@ The `hosts` block supports:
 
 * `fqdn` - The fully qualified domain name of the host.
 
-* `zone` - The availability zone where the OpenSearch host was created. For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* `zone` - The availability zone where the OpenSearch host was created. For more information see [the official documentation](https://yandex.cloud/docs/overview/concepts/geo-scope).
 
 * `type` - The type of the deployed host. Can be either `OPENSEARCH` or `DASHBOARDS`.
 

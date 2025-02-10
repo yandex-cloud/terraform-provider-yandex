@@ -12,12 +12,13 @@ Get information about WAF Profile. For more information, see [the official docum
 ## Example usage
 
 ```terraform
+//
+// Get information about existing SWS WAF Profile.
+//
 data "yandex_sws_waf_profile" "by-id" {
   waf_profile_id = yandex_sws_waf_profile.my-profile.id
 }
-```
 
-```terraform
 data "yandex_sws_waf_profile" "by-name" {
   name = yandex_sws_waf_profile.my-profile.name
 }

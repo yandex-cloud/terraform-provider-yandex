@@ -25,8 +25,6 @@ The following arguments are supported:
 
 ## Import
 
-DNS recordset can be imported using this format:
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_dns_recordset.rs1 {zone_id}/{name}/{type}
-```
+{{ codefile "bash" "examples/dns_recordset/import.sh" }}

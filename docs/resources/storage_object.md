@@ -7,11 +7,14 @@ description: |-
 
 # yandex_storage_object (Resource)
 
-Allows management of [Yandex Cloud Storage Object](https://cloud.yandex.com/docs/storage/concepts/object).
+Allows management of [Yandex Cloud Storage Object](https://yandex.cloud/docs/storage/concepts/object).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Storage Object in Bucket.
+//
 resource "yandex_storage_object" "cute-cat-picture" {
   bucket = "cat-pictures"
   key    = "cute-cat"
@@ -44,7 +47,7 @@ The following arguments are supported:
 
 * `secret_key` - (Optional) The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
+* `acl` - (Optional) The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
 
 ~> To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
 
@@ -61,3 +64,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - The `key` of the resource.
+
+## Import
+
+~> Import for this resource is not implemented yet.
+

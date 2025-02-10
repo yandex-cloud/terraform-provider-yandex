@@ -1,5 +1,13 @@
+//
+// Create a new Container Registry and new IP Permissions for it.
+//
 resource "yandex_container_registry" "my_registry" {
-  name = "test-registry"
+  name      = "test-registry"
+  folder_id = "test_folder_id"
+
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 resource "yandex_container_registry_ip_permission" "my_ip_permission" {

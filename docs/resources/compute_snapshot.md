@@ -7,11 +7,14 @@ description: |-
 
 # yandex_compute_snapshot (Resource)
 
-Creates a new snapshot of a disk. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
+Creates a new snapshot of a disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).
 
 ## Example usage
 
 ```terraform
+//
+// Create a new Compute Snapshot.
+//
 resource "yandex_compute_snapshot" "default" {
   name           = "test-snapshot"
   source_disk_id = "test_disk_id"
@@ -67,8 +70,9 @@ This resource provides the following configuration options for [timeouts](https:
 
 ## Import
 
-A snapshot can be imported using the `id` of the resource, e.g.
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
-```
-$ terraform import yandex_compute_snapshot.disk-snapshot shapshot_id
+```bash
+# terraform import yandex_compute_snapshot.<resource Name> <resource Id>
+terraform import yandex_compute_snapshot.my_snapshot fd8hc**********o4qe2
 ```

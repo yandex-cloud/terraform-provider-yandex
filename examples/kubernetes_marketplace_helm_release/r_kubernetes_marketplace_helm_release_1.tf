@@ -1,3 +1,6 @@
+//
+// Create a new Kubernetes Marketplace Helm Release. 
+//
 resource "yandex_kubernetes_marketplace_helm_release" "gatekeeper_helm_release" {
   cluster_id = yandex_kubernetes_cluster.cluster_resource_name.id
 
