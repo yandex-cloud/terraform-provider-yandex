@@ -1,0 +1,41 @@
+syntax = "proto3"; 
+
+package protobuf_filler;
+
+import "google/protobuf/wrappers.proto";
+
+enum EnumType {
+    UNSPECIFIED = 0;
+    FIRST_VALUE = 1;
+    SECOND_VALUE = 2;
+  }
+
+message TestMessage {
+
+  message NestedMessage {
+    string string_nested_field = 1;
+    int32 int32_nested_field = 2;
+  }
+
+  string string_field = 1;
+  int32 int32_field = 2;
+  int64 int64_field = 3;
+  bool bool_field = 4;
+
+  repeated string repeated_string_field = 5;
+  repeated int32 repeated_int32_field = 6;
+  repeated int64 repeated_int64_field = 7;
+  repeated bool repeated_bool_field = 8;
+
+  google.protobuf.StringValue string_wrapper_field = 9;
+  google.protobuf.Int32Value int32_wrapper_field = 10;
+  google.protobuf.Int64Value int64_wrapper_field = 11;
+  google.protobuf.BoolValue bool_wrapper_field = 12;
+
+  EnumType enum_field = 13;
+
+  NestedMessage nested_message_field = 14;
+}
+
+option go_package = "/protobuf_filler";
+
