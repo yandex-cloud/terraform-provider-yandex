@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'serverless: `yandex_function` resource and data source now have `metadata_options` parameter'
-time: 2024-12-12T17:25:51.136808057+01:00

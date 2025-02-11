@@ -1,3 +1,16 @@
+## 0.137.0 (February 11, 2025)
+
+FEATURES:
+* iam: added attributes `scopes` for API Key
+* iam: added `update` method for for API Key
+* serverless: `yandex_serverless_container` resource and data source now have `metadata_options` parameter
+* serverless: `yandex_function` resource and data source now have `metadata_options` parameter
+* mongodb: added web_sql access
+
+BUG FIXES:
+* postgresql: the timeout for the cluster creation request is at least 5 minute
+* datasphere: removed unused `commit_mode` and `ide` attributes of yandex_datasphere_project resource causing import crashes
+
 ## 0.136.0 (January 30, 2025)
 
 FEATURES:

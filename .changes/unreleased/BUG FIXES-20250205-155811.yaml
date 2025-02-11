@@ -1,4 +1,0 @@
-kind: BUG FIXES
-body: 'datasphere: removed unused `commit_mode` and `ide` attributes of yandex_datasphere_project
-  resource causing import crashes'
-time: 2025-02-05T15:58:11.619527908+03:00
