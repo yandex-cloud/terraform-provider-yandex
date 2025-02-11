@@ -34,7 +34,6 @@ import (
 const (
 	defaultExponentialBackoffBase = 50 * time.Millisecond
 	defaultExponentialBackoffCap  = 1 * time.Minute
-	sdkDialContextTimeout         = 15 * time.Second
 )
 
 type iamToken struct {
@@ -119,7 +118,6 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: c.Insecure,
 		},
-		DialContextTimeout: sdkDialContextTimeout,
 	}
 
 	c.userAgent = config.BuildUserAgent(terraformVersion, sweeper)
