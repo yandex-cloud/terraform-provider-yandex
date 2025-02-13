@@ -210,16 +210,21 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 	res.databases = c.GetDatabases().GetValue()
 	res.maxmemoryPercent = c.GetMaxmemoryPercent().GetValue()
-	res.clientOutputBufferLimitNormal = limitToStr(
-		c.ClientOutputBufferLimitNormal.HardLimit,
-		c.ClientOutputBufferLimitNormal.SoftLimit,
-		c.ClientOutputBufferLimitNormal.SoftSeconds,
-	)
-	res.clientOutputBufferLimitPubsub = limitToStr(
-		c.ClientOutputBufferLimitPubsub.HardLimit,
-		c.ClientOutputBufferLimitPubsub.SoftLimit,
-		c.ClientOutputBufferLimitPubsub.SoftSeconds,
-	)
+	if c.ClientOutputBufferLimitNormal != nil {
+		res.clientOutputBufferLimitNormal = limitToStr(
+			c.ClientOutputBufferLimitNormal.HardLimit,
+			c.ClientOutputBufferLimitNormal.SoftLimit,
+			c.ClientOutputBufferLimitNormal.SoftSeconds,
+		)
+	}
+	if c.ClientOutputBufferLimitPubsub != nil {
+		res.clientOutputBufferLimitPubsub = limitToStr(
+			c.ClientOutputBufferLimitPubsub.HardLimit,
+			c.ClientOutputBufferLimitPubsub.SoftLimit,
+			c.ClientOutputBufferLimitPubsub.SoftSeconds,
+		)
+	}
+
 	res.luaTimeLimit = c.GetLuaTimeLimit().GetValue()
 	res.replBacklogSizePercent = c.GetReplBacklogSizePercent().GetValue()
 	res.clusterRequireFullCoverage = c.GetClusterRequireFullCoverage().GetValue()
