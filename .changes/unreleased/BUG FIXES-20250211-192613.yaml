@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'redis: fix panic in terraform provider when applying or importing cluster with empty client_output_buffer_limit settings'
-time: 2025-02-11T19:26:13.51915+01:00

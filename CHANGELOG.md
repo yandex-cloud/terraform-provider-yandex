@@ -1,3 +1,8 @@
+## 0.138.0 (February 14, 2025)
+
+BUG FIXES:
+* redis: fix panic in terraform provider when applying or importing cluster with empty client_output_buffer_limit settings
+
 ## 0.137.0 (February 11, 2025)
 
 FEATURES:
