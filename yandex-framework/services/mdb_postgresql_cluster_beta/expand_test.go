@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 )
 
 var expectedAccessAttrTypes = map[string]attr.Type{
@@ -409,6 +410,441 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartExpand(t *testi
 				c.testname,
 				c.expectedVal,
 				pgBws,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterLabelsExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Map
+		expectedVal   map[string]string
+		expectedError bool
+	}{
+		{
+			testname: "CheckSeveralAttributes",
+			reqVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{"key1": types.StringValue("value1"), "key2": types.StringValue("value2")},
+			),
+			expectedVal: map[string]string{"key1": "value1", "key2": "value2"},
+		},
+		{
+			testname: "CheckOneAttribute",
+			reqVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{"key3": types.StringValue("value3")},
+			),
+			expectedVal: map[string]string{"key3": "value3"},
+		},
+		{
+			testname: "CheckEmpty",
+			reqVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{},
+			),
+			expectedVal: map[string]string{},
+		},
+		{
+			testname:    "CheckNull",
+			reqVal:      types.MapNull(types.StringType),
+			expectedVal: nil,
+		},
+		{
+			testname:      "CheckNonExpectedStructure",
+			reqVal:        types.MapValueMust(types.Int64Type, map[string]attr.Value{"key": types.Int64Value(1)}),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		lbls := expandLabels(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(lbls, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				lbls,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterEnvironmentExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	validEnvs := []string{"PRODUCTION", "PRESTABLE"}
+	randValid := validEnvs[rand.Intn(len(validEnvs))]
+
+	cases := []struct {
+		testname      string
+		reqVal        types.String
+		expectedVal   postgresql.Cluster_Environment
+		expectedError bool
+	}{
+		{
+			testname:    "CheckValidAttribute",
+			reqVal:      types.StringValue(randValid),
+			expectedVal: postgresql.Cluster_Environment(postgresql.Cluster_Environment_value[randValid]),
+		},
+		{
+			testname:      "CheckInvalidAttribute",
+			reqVal:        types.StringValue("INVALID"),
+			expectedError: true,
+		},
+		{
+			testname:    "ChecNullAttribute",
+			reqVal:      types.StringNull(),
+			expectedVal: postgresql.Cluster_ENVIRONMENT_UNSPECIFIED,
+		},
+		{
+			testname:      "CheckExplicitUnspecifiedAttribute",
+			reqVal:        types.StringValue("ENVIRONMENT_UNSPECIFIED"),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		lbls := expandEnvironment(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(lbls, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				lbls,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterBoolWrapperExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      types.Bool
+		expectedVal *wrapperspb.BoolValue
+	}{
+		{
+			testname:    "CheckValidAttribute",
+			reqVal:      types.BoolValue(true),
+			expectedVal: wrapperspb.Bool(true),
+		},
+		{
+			testname:    "CheckNullAttribute",
+			reqVal:      types.BoolNull(),
+			expectedVal: nil,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		b := expandBoolWrapper(ctx, c.reqVal, &diags)
+
+		if !reflect.DeepEqual(b, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				b,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterSecurityGroupIdsExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Set
+		expectedVal   []string
+		expectedError bool
+	}{
+		{
+			testname:    "CheckSeveralAttributes",
+			reqVal:      types.SetValueMust(types.StringType, []attr.Value{types.StringValue("sg-1"), types.StringValue("sg-2")}),
+			expectedVal: []string{"sg-1", "sg-2"},
+		},
+		{
+			testname:    "CheckOneAttribute",
+			reqVal:      types.SetValueMust(types.StringType, []attr.Value{types.StringValue("sg")}),
+			expectedVal: []string{"sg"},
+		},
+		{
+			testname:    "CheckEmptyAttribute",
+			reqVal:      types.SetValueMust(types.StringType, []attr.Value{}),
+			expectedVal: []string{},
+		},
+		{
+			testname:    "CheckNullAttribute",
+			reqVal:      types.SetNull(types.StringType),
+			expectedVal: nil,
+		},
+		{
+			testname:      "CheckInvalidAttribute",
+			reqVal:        types.SetValueMust(types.Int64Type, []attr.Value{types.Int64Value(1)}),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		sg := expandSecurityGroupIds(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(sg, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				sg,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterResourcesExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Object
+		expectedVal   *postgresql.Resources
+		expectedError bool
+	}{
+		{
+			testname: "CheckFullAttribute",
+			reqVal: types.ObjectValueMust(
+				expectedResourcesAttrs,
+				map[string]attr.Value{
+					"resource_preset_id": types.StringValue("s1.micro"),
+					"disk_type_id":       types.StringValue("network-hdd"),
+					"disk_size":          types.Int64Value(13),
+				},
+			),
+			expectedVal: &postgresql.Resources{
+				ResourcePresetId: "s1.micro",
+				DiskTypeId:       "network-hdd",
+				DiskSize:         datasize.ToBytes(13),
+			},
+		},
+		{
+			testname: "CheckNullAttribute",
+			reqVal: types.ObjectNull(
+				expectedResourcesAttrs,
+			),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		r := expandResources(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(r, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test:\nexpected %s\nactual %s",
+				c.testname,
+				c.expectedVal,
+				r,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Object
+		expectedVal   *postgresql.ConfigSpec
+		expectedError bool
+	}{
+		{
+			testname: "CheckPartlyAttributes",
+			reqVal: types.ObjectValueMust(
+				expectedConfigAttrs,
+				map[string]attr.Value{
+					"version": types.StringValue("15"),
+					"resources": types.ObjectValueMust(
+						expectedResourcesAttrs,
+						map[string]attr.Value{
+							"resource_preset_id": types.StringValue("s1.micro"),
+							"disk_type_id":       types.StringValue("network-ssd"),
+							"disk_size":          types.Int64Value(10),
+						},
+					),
+					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
+					"backup_retain_period_days": types.Int64Null(),
+					"autofailover":              types.BoolNull(),
+					"access":                    types.ObjectNull(expectedAccessAttrTypes),
+					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
+				},
+			),
+			expectedVal: &postgresql.ConfigSpec{
+				Version: "15",
+				Resources: &postgresql.Resources{
+					ResourcePresetId: "s1.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         datasize.ToBytes(10),
+				},
+				BackupWindowStart:      &timeofday.TimeOfDay{},
+				BackupRetainPeriodDays: nil,
+				Autofailover:           nil,
+				Access:                 &postgresql.Access{},
+				PerformanceDiagnostics: nil,
+			},
+		},
+		{
+			testname: "CheckFullAttributes",
+			reqVal: types.ObjectValueMust(
+				expectedConfigAttrs,
+				map[string]attr.Value{
+					"version": types.StringValue("15"),
+					"resources": types.ObjectValueMust(
+						expectedResourcesAttrs,
+						map[string]attr.Value{
+							"resource_preset_id": types.StringValue("s1.micro"),
+							"disk_type_id":       types.StringValue("network-ssd"),
+							"disk_size":          types.Int64Value(10),
+						},
+					),
+					"backup_window_start": types.ObjectValueMust(
+						expectedBwsAttrTypes,
+						map[string]attr.Value{
+							"hours":   types.Int64Value(23),
+							"minutes": types.Int64Value(0),
+						},
+					),
+					"backup_retain_period_days": types.Int64Value(7),
+					"autofailover":              types.BoolValue(true),
+					"access": types.ObjectValueMust(
+						expectedAccessAttrTypes,
+						map[string]attr.Value{
+							"web_sql":       types.BoolValue(true),
+							"serverless":    types.BoolValue(false),
+							"data_transfer": types.BoolValue(false),
+							"data_lens":     types.BoolValue(true),
+						},
+					),
+					"performance_diagnostics": types.ObjectValueMust(
+						expectedPDAttrs,
+						map[string]attr.Value{
+							"enabled":                      types.BoolValue(true),
+							"statements_sampling_interval": types.Int64Value(600),
+							"sessions_sampling_interval":   types.Int64Value(60),
+						},
+					),
+				},
+			),
+			expectedVal: &postgresql.ConfigSpec{
+				Version: "15",
+				Resources: &postgresql.Resources{
+					ResourcePresetId: "s1.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         datasize.ToBytes(10),
+				},
+				BackupWindowStart: &timeofday.TimeOfDay{
+					Hours:   23,
+					Minutes: 0,
+				},
+				BackupRetainPeriodDays: wrapperspb.Int64(7),
+				Autofailover:           wrapperspb.Bool(true),
+				Access: &postgresql.Access{
+					WebSql:   true,
+					DataLens: true,
+				},
+				PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
+					Enabled:                    true,
+					StatementsSamplingInterval: 600,
+					SessionsSamplingInterval:   60,
+				},
+			},
+		},
+		{
+			testname: "CheckAccessWithRandomAttributes",
+			reqVal: types.ObjectValueMust(
+				map[string]attr.Type{"random": types.StringType},
+				map[string]attr.Value{"random": types.StringValue("s1")},
+			),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		conf := expandConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(conf, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test:\n expected %s\n actual %s",
+				c.testname,
+				c.expectedVal,
+				conf,
 			)
 		}
 	}

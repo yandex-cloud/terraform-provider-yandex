@@ -75,7 +75,10 @@ resource "yandex_vpc_security_group" "sgroup2" {
 
 `
 
-var postgresql_versions = [...]string{"13", "13-1c", "14", "14-1c", "15", "15-1c", "16", "17"}
+var (
+	pgVersions   = [...]string{"13", "14", "15", "16", "17"}
+	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c"}
+)
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster_beta", &resource.Sweeper{
@@ -156,7 +159,21 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 	t.Parallel()
 
-	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	version := "13"
+	versionUpdate := "14"
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	resourcesUpdated := `
+	  resource_preset_id = "s2.micro"
+	  disk_size		  = 12
+	  disk_type_id	   = "network-hdd"
+	`
+
 	log.Printf("TestAccMDBPostgreSQLCluster_basic: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-basic")
@@ -182,7 +199,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterBasic(resourceId, clusterName, description, "PRESTABLE", labels, version),
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, description, "PRESTABLE", labels, version, resources),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
@@ -220,7 +237,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"}),
-					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-hdd", 10*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, true),
 					testAccCheckClusterDeletionProtectionExact(&cluster, false),
 					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
@@ -250,14 +267,14 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// Update PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionUpdated, "PRESTABLE", labelsUpdated, version),
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionUpdated, "PRESTABLE", labelsUpdated, versionUpdate, resourcesUpdated),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact("PRESTABLE")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(versionUpdate)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(true)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
@@ -288,7 +305,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
-					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-hdd", 12*1024*1024*1024),
 					testAccCheckClusterAutofailoverExact(&cluster, true),
 					testAccCheckClusterDeletionProtectionExact(&cluster, false),
 					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
@@ -324,7 +341,16 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
-	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	versionIdx := rand.Intn(len(pg1CVersions) - 1)
+	version := pg1CVersions[versionIdx]
+	versionUpdate := pg1CVersions[versionIdx+1]
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+	`
+
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
@@ -404,7 +430,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterFull(
 					resourceId, clusterName, description,
-					environment, labels, version, access,
+					environment, labels, version,
+					resources, access,
 					performanceDiagnostics,
 					backupWindowStart,
 					maintenanceWindow,
@@ -503,7 +530,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterFull(
 					resourceId, clusterName, descriptionUpdated,
-					environment, labelsUpdated, version, accessUpdated,
+					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
 					performanceDiagnosticsUpdated,
 					backupWindowStartUpdated,
 					maintenanceWindowUpdated,
@@ -518,7 +545,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(versionUpdate)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
@@ -609,7 +636,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 	t.Parallel()
 
-	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	version := pgVersions[rand.Intn(len(pg1CVersions))]
+
 	log.Printf("TestAccMDBPostgreSQLCluster_mixed: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-mixed")
@@ -648,10 +676,16 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		minutes = 0
 	`
 
+	resources := `
+		resource_preset_id = "s2.micro"
+		disk_size = 10
+		disk_type_id = "network-ssd"
+	`
+
 	stepsFullBasic := [2]resource.TestStep{
 		{
 			Config: testAccMDBPGClusterFull(
-				resourceId, clusterName, descriptionFull, environment, labels, version, access,
+				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
 				backupWindowStart,
 				maintenanceWindow,
@@ -729,7 +763,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 			),
 		},
 		{
-			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version),
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources),
 			ConfigStateChecks: []statecheck.StateCheck{
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
@@ -819,7 +853,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 	t.Parallel()
 
-	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	version := pgVersions[rand.Intn(len(pgVersions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HostTests: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-hosts-test")
@@ -897,7 +931,7 @@ func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_HostSpecialCaseTests(t *testing.T) {
 	t.Parallel()
 
-	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	version := pgVersions[rand.Intn(len(pgVersions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HostTests: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-hosts-special-test")
@@ -1115,7 +1149,7 @@ func testAccCheckClusterHasResources(r *postgresql.Cluster, resourcePresetID str
 	}
 }
 
-func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version string) string {
+func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version, resources string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_beta" "%s" {
   name        = "%s"
@@ -1137,18 +1171,19 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
   config {
     version = "%s"
     resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 10
-      disk_type_id       = "network-ssd"
+      %s
     }
   }
 }
-`, resourceId, name, description, environment, labels, version)
+`, resourceId, name, description, environment, labels, version, resources)
 }
 
 func testAccMDBPGClusterFull(
 	resourceId, clusterName, description, environment, labels,
-	version, access, performanceDiagnostics, backupWindowStart,
+	version, resources,
+	access,
+	performanceDiagnostics,
+	backupWindowStart,
 	maintenanceWindow string, backupRetainPeriodDays int, autofailover, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(pgVPCDependencies+`
@@ -1172,9 +1207,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
   config {
     version = "%s"
     resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 10
-      disk_type_id       = "network-ssd"
+      %s
     }
     autofailover = %t
     access = {
@@ -1198,7 +1231,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 
 }
 `, resourceId, clusterName, description, environment,
-		labels, version, autofailover, access,
+		labels, version, resources, autofailover, access,
 		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
 		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
 	)

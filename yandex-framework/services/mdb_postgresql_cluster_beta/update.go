@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -30,6 +31,34 @@ func prepareUpdateAfterCreateRequest(ctx context.Context, plan *Cluster) (*postg
 	}, nil
 }
 
+func prepareVersionUpdateRequest(state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
+
+	const versionAttr = "version"
+
+	var diags diag.Diagnostics
+
+	sv := state.Config.Attributes()[versionAttr]
+	pv := plan.Config.Attributes()[versionAttr]
+
+	if pv.Equal(sv) {
+		return nil, diags
+	}
+
+	pvVal, ok := pv.(types.String)
+	if !ok {
+		diags.AddError("Invalid version", "Version must be a string")
+		return nil, diags
+	}
+
+	return &postgresql.UpdateClusterRequest{
+		ClusterId: state.Id.ValueString(),
+		ConfigSpec: &postgresql.ConfigSpec{
+			Version: pvVal.ValueString(),
+		},
+		UpdateMask: &field_mask.FieldMask{Paths: []string{"config_spec.version"}},
+	}, diags
+}
+
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
@@ -39,23 +68,17 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 	}
 
 	if !plan.Name.Equal(state.Name) {
-		request.Name = plan.Name.ValueString()
+		request.SetName(plan.Name.ValueString())
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "name")
 	}
 
 	if !plan.Description.Equal(state.Description) {
-		request.Description = plan.Description.ValueString()
+		request.SetDescription(plan.Description.ValueString())
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "description")
 	}
 
 	if !plan.Labels.Equal(state.Labels) {
-		labels := make(map[string]string, len(plan.Labels.Elements()))
-		diags := plan.Labels.ElementsAs(ctx, &labels, false)
-		if diags.HasError() {
-			return nil, diags
-		}
-
-		request.Labels = labels
+		request.SetLabels(expandLabels(ctx, plan.Labels, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "labels")
 	}
 
@@ -76,35 +99,26 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 			return nil, diags
 		}
 
-		request.ConfigSpec = config
+		request.SetConfigSpec(config)
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, updateMaskPaths...)
 	}
 
 	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
-		request.DeletionProtection = plan.DeletionProtection.ValueBool()
+		request.SetDeletionProtection(plan.DeletionProtection.ValueBool())
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "deletion_protection")
 	}
 
 	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
-		securityGroupIds := make([]string, len(plan.SecurityGroupIds.Elements()))
-		diags := plan.SecurityGroupIds.ElementsAs(ctx, &securityGroupIds, false)
-		if diags.HasError() {
-			return nil, diags
-		}
-
-		request.SecurityGroupIds = securityGroupIds
+		request.SetSecurityGroupIds(expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
-		request.MaintenanceWindow = expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags)
-		if diags.HasError() {
-			return nil, diags
-		}
+		request.SetMaintenanceWindow(expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_window")
 	}
 
-	return request, diag.Diagnostics{}
+	return request, diags
 }
 
 func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.ConfigSpec, []string, diag.Diagnostics) {
@@ -112,22 +126,8 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	config := &postgresql.ConfigSpec{}
 	diags := diag.Diagnostics{}
 
-	if !plan.Version.IsUnknown() && !plan.Version.IsNull() && !plan.Version.Equal(state.Version) {
-		config.Version = plan.Version.ValueString()
-		updateMaskPaths = append(updateMaskPaths, "config_spec.version")
-	}
-
-	if !plan.Resources.IsUnknown() && !plan.Resources.IsNull() && !plan.Resources.Equal(state.Resources) {
-		var resources Resources
-		diags := plan.Resources.As(ctx, &resources, datasize.DefaultOpts)
-		if diags.HasError() {
-			return nil, nil, diags
-		}
-		config.Resources = &postgresql.Resources{
-			ResourcePresetId: resources.ResourcePresetID.ValueString(),
-			DiskSize:         datasize.ToBytes(resources.DiskSize.ValueInt64()),
-			DiskTypeId:       resources.DiskTypeID.ValueString(),
-		}
+	if !plan.Resources.Equal(state.Resources) {
+		config.SetResources(expandResources(ctx, plan.Resources, &diags))
 		updateMaskPaths = append(updateMaskPaths, "config_spec.resources")
 	}
 

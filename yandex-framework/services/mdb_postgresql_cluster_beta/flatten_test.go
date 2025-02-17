@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 )
 
 func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
@@ -74,12 +75,6 @@ func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
 	}
 }
 
-var mwAttrsTestFlatten = map[string]attr.Type{
-	"type": types.StringType,
-	"day":  types.StringType,
-	"hour": types.Int64Type,
-}
-
 func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -100,7 +95,7 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 					},
 				},
 			},
-			expectedVal: types.ObjectValueMust(mwAttrsTestFlatten, map[string]attr.Value{
+			expectedVal: types.ObjectValueMust(expectedMWAttrs, map[string]attr.Value{
 				"type": types.StringValue("WEEKLY"),
 				"day":  types.StringValue("MON"),
 				"hour": types.Int64Value(10),
@@ -113,7 +108,7 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 					Anytime: &postgresql.AnytimeMaintenanceWindow{},
 				},
 			},
-			expectedVal: types.ObjectValueMust(mwAttrsTestFlatten, map[string]attr.Value{
+			expectedVal: types.ObjectValueMust(expectedMWAttrs, map[string]attr.Value{
 				"type": types.StringValue("ANYTIME"),
 				"day":  types.StringNull(),
 				"hour": types.Int64Null(),
@@ -122,13 +117,13 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 		{
 			testname:    "CheckNullMaintenanceWindow",
 			reqVal:      nil,
-			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			expectedVal: types.ObjectNull(expectedMWAttrs),
 			hasErr:      true,
 		},
 		{
 			testname:    "CheckEmptyMaintenanceWindow",
 			reqVal:      &postgresql.MaintenanceWindow{},
-			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			expectedVal: types.ObjectNull(expectedMWAttrs),
 			hasErr:      true,
 		},
 		{
@@ -136,7 +131,7 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 			reqVal: &postgresql.MaintenanceWindow{
 				Policy: nil,
 			},
-			expectedVal: types.ObjectNull(mwAttrsTestFlatten),
+			expectedVal: types.ObjectNull(expectedMWAttrs),
 			hasErr:      true,
 		},
 	}
@@ -157,12 +152,6 @@ func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T)
 	}
 }
 
-var pdTestFlatten = map[string]attr.Type{
-	"enabled":                      types.BoolType,
-	"sessions_sampling_interval":   types.Int64Type,
-	"statements_sampling_interval": types.Int64Type,
-}
-
 func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -175,7 +164,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 		{
 			testname:       "CheckNullObject",
 			testData:       nil,
-			expectedObject: types.ObjectNull(pdTestFlatten),
+			expectedObject: types.ObjectNull(expectedPDAttrs),
 		},
 		{
 			testname: "CheckAllAttributes",
@@ -184,7 +173,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 				SessionsSamplingInterval:   10,
 				StatementsSamplingInterval: 5,
 			},
-			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(true),
 				"sessions_sampling_interval":   types.Int64Value(10),
 				"statements_sampling_interval": types.Int64Value(5),
@@ -196,7 +185,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 				Enabled:                  true,
 				SessionsSamplingInterval: 10,
 			},
-			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(true),
 				"sessions_sampling_interval":   types.Int64Value(10),
 				"statements_sampling_interval": types.Int64Value(0),
@@ -205,7 +194,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 		{
 			testname: "CheckEmptyAttributes",
 			testData: &postgresql.PerformanceDiagnostics{},
-			expectedObject: types.ObjectValueMust(pdTestFlatten, map[string]attr.Value{
+			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(false),
 				"sessions_sampling_interval":   types.Int64Value(0),
 				"statements_sampling_interval": types.Int64Value(0),
@@ -279,11 +268,6 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 	t.Parallel()
 	ctx := context.Background()
 
-	expectedAccessAttrs := map[string]attr.Type{
-		"hours":   types.Int64Type,
-		"minutes": types.Int64Type,
-	}
-
 	cases := []struct {
 		testname    string
 		reqVal      *timeofday.TimeOfDay
@@ -296,7 +280,7 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 				Minutes: 30,
 			},
 			expectedVal: types.ObjectValueMust(
-				expectedAccessAttrs, map[string]attr.Value{
+				expectedBWSAttrs, map[string]attr.Value{
 					"hours":   types.Int64Value(30),
 					"minutes": types.Int64Value(30),
 				},
@@ -306,7 +290,7 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 			testname: "CheckAllAttributesWithDefaultValues",
 			reqVal:   &timeofday.TimeOfDay{},
 			expectedVal: types.ObjectValueMust(
-				expectedAccessAttrs, map[string]attr.Value{
+				expectedBWSAttrs, map[string]attr.Value{
 					"hours":   types.Int64Value(0),
 					"minutes": types.Int64Value(0),
 				},
@@ -318,7 +302,7 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 				Hours: 30,
 			},
 			expectedVal: types.ObjectValueMust(
-				expectedAccessAttrs, map[string]attr.Value{
+				expectedBWSAttrs, map[string]attr.Value{
 					"hours":   types.Int64Value(30),
 					"minutes": types.Int64Value(0),
 				},
@@ -330,7 +314,7 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 				Minutes: 30,
 			},
 			expectedVal: types.ObjectValueMust(
-				expectedAccessAttrs, map[string]attr.Value{
+				expectedBWSAttrs, map[string]attr.Value{
 					"hours":   types.Int64Value(0),
 					"minutes": types.Int64Value(30),
 				},
@@ -339,7 +323,7 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 		{
 			testname:    "CheckNullObject",
 			reqVal:      nil,
-			expectedVal: types.ObjectNull(expectedAccessAttrs),
+			expectedVal: types.ObjectNull(expectedBWSAttrs),
 		},
 	}
 
@@ -361,6 +345,378 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *te
 				c.testname,
 				c.expectedVal,
 				bws,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterMapStringFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      map[string]string
+		expectedVal types.Map
+	}{
+		{
+			testname: "CheckSeveralAttributes",
+			reqVal: map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+			},
+			expectedVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{
+					"key1": types.StringValue("value1"),
+					"key2": types.StringValue("value2"),
+				},
+			),
+		},
+		{
+			testname: "CheckOnelAttribute",
+			reqVal: map[string]string{
+				"key": "value",
+			},
+			expectedVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{
+					"key": types.StringValue("value"),
+				},
+			),
+		},
+		{
+			testname: "CheckEmptyAttribute",
+			reqVal:   map[string]string{},
+			expectedVal: types.MapValueMust(
+				types.StringType,
+				map[string]attr.Value{},
+			),
+		},
+		{
+			testname: "CheckNullAttribute",
+			reqVal:   nil,
+			expectedVal: types.MapNull(
+				types.StringType,
+			),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		m := flattenMapString(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(m) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				m,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterSetStringFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      []string
+		expectedVal types.Set
+	}{
+		{
+			testname: "CheckSeveralAttributes",
+			reqVal:   []string{"key1", "key2"},
+			expectedVal: types.SetValueMust(
+				types.StringType,
+				[]attr.Value{
+					types.StringValue("key1"),
+					types.StringValue("key2"),
+				},
+			),
+		},
+		{
+			testname: "CheckOneAttribute",
+			reqVal:   []string{"key"},
+			expectedVal: types.SetValueMust(
+				types.StringType,
+				[]attr.Value{
+					types.StringValue("key"),
+				},
+			),
+		},
+		{
+			testname: "CheckNullAttribute",
+			reqVal:   nil,
+			expectedVal: types.SetValueMust(
+				types.StringType,
+				[]attr.Value{},
+			),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		m := flattenSetString(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(m) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				m,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterBoolWrapperFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      *wrapperspb.BoolValue
+		expectedVal types.Bool
+	}{
+		{
+			testname:    "CheckExplicitAttribute",
+			reqVal:      wrapperspb.Bool(true),
+			expectedVal: types.BoolValue(true),
+		},
+		{
+			testname:    "CheckNullAttribute",
+			reqVal:      nil,
+			expectedVal: types.BoolNull(),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		m := flattenBoolWrapper(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(m) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				m,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterResourcesFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        *postgresql.Resources
+		expectedVal   types.Object
+		expectedError bool
+	}{
+		{
+			testname: "CheckAllAttributes",
+			reqVal: &postgresql.Resources{
+				ResourcePresetId: "s1.micro",
+				DiskTypeId:       "network-ssd",
+				DiskSize:         datasize.ToBytes(10),
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedResourcesAttrs, map[string]attr.Value{
+					"resource_preset_id": types.StringValue("s1.micro"),
+					"disk_type_id":       types.StringValue("network-ssd"),
+					"disk_size":          types.Int64Value(10),
+				},
+			),
+		},
+		{
+			testname:      "CheckNullAttributes",
+			reqVal:        nil,
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		r := flattenResources(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			if !c.expectedError {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: errors: %v",
+					c.testname,
+					diags.Errors(),
+				)
+			} else {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: expected error, actual not",
+					c.testname,
+				)
+			}
+
+			continue
+		}
+
+		if !c.expectedVal.Equal(r) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				r,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        *postgresql.ClusterConfig
+		expectedVal   types.Object
+		expectedError bool
+	}{
+		{
+			testname: "CheckFullAttributes",
+			reqVal: &postgresql.ClusterConfig{
+				Version: "9.6",
+				Resources: &postgresql.Resources{
+					ResourcePresetId: "s1.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         datasize.ToBytes(10),
+				},
+				Autofailover: wrapperspb.Bool(true),
+				Access: &postgresql.Access{
+					DataLens:     true,
+					DataTransfer: true,
+				},
+				PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
+					Enabled:                    true,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				},
+				BackupWindowStart: &timeofday.TimeOfDay{
+					Hours:   10,
+					Minutes: 0,
+				},
+				BackupRetainPeriodDays: wrapperspb.Int64(7),
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedConfigAttrs, map[string]attr.Value{
+					"version": types.StringValue("9.6"),
+					"resources": types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
+						"resource_preset_id": types.StringValue("s1.micro"),
+						"disk_type_id":       types.StringValue("network-ssd"),
+						"disk_size":          types.Int64Value(10),
+					}),
+					"autofailover": types.BoolValue(true),
+					"access": types.ObjectValueMust(expectedAccessAttrTypes, map[string]attr.Value{
+						"data_lens":     types.BoolValue(true),
+						"data_transfer": types.BoolValue(true),
+						"serverless":    types.BoolValue(false),
+						"web_sql":       types.BoolValue(false),
+					}),
+					"performance_diagnostics": types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
+						"enabled":                      types.BoolValue(true),
+						"sessions_sampling_interval":   types.Int64Value(60),
+						"statements_sampling_interval": types.Int64Value(600),
+					}),
+					"backup_window_start": types.ObjectValueMust(expectedBwsAttrTypes, map[string]attr.Value{
+						"hours":   types.Int64Value(10),
+						"minutes": types.Int64Value(0),
+					}),
+					"backup_retain_period_days": types.Int64Value(7),
+				},
+			),
+		},
+		{
+			testname: "CheckPartlyAttributes",
+			reqVal: &postgresql.ClusterConfig{
+				Version: "15",
+				Resources: &postgresql.Resources{
+					ResourcePresetId: "s2.nano",
+					DiskTypeId:       "network-hdd",
+					DiskSize:         datasize.ToBytes(15),
+				},
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedConfigAttrs, map[string]attr.Value{
+					"version": types.StringValue("15"),
+					"resources": types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
+						"resource_preset_id": types.StringValue("s2.nano"),
+						"disk_type_id":       types.StringValue("network-hdd"),
+						"disk_size":          types.Int64Value(15),
+					}),
+					"autofailover":              types.BoolNull(),
+					"access":                    types.ObjectNull(expectedAccessAttrTypes),
+					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
+					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
+					"backup_retain_period_days": types.Int64Null(),
+				},
+			),
+		},
+		{
+			testname:      "CheckNull",
+			reqVal:        nil,
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		conf := flattenConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			if !c.expectedError {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: errors: %v",
+					c.testname,
+					diags.Errors(),
+				)
+			} else {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: expected error, actual not",
+					c.testname,
+				)
+			}
+
+			continue
+		}
+
+		if !c.expectedVal.Equal(conf) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				conf,
 			)
 		}
 	}

@@ -25,7 +25,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -516,6 +515,13 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	tflog.Debug(ctx, fmt.Sprintf("Update PostgreSQL Cluster state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("Update PostgreSQL Cluster plan: %+v", plan))
 
+	updateVersionRequest, d := prepareVersionUpdateRequest(&state, &plan)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	updateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
+
 	updateRequest, d := prepareUpdateRequest(ctx, &state, &plan)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
@@ -671,54 +677,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
-	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
-	respDiagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	version := types.StringValue(cluster.Config.Version)
-	resources, diags := types.ObjectValueFrom(ctx, ResourcesAttrTypes, Resources{
-		ResourcePresetID: types.StringValue(cluster.Config.Resources.ResourcePresetId),
-		DiskSize:         types.Int64Value(datasize.ToGigabytes(cluster.Config.Resources.DiskSize)),
-		DiskTypeID:       types.StringValue(cluster.Config.Resources.DiskTypeId),
-	})
-	autofailover := types.BoolValue(cluster.Config.GetAutofailover().GetValue())
-	deletionProtection := types.BoolValue(cluster.GetDeletionProtection())
-	respDiagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	respDiagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	config, diags := types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
-		Version:                version,
-		Resources:              resources,
-		Autofailover:           autofailover,
-		Access:                 flattenAccess(ctx, cluster.Config.Access, &diags),
-		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, cluster.Config.PerformanceDiagnostics, &diags),
-		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, cluster.Config.BackupRetainPeriodDays, &diags),
-		BackupWindowStart:      flattenBackupWindowStart(ctx, cluster.Config.BackupWindowStart, &diags),
-	})
-	respDiagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
 	hostMapValue, diags := types.MapValueFrom(ctx, hostType, hosts)
-	respDiagnostics.Append(diags...)
-	if diags.HasError() {
-		return
-	}
-
-	// cluster.SecurityGroupIds can be nil when attribute setted with empty set
-	sgSl := make([]string, len(cluster.SecurityGroupIds))
-	copy(sgSl, cluster.SecurityGroupIds)
-	securityGroupIds, diags := types.SetValueFrom(ctx, types.StringType, sgSl)
 	respDiagnostics.Append(diags...)
 	if diags.HasError() {
 		return
@@ -730,10 +689,10 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Name = types.StringValue(cluster.Name)
 	state.Description = types.StringValue(cluster.Description)
 	state.Environment = types.StringValue(cluster.Environment.String())
-	state.Labels = labels
-	state.Config = config
+	state.Labels = flattenMapString(ctx, cluster.Labels, &diags)
+	state.Config = flattenConfig(ctx, cluster.GetConfig(), &diags)
 	state.HostSpecs = hostMapValue
-	state.DeletionProtection = deletionProtection
+	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
 	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, &diags)
-	state.SecurityGroupIds = securityGroupIds
+	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, &diags)
 }

@@ -3,12 +3,15 @@ package mdb_postgresql_cluster_beta
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -117,4 +120,100 @@ func expandBackupWindowStart(ctx context.Context, cfgBws types.Object, diags *di
 		Hours:   int32(backupWindowStart.Hours.ValueInt64()),
 		Minutes: int32(backupWindowStart.Minutes.ValueInt64()),
 	}
+}
+
+func expandLabels(ctx context.Context, labels types.Map, diags *diag.Diagnostics) map[string]string {
+	var lMap map[string]string
+	if !(labels.IsUnknown() || labels.IsNull()) {
+		diags.Append(labels.ElementsAs(ctx, &lMap, false)...)
+		if diags.HasError() {
+			return nil
+		}
+	}
+	return lMap
+}
+
+func expandEnvironment(_ context.Context, e types.String, diags *diag.Diagnostics) postgresql.Cluster_Environment {
+
+	if e.IsNull() || e.IsUnknown() {
+		return 0
+	}
+
+	v, ok := postgresql.Cluster_Environment_value[e.ValueString()]
+	if !ok || v == 0 {
+		allowedEnvs := make([]string, 0, len(postgresql.Cluster_Environment_value))
+		for k, v := range postgresql.Cluster_Environment_value {
+			if v == 0 {
+				continue
+			}
+			allowedEnvs = append(allowedEnvs, k)
+		}
+
+		diags.AddError(
+			"Failed to parse PostgreSQL environment",
+			fmt.Sprintf("Error while parsing value for 'environment'. Value must be one of `%s`, not `%s`", strings.Join(allowedEnvs, "`, `"), e),
+		)
+
+		return 0
+	}
+	return postgresql.Cluster_Environment(v)
+}
+
+func expandBoolWrapper(_ context.Context, b types.Bool, _ *diag.Diagnostics) *wrapperspb.BoolValue {
+	if b.IsNull() || b.IsUnknown() {
+		return nil
+	}
+
+	return wrapperspb.Bool(b.ValueBool())
+}
+
+func expandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagnostics) []string {
+	var securityGroupIds []string
+	if !(sg.IsUnknown() || sg.IsNull()) {
+		securityGroupIds = make([]string, len(sg.Elements()))
+		diags.Append(sg.ElementsAs(ctx, &securityGroupIds, false)...)
+		if diags.HasError() {
+			return nil
+		}
+	}
+
+	return securityGroupIds
+}
+
+func expandResources(ctx context.Context, r types.Object, diags *diag.Diagnostics) *postgresql.Resources {
+	var resources Resources
+	diags.Append(r.As(ctx, &resources, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &postgresql.Resources{
+		ResourcePresetId: resources.ResourcePresetID.ValueString(),
+		DiskTypeId:       resources.DiskTypeID.ValueString(),
+		DiskSize:         datasize.ToBytes(resources.DiskSize.ValueInt64()),
+	}
+}
+
+func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) *postgresql.ConfigSpec {
+	var configSpec Config
+	diags.Append(c.As(ctx, &configSpec, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &postgresql.ConfigSpec{
+		Version:                configSpec.Version.ValueString(),
+		Resources:              expandResources(ctx, configSpec.Resources, diags),
+		Autofailover:           expandBoolWrapper(ctx, configSpec.Autofailover, diags),
+		Access:                 expandAccess(ctx, configSpec.Access, diags),
+		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
+		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
+		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
+	}
+}
+
+func expandFolderId(ctx context.Context, f types.String, providerConfig *config.State, diags *diag.Diagnostics) string {
+	folderID, d := validate.FolderID(f, providerConfig)
+	diags.Append(d)
+	return folderID
 }
