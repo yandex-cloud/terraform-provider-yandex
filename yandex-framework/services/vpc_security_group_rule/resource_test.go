@@ -86,13 +86,14 @@ func TestAccVPCSecurityGroupRule_UpgradeFromSDKv2(t *testing.T) {
 	sgName := acctest.RandomWithPrefix("vpc-sg-upgrade-provider")
 
 	sgr1Name := "yandex_vpc_security_group_rule.sgr1"
+	sgr2Name := "yandex_vpc_security_group_rule.sgr2"
 
 	resource.Test(t, resource.TestCase{
 		Steps: []resource.TestStep{
 			{
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"yandex": {
-						VersionConstraint: "0.129.0",
+						VersionConstraint: "0.128.0",
 						Source:            "yandex-cloud/yandex",
 					},
 				},
@@ -105,6 +106,10 @@ func TestAccVPCSecurityGroupRule_UpgradeFromSDKv2(t *testing.T) {
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.#", "2"),
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.0", "10.0.1.0/24"),
 					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.1", "10.0.2.0/24"),
+					resource.TestCheckResourceAttr(sgr2Name, "direction", "egress"),
+					resource.TestCheckResourceAttr(sgr2Name, "protocol", "ANY"),
+					resource.TestCheckResourceAttr(sgr2Name, "v4_cidr_blocks.#", "1"),
+					resource.TestCheckResourceAttr(sgr2Name, "v4_cidr_blocks.0", "0.0.0.0/0"),
 				),
 			},
 			{
@@ -306,6 +311,13 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   security_group_binding = yandex_vpc_security_group.sg1.id
   port                   = 443
   protocol               = "TCP"
+}
+
+resource "yandex_vpc_security_group_rule" "sgr2" {
+  security_group_binding = yandex_vpc_security_group.sg1.id
+  protocol               = "ANY"
+  v4_cidr_blocks         = ["0.0.0.0/0"]
+  direction              = "egress"
 }
 `, networkName, sgName, test.GetExampleFolderID())
 }

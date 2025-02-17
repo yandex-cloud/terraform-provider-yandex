@@ -80,6 +80,7 @@ func (r *securityGroupRuleResource) Schema(ctx context.Context, req resource.Sch
 			"description": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["description"],
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -252,8 +253,8 @@ func (r *securityGroupRuleResource) ImportState(ctx context.Context, req resourc
 	var state securityGroupRuleModel
 	state.SecurityGroupBinding = types.StringValue(sgID)
 	state.ID = types.StringValue(ruleID)
+	// all complex fields must be explicitly set to corresponding "null" values...
 	state.Labels = types.MapNull(types.StringType)
-	// all complex object fields must be explicitly set to corresponding "null" values...
 	state.V4CidrBlocks = types.ListNull(types.StringType)
 	state.V6CidrBlocks = types.ListNull(types.StringType)
 	state.Timeouts = timeouts.Value{
