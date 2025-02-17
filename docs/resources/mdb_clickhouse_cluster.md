@@ -958,6 +958,7 @@ The `config` block supports:
 * `graphite_rollup` - (Optional) Graphite rollup configuration. The structure is documented below.
 * `query_masking_rules` - (Optional) Query masking rules configuration. The structure is documented below.
 * `query_cache` - (Optional) Query cache configuration. The structure is documented below.
+* `jdbc_bridge` - (Optional) JDBC bridge configuration. The structure is documented below.
 
 The `merge_tree` block supports:
 
@@ -1046,6 +1047,11 @@ The `query_cache` block supports:
 * `max_entries` - (Optional) The maximum number of SELECT query results stored in the cache. Default value: 1024.
 * `max_entry_size_in_bytes` - (Optional) The maximum size in bytes SELECT query results may have to be saved in the cache. Default value: 1048576 (1 MiB).
 * `max_entry_size_in_rows` - (Optional) The maximum number of rows SELECT query results may have to be saved in the cache. Default value: 30000000 (30 mil).
+
+The `jdbc_bridge` block supports:
+
+* `host` - (Required) Host of jdbc bridge.
+* `port` - (Optional) Port of jdbc bridge. Default value: 9019.
 
 The `cloud_storage` block supports:
 

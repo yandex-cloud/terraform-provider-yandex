@@ -825,6 +825,22 @@ func flattenClickhouseQueryCacheSettings(c *clickhouseConfig.ClickhouseConfig_Qu
 	return []map[string]interface{}{res}, nil
 }
 
+func flattenClickhouseJdbcBridgeSettings(c *clickhouseConfig.ClickhouseConfig_JdbcBridge) ([]map[string]interface{}, error) {
+	if c == nil {
+		return []map[string]interface{}{}, nil
+	}
+
+	res := map[string]interface{}{}
+
+	res["host"] = c.Host
+
+	if c.Port != nil {
+		res["port"] = c.Port.Value
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
 func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfigSet) ([]map[string]interface{}, error) {
 	res := map[string]interface{}{}
 
@@ -1049,6 +1065,12 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 		return nil, err
 	}
 	res["query_cache"] = queryCache
+
+	jdbcBridge, err := flattenClickhouseJdbcBridgeSettings(c.EffectiveConfig.JdbcBridge)
+	if err != nil {
+		return nil, err
+	}
+	res["jdbc_bridge"] = jdbcBridge
 
 	return []map[string]interface{}{res}, nil
 }
@@ -1359,6 +1381,19 @@ func expandClickhouseQueryCacheConfig(d *schema.ResourceData, rootKey string) (*
 	return config, nil
 }
 
+func expandClickhouseJdbcBridgeConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_JdbcBridge, error) {
+	config := &clickhouseConfig.ClickhouseConfig_JdbcBridge{}
+
+	if v, ok := d.GetOkExists(rootKey + ".host"); ok {
+		config.Host = v.(string)
+	}
+	if v, ok := d.GetOkExists(rootKey + ".port"); ok {
+		config.Port = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return config, nil
+}
+
 func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig, error) {
 	config := &clickhouseConfig.ClickhouseConfig{}
 
@@ -1596,6 +1631,14 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 		return nil, err
 	}
 	config.QueryCache = queryCacheSettings
+
+	if _, ok := d.GetOk(rootKey + ".jdbc_bridge"); ok {
+		jdbcBridgeSettings, err := expandClickhouseJdbcBridgeConfig(d, rootKey+".jdbc_bridge.0")
+		if err != nil {
+			return nil, err
+		}
+		config.JdbcBridge = jdbcBridgeSettings
+	}
 
 	return config, nil
 }

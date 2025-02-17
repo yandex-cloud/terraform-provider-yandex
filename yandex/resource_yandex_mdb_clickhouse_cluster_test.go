@@ -860,6 +860,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MaxEntrySizeInBytes: &wrappers.Int64Value{Value: 1048570},
 			MaxEntrySizeInRows:  &wrappers.Int64Value{Value: 20000000},
 		},
+		JdbcBridge: &cfg.ClickhouseConfig_JdbcBridge{
+			Host: "127.0.0.2",
+			Port: &wrappers.Int64Value{Value: 8999},
+		},
 		LogLevel:                                  cfg.ClickhouseConfig_TRACE,
 		MaxConnections:                            &wrappers.Int64Value{Value: 512},
 		MaxConcurrentQueries:                      &wrappers.Int64Value{Value: 100},
@@ -1063,6 +1067,10 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MaxEntries:          &wrappers.Int64Value{Value: 2020},
 			MaxEntrySizeInBytes: &wrappers.Int64Value{Value: 2048570},
 			MaxEntrySizeInRows:  &wrappers.Int64Value{Value: 30000000},
+		},
+		JdbcBridge: &cfg.ClickhouseConfig_JdbcBridge{
+			Host: "127.0.0.3",
+			Port: &wrappers.Int64Value{Value: 8998},
 		},
 		LogLevel:                                  cfg.ClickhouseConfig_WARNING,
 		MaxConnections:                            &wrappers.Int64Value{Value: 1024},
@@ -1271,6 +1279,9 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_bytes", "1048570"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_rows", "20000000"),
 
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.jdbc_bridge.0.host", "127.0.0.2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.jdbc_bridge.0.port", "8999"),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1428,6 +1439,9 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entries", "2020"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_bytes", "2048570"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_rows", "30000000"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.jdbc_bridge.0.host", "127.0.0.3"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.jdbc_bridge.0.port", "8998"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -3563,6 +3577,9 @@ config {
 
 		# query_cache
 		%s
+
+		# jdbc_bridge
+		%s
     }
 `,
 		config.LogLevel.String(),
@@ -3631,6 +3648,7 @@ config {
 		buildGraphiteRollup(config.GraphiteRollup),
 		buildConfigForQueryMaskingRules(config.QueryMaskingRules),
 		buildConfigForQueryCache(config.QueryCache),
+		buildConfigForJdbcBridge(config.JdbcBridge),
 	)
 }
 
@@ -3855,6 +3873,18 @@ query_cache {
 		queryCache.MaxEntries.GetValue(),
 		queryCache.MaxEntrySizeInBytes.GetValue(),
 		queryCache.MaxEntrySizeInRows.GetValue(),
+	)
+}
+
+func buildConfigForJdbcBridge(jdbcBridge *cfg.ClickhouseConfig_JdbcBridge) string {
+	return fmt.Sprintf(`
+jdbc_bridge {
+		host                    = "%s"
+		port                    = %d
+}
+`,
+		jdbcBridge.Host,
+		jdbcBridge.Port.GetValue(),
 	)
 }
 

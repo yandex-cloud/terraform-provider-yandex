@@ -274,6 +274,18 @@ var schemaConfig = map[string]*schema.Schema{
 			},
 		},
 	},
+	"jdbc_bridge": {
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"host": {Type: schema.TypeString, Required: true},
+				"port": {Type: schema.TypeInt, Optional: true, Computed: true},
+			},
+		},
+	},
 }
 
 func resourceYandexMDBClickHouseCluster() *schema.Resource {
@@ -1497,6 +1509,7 @@ var mdbClickHouseConfigUpdateFieldsMaps = []string{
 	"query_masking_rules",
 	"dictionaries_lazy_load",
 	"query_cache",
+	"jdbc_bridge",
 }
 var mdbClickhouseMergeTreeUpdateFields = []string{
 	"replicated_deduplication_window",
