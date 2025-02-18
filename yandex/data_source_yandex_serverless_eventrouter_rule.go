@@ -32,7 +32,7 @@ var yandexEventrouterTargetBatchSettingsDataSource = &schema.Resource{
 	},
 }
 
-func dataSourceYandexEventrouterRule() *schema.Resource {
+func dataSourceYandexServerlessEventrouterRule() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceYandexEventrouterRuleRead,
 

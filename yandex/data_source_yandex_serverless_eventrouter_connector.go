@@ -10,7 +10,7 @@ import (
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
-func dataSourceYandexEventrouterConnector() *schema.Resource {
+func dataSourceYandexServerlessEventrouterConnector() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceYandexEventrouterConnectorRead,
 

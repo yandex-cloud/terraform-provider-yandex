@@ -24,7 +24,7 @@ var eventrouterSourceTypesList = []string{
 	eventrouterSourceTypeYmq,
 }
 
-func resourceYandexEventrouterConnector() *schema.Resource {
+func resourceYandexServerlessEventrouterConnector() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceYandexEventrouterConnectorCreate,
 		ReadContext:   resourceYandexEventrouterConnectorRead,

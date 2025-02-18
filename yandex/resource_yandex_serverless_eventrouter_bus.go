@@ -15,7 +15,7 @@ const (
 	yandexEventrouterBusDefaultTimeout = 10 * time.Minute
 )
 
-func resourceYandexEventrouterBus() *schema.Resource {
+func resourceYandexServerlessEventrouterBus() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceYandexEventrouterBusCreate,
 		ReadContext:   resourceYandexEventrouterBusRead,

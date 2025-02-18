@@ -62,7 +62,7 @@ var yandexEventrouterTargetBatchSettingsResource = &schema.Resource{
 	},
 }
 
-func resourceYandexEventrouterRule() *schema.Resource {
+func resourceYandexServerlessEventrouterRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceYandexEventrouterRuleCreate,
 		ReadContext:   resourceYandexEventrouterRuleRead,
