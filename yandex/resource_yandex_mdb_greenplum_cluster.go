@@ -3,13 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
@@ -79,7 +78,7 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 			"version": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"6.22", "6.25"}, true),
+				ValidateFunc: validation.StringInSlice([]string{"6.25"}, true),
 			},
 			"master_host_count": {
 				Type:     schema.TypeInt,
@@ -889,7 +888,7 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 		return nil, fmt.Errorf("error while expanding labels on Greenplum cluster update: %s", err)
 	}
 
-	configSpec, settingNames, err := expandGreenplumConfigSpec(d)
+	configSpec, configMask, err := expandGreenplumConfigSpec(d)
 	if err != nil {
 		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster update: %s", err)
 	}
@@ -935,7 +934,10 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 			},
 		},
 
-		UpdateMask:   &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
+		UpdateMask: fieldmaskpb.Union(
+			expandGreenplumUpdateMask(d),
+			configMask,
+		),
 		ConfigSpec:   configSpec,
 		CloudStorage: expandGreenplumCloudStorage(d),
 	}, nil

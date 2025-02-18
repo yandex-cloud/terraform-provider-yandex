@@ -133,6 +133,11 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_files_per_query", "100000"),
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_prepared_transactions", "500"),
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "false"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_statement_mem", "2147483648"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.log_statement", "2"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_add_column_inherits_table_setting", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_enable_global_deadlock_detector", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_global_deadlock_detector_period", "120"),
 
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.disk_size", "24"),
@@ -167,8 +172,11 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "400"),
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_global_deadlock_detector_period", "300"),
+
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "SESSION"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "0"),
@@ -405,16 +413,20 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
   }
 
   greenplum_config = {
-    max_connections                   = 395
-    max_slot_wal_keep_size            = 1048576
-    gp_workfile_limit_per_segment     = 0
-    gp_workfile_limit_per_query       = 0
-    gp_workfile_limit_files_per_query = 100000
-    max_prepared_transactions         = 500
-    gp_workfile_compression           = "false"
+    max_connections                      = 395
+    max_slot_wal_keep_size               = 1048576
+    gp_workfile_limit_per_segment        = 0
+    gp_workfile_limit_per_query          = 0
+    gp_workfile_limit_files_per_query    = 100000
+    max_prepared_transactions            = 500
+    gp_workfile_compression              = "false"
+    max_statement_mem                    = 2147483648
+    log_statement                        = 2
+    gp_add_column_inherits_table_setting = "true"
+    gp_enable_global_deadlock_detector   = "true"
+    gp_global_deadlock_detector_period   = 120
   }
 }`
-
 }
 
 func testAccMDBGreenplumClusterConfigStep2(name string, description string) string {
@@ -474,13 +486,14 @@ func testAccMDBGreenplumClusterConfigStep4(name string, description string) stri
   }
 
   greenplum_config = {
-    max_connections                   = 400
-    max_slot_wal_keep_size            = 1048576
-    gp_workfile_limit_per_segment     = 0
-    gp_workfile_limit_per_query       = 0
-    gp_workfile_limit_files_per_query = 100000
-    max_prepared_transactions         = 500
-    gp_workfile_compression           = "true"
+    max_connections                    = 400
+    max_slot_wal_keep_size             = 1048576
+    gp_workfile_limit_per_segment      = 0
+    gp_workfile_limit_per_query        = 0
+    gp_workfile_limit_files_per_query  = 100000
+    max_prepared_transactions          = 500
+    gp_workfile_compression            = "true"
+    gp_global_deadlock_detector_period = 300
   }
 }`
 }

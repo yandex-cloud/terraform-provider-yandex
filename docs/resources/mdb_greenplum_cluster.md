@@ -27,7 +27,7 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   zone_id            = "ru-central1-a"
   subnet_id          = yandex_vpc_subnet.foo.id
   assign_public_ip   = true
-  version            = "6.22"
+  version            = "6.25"
   master_host_count  = 2
   segment_host_count = 5
   segment_in_host    = 1
@@ -51,8 +51,18 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   }
 
   greenplum_config = {
-    max_connections         = 395
-    gp_workfile_compression = "false"
+    max_connections                      = 395
+    max_slot_wal_keep_size               = 1048576
+    gp_workfile_limit_per_segment        = 0
+    gp_workfile_limit_per_query          = 0
+    gp_workfile_limit_files_per_query    = 100000
+    max_prepared_transactions            = 500
+    gp_workfile_compression              = "false"
+    max_statement_mem                    = 2147483648
+    log_statement                        = 2
+    gp_add_column_inherits_table_setting = "true"
+    gp_enable_global_deadlock_detector   = "true"
+    gp_global_deadlock_detector_period   = 120
   }
 
   user_name     = "admin_user"
@@ -104,7 +114,7 @@ The following arguments are supported:
 
 * `environment` - (Required) Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 
-* `version` - (Required) Version of the Greenplum cluster. (6.22 or 6.25)
+* `version` - (Required) Version of the Greenplum cluster. (6.25)
 
 * `master_host_count` - (Required) Number of hosts in master subcluster (1 or 2).
 
@@ -270,15 +280,17 @@ terraform import yandex_mdb_greenplum_cluster.my_cluster ...
 
 ## Greenplum cluster settings
 
-| Setting name and type \ Greenplum version                                                                                                                                             | 6.22      | 6.25      |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|-----------|
-| gp_add_column_inherits_table_setting : boolean                                                                                                                                        | supported | supported |
-| gp_workfile_compression : boolean                                                                                                                                                     | supported | supported |
-| gp_workfile_limit_files_per_query : integer                                                                                                                                           | supported | supported |
-| gp_workfile_limit_per_segment : integer                                                                                                                                               | supported | supported |
-| gp_workfile_limit_per_query : integer                                                                                                                                                 | supported | supported |
-| log_statement : one of<br> - 0: " LOG_STATEMENT_UNSPECIFIED"<br> - 1: " LOG_STATEMENT_NONE"<br> - 2: " LOG_STATEMENT_DDL"<er> - 3: " LOG_STATEMENT_MOD"<br> - 4: " LOG_STATEMENT_ALL" | supported | supported |
-| max_connections : integer                                                                                                                                                             | supported | supported |
-| max_prepared_transactions : integer                                                                                                                                                   | supported | supported |
-| max_slot_wal_keep_size : integer                                                                                                                                                      | supported | supported |
-| max_statement_mem : integer                                                                                                                                                           | supported | supported |
+| Setting name and type \ Greenplum version                                                                                                                                             | 6.25      |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| gp_add_column_inherits_table_setting : boolean                                                                                                                                        | supported |
+| gp_enable_global_deadlock_detector : boolean                                                                                                                                          | supported |
+| gp_global_deadlock_detector_period : integer                                                                                                                                          | supported |
+| gp_workfile_compression : boolean                                                                                                                                                     | supported |
+| gp_workfile_limit_files_per_query : integer                                                                                                                                           | supported |
+| gp_workfile_limit_per_segment : integer                                                                                                                                               | supported |
+| gp_workfile_limit_per_query : integer                                                                                                                                                 | supported |
+| log_statement : one of<br> - 0: " LOG_STATEMENT_UNSPECIFIED"<br> - 1: " LOG_STATEMENT_NONE"<br> - 2: " LOG_STATEMENT_DDL"<er> - 3: " LOG_STATEMENT_MOD"<br> - 4: " LOG_STATEMENT_ALL" | supported |
+| max_connections : integer                                                                                                                                                             | supported |
+| max_prepared_transactions : integer                                                                                                                                                   | supported |
+| max_slot_wal_keep_size : integer                                                                                                                                                      | supported |
+| max_statement_mem : integer                                                                                                                                                           | supported |

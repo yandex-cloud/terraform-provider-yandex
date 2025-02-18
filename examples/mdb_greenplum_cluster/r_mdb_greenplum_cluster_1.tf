@@ -9,7 +9,7 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   zone_id            = "ru-central1-a"
   subnet_id          = yandex_vpc_subnet.foo.id
   assign_public_ip   = true
-  version            = "6.22"
+  version            = "6.25"
   master_host_count  = 2
   segment_host_count = 5
   segment_in_host    = 1
@@ -33,8 +33,18 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   }
 
   greenplum_config = {
-    max_connections         = 395
-    gp_workfile_compression = "false"
+    max_connections                      = 395
+    max_slot_wal_keep_size               = 1048576
+    gp_workfile_limit_per_segment        = 0
+    gp_workfile_limit_per_query          = 0
+    gp_workfile_limit_files_per_query    = 100000
+    max_prepared_transactions            = 500
+    gp_workfile_compression              = "false"
+    max_statement_mem                    = 2147483648
+    log_statement                        = 2
+    gp_add_column_inherits_table_setting = "true"
+    gp_enable_global_deadlock_detector   = "true"
+    gp_global_deadlock_detector_period   = 120
   }
 
   user_name     = "admin_user"

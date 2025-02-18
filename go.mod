@@ -40,7 +40,7 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.9.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20250210115047-dfe92c70a6b1
-	github.com/yandex-cloud/go-sdk v0.0.0-20241101143304-947cf519f6bd
+	github.com/yandex-cloud/go-sdk v0.0.0-20250210144447-399a857b9c4e
 	github.com/ydb-platform/terraform-provider-ydb v0.0.23
 	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
