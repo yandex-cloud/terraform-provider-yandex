@@ -84,10 +84,9 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:      func() { testAccPreCheck(t) },
-				IDRefreshName: resourceName,
-				Providers:     testAccProviders,
-				CheckDestroy:  testAccCheckStorageBucketDestroy,
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckStorageBucketDestroy,
 				Steps: []resource.TestStep{
 					{
 						Config: tt.configFunc(rInt),
@@ -112,10 +111,9 @@ func TestAccStorageBucket_namePrefix(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithNamePrefix(rInt),
@@ -133,10 +131,9 @@ func TestAccStorageBucket_generatedName(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithGeneratedName(rInt),
@@ -153,11 +150,9 @@ func TestAccStorageBucket_Policy(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithPolicy(rInt),
@@ -175,11 +170,9 @@ func TestAccStorageBucket_PolicyNone(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketBasic(rInt),
@@ -197,11 +190,9 @@ func TestAccStorageBucket_PolicyEmpty(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithEmptyPolicy(rInt),
@@ -219,11 +210,9 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAclPreConfig(rInt),
@@ -260,11 +249,9 @@ func TestAccStorageBucket_Website_Simple(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfig(rInt),
@@ -305,11 +292,9 @@ func TestAccStorageBucket_WebsiteRedirect(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithRedirect(rInt),
@@ -328,11 +313,9 @@ func TestAccStorageBucket_WebsiteHttpsRedirect(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithHttpsRedirect(rInt),
@@ -351,11 +334,9 @@ func TestAccStorageBucket_WebsiteRoutingRules(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithRoutingRules(rInt),
@@ -394,10 +375,9 @@ func TestAccStorageBucket_shouldFailNotFound(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: "",
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketDestroyedConfig(rInt),
@@ -437,10 +417,9 @@ func TestAccStorageBucket_VersioningEnabled(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: "",
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithVersioning(rInt),
@@ -465,10 +444,9 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORS(rInt),
@@ -550,10 +528,9 @@ func TestAccStorageBucket_MaxSize(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketMaxSize(rInt, maxSize),
@@ -582,11 +559,9 @@ func TestAccStorageBucket_HTTPSConfig(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketHTTPSConfig(bucketName, externalCertificateID),
@@ -611,10 +586,9 @@ func TestAccStorageBucket_AnonymousAccessFlags(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAnonymousAccessFlags(rInt),
@@ -636,10 +610,9 @@ func TestAccStorageBucket_StorageClass(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketDefaultStorageClassCold(rInt),
@@ -659,10 +632,9 @@ func TestAccStorageBucket_FolderID(t *testing.T) {
 	folderID := testFolderID
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWithFolderID(rInt, folderID),
@@ -680,10 +652,9 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORS(rInt),
@@ -736,10 +707,9 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORSEmptyOrigin(rInt),
@@ -782,10 +752,9 @@ func TestAccStorageBucket_SSE(t *testing.T) {
 	var symmetricKey kms.SymmetricKey
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketSSEDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketSSEDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketSSEDefault(keyName, rInt),
@@ -817,10 +786,9 @@ func TestAccStorageBucket_ObjectLockNone(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketBasic(rInt),
@@ -839,10 +807,9 @@ func TestAccStorageBucket_ObjectLockEnabled(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, "", 0, 0),
@@ -866,10 +833,9 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionDays(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 10, 0),
@@ -899,10 +865,9 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionYears(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 0, 10),
@@ -935,12 +900,10 @@ func TestAccStorageBucket_Tagging(t *testing.T) {
 		Value: aws.String("value"),
 	}}
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
-		ErrorCheck:      checkErrorSkipNotImplemented(t),
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		ErrorCheck:   checkErrorSkipNotImplemented(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWithTags(rInt),
@@ -1553,8 +1516,8 @@ func newBucketConfigBuilder(randInt int) testAccStorageBucketConfigBuilder {
 }
 
 const (
-	testAccStorageBucketConfigBuilderRoleEditor = "editor"
-	testAccStorageBucketConfigBuilderRoleAdmin  = "admin"
+	testAccStorageBucketConfigBuilderRoleEditor = "storage.editor"
+	testAccStorageBucketConfigBuilderRoleAdmin  = "storage.admin"
 )
 
 type testAccStorageBucketConfigBuilder struct {
@@ -1568,6 +1531,8 @@ type testAccStorageBucketConfigBuilder struct {
 
 	storageClass string
 
+	folderID string
+
 	anonymousRead       bool
 	anonymousList       bool
 	anonymousConfigRead bool
@@ -1577,13 +1542,11 @@ type testAccStorageBucketConfigBuilder struct {
 
 func (b testAccStorageBucketConfigBuilder) withCustomName(name string) testAccStorageBucketConfigBuilder {
 	b.customBucketName = name
-
 	return b
 }
 
 func (b testAccStorageBucketConfigBuilder) withStorageClass(class string) testAccStorageBucketConfigBuilder {
 	b.storageClass = class
-
 	return b
 }
 
@@ -1593,37 +1556,36 @@ func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(
 	b.anonymousRead = read
 	b.anonymousList = list
 	b.anonymousConfigRead = configRead
-
 	return b
 }
 
 func (b testAccStorageBucketConfigBuilder) addStatement(statement string) testAccStorageBucketConfigBuilder {
 	b.bucketStatements = append(b.bucketStatements, "\t"+statement)
-
 	return b
 }
 
 func (b testAccStorageBucketConfigBuilder) before(statement string) testAccStorageBucketConfigBuilder {
 	b.beforeBucket = append(b.beforeBucket, statement)
-
 	return b
 }
 
 func (b testAccStorageBucketConfigBuilder) asEditor() testAccStorageBucketConfigBuilder {
 	b.role = testAccStorageBucketConfigBuilderRoleEditor
-
 	return b
 }
 
 func (b testAccStorageBucketConfigBuilder) asAdmin() testAccStorageBucketConfigBuilder {
 	b.role = testAccStorageBucketConfigBuilderRoleAdmin
-
 	return b
 }
 
-func (b testAccStorageBucketConfigBuilder) disableAWSKeys() testAccStorageBucketConfigBuilder {
+func (b testAccStorageBucketConfigBuilder) withDisabledAccessKeys() testAccStorageBucketConfigBuilder {
 	b.disableAwsKeys = true
+	return b
+}
 
+func (b testAccStorageBucketConfigBuilder) withFolderID(id string) testAccStorageBucketConfigBuilder {
+	b.folderID = id
 	return b
 }
 
@@ -1654,11 +1616,14 @@ example of how it might look after calling this method:
 func (b testAccStorageBucketConfigBuilder) render() string {
 	const (
 		bucketNameTemplate = "tf-test-bucket-%d"
-		baseTemplate       = `resource "yandex_storage_bucket" "test" {
+
+		baseTemplate = `resource "yandex_storage_bucket" "test" {
 	bucket = "%s"`
+
 		awsKeysTemplate = `
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key`
+
 		extendedTemplate = `
 	default_storage_class = %s
 
@@ -1667,6 +1632,8 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 		read = %t
 		config_read = %t
 	}`
+
+		folderIDTemplate = `folder_id = "%s"`
 	)
 
 	var bucketName string
@@ -1687,6 +1654,11 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 
 	if !b.disableAwsKeys {
 		out.WriteString(awsKeysTemplate)
+		out.WriteString("\n")
+	}
+
+	if len(b.folderID) > 0 {
+		out.WriteString(fmt.Sprintf(folderIDTemplate, b.folderID))
 		out.WriteString("\n")
 	}
 
@@ -1712,10 +1684,8 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 	}
 
 	switch b.role {
-	case testAccStorageBucketConfigBuilderRoleEditor:
-		out.WriteString(testAccCommonIamDependenciesEditorConfig(b.bucketRandomNumber))
-	case testAccStorageBucketConfigBuilderRoleAdmin:
-		out.WriteString(testAccCommonIamDependenciesAdminConfig(b.bucketRandomNumber))
+	case testAccStorageBucketConfigBuilderRoleEditor, testAccStorageBucketConfigBuilderRoleAdmin:
+		out.WriteString(testAccCommonIamDependenciesConfigImpl(b.bucketRandomNumber, b.role))
 	}
 
 	return out.String()
@@ -1729,7 +1699,8 @@ func testAccStorageBucketConfig(randInt int) string {
 
 func testAccStorageBucketWithoutAWSKeysConfig(randInt int) string {
 	return newBucketConfigBuilder(randInt).
-		disableAWSKeys().
+		withDisabledAccessKeys().
+		withFolderID(testFolderID).
 		asEditor().
 		render()
 }
@@ -2357,10 +2328,9 @@ func TestAccStorageBucket_Logging(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithLogging(rInt),
@@ -2378,10 +2348,9 @@ func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithLifecycle(rInt),
@@ -2407,10 +2376,9 @@ func TestAccStorageBucket_LifecycleVersioning(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithVersioningLifecycle(rInt),
@@ -2444,10 +2412,9 @@ func TestAccStorageBucket_LifecycleRule_Expiration_EmptyConfigurationBlock(t *te
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(rInt),
@@ -2465,10 +2432,9 @@ func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExp
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
-		IDRefreshName: resourceName,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rInt),
@@ -2486,7 +2452,6 @@ func TestAccStorageBucket_LifecycleRule_TransitionToIceStorage(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
-		IDRefreshName:     resourceName,
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
@@ -2507,7 +2472,6 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
-		IDRefreshName:     resourceName,
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
@@ -2532,7 +2496,6 @@ func TestAccStorageBucket_Grants(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
-		IDRefreshName:     resourceName,
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
@@ -2566,7 +2529,6 @@ func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
-		IDRefreshName:     resourceName,
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
@@ -2632,11 +2594,9 @@ func TestAccStorageBucket_ImportBasic(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithPolicy(rInt),

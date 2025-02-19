@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 )
 
@@ -97,11 +98,9 @@ func TestAccStorageObject_source(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:        func() { testAccPreCheck(t) },
-				IDRefreshName:   resourceName,
-				IDRefreshIgnore: []string{"access_key", "secret_key"},
-				Providers:       testAccProviders,
-				CheckDestroy:    testAccCheckStorageObjectDestroy,
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckStorageObjectDestroy,
 				Steps: []resource.TestStep{
 					{
 						Config: testAccStorageObjectConfigSource(rInt, source, tt.disableAWSKeys),
@@ -125,11 +124,9 @@ func TestAccStorageObject_sourceHash(t *testing.T) {
 	defer os.Remove(source)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigSourceHash(rInt, source),
@@ -161,11 +158,9 @@ func TestAccStorageObject_content(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContent(rInt, "some_bucket_content"),
@@ -184,11 +179,9 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContentBase64(
@@ -210,11 +203,9 @@ func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContentType(rInt, ""),
@@ -233,11 +224,9 @@ func TestAccStorageObject_contentTypeText(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContentType(rInt, "text/plain"),
@@ -256,11 +245,9 @@ func TestAccStorageObject_updateAcl(t *testing.T) {
 	resourceName := "yandex_storage_object.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectAclPreConfig(rInt),
@@ -286,11 +273,9 @@ func TestAccStorageObject_ObjectLockNone(t *testing.T) {
 	resourceName := "yandex_storage_object.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContent(rInt, "some_bucket_content"),
@@ -310,11 +295,9 @@ func TestAccStorageObject_LegalHoldOn(t *testing.T) {
 	resourceName := "yandex_storage_object.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, awsS3.ObjectLockLegalHoldStatusOn),
@@ -342,11 +325,9 @@ func TestAccStorageObject_LegalHoldOff(t *testing.T) {
 	resourceName := "yandex_storage_object.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, awsS3.ObjectLockLegalHoldStatusOff),
@@ -377,12 +358,10 @@ func TestAccStorageObject_Tagging(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:        func() { testAccPreCheck(t) },
-		IDRefreshName:   resourceName,
-		IDRefreshIgnore: []string{"access_key", "secret_key"},
-		Providers:       testAccProviders,
-		CheckDestroy:    testAccCheckStorageObjectDestroy,
-		ErrorCheck:      checkErrorSkipNotImplemented(t),
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectDestroy,
+		ErrorCheck:   checkErrorSkipNotImplemented(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectTagsPreConfig(rInt, tags),
