@@ -214,14 +214,9 @@ The `performance_diagnostics` block supports:
 
 The `access` block supports:
 
-<<<<<<< HEAD
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
-* `web_sql` - (Optional) Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/)
-=======
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens)
 * `data_transfer` - (Optional) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
->>>>>>> 30931d5f (Refactoring all doc templates and examples)
+* `web_sql` - (Optional) Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/)
 
 The `maintenance_window` block supports:
 
