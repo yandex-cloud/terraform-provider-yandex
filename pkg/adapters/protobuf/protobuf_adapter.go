@@ -75,7 +75,7 @@ var intTypes = []reflect.Kind{
 	reflect.Int64,
 }
 
-func (b *ProtobufMapDataAdapter) findTag(f reflect.StructField, tag, attrTagName string) (string, bool) {
+func FindTag(f reflect.StructField, tag, attrTagName string) (string, bool) {
 	tagF := f.Tag.Get(tag)
 	if tagF == "" {
 		return "", false
@@ -149,7 +149,7 @@ func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attribute
 			continue
 		}
 
-		fieldName, ok := f.findTag(field, protoTag, "name")
+		fieldName, ok := FindTag(field, protoTag, "name")
 		if !ok {
 			continue
 		}
@@ -242,7 +242,7 @@ func (b *ProtobufMapDataAdapter) mapToWrapper(ctx context.Context, t reflect.Typ
 		}
 		return reflect.ValueOf(wrapperspb.Bool(v.ValueBool()))
 	// Double
-	case wrapperTypes[3]:
+	case wrapperTypes[2]:
 		var attrVal float64
 		switch attribute.Type(ctx) {
 		case types.Float64Type:
@@ -401,15 +401,20 @@ func (b *ProtobufMapDataAdapter) mapToSlice(ctx context.Context, t reflect.Type,
 // For slices returns types.TupleValue
 func (b *ProtobufMapDataAdapter) Extract(ctx context.Context, src any, diags *diag.Diagnostics) map[string]attr.Value {
 
+	if src == nil {
+		return nil
+	}
+
 	srcType := reflect.TypeOf(src)
 	srcVal := reflect.ValueOf(src)
+
+	if srcVal.Kind() == reflect.Ptr && srcVal.IsNil() {
+		return nil
+	}
 
 	attributes := make(map[string]attr.Value)
 
 	if srcType.Kind() == reflect.Ptr && srcType.Elem().Kind() == reflect.Struct {
-		if srcVal.IsNil() {
-			return nil
-		}
 		return b.Extract(ctx, srcVal.Elem().Interface(), diags)
 	}
 
@@ -420,7 +425,7 @@ func (b *ProtobufMapDataAdapter) Extract(ctx context.Context, src any, diags *di
 
 	for i := 0; i < srcType.NumField(); i++ {
 		field := srcType.Field(i)
-		fieldName, ok := b.findTag(field, protoTag, "name")
+		fieldName, ok := FindTag(field, protoTag, "name")
 		if !ok {
 			continue
 		}

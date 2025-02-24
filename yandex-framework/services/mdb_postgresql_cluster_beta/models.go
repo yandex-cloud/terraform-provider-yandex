@@ -39,13 +39,14 @@ var hostType = types.ObjectType{
 }
 
 type Config struct {
-	Version                types.String `tfsdk:"version"`
-	Resources              types.Object `tfsdk:"resources"`
-	Autofailover           types.Bool   `tfsdk:"autofailover"`
-	Access                 types.Object `tfsdk:"access"`
-	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
-	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
-	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
+	Version                types.String       `tfsdk:"version"`
+	Resources              types.Object       `tfsdk:"resources"`
+	Autofailover           types.Bool         `tfsdk:"autofailover"`
+	Access                 types.Object       `tfsdk:"access"`
+	PerformanceDiagnostics types.Object       `tfsdk:"performance_diagnostics"`
+	BackupRetainPeriodDays types.Int64        `tfsdk:"backup_retain_period_days"`
+	BackupWindowStart      types.Object       `tfsdk:"backup_window_start"`
+	PostgtgreSQLConfig     PgSettingsMapValue `tfsdk:"postgresql_config"`
 }
 
 type MaintenanceWindow struct {
@@ -68,6 +69,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
+	"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
 }
 
 type Access struct {

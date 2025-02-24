@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
@@ -704,6 +705,85 @@ func TestYandexProvider_MDBPostgresClusterResourcesExpand(t *testing.T) {
 	}
 }
 
+func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		version       string
+		reqVal        PgSettingsMapValue
+		expectedVal   postgresql.ConfigSpec_PostgresqlConfig
+		expectedError bool
+	}{
+		{
+			testname: "CheckPartlyAttributes",
+			version:  "15",
+			reqVal: PgSettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.StringType,
+					map[string]attr.Value{
+						"max_connections":                types.StringValue("395"),
+						"enable_parallel_hash":           types.StringValue("true"),
+						"autovacuum_vacuum_scale_factor": types.StringValue("0.34"),
+						"default_transaction_isolation":  types.StringValue("TRANSACTION_ISOLATION_READ_COMMITTED"),
+						"shared_preload_libraries":       types.StringValue("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+					},
+				),
+			},
+
+			expectedVal: &postgresql.ConfigSpec_PostgresqlConfig_15{
+				PostgresqlConfig_15: &config.PostgresqlConfig15{
+					MaxConnections:              wrapperspb.Int64(395),
+					EnableParallelHash:          wrapperspb.Bool(true),
+					AutovacuumVacuumScaleFactor: wrapperspb.Double(0.34),
+					DefaultTransactionIsolation: config.PostgresqlConfig15_TRANSACTION_ISOLATION_READ_COMMITTED,
+					SharedPreloadLibraries: []config.PostgresqlConfig15_SharedPreloadLibraries{
+						config.PostgresqlConfig15_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN, config.PostgresqlConfig15_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
+					},
+				},
+			},
+		},
+		{
+			testname: "CheckAccessWithRandomAttributes",
+			reqVal: PgSettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.Int64Type,
+					map[string]attr.Value{
+						"random": types.Int64Value(11),
+					},
+				),
+			},
+
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		conf := expandPostgresqlConfig(ctx, c.version, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(conf, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test:\n expected %s\n actual %s",
+				c.testname,
+				c.expectedVal,
+				conf,
+			)
+		}
+	}
+}
+
 func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -733,6 +813,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"autofailover":              types.BoolNull(),
 					"access":                    types.ObjectNull(expectedAccessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
+					"postgresql_config":         NewPgSettingsMapNull(),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -747,6 +828,9 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				Autofailover:           nil,
 				Access:                 &postgresql.Access{},
 				PerformanceDiagnostics: nil,
+				PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
+					PostgresqlConfig_15: &config.PostgresqlConfig15{},
+				},
 			},
 		},
 		{
@@ -789,6 +873,11 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 							"sessions_sampling_interval":   types.Int64Value(60),
 						},
 					),
+					"postgresql_config": NewPgSettingsMapValueMust(
+						map[string]attr.Value{
+							"max_connections": types.Int64Value(100),
+						},
+					),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -812,6 +901,11 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					Enabled:                    true,
 					StatementsSamplingInterval: 600,
 					SessionsSamplingInterval:   60,
+				},
+				PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
+					PostgresqlConfig_15: &config.PostgresqlConfig15{
+						MaxConnections: wrapperspb.Int64(100),
+					},
 				},
 			},
 		},

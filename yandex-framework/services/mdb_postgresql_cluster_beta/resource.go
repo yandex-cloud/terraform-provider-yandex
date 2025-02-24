@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -25,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -209,6 +211,17 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					"version": schema.StringAttribute{
 						MarkdownDescription: "Version of the PostgreSQL cluster.",
 						Required:            true,
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"10", "10-1c",
+								"11", "11-1c",
+								"12", "12-1c",
+								"13", "13-1c",
+								"14", "14-1c",
+								"15", "15-1c",
+								"16", "17",
+							),
+						},
 					},
 					"autofailover": schema.BoolAttribute{
 						MarkdownDescription: "Configuration setting which enables/disables automatic failover in the cluster.",
@@ -319,6 +332,19 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								},
 							},
 						},
+					},
+					"postgresql_config": schema.MapAttribute{
+						CustomType: PgSettingsMapType{
+							MapType: types.MapType{
+								ElemType: types.StringType,
+							},
+						},
+						PlanModifiers: []planmodifier.Map{
+							mapplanmodifier.UseStateForUnknown(),
+						},
+						MarkdownDescription: "PostgreSQL cluster config.",
+						Optional:            true,
+						Computed:            true,
 					},
 				},
 				Blocks: map[string]schema.Block{
@@ -683,6 +709,9 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
+	var cfgState Config
+	diags.Append(state.Config.As(ctx, &cfgState, datasize.DefaultOpts)...)
+
 	state.Id = types.StringValue(cluster.Id)
 	state.FolderId = types.StringValue(cluster.FolderId)
 	state.NetworkId = types.StringValue(cluster.NetworkId)
@@ -690,9 +719,9 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Description = types.StringValue(cluster.Description)
 	state.Environment = types.StringValue(cluster.Environment.String())
 	state.Labels = flattenMapString(ctx, cluster.Labels, &diags)
-	state.Config = flattenConfig(ctx, cluster.GetConfig(), &diags)
+	state.Config = flattenConfig(ctx, cfgState.PostgtgreSQLConfig, cluster.GetConfig(), respDiagnostics)
 	state.HostSpecs = hostMapValue
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
-	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, &diags)
-	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, &diags)
+	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
+	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 }

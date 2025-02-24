@@ -17,20 +17,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/compare"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-
-	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
-
-	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
-	"github.com/hashicorp/terraform-plugin-testing/statecheck"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
 const (
@@ -151,6 +149,8 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 		ImportStateVerifyIgnore: []string{
 			"health", // volatile value
 			"hosts",  // volatile value
+			// API returns inconsistent result with importing postgresql_config
+			"config.postgresql_config", // volatile value
 		},
 	}
 }
@@ -341,9 +341,8 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
-	versionIdx := rand.Intn(len(pg1CVersions) - 1)
-	version := pg1CVersions[versionIdx]
-	versionUpdate := pg1CVersions[versionIdx+1]
+	version := "14-1c"
+	versionUpdate := "15-1c"
 
 	resources := `
 	  resource_preset_id = "s2.micro"
@@ -411,6 +410,22 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		minutes = 3
 	`
 
+	postgresqlConfig := `
+		max_connections                = 100
+		enable_parallel_hash           = true
+		autovacuum_vacuum_scale_factor = 0.34
+		default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
+		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+	`
+
+	postgresqlConfigUpdated := `
+		max_connections				= 200
+		enable_parallel_hash		   = false
+		autovacuum_vacuum_scale_factor = 0.35
+		default_transaction_isolation  = "TRANSACTION_ISOLATION_REPEATABLE_READ"
+		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -434,6 +449,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resources, access,
 					performanceDiagnostics,
 					backupWindowStart,
+					postgresqlConfig,
 					maintenanceWindow,
 					backupRetainPeriodDays, true, true,
 					[]string{
@@ -471,6 +487,13 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"minutes": knownvalue.Int64Exact(4),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"max_connections":                knownvalue.StringExact("100"),
+						"enable_parallel_hash":           knownvalue.StringExact("true"),
+						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.34"),
+						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_READ_COMMITTED"),
+						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"type": knownvalue.StringExact("ANYTIME"),
@@ -513,6 +536,22 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						Hours:   5,
 						Minutes: 4,
 					}),
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig14_1C{
+						MaxConnections:              wrapperspb.Int64(100),
+						EnableParallelHash:          wrapperspb.Bool(true),
+						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.34),
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig14_1C_TRANSACTION_ISOLATION_READ_COMMITTED,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig14_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
+						},
+					}, []string{
+						"MaxConnections",
+						"EnableParallelHash",
+						"AutovacuumVacuumScaleFactor",
+						"DefaultTransactionIsolation",
+						"SharedPreloadLibraries",
+					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
 							Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -533,6 +572,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
 					performanceDiagnosticsUpdated,
 					backupWindowStartUpdated,
+					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					backupRetainPeriodDaysUpdated, false, false,
 					[]string{
@@ -570,6 +610,13 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"minutes": knownvalue.Int64Exact(3),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"max_connections":                knownvalue.StringExact("200"),
+						"enable_parallel_hash":           knownvalue.StringExact("false"),
+						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.35"),
+						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_REPEATABLE_READ"),
+						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"type": knownvalue.StringExact("WEEKLY"),
@@ -607,6 +654,21 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						},
 					),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig15_1C{
+						MaxConnections:              wrapperspb.Int64(200),
+						EnableParallelHash:          wrapperspb.Bool(false),
+						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.35),
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig15_1C_TRANSACTION_ISOLATION_REPEATABLE_READ,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig15_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig15_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+						},
+					}, []string{
+						"MaxConnections",
+						"EnableParallelHash",
+						"AutovacuumVacuumScaleFactor",
+						"DefaultTransactionIsolation",
+						"SharedPreloadLibraries",
+					}),
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 						Hours:   10,
 						Minutes: 3,
@@ -636,7 +698,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 	t.Parallel()
 
-	version := pgVersions[rand.Intn(len(pg1CVersions))]
+	version := "17"
 
 	log.Printf("TestAccMDBPostgreSQLCluster_mixed: version %s", version)
 	var cluster postgresql.Cluster
@@ -676,6 +738,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		minutes = 0
 	`
 
+	postgresqlConfig := ""
+
 	resources := `
 		resource_preset_id = "s2.micro"
 		disk_size = 10
@@ -688,6 +752,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
 				backupWindowStart,
+				postgresqlConfig,
 				maintenanceWindow,
 				backupRetainPeriodDays,
 				true, false, []string{},
@@ -723,6 +788,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -754,6 +820,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					Minutes: 0,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, (*pconfig.PostgresqlConfig17)(nil), nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 					Policy: &postgresql.MaintenanceWindow_Anytime{
 						Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -795,6 +862,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -822,6 +890,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					StatementsSamplingInterval: 600,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, (*pconfig.PostgresqlConfig17)(nil), nil),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 					Hours:   0,
 					Minutes: 0,
@@ -1124,6 +1193,64 @@ func testAccCheckClusterBackupWindowStartExact(r *postgresql.Cluster, expected *
 	}
 }
 
+func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUserConfig interface{}, checkFields []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var cmpObj interface{}
+		switch expectedUserConfig.(type) {
+		case *pconfig.PostgresqlConfig10:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_10().GetUserConfig()
+		case *pconfig.PostgresqlConfig10_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_10_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig11:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_11().GetUserConfig()
+		case *pconfig.PostgresqlConfig11_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_11_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig12:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_12().GetUserConfig()
+		case *pconfig.PostgresqlConfig12_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_12_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig13:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_13().GetUserConfig()
+		case *pconfig.PostgresqlConfig13_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_13_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig14:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_14().GetUserConfig()
+		case *pconfig.PostgresqlConfig14_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_14_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig15:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_15().GetUserConfig()
+		case *pconfig.PostgresqlConfig15_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_15_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig16:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_16().GetUserConfig()
+		case *pconfig.PostgresqlConfig17:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_17().GetUserConfig()
+		default:
+			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
+		}
+
+		actual := reflect.ValueOf(cmpObj)
+		expected := reflect.ValueOf(expectedUserConfig)
+
+		if actual.IsNil() != expected.IsNil() {
+			return fmt.Errorf("Cluster %s has mismatched postgresql config existence.\nActual:   %+v\nExpected: %+v", r.Name, actual.IsNil(), expected.IsNil())
+		}
+
+		actual = actual.Elem()
+		expected = expected.Elem()
+
+		for _, field := range checkFields {
+			actualF := actual.FieldByName(field).Interface()
+			expectedF := expected.FieldByName(field).Interface()
+			if !reflect.DeepEqual(actualF, expectedF) {
+				return fmt.Errorf("Cluster %s has mismatched postgresql config field %s.\nActual:   %+v, %T\nExpected: %+v, %T", r.Name, field, actualF, actualF, expectedF, expectedF)
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckClusterMaintenanceWindow(r *postgresql.Cluster, expected *postgresql.MaintenanceWindow) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetMaintenanceWindow(), expected) {
@@ -1184,6 +1311,7 @@ func testAccMDBPGClusterFull(
 	access,
 	performanceDiagnostics,
 	backupWindowStart,
+	pgConfig,
 	maintenanceWindow string, backupRetainPeriodDays int, autofailover, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(pgVPCDependencies+`
@@ -1220,6 +1348,10 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 	backup_window_start = {
 	%s
 	}
+
+	postgresql_config = {
+		%s
+	}
   }
   
   maintenance_window = {
@@ -1232,7 +1364,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, autofailover, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, pgConfig,
 		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
 	)
 }

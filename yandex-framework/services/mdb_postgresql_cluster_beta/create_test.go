@@ -8,9 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
@@ -22,6 +24,7 @@ var (
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
+		"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
 	}
 	expectedResourcesAttrs = map[string]attr.Type{
 		"resource_preset_id": types.StringType,
@@ -77,6 +80,9 @@ var (
 				expectedPDAttrs,
 			),
 			"access": types.ObjectNull(AccessAttrTypes),
+			"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
+				"max_connections": types.Int64Value(100),
+			}),
 		},
 	)
 )
@@ -141,6 +147,11 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &postgresql.Access{},
+					PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
+						PostgresqlConfig_15: &pconfig.PostgresqlConfig15{
+							MaxConnections: wrapperspb.Int64(100),
+						},
+					},
 				},
 				SecurityGroupIds:   []string{"test-sg"},
 				DeletionProtection: true,
@@ -181,7 +192,11 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 						DiskTypeId:       "network-ssd",
 						DiskSize:         datasize.ToBytes(10),
 					},
-
+					PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
+						PostgresqlConfig_15: &pconfig.PostgresqlConfig15{
+							MaxConnections: wrapperspb.Int64(100),
+						},
+					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &postgresql.Access{},
 				},

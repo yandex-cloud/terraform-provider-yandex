@@ -2,6 +2,10 @@ package mdb_postgresql_cluster_beta
 
 import (
 	"context"
+	"fmt"
+
+	"maps"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -121,6 +125,24 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 	return request, diags
 }
 
+func getPostgreSQLConfigFieldName(version string) string {
+	return "postgresql_config_" + strings.Replace(version, "-", "_", -1)
+}
+
+func getAttrNamesFromConfigPGConfig(state *Config, diags *diag.Diagnostics) map[string]struct{} {
+
+	attrs := make(map[string]struct{})
+	if state.PostgtgreSQLConfig.IsNull() || state.PostgtgreSQLConfig.IsUnknown() {
+		return attrs
+	}
+
+	for attr := range state.PostgtgreSQLConfig.Elements() {
+		attrs[attr] = struct{}{}
+	}
+
+	return attrs
+}
+
 func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.ConfigSpec, []string, diag.Diagnostics) {
 	var updateMaskPaths []string
 	config := &postgresql.ConfigSpec{}
@@ -158,6 +180,18 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	if !plan.BackupWindowStart.Equal(state.BackupWindowStart) {
 		config.SetBackupWindowStart(expandBackupWindowStart(ctx, plan.BackupWindowStart, &diags))
 		updateMaskPaths = append(updateMaskPaths, "config_spec.backup_window_start")
+	}
+
+	if !plan.PostgtgreSQLConfig.Equal(state.PostgtgreSQLConfig) {
+		config.SetPostgresqlConfig(expandPostgresqlConfig(ctx, plan.Version.ValueString(), plan.PostgtgreSQLConfig, &diags))
+
+		attrsState := getAttrNamesFromConfigPGConfig(state, &diags)
+		attrsPlan := getAttrNamesFromConfigPGConfig(plan, &diags)
+
+		maps.Copy(attrsPlan, attrsState)
+		for attr := range attrsPlan {
+			updateMaskPaths = append(updateMaskPaths, fmt.Sprintf("config_spec.%s.%s", getPostgreSQLConfigFieldName(plan.Version.ValueString()), attr))
+		}
 	}
 
 	return config, updateMaskPaths, diags

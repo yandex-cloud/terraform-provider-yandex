@@ -3,12 +3,14 @@ package mdb_postgresql_cluster_beta
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -194,6 +196,47 @@ func expandResources(ctx context.Context, r types.Object, diags *diag.Diagnostic
 	}
 }
 
+var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
+	"10":    &postgresql.ConfigSpec_PostgresqlConfig_10{},
+	"10-1c": &postgresql.ConfigSpec_PostgresqlConfig_10_1C{},
+	"11":    &postgresql.ConfigSpec_PostgresqlConfig_11{},
+	"11-1c": &postgresql.ConfigSpec_PostgresqlConfig_11_1C{},
+	"12":    &postgresql.ConfigSpec_PostgresqlConfig_12{},
+	"12-1c": &postgresql.ConfigSpec_PostgresqlConfig_12_1C{},
+	"13":    &postgresql.ConfigSpec_PostgresqlConfig_13{},
+	"13-1c": &postgresql.ConfigSpec_PostgresqlConfig_13_1C{},
+	"14":    &postgresql.ConfigSpec_PostgresqlConfig_14{},
+	"14-1c": &postgresql.ConfigSpec_PostgresqlConfig_14_1C{},
+	"15":    &postgresql.ConfigSpec_PostgresqlConfig_15{},
+	"15-1c": &postgresql.ConfigSpec_PostgresqlConfig_15_1C{},
+	"16":    &postgresql.ConfigSpec_PostgresqlConfig_16{},
+	"17":    &postgresql.ConfigSpec_PostgresqlConfig_17{},
+}
+
+func expandPostgresqlConfig(
+	ctx context.Context,
+	version string, config PgSettingsMapValue,
+	diags *diag.Diagnostics,
+) postgresql.ConfigSpec_PostgresqlConfig {
+
+	a := protobuf_adapter.NewProtobufMapDataAdapter()
+
+	if pgVersionConfigs[version] == nil {
+		diags.AddError("Failed to expand PostgreSQL config.", fmt.Sprintf("unsupported version %s.", version))
+		return nil
+	}
+
+	pgConf := reflect.New(reflect.TypeOf(pgVersionConfigs[version]).Elem()).Interface()
+	if diags.HasError() {
+		return nil
+	}
+
+	attrs := config.PrimitiveElements(ctx, diags)
+	a.Fill(ctx, pgConf, attrs, diags)
+
+	return pgConf.(postgresql.ConfigSpec_PostgresqlConfig)
+}
+
 func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) *postgresql.ConfigSpec {
 	var configSpec Config
 	diags.Append(c.As(ctx, &configSpec, datasize.DefaultOpts)...)
@@ -209,6 +252,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
+		PostgresqlConfig:       expandPostgresqlConfig(ctx, configSpec.Version.ValueString(), configSpec.PostgtgreSQLConfig, diags),
 	}
 }
 

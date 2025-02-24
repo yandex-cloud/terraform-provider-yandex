@@ -2,11 +2,13 @@ package mdb_postgresql_cluster_beta
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
@@ -595,6 +597,126 @@ func TestYandexProvider_MDBPostgresClusterResourcesFlatten(t *testing.T) {
 	}
 }
 
+type invalidPgConfig struct {
+	postgresql.ClusterConfig_PostgresqlConfig
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        postgresql.ClusterConfig_PostgresqlConfig
+		expectedVal   PgSettingsMapValue
+		expectedError bool
+	}{
+		{
+			testname: "CheckFullAttributes",
+			reqVal: &postgresql.ClusterConfig_PostgresqlConfig_14{
+				PostgresqlConfig_14: &config.PostgresqlConfigSet14{
+					UserConfig: &config.PostgresqlConfig14{
+						MaxConnections:      wrapperspb.Int64(14),
+						WorkMem:             wrapperspb.Int64(50),
+						BgwriterLruMaxpages: wrapperspb.Int64(100),
+						WalLevel:            config.PostgresqlConfig14_WAL_LEVEL_LOGICAL,
+						LogConnections:      wrapperspb.Bool(true),
+						CursorTupleFraction: wrapperspb.Double(1.2),
+						SharedPreloadLibraries: []config.PostgresqlConfig14_SharedPreloadLibraries{
+							config.PostgresqlConfig14_SHARED_PRELOAD_LIBRARIES_PGLOGICAL, config.PostgresqlConfig14_SHARED_PRELOAD_LIBRARIES_PGLOGICAL,
+						},
+						SearchPath:     "path",
+						BackslashQuote: config.PostgresqlConfig14_BACKSLASH_QUOTE_ON,
+					},
+				},
+			},
+			expectedVal: PgSettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.StringType,
+					map[string]attr.Value{
+						"max_connections":          types.StringValue("14"),
+						"work_mem":                 types.StringValue("50"),
+						"bgwriter_lru_maxpages":    types.StringValue("100"),
+						"wal_level":                types.StringValue(config.PostgresqlConfig14_WAL_LEVEL_LOGICAL.String()),
+						"log_connections":          types.StringValue("true"),
+						"cursor_tuple_fraction":    types.StringValue("1.20"),
+						"shared_preload_libraries": types.StringValue(fmt.Sprintf("%s,%s", config.PostgresqlConfig14_SHARED_PRELOAD_LIBRARIES_PGLOGICAL.String(), config.PostgresqlConfig14_SHARED_PRELOAD_LIBRARIES_PGLOGICAL.String())),
+						"search_path":              types.StringValue("path"),
+						"backslash_quote":          types.StringValue(config.PostgresqlConfig14_BACKSLASH_QUOTE_ON.String()),
+					},
+				),
+			},
+		},
+		{
+			testname: "CheckFullAttributes2",
+			reqVal: &postgresql.ClusterConfig_PostgresqlConfig_14_1C{
+				PostgresqlConfig_14_1C: &config.PostgresqlConfigSet14_1C{
+					UserConfig: &config.PostgresqlConfig14_1C{
+						WalLevel:            config.PostgresqlConfig14_1C_WAL_LEVEL_REPLICA,
+						LogConnections:      wrapperspb.Bool(false),
+						CursorTupleFraction: wrapperspb.Double(144.53425),
+						SharedPreloadLibraries: []config.PostgresqlConfig14_1C_SharedPreloadLibraries{
+							config.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_PGAUDIT,
+						},
+					},
+				},
+			},
+			expectedVal: PgSettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.StringType,
+					map[string]attr.Value{
+						"wal_level":                types.StringValue(config.PostgresqlConfig14_1C_WAL_LEVEL_REPLICA.String()),
+						"log_connections":          types.StringValue("false"),
+						"cursor_tuple_fraction":    types.StringValue("144.53"),
+						"shared_preload_libraries": types.StringValue(config.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_PGAUDIT.String()),
+					},
+				),
+			},
+		},
+		{
+			testname:    "CheckNull",
+			reqVal:      nil,
+			expectedVal: PgSettingsMapValue{MapValue: types.MapValueMust(types.StringType, map[string]attr.Value{})},
+		},
+		{
+			testname:      "CheckInvalidStructure",
+			reqVal:        invalidPgConfig{},
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+
+		conf := flattenPostgresqlConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			if !c.expectedError {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: errors: %v",
+					c.testname,
+					diags.Errors(),
+				)
+			} else {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: expected error, actual not",
+					c.testname,
+				)
+			}
+
+			continue
+		}
+
+		if !c.expectedError && !c.expectedVal.Equal(conf) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				conf,
+			)
+		}
+	}
+}
+
 func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -629,6 +751,13 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					Minutes: 0,
 				},
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
+				PostgresqlConfig: &postgresql.ClusterConfig_PostgresqlConfig_12{
+					PostgresqlConfig_12: &config.PostgresqlConfigSet12{
+						UserConfig: &config.PostgresqlConfig12{
+							ExitOnError: wrapperspb.Bool(true),
+						},
+					},
+				},
 			},
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
@@ -655,6 +784,9 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"minutes": types.Int64Value(0),
 					}),
 					"backup_retain_period_days": types.Int64Value(7),
+					"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
+						"exit_on_error": types.StringValue("true"),
+					}),
 				},
 			),
 		},
@@ -667,6 +799,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					DiskTypeId:       "network-hdd",
 					DiskSize:         datasize.ToBytes(15),
 				},
+				PostgresqlConfig: nil,
 			},
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
@@ -681,6 +814,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
+					"postgresql_config":         NewPgSettingsMapValueMust(map[string]attr.Value{}),
 				},
 			),
 		},
@@ -693,7 +827,8 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 
 	for _, c := range cases {
 		diags := diag.Diagnostics{}
-		conf := flattenConfig(ctx, c.reqVal, &diags)
+
+		conf := flattenConfig(ctx, PgSettingsMapValue{MapValue: types.MapNull(types.StringType)}, c.reqVal, &diags)
 		if diags.HasError() != c.expectedError {
 			if !c.expectedError {
 				t.Errorf(
@@ -720,4 +855,77 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 			)
 		}
 	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigFlattenPgConfig(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	reqVal := &postgresql.ClusterConfig{
+		Version: "9.6",
+		Resources: &postgresql.Resources{
+			ResourcePresetId: "s1.micro",
+			DiskTypeId:       "network-ssd",
+			DiskSize:         datasize.ToBytes(10),
+		},
+		Autofailover: wrapperspb.Bool(true),
+		Access: &postgresql.Access{
+			DataLens:     true,
+			DataTransfer: true,
+		},
+		PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
+			Enabled:                    true,
+			SessionsSamplingInterval:   60,
+			StatementsSamplingInterval: 600,
+		},
+		BackupWindowStart: &timeofday.TimeOfDay{
+			Hours:   10,
+			Minutes: 0,
+		},
+		BackupRetainPeriodDays: wrapperspb.Int64(7),
+		PostgresqlConfig: &postgresql.ClusterConfig_PostgresqlConfig_12{
+			PostgresqlConfig_12: &config.PostgresqlConfigSet12{
+				UserConfig: &config.PostgresqlConfig12{
+					MaxConnections: wrapperspb.Int64(200),
+					ExitOnError:    wrapperspb.Bool(true),
+				},
+			},
+		},
+	}
+
+	expectedVal := PgSettingsMapValue{
+		MapValue: types.MapValueMust(
+			types.StringType,
+			map[string]attr.Value{
+				"max_connections": types.StringValue("100"),
+			},
+		),
+	}
+
+	var diags diag.Diagnostics
+	conf := flattenConfig(
+		ctx, expectedVal,
+		reqVal, &diags,
+	)
+
+	if diags.HasError() {
+		t.Errorf(
+			"Unexpected flatten diagnostics status test: errors: %v",
+			diags.Errors(),
+		)
+	}
+
+	pgConfResult, ok := conf.Attributes()["postgresql_config"]
+	if !ok {
+		t.Error("Unexpected flatten result value test: expected postgresql_confing in config, actual not foudnd")
+	}
+
+	if !expectedVal.Equal(pgConfResult) {
+		t.Errorf(
+			"Unexpected flatten result value test: expected %s, actual %s",
+			expectedVal,
+			pgConfResult,
+		)
+	}
+
 }
