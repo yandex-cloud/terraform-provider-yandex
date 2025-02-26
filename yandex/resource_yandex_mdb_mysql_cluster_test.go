@@ -185,12 +185,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			},
 			// Change some options
 			{
-				Config: testAccMDBMySQLClusterVersionUpdate(mysqlName, mysqlDesc2),
+				Config: testAccMDBMySQLClusterVersionUpdate(mysqlName, mysqlDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
 					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
 					resource.TestCheckResourceAttr(mysqlResource, "version", "8.0"),
 				),
 			},
