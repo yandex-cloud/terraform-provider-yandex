@@ -154,6 +154,13 @@ func resourceYandexBackupPolicy() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupCBTValues, false),
 			},
 
+			"file_filters": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     resourceYandexBacupPolicyFileFiltersSchema(),
+			},
+
 			"fast_backup_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -234,6 +241,32 @@ func resourceYandexBackupRetentionRuleSchema() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringInSlice(resourceYandexBackupRepeatPeriodValues, false),
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexBacupPolicyFileFiltersSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"exclusion_masks": {
+				Type: schema.TypeList,
+
+				Optional: true,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"inclusion_masks": {
+				Type: schema.TypeList,
+
+				Optional: true,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 		},

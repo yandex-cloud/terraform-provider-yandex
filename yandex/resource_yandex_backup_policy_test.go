@@ -51,6 +51,11 @@ func TestAccResourceBackupPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vm_snapshot_reattempts.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "vm_snapshot_reattempts.0.interval", "5m"),
 					resource.TestCheckResourceAttr(resourceName, "vm_snapshot_reattempts.0.max_attempts", "5"),
+					resource.TestCheckResourceAttr(resourceName, "file_filters.0.exclusion_masks.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "file_filters.0.inclusion_masks.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "file_filters.0.exclusion_masks.0", "test.log"),
+					resource.TestCheckResourceAttr(resourceName, "file_filters.0.inclusion_masks.0", "lll.test1"),
+					resource.TestCheckResourceAttr(resourceName, "file_filters.0.inclusion_masks.1", "lll.test2"),
 					// Default values
 					resource.TestCheckResourceAttr(resourceName, "archive_name", "[Machine Name]-[Plan ID]-[Unique ID]a"),
 					resource.TestCheckResourceAttr(resourceName, "cbt", "DO_NOT_USE"),
@@ -73,6 +78,7 @@ func TestAccResourceBackupPolicyBasic(t *testing.T) {
 					"created_at",
 					"updated_at",
 					"enabled",
+					"scheduling.0.execute_by_interval",
 				},
 			},
 		},
@@ -135,6 +141,7 @@ func TestAccResourceBackupPolicyMultipleBackupSets(t *testing.T) {
 					"created_at",
 					"updated_at",
 					"enabled",
+					"scheduling.0.execute_by_interval",
 				},
 			},
 		},
@@ -172,6 +179,11 @@ func testAccBackupPolicyBasicConfig(policyName string) (config, outResourceName 
       enabled      = true
       interval     = "5m"
       max_attempts = 5
+    }
+
+	file_filters {
+	  exclusion_masks = ["test.log"]
+      inclusion_masks = ["lll.test1", "lll.test2"]
     }
   }`
 	)

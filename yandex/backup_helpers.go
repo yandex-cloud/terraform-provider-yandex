@@ -459,6 +459,31 @@ func expandYandexBackupCBT(v any) backuppb.PolicySettings_ChangedBlockTracking {
 	return backuppb.PolicySettings_ChangedBlockTracking(out)
 }
 
+func expandYandexBackupFileFilters(v any) *backuppb.PolicySettings_FileFilters {
+	valueSet := v.(*schema.Set)
+	if valueSet.Len() == 0 {
+		return nil
+	}
+
+	value := valueSet.List()[0].(map[string]any)
+
+	out := new(backuppb.PolicySettings_FileFilters)
+	out.ExclusionMasks = expandString(value["exclusion_masks"])
+	out.InclusionMasks = expandString(value["inclusion_masks"])
+	return out
+}
+
+func expandString(v any) []string {
+	values := v.([]any)
+	out := make([]string, 0, len(values))
+
+	for _, value := range values {
+		out = append(out, value.(string))
+	}
+
+	return out
+}
+
 func expandYandexBackupVSSProvider(v any) backuppb.PolicySettings_VolumeShadowCopyServiceSettings_VSSProvider {
 	value := v.(string)
 	provider := backuppb.PolicySettings_VolumeShadowCopyServiceSettings_VSSProvider_value[value]
@@ -527,6 +552,7 @@ func expandYandexBackupPolicySettingsFromResource(d *schema.ResourceData) (setti
 		Reattempts:           expandYandexBackupPolicyRetriesConfiguration(d.Get("reattempts")),
 		VmSnapshotReattempts: expandYandexBackupPolicyRetriesConfiguration(d.Get("vm_snapshot_reattempts")),
 		Cbt:                  expandYandexBackupCBT(d.Get("cbt")),
+		FileFilters:          expandYandexBackupFileFilters(d.Get("file_filters")),
 	}
 
 	return settings, nil
@@ -607,6 +633,17 @@ func flattenYandexBackupPolicyScheduling(d *schema.ResourceData, scheduling *bac
 	return d.Set("scheduling", []any{result})
 }
 
+func flattenYandexBackupPolicyFileFilters(d *schema.ResourceData, fileFilters *backuppb.PolicySettings_FileFilters) (err error) {
+	if fileFilters == nil {
+		return nil
+	}
+
+	result := make(map[string]any, 2)
+	result["exclusion_masks"] = fileFilters.ExclusionMasks
+	result["inclusion_masks"] = fileFilters.InclusionMasks
+	return d.Set("file_filters", []any{result})
+}
+
 func flattenYandexBackupPolicySchedulingBackupSet(bss []*backuppb.PolicySettings_Scheduling_BackupSet) ([]map[string]any, error) {
 	if len(bss) == 0 {
 		return nil, fmt.Errorf("expected to have at least one scheduling backup set")
@@ -676,6 +713,10 @@ func flattenYandBackupPolicySettings(d *schema.ResourceData, settings *backuppb.
 	setF("quiesce_snapshotting_enabled", settings.QuiesceSnapshottingEnabled)
 
 	if err != nil {
+		return err
+	}
+
+	if err = flattenYandexBackupPolicyFileFilters(d, settings.FileFilters); err != nil {
 		return err
 	}
 
