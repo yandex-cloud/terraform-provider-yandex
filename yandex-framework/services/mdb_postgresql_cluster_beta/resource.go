@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -16,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -28,6 +30,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"golang.org/x/exp/maps"
 )
 
 type clusterResource struct {
@@ -330,6 +333,40 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								Validators: []validator.Int64{
 									int64validator.Between(0, 59),
 								},
+							},
+						},
+					},
+					"pooler_config": schema.SingleNestedAttribute{
+						MarkdownDescription: "Configuration of the connection pooler.",
+						Optional:            true,
+						Computed:            true,
+						Default: objectdefault.StaticValue(
+							types.ObjectValueMust(PoolerConfigAttrTypes, map[string]attr.Value{
+								"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+								"pool_discard": types.BoolNull(),
+							}),
+						),
+						Validators: []validator.Object{
+							NewAtLeastIfConfiguredValidator(
+								path.MatchRelative().AtName("pooling_mode"),
+								path.MatchRelative().AtName("pool_discard"),
+							),
+						},
+						Attributes: map[string]schema.Attribute{
+							"pooling_mode": schema.StringAttribute{
+								MarkdownDescription: "Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.)",
+								Optional:            true,
+								Computed:            true,
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										maps.Keys(postgresql.ConnectionPoolerConfig_PoolingMode_value)...,
+									),
+								},
+								Default: stringdefault.StaticString(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+							},
+							"pool_discard": schema.BoolAttribute{
+								MarkdownDescription: "Setting pool_discard parameter in Odyssey.",
+								Optional:            true,
 							},
 						},
 					},

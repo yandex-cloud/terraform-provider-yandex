@@ -227,6 +227,12 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						"hours":   knownvalue.Int64Exact(0),
 						"minutes": knownvalue.Int64Exact(0),
 					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"pool_discard": knownvalue.Null(),
+							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+						},
+					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -256,6 +262,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Hours:   0,
 						Minutes: 0,
 					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, nil),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
 							Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -295,6 +302,12 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						"minutes": knownvalue.Int64Exact(0),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"pool_discard": knownvalue.Null(),
+							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+						},
+					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -324,6 +337,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Hours:   0,
 						Minutes: 0,
 					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, nil),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
 							Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -338,6 +352,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 }
 
 // Test that a PostgreSQL Cluster can be created, updated and destroyed
+// TODO: Check enable and disable pooler_config
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
@@ -426,6 +441,16 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
 	`
 
+	poolerCfg := `
+		pooling_mode = "TRANSACTION"
+		pool_discard = true
+	`
+
+	poolerCfgUpdated := `
+		pooling_mode = "SESSION"
+		pool_discard = false
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -449,6 +474,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resources, access,
 					performanceDiagnostics,
 					backupWindowStart,
+					poolerCfg,
 					postgresqlConfig,
 					maintenanceWindow,
 					backupRetainPeriodDays, true, true,
@@ -487,6 +513,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"minutes": knownvalue.Int64Exact(4),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[2]),
+						"pool_discard": knownvalue.Bool(true),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"max_connections":                knownvalue.StringExact("100"),
 						"enable_parallel_hash":           knownvalue.StringExact("true"),
@@ -536,6 +566,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						Hours:   5,
 						Minutes: 4,
 					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_TRANSACTION,
+						PoolDiscard: wrapperspb.Bool(true),
+					}),
 					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig14_1C{
 						MaxConnections:              wrapperspb.Int64(100),
 						EnableParallelHash:          wrapperspb.Bool(true),
@@ -572,6 +606,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
 					performanceDiagnosticsUpdated,
 					backupWindowStartUpdated,
+					poolerCfgUpdated,
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					backupRetainPeriodDaysUpdated, false, false,
@@ -610,6 +645,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"minutes": knownvalue.Int64Exact(3),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[1]),
+						"pool_discard": knownvalue.Bool(false),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"max_connections":                knownvalue.StringExact("200"),
 						"enable_parallel_hash":           knownvalue.StringExact("false"),
@@ -672,6 +711,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 						Hours:   10,
 						Minutes: 3,
+					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+						PoolDiscard: wrapperspb.Bool(false),
 					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
@@ -738,7 +781,10 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		minutes = 0
 	`
 
-	postgresqlConfig := ""
+	// TODO: Replace to empty when fix api
+	postgresqlConfig := `
+		password_encryption = "PASSWORD_ENCRYPTION_SCRAM_SHA_256"
+	`
 
 	resources := `
 		resource_preset_id = "s2.micro"
@@ -746,12 +792,18 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		disk_type_id = "network-ssd"
 	`
 
+	poolerConfig := `
+			pool_discard = null
+			pooling_mode = "POOLING_MODE_UNSPECIFIED"
+		`
+
 	stepsFullBasic := [2]resource.TestStep{
 		{
 			Config: testAccMDBPGClusterFull(
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
 				backupWindowStart,
+				poolerConfig,
 				postgresqlConfig,
 				maintenanceWindow,
 				backupRetainPeriodDays,
@@ -788,7 +840,13 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -820,7 +878,10 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					Minutes: 0,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
-				testAccCheckClusterPostgresqlConfigExact(&cluster, (*pconfig.PostgresqlConfig17)(nil), nil),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
+					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 					Policy: &postgresql.MaintenanceWindow_Anytime{
 						Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -862,7 +923,13 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -890,7 +957,10 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					StatementsSamplingInterval: 600,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
-				testAccCheckClusterPostgresqlConfigExact(&cluster, (*pconfig.PostgresqlConfig17)(nil), nil),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
+					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 					Hours:   0,
 					Minutes: 0,
@@ -1184,6 +1254,15 @@ func testAccCheckClusterBackupRetainPeriodDaysExact(r *postgresql.Cluster, expec
 	}
 }
 
+func testAccCheckClusterPoolerConfigExact(r *postgresql.Cluster, expected *postgresql.ConnectionPoolerConfig) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.Config.GetPoolerConfig(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched pooler_config.\nActual:   %+v\nExpected: %+v", r.Name, r.Config.GetPoolerConfig(), expected)
+	}
+}
+
 func testAccCheckClusterBackupWindowStartExact(r *postgresql.Cluster, expected *timeofday.TimeOfDay) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetConfig().GetBackupWindowStart(), expected) {
@@ -1311,6 +1390,7 @@ func testAccMDBPGClusterFull(
 	access,
 	performanceDiagnostics,
 	backupWindowStart,
+	poolerConfig,
 	pgConfig,
 	maintenanceWindow string, backupRetainPeriodDays int, autofailover, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
@@ -1349,6 +1429,10 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 	%s
 	}
 
+	pooler_config = {
+		%s
+	}
+
 	postgresql_config = {
 		%s
 	}
@@ -1364,7 +1448,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, autofailover, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, pgConfig,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, pgConfig,
 		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
 	)
 }

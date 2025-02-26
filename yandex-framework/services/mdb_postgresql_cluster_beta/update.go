@@ -182,6 +182,15 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		updateMaskPaths = append(updateMaskPaths, "config_spec.backup_window_start")
 	}
 
+	if !plan.PoolerConfig.Equal(state.PoolerConfig) {
+		config.SetPoolerConfig(expandPoolerConfig(ctx, plan.PoolerConfig, &diags))
+		updateMaskPaths = append(
+			updateMaskPaths,
+			"config_spec.pooler_config.pooling_mode",
+			"config_spec.pooler_config.pool_discard",
+		)
+	}
+
 	if !plan.PostgtgreSQLConfig.Equal(state.PostgtgreSQLConfig) {
 		config.SetPostgresqlConfig(expandPostgresqlConfig(ctx, plan.Version.ValueString(), plan.PostgtgreSQLConfig, &diags))
 

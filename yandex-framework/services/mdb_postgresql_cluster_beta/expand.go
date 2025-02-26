@@ -237,6 +237,34 @@ func expandPostgresqlConfig(
 	return pgConf.(postgresql.ConfigSpec_PostgresqlConfig)
 }
 
+func expandPoolerConfig(ctx context.Context, pCfg types.Object, diags *diag.Diagnostics) *postgresql.ConnectionPoolerConfig {
+
+	pc := &postgresql.ConnectionPoolerConfig{}
+
+	var pcModel PoolerConfig
+	diags.Append(pCfg.As(ctx, &pcModel, basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    true,
+		UnhandledUnknownAsEmpty: true,
+	})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	if pd := pcModel.PoolDiscard; !pd.IsNull() && !pd.IsUnknown() {
+		pc.SetPoolDiscard(wrapperspb.Bool(pd.ValueBool()))
+	}
+
+	if pm := pcModel.PoolingMode; !pm.IsNull() && !pm.IsUnknown() {
+		pc.SetPoolingMode(
+			postgresql.ConnectionPoolerConfig_PoolingMode(
+				postgresql.ConnectionPoolerConfig_PoolingMode_value[pm.ValueString()],
+			),
+		)
+	}
+
+	return pc
+}
+
 func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) *postgresql.ConfigSpec {
 	var configSpec Config
 	diags.Append(c.As(ctx, &configSpec, datasize.DefaultOpts)...)
@@ -253,6 +281,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
 		PostgresqlConfig:       expandPostgresqlConfig(ctx, configSpec.Version.ValueString(), configSpec.PostgtgreSQLConfig, diags),
+		PoolerConfig:           expandPoolerConfig(ctx, configSpec.PoolerConfig, diags),
 	}
 }
 

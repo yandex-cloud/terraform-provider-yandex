@@ -114,6 +114,7 @@ Optional:
 - `backup_retain_period_days` (Number) The period in days during which backups are stored.
 - `backup_window_start` (Attributes) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedatt--config--backup_window_start))
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--config--performance_diagnostics))
+- `pooler_config` (Attributes) Configuration of the connection pooler. (see [below for nested schema](#nestedatt--config--pooler_config))
 - `postgresql_config` (Map of String) PostgreSQL cluster config.
 - `resources` (Block, Optional) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--resources))
 
@@ -148,6 +149,15 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Enable performance diagnostics
+
+
+<a id="nestedatt--config--pooler_config"></a>
+### Nested Schema for `config.pooler_config`
+
+Optional:
+
+- `pool_discard` (Boolean) Setting pool_discard parameter in Odyssey.
+- `pooling_mode` (String) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.)
 
 
 <a id="nestedblock--config--resources"></a>

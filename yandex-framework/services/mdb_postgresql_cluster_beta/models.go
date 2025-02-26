@@ -47,6 +47,17 @@ type Config struct {
 	BackupRetainPeriodDays types.Int64        `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object       `tfsdk:"backup_window_start"`
 	PostgtgreSQLConfig     PgSettingsMapValue `tfsdk:"postgresql_config"`
+	PoolerConfig           types.Object       `tfsdk:"pooler_config"`
+}
+
+type PoolerConfig struct {
+	PoolDiscard types.Bool   `tfsdk:"pool_discard"`
+	PoolingMode types.String `tfsdk:"pooling_mode"`
+}
+
+var PoolerConfigAttrTypes = map[string]attr.Type{
+	"pooling_mode": types.StringType,
+	"pool_discard": types.BoolType,
 }
 
 type MaintenanceWindow struct {
@@ -70,6 +81,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
+	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 }
 
 type Access struct {

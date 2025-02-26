@@ -717,6 +717,95 @@ func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testi
 	}
 }
 
+func TestYandexProvider_MDBPostgresClusterConfigPoolerConfigFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      *postgresql.ConnectionPoolerConfig
+		expectedVal types.Object
+	}{
+		{
+			testname: "CheckAllAttributes",
+			reqVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: wrapperspb.Bool(true),
+				PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedPCAttrTypes, map[string]attr.Value{
+					"pooling_mode": types.StringValue("SESSION"),
+					"pool_discard": types.BoolValue(true),
+				},
+			),
+		},
+		{
+			testname: "CheckAllAttributesWithDefaultValues",
+			reqVal:   &postgresql.ConnectionPoolerConfig{},
+			expectedVal: types.ObjectValueMust(
+				expectedPCAttrTypes, map[string]attr.Value{
+					"pooling_mode": types.StringValue("POOLING_MODE_UNSPECIFIED"),
+					"pool_discard": types.BoolNull(),
+				},
+			),
+		},
+		{
+			testname: "CheckPartlyAttributesWithPM",
+			reqVal: &postgresql.ConnectionPoolerConfig{
+				PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedPCAttrTypes, map[string]attr.Value{
+					"pooling_mode": types.StringValue("SESSION"),
+					"pool_discard": types.BoolNull(),
+				},
+			),
+		},
+		{
+			testname: "CheckPartlyAttributesWithPD",
+			reqVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: wrapperspb.Bool(true),
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedPCAttrTypes, map[string]attr.Value{
+					"pooling_mode": types.StringValue("POOLING_MODE_UNSPECIFIED"),
+					"pool_discard": types.BoolValue(true),
+				},
+			),
+		},
+		{
+			testname: "CheckNullObject",
+			reqVal:   nil,
+			expectedVal: types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
+				"pooling_mode": types.StringValue("POOLING_MODE_UNSPECIFIED"),
+				"pool_discard": types.BoolNull(),
+			}),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		pc := flattenPoolerConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(pc) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				pc,
+			)
+		}
+	}
+}
+
 func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -758,6 +847,10 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						},
 					},
 				},
+				PoolerConfig: &postgresql.ConnectionPoolerConfig{
+					PoolDiscard: wrapperspb.Bool(true),
+					PoolingMode: postgresql.ConnectionPoolerConfig_STATEMENT,
+				},
 			},
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
@@ -787,6 +880,10 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
 						"exit_on_error": types.StringValue("true"),
 					}),
+					"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
+						"pool_discard": types.BoolValue(true),
+						"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_STATEMENT.String()),
+					}),
 				},
 			),
 		},
@@ -815,6 +912,10 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
 					"postgresql_config":         NewPgSettingsMapValueMust(map[string]attr.Value{}),
+					"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
+						"pool_discard": types.BoolNull(),
+						"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+					}),
 				},
 			),
 		},
@@ -927,5 +1028,4 @@ func TestYandexProvider_MDBPostgresClusterConfigFlattenPgConfig(t *testing.T) {
 			pgConfResult,
 		)
 	}
-
 }

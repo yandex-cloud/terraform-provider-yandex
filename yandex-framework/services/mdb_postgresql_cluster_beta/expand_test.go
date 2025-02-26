@@ -2,6 +2,7 @@ package mdb_postgresql_cluster_beta
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -784,6 +785,117 @@ func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
 	}
 }
 
+func buildTestPCObj(pd *bool, pm *string) types.Object {
+	return types.ObjectValueMust(
+		expectedPCAttrTypes, map[string]attr.Value{
+			"pool_discard": types.BoolPointerValue(pd),
+			"pooling_mode": types.StringPointerValue(pm),
+		},
+	)
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigPoolerConfigExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testBoolTrue := true
+	testBoolFalse := false
+	validPMs := []string{"SESSION", "TRANSACTION", "STATEMENT"}
+
+	invalidPM := "INVALID1"
+
+	cases := []struct {
+		testname      string
+		reqVal        types.Object
+		expectedVal   *postgresql.ConnectionPoolerConfig
+		expectedError bool
+	}{
+		{
+			testname:    "CheckInvalidPoolingMode",
+			reqVal:      buildTestPCObj(nil, &invalidPM),
+			expectedVal: &postgresql.ConnectionPoolerConfig{},
+		},
+		{
+			testname: "CheckPartlyAttributesWithPD",
+			reqVal:   buildTestPCObj(&testBoolFalse, nil),
+			expectedVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: wrapperspb.Bool(false),
+				PoolingMode: postgresql.ConnectionPoolerConfig_PoolingMode(0),
+			},
+		},
+		{
+			testname: "CheckPartlyAttributesWithPM",
+			reqVal:   buildTestPCObj(nil, &validPMs[0]),
+			expectedVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: nil,
+				PoolingMode: postgresql.ConnectionPoolerConfig_PoolingMode(1),
+			},
+		},
+		{
+			testname: "CheckWithoutAttributes",
+			reqVal:   buildTestPCObj(nil, nil),
+			expectedVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: nil,
+				PoolingMode: postgresql.ConnectionPoolerConfig_PoolingMode(0),
+			},
+		},
+		{
+			testname:    "CheckNullObj",
+			reqVal:      types.ObjectNull(expectedPCAttrTypes),
+			expectedVal: &postgresql.ConnectionPoolerConfig{},
+		},
+		{
+			testname: "CheckWithRandomAttributes",
+			reqVal: types.ObjectValueMust(
+				map[string]attr.Type{"random": types.StringType},
+				map[string]attr.Value{"random": types.StringValue("s1")},
+			),
+			expectedError: true,
+		},
+	}
+
+	for idx, pm := range validPMs {
+		pm := pm
+		cases = append(cases, struct {
+			testname      string
+			reqVal        types.Object
+			expectedVal   *postgresql.ConnectionPoolerConfig
+			expectedError bool
+		}{
+			testname: fmt.Sprintf("CheckAllExplicitWithValidPoolingMode%s", pm),
+			reqVal:   buildTestPCObj(&testBoolTrue, &pm),
+			expectedVal: &postgresql.ConnectionPoolerConfig{
+				PoolDiscard: wrapperspb.Bool(true),
+				PoolingMode: postgresql.ConnectionPoolerConfig_PoolingMode(idx + 1),
+			},
+		})
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		pc := expandPoolerConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(pc, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				pc,
+			)
+		}
+	}
+}
+
 func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -814,6 +926,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"access":                    types.ObjectNull(expectedAccessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"postgresql_config":         NewPgSettingsMapNull(),
+					"pooler_config":             types.ObjectNull(expectedPCAttrTypes),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -831,6 +944,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
 					PostgresqlConfig_15: &config.PostgresqlConfig15{},
 				},
+				PoolerConfig: &postgresql.ConnectionPoolerConfig{},
 			},
 		},
 		{
@@ -878,6 +992,10 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 							"max_connections": types.Int64Value(100),
 						},
 					),
+					"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
+						"pool_discard": types.BoolValue(false),
+						"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_STATEMENT.String()),
+					}),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -906,6 +1024,10 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					PostgresqlConfig_15: &config.PostgresqlConfig15{
 						MaxConnections: wrapperspb.Int64(100),
 					},
+				},
+				PoolerConfig: &postgresql.ConnectionPoolerConfig{
+					PoolingMode: postgresql.ConnectionPoolerConfig_STATEMENT,
+					PoolDiscard: wrapperspb.Bool(false),
 				},
 			},
 		},

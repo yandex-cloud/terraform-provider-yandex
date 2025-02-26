@@ -139,6 +139,21 @@ func flattenResources(ctx context.Context, r *postgresql.Resources, diags *diag.
 	return obj
 }
 
+func flattenPoolerConfig(ctx context.Context, c *postgresql.ConnectionPoolerConfig, diags *diag.Diagnostics) types.Object {
+
+	pc := PoolerConfig{
+		PoolingMode: types.StringValue(c.GetPoolingMode().String()),
+	}
+	if c.GetPoolDiscard() != nil {
+		pc.PoolDiscard = types.BoolValue(c.GetPoolDiscard().GetValue())
+	}
+
+	obj, d := types.ObjectValueFrom(ctx, PoolerConfigAttrTypes, pc)
+	diags.Append(d...)
+
+	return obj
+}
+
 func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgresql.ClusterConfig, diags *diag.Diagnostics) types.Object {
 	if c == nil {
 		diags.AddError("Failed to flatten config.", "Config of cluster can't be nil. It's error in provider")
@@ -157,6 +172,7 @@ func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgr
 		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, c.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      flattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
+		PoolerConfig:           flattenPoolerConfig(ctx, c.GetPoolerConfig(), diags),
 		PostgtgreSQLConfig:     statePGCfg,
 	})
 	diags.Append(d...)

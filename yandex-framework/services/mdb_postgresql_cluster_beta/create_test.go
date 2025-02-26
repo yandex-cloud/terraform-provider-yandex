@@ -25,6 +25,7 @@ var (
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
+		"pooler_config":             types.ObjectType{AttrTypes: expectedPCAttrTypes},
 	}
 	expectedResourcesAttrs = map[string]attr.Type{
 		"resource_preset_id": types.StringType,
@@ -59,6 +60,10 @@ var (
 		"hosts":               types.MapType{ElemType: types.StringType},
 		"id":                  types.StringType,
 	}
+	expectedPCAttrTypes = map[string]attr.Type{
+		"pool_discard": types.BoolType,
+		"pooling_mode": types.StringType,
+	}
 	baseConfig = types.ObjectValueMust(
 		expectedConfigAttrs,
 		map[string]attr.Value{
@@ -82,6 +87,10 @@ var (
 			"access": types.ObjectNull(AccessAttrTypes),
 			"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
 				"max_connections": types.Int64Value(100),
+			}),
+			"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
+				"pool_discard": types.BoolValue(true),
+				"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_SESSION.String()),
 			}),
 		},
 	)
@@ -152,6 +161,10 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 							MaxConnections: wrapperspb.Int64(100),
 						},
 					},
+					PoolerConfig: &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+						PoolDiscard: wrapperspb.Bool(true),
+					},
 				},
 				SecurityGroupIds:   []string{"test-sg"},
 				DeletionProtection: true,
@@ -199,6 +212,10 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &postgresql.Access{},
+					PoolerConfig: &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+						PoolDiscard: wrapperspb.Bool(true),
+					},
 				},
 			},
 		},
