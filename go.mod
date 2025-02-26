@@ -1,6 +1,8 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.21
+go 1.22.0
+
+toolchain go1.22.12
 
 require (
 	github.com/aws/aws-sdk-go v1.42.11
@@ -41,7 +43,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20250210115047-dfe92c70a6b1
 	github.com/yandex-cloud/go-sdk v0.0.0-20250210144447-399a857b9c4e
-	github.com/ydb-platform/terraform-provider-ydb v0.0.23
+	github.com/ydb-platform/terraform-provider-ydb v0.0.24
 	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.33.0
@@ -259,8 +261,8 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
-	github.com/ydb-platform/ydb-go-genproto v0.0.0-20240315124112-fc0fbffd6613 // indirect
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.56.2 // indirect
+	github.com/ydb-platform/ydb-go-genproto v0.0.0-20241112172322-ea1f63298f77 // indirect
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.99.12 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect
 	github.com/yuin/goldmark v1.7.1 // indirect
