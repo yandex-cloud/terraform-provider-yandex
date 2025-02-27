@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'greenplum: support new Greenplum config parameters "gp_enable_global_deadlock_detector" and "gp_global_deadlock_detector_period"'
-time: 2025-02-17T15:14:14.724879+03:00

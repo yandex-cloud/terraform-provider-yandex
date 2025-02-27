@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'yandex_ydb_table_changefeed: change TypeSet to TypeList for best performance'
-time: 2025-02-24T15:43:58.826325+03:00

@@ -1,3 +1,20 @@
+## 0.139.0 (February 27, 2025)
+
+FEATURES:
+* clickhouse: added `jdbc_bridge` setting for server configuration
+* clickhouse: new resource and datasource `yandex_mdb_clickhouse_database`
+* clickhouse: new resource and datasource `yandex_mdb_clickhouse_user`
+* greenplum: remove old 6.22 Greenplum version support
+* greenplum: support new Greenplum config parameters "gp_enable_global_deadlock_detector" and "gp_global_deadlock_detector_period"
+* backup: add to `yandex_backup_policy` file_filters setting
+
+BUG FIXES:
+* resource_vpc_security_group_rule: fix resource import from v0.129.0 and earlier
+
+ENHANCEMENTS:
+* provider: updated yandex cloud go sdk version
+* yandex_ydb_table_changefeed: change TypeSet to TypeList for best performance
+
 ## 0.138.0 (February 14, 2025)
 
 BUG FIXES:

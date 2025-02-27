@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `jdbc_bridge` setting for server configuration'
-time: 2025-01-29T11:59:31.222183+03:00
