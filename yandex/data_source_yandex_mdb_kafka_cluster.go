@@ -104,26 +104,6 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"disk_size_autoscaling": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-					},
-				},
-			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
 				Computed: true,

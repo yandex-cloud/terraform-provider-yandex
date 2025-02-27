@@ -43,7 +43,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `security_group_ids` - A list of security groups IDs of the Kafka cluster.
 * `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
 * `maintenance_window` - Maintenance window settings of the Kafka cluster. The structure is documented below.
-* `disk_size_autoscaling` - Disk autoscaling settings of the Kafka cluster. The structure is documented below.
 
 The `config` block supports:
 
@@ -56,6 +55,7 @@ The `config` block supports:
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
 * `kraft` - (Optional) Configuration of the KRaft-controller subcluster. The structure is documented below.
 * `access` - (Optional) Access policy to the Kafka cluster. The structure is documented below.
+* `disk_size_autoscaling` - Disk autoscaling settings of the Kafka cluster. The structure is documented below.
 
 The `kafka` block supports:
 
@@ -96,6 +96,12 @@ The `access` block supports:
 
 * `data_transfer` - Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
 
+The `disk_size_autoscaling` block supports:
+
+* `disk_size_limit` - Maximum possible size of disk in bytes.
+* `planned_usage_threshold` - Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled)
+* `emergency_usage_threshold` - Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
+
 The `user` block supports:
 
 * `name` - (Required) The name of the user.
@@ -133,9 +139,3 @@ The `maintenance_window` block supports:
 * `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`.
 * `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
 * `hour` - Hour of the day in UTC (in `HH` format). Value is between 1 and 24.
-
-The `disk_size_autoscaling` block supports:
-
-* `disk_size_limit` - Maximum possible size of disk in bytes.
-* `planned_usage_threshold` - Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled)
-* `emergency_usage_threshold` - Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
