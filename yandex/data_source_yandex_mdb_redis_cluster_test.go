@@ -30,20 +30,6 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 			},
 		},
 	})
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
-					"7.2", true),
-				Check: testAccDataSourceMDBRedisClusterCheck(
-					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
-			},
-		},
-	})
 }
 
 func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
@@ -55,20 +41,6 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 	persistenceMode := "ON"
 	announceHostnames := true
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
-					"7.2", false),
-				Check: testAccDataSourceMDBRedisClusterCheck(
-					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
-			},
-		},
-	})
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

@@ -20,7 +20,7 @@ func readUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid s
 	if err != nil {
 		diag.AddError(
 			"Failed to Read resource",
-			"Error while requesting API to get MongoDB user:"+err.Error(),
+			"Error while requesting API to get MongoDB user: "+err.Error(),
 		)
 		return nil
 	}
@@ -38,7 +38,7 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err != nil {
 		diag.AddError(
 			"Failed to Create resource",
-			"Error while requesting API to create MongoDB user:"+err.Error(),
+			"Error while requesting API to create MongoDB user: "+err.Error(),
 		)
 		return
 	}
@@ -46,7 +46,7 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Create resource",
-			"Error while waiting for operation to create MongoDB user:"+err.Error(),
+			"Error while waiting for operation to create MongoDB user: "+err.Error(),
 		)
 	}
 }
@@ -65,7 +65,7 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err != nil {
 		diag.AddError(
 			"Failed to Update resource",
-			"Error while requesting API to update MongoDB user:"+err.Error(),
+			"Error while requesting API to update MongoDB user: "+err.Error(),
 		)
 		return
 	}
@@ -73,7 +73,7 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Update resource",
-			"Error while waiting for operation to update MongoDB user:"+err.Error(),
+			"Error while waiting for operation to update MongoDB user: "+err.Error(),
 		)
 	}
 }
@@ -89,7 +89,7 @@ func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
-			"Error while requesting API to delete MongoDB user:"+err.Error(),
+			"Error while requesting API to delete MongoDB user: "+err.Error(),
 		)
 		return
 	}
@@ -97,7 +97,7 @@ func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
-			"Error while waiting for operation to delete MongoDB user:"+err.Error(),
+			"Error while waiting for operation to delete MongoDB user: "+err.Error(),
 		)
 	}
 }
