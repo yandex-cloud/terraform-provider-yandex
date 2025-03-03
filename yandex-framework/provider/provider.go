@@ -37,6 +37,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mysql_cluster_beta"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_beta"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2"
@@ -281,6 +282,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		vpc_security_group_rule.NewResource,
 		mdb_postgresql_cluster_beta.NewPostgreSQLClusterResourceBeta,
 		mdb_redis_cluster_v2.NewResource,
+		mdb_mysql_cluster_beta.NewMySQLClusterResourceBeta,
 		kubernetes_marketplace_helm_release.NewResource,
 	}
 }

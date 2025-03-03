@@ -5,7 +5,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-var DefaultOpts = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
+var (
+	DefaultOpts = basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    false,
+		UnhandledUnknownAsEmpty: false,
+	}
+	UnhandledOpts = basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    true,
+		UnhandledUnknownAsEmpty: true,
+	}
+)
 
 // Primary use to store value from API in state file as Gigabytes
 func ToGigabytes(bytesCount int64) int64 {
