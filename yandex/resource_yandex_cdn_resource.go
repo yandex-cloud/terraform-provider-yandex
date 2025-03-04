@@ -430,7 +430,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.DisableCache = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
@@ -475,7 +475,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.QueryParamsOptions = &cdn.ResourceOptions_QueryParamsOptions{
 			QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
 				IgnoreQueryString: &cdn.ResourceOptions_BoolOption{
-					Enabled: true,
+					Enabled: rawOption.(bool),
 					Value:   rawOption.(bool),
 				},
 			},
@@ -526,7 +526,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.Slice = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
@@ -537,7 +537,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.CompressionOptions = &cdn.ResourceOptions_CompressionOptions{
 			CompressionVariant: &cdn.ResourceOptions_CompressionOptions_FetchCompressed{
 				FetchCompressed: &cdn.ResourceOptions_BoolOption{
-					Enabled: true,
+					Enabled: rawOption.(bool),
 					Value:   rawOption.(bool),
 				},
 			},
@@ -550,7 +550,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.CompressionOptions = &cdn.ResourceOptions_CompressionOptions{
 			CompressionVariant: &cdn.ResourceOptions_CompressionOptions_GzipOn{
 				GzipOn: &cdn.ResourceOptions_BoolOption{
-					Enabled: true,
+					Enabled: rawOption.(bool),
 					Value:   rawOption.(bool),
 				},
 			},
@@ -563,7 +563,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpToHttps{
 				RedirectHttpToHttps: &cdn.ResourceOptions_BoolOption{
-					Enabled: true,
+					Enabled: rawOption.(bool),
 					Value:   rawOption.(bool),
 				},
 			},
@@ -576,7 +576,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpsToHttp{
 				RedirectHttpsToHttp: &cdn.ResourceOptions_BoolOption{
-					Enabled: true,
+					Enabled: rawOption.(bool),
 					Value:   rawOption.(bool),
 				},
 			},
@@ -587,7 +587,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.IgnoreCookie = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
@@ -612,7 +612,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 			return &cdn.ResourceOptions_HostOptions{
 				HostVariant: &cdn.ResourceOptions_HostOptions_ForwardHostHeader{
 					ForwardHostHeader: &cdn.ResourceOptions_BoolOption{
-						Enabled: true,
+						Enabled: rawOption.(bool),
 						Value:   rawOption.(bool),
 					},
 				},
@@ -673,7 +673,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.ProxyCacheMethodsSet = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
@@ -682,7 +682,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.DisableProxyForceRanges = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
@@ -713,7 +713,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		optionsSet = true
 
 		result.IgnoreCookie = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
+			Enabled: rawOption.(bool),
 			Value:   rawOption.(bool),
 		}
 	}
