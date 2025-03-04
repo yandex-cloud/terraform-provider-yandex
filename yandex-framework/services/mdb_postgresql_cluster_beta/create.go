@@ -20,6 +20,7 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		ConfigSpec:         expandConfig(ctx, plan.Config, &diags),
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		MaintenanceWindow:  expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags),
 	}
 	return request, diags
 }

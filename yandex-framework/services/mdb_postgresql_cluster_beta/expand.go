@@ -265,6 +265,25 @@ func expandPoolerConfig(ctx context.Context, pCfg types.Object, diags *diag.Diag
 	return pc
 }
 
+// TODO: send to api not null structure when fix api
+func expandDiskSizeAutoscaling(ctx context.Context, diskSizeAutoscaling types.Object, diags *diag.Diagnostics) *postgresql.DiskSizeAutoscaling {
+	if diskSizeAutoscaling.IsNull() || diskSizeAutoscaling.IsUnknown() {
+		return nil
+	}
+
+	var ds DiskSizeAutoscaling
+	if diags.Append(diskSizeAutoscaling.As(ctx, &ds, datasize.DefaultOpts)...); diags.HasError() {
+		return nil
+	}
+
+	// set attributes PlannedUsageThreshold or EmergencyUsageThreshold to 0 if null
+	return &postgresql.DiskSizeAutoscaling{
+		DiskSizeLimit:           datasize.ToBytes(ds.DiskSizeLimit.ValueInt64()),
+		EmergencyUsageThreshold: ds.EmergencyUsageThreshold.ValueInt64(),
+		PlannedUsageThreshold:   ds.PlannedUsageThreshold.ValueInt64(),
+	}
+}
+
 func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) *postgresql.ConfigSpec {
 	var configSpec Config
 	diags.Append(c.As(ctx, &configSpec, datasize.DefaultOpts)...)
@@ -282,6 +301,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
 		PostgresqlConfig:       expandPostgresqlConfig(ctx, configSpec.Version.ValueString(), configSpec.PostgtgreSQLConfig, diags),
 		PoolerConfig:           expandPoolerConfig(ctx, configSpec.PoolerConfig, diags),
+		DiskSizeAutoscaling:    expandDiskSizeAutoscaling(ctx, configSpec.DiskSizeAutoscaling, diags),
 	}
 }
 

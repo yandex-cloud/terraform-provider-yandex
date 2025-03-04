@@ -191,6 +191,16 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		)
 	}
 
+	if !plan.DiskSizeAutoscaling.Equal(state.DiskSizeAutoscaling) {
+		config.SetDiskSizeAutoscaling(expandDiskSizeAutoscaling(ctx, plan.DiskSizeAutoscaling, &diags))
+		updateMaskPaths = append(
+			updateMaskPaths,
+			"config_spec.disk_size_autoscaling.disk_size_limit",
+			"config_spec.disk_size_autoscaling.planned_usage_threshold",
+			"config_spec.disk_size_autoscaling.emergency_usage_threshold",
+		)
+	}
+
 	if !plan.PostgtgreSQLConfig.Equal(state.PostgtgreSQLConfig) {
 		config.SetPostgresqlConfig(expandPostgresqlConfig(ctx, plan.Version.ValueString(), plan.PostgtgreSQLConfig, &diags))
 

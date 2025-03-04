@@ -26,6 +26,7 @@ var (
 		"backup_retain_period_days": types.Int64Type,
 		"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
 		"pooler_config":             types.ObjectType{AttrTypes: expectedPCAttrTypes},
+		"disk_size_autoscaling":     types.ObjectType{AttrTypes: expectedDiskSizeAutoscalingAttrs},
 	}
 	expectedResourcesAttrs = map[string]attr.Type{
 		"resource_preset_id": types.StringType,
@@ -64,6 +65,11 @@ var (
 		"pool_discard": types.BoolType,
 		"pooling_mode": types.StringType,
 	}
+	expectedDiskSizeAutoscalingAttrs = map[string]attr.Type{
+		"disk_size_limit":           types.Int64Type,
+		"planned_usage_threshold":   types.Int64Type,
+		"emergency_usage_threshold": types.Int64Type,
+	}
 	baseConfig = types.ObjectValueMust(
 		expectedConfigAttrs,
 		map[string]attr.Value{
@@ -91,6 +97,11 @@ var (
 			"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
 				"pool_discard": types.BoolValue(true),
 				"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_SESSION.String()),
+			}),
+			"disk_size_autoscaling": types.ObjectValueMust(expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+				"disk_size_limit":           types.Int64Value(5),
+				"planned_usage_threshold":   types.Int64Value(20),
+				"emergency_usage_threshold": types.Int64Value(20),
 			}),
 		},
 	)
@@ -127,8 +138,8 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 					"maintenance_window": types.ObjectValueMust(
 						expectedMWAttrs,
 						map[string]attr.Value{
-							"type": types.StringValue("anytime"),
-							"day":  types.StringValue("monday"),
+							"type": types.StringValue("ANYTIME"),
+							"day":  types.StringValue("MON"),
 							"hour": types.Int64Value(1),
 						},
 					),
@@ -165,10 +176,20 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
 						PoolDiscard: wrapperspb.Bool(true),
 					},
+					DiskSizeAutoscaling: &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(5),
+						PlannedUsageThreshold:   20,
+						EmergencyUsageThreshold: 20,
+					},
 				},
 				SecurityGroupIds:   []string{"test-sg"},
 				DeletionProtection: true,
 				FolderId:           "test-folder",
+				MaintenanceWindow: &postgresql.MaintenanceWindow{
+					Policy: &postgresql.MaintenanceWindow_Anytime{
+						Anytime: &postgresql.AnytimeMaintenanceWindow{},
+					},
+				},
 			},
 		},
 		{
@@ -215,6 +236,11 @@ func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
 					PoolerConfig: &postgresql.ConnectionPoolerConfig{
 						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
 						PoolDiscard: wrapperspb.Bool(true),
+					},
+					DiskSizeAutoscaling: &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(5),
+						PlannedUsageThreshold:   20,
+						EmergencyUsageThreshold: 20,
 					},
 				},
 			},

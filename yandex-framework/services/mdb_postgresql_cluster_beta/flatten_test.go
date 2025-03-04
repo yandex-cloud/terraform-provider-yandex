@@ -597,6 +597,105 @@ func TestYandexProvider_MDBPostgresClusterResourcesFlatten(t *testing.T) {
 	}
 }
 
+func TestYandexProvider_MDBPostgresClusterConfigDiskSizeAutoscalingFlattener(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      *postgresql.DiskSizeAutoscaling
+		expectedVal types.Object
+	}{
+		{
+			testname: "CheckAllAttributes",
+			reqVal: &postgresql.DiskSizeAutoscaling{
+				DiskSizeLimit:           datasize.ToBytes(3),
+				PlannedUsageThreshold:   50,
+				EmergencyUsageThreshold: 70,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+					"disk_size_limit":           types.Int64Value(3),
+					"planned_usage_threshold":   types.Int64Value(50),
+					"emergency_usage_threshold": types.Int64Value(70),
+				},
+			),
+		},
+		{
+			testname: "CheckRequiredAttribute",
+			reqVal: &postgresql.DiskSizeAutoscaling{
+				DiskSizeLimit: datasize.ToBytes(5),
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+					"disk_size_limit":           types.Int64Value(5),
+					"planned_usage_threshold":   types.Int64Value(0),
+					"emergency_usage_threshold": types.Int64Value(0),
+				},
+			),
+		},
+		{
+			testname: "CheckAttributesWithPlannedUsageThresold",
+			reqVal: &postgresql.DiskSizeAutoscaling{
+				DiskSizeLimit:         datasize.ToBytes(5),
+				PlannedUsageThreshold: 10,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+					"disk_size_limit":           types.Int64Value(5),
+					"planned_usage_threshold":   types.Int64Value(10),
+					"emergency_usage_threshold": types.Int64Value(0),
+				},
+			),
+		},
+		{
+			testname: "CheckAttributesWithEmergencyUsageThresold",
+			reqVal: &postgresql.DiskSizeAutoscaling{
+				DiskSizeLimit:           datasize.ToBytes(6),
+				EmergencyUsageThreshold: 10,
+			},
+			expectedVal: types.ObjectValueMust(
+				expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+					"disk_size_limit":           types.Int64Value(6),
+					"planned_usage_threshold":   types.Int64Value(0),
+					"emergency_usage_threshold": types.Int64Value(10),
+				},
+			),
+		},
+		{
+			testname: "CheckNullObject",
+			reqVal:   nil,
+			expectedVal: types.ObjectValueMust(expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+				"disk_size_limit":           types.Int64Value(0),
+				"planned_usage_threshold":   types.Int64Value(0),
+				"emergency_usage_threshold": types.Int64Value(0),
+			}),
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		dsaObj := flattenDiskSizeAutoscaling(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected flatten diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !c.expectedVal.Equal(dsaObj) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				dsaObj,
+			)
+		}
+	}
+}
+
 type invalidPgConfig struct {
 	postgresql.ClusterConfig_PostgresqlConfig
 }
@@ -851,6 +950,11 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					PoolDiscard: wrapperspb.Bool(true),
 					PoolingMode: postgresql.ConnectionPoolerConfig_STATEMENT,
 				},
+				DiskSizeAutoscaling: &postgresql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(5),
+					EmergencyUsageThreshold: 20,
+					PlannedUsageThreshold:   30,
+				},
 			},
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
@@ -884,6 +988,11 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"pool_discard": types.BoolValue(true),
 						"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_STATEMENT.String()),
 					}),
+					"disk_size_autoscaling": types.ObjectValueMust(expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+						"disk_size_limit":           types.Int64Value(5),
+						"emergency_usage_threshold": types.Int64Value(20),
+						"planned_usage_threshold":   types.Int64Value(30),
+					}),
 				},
 			),
 		},
@@ -915,6 +1024,11 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{
 						"pool_discard": types.BoolNull(),
 						"pooling_mode": types.StringValue(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+					}),
+					"disk_size_autoscaling": types.ObjectValueMust(expectedDiskSizeAutoscalingAttrs, map[string]attr.Value{
+						"disk_size_limit":           types.Int64Value(0),
+						"planned_usage_threshold":   types.Int64Value(0),
+						"emergency_usage_threshold": types.Int64Value(0),
 					}),
 				},
 			),

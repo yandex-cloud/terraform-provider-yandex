@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -233,6 +234,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(0),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -263,6 +269,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Minutes: 0,
 					}),
 					testAccCheckClusterPoolerConfigExact(&cluster, nil),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
 							Anytime: &postgresql.AnytimeMaintenanceWindow{},
@@ -308,6 +315,11 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(0),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
 						"day":  knownvalue.Null(),
@@ -337,6 +349,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						Hours:   0,
 						Minutes: 0,
 					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
 					testAccCheckClusterPoolerConfigExact(&cluster, nil),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_Anytime{
@@ -451,6 +464,17 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		pool_discard = false
 	`
 
+	dsa := `
+		disk_size_limit = 15
+		emergency_usage_threshold = 20
+	`
+
+	dsaUpdate := `
+		disk_size_limit = 20
+		emergency_usage_threshold = 15
+		planned_usage_threshold = 10
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -475,6 +499,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					performanceDiagnostics,
 					backupWindowStart,
 					poolerCfg,
+					dsa,
 					postgresqlConfig,
 					maintenanceWindow,
 					backupRetainPeriodDays, true, true,
@@ -516,6 +541,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[2]),
 						"pool_discard": knownvalue.Bool(true),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(15),
+						"emergency_usage_threshold": knownvalue.Int64Exact(20),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"max_connections":                knownvalue.StringExact("100"),
@@ -570,6 +600,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						PoolingMode: postgresql.ConnectionPoolerConfig_TRANSACTION,
 						PoolDiscard: wrapperspb.Bool(true),
 					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(15),
+						EmergencyUsageThreshold: 20,
+					}),
 					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig14_1C{
 						MaxConnections:              wrapperspb.Int64(100),
 						EnableParallelHash:          wrapperspb.Bool(true),
@@ -607,6 +641,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					performanceDiagnosticsUpdated,
 					backupWindowStartUpdated,
 					poolerCfgUpdated,
+					dsaUpdate,
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					backupRetainPeriodDaysUpdated, false, false,
@@ -648,6 +683,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[1]),
 						"pool_discard": knownvalue.Bool(false),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(20),
+						"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						"planned_usage_threshold":   knownvalue.Int64Exact(10),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"max_connections":                knownvalue.StringExact("200"),
@@ -716,6 +756,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
 						PoolDiscard: wrapperspb.Bool(false),
 					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(20),
+						EmergencyUsageThreshold: 15,
+						PlannedUsageThreshold:   10,
+					}),
 					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 						Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
 							WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
@@ -737,7 +782,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	})
 }
 
-// Test that a PostgreSQL Cluster config test with autofailover
+// TODO: Check enable and disable disk_size_autoscaling when fix api
 func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 	t.Parallel()
 
@@ -797,13 +842,107 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 			pooling_mode = "POOLING_MODE_UNSPECIFIED"
 		`
 
-	stepsFullBasic := [2]resource.TestStep{
+	dsa := `
+		disk_size_limit = 20
+	`
+
+	stepsFullBasic := []resource.TestStep{
+		{
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources),
+			ConfigStateChecks: []statecheck.StateCheck{
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("autofailover"), knownvalue.Bool(true)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"data_lens":     knownvalue.Bool(false),
+						"data_transfer": knownvalue.Bool(false),
+						"web_sql":       knownvalue.Bool(false),
+						"serverless":    knownvalue.Bool(false),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(0),
+					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+			},
+			Check: resource.ComposeAggregateTestCheckFunc(
+				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
+				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				testAccCheckClusterAutofailoverExact(&cluster, true),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
+				testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+					DataLens:     false,
+					DataTransfer: false,
+					WebSql:       false,
+					Serverless:   false,
+				}),
+				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+					Enabled:                    false,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
+					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
+				}),
+				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+					Policy: &postgresql.MaintenanceWindow_Anytime{
+						Anytime: &postgresql.AnytimeMaintenanceWindow{},
+					},
+				}),
+				testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+			),
+		},
 		{
 			Config: testAccMDBPGClusterFull(
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
 				backupWindowStart,
 				poolerConfig,
+				dsa,
 				postgresqlConfig,
 				maintenanceWindow,
 				backupRetainPeriodDays,
@@ -844,6 +983,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					"pool_discard": knownvalue.Null(),
 					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
 				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(20),
+					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
 				})),
@@ -879,6 +1023,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 0,
+				}),
 				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
 					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
 				}, nil),
@@ -927,6 +1076,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					"pool_discard": knownvalue.Null(),
 					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
 				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(20),
+					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
 				})),
@@ -958,6 +1112,11 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 0,
+				}),
 				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
 					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
 				}, nil),
@@ -975,17 +1134,14 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < 2; i++ {
-		resource.Test(t, resource.TestCase{
+	resource.Test(
+		t, resource.TestCase{
 			PreCheck:                 func() { test.AccPreCheck(t) },
 			ProtoV6ProviderFactories: test.AccProviderFactories,
 			CheckDestroy:             testAccCheckMDBPGClusterDestroy,
-			Steps: []resource.TestStep{
-				stepsFullBasic[i],
-				stepsFullBasic[i^1],
-			},
-		})
-	}
+			Steps:                    stepsFullBasic[:],
+		},
+	)
 }
 
 // Test that a PostgreSQL HA Cluster can be created, updated and destroyed
@@ -1330,6 +1486,15 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 	}
 }
 
+func testAccCheckClusterDiskSizeAutoscalingExact(r *postgresql.Cluster, expected *postgresql.DiskSizeAutoscaling) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetDiskSizeAutoscaling(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config disk_size_autoscaling.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetDiskSizeAutoscaling(), expected)
+	}
+}
+
 func testAccCheckClusterMaintenanceWindow(r *postgresql.Cluster, expected *postgresql.MaintenanceWindow) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetMaintenanceWindow(), expected) {
@@ -1391,6 +1556,7 @@ func testAccMDBPGClusterFull(
 	performanceDiagnostics,
 	backupWindowStart,
 	poolerConfig,
+	dsa,
 	pgConfig,
 	maintenanceWindow string, backupRetainPeriodDays int, autofailover, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
@@ -1432,6 +1598,10 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 	pooler_config = {
 		%s
 	}
+	
+	disk_size_autoscaling = {
+		%s
+	}
 
 	postgresql_config = {
 		%s
@@ -1448,7 +1618,7 @@ resource "yandex_mdb_postgresql_cluster_beta" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, autofailover, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, pgConfig,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig,
 		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
 	)
 }

@@ -2,6 +2,7 @@ package mdb_postgresql_cluster_beta
 
 import (
 	"context"
+	"math/rand"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -338,5 +339,107 @@ func TestYandexProvider_MDBPostgresClusterOneOfIfConfiguredEmptyValidator(t *tes
 
 	if resp.Diagnostics.HasError() {
 		t.Errorf("Unexpected validation status: expected %t, actual %t with errors: %v", false, resp.Diagnostics.HasError(), resp.Diagnostics.Errors())
+	}
+}
+
+func builTestGreaterValidatorRequest(value int64) validator.Int64Request {
+	reqConf := tfsdk.Config{
+		Raw: tftypes.NewValue(
+			tftypes.Object{}, map[string]tftypes.Value{
+				"attr1": tftypes.NewValue(tftypes.Number, 5),
+				"block1": tftypes.NewValue(tftypes.Object{}, map[string]tftypes.Value{
+					"attr3": tftypes.NewValue(tftypes.Number, 10),
+					"attr4": tftypes.NewValue(tftypes.Number, 15),
+				}),
+			},
+		),
+		Schema: schema.Schema{
+			Attributes: map[string]schema.Attribute{
+				"attr1": schema.Int64Attribute{
+					Required: true,
+					Validators: []validator.Int64{
+						Int64GreaterValidator(),
+					},
+				},
+				"attr2": schema.Int64Attribute{
+					Optional: true,
+				},
+			},
+			Blocks: map[string]schema.Block{
+				"block1": schema.SingleNestedBlock{
+					Attributes: map[string]schema.Attribute{
+						"attr3": schema.Int64Attribute{
+							Required: true,
+						},
+						"attr4": schema.Int64Attribute{
+							Required: true,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	return validator.Int64Request{
+		Config:      reqConf,
+		ConfigValue: types.Int64Value(value),
+		Path:        path.Root("attr1"),
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterInt64GreaterValidator(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		validator     *int64GreaterValidator
+		req           validator.Int64Request
+		expectedError bool
+	}{
+		{
+			testname:      "CheckWithNullComparing",
+			validator:     Int64GreaterValidator(path.MatchRoot("attr2")),
+			req:           builTestGreaterValidatorRequest(rand.Int63()),
+			expectedError: false,
+		},
+		{
+			testname:      "CheckWithInt64ComparingSuccess",
+			validator:     Int64GreaterValidator(path.MatchRoot("block1").AtName("attr3")),
+			req:           builTestGreaterValidatorRequest(11),
+			expectedError: false,
+		},
+		{
+			testname:      "CheckWithInt64ComparingFailed",
+			validator:     Int64GreaterValidator(path.MatchRoot("block1").AtName("attr3")),
+			req:           builTestGreaterValidatorRequest(5),
+			expectedError: true,
+		},
+		{
+			testname:      "CheckWithInt64SeveralComparingSuccess",
+			validator:     Int64GreaterValidator(path.MatchRoot("block1").AtName("attr3"), path.MatchRoot("block1").AtName("attr4")),
+			req:           builTestGreaterValidatorRequest(20),
+			expectedError: false,
+		},
+		{
+			testname:      "CheckWithInt64SeveralComparingFailed",
+			validator:     Int64GreaterValidator(path.MatchRoot("block1").AtName("attr3"), path.MatchRoot("block1").AtName("attr4")),
+			req:           builTestGreaterValidatorRequest(12),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		var resp validator.Int64Response
+		c.validator.ValidateInt64(ctx, c.req, &resp)
+		if resp.Diagnostics.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected validation status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				resp.Diagnostics.HasError(),
+				resp.Diagnostics.Errors(),
+			)
+		}
 	}
 }

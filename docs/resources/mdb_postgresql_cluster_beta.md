@@ -113,6 +113,7 @@ Optional:
 - `autofailover` (Boolean) Configuration setting which enables/disables automatic failover in the cluster.
 - `backup_retain_period_days` (Number) The period in days during which backups are stored.
 - `backup_window_start` (Attributes) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedatt--config--backup_window_start))
+- `disk_size_autoscaling` (Attributes) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedatt--config--disk_size_autoscaling))
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--config--performance_diagnostics))
 - `pooler_config` (Attributes) Configuration of the connection pooler. (see [below for nested schema](#nestedatt--config--pooler_config))
 - `postgresql_config` (Map of String) PostgreSQL cluster config.
@@ -136,6 +137,19 @@ Optional:
 
 - `hours` (Number) The hour at which backup will be started (UTC).
 - `minutes` (Number) The minute at which backup will be started (UTC).
+
+
+<a id="nestedatt--config--disk_size_autoscaling"></a>
+### Nested Schema for `config.disk_size_autoscaling`
+
+Required:
+
+- `disk_size_limit` (Number) Limit of disk size after autoscaling, GiB.
+
+Optional:
+
+- `emergency_usage_threshold` (Number) Threshold for an immediate increase, in percent.
+- `planned_usage_threshold` (Number) Threshold for planned increase, in percent.
 
 
 <a id="nestedatt--config--performance_diagnostics"></a>

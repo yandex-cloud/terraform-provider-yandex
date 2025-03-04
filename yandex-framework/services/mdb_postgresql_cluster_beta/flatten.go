@@ -154,6 +154,19 @@ func flattenPoolerConfig(ctx context.Context, c *postgresql.ConnectionPoolerConf
 	return obj
 }
 
+func flattenDiskSizeAutoscaling(ctx context.Context, pgDiskSizeAutoscaling *postgresql.DiskSizeAutoscaling, diags *diag.Diagnostics) types.Object {
+	obj, d := types.ObjectValueFrom(
+		ctx, DiskSizeAutoscalingAttrTypes, DiskSizeAutoscaling{
+			DiskSizeLimit:           types.Int64Value(datasize.ToGigabytes(pgDiskSizeAutoscaling.GetDiskSizeLimit())),
+			PlannedUsageThreshold:   types.Int64Value(pgDiskSizeAutoscaling.GetPlannedUsageThreshold()),
+			EmergencyUsageThreshold: types.Int64Value(pgDiskSizeAutoscaling.GetEmergencyUsageThreshold()),
+		},
+	)
+	diags.Append(d...)
+
+	return obj
+}
+
 func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgresql.ClusterConfig, diags *diag.Diagnostics) types.Object {
 	if c == nil {
 		diags.AddError("Failed to flatten config.", "Config of cluster can't be nil. It's error in provider")
@@ -173,6 +186,7 @@ func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgr
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      flattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
 		PoolerConfig:           flattenPoolerConfig(ctx, c.GetPoolerConfig(), diags),
+		DiskSizeAutoscaling:    flattenDiskSizeAutoscaling(ctx, c.GetDiskSizeAutoscaling(), diags),
 		PostgtgreSQLConfig:     statePGCfg,
 	})
 	diags.Append(d...)

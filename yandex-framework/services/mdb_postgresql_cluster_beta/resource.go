@@ -370,6 +370,52 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							},
 						},
 					},
+					"disk_size_autoscaling": schema.SingleNestedAttribute{
+						MarkdownDescription: "Cluster disk size autoscaling settings.",
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Attributes: map[string]schema.Attribute{
+							"disk_size_limit": schema.Int64Attribute{
+								MarkdownDescription: "Limit of disk size after autoscaling, GiB.",
+								Required:            true,
+								Validators: []validator.Int64{
+									Int64GreaterValidator(path.MatchRoot("config").AtName("resources").AtName("disk_size")),
+								},
+							},
+							"planned_usage_threshold": schema.Int64Attribute{
+								MarkdownDescription: "Threshold for planned increase, in percent.",
+								Optional:            true,
+								Computed:            true,
+								Validators: []validator.Int64{
+									int64validator.Any(
+										int64validator.OneOf(0),
+										int64validator.AlsoRequires(
+											path.MatchRoot("maintenance_window"),
+											path.MatchRoot("maintenance_window").AtName("type"),
+											path.MatchRoot("maintenance_window").AtName("hour"),
+											path.MatchRoot("maintenance_window").AtName("day"),
+										),
+									),
+								},
+								Default: int64default.StaticInt64(0),
+							},
+							"emergency_usage_threshold": schema.Int64Attribute{
+								MarkdownDescription: "Threshold for an immediate increase, in percent.",
+								Validators: []validator.Int64{
+									int64validator.Any(
+										Int64GreaterValidator(path.MatchRoot("config").AtName("disk_size_autoscaling").AtName("planned_usage_threshold")),
+										int64validator.OneOf(0),
+									),
+								},
+								Optional: true,
+								Computed: true,
+								Default:  int64default.StaticInt64(0),
+							},
+						},
+					},
 					"postgresql_config": schema.MapAttribute{
 						CustomType: PgSettingsMapType{
 							MapType: types.MapType{
@@ -535,26 +581,9 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	plan.Id = types.StringValue(cid)
 
-	if diags := r.updateClusterAfterCreate(ctx, &plan); diags.HasError() {
-		resp.Diagnostics.Append(diags...)
-		return
-	}
-
 	r.refreshResourceState(ctx, &plan, hosts, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-}
-
-func (r *clusterResource) updateClusterAfterCreate(ctx context.Context, plan *Cluster) diag.Diagnostics {
-	req, diags := prepareUpdateAfterCreateRequest(ctx, plan)
-	if diags.HasError() {
-		return diags
-	}
-	updateCluster(ctx, r.providerConfig.SDK, &diags, req)
-	if diags.HasError() {
-		return diags
-	}
-	return nil
 }
 
 func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

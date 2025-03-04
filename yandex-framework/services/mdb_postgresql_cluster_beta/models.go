@@ -48,6 +48,7 @@ type Config struct {
 	BackupWindowStart      types.Object       `tfsdk:"backup_window_start"`
 	PostgtgreSQLConfig     PgSettingsMapValue `tfsdk:"postgresql_config"`
 	PoolerConfig           types.Object       `tfsdk:"pooler_config"`
+	DiskSizeAutoscaling    types.Object       `tfsdk:"disk_size_autoscaling"`
 }
 
 type PoolerConfig struct {
@@ -82,6 +83,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
+	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }
 
 type Access struct {
@@ -130,4 +132,16 @@ type BackupWindowStart struct {
 var BackupWindowStartAttrTypes = map[string]attr.Type{
 	"hours":   types.Int64Type,
 	"minutes": types.Int64Type,
+}
+
+type DiskSizeAutoscaling struct {
+	DiskSizeLimit           types.Int64 `tfsdk:"disk_size_limit"`
+	PlannedUsageThreshold   types.Int64 `tfsdk:"planned_usage_threshold"`
+	EmergencyUsageThreshold types.Int64 `tfsdk:"emergency_usage_threshold"`
+}
+
+var DiskSizeAutoscalingAttrTypes = map[string]attr.Type{
+	"disk_size_limit":           types.Int64Type,
+	"planned_usage_threshold":   types.Int64Type,
+	"emergency_usage_threshold": types.Int64Type,
 }
