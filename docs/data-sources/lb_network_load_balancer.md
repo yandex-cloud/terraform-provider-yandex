@@ -46,6 +46,7 @@ The following attributes are exported:
 * `listener` - Listener specification that will be used by a network load balancer. Structure is documented below.
 * `created_at` - Creation timestamp of this network load balancer.
 * `deletion_protection` - Flag that protects the network load balancer from accidental deletion.
+* `allow_zonal_shift` -  Flag that marks the network load balancer as avaialable to zonal shift.
 
 ---
 

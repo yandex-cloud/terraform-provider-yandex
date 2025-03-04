@@ -62,6 +62,8 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Flag that protects the network load balancer from accidental deletion.
 
+* `allow_zonal_shift` - (Optional) Flag that marks the network load balancer as avaialable to zonal shift.
+
 ---
 
 The `attached_target_group` block supports:

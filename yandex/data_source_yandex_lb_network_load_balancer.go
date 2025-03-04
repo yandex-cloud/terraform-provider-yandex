@@ -190,6 +190,10 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"allow_zonal_shift": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -239,6 +243,7 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 	d.Set("created_at", getTimestamp(nlb.CreatedAt))
 	d.Set("folder_id", nlb.FolderId)
 	d.Set("deletion_protection", nlb.DeletionProtection)
+	d.Set("allow_zonal_shift", nlb.AllowZonalShift)
 
 	if err := d.Set("labels", nlb.Labels); err != nil {
 		return err

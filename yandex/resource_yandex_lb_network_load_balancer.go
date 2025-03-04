@@ -231,6 +231,11 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"allow_zonal_shift": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -274,6 +279,7 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 		ListenerSpecs:        ls,
 		AttachedTargetGroups: atgs,
 		DeletionProtection:   d.Get("deletion_protection").(bool),
+		AllowZonalShift:      d.Get("allow_zonal_shift").(bool),
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -339,6 +345,7 @@ func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interf
 	d.Set("region_id", nlb.RegionId)
 	d.Set("type", strings.ToLower(nlb.Type.String()))
 	d.Set("deletion_protection", nlb.DeletionProtection)
+	d.Set("allow_zonal_shift", nlb.AllowZonalShift)
 
 	if err := d.Set("listener", ls); err != nil {
 		return err
@@ -377,6 +384,7 @@ func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta inte
 		ListenerSpecs:         ls,
 		AttachedTargetGroups:  atgs,
 		DeletionProtection:    d.Get("deletion_protection").(bool),
+		AllowZonalShift:       d.Get("allow_zonal_shift").(bool),
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
