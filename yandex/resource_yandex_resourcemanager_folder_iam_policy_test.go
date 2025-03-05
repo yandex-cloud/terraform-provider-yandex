@@ -28,7 +28,7 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 	policy := &Policy{
 		Bindings: []*access.AccessBinding{
 			{
-				RoleId: "viewer",
+				RoleId: "resource-manager.viewer",
 				Subject: &access.Subject{
 					Type: "userAccount",
 					Id:   userID1,
@@ -58,7 +58,7 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 	policy1 := &Policy{
 		Bindings: []*access.AccessBinding{
 			{
-				RoleId: "viewer",
+				RoleId: "resource-manager.viewer",
 				Subject: &access.Subject{
 					Type: "userAccount",
 					Id:   userID1,
@@ -69,14 +69,14 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 	policy2 := &Policy{
 		Bindings: []*access.AccessBinding{
 			{
-				RoleId: "editor",
+				RoleId: "resource-manager.editor",
 				Subject: &access.Subject{
 					Type: "userAccount",
 					Id:   userID1,
 				},
 			},
 			{
-				RoleId: "viewer",
+				RoleId: "resource-manager.viewer",
 				Subject: &access.Subject{
 					Type: "userAccount",
 					Id:   userID1,

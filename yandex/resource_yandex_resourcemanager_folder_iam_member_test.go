@@ -34,7 +34,7 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 				Config: testAccFolderAssociateMemberBasic(cloudID, folderID, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -71,7 +71,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 				Config: testAccFolderAssociateMemberBasic(cloudID, folderID, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -84,13 +84,13 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 				Config: testAccFolderAssociateMemberMultiple(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
 						}}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -126,13 +126,13 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 				Config: testAccFolderAssociateMemberMultiple(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
 						}}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -161,7 +161,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_member" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   member    = "userAccount:%s"
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
@@ -179,7 +179,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_member" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   member    = "userAccount:%s"
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
@@ -187,7 +187,7 @@ resource "yandex_resourcemanager_folder_iam_member" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_member" "multiple" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   member    = "userAccount:%s"
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }

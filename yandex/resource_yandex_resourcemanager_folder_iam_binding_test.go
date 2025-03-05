@@ -36,7 +36,7 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 				Config: testAccFolderAssociateBindingBasic(cloudID, folderID, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -73,7 +73,7 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 				Config: testAccFolderAssociateBindingBasic(cloudID, folderID, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -86,13 +86,13 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 				Config: testAccFolderAssociateBindingMultiple(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "viewer",
+						RoleId: "resource-manager.viewer",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
 						}}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -128,13 +128,13 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 				Config: testAccFolderAssociateBindingMultiple(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
 						}}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "viewer",
+						RoleId: "resource-manager.viewer",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
@@ -170,7 +170,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 				Config: testAccFolderAssociateBindingBasic(cloudID, folderID, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -183,14 +183,14 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 				Config: testAccFolderAssociateBindingUpdated(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
 						},
 					}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
@@ -203,7 +203,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 				Config: testAccFolderAssociateBindingDropMemberFromBasic(cloudID, folderID, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
@@ -240,14 +240,14 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 				Config: testAccFolderAssociateBindingMultiple(cloudID, folderID, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "viewer",
+						RoleId: "resource-manager.viewer",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID2,
 						},
 					}),
 					testAccCheckYandexResourceManagerFolderIamBindingExists(&folder, &access.AccessBinding{
-						RoleId: "admin",
+						RoleId: "resource-manager.editor",
 						Subject: &access.Subject{
 							Type: "userAccount",
 							Id:   userID1,
@@ -358,7 +358,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   members   = ["userAccount:%s"]
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
@@ -375,7 +375,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   members   = ["userAccount:%s"]
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
@@ -383,7 +383,7 @@ resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_binding" "multiple" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   members   = ["userAccount:%s"]
-  role      = "viewer"
+  role      = "resource-manager.viewer"
 
   depends_on = [%s]
 }
@@ -400,7 +400,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   members   = ["userAccount:%s", "userAccount:%s"]
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
@@ -417,7 +417,7 @@ data "yandex_resourcemanager_folder" "acceptance" {
 resource "yandex_resourcemanager_folder_iam_binding" "dropped" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
   members   = ["userAccount:%s"]
-  role      = "admin"
+  role      = "resource-manager.editor"
 
   depends_on = [%s]
 }
