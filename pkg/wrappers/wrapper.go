@@ -2,6 +2,7 @@ package wrappers
 
 import (
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -41,9 +42,6 @@ func StringFromTF(v types.String) string {
 	return v.ValueString()
 }
 
-func IsPresent[T interface {
-	IsNull() bool
-	IsUnknown() bool
-}](v T) bool {
+func IsPresent[T attr.Value](v T) bool {
 	return !v.IsNull() && !v.IsUnknown()
 }

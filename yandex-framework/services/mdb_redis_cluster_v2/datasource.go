@@ -54,7 +54,7 @@ func (o *redisClusterDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	var config Cluster
 	config.ID = types.StringValue(clusterId)
-	clusterRead(ctx, o.providerConfig.SDK, &resp.Diagnostics, &config, false)
+	clusterRead(ctx, o.providerConfig.SDK, &resp.Diagnostics, &config)
 	if resp.Diagnostics.HasError() {
 		return
 	}

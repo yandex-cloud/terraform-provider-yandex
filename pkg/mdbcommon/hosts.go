@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 )
 
 // T - terraform Host struct
@@ -40,6 +41,12 @@ type HostApiService[ProtoHost any, ProtoHostSpec any, UpdateSpec any] interface 
 	CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []ProtoHostSpec)
 	UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*UpdateSpec)
 	DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string)
+}
+
+// HostApiService is an interface that defines methods for API operations involving hosts with shards.
+// It is parameterized with types `ProtoHost`, `ProtoHostSpec`, and `UpdateSpec`
+type HostApiServiceWithShards[ProtoHost any, ProtoHostSpec any, UpdateSpec any] interface {
+	HostApiService[ProtoHost, ProtoHostSpec, UpdateSpec]
 	CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []ProtoHostSpec)
 	DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string)
 }
@@ -114,7 +121,7 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 	sdk *ycsdk.SDK,
 	diagnostics *diag.Diagnostics,
 	utilsHostService CmpHostService[T, H, HS, U],
-	hostsApiService HostApiService[H, HS, U],
+	hostsApiService HostApiServiceWithShards[H, HS, U],
 	cid string,
 	plan, state types.Map,
 ) {
@@ -437,79 +444,27 @@ func modifyStateDependsPlan[T Host, H any, HS any, U any](
 	return fixedState
 }
 
-// The ReadHosts method is used to update the state of hosts when called from a READ operation.
+// The ReadHosts method is used to update the state of hosts.
+//
+// 1. Map hosts from api to hosts in state by fqdn
+// 2. Map hosts from api to hosts in state without fqdn by equal attributes
+// 3. Add hosts from api to state if not mapped
 func ReadHosts[T Host, H ProtoHost, HS any, U any](
-	ctx context.Context,
-	sdk *ycsdk.SDK, // The SDK instance for interacting with the relevant API.
-	diags *diag.Diagnostics,
-	utilsHostService CmpHostService[T, H, HS, U], // A service utility for comparative host operations involving generic types.
-	hostsApiService HostApiService[H, HS, U], // The API service used to manage host state readings.
-	stateHosts types.Map, // A map representing the current state of hosts, used for reconciliation.
-	cid string,
-) map[string]T {
-	stateHostsMap := make(map[string]T)
-	if !stateHosts.IsNull() {
-		diags.Append(stateHosts.ElementsAs(ctx, &stateHostsMap, false)...)
-		if diags.HasError() {
-			return nil
-		}
-	}
-
-	apiHosts := hostsApiService.ListHosts(ctx, sdk, diags, cid)
-	if diags.HasError() {
-		return nil
-	}
-
-	fqdnToApiHost := make(map[string]H)
-	for _, host := range apiHosts {
-		fqdnToApiHost[host.GetName()] = host
-	}
-
-	stateFqdns := make(map[string]struct{})
-	for _, host := range stateHostsMap {
-		if v := host.GetFQDN().ValueString(); v != "" {
-			stateFqdns[v] = struct{}{}
-		}
-	}
-
-	entityIdToApiHosts := make(map[string]T)
-
-	for hostLabel, host := range stateHostsMap {
-		fqdn := host.GetFQDN().ValueString()
-		if fqdn == "" {
-			continue
-		}
-		if apiHost, ok := fqdnToApiHost[fqdn]; ok {
-			// 3 case when fqdn exist in API and STATE before apply
-			// We need to add apiHost to our map under the appropriate label
-			entityIdToApiHosts[hostLabel] = utilsHostService.ConvertFromProto(apiHost)
-		}
-	}
-
-	for _, apiHost := range apiHosts {
-		if _, ok := stateFqdns[apiHost.GetName()]; !ok {
-			// 1 case when fqdn exist not in API but STATE/PLAN before apply
-			entityIdToApiHosts[apiHost.GetName()] = utilsHostService.ConvertFromProto(apiHost)
-		}
-	}
-
-	return entityIdToApiHosts
-}
-
-// The UpdateHosts method is used to update the state of hosts, intended to be called after an Update or Create operation. It also checks that the hosts are created as planned.
-func UpdateHosts[T Host, H ProtoHost, HS any, U any](
 	ctx context.Context,
 	sdk *ycsdk.SDK, // The SDK instance to interact with the relevant API.
 	diags *diag.Diagnostics,
 	utilsHostService CmpHostService[T, H, HS, U], // A service utility for comparative host operations involving generic types.
 	hostsApiService HostApiService[H, HS, U], // The API service used to manage hosts, facilitating operations on host data.
-	planHosts basetypes.MapValue, // A map representing the planned state of hosts, used for validation and updates.
+	stateHosts basetypes.MapValue, // A map representing the state of hosts, used for validation and updates.
 	cid string,
 ) map[string]T {
 	planHostsMap := make(map[string]T)
-	diags.Append(planHosts.ElementsAs(ctx, &planHostsMap, false)...)
-	if diags.HasError() {
-		return nil
+
+	if utils.IsPresent(stateHosts) {
+		diags.Append(stateHosts.ElementsAs(ctx, &planHostsMap, false)...)
+		if diags.HasError() {
+			return nil
+		}
 	}
 
 	apiHosts := hostsApiService.ListHosts(ctx, sdk, diags, cid)
@@ -531,33 +486,23 @@ func UpdateHosts[T Host, H ProtoHost, HS any, U any](
 
 	entityIdToApiHosts := make(map[string]T)
 
-	if len(apiHosts) != len(planHostsMap) {
-		diags.AddError(
-			"Hosts state is wrong after change",
-			fmt.Sprintf("Planned amount hosts is %d, but after apply have only %d. This is a problem with the provider", len(planHostsMap), len(apiHosts)),
-		)
-	}
-
+	// For each host in the state that has an FQDN,
+	// we correlate the host from the API. At the same time,
+	// we ignore the inconsistent state in the case of Update/Create (tf framework already knows how to do this)
 	for hostLabel, host := range planHostsMap {
 		fqdn := host.GetFQDN().ValueString()
 		if fqdn == "" {
 			continue
 		}
 		if apiHost, ok := fqdnToApiHost[fqdn]; ok {
-			// 3 case when fqdn exist in API and STATE before apply
+			// case when fqdn exist in API and STATE before apply
 			// We need to add apiHost to our map under the appropriate label
 			entityIdToApiHosts[hostLabel] = utilsHostService.ConvertFromProto(apiHost)
-		} else {
-			// 2 case when fqdn not in API, but was existed in PLAN
-			// This case does
-			diags.AddError(
-				"Hosts state is wrong after change",
-				"Host was in PLAN, but after apply it doesn't exist in API. This is a problem with the provider",
-			)
-			return nil
 		}
 	}
 
+	// For each host without FQDN, we correlate the host from the API response with the same attribute values.
+	// This situation can only occur with a Create/Update refresh.
 	for hostLabel, host := range planHostsMap {
 		fqdn := host.GetFQDN().ValueString()
 		if fqdn != "" {
@@ -581,12 +526,11 @@ func UpdateHosts[T Host, H ProtoHost, HS any, U any](
 			return nil
 		}
 	}
+
+	// The other hosts are simply entered into the state.
 	for _, apiHost := range apiHosts {
 		if _, ok := stateFqdns[apiHost.GetName()]; !ok {
-			diags.AddError(
-				"Hosts state is wrong after change",
-				fmt.Sprintf("Host %q couldn't match with any host in plan. This is a problem with the provider", apiHost.GetName()),
-			)
+			entityIdToApiHosts[apiHost.GetName()] = utilsHostService.ConvertFromProto(apiHost)
 		}
 	}
 

@@ -12,7 +12,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 )
 
-func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics, state *Cluster, isUpdate bool) {
+func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics, state *Cluster) {
 	cid := state.ID.ValueString()
 	cluster := redisAPI.GetCluster(ctx, sdk, diagnostics, cid)
 	if diagnostics.HasError() {
@@ -63,11 +63,9 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	diagnostics.Append(diags...)
 
 	var entityIdToApiHosts map[string]Host
-	if isUpdate {
-		entityIdToApiHosts = mdbcommon.UpdateHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
-	} else {
-		entityIdToApiHosts = mdbcommon.ReadHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
-	}
+
+	entityIdToApiHosts = mdbcommon.ReadHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
+
 	state.HostSpecs, diags = types.MapValueFrom(ctx, HostType, entityIdToApiHosts)
 	diagnostics.Append(diags...)
 	if diagnostics.HasError() {

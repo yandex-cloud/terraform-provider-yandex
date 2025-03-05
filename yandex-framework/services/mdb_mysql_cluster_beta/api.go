@@ -16,139 +16,20 @@ import (
 
 const defaultMDBPageSize = 1000
 
-// ==============================================================================
-//                                 CLUSTER
-// ==============================================================================
+var mysqlApi = MysqlAPI{}
 
-func readCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *mysql.Cluster {
-	cluster, err := sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
-		ClusterId: cid,
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to get MySQL cluster:"+err.Error(),
-		)
-		return nil
-	}
-	return cluster
-}
-
-func createCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, request *mysql.CreateClusterRequest) string {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().Create(ctx, request)
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while requesting API to create MySQL cluster: "+err.Error(),
-		)
-		return ""
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while waiting for operation to create MySQL cluster: "+err.Error(),
-		)
-		return ""
-	}
-
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Failed to retrieve operation metadata: "+err.Error(),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*mysql.CreateClusterMetadata)
-	if !ok {
-		diag.AddError(
-			"Failed to Create resource",
-			"Failed to retrieve cluster_id",
-		)
-		return ""
-	}
-
-	return md.ClusterId
-}
-
-func updateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, request *mysql.UpdateClusterRequest) {
-	if request == nil || request.UpdateMask == nil || len(request.UpdateMask.Paths) == 0 {
-		return
-	}
-
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().Update(ctx, request)
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to update MySQL cluster: "+err.Error(),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while waiting for operation to update MySQL cluster: "+err.Error(),
-		)
-		return
-	}
-}
-
-func deleteCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
-			ClusterId: cid,
-		})
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Delete resource",
-			"Error while requesting API to delete MySQL cluster:"+err.Error(),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Delete resource",
-			"Error while waiting for operation to delete MySQL cluster:"+err.Error(),
-		)
-	}
-}
+type MysqlAPI struct{}
 
 // ==============================================================================
 //                                     HOST
 // ==============================================================================
 
-func retryListMySQLHostsInner(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, attempt int, maxAttempt int, condition func([]*mysql.Host) bool) ([]*mysql.Host, error) {
-	log.Printf("[DEBUG] Try ListMySQLHosts, attempt: %d", attempt)
-	hosts, err := listHosts(ctx, sdk, diag, cid)
-	if condition(hosts) || maxAttempt <= attempt {
-		return hosts, err // We tried to do our best
-	}
-
-	timeout := int(math.Pow(2, float64(attempt)))
-	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
-	time.Sleep(time.Second * time.Duration(timeout))
-
-	return retryListMySQLHostsInner(ctx, sdk, diag, cid, attempt+1, maxAttempt, condition)
-}
-
 // retry with 1, 2, 4, 8, 16, 32, 64, 128 seconds if no succeess
 // while at least one host is unknown and there is no master
-func RetryListMySQLHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) ([]*mysql.Host, error) {
+func (r *MysqlAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*mysql.Host {
 	attempts := 7
-	return retryListMySQLHostsInner(ctx, sdk, diag, cid, 0, attempts, func(hosts []*mysql.Host) bool {
+
+	return r.retryListMySQLHostsInner(ctx, sdk, diags, cid, 0, attempts, func(hosts []*mysql.Host) bool {
 		masterExists := false
 		for _, host := range hosts {
 			// Check that every host has a role
@@ -162,10 +43,29 @@ func RetryListMySQLHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnos
 		}
 		return masterExists
 	})
+
 }
 
-// Do not use. Use RetryListMySQLHosts instead
-func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) ([]*mysql.Host, error) {
+func (r *MysqlAPI) retryListMySQLHostsInner(
+	ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, attempt int, maxAttempt int, condition func([]*mysql.Host) bool) []*mysql.Host {
+	log.Printf("[DEBUG] Try ListMySQLHosts, attempt: %d", attempt)
+	hosts := r.listHostsOnce(ctx, sdk, diags, cid)
+	if diags.HasError() {
+		return nil
+	}
+	if condition(hosts) || maxAttempt <= attempt {
+		return hosts // We tried to do our best
+	}
+
+	timeout := int(math.Pow(2, float64(attempt)))
+	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
+	time.Sleep(time.Second * time.Duration(timeout))
+
+	return r.retryListMySQLHostsInner(ctx, sdk, diags, cid, attempt+1, maxAttempt, condition)
+}
+
+// Do not use. Use ListHosts instead
+func (r *MysqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*mysql.Host {
 	hosts := []*mysql.Host{}
 	pageToken := ""
 
@@ -176,11 +76,11 @@ func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid 
 			PageToken: pageToken,
 		})
 		if err != nil {
-			diag.AddError(
+			diags.AddError(
 				"Failed to List MySQL Hosts",
 				"Error while requesting API to get MySQL host:"+err.Error(),
 			)
-			return nil, err
+			return nil
 		}
 
 		hosts = append(hosts, resp.Hosts...)
@@ -191,99 +91,192 @@ func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid 
 		pageToken = resp.NextPageToken
 	}
 
-	return hosts, nil
+	return hosts
 }
 
-func addHost(ctx context.Context, sdk *ycsdk.SDK, cid string, hostSpec *mysql.HostSpec) (*mysql.AddClusterHostsMetadata, diag.Diagnostics) {
-	var diag diag.Diagnostics
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
+func (r *MysqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*mysql.HostSpec) {
+	for _, spec := range specs {
+		op, err := sdk.WrapOperation(
+			sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
+				ClusterId: cid,
+				HostSpecs: []*mysql.HostSpec{spec},
+			}),
+		)
+		if err != nil {
+			diag.AddError(
+				"Failed to create hosts",
+				fmt.Sprintf("Error while requesting API to create host MySQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to create hosts",
+				fmt.Sprintf("Error while waiting for operation %q to create host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+func (r *MysqlAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*mysql.UpdateHostSpec) {
+	for _, spec := range specs {
+		request := &mysql.UpdateClusterHostsRequest{
 			ClusterId: cid,
-			HostSpecs: []*mysql.HostSpec{hostSpec},
+			UpdateHostSpecs: []*mysql.UpdateHostSpec{
+				spec,
+			},
+		}
+		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending MySQL cluster update hosts request: %+v", request)
+			return sdk.MDB().MySQL().Cluster().UpdateHosts(ctx, request)
 		})
+		if err != nil {
+			diag.AddError(
+				"Failed to update hosts",
+				fmt.Sprintf("Error while requesting API to update host MySQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to update hosts",
+				fmt.Sprintf("Error while waiting for operation %q to update host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+func (r *MysqlAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string) {
+	for _, fqdn := range fqdns {
+		op, err := sdk.WrapOperation(
+			sdk.MDB().MySQL().Cluster().DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
+				ClusterId: cid,
+				HostNames: []string{fqdn},
+			}),
+		)
+		if err != nil {
+			diag.AddError(
+				"Failed to delete hosts",
+				fmt.Sprintf("Error while requesting API to delete host MySQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to delete hosts",
+				fmt.Sprintf("Error while waiting for operation %q to delete host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+// ==============================================================================
+//                                 CLUSTER
+// ==============================================================================
+
+func (r *MysqlAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *mysql.Cluster {
+	db, err := sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+		ClusterId: cid,
 	})
 
 	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to create MySQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to read resource",
+			fmt.Sprintf("Error while requesting API to read MySQL cluster %q: %s", cid, err.Error()),
 		)
-		return nil, diag
+		return nil
+	}
+	return db
+}
+
+func (r *MysqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
+	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+		ClusterId: cid,
+	}))
+
+	if err != nil {
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while requesting API to delete MySQL cluster %q: %s", cid, err.Error()),
+		)
+		return
 	}
 
 	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while waiting for operation to create MySQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while waiting for operation %q to delete MySQL cluster %q: %s", op.Id(), cid, err.Error()),
 		)
-		return nil, diag
+	}
+}
+
+func (r *MysqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *mysql.CreateClusterRequest) string {
+	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Create(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while requesting API to create MySQL cluster: %s", err.Error()),
+		)
+		return ""
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while get MySQL host create operation metadata"+err.Error(),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
 		)
-		return nil, diag
+		return ""
 	}
 
-	md, ok := protoMetadata.(*mysql.AddClusterHostsMetadata)
+	md, ok := protoMetadata.(*mysql.CreateClusterMetadata)
 	if !ok {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while cast MySQL host create operation metadata. Expected *mysql.CreateHostMetadata, got "+fmt.Sprintf("%T", protoMetadata),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
 		)
-		return nil, diag
+		return ""
 	}
-	return md, diag
-}
 
-func updateHost(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, spec *mysql.UpdateHostSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().UpdateHosts(ctx, &mysql.UpdateClusterHostsRequest{
-			ClusterId:       cid,
-			UpdateHostSpecs: []*mysql.UpdateHostSpec{spec},
-		})
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to create MySQL host:"+err.Error(),
-		)
-		return
-	}
+	log.Printf("[DEBUG] Creating MySQL Cluster %q", md.ClusterId)
 
 	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while waiting for operation to create MySQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while waiting for operation %q to create MySQL cluster: %s", op.Id(), err.Error()),
 		)
-		return
+		return ""
 	}
+
+	return md.ClusterId
 }
 
-func deleteHost(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, hostname string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().MySQL().Cluster().DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
-			ClusterId: cid,
-			HostNames: []string{hostname},
-		})
-	})
+func (r *MysqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *mysql.UpdateClusterRequest) {
 
+	if req == nil || len(req.UpdateMask.Paths) == 0 {
+		return
+	}
+
+	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Update(ctx, req))
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			"Error while requesting API to delete MySQL host:"+err.Error(),
+			fmt.Sprintf("Error while requesting API to update MySQL cluster: %s", err.Error()),
 		)
 		return
 	}
 
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
-			"Failed to Delete resource",
-			"Error while waiting for operation to delete MySQL host:"+err.Error(),
+			"Failed to update resource",
+			fmt.Sprintf("Error while waiting for operation %q to update MySQL cluster: %s", op.Id(), err.Error()),
 		)
+		return
 	}
 }

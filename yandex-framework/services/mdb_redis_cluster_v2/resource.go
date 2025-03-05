@@ -515,7 +515,7 @@ func (r *redisClusterResource) Read(ctx context.Context, req resource.ReadReques
 	var state Cluster
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &state, false)
+	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &state)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -546,7 +546,7 @@ func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRe
 
 	plan.ID = types.StringValue(cid)
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan, true)
+	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -604,7 +604,7 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan, true)
+	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
