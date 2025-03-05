@@ -44,4 +44,4 @@ The `permission` block supports:
 
 * `topic_name` - (Required) The name of the topic that the permission grants access to.
 * `role` - (Required) The role type to grant to the topic.
-* `allow_hosts` - (Optional) Set of hosts, to which this permission grants access to.
+* `allow_hosts` - (Optional) Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
