@@ -62,7 +62,7 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the user.
 
-* `password` - (Required) The password of the user.
+* `password` - (Optional) The password of the user.
 
 * `grants` - (Optional) List of the user's grants.
 
@@ -75,6 +75,13 @@ The following arguments are supported:
 * `settings` - (Optional) Map of user settings. List of settings is documented below.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the user. Can either be `true`, `false` or `unspecified`.
+
+* `generate_password` - (Optional) Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.
+
+> **Must specify either password or generate_password**
+
+### Read only
+* `connection_manager` - (Computed, optional) Connection Manager connection configuration. Filled in by the server automatically.
 
 The `permission` block supports:
 
@@ -125,6 +132,9 @@ The `settings` block supports: [Full description](https://yandex.cloud/docs/mana
 
 * `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer
 
+The `connection_manager` block supports:
+
+* `connection_id` - ID of Connection Manager connection. Filled in by the server automatically. String.
 
 ## Import
 

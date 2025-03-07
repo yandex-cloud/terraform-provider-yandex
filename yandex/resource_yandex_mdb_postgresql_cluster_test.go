@@ -380,14 +380,16 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigHANamed(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 4),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "na"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nc"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nd"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nb"),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.name", "nc"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.assign_public_ip", "false"),
 					testAccPGGetHostNames(clusterResource, hostNames),
 				),
 			},
@@ -396,11 +398,12 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 4),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.assign_public_ip", "true"),
 					testAccPGCompareHostNames(clusterResource, hostNames),
 				),
 			},
@@ -409,12 +412,12 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigHANamedWithCascade(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 4),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
-					resource.TestCheckResourceAttrSet(clusterResource, "host.1.replication_source"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", "na"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.2.replication_source"),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", "nb"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", "na"),
+					resource.TestCheckResourceAttrSet(clusterResource, "host.3.replication_source"),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source_name", "nb"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -422,12 +425,12 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 4),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source", ""),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", ""),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source", ""),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", ""),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source", ""),
+					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source_name", ""),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -435,20 +438,22 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteLastHost(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 2),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "na"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nd"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nb"),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStep(clusterResource), // 9
 			// 11. delete first host
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteFirstHost(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 2),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
-					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "nb"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "nd"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -1465,6 +1470,12 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
   }
 
   host {
+    name                    = "nd"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+  }
+
+  host {
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
@@ -1511,6 +1522,12 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
   }
 
   host {
+    name                    = "nd"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+  }
+
+  host {
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
@@ -1532,6 +1549,12 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
     name                    = "na"
     zone                    = "ru-central1-a"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+  }
+
+  host {
+    name                    = "nd"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
   }
 
   host {
@@ -1562,6 +1585,12 @@ func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string
   }
 
   host {
+    name                    = "nd"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+  }
+
+  host {
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
@@ -1571,6 +1600,12 @@ func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string
 
 func testAccMDBPGClusterConfigHANamedDeleteFirstHost(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host {
+    name                    = "nd"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+  }
+
   host {
     name                    = "nb"
     zone                    = "ru-central1-b"

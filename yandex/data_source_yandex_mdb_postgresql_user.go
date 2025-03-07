@@ -64,6 +64,13 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),
 			},
+			"connection_manager": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }

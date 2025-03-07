@@ -382,6 +382,10 @@ func flattenPGUserPermissions(ps []*postgresql.Permission) *schema.Set {
 	return out
 }
 
+func flattenPGUserConnectionManager(cm *postgresql.ConnectionManager) map[string]string {
+	return map[string]string{"connection_id": cm.ConnectionId}
+}
+
 type pgHostInfo struct {
 	name string
 	fqdn string
@@ -1692,6 +1696,14 @@ func mdbPGResolveTristateBoolean(value *wrappers.BoolValue) string {
 		return "true"
 	}
 	return "false"
+}
+
+func isValidPGPasswordConfiguration(userSpec *postgresql.UserSpec) bool {
+	passwordSpecified := len(userSpec.Password) > 0
+
+	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
+	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
+	return !isBothFieldNotSpecified && !isBothFieldSpecified
 }
 
 var mdbPGUserSettingsTransactionIsolationName = map[int]string{

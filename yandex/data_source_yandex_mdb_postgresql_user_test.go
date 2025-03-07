@@ -76,6 +76,10 @@ func testAccDataSourceMDBPGUserAttributesCheck(datasourceName string, resourceNa
 				"deletion_protection",
 				"deletion_protection",
 			},
+			{
+				"connection_manager.connection_id",
+				"connection_manager.connection_id",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

@@ -45,6 +45,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `settings` - Map of user settings.
 * `deletion_protection` - Inhibits deletion of the user.
 
+### Read only
+* `connection_manager` - (Computed, optional) Connection Manager connection configuration. Filled in by the server automatically.
+
 The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
@@ -93,3 +96,7 @@ The `settings` block supports: [Full description](https://yandex.cloud/docs/mana
 * `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.
 
 * `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer
+
+The `connection_manager` block supports:
+
+* `connection_id` - ID of Connection Manager connection. Filled in by the server automatically. String.

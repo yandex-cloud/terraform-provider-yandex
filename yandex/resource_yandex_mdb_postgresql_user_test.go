@@ -34,6 +34,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "login", "true"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "unspecified"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": 350}),
@@ -45,6 +47,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "name", "bob"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "bob", []string{"testdb"}),
 				),
 			},
@@ -55,6 +59,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "name", "bob"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "bob", []string{}),
 				),
 			},
@@ -65,6 +71,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "42"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "alice", []string{"testdb"}),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
 				),
@@ -75,6 +83,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -84,6 +94,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "name", "charlie"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "login", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "conn_limit", "0"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "generate_password", "true"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "connection_manager.%", "1"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameCharlie),
@@ -125,7 +137,7 @@ func mdbPostgreSQLUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", // password is not returned
+			"password", "generate_password", // password and generate_password is not returned
 		},
 	}
 }
@@ -158,6 +170,7 @@ func testAccCheckMDBPostgreSQLUserHasGrants(t *testing.T, username string, expec
 		return nil
 	}
 }
+
 func testAccCheckMDBPostgreSQLUserHasSettings(t *testing.T, username string, expected map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[pgClusterResourceName]
@@ -305,7 +318,7 @@ func testAccMDBPostgreSQLUserConfigStep5(name string) string {
 resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
-	password   = "P@ssw0rd123"
+	generate_password = "true"
     
 	login      = false
 	conn_limit = 0

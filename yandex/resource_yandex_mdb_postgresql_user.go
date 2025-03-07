@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 
@@ -54,7 +55,7 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			},
 			"password": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 			},
 			"login": {
@@ -104,6 +105,18 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Default:      "unspecified",
 				ValidateFunc: validation.StringInSlice([]string{"true", "false", "unspecified"}, false),
 			},
+			"connection_manager": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"generate_password": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -119,6 +132,11 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+
+	if !isValidPGPasswordConfiguration(userSpec) {
+		return fmt.Errorf("must specify either password or generate_password")
+	}
+
 	request := &postgresql.CreateUserRequest{
 		ClusterId: clusterID,
 		UserSpec:  userSpec,
@@ -195,6 +213,10 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.DeletionProtection = mdbPGTristateBooleanName[v.(string)]
 	}
 
+	if v, ok := d.GetOk("generate_password"); ok {
+		user.GeneratePassword = wrapperspb.Bool(v.(bool))
+	}
+
 	return user, nil
 }
 
@@ -238,6 +260,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 
 	d.Set("settings", settings)
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(user.DeletionProtection))
+	d.Set("connection_manager", flattenPGUserConnectionManager(user.ConnectionManager))
 
 	return nil
 }
@@ -251,6 +274,10 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	user, err := expandPgUserSpec(d)
 	if err != nil {
 		return err
+	}
+
+	if !isValidPGPasswordConfiguration(user) {
+		return fmt.Errorf("must specify either password or generate_password")
 	}
 
 	updatePath := []string{}
