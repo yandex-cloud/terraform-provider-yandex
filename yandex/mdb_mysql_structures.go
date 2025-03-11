@@ -1108,6 +1108,10 @@ func flattenMysqlDatabases(dbs []*mysql.Database) *schema.Set {
 	return out
 }
 
+func flattenMySQLUserConnectionManager(cm *mysql.ConnectionManager) map[string]string {
+	return map[string]string{"connection_id": cm.ConnectionId}
+}
+
 var rolesMap = map[string]mysql.Permission_Privilege{
 	"ALL":                     mysql.Permission_ALL_PRIVILEGES,
 	"ALTER":                   mysql.Permission_ALTER,
@@ -1505,6 +1509,14 @@ func flattenMyPerformanceDiagnostics(p *mysql.PerformanceDiagnostics) ([]interfa
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
 
 	return []interface{}{out}, nil
+}
+
+func isValidMySQLPasswordConfiguration(userSpec *mysql.UserSpec) bool {
+	passwordSpecified := len(userSpec.Password) > 0
+
+	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
+	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
+	return !isBothFieldNotSpecified && !isBothFieldSpecified
 }
 
 var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().

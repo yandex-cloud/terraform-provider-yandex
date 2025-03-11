@@ -72,6 +72,13 @@ func dataSourceYandexMDBMySQLUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"connection_manager": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }

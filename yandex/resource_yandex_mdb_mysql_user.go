@@ -9,6 +9,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -49,7 +50,7 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			},
 			"password": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 			},
 			"permission": {
@@ -78,6 +79,18 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"connection_manager": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"generate_password": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 		},
 	}
@@ -139,6 +152,11 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
+	if !isValidMySQLPasswordConfiguration(userSpec) {
+		return fmt.Errorf("must specify either password or generate_password")
+	}
+
 	request := &mysql.CreateUserRequest{
 		ClusterId: clusterID,
 		UserSpec:  userSpec,
@@ -206,6 +224,10 @@ func expandMySQLUserSpec(d *schema.ResourceData) (*mysql.UserSpec, error) {
 		user.AuthenticationPlugin = mysql.AuthPlugin(*authenticationPlugin)
 	}
 
+	if v, ok := d.GetOk("generate_password"); ok {
+		user.GeneratePassword = wrapperspb.Bool(v.(bool))
+	}
+
 	return user, nil
 }
 
@@ -244,6 +266,7 @@ func resourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) er
 	if user.AuthenticationPlugin != 0 {
 		d.Set("authentication_plugin", mysql.AuthPlugin_name[int32(user.AuthenticationPlugin)])
 	}
+	d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
 	return nil
 }
 
@@ -256,6 +279,10 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 	user, err := expandMySQLUserSpec(d)
 	if err != nil {
 		return err
+	}
+
+	if !isValidMySQLPasswordConfiguration(user) {
+		return fmt.Errorf("must specify either password or generate_password")
 	}
 
 	clusterID := d.Get("cluster_id").(string)

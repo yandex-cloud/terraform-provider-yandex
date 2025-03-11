@@ -102,6 +102,10 @@ func testAccDataSourceMDBMySQLUserAttributesCheck(datasourceName string, resourc
 				"authentication_plugin",
 				"authentication_plugin",
 			},
+			{
+				"connection_manager.connection_id",
+				"connection_manager.connection_id",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

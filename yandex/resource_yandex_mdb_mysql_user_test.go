@@ -29,6 +29,8 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_questions_per_hour", "42"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "global_permissions.#", "2"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "generate_password", "false"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_manager.%", "1"),
 				),
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceJohn),
@@ -43,6 +45,8 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_user_connections", "40"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "global_permissions.#", "1"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "authentication_plugin", "SHA256_PASSWORD"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "generate_password", "false"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_manager.%", "1"),
 				),
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceJohn),
@@ -55,6 +59,8 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 						"mary": {MockPermission{"new_testdb", []string{"ALTER", "CREATE", "INSERT", "DROP", "DELETE"}}}}),
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "connection_limits.#", "0"),
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "global_permissions.#", "0"),
+					resource.TestCheckResourceAttr(mysqlUserResourceMary, "generate_password", "true"),
+					resource.TestCheckResourceAttr(mysqlUserResourceMary, "connection_manager.%", "1"),
 				),
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceMary),
@@ -68,7 +74,7 @@ func mdbMySQLUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", // not returned
+			"password", "generate_password", // not returned
 		},
 	}
 }
@@ -168,7 +174,7 @@ func testAccMDBMySQLUserConfigStep3(clusterName string) string {
 resource "yandex_mdb_mysql_user" "mary" {
 	cluster_id = yandex_mdb_mysql_cluster.foo.id
     name       = "mary"
-    password   = "password"
+	generate_password = "true"
 
     permission {
       database_name = yandex_mdb_mysql_database.new_testdb.name

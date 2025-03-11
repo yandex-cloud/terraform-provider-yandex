@@ -78,7 +78,7 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the user.
 
-* `password` - (Required) The password of the user.
+* `password` - (Optional) The password of the user.
 
 * `permission` - (Optional) Set of permissions granted to the user. The structure is documented below.
 
@@ -88,6 +88,13 @@ The following arguments are supported:
 * `connection_limits` - (Optional) User's connection limits. The structure is documented below. If the attribute is not specified there will be no changes.
 
 * `authentication_plugin` - (Optional) Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`)
+
+* `generate_password` - (Optional) Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.
+
+> **Must specify either password or generate_password**
+
+### Read only
+* `connection_manager` - (Computed, optional) Connection Manager connection configuration. Filled in by the server automatically.
 
 The `connection_limits` block supports:
 default value is -1,
@@ -107,6 +114,9 @@ The `permission` block supports:
 
 * `roles` - (Optional) List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.
 
+The `connection_manager` block supports:
+
+* `connection_id` - ID of Connection Manager connection. Filled in by the server automatically. String.
 
 ## Import
 

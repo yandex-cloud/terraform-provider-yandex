@@ -32,6 +32,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `connection_limits` - User's connection limits. The structure is documented below.
 * `authentication_plugin` - Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`
 
+### Read only
+* `connection_manager` - (Computed, optional) Connection Manager connection configuration. Filled in by the server automatically.
+
 The `connection_limits` block supports:
 When these parameters are set to -1, backend default values will be actually used.
 
@@ -44,3 +47,7 @@ The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
 * `roles` - List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.
+
+The `connection_manager` block supports:
+
+* `connection_id` - ID of Connection Manager connection. Filled in by the server automatically. String.
