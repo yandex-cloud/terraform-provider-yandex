@@ -126,18 +126,12 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountDelete(context co
 	config := meta.(*Config)
 	federationID, nameID := d.Get("federation_id").(string), d.Get("name_id").(string)
 
-	federation, err := getSamlFederation(context, config, federationID)
-	if err != nil {
-		return diag.Errorf("error deleting saml user '%s': %s", nameID, err)
+	req := &saml.DeleteFederatedUserAccountsRequest{
+		FederationId: federationID,
+		SubjectIds:   []string{d.Id()},
 	}
 
-	organizationID := federation.OrganizationId
-	req := &organizationmanager.DeleteMembershipRequest{
-		OrganizationId: organizationID,
-		SubjectId:      d.Id(),
-	}
-
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().User().DeleteMembership(context, req))
+	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().DeleteUserAccounts(context, req))
 	if err != nil {
 		return diag.Errorf("error on delete saml user '%s' operation creation: %s", nameID, err)
 	}
