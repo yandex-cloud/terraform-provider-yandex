@@ -32,7 +32,9 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type = "ANYTIME"
   }
 
-  ignore_changes = [database, user,]
+  lifecycle {
+    ignore_changes = [database, user,]
+  }
 }
 
 resource "yandex_mdb_clickhouse_database" "foo" {
