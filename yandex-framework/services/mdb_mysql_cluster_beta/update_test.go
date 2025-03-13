@@ -9,8 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
@@ -19,7 +21,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
 
 	cluster := baseCluster
 
-	cluster.Version = types.StringValue("9.0")
+	cluster.Version = types.StringValue("8.0")
 	cluster.BackupWindowStart = types.ObjectValueMust(expectedBWSAttrs, map[string]attr.Value{
 		"hours":   types.Int64Value(2),
 		"minutes": types.Int64Value(0),
@@ -31,6 +33,9 @@ func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
 		types.StringValue("test-sg-new"),
 	})
 	cluster.MaintenanceWindow = types.ObjectNull(expectedMWAttrs)
+	cluster.MySQLConfig = NewMsSettingsMapValueMust(
+		map[string]attr.Value{"max_connections": types.Int64Value(25)},
+	)
 
 	req, diags := prepareUpdateRequest(ctx, &baseCluster, &cluster)
 	if diags.HasError() {
@@ -48,6 +53,11 @@ func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
 				Hours:   2,
 				Minutes: 0,
 			},
+			MysqlConfig: &mysql.ConfigSpec_MysqlConfig_8_0{
+				MysqlConfig_8_0: &msconfig.MysqlConfig8_0{
+					MaxConnections: wrapperspb.Int64(25),
+				},
+			},
 		},
 		MaintenanceWindow:  nil,
 		SecurityGroupIds:   []string{"test-sg-new"},
@@ -57,6 +67,9 @@ func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
 				"name",
 				"config_spec.backup_window_start.hours",
 				"config_spec.backup_window_start.minutes",
+				"config_spec.mysql_config_8_0.max_connections",
+				"config_spec.mysql_config_8_0.default_authentication_plugin",
+				"config_spec.mysql_config_8_0.innodb_print_all_deadlocks",
 				"security_group_ids",
 				"deletion_protection",
 				"maintenance_window",

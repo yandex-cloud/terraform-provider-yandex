@@ -3,26 +3,28 @@ package mdb_mysql_cluster_beta
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 type Cluster struct {
-	Id                     types.String `tfsdk:"id"`
-	FolderId               types.String `tfsdk:"folder_id"`
-	NetworkId              types.String `tfsdk:"network_id"`
-	Name                   types.String `tfsdk:"name"`
-	Description            types.String `tfsdk:"description"`
-	Environment            types.String `tfsdk:"environment"`
-	Labels                 types.Map    `tfsdk:"labels"`
-	HostSpecs              types.Map    `tfsdk:"hosts"`
-	MaintenanceWindow      types.Object `tfsdk:"maintenance_window"`
-	DeletionProtection     types.Bool   `tfsdk:"deletion_protection"`
-	SecurityGroupIds       types.Set    `tfsdk:"security_group_ids"`
-	Version                types.String `tfsdk:"version"`
-	Resources              types.Object `tfsdk:"resources"`
-	Access                 types.Object `tfsdk:"access"`
-	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
-	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
-	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
+	Id                     types.String               `tfsdk:"id"`
+	FolderId               types.String               `tfsdk:"folder_id"`
+	NetworkId              types.String               `tfsdk:"network_id"`
+	Name                   types.String               `tfsdk:"name"`
+	Description            types.String               `tfsdk:"description"`
+	Environment            types.String               `tfsdk:"environment"`
+	Labels                 types.Map                  `tfsdk:"labels"`
+	HostSpecs              types.Map                  `tfsdk:"hosts"`
+	MaintenanceWindow      types.Object               `tfsdk:"maintenance_window"`
+	DeletionProtection     types.Bool                 `tfsdk:"deletion_protection"`
+	SecurityGroupIds       types.Set                  `tfsdk:"security_group_ids"`
+	Version                types.String               `tfsdk:"version"`
+	Resources              types.Object               `tfsdk:"resources"`
+	Access                 types.Object               `tfsdk:"access"`
+	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
+	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
+	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
+	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
 }
 
 type Host struct {
@@ -44,12 +46,13 @@ var hostType = types.ObjectType{
 }
 
 type Config struct {
-	Version                types.String `tfsdk:"version"`
-	Resources              types.Object `tfsdk:"resources"`
-	Access                 types.Object `tfsdk:"access"`
-	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
-	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
-	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
+	Version                types.String               `tfsdk:"version"`
+	Resources              types.Object               `tfsdk:"resources"`
+	Access                 types.Object               `tfsdk:"access"`
+	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
+	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
+	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
+	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
 }
 
 type MaintenanceWindow struct {
@@ -71,6 +74,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
+	"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
 }
 
 type Access struct {

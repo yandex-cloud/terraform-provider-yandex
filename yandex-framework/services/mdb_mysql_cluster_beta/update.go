@@ -2,10 +2,13 @@ package mdb_mysql_cluster_beta
 
 import (
 	"context"
+	"fmt"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -27,6 +30,13 @@ func prepareVersionUpdateRequest(state, plan *Cluster) (*mysql.UpdateClusterRequ
 		},
 		UpdateMask: &field_mask.FieldMask{Paths: []string{"config_spec.version"}},
 	}, diags
+}
+
+func getMySQLConfigFieldName(version string) string {
+	if version == "5.7" {
+		return "mysql_config_5_7"
+	}
+	return "mysql_config_8_0"
 }
 
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.UpdateClusterRequest, diag.Diagnostics) {
@@ -103,13 +113,13 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 				"config_spec.performance_diagnostics.enabled",
 			)
 		}
-		if !ppd.Enabled.Equal(spd.Enabled) {
+		if !ppd.SessionsSamplingInterval.Equal(spd.SessionsSamplingInterval) {
 			request.UpdateMask.Paths = append(
 				request.UpdateMask.Paths,
 				"config_spec.performance_diagnostics.sessions_sampling_interval",
 			)
 		}
-		if !ppd.Enabled.Equal(spd.Enabled) {
+		if !ppd.StatementsSamplingInterval.Equal(spd.StatementsSamplingInterval) {
 			request.UpdateMask.Paths = append(
 				request.UpdateMask.Paths,
 				"config_spec.performance_diagnostics.statements_sampling_interval",
@@ -135,6 +145,19 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 		}
 		if !pbw.Minutes.Equal(sbw.Minutes) {
 			request.UpdateMask.Paths = append(request.UpdateMask.Paths, "config_spec.backup_window_start.minutes")
+		}
+	}
+
+	if !plan.MySQLConfig.Equal(state.MySQLConfig) {
+		updConf = true
+		config.SetMysqlConfig(expandMySQLConfig(ctx, plan.Version.ValueString(), plan.MySQLConfig, &diags))
+
+		attrsState := mdbcommon.GetAttrNamesSetFromMap(state.MySQLConfig.MapValue, &diags)
+		attrsPlan := mdbcommon.GetAttrNamesSetFromMap(plan.MySQLConfig.MapValue, &diags)
+
+		maps.Copy(attrsPlan, attrsState)
+		for attr := range attrsPlan {
+			request.UpdateMask.Paths = append(request.UpdateMask.Paths, fmt.Sprintf("config_spec.%s.%s", getMySQLConfigFieldName(plan.Version.ValueString()), attr))
 		}
 	}
 

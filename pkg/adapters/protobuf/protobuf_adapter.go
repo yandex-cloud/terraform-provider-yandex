@@ -434,7 +434,6 @@ func (b *ProtobufMapDataAdapter) Extract(ctx context.Context, src any, diags *di
 			!slices.Contains(wrapperTypes, field.Type) || field.Type.Kind() == reflect.Struct {
 
 			extendedAttributes := b.Extract(ctx, srcVal.Field(i).Interface(), diags)
-			fmt.Println(extendedAttributes)
 			if diags.HasError() {
 				return nil
 			}

@@ -9,9 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
@@ -52,6 +55,7 @@ var (
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
+		"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
 	}
 	baseCluster = Cluster{
 		Id:          types.StringValue("test-id"),
@@ -92,6 +96,13 @@ var (
 		SecurityGroupIds: types.SetValueMust(types.StringType, []attr.Value{
 			types.StringValue("test-sg"),
 		}),
+		MySQLConfig: NewMsSettingsMapValueMust(map[string]attr.Value{
+			"max_connections": types.Int64Value(100),
+			"default_authentication_plugin": types.Int64Value(
+				int64(msconfig.MysqlConfig8_0_MYSQL_NATIVE_PASSWORD),
+			),
+			"innodb_print_all_deadlocks": types.BoolValue(true),
+		}),
 	}
 )
 
@@ -123,7 +134,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					}),
 					"environment": types.StringValue("PRESTABLE"),
 					"network_id":  types.StringValue("test-network"),
-					"version":     types.StringValue("15"),
+					"version":     types.StringValue("5.7"),
 					"resources": types.ObjectValueMust(
 						expectedResourcesAttrs,
 						map[string]attr.Value{
@@ -152,6 +163,13 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					"security_group_ids": types.SetValueMust(types.StringType, []attr.Value{
 						types.StringValue("test-sg"),
 					}),
+					"mysql_config": NewMsSettingsMapValueMust(map[string]attr.Value{
+						"max_connections": types.Int64Value(100),
+						"default_authentication_plugin": types.Int64Value(
+							int64(msconfig.MysqlConfig8_0_MYSQL_NATIVE_PASSWORD),
+						),
+						"innodb_print_all_deadlocks": types.BoolValue(true),
+					}),
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{
@@ -163,7 +181,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 				Environment: mysql.Cluster_PRESTABLE,
 				NetworkId:   "test-network",
 				ConfigSpec: &mysql.ConfigSpec{
-					Version: "15",
+					Version: "5.7",
 					Resources: &mysql.Resources{
 						ResourcePresetId: "s1.micro",
 						DiskTypeId:       "network-ssd",
@@ -171,6 +189,13 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &mysql.Access{},
+					MysqlConfig: &mysql.ConfigSpec_MysqlConfig_5_7{
+						MysqlConfig_5_7: &msconfig.MysqlConfig5_7{
+							MaxConnections:              wrapperspb.Int64(100),
+							DefaultAuthenticationPlugin: msconfig.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+							InnodbPrintAllDeadlocks:     wrapperspb.Bool(true),
+						},
+					},
 				},
 				SecurityGroupIds:   []string{"test-sg"},
 				DeletionProtection: true,
@@ -201,7 +226,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					"labels":      types.MapNull(types.StringType),
 					"environment": types.StringValue("PRODUCTION"),
 					"network_id":  types.StringValue("test-network"),
-					"version":     types.StringValue("15"),
+					"version":     types.StringValue("8.0"),
 					"resources": types.ObjectValueMust(
 						expectedResourcesAttrs,
 						map[string]attr.Value{
@@ -221,6 +246,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					"maintenance_window":  types.ObjectNull(expectedMWAttrs),
 					"deletion_protection": types.BoolNull(),
 					"security_group_ids":  types.SetNull(types.StringType),
+					"mysql_config":        NewMsSettingsMapNull(),
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{
@@ -229,7 +255,7 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 				Environment: mysql.Cluster_PRODUCTION,
 				NetworkId:   "test-network",
 				ConfigSpec: &mysql.ConfigSpec{
-					Version: "15",
+					Version: "8.0",
 					Resources: &mysql.Resources{
 						ResourcePresetId: "s1.micro",
 						DiskTypeId:       "network-ssd",
@@ -237,6 +263,9 @@ func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &mysql.Access{},
+					MysqlConfig: &mysql.ConfigSpec_MysqlConfig_8_0{
+						MysqlConfig_8_0: &msconfig.MysqlConfig8_0{},
+					},
 				},
 			},
 		},
@@ -302,6 +331,13 @@ func TestYandexProvider_MDBMySQLClusterGetConfigSpec(t *testing.T) {
 			expectedPDAttrs,
 		),
 		Access: types.ObjectNull(AccessAttrTypes),
+		MySQLConfig: NewMsSettingsMapValueMust(map[string]attr.Value{
+			"max_connections": types.Int64Value(100),
+			"default_authentication_plugin": types.Int64Value(
+				int64(msconfig.MysqlConfig8_0_MYSQL_NATIVE_PASSWORD),
+			),
+			"innodb_print_all_deadlocks": types.BoolValue(true),
+		}),
 	}
 
 	diags := diag.Diagnostics{}

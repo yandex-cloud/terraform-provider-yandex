@@ -17,6 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 
@@ -214,6 +216,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			"hours":   knownvalue.Int64Exact(0),
 			"minutes": knownvalue.Int64Exact(0),
 		})),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
 		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 			"type": knownvalue.StringExact("ANYTIME"),
 			"day":  knownvalue.Null(),
@@ -265,6 +268,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						[]resource.TestCheckFunc{
 							testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
 							testAccCheckClusterStringExact(&cluster, mysql.Cluster_PRODUCTION),
+							testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig5_7{}, nil),
 						},
 						firstBasicApiChecks...,
 					)...,
@@ -282,6 +286,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						[]resource.TestCheckFunc{
 							testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
 							testAccCheckClusterStringExact(&cluster, mysql.Cluster_PRESTABLE),
+							testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig5_7{}, nil),
 						},
 						firstBasicApiChecks...,
 					)...,
@@ -343,6 +348,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						Hours:   0,
 						Minutes: 0,
 					}),
+					testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
 					testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 						Policy: &mysql.MaintenanceWindow_Anytime{
 							Anytime: &mysql.AnytimeMaintenanceWindow{},
@@ -427,6 +433,18 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 		minutes = 3
 	`
 
+	msCfg := `
+		sql_mode                      = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+		max_connections               = 100
+		default_authentication_plugin = "MYSQL_NATIVE_PASSWORD"
+	`
+
+	msCfgUpdated := `
+		sql_mode                      = "STRICT_TRANS_TABLES"
+		max_connections               = 150
+		innodb_print_all_deadlocks    = true
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -450,6 +468,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resources, access,
 					performanceDiagnostics,
 					backupWindowStart,
+					msCfg,
 					maintenanceWindow,
 					backupRetainPeriodDays, true,
 					[]string{
@@ -483,6 +502,13 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						map[string]knownvalue.Check{
 							"hours":   knownvalue.Int64Exact(5),
 							"minutes": knownvalue.Int64Exact(4),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"sql_mode":                      knownvalue.StringExact("ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
+							"max_connections":               knownvalue.StringExact("100"),
+							"default_authentication_plugin": knownvalue.StringExact("MYSQL_NATIVE_PASSWORD"),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
@@ -525,6 +551,25 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						Hours:   5,
 						Minutes: 4,
 					}),
+					testAccCheckClusterMysqlConfigExact(
+						&cluster, &msconfig.MysqlConfig5_7{
+							DefaultAuthenticationPlugin: msconfig.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+							SqlMode: []msconfig.MysqlConfig5_7_SQLMode{
+								msconfig.MysqlConfig5_7_ONLY_FULL_GROUP_BY,
+								msconfig.MysqlConfig5_7_STRICT_TRANS_TABLES,
+								msconfig.MysqlConfig5_7_NO_ZERO_IN_DATE,
+								msconfig.MysqlConfig5_7_NO_ZERO_DATE,
+								msconfig.MysqlConfig5_7_ERROR_FOR_DIVISION_BY_ZERO,
+								msconfig.MysqlConfig5_7_NO_ENGINE_SUBSTITUTION,
+							},
+							MaxConnections: wrapperspb.Int64(100),
+						}, []string{
+							"DefaultAuthenticationPlugin",
+							"SqlMode",
+							"MaxConnections",
+							"InnodbPrintAllDeadlocks",
+						},
+					),
 					testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 						Policy: &mysql.MaintenanceWindow_Anytime{
 							Anytime: &mysql.AnytimeMaintenanceWindow{},
@@ -545,6 +590,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
 					performanceDiagnosticsUpdated,
 					backupWindowStartUpdated,
+					msCfgUpdated,
 					maintenanceWindowUpdated,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
@@ -558,7 +604,6 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(versionUpdate)),
-
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
@@ -579,6 +624,13 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						map[string]knownvalue.Check{
 							"hours":   knownvalue.Int64Exact(10),
 							"minutes": knownvalue.Int64Exact(3),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"sql_mode":                   knownvalue.StringExact("STRICT_TRANS_TABLES"),
+							"max_connections":            knownvalue.StringExact("150"),
+							"innodb_print_all_deadlocks": knownvalue.StringExact("true"),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
@@ -616,6 +668,20 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						},
 					),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
+					testAccCheckClusterMysqlConfigExact(
+						&cluster, &msconfig.MysqlConfig8_0{
+							SqlMode: []msconfig.MysqlConfig8_0_SQLMode{
+								msconfig.MysqlConfig8_0_STRICT_TRANS_TABLES,
+							},
+							MaxConnections:          wrapperspb.Int64(150),
+							InnodbPrintAllDeadlocks: wrapperspb.Bool(true),
+						}, []string{
+							"DefaultAuthenticationPlugin",
+							"SqlMode",
+							"MaxConnections",
+							"InnodbPrintAllDeadlocks",
+						},
+					),
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 						Hours:   10,
 						Minutes: 3,
@@ -695,6 +761,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
 				backupWindowStart,
+				"",
 				maintenanceWindow,
 				backupRetainPeriodDays,
 				false, []string{},
@@ -728,6 +795,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -758,6 +826,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					Minutes: 0,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 					Policy: &mysql.MaintenanceWindow_Anytime{
 						Anytime: &mysql.AnytimeMaintenanceWindow{},
@@ -797,6 +866,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"type": knownvalue.StringExact("ANYTIME"),
@@ -826,6 +896,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					Hours:   0,
 					Minutes: 0,
 				}),
+				testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 					Policy: &mysql.MaintenanceWindow_Anytime{
 						Anytime: &mysql.AnytimeMaintenanceWindow{},
@@ -1124,6 +1195,40 @@ func testAccCheckClusterBackupWindowStartExact(r *mysql.Cluster, expected *timeo
 	}
 }
 
+func testAccCheckClusterMysqlConfigExact(r *mysql.Cluster, expectedUserConfig interface{}, checkFields []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var cmpObj interface{}
+		switch expectedUserConfig.(type) {
+		case *msconfig.MysqlConfig5_7:
+			cmpObj = r.GetConfig().GetMysqlConfig_5_7().GetUserConfig()
+		case *msconfig.MysqlConfig8_0:
+			cmpObj = r.GetConfig().GetMysqlConfig_8_0().GetUserConfig()
+		default:
+			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
+		}
+
+		actual := reflect.ValueOf(cmpObj)
+		expected := reflect.ValueOf(expectedUserConfig)
+
+		if actual.IsNil() != expected.IsNil() {
+			return fmt.Errorf("Cluster %s has mismatched mysql config existence.\nActual:   %+v\nExpected: %+v", r.Name, actual.IsNil(), expected.IsNil())
+		}
+
+		actual = actual.Elem()
+		expected = expected.Elem()
+
+		for _, field := range checkFields {
+			actualF := actual.FieldByName(field).Interface()
+			expectedF := expected.FieldByName(field).Interface()
+			if !reflect.DeepEqual(actualF, expectedF) {
+				return fmt.Errorf("Cluster %s has mismatched mysql config field %s.\nActual:   %+v, %T\nExpected: %+v, %T", r.Name, field, actualF, actualF, expectedF, expectedF)
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckClusterMaintenanceWindow(r *mysql.Cluster, expected *mysql.MaintenanceWindow) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetMaintenanceWindow(), expected) {
@@ -1182,6 +1287,7 @@ func testAccMDBMySQLClusterFull(
 	access,
 	performanceDiagnostics,
 	backupWindowStart,
+	mySqlCfg,
 	maintenanceWindow string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(msVPCDependencies+`
@@ -1218,6 +1324,9 @@ resource "yandex_mdb_mysql_cluster_beta" "%s" {
   %s
   }
   
+  mysql_config = {
+  %s
+  }
   
   maintenance_window = {
 	%s
@@ -1230,6 +1339,7 @@ resource "yandex_mdb_mysql_cluster_beta" "%s" {
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, access,
 		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
+		mySqlCfg,
 		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
 	)
 }

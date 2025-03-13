@@ -3,13 +3,16 @@ package mdb_mysql_cluster_beta
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
@@ -121,6 +124,35 @@ func expandBackupWindowStart(ctx context.Context, cfgBws types.Object, diags *di
 	}
 }
 
+var msVersionConfig = map[string]mysql.ConfigSpec_MysqlConfig{
+	"5.7": &mysql.ConfigSpec_MysqlConfig_5_7{},
+	"8.0": &mysql.ConfigSpec_MysqlConfig_8_0{},
+}
+
+func expandMySQLConfig(
+	ctx context.Context,
+	version string, config mdbcommon.SettingsMapValue,
+	diags *diag.Diagnostics,
+) mysql.ConfigSpec_MysqlConfig {
+
+	a := protobuf_adapter.NewProtobufMapDataAdapter()
+
+	if msVersionConfig[version] == nil {
+		diags.AddError("Failed to expand MySQL config.", fmt.Sprintf("unsupported version %s.", version))
+		return nil
+	}
+
+	msConf := reflect.New(reflect.TypeOf(msVersionConfig[version]).Elem()).Interface()
+	if diags.HasError() {
+		return nil
+	}
+
+	attrs := config.PrimitiveElements(ctx, diags)
+	a.Fill(ctx, msConf, attrs, diags)
+
+	return msConf.(mysql.ConfigSpec_MysqlConfig)
+}
+
 func expandLabels(ctx context.Context, labels types.Map, diags *diag.Diagnostics) map[string]string {
 	var lMap map[string]string
 	if !(labels.IsUnknown() || labels.IsNull()) {
@@ -201,6 +233,7 @@ func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostic
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
+		MysqlConfig:            expandMySQLConfig(ctx, configSpec.Version.ValueString(), configSpec.MySQLConfig, diags),
 	}
 }
 

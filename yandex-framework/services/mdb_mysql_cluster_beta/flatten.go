@@ -2,13 +2,17 @@ package mdb_mysql_cluster_beta
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -134,10 +138,18 @@ func flattenResources(ctx context.Context, r *mysql.Resources, diags *diag.Diagn
 	return obj
 }
 
-func flattenConfig(ctx context.Context, c *mysql.ClusterConfig, diags *diag.Diagnostics) Config {
+func flattenConfig(
+	ctx context.Context,
+	stateMSCfg mdbcommon.SettingsMapValue,
+	c *mysql.ClusterConfig, diags *diag.Diagnostics,
+) Config {
 	if c == nil {
 		diags.AddError("Failed to flatten config.", "Config of cluster can't be nil. It's error in provider")
 		return Config{}
+	}
+
+	if stateMSCfg.IsNull() || stateMSCfg.IsUnknown() {
+		stateMSCfg = flattenMySQLConfig(ctx, c.MysqlConfig, diags)
 	}
 
 	return Config{
@@ -147,5 +159,35 @@ func flattenConfig(ctx context.Context, c *mysql.ClusterConfig, diags *diag.Diag
 		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, c.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      flattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
+		MySQLConfig:            stateMSCfg,
 	}
+}
+
+func flattenMySQLConfig(ctx context.Context, c mysql.ClusterConfig_MysqlConfig, diags *diag.Diagnostics) mdbcommon.SettingsMapValue {
+
+	a := protobuf_adapter.NewProtobufMapDataAdapter()
+	uc := mdbcommon.GetUserConfig(ctx, c, "mysql_config", diags)
+	if diags.HasError() {
+		return NewMsSettingsMapNull()
+	}
+
+	attrs := a.Extract(ctx, uc, diags)
+	if diags.HasError() {
+		return NewMsSettingsMapNull()
+	}
+
+	attrsPresent := make(map[string]attr.Value)
+	for attr, val := range attrs {
+		if ok := mdbcommon.IsAttrZeroValue(val, diags); !ok {
+			attrsPresent[attr] = val
+		}
+
+		if diags.HasError() {
+			diags.AddError("Flatten MySQL Config Erorr", fmt.Sprintf("Can't check zero attribute %s", attr))
+		}
+	}
+
+	mv, d := NewMsSettingsMapValue(attrsPresent)
+	diags.Append(d...)
+	return mv
 }

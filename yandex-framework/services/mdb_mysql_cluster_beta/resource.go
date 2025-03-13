@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -256,6 +257,15 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
+			"mysql_config": schema.MapAttribute{
+				CustomType:          mdbcommon.NewSettingsMapType(msAttrProvider),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "MySQL cluster config.",
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"security_group_ids": schema.SetAttribute{
 				MarkdownDescription: "A set of ids of security groups assigned to hosts of the cluster.",
 				Optional:            true,
@@ -406,6 +416,9 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	updateRequest, d := prepareUpdateRequest(ctx, &state, &plan)
 	resp.Diagnostics.Append(d...)
@@ -480,7 +493,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
-	cfg := flattenConfig(ctx, cluster.GetConfig(), respDiagnostics)
+	cfg := flattenConfig(ctx, state.MySQLConfig, cluster.GetConfig(), respDiagnostics)
 
 	state.Version = cfg.Version
 	state.Resources = cfg.Resources
@@ -488,4 +501,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.PerformanceDiagnostics = cfg.PerformanceDiagnostics
 	state.BackupRetainPeriodDays = cfg.BackupRetainPeriodDays
 	state.BackupWindowStart = cfg.BackupWindowStart
+	state.MySQLConfig = cfg.MySQLConfig
 }

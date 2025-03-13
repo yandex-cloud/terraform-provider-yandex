@@ -36,5 +36,6 @@ func getConfigSpecFromState(ctx context.Context, state *Cluster, diags *diag.Dia
 		PerformanceDiagnostics: state.PerformanceDiagnostics,
 		BackupRetainPeriodDays: state.BackupRetainPeriodDays,
 		BackupWindowStart:      state.BackupWindowStart,
+		MySQLConfig:            state.MySQLConfig,
 	}
 }

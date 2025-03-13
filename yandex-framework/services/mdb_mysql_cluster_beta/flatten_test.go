@@ -11,8 +11,11 @@ import (
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func TestYandexProvider_MDBMySQLClusterConfigAccessFlattener(t *testing.T) {
@@ -594,6 +597,120 @@ func TestYandexProvider_MDBMySQLClusterResourcesFlatten(t *testing.T) {
 	}
 }
 
+type invalidPgConfig struct {
+	mysql.ClusterConfig_MysqlConfig
+}
+
+func TestYandexProvider_MDBMysqlClusterConfigMysqlConfigFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname      string
+		reqVal        mysql.ClusterConfig_MysqlConfig
+		expectedVal   mdbcommon.SettingsMapValue
+		expectedError bool
+	}{
+		{
+			testname: "CheckFullAttributes",
+			reqVal: &mysql.ClusterConfig_MysqlConfig_5_7{
+				MysqlConfig_5_7: &config.MysqlConfigSet5_7{
+					UserConfig: &config.MysqlConfig5_7{
+						SqlMode: []config.MysqlConfig5_7_SQLMode{
+							config.MysqlConfig5_7_ONLY_FULL_GROUP_BY,
+							config.MysqlConfig5_7_STRICT_TRANS_TABLES,
+							config.MysqlConfig5_7_NO_ZERO_IN_DATE,
+						},
+						MaxConnections:              wrapperspb.Int64(100),
+						DefaultAuthenticationPlugin: config.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+						InnodbPrintAllDeadlocks:     wrapperspb.Bool(true),
+						LongQueryTime:               wrapperspb.Double(5.24),
+						DefaultTimeZone:             "UTC",
+					},
+				},
+			},
+			expectedVal: mdbcommon.SettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.StringType,
+					map[string]attr.Value{
+						"sql_mode":                      types.StringValue("ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE"),
+						"max_connections":               types.StringValue("100"),
+						"default_authentication_plugin": types.StringValue("MYSQL_NATIVE_PASSWORD"),
+						"innodb_print_all_deadlocks":    types.StringValue("true"),
+						"long_query_time":               types.StringValue("5.24"),
+						"default_time_zone":             types.StringValue("UTC"),
+					},
+				),
+			},
+		},
+		{
+			testname: "CheckFullAttributes2",
+			reqVal: &mysql.ClusterConfig_MysqlConfig_8_0{
+				MysqlConfig_8_0: &config.MysqlConfigSet8_0{
+					UserConfig: &config.MysqlConfig8_0{
+						SqlMode: []config.MysqlConfig8_0_SQLMode{
+							config.MysqlConfig8_0_NO_UNSIGNED_SUBTRACTION,
+						},
+						DefaultAuthenticationPlugin: config.MysqlConfig8_0_SHA256_PASSWORD,
+						InnodbPrintAllDeadlocks:     wrapperspb.Bool(false),
+					},
+				},
+			},
+			expectedVal: mdbcommon.SettingsMapValue{
+				MapValue: types.MapValueMust(
+					types.StringType,
+					map[string]attr.Value{
+						"sql_mode":                      types.StringValue(config.MysqlConfig8_0_NO_UNSIGNED_SUBTRACTION.String()),
+						"default_authentication_plugin": types.StringValue(config.MysqlConfig8_0_SHA256_PASSWORD.String()),
+						"innodb_print_all_deadlocks":    types.StringValue("false"),
+					},
+				),
+			},
+		},
+		{
+			testname:    "CheckNull",
+			reqVal:      nil,
+			expectedVal: mdbcommon.SettingsMapValue{MapValue: types.MapValueMust(types.StringType, map[string]attr.Value{})},
+		},
+		{
+			testname:      "CheckInvalidStructure",
+			reqVal:        invalidPgConfig{},
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+
+		conf := flattenMySQLConfig(ctx, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			if !c.expectedError {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: errors: %v",
+					c.testname,
+					diags.Errors(),
+				)
+			} else {
+				t.Errorf(
+					"Unexpected flatten diagnostics status %s test: expected error, actual not",
+					c.testname,
+				)
+			}
+
+			continue
+		}
+
+		if !c.expectedError && !c.expectedVal.Equal(conf) {
+			t.Errorf(
+				"Unexpected flatten result value %s test: \nexpected %v\n, actual %v\n",
+				c.testname,
+				c.expectedVal,
+				conf,
+			)
+		}
+	}
+}
+
 func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -607,7 +724,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 		{
 			testname: "CheckFullAttributes",
 			reqVal: &mysql.ClusterConfig{
-				Version: "9.6",
+				Version: "5.7",
 				Resources: &mysql.Resources{
 					ResourcePresetId: "s1.micro",
 					DiskTypeId:       "network-ssd",
@@ -629,7 +746,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
 			},
 			expectedVal: Config{
-				Version: types.StringValue("9.6"),
+				Version: types.StringValue("5.7"),
 				Resources: types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
 					"resource_preset_id": types.StringValue("s1.micro"),
 					"disk_type_id":       types.StringValue("network-ssd"),
@@ -650,12 +767,13 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 					"minutes": types.Int64Value(0),
 				}),
 				BackupRetainPeriodDays: types.Int64Value(7),
+				MySQLConfig:            NewMsSettingsMapValueMust(map[string]attr.Value{}),
 			},
 		},
 		{
 			testname: "CheckPartlyAttributes",
 			reqVal: &mysql.ClusterConfig{
-				Version: "15",
+				Version: "8.0",
 				Resources: &mysql.Resources{
 					ResourcePresetId: "s2.nano",
 					DiskTypeId:       "network-hdd",
@@ -663,7 +781,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				},
 			},
 			expectedVal: Config{
-				Version: types.StringValue("15"),
+				Version: types.StringValue("8.0"),
 				Resources: types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
 					"resource_preset_id": types.StringValue("s2.nano"),
 					"disk_type_id":       types.StringValue("network-hdd"),
@@ -674,6 +792,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				PerformanceDiagnostics: types.ObjectNull(expectedPDAttrs),
 				BackupWindowStart:      types.ObjectNull(expectedBwsAttrTypes),
 				BackupRetainPeriodDays: types.Int64Null(),
+				MySQLConfig:            NewMsSettingsMapValueMust(map[string]attr.Value{}),
 			},
 		},
 		{
@@ -685,7 +804,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 
 	for _, c := range cases {
 		diags := diag.Diagnostics{}
-		conf := flattenConfig(ctx, c.reqVal, &diags)
+		conf := flattenConfig(ctx, NewMsSettingsMapNull(), c.reqVal, &diags)
 		if diags.HasError() != c.expectedError {
 			if !c.expectedError {
 				t.Errorf(
@@ -700,6 +819,10 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				)
 			}
 
+			continue
+		}
+
+		if diags.HasError() {
 			continue
 		}
 

@@ -13,7 +13,9 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 var expectedAccessAttrTypes = map[string]attr.Type{
@@ -715,7 +717,7 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 		{
 			testname: "CheckPartlyAttributes",
 			reqVal: Config{
-				Version: types.StringValue("8.0"),
+				Version: types.StringValue("5.7"),
 				Resources: types.ObjectValueMust(
 					expectedResourcesAttrs,
 					map[string]attr.Value{
@@ -728,19 +730,20 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 				BackupRetainPeriodDays: types.Int64Null(),
 				Access:                 types.ObjectNull(expectedAccessAttrTypes),
 				PerformanceDiagnostics: types.ObjectNull(expectedPDAttrs),
+				MySQLConfig:            NewMsSettingsMapNull(),
 			},
 			expectedVal: &mysql.ConfigSpec{
-				Version: "8.0",
+				Version: "5.7",
 				Resources: &mysql.Resources{
 					ResourcePresetId: "s1.micro",
 					DiskTypeId:       "network-ssd",
 					DiskSize:         datasize.ToBytes(10),
 				},
-				BackupWindowStart:      &timeofday.TimeOfDay{},
-				BackupRetainPeriodDays: nil,
-
-				Access:                 &mysql.Access{},
-				PerformanceDiagnostics: nil,
+				BackupWindowStart: &timeofday.TimeOfDay{},
+				Access:            &mysql.Access{},
+				MysqlConfig: &mysql.ConfigSpec_MysqlConfig_5_7{
+					MysqlConfig_5_7: &config.MysqlConfig5_7{},
+				},
 			},
 		},
 		{
@@ -779,6 +782,9 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 						"sessions_sampling_interval":   types.Int64Value(60),
 					},
 				),
+				MySQLConfig: NewMsSettingsMapValueMust(map[string]attr.Value{
+					"max_connections": types.Int64Value(100),
+				}),
 			},
 			expectedVal: &mysql.ConfigSpec{
 				Version: "8.0",
@@ -802,6 +808,11 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 					StatementsSamplingInterval: 600,
 					SessionsSamplingInterval:   60,
 				},
+				MysqlConfig: &mysql.ConfigSpec_MysqlConfig_8_0{
+					MysqlConfig_8_0: &config.MysqlConfig8_0{
+						MaxConnections: wrapperspb.Int64(100),
+					},
+				},
 			},
 		},
 	}
@@ -817,6 +828,120 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 				diags.HasError(),
 				diags.Errors(),
 			)
+			continue
+		}
+
+		if !reflect.DeepEqual(conf, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expand result value %s test:\n expected %v\n actual %v",
+				c.testname,
+				c.expectedVal,
+				conf,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_MDBPostgresClusterConfigMsConfigExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	msSettingsType := NewMsSettingsMapType()
+
+	partlyMSMap, diags := msSettingsType.ValueFromMap(
+		ctx, types.MapValueMust(
+			types.StringType,
+			map[string]attr.Value{
+				"sql_mode":                      types.StringValue("ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE"),
+				"max_connections":               types.StringValue("100"),
+				"default_authentication_plugin": types.StringValue("MYSQL_NATIVE_PASSWORD"),
+				"innodb_print_all_deadlocks":    types.StringValue("true"),
+			},
+		),
+	)
+
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+
+	randomMSMap, diags := msSettingsType.ValueFromMap(
+		ctx, types.MapValueMust(
+			types.Int64Type,
+			map[string]attr.Value{
+				"random": types.Int64Value(11),
+			},
+		),
+	)
+
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+
+	incorrectTupleMSMap, diags := msSettingsType.ValueFromMap(
+		ctx, types.MapValueMust(
+			types.StringType,
+			map[string]attr.Value{
+				"sql_mode": types.StringValue("ONLY_FULL_GROUP_BY,,,,"),
+			},
+		),
+	)
+
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+
+	cases := []struct {
+		testname      string
+		version       string
+		reqVal        mdbcommon.SettingsMapValue
+		expectedVal   mysql.ConfigSpec_MysqlConfig
+		expectedError bool
+	}{
+		{
+			testname: "CheckPartlyAttributes",
+			version:  "5.7",
+			reqVal:   partlyMSMap.(mdbcommon.SettingsMapValue),
+			expectedVal: &mysql.ConfigSpec_MysqlConfig_5_7{
+				MysqlConfig_5_7: &config.MysqlConfig5_7{
+					MaxConnections: wrapperspb.Int64(100),
+					SqlMode: []config.MysqlConfig5_7_SQLMode{
+						config.MysqlConfig5_7_ONLY_FULL_GROUP_BY,
+						config.MysqlConfig5_7_STRICT_TRANS_TABLES,
+						config.MysqlConfig5_7_NO_ZERO_IN_DATE,
+					},
+					DefaultAuthenticationPlugin: config.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+					InnodbPrintAllDeadlocks:     wrapperspb.Bool(true),
+				},
+			},
+		},
+		{
+			testname:      "CheckIncorrectTuple",
+			version:       "5.7",
+			reqVal:        incorrectTupleMSMap.(mdbcommon.SettingsMapValue),
+			expectedError: true,
+		},
+		{
+			testname:      "CheckAccessWithRandomAttributes",
+			reqVal:        randomMSMap.(mdbcommon.SettingsMapValue),
+			expectedError: true,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		conf := expandMySQLConfig(ctx, c.version, c.reqVal, &diags)
+		if diags.HasError() != c.expectedError {
+			t.Errorf(
+				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
+				c.testname,
+				c.expectedError,
+				diags.HasError(),
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if diags.HasError() {
 			continue
 		}
 
