@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math"
-	"math/rand"
 	"net"
 	"os"
 	"strings"
@@ -20,10 +18,10 @@ import (
 	"github.com/mitchellh/go-homedir"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/iamkey"
+	"github.com/yandex-cloud/go-sdk/pkg/idempotency"
 	"github.com/yandex-cloud/go-sdk/pkg/requestid"
-	"github.com/yandex-cloud/go-sdk/pkg/retry"
+	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
@@ -32,11 +30,6 @@ import (
 
 const (
 	DefaultTimeout = 1 * time.Minute
-)
-
-const (
-	defaultExponentialBackoffBase = 50 * time.Millisecond
-	defaultExponentialBackoffCap  = 1 * time.Minute
 )
 
 type State struct {
@@ -102,15 +95,10 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 	headerMD := metadata.Pairs("user-agent", c.UserAgent.ValueString())
 
 	requestIDInterceptor := requestid.Interceptor()
-
-	retryInterceptor := retry.Interceptor(
-		retry.WithMax(int(c.ProviderState.MaxRetries.ValueInt64())),
-		retry.WithCodes(codes.Unavailable),
-		retry.WithAttemptHeader(true),
-		retry.WithBackoff(backoffExponentialWithJitter(defaultExponentialBackoffBase, defaultExponentialBackoffCap)))
+	idempotencyIntepceptor := idempotency.Interceptor()
 
 	var interceptors = []grpc.UnaryClientInterceptor{
-		retryInterceptor,
+		idempotencyIntepceptor,
 		requestIDInterceptor,
 	}
 
@@ -124,10 +112,18 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 	// Now we will have new request id for every retry attempt.
 	interceptorChain := grpc_middleware.ChainUnaryClient(interceptors...)
 
+	retryOptions, err := retry.RetryDialOption(
+		retry.WithRetries(retry.DefaultNameConfig(), int(c.ProviderState.MaxRetries.ValueInt64())),
+	)
+	if err != nil {
+		return err
+	}
+
 	c.SDK, err = ycsdk.Build(ctx, *yandexSDKConfig,
 		grpc.WithUserAgent(c.UserAgent.ValueString()),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
-		grpc.WithUnaryInterceptor(interceptorChain))
+		grpc.WithUnaryInterceptor(interceptorChain),
+		retryOptions)
 
 	return err
 }
@@ -173,27 +169,6 @@ func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {
 		return nil, fmt.Errorf("key unmarshal fail: %s", err)
 	}
 	return key, nil
-}
-
-func backoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.BackoffFunc {
-	return func(attempt int) time.Duration {
-		// First call of BackoffFunc would be with attempt arq equal 0
-		log.Printf("[DEBUG] API call retry attempt %d", attempt+1)
-
-		to := getExponentialTimeout(attempt, base)
-		// Using float types here, because exponential time can be really big, and converting it to time.Duration may
-		// result in undefined behaviour. Its safe conversion, when we have compared it to our 'cap' value.
-		if to > float64(cap) {
-			to = float64(cap)
-		}
-
-		return time.Duration(to * rand.Float64())
-	}
-}
-
-func getExponentialTimeout(attempt int, base time.Duration) float64 {
-	mult := math.Pow(2, float64(attempt))
-	return float64(base) * mult
 }
 
 func checkServiceAccountAvailable(ctx context.Context, sa ycsdk.NonExchangeableCredentials) bool {
