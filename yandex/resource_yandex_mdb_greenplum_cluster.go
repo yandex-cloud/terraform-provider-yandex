@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"time"
+
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -246,6 +247,46 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"logging": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"log_group_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"logging.0.folder_id"},
+						},
+						"folder_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"logging.0.log_group_id"},
+						},
+						"command_center_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"greenplum_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"pooler_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
 			},
 			"backup_window_start": {
 				Type:     schema.TypeList,
@@ -588,6 +629,8 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  maintenanceWindow,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		Logging:            expandGreenplumLogging(d),
 
 		MasterHostCount:  int64(d.Get("master_host_count").(int)),
 		SegmentInHost:    int64(d.Get("segment_in_host").(int)),
@@ -653,6 +696,7 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	d.Set("subnet_id", cluster.GetConfig().SubnetId)
 	d.Set("assign_public_ip", cluster.GetConfig().AssignPublicIp)
 	d.Set("version", cluster.GetConfig().Version)
+	d.Set("service_account_id", cluster.ServiceAccountId)
 
 	d.Set("master_host_count", cluster.GetMasterHostCount())
 	d.Set("segment_host_count", cluster.GetSegmentHostCount())
@@ -662,6 +706,7 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 
 	d.Set("master_subcluster", flattenGreenplumMasterSubcluster(cluster.GetMasterConfig().Resources))
 	d.Set("segment_subcluster", flattenGreenplumSegmentSubcluster(cluster.GetSegmentConfig().Resources))
+	d.Set("logging", flattenGreenplumLogging(cluster.GetLogging()))
 
 	poolConfig, err := flattenGreenplumPoolerConfig(cluster.GetClusterConfig().GetPool())
 	if err != nil {
@@ -913,6 +958,7 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  maintenanceWindow,
+		ServiceAccountId:   d.Get("service_account_id").(string),
 
 		Config: &greenplum.GreenplumConfig{
 			Version:           d.Get("version").(string),

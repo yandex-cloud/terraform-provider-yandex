@@ -44,6 +44,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `master_host_count` - Number of hosts in master subcluster.
 * `segment_host_count` - Number of hosts in segment subcluster.
 * `segment_in_host` - Number of segments on segment host.
+* `service_account_id` - (Optional) ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
 
 * `master_subcluster` - Settings for master subcluster. The structure is documented below.
 * `segment_subcluster` - Settings for segment subcluster. The structure is documented below.
@@ -64,6 +65,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `deletion_protection` - Flag to protect the cluster from deletion.
 * `master_host_group_ids` - (Optional) A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
 * `segment_host_group_ids` - (Optional) A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+* `logging` - (Optional) Block to configure log delivery to Yandex Cloud Logging .
 
 The `master_subcluster` block supports:
 * `resources` - Resources allocated to hosts for master subcluster of the Greenplum cluster. The structure is documented below.
@@ -137,3 +139,11 @@ The `background_activities` block supports:
   * `enable` - Flag that indicates whether script is enabled.
   * `max_age` - Maximum duration for this type of queries (in seconds).
   * `ignore_users` - List of users to ignore when considering queries to terminate.
+
+The `logging` block supports:
+* `enabled` - Cloud Logging enable/disable switch.
+* `log_group_id` - Use this log group to deliver cluster logs to.
+* `folder_id` - Use this folder's default log group to deliver cluster logs to.
+* `command_center_enabled` - Enable Yandex Command Center logs delivery.
+* `greenplum_enabled` - Enable Greenplum logs delivery.
+* `pooler_enabled` - Enable Pooler logs delivery.

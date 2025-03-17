@@ -2,10 +2,11 @@ package yandex
 
 import (
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"slices"
 	"strconv"
 	"strings"
+
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -72,6 +73,19 @@ func flattenGreenplumCloudStorage(c *greenplum.CloudStorage) []map[string]interf
 	out := map[string]interface{}{}
 	if c != nil {
 		out["enable"] = c.Enable
+	}
+	return []map[string]interface{}{out}
+}
+
+func flattenGreenplumLogging(c *greenplum.LoggingConfig) []map[string]interface{} {
+	out := map[string]interface{}{}
+	if c != nil {
+		out["enabled"] = c.Enabled
+		out["log_group_id"] = c.GetLogGroupId()
+		out["folder_id"] = c.GetFolderId()
+		out["command_center_enabled"] = c.CommandCenterEnabled
+		out["greenplum_enabled"] = c.GreenplumEnabled
+		out["pooler_enabled"] = c.PoolerEnabled
 	}
 	return []map[string]interface{}{out}
 }
@@ -290,6 +304,31 @@ func expandGreenplumCloudStorage(d *schema.ResourceData) *greenplum.CloudStorage
 	return out
 }
 
+func expandGreenplumLogging(d *schema.ResourceData) *greenplum.LoggingConfig {
+	out := &greenplum.LoggingConfig{}
+
+	if v, ok := d.GetOk("logging.0.enabled"); ok {
+		out.Enabled = v.(bool)
+	}
+	if v, ok := d.GetOk("logging.0.log_group_id"); ok {
+		out.SetLogGroupId(v.(string))
+	}
+	if v, ok := d.GetOk("logging.0.folder_id"); ok {
+		out.SetFolderId(v.(string))
+	}
+	if v, ok := d.GetOk("logging.0.command_center_enabled"); ok {
+		out.CommandCenterEnabled = v.(bool)
+	}
+	if v, ok := d.GetOk("logging.0.greenplum_enabled"); ok {
+		out.GreenplumEnabled = v.(bool)
+	}
+	if v, ok := d.GetOk("logging.0.pooler_enabled"); ok {
+		out.PoolerEnabled = v.(bool)
+	}
+
+	return out
+}
+
 func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 	mdbGreenplumUpdateFieldsMap := map[string]string{
 		"name":                   "name",
@@ -297,6 +336,7 @@ func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 		"user_password":          "user_password",
 		"labels":                 "labels",
 		"network_id":             "network_id",
+		"service_account_id":     "service_account_id",
 		"access.0.data_lens":     "config.access.data_lens",
 		"access.0.web_sql":       "config.access.web_sql",
 		"access.0.data_transfer": "config.access.data_transfer",
@@ -306,6 +346,13 @@ func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 		"maintenance_window":     "maintenance_window",
 		"deletion_protection":    "deletion_protection",
 		"security_group_ids":     "security_group_ids",
+
+		"logging.0.enabled":                "logging.enabled",
+		"logging.0.log_group_id":           "logging.log_group_id",
+		"logging.0.folder_id":              "logging.folder_id",
+		"logging.0.command_center_enabled": "logging.command_center_enabled",
+		"logging.0.greenplum_enabled":      "logging.greenplum_enabled",
+		"logging.0.pooler_enabled":         "logging.pooler_enabled",
 
 		"pooler_config.0.pooling_mode":             "config_spec.pool.mode",
 		"pooler_config.0.pool_size":                "config_spec.pool.size",

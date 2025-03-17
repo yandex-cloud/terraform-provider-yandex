@@ -45,6 +45,8 @@ The following arguments are supported:
 
 * `segment_subcluster` - (Required) Settings for segment subcluster. The structure is documented below.
 
+* `service_account_id` - (Optional) ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+
 * `access` - (Optional) Access policy to the Greenplum cluster. The structure is documented below.
 
 * `maintenance_window` - (Optional) Maintenance policy of the Greenplum cluster. The structure is documented below.
@@ -62,6 +64,8 @@ The following arguments are supported:
 * `master_host_group_ids` - (Optional) A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
 
 * `segment_host_group_ids` - (Optional) A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+
+* `logging` - (Optional) Block to configure log delivery to Yandex Cloud Logging .
 
 ---
 * `user_name` - (Required) Greenplum cluster admin user name.
@@ -186,6 +190,14 @@ The `master_hosts` block supports:
 
 The `segment_hosts` block supports:
 * `fqdn` - (Computed) The fully qualified domain name of the host.
+
+The `logging` block supports:
+* `enabled` - Cloud Logging enable/disable switch.
+* `log_group_id` - Use this log group to deliver cluster logs to.
+* `folder_id` - Use this folder's default log group to deliver cluster logs to.
+* `command_center_enabled` - Enable Yandex Command Center logs delivery.
+* `greenplum_enabled` - Enable Greenplum logs delivery.
+* `pooler_enabled` - Enable Pooler logs delivery.
 
 ## Import
 

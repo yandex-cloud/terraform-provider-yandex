@@ -10,12 +10,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
 const greenplumResource = "yandex_mdb_greenplum_cluster.foo"
+
+const greenplumSANamePrefix = "sa-for-"
+
+func buildGreenplumSAResourceName(greenplumName string) string {
+	// terraform resource name
+	return greenplumSANamePrefix + strings.ReplaceAll(greenplumName, "_", "-")
+}
+
+func buildGreenplumSAName(greenplumName string) string {
+	return greenplumSANamePrefix + strings.ReplaceAll(greenplumName, "_", "-")
+}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_greenplum_cluster", &resource.Sweeper{
@@ -42,6 +54,22 @@ func testSweepMDBGreenplumCluster(_ string) error {
 	for _, c := range resp.Clusters {
 		if !sweepMDBGreenplumCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Greenplum cluster %q", c.Id))
+		}
+	}
+
+	sas, err := conf.sdk.IAM().ServiceAccount().List(conf.Context(), &iam.ListServiceAccountsRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting service account: %s", err)
+	}
+
+	for _, sa := range sas.ServiceAccounts {
+		if strings.Contains(strings.ToLower(sa.Name), strings.ToLower(greenplumSANamePrefix)) {
+			if !sweepIAMServiceAccount(conf, sa.Id) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep service account %q", sa.Id))
+			}
 		}
 	}
 
@@ -111,6 +139,12 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(greenplumResource),
 					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttrSet(greenplumResource, "service_account_id"),
+					resource.TestCheckResourceAttr(greenplumResource, "logging.0.enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "logging.0.command_center_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "logging.0.greenplum_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "logging.0.pooler_enabled", "true"),
+					resource.TestCheckResourceAttrSet(greenplumResource, "logging.0.folder_id"),
 
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "TRANSACTION"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
@@ -247,20 +281,28 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 	})
 }
 
+// CheckDestroy is called after the resource is finally destroyed
+// to allow the tester to test that the resource is truly gone.
 func testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_mdb_greenplum_cluster" {
-			continue
+		if rs.Type == "yandex_mdb_greenplum_cluster" {
+			_, err := config.sdk.MDB().Greenplum().Cluster().Get(config.Context(), &greenplum.GetClusterRequest{
+				ClusterId: rs.Primary.ID,
+			})
+			if err == nil {
+				return fmt.Errorf("Greenplum Cluster %s still exists", rs.Primary.ID)
+			}
 		}
 
-		_, err := config.sdk.MDB().Greenplum().Cluster().Get(context.Background(), &greenplum.GetClusterRequest{
-			ClusterId: rs.Primary.ID,
-		})
-
-		if err == nil {
-			return fmt.Errorf("Greenplum Cluster still exists")
+		if rs.Type == "yandex_iam_service_account" {
+			_, err := config.sdk.IAM().ServiceAccount().Get(config.Context(), &iam.GetServiceAccountRequest{
+				ServiceAccountId: rs.Primary.ID,
+			})
+			if err == nil {
+				return fmt.Errorf("service account %s still exists", rs.Primary.ID)
+			}
 		}
 	}
 
@@ -347,8 +389,21 @@ resource "yandex_vpc_security_group" "mdb-greenplum-test-sg-x" {
 }
 `
 
+func testAccMDBGreenplumServiceAccountTemplate(greenplumName string) string {
+	folderID := getExampleFolderID()
+	return fmt.Sprintf(`
+		resource "yandex_iam_service_account" "%s" {
+		  name        = "%s"
+		  description = "test service account for terraform mdb-greenplum cluster"
+		  folder_id   = "%s"
+		}
+		`, buildGreenplumSAResourceName(greenplumName), buildGreenplumSAName(greenplumName), folderID)
+}
+
 func testAccMDBGreenplumClusterConfigTemplate(name, description, resourcePresetId string) string {
-	return fmt.Sprintf(greenplumVPCDependencies+`
+	return testAccMDBGreenplumServiceAccountTemplate(name) +
+		greenplumVPCDependencies +
+		fmt.Sprintf(`
 resource "yandex_mdb_greenplum_cluster" "foo" {
   name        = "%s"
   description = "%s"
@@ -382,7 +437,9 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   user_password = "mysecurepassword"
   security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
 
-`, name, description, resourcePresetId)
+  service_account_id = "${yandex_iam_service_account.%s.id}"
+
+`, name, description, resourcePresetId, buildGreenplumSAResourceName(name))
 }
 
 func testAccMDBGreenplumClusterConfigStep0(name, description, resourcePresetId string) string {
@@ -393,7 +450,9 @@ func testAccMDBGreenplumClusterConfigStep0(name, description, resourcePresetId s
 }
 
 func testAccMDBGreenplumClusterConfigStep1(name string, description string) string {
-	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.micro") + `
+	folderID := getExampleFolderID()
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.micro") +
+		fmt.Sprintf(`
   pooler_config {
     pooling_mode             = "TRANSACTION"
     pool_size                = 10
@@ -426,7 +485,15 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
     gp_enable_global_deadlock_detector   = "true"
     gp_global_deadlock_detector_period   = 120
   }
-}`
+
+  logging {
+	enabled                = true
+	folder_id              = "%s"
+	command_center_enabled = true
+	greenplum_enabled      = true
+	pooler_enabled         = true
+  }
+}`, folderID)
 }
 
 func testAccMDBGreenplumClusterConfigStep2(name string, description string) string {

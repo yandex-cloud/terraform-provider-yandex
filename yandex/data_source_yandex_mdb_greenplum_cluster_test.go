@@ -107,6 +107,30 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"environment",
 			},
 			{
+				"service_account_id",
+				"service_account_id",
+			},
+			{
+				"logging.0.enabled",
+				"logging.0.enabled",
+			},
+			{
+				"logging.0.folder_id",
+				"logging.0.folder_id",
+			},
+			{
+				"logging.0.command_center_enabled",
+				"logging.0.command_center_enabled",
+			},
+			{
+				"logging.0.greenplum_enabled",
+				"logging.0.greenplum_enabled",
+			},
+			{
+				"logging.0.pooler_enabled",
+				"logging.0.pooler_enabled",
+			},
+			{
 				"master_subcluster.0.resources.0.disk_size",
 				"master_subcluster.0.resources.0.disk_size",
 			},

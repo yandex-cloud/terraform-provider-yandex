@@ -75,6 +75,42 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"logging": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"log_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"folder_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"command_center_enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"greenplum_enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"pooler_enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 
 			"master_subcluster": {
 				Type:     schema.TypeList,

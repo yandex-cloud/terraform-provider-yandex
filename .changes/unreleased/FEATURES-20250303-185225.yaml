@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'greenplum: add `service_account_id` to acceess Yandex Cloud resources. Add `logging` resource to configure logs delivery to Yandex Cloud Logging.'
+time: 2025-03-03T18:52:25.494402+05:00
