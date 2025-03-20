@@ -255,7 +255,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
 						"test_model": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
+							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
 						},
 					}),
 					testAccCheckCreatedAtAttr(chResource),
@@ -306,11 +306,11 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
 						"test_model": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
+							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
 						},
 						"test_model2": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
+							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
 						},
 					}),
 				),
@@ -1973,8 +1973,15 @@ resource "yandex_storage_object" "test_ml_model" {
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-  key     = "train.csv"
-  content = "a,b,c"
+  key     = "model.bin"
+  content_base64 = <<EOT
+Q0JNMUgBAAAMAAAACAAMAAQACAAIAAAACAAAAEgAAAASAAAARmxhYnVmZmVyc01vZGVsX3YxAAA
+AACoASAAEAAgADAAQABQAGAAcACAAJAAoACwAMAA0ADgAAAAAADwAQABEACoAAAABAAAAjAAAAI
+AAAAB0AAAA1AAAAKQAAACQAAAAiAAAAEwAAAAwAAAAeAAAACQAAACEAAAAeAAAAAwAAABcAAAAc
+AAAAAEAAAAAAAAAAADgPwAAAAACAAAAAAAAAAAAJEAAAAAAAAAkQAAAAAACAAAA2Ymd2ImdyL/Z
+iZ3YiZ3IPwEAAAAAAAAAAQAAAAEAAAABAAAAAAAAAAEAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAQAAABAAAAAMABAAAAAEAAgADAAMAAAAAAAAAAAAAAAEAAAAAQAAAAAAAD8AAAAA
+EOT
 }
 `, bucket)
 }
@@ -2428,7 +2435,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   ml_model {
     name = "test_model"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
   }
 
   maintenance_window {
@@ -2731,13 +2738,13 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   ml_model {
     name = "test_model"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
   }
 
   ml_model {
     name = "test_model2"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
   }
 
   cloud_storage {
