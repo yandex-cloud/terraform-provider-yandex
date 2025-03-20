@@ -58,7 +58,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 	}
 
 	if !plan.Labels.Equal(state.Labels) {
-		request.SetLabels(expandLabels(ctx, plan.Labels, &diags))
+		request.SetLabels(mdbcommon.ExpandLabels(ctx, plan.Labels, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "labels")
 	}
 
@@ -67,7 +67,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 
 	if !plan.Resources.Equal(state.Resources) {
 		updConf = true
-		config.SetResources(expandResources(ctx, plan.Resources, &diags))
+		config.SetResources(mdbcommon.ExpandResources[mysql.Resources](ctx, plan.Resources, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "config_spec.resources")
 	}
 
@@ -135,7 +135,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 
 	if !plan.BackupWindowStart.Equal(state.BackupWindowStart) {
 		updConf = true
-		config.SetBackupWindowStart(expandBackupWindowStart(ctx, plan.BackupWindowStart, &diags))
+		config.SetBackupWindowStart(mdbcommon.ExpandBackupWindow(ctx, plan.BackupWindowStart, &diags))
 
 		var pbw, sbw BackupWindowStart
 		diags.Append(state.BackupWindowStart.As(ctx, &sbw, datasize.UnhandledOpts)...)
@@ -171,12 +171,17 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 	}
 
 	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
-		request.SetSecurityGroupIds(expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
+		request.SetSecurityGroupIds(mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
-		request.SetMaintenanceWindow(expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
+		request.SetMaintenanceWindow(mdbcommon.ExpandClusterMaintenanceWindow[
+			mysql.MaintenanceWindow,
+			mysql.WeeklyMaintenanceWindow,
+			mysql.AnytimeMaintenanceWindow,
+			mysql.WeeklyMaintenanceWindow_WeekDay,
+		](ctx, plan.MaintenanceWindow, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_window")
 	}
 

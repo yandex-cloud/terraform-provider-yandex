@@ -106,7 +106,7 @@ var (
 	}
 )
 
-func TestYandexProvider_MDBMySQLClusterPrepateCreateRequest(t *testing.T) {
+func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 

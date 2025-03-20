@@ -240,10 +240,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			StatementsSamplingInterval: 600,
 		}),
 		testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
-		testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
-			Hours:   0,
-			Minutes: 0,
-		}),
+		testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{}),
 		testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 			Policy: &mysql.MaintenanceWindow_Anytime{
 				Anytime: &mysql.AnytimeMaintenanceWindow{},
@@ -755,7 +752,74 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 		disk_type_id = "network-ssd"
 	`
 
-	stepsFullBasic := [2]resource.TestStep{
+	stepsFullBasic := []resource.TestStep{
+		{
+			Config: testAccMDBMySQLClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources),
+			ConfigStateChecks: []statecheck.StateCheck{
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(version)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"data_lens":     knownvalue.Bool(false),
+						"data_transfer": knownvalue.Bool(false),
+						"web_sql":       knownvalue.Bool(false),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+			},
+			Check: resource.ComposeAggregateTestCheckFunc(
+				testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
+				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
+				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
+				testAccCheckClusterAccessExact(&cluster, &mysql.Access{
+					DataLens:     false,
+					DataTransfer: false,
+					WebSql:       false,
+				}),
+				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
+					Enabled:                    false,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{}),
+				testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
+				testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
+					Policy: &mysql.MaintenanceWindow_Anytime{
+						Anytime: &mysql.AnytimeMaintenanceWindow{},
+					},
+				}),
+				testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+			),
+		},
 		{
 			Config: testAccMDBMySQLClusterFull(
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
@@ -892,10 +956,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					StatementsSamplingInterval: 600,
 				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
-				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
-					Hours:   0,
-					Minutes: 0,
-				}),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{}),
 				testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
 					Policy: &mysql.MaintenanceWindow_Anytime{
@@ -907,17 +968,12 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < 2; i++ {
-		resource.Test(t, resource.TestCase{
-			PreCheck:                 func() { test.AccPreCheck(t) },
-			ProtoV6ProviderFactories: test.AccProviderFactories,
-			CheckDestroy:             testAccCheckMDBMySQLClusterDestroy,
-			Steps: []resource.TestStep{
-				stepsFullBasic[i],
-				stepsFullBasic[i^1],
-			},
-		})
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBMySQLClusterDestroy,
+		Steps:                    stepsFullBasic,
+	})
 }
 
 // Test that a MySQL HA Cluster can be created, updated and destroyed

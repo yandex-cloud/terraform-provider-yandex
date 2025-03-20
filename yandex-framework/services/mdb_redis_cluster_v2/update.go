@@ -65,10 +65,8 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 	}
 
 	if !plan.Resources.Equal(state.Resources) {
-		req.ConfigSpec.Resources, diags = mdbcommon.ExpandResources[redis.Resources](ctx, plan.Resources)
-		diagnostics.Append(diags...)
+		req.ConfigSpec.Resources = mdbcommon.ExpandResources[redis.Resources](ctx, plan.Resources, diagnostics)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.resources")
-
 	}
 
 	if !plan.DiskSizeAutoscaling.Equal(state.DiskSizeAutoscaling) {
@@ -92,8 +90,7 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 		req.ConfigSpec.Redis = conf
 	}
 	if !plan.Config.BackupWindowStart.Equal(state.Config.BackupWindowStart) {
-		req.ConfigSpec.BackupWindowStart, diags = mdbcommon.ExpandBackupWindow(ctx, plan.Config.BackupWindowStart)
-		diagnostics.Append(diags...)
+		req.ConfigSpec.BackupWindowStart = mdbcommon.ExpandBackupWindow(ctx, plan.Config.BackupWindowStart, diagnostics)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.backup_window_start")
 	}
 	if !plan.Config.BackupRetainPeriodDays.Equal(state.Config.BackupRetainPeriodDays) {

@@ -37,8 +37,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 	}
 	conf.Password = plan.Config.Password.ValueString()
 
-	resources, diags := mdbcommon.ExpandResources[redis.Resources](ctx, plan.Resources)
-	diagnostics.Append(diags...)
+	resources := mdbcommon.ExpandResources[redis.Resources](ctx, plan.Resources, diagnostics)
 
 	autoscaling, diags := expandAutoscaling(ctx, plan.DiskSizeAutoscaling)
 	diagnostics.Append(diags...)
@@ -46,8 +45,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 	access, diags := expandAccess(ctx, plan.Access)
 	diagnostics.Append(diags...)
 
-	backupWindow, diags := mdbcommon.ExpandBackupWindow(ctx, plan.Config.BackupWindowStart)
-	diagnostics.Append(diags...)
+	backupWindow := mdbcommon.ExpandBackupWindow(ctx, plan.Config.BackupWindowStart, diagnostics)
 
 	configSpec := &redis.ConfigSpec{
 		Version:                plan.Config.Version.ValueString(),
