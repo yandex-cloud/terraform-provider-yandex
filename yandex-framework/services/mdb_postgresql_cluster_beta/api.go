@@ -16,139 +16,19 @@ import (
 
 const defaultMDBPageSize = 1000
 
-// ==============================================================================
-//                                 CLUSTER
-// ==============================================================================
+var postgresqlApi = PostgresqlAPI{}
 
-func readCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *postgresql.Cluster {
-	cluster, err := sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
-		ClusterId: cid,
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to get PostgreSQL cluster:"+err.Error(),
-		)
-		return nil
-	}
-	return cluster
-}
-
-func createCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, request *postgresql.CreateClusterRequest) string {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().Create(ctx, request)
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while requesting API to create PostgreSQL cluster: "+err.Error(),
-		)
-		return ""
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while waiting for operation to create PostgreSQL cluster: "+err.Error(),
-		)
-		return ""
-	}
-
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Failed to retrieve operation metadata: "+err.Error(),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*postgresql.CreateClusterMetadata)
-	if !ok {
-		diag.AddError(
-			"Failed to Create resource",
-			"Failed to retrieve cluster_id",
-		)
-		return ""
-	}
-
-	return md.ClusterId
-}
-
-func updateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, request *postgresql.UpdateClusterRequest) {
-	if request == nil || request.UpdateMask == nil || len(request.UpdateMask.Paths) == 0 {
-		return
-	}
-
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().Update(ctx, request)
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to update PostgreSQL cluster: "+err.Error(),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while waiting for operation to update PostgreSQL cluster: "+err.Error(),
-		)
-		return
-	}
-}
-
-func deleteCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
-			ClusterId: cid,
-		})
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Delete resource",
-			"Error while requesting API to delete PostgreSQL cluster:"+err.Error(),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Delete resource",
-			"Error while waiting for operation to delete PostgreSQL cluster:"+err.Error(),
-		)
-	}
-}
+type PostgresqlAPI struct{}
 
 // ==============================================================================
 //                                     HOST
 // ==============================================================================
 
-func retryListPGHostsInner(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, attempt int, maxAttempt int, condition func([]*postgresql.Host) bool) ([]*postgresql.Host, error) {
-	log.Printf("[DEBUG] Try ListPGHosts, attempt: %d", attempt)
-	hosts, err := listHosts(ctx, sdk, diag, cid)
-	if condition(hosts) || maxAttempt <= attempt {
-		return hosts, err // We tried to do our best
-	}
-
-	timeout := int(math.Pow(2, float64(attempt)))
-	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
-	time.Sleep(time.Second * time.Duration(timeout))
-
-	return retryListPGHostsInner(ctx, sdk, diag, cid, attempt+1, maxAttempt, condition)
-}
-
 // retry with 1, 2, 4, 8, 16, 32, 64, 128 seconds if no succeess
 // while at least one host is unknown and there is no master
-func RetryListPGHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) ([]*postgresql.Host, error) {
+func (p *PostgresqlAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*postgresql.Host {
 	attempts := 7
-	return retryListPGHostsInner(ctx, sdk, diag, cid, 0, attempts, func(hosts []*postgresql.Host) bool {
+	return p.retryListPostgreSQLHostsInner(ctx, sdk, diags, cid, 0, attempts, func(hosts []*postgresql.Host) bool {
 		masterExists := false
 		for _, host := range hosts {
 			// Check that every host has a role
@@ -164,8 +44,26 @@ func RetryListPGHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostic
 	})
 }
 
-// Do not use. Use RetryListPGHosts instead
-func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) ([]*postgresql.Host, error) {
+func (r *PostgresqlAPI) retryListPostgreSQLHostsInner(
+	ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, attempt int, maxAttempt int, condition func([]*postgresql.Host) bool) []*postgresql.Host {
+	log.Printf("[DEBUG] Try ListPostgreSQLHosts, attempt: %d", attempt)
+	hosts := r.listHostsOnce(ctx, sdk, diags, cid)
+	if diags.HasError() {
+		return nil
+	}
+	if condition(hosts) || maxAttempt <= attempt {
+		return hosts // We tried to do our best
+	}
+
+	timeout := int(math.Pow(2, float64(attempt)))
+	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
+	time.Sleep(time.Second * time.Duration(timeout))
+
+	return r.retryListPostgreSQLHostsInner(ctx, sdk, diags, cid, attempt+1, maxAttempt, condition)
+}
+
+// Do not use. Use ListHosts instead
+func (p *PostgresqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*postgresql.Host {
 	hosts := []*postgresql.Host{}
 	pageToken := ""
 
@@ -176,11 +74,11 @@ func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid 
 			PageToken: pageToken,
 		})
 		if err != nil {
-			diag.AddError(
+			diags.AddError(
 				"Failed to List PostgreSQL Hosts",
 				"Error while requesting API to get PostgreSQL host:"+err.Error(),
 			)
-			return nil, err
+			return nil
 		}
 
 		hosts = append(hosts, resp.Hosts...)
@@ -191,99 +89,192 @@ func listHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid 
 		pageToken = resp.NextPageToken
 	}
 
-	return hosts, nil
+	return hosts
 }
 
-func addHost(ctx context.Context, sdk *ycsdk.SDK, cid string, hostSpec *postgresql.HostSpec) (*postgresql.AddClusterHostsMetadata, diag.Diagnostics) {
-	var diag diag.Diagnostics
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, &postgresql.AddClusterHostsRequest{
+func (p *PostgresqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*postgresql.HostSpec) {
+	for _, spec := range specs {
+		op, err := sdk.WrapOperation(
+			sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, &postgresql.AddClusterHostsRequest{
+				ClusterId: cid,
+				HostSpecs: []*postgresql.HostSpec{spec},
+			}),
+		)
+		if err != nil {
+			diag.AddError(
+				"Failed to create hosts",
+				fmt.Sprintf("Error while requesting API to create host PostgreSQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to create hosts",
+				fmt.Sprintf("Error while waiting for operation %q to create host PostgreSQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+func (p *PostgresqlAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*postgresql.UpdateHostSpec) {
+	for _, spec := range specs {
+		request := &postgresql.UpdateClusterHostsRequest{
 			ClusterId: cid,
-			HostSpecs: []*postgresql.HostSpec{hostSpec},
+			UpdateHostSpecs: []*postgresql.UpdateHostSpec{
+				spec,
+			},
+		}
+		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending PostgreSQL cluster update hosts request: %+v", request)
+			return sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, request)
 		})
+		if err != nil {
+			diag.AddError(
+				"Failed to update hosts",
+				fmt.Sprintf("Error while requesting API to update host PostgreSQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to update hosts",
+				fmt.Sprintf("Error while waiting for operation %q to update host PostgreSQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+func (p *PostgresqlAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string) {
+	for _, fqdn := range fqdns {
+		op, err := sdk.WrapOperation(
+			sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, &postgresql.DeleteClusterHostsRequest{
+				ClusterId: cid,
+				HostNames: []string{fqdn},
+			}),
+		)
+		if err != nil {
+			diag.AddError(
+				"Failed to delete hosts",
+				fmt.Sprintf("Error while requesting API to delete host PostgreSQL cluster %q: %s", cid, err.Error()),
+			)
+			return
+		}
+
+		if err = op.Wait(ctx); err != nil {
+			diag.AddError(
+				"Failed to delete hosts",
+				fmt.Sprintf("Error while waiting for operation %q to delete host PostgreSQL cluster %q: %s", op.Id(), cid, err.Error()),
+			)
+			return
+		}
+	}
+}
+
+// ==============================================================================
+//                                 CLUSTER
+// ==============================================================================
+
+func (p *PostgresqlAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *postgresql.Cluster {
+	db, err := sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+		ClusterId: cid,
 	})
 
 	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to create PostgreSQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to read resource",
+			fmt.Sprintf("Error while requesting API to read PostgreSQL cluster %q: %s", cid, err.Error()),
 		)
-		return nil, diag
+		return nil
+	}
+	return db
+}
+
+func (p *PostgresqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
+	op, err := sdk.WrapOperation(sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
+		ClusterId: cid,
+	}))
+
+	if err != nil {
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while requesting API to delete PostgreSQL cluster %q: %s", cid, err.Error()),
+		)
+		return
 	}
 
 	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while waiting for operation to create PostgreSQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while waiting for operation %q to delete PostgreSQL cluster %q: %s", op.Id(), cid, err.Error()),
 		)
-		return nil, diag
+	}
+}
+
+func (p *PostgresqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *postgresql.CreateClusterRequest) string {
+	op, err := sdk.WrapOperation(sdk.MDB().PostgreSQL().Cluster().Create(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while requesting API to create PostgreSQL cluster: %s", err.Error()),
+		)
+		return ""
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while get PostgreSQL host create operation metadata"+err.Error(),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
 		)
-		return nil, diag
+		return ""
 	}
 
-	md, ok := protoMetadata.(*postgresql.AddClusterHostsMetadata)
+	md, ok := protoMetadata.(*postgresql.CreateClusterMetadata)
 	if !ok {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while cast PostgreSQL host create operation metadata. Expected *postgresql.CreateHostMetadata, got "+fmt.Sprintf("%T", protoMetadata),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
 		)
-		return nil, diag
+		return ""
 	}
-	return md, diag
-}
 
-func updateHost(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, spec *postgresql.UpdateHostSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, &postgresql.UpdateClusterHostsRequest{
-			ClusterId:       cid,
-			UpdateHostSpecs: []*postgresql.UpdateHostSpec{spec},
-		})
-	})
-
-	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to create PostgreSQL host:"+err.Error(),
-		)
-		return
-	}
+	log.Printf("[DEBUG] Creating PostgreSQL Cluster %q", md.ClusterId)
 
 	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while waiting for operation to create PostgreSQL host:"+err.Error(),
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while waiting for operation %q to create PostgreSQL cluster: %s", op.Id(), err.Error()),
 		)
-		return
+		return ""
 	}
+
+	return md.ClusterId
 }
 
-func deleteHost(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, hostname string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, &postgresql.DeleteClusterHostsRequest{
-			ClusterId: cid,
-			HostNames: []string{hostname},
-		})
-	})
+func (p *PostgresqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *postgresql.UpdateClusterRequest) {
 
+	if req == nil || len(req.UpdateMask.Paths) == 0 {
+		return
+	}
+
+	op, err := sdk.WrapOperation(sdk.MDB().PostgreSQL().Cluster().Update(ctx, req))
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			"Error while requesting API to delete PostgreSQL host:"+err.Error(),
+			fmt.Sprintf("Error while requesting API to update PostgreSQL cluster: %s", err.Error()),
 		)
 		return
 	}
 
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
-			"Failed to Delete resource",
-			"Error while waiting for operation to delete PostgreSQL host:"+err.Error(),
+			"Failed to update resource",
+			fmt.Sprintf("Error while waiting for operation %q to update PostgreSQL cluster: %s", op.Id(), err.Error()),
 		)
+		return
 	}
 }
