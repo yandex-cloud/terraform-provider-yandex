@@ -1,4 +1,4 @@
-package api
+package airflow_cluster
 
 import "time"
 

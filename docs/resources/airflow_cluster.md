@@ -7,7 +7,7 @@ description: |-
 
 # yandex_airflow_cluster (Resource)
 
-Manages an Apache Airflow cluster within Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-airflow/concepts/).
+
 
 ## Example usage
 
@@ -68,50 +68,50 @@ resource "yandex_airflow_cluster" "my_airflow_cluster" {
 
 ### Required
 
-- `code_sync` (Attributes) Parameters of the location and access to the code that will be executed in the cluster. (see [below for nested schema](#nestedatt--code_sync))
-- `name` (String) The resource name.
-- `scheduler` (Attributes) Configuration of scheduler instances. (see [below for nested schema](#nestedatt--scheduler))
-- `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
-- `subnet_ids` (Set of String) The list of VPC subnets identifiers which resource is attached.
-- `webserver` (Attributes) Configuration of `webserver` instances. (see [below for nested schema](#nestedatt--webserver))
-- `worker` (Attributes) Configuration of worker instances. (see [below for nested schema](#nestedatt--worker))
+- `code_sync` (Attributes) (see [below for nested schema](#nestedatt--code_sync))
+- `name` (String)
+- `scheduler` (Attributes) (see [below for nested schema](#nestedatt--scheduler))
+- `service_account_id` (String)
+- `subnet_ids` (Set of String)
+- `webserver` (Attributes) (see [below for nested schema](#nestedatt--webserver))
+- `worker` (Attributes) (see [below for nested schema](#nestedatt--worker))
 
 ### Optional
 
-- `admin_password` (String, Sensitive) Password that is used to log in to Apache Airflow web UI under `admin` user.
-- `airflow_config` (Map of Map of String) Configuration of the Apache Airflow application itself. The value of this attribute is a two-level map. Keys of top-level map are the names of [configuration sections](https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#airflow-configuration-options). Keys of inner maps are the names of configuration options within corresponding section.
-- `deb_packages` (Set of String) System packages that are installed in the cluster.
-- `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
-- `description` (String) The resource description.
-- `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
-- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `lockbox_secrets_backend` (Attributes) Configuration of Lockbox Secrets Backend. [See documentation](https://yandex.cloud/docs/managed-airflow/tutorials/lockbox-secrets-in-maf-cluster) for details. (see [below for nested schema](#nestedatt--lockbox_secrets_backend))
-- `logging` (Attributes) Cloud Logging configuration. (see [below for nested schema](#nestedatt--logging))
-- `pip_packages` (Set of String) Python packages that are installed in the cluster.
+- `admin_password` (String, Sensitive)
+- `airflow_config` (Map of Map of String)
+- `deb_packages` (Set of String)
+- `deletion_protection` (Boolean)
+- `description` (String)
+- `folder_id` (String)
+- `labels` (Map of String)
+- `lockbox_secrets_backend` (Attributes) (see [below for nested schema](#nestedatt--lockbox_secrets_backend))
+- `logging` (Attributes) (see [below for nested schema](#nestedatt--logging))
+- `pip_packages` (Set of String)
 - `security_group_ids` (Set of String)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `triggerer` (Attributes) Configuration of `triggerer` instances. (see [below for nested schema](#nestedatt--triggerer))
+- `triggerer` (Attributes) (see [below for nested schema](#nestedatt--triggerer))
 
 ### Read-Only
 
-- `created_at` (String) The creation timestamp of the resource.
-- `health` (String) Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).
-- `id` (String) The resource identifier.
-- `status` (String) Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).
+- `created_at` (String)
+- `health` (String)
+- `id` (String) The ID of this resource.
+- `status` (String)
 
 <a id="nestedatt--code_sync"></a>
 ### Nested Schema for `code_sync`
 
 Required:
 
-- `s3` (Attributes) Currently only Object Storage (S3) is supported as the source of DAG files. (see [below for nested schema](#nestedatt--code_sync--s3))
+- `s3` (Attributes) (see [below for nested schema](#nestedatt--code_sync--s3))
 
 <a id="nestedatt--code_sync--s3"></a>
 ### Nested Schema for `code_sync.s3`
 
 Required:
 
-- `bucket` (String) The name of the Object Storage bucket that stores DAG files used in the cluster.
+- `bucket` (String)
 
 
 
@@ -120,8 +120,8 @@ Required:
 
 Required:
 
-- `count` (Number) The number of scheduler instances in the cluster.
-- `resource_preset_id` (String) The identifier of the preset for computational resources available to an instance (CPU, memory etc.).
+- `count` (Number)
+- `resource_preset_id` (String)
 
 
 <a id="nestedatt--webserver"></a>
@@ -129,8 +129,8 @@ Required:
 
 Required:
 
-- `count` (Number) The number of webserver instances in the cluster.
-- `resource_preset_id` (String) The ID of the preset for computational resources available to an instance (CPU, memory etc.).
+- `count` (Number)
+- `resource_preset_id` (String)
 
 
 <a id="nestedatt--worker"></a>
@@ -138,9 +138,9 @@ Required:
 
 Required:
 
-- `max_count` (Number) The maximum number of worker instances in the cluster.
-- `min_count` (Number) The minimum number of worker instances in the cluster.
-- `resource_preset_id` (String) The ID of the preset for computational resources available to an instance (CPU, memory etc.).
+- `max_count` (Number)
+- `min_count` (Number)
+- `resource_preset_id` (String)
 
 
 <a id="nestedatt--lockbox_secrets_backend"></a>
@@ -148,7 +148,7 @@ Required:
 
 Required:
 
-- `enabled` (Boolean) Enables usage of Lockbox Secrets Backend.
+- `enabled` (Boolean)
 
 
 <a id="nestedatt--logging"></a>
@@ -156,13 +156,13 @@ Required:
 
 Required:
 
-- `enabled` (Boolean) Enables delivery of logs generated by the Airflow components to [Cloud Logging](https://yandex.cloud/docs/logging/).
+- `enabled` (Boolean)
 
 Optional:
 
-- `folder_id` (String) Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.
-- `log_group_id` (String) Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.
-- `min_level` (String) Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).
+- `folder_id` (String)
+- `log_group_id` (String)
+- `min_level` (String)
 
 
 <a id="nestedblock--timeouts"></a>
@@ -180,8 +180,8 @@ Optional:
 
 Required:
 
-- `count` (Number) The number of triggerer instances in the cluster.
-- `resource_preset_id` (String) The ID of the preset for computational resources available to an instance (CPU, memory etc.).
+- `count` (Number)
+- `resource_preset_id` (String)
 
 ## Import
 

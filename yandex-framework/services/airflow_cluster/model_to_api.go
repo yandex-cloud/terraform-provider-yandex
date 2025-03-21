@@ -1,10 +1,12 @@
-package api
+package airflow_cluster
 
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -391,6 +393,13 @@ func loggingValuesAreEqual(val1, val2 LoggingValue) bool {
 	}
 
 	return false
+}
+
+func airflowConfigValidator() validator.Map {
+	return mapvalidator.KeysAre(stringvalidator.RegexMatches(
+		regexp.MustCompile(`^[^\.]*$`),
+		"must not contain dots",
+	))
 }
 
 func allowedLogLevels() []string {

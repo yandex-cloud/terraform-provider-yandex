@@ -15,7 +15,6 @@ import (
 	ycsdk "github.com/yandex-cloud/go-sdk"
 
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	af_api "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster/api"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -59,26 +58,26 @@ func (a *airflowClusterResource) ImportState(ctx context.Context, req resource.I
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	adminPassword := path.Root("admin_password")
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, adminPassword, af_api.AdminPasswordStubOnImport)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, adminPassword, AdminPasswordStubOnImport)...)
 }
 
 // Create implements resource.Resource.
 func (a *airflowClusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan af_api.ClusterModel
+	var plan ClusterModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	createClusterRequest, diags := af_api.BuildCreateClusterRequest(ctx, &plan, &a.providerConfig.ProviderState)
+	createClusterRequest, diags := BuildCreateClusterRequest(ctx, &plan, &a.providerConfig.ProviderState)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Create Airflow cluster request: %+v", createClusterRequest))
 
-	createTimeout, diags := plan.Timeouts.Create(ctx, af_api.YandexAirflowClusterCreateTimeout)
+	createTimeout, diags := plan.Timeouts.Create(ctx, YandexAirflowClusterCreateTimeout)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -86,7 +85,7 @@ func (a *airflowClusterResource) Create(ctx context.Context, req resource.Create
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	clusterID, d := af_api.CreateCluster(ctx, a.providerConfig.SDK, &resp.Diagnostics, createClusterRequest)
+	clusterID, d := CreateCluster(ctx, a.providerConfig.SDK, &resp.Diagnostics, createClusterRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -107,7 +106,7 @@ func (a *airflowClusterResource) Create(ctx context.Context, req resource.Create
 
 // Delete implements resource.Resource.
 func (a *airflowClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state af_api.ClusterModel
+	var state ClusterModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -117,7 +116,7 @@ func (a *airflowClusterResource) Delete(ctx context.Context, req resource.Delete
 	clusterID := state.Id.ValueString()
 	tflog.Debug(ctx, "Deleting Airflow cluster", clusterIDLogField(clusterID))
 
-	deleteTimeout, diags := state.Timeouts.Delete(ctx, af_api.YandexAirflowClusterDeleteTimeout)
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, YandexAirflowClusterDeleteTimeout)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -125,7 +124,7 @@ func (a *airflowClusterResource) Delete(ctx context.Context, req resource.Delete
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := af_api.DeleteCluster(ctx, a.providerConfig.SDK, clusterID)
+	d := DeleteCluster(ctx, a.providerConfig.SDK, clusterID)
 	resp.Diagnostics.Append(d)
 
 	tflog.Debug(ctx, "Finished deleting Airflow cluster", clusterIDLogField(clusterID))
@@ -133,7 +132,7 @@ func (a *airflowClusterResource) Delete(ctx context.Context, req resource.Delete
 
 // Read implements resource.Resource.
 func (a *airflowClusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state af_api.ClusterModel
+	var state ClusterModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -142,7 +141,7 @@ func (a *airflowClusterResource) Read(ctx context.Context, req resource.ReadRequ
 
 	clusterID := state.Id.ValueString()
 	tflog.Debug(ctx, "Reading Airflow cluster", clusterIDLogField(clusterID))
-	cluster, d := af_api.GetClusterByID(ctx, a.providerConfig.SDK, clusterID)
+	cluster, d := GetClusterByID(ctx, a.providerConfig.SDK, clusterID)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -153,7 +152,7 @@ func (a *airflowClusterResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	diags = af_api.ClusterToState(ctx, cluster, &state)
+	diags = ClusterToState(ctx, cluster, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -166,8 +165,8 @@ func (a *airflowClusterResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Update implements resource.Resource.
 func (a *airflowClusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan af_api.ClusterModel
-	var state af_api.ClusterModel
+	var plan ClusterModel
+	var state ClusterModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
@@ -176,7 +175,7 @@ func (a *airflowClusterResource) Update(ctx context.Context, req resource.Update
 
 	tflog.Debug(ctx, "Updating Airflow cluster", clusterIDLogField(state.Id.ValueString()))
 
-	updateTimeout, diags := plan.Timeouts.Update(ctx, af_api.YandexAirflowClusterUpdateTimeout)
+	updateTimeout, diags := plan.Timeouts.Update(ctx, YandexAirflowClusterUpdateTimeout)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -187,14 +186,14 @@ func (a *airflowClusterResource) Update(ctx context.Context, req resource.Update
 	tflog.Debug(ctx, fmt.Sprintf("Update Airflow cluster state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("Update Airflow cluster plan: %+v", plan))
 
-	updateReq, diags := af_api.BuildUpdateClusterRequest(ctx, &state, &plan)
+	updateReq, diags := BuildUpdateClusterRequest(ctx, &state, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Airflow cluster request: %+v", updateReq))
 
-	d := af_api.UpdateCluster(ctx, a.providerConfig.SDK, updateReq)
+	d := UpdateCluster(ctx, a.providerConfig.SDK, updateReq)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -212,7 +211,7 @@ func (a *airflowClusterResource) Update(ctx context.Context, req resource.Update
 
 // Schema implements resource.Resource.
 func (a *airflowClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = af_api.ClusterResourceSchema(ctx)
+	resp.Schema = ClusterResourceSchema(ctx)
 	resp.Schema.Blocks["timeouts"] = timeouts.Block(ctx, timeouts.Opts{
 		Create: true,
 		Update: true,
@@ -221,7 +220,7 @@ func (a *airflowClusterResource) Schema(ctx context.Context, req resource.Schema
 }
 
 func (r *airflowClusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var cluster af_api.ClusterModel
+	var cluster ClusterModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &cluster)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -240,11 +239,11 @@ func (r *airflowClusterResource) ValidateConfig(ctx context.Context, req resourc
 	}
 }
 
-func updateState(ctx context.Context, sdk *ycsdk.SDK, state *af_api.ClusterModel) diag.Diagnostics {
+func updateState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 	clusterID := state.Id.ValueString()
 	tflog.Debug(ctx, "Reading Airflow cluster", clusterIDLogField(clusterID))
-	cluster, d := af_api.GetClusterByID(ctx, sdk, clusterID)
+	cluster, d := GetClusterByID(ctx, sdk, clusterID)
 	diags.Append(d)
 	if diags.HasError() {
 		return diags
@@ -257,7 +256,7 @@ func updateState(ctx context.Context, sdk *ycsdk.SDK, state *af_api.ClusterModel
 		return diags
 	}
 
-	dd := af_api.ClusterToState(ctx, cluster, state)
+	dd := ClusterToState(ctx, cluster, state)
 	diags.Append(dd...)
 	return diags
 }
