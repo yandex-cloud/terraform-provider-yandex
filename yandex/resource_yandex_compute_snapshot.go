@@ -10,12 +10,15 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexComputeSnapshotDefaultTimeout = 20 * time.Minute
 
 func resourceYandexComputeSnapshot() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a new snapshot of a disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).",
+
 		Create: resourceYandexComputeSnapshotCreate,
 		Read:   resourceYandexComputeSnapshotRead,
 		Update: resourceYandexComputeSnapshotUpdate,
@@ -34,59 +37,69 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"source_disk_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the disk to create a snapshot from.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"disk_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "Size of the disk when the snapshot was created, specified in GB.",
+				Computed:    true,
 			},
 
 			"storage_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "Size of the snapshot, specified in GB.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"hardware_generation": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Hardware generation and its features, which will be applied to the instance when this snapshot is used as a boot disk source. Provide this property if you wish to override this value, which otherwise is inherited from the source.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"generation2_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
@@ -96,12 +109,14 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 						},
 
 						"legacy_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Defines the first known hardware generation and its features.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"pci_topology": {
 										Type:         schema.TypeString,
+										Description:  "A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.",
 										Optional:     true,
 										ForceNew:     true,
 										Computed:     true,

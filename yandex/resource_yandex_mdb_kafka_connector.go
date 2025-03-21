@@ -9,12 +9,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 func resourceYandexMDBKafkaConnector() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a connector of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).",
+
 		Create: resourceYandexMDBKafkaConnectorCreate,
 		Read:   resourceYandexMDBKafkaConnectorRead,
 		Update: resourceYandexMDBKafkaConnectorUpdate,
@@ -27,76 +30,90 @@ func resourceYandexMDBKafkaConnector() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the Kafka cluster.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
+				ForceNew:    true,
 			},
 			"tasks_max": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "The number of the connector's parallel working tasks. Default is the number of brokers.",
+				Optional:    true,
 			},
 			"properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Description: "Additional properties for connector.",
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"connector_config_mirrormaker": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Settings for MirrorMaker2 connector.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"topics": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The pattern for topic names to be replicated.",
+							Required:    true,
 						},
 						"source_cluster": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
-							Elem:     resourceYandexMDBKafkaClusterConnectionSpec(),
+							Type:        schema.TypeList,
+							Description: "Settings for source cluster.",
+							Required:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaClusterConnectionSpec(),
 						},
 						"target_cluster": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
-							Elem:     resourceYandexMDBKafkaClusterConnectionSpec(),
+							Type:        schema.TypeList,
+							Description: "Settings for target cluster.",
+							Required:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaClusterConnectionSpec(),
 						},
 						"replication_factor": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Replication factor for topics created in target cluster.",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"connector_config_s3_sink": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Settings for S3 Sink connector.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"topics": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The pattern for topic names to be copied to s3 bucket.",
+							Required:    true,
 						},
 						"file_compression_type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Compression type for messages. Cannot be changed.",
+							Required:    true,
+							ForceNew:    true,
 						},
 						"file_max_records": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Max records per file.",
+							Optional:    true,
 						},
 						"s3_connection": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
-							Elem:     resourceYandexMDBKafkaS3ConnectionSpec(),
+							Type:        schema.TypeList,
+							Description: "Settings for connection to s3-compatible storage.",
+							Required:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaS3ConnectionSpec(),
 						},
 					},
 				},
@@ -110,39 +127,47 @@ func resourceYandexMDBKafkaClusterConnectionSpec() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"alias": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Name of the cluster. Used also as a topic prefix.",
+				Optional:    true,
 			},
 			"this_cluster": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Resource{},
+				Type:        schema.TypeList,
+				Description: "Using this section in the cluster definition (source or target) means it's this cluster.",
+				Optional:    true,
+				Elem:        &schema.Resource{},
 			},
 			"external_cluster": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Connection settings for external cluster.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bootstrap_servers": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "List of bootstrap servers to connect to cluster.",
+							Required:    true,
 						},
 						"sasl_username": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Username to use in SASL authentification mechanism.",
+							Optional:    true,
 						},
 						"sasl_password": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: "Password to use in SASL authentification mechanism",
+							Optional:    true,
+							Sensitive:   true,
 						},
 						"sasl_mechanism": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Type of SASL authentification mechanism to use.",
+							Optional:    true,
 						},
 						"security_protocol": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Security protocol to use.",
+							Optional:    true,
 						},
 					},
 				},
@@ -155,30 +180,36 @@ func resourceYandexMDBKafkaS3ConnectionSpec() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Name of the bucket in s3-compatible storage.",
+				Required:    true,
 			},
 			"external_s3": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "Connection params for external s3-compatible storage.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"endpoint": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "URL of s3-compatible storage.",
+							Required:    true,
 						},
 						"access_key_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "ID of aws-compatible static key.",
+							Optional:    true,
 						},
 						"secret_access_key": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: "Secret key of aws-compatible static key.",
+							Optional:    true,
+							Sensitive:   true,
 						},
 						"region": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Region of s3-compatible storage. [Available region list](https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/regions/Regions.html).",
+							Optional:    true,
 						},
 					},
 				},

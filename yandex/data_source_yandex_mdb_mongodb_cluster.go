@@ -11,6 +11,8 @@ import (
 
 func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Managed MongoDB cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexMDBMongodbClusterRead,
 		Schema:      convertToOptional(resourceYandexMDBMongodbCluster().Schema),
 	}

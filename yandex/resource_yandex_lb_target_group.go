@@ -8,12 +8,15 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexLBTargetGroupDefaultTimeout = 5 * time.Minute
 
 func resourceYandexLBTargetGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/target-resources).",
+
 		Create: resourceYandexLBTargetGroupCreate,
 		Read:   resourceYandexLBTargetGroupRead,
 		Update: resourceYandexLBTargetGroupUpdate,
@@ -32,28 +35,33 @@ func resourceYandexLBTargetGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"region_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the availability zone where the target group resides. If omitted, default region is being used.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"target": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A Target resource.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the subnet that targets are connected to. All targets in the target group must be connected to the same subnet within a single availability zone.",
+							Required:    true,
 						},
 						"address": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "IP address of the target.",
+							Required:    true,
 						},
 					},
 				},
@@ -61,27 +69,31 @@ func resourceYandexLBTargetGroup() *schema.Resource {
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

@@ -9,6 +9,7 @@ import (
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	lt "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1"
 	agent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -17,6 +18,8 @@ const yandexLoadtestingDefaultTimeout = 10 * time.Minute
 
 func resourceYandexLoadtestingAgent() *schema.Resource {
 	return &schema.Resource{
+		Description: "A Load Testing Agent resource. For more information, see [the official documentation](https://yandex.cloud/docs/load-testing/concepts/agent).",
+
 		Create: resourceYandexLoadtestingAgentCreate,
 		Read:   resourceYandexLoadtestingAgentRead,
 		Delete: resourceYandexLoadtestingAgentDelete,
@@ -35,76 +38,88 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"compute_instance_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Compute Instance ID.",
+				Computed:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"log_settings": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "The logging settings of the load testing agent.",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_group_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "The ID of cloud logging group to which the load testing agent sends logs.",
+							Optional:    true,
+							ForceNew:    true,
 						},
 					},
 				},
 			},
 
 			"compute_instance": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "The template for creating new compute instance running load testing agent.",
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the service account authorized for this load testing agent. Service account should have `loadtesting.generatorClient` or `loadtesting.externalAgent` role in the folder.",
+							Required:    true,
 						},
 
 						"platform_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "The Compute platform for virtual machine.",
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 
 						"resources": {
-							Type:     schema.TypeList,
-							ForceNew: true,
-							Required: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Compute resource specifications for the instance.",
+							ForceNew:    true,
+							Required:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"memory": {
 										Type:         schema.TypeFloat,
+										Description:  "The memory size in GB. Defaults to 2 GB.",
 										Optional:     true,
 										ForceNew:     true,
 										Default:      2,
@@ -113,6 +128,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 
 									"cores": {
 										Type:         schema.TypeInt,
+										Description:  "The number of CPU cores for the instance. Defaults to 2 cores.",
 										Optional:     true,
 										ForceNew:     true,
 										Default:      2,
@@ -121,6 +137,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 
 									"core_fraction": {
 										Type:         schema.TypeInt,
+										Description:  "If provided, specifies baseline core performance as a percent.",
 										Optional:     true,
 										ForceNew:     true,
 										Default:      100,
@@ -131,54 +148,62 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 						},
 
 						"boot_disk": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Boot disk specifications for the instance.",
+							Required:    true,
+							ForceNew:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"auto_delete": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  true,
-										ForceNew: true,
+										Type:        schema.TypeBool,
+										Description: "Whether the disk is auto-deleted when the instance is deleted. The default value is true.",
+										Optional:    true,
+										Default:     true,
+										ForceNew:    true,
 									},
 
 									"device_name": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "This value can be used to reference the device under `/dev/disk/by-id/`.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"disk_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "The ID of created disk.",
+										Computed:    true,
 									},
 
 									"initialize_params": {
-										Type:     schema.TypeList,
-										Required: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Parameters for creating a disk alongside the instance.",
+										Required:    true,
+										ForceNew:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": {
-													Type:     schema.TypeString,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
+													Type:        schema.TypeString,
+													Description: "A name of the boot disk.",
+													Optional:    true,
+													Computed:    true,
+													ForceNew:    true,
 												},
 
 												"description": {
-													Type:     schema.TypeString,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
+													Type:        schema.TypeString,
+													Description: "A description of the boot disk.",
+													Optional:    true,
+													Computed:    true,
+													ForceNew:    true,
 												},
 
 												"size": {
 													Type:         schema.TypeInt,
+													Description:  "The size of the disk in GB. Defaults to 15 GB.",
 													Optional:     true,
 													ForceNew:     true,
 													Default:      15,
@@ -186,17 +211,19 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 												},
 
 												"block_size": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Description: "Block size of the disk, specified in bytes.",
+													Optional:    true,
+													Computed:    true,
+													ForceNew:    true,
 												},
 
 												"type": {
-													Type:     schema.TypeString,
-													Optional: true,
-													ForceNew: true,
-													Default:  "network-ssd",
+													Type:        schema.TypeString,
+													Description: "The disk type.",
+													Optional:    true,
+													ForceNew:    true,
+													Default:     "network-ssd",
 												},
 											},
 										},
@@ -206,49 +233,56 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 						},
 
 						"network_interface": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeList,
+							Description: "Network specifications for the instance. This can be used multiple times for adding multiple interfaces.",
+							Required:    true,
+							ForceNew:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"subnet_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "The ID of the subnet to attach this interface to. The subnet must reside in the same zone where this instance was created.",
+										Required:    true,
 									},
 
 									"ipv4": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  true,
-										ForceNew: true,
+										Type:        schema.TypeBool,
+										Description: "Flag for allocating IPv4 address for the network interface.",
+										Optional:    true,
+										Default:     true,
+										ForceNew:    true,
 									},
 
 									"ip_address": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "Manual set static IP address.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"ipv6": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeBool,
+										Description: "Flag for allocating IPv6 address for the network interface.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"ipv6_address": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "Manual set static IPv6 address.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"nat": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-										ForceNew: true,
+										Type:        schema.TypeBool,
+										Description: "Flag for using NAT.",
+										Optional:    true,
+										Default:     false,
+										ForceNew:    true,
 									},
 
 									"index": {
@@ -262,10 +296,11 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 									},
 
 									"nat_ip_address": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "A public address that can be used to access the internet over NAT.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"nat_ip_version": {
@@ -274,50 +309,56 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 									},
 
 									"security_group_ids": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Set:      schema.HashString,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeSet,
+										Description: "Security group ids for network interface.",
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Set:         schema.HashString,
+										Optional:    true,
+										ForceNew:    true,
 									},
 								},
 							},
 						},
 
 						"zone_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: common.ResourceDescriptions["zone"],
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 
 						"labels": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "A set of key/value label pairs to assign to the instance.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 
 						"computed_labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "The set of labels `key:value` pairs assigned to this instance. This includes user custom `labels` and predefined items created by Yandex Cloud Load Testing.",
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 
 						"metadata": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "A set of metadata key/value pairs to make available from within the instance.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 
 						"computed_metadata": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "The set of metadata `key:value` pairs assigned to this instance. This includes user custom `metadata`, and predefined items created by Yandex Cloud Load Testing.",
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 					},
 				},

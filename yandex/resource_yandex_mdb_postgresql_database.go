@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -23,6 +24,8 @@ const (
 
 func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a PostgreSQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).",
+
 		Create: resourceYandexMDBPostgreSQLDatabaseCreate,
 		Read:   resourceYandexMDBPostgreSQLDatabaseRead,
 		Update: resourceYandexMDBPostgreSQLDatabaseUpdate,
@@ -42,54 +45,64 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the PostgreSQL cluster.",
+				Required:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Name of the user assigned as the owner of the database. Forbidden to change in an existing database.",
+				ForceNew:    true,
+				Required:    true,
 			},
 			"lc_collate": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "C",
+				Type:        schema.TypeString,
+				Description: "POSIX locale for string sorting order. Forbidden to change in an existing database.",
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "C",
 			},
 			"lc_type": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Default:  "C",
+				Type:        schema.TypeString,
+				Description: "POSIX locale for character classification. Forbidden to change in an existing database.",
+				ForceNew:    true,
+				Optional:    true,
+				Default:     "C",
 			},
 			"template_db": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Name of the template database.",
+				ForceNew:    true,
+				Optional:    true,
 			},
 			"extension": {
-				Type:     schema.TypeSet,
-				Set:      pgExtensionHash,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "Set of database extensions.",
+				Set:         pgExtensionHash,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).",
+							Required:    true,
 						},
 						"version": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Version of the extension.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"deletion_protection": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["deletion_protection"],
 				Optional:     true,
 				Default:      "unspecified",
 				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),

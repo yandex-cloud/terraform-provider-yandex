@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -20,6 +21,7 @@ const (
 
 func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a Elasticsearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).",
 
 		Create: resourceYandexMDBElasticsearchClusterCreate,
 		Read:   resourceYandexMDBElasticsearchClusterRead,
@@ -43,100 +45,116 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 			// Name of the Elasticsearch cluster. The name must be unique within the folder.
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			// Description of the Elasticsearch cluster.
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			// Custom labels for the Elasticsearch cluster as `key:value` pairs.
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			// ID of the folder that the Elasticsearch cluster belongs to.
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true, // TODO impl move cluster
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true, // TODO impl move cluster
 			},
 
 			// Deployment environment of the Elasticsearch cluster.
 			"environment": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Deployment environment of the Elasticsearch cluster. Can be either `PRESTABLE` or `PRODUCTION`.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			// ID of the network that the cluster belongs to.
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Optional:    true,
 			},
 
 			// Configuration of the Elasticsearch cluster.
 			"config": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Configuration of the Elasticsearch cluster.",
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Version of Elasticsearch.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"edition": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Edition of Elasticsearch. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts/es-editions).",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"admin_password": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: "Password for admin user of Elasticsearch.",
+							Required:    true,
+							Sensitive:   true,
 						},
 
 						"data_node": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Configuration for Elasticsearch data nodes subcluster.",
+							Required:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resources": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Required: true,
+										Type:        schema.TypeList,
+										Description: "Resources allocated to hosts of the Elasticsearch data nodes subcluster.",
+										MaxItems:    1,
+										Required:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"resource_preset_id": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).",
+													Required:    true,
 												},
 												"disk_size": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Volume of the storage available to a host, in gigabytes.",
+													Required:    true,
 												},
 												"disk_type_id": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeString,
+													Description: "Type of the storage of Elasticsearch hosts.",
+													Required:    true,
+													ForceNew:    true,
 												},
 											},
 										},
@@ -146,9 +164,10 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 						},
 
 						"master_node": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Configuration for Elasticsearch master nodes subcluster.",
+							Optional:    true,
+							MaxItems:    1,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								// suppress diff for not defined masters nodes
 								h, _ := expandElasticsearchHosts(d.Get("host"))
@@ -157,23 +176,27 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resources": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Required: true,
+										Type:        schema.TypeList,
+										Description: "Resources allocated to hosts of the Elasticsearch master nodes subcluster.",
+										MaxItems:    1,
+										Required:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"resource_preset_id": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).",
+													Required:    true,
 												},
 												"disk_size": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Volume of the storage available to a host, in gigabytes.",
+													Required:    true,
 												},
 												"disk_type_id": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeString,
+													Description: "Type of the storage of Elasticsearch hosts.",
+													Required:    true,
+													ForceNew:    true,
 												},
 											},
 										},
@@ -183,10 +206,11 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 						}, // masternode
 
 						"plugins": {
-							Type:     schema.TypeSet,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							Optional: true,
+							Type:        schema.TypeSet,
+							Description: "A set of Elasticsearch plugins to install.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Optional:    true,
 						},
 					},
 				},
@@ -194,35 +218,40 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 			// User security groups
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_groups_id"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
 			},
 
 			// Aggregated cluster health.
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/api-ref/Cluster/).",
+				Computed:    true,
 			},
 
 			// Current state of the cluster.
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/api-ref/Cluster/).",
+				Computed:    true,
 			},
 
 			// Creation timestamp.
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			// Hosts of the Elasticsearch cluster
 			"host": {
-				Type:     schema.TypeSet,
-				MinItems: 1,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A host of the Elasticsearch cluster.",
+				MinItems:    1,
+				Optional:    true,
 				DefaultFunc: func() (interface{}, error) {
 					// cause error attribute supports 1 item as a minimum, config has 0 declared
 					return []interface{}{}, nil
@@ -231,29 +260,34 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 				Elem:     elasticsearchHostResource,
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Elasticsearch cluster maintenance window.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:         schema.TypeString,
+							Description:  "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
 							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
 							Required:     true,
 						},
 						"day": {
 							Type:         schema.TypeString,
+							Description:  "Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
 							ValidateFunc: validateParsableValue(parseElasticsearchWeekDay),
 							Optional:     true,
 						},
 						"hour": {
 							Type:         schema.TypeInt,
+							Description:  "Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.",
 							ValidateFunc: validation.IntBetween(1, 24),
 							Optional:     true,
 						},
@@ -268,35 +302,41 @@ var elasticsearchHostResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		// Unique host name
 		"name": {
-			Type:     schema.TypeString,
-			Required: true,
+			Type:        schema.TypeString,
+			Description: "User defined host name.",
+			Required:    true,
 		},
 		// Domain name
 		"fqdn": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Description: "The fully qualified domain name of the host.",
+			Computed:    true,
 		},
 		// Availability zone
 		"zone": {
-			Type:     schema.TypeString,
-			Required: true,
+			Type:        schema.TypeString,
+			Description: common.ResourceDescriptions["zone"],
+			Required:    true,
 		},
 		// Host Type
 		"type": {
 			Type:         schema.TypeString,
+			Description:  "The type of the host to be deployed. Can be either `DATA_NODE` or `MASTER_NODE`.",
 			Required:     true,
 			ValidateFunc: validateParsableValue(parseElasticsearchHostType),
 		},
 		"assign_public_ip": {
-			Type:     schema.TypeBool,
-			Optional: true,
-			Default:  false,
+			Type:        schema.TypeBool,
+			Description: "Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.",
+			Optional:    true,
+			Default:     false,
 		},
 		// Host subnet
 		"subnet_id": {
-			Type:     schema.TypeString,
-			Optional: true,
-			Computed: true,
+			Type:        schema.TypeString,
+			Description: "The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.",
+			Optional:    true,
+			Computed:    true,
 		},
 	},
 }

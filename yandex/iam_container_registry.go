@@ -16,9 +16,10 @@ const yandexContainerRegistryUpdateAccessBindingsBatchSize = 1000
 
 var IamContainerRegistrySchema = map[string]*schema.Schema{
 	"registry_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Container Registry](https://yandex.cloud/docs/container-registry/) ID to apply a binding to.",
 	},
 }
 

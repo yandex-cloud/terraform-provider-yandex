@@ -8,14 +8,17 @@ import (
 
 func dataSourceYandexFunctionScalingPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).\n\nThis data source is used to define [Yandex Cloud Function Scaling Policy](https://yandex.cloud/docs/functions/) that can be used by other resources.\n",
+
 		Read: dataSourceYandexFunctionScalingPolicyRead,
 
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"function_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud Function id used to define function.",
+				Required:    true,
 			},
 
 			"policy": {

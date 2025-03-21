@@ -16,6 +16,7 @@ const maximumUpdateDeltas = 1000
 
 func resourceYandexOrganizationManagerGroupMembership() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Allows members management of a single Yandex Cloud Organization Manager Group. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups#add-member).\n\n~> Multiple `yandex_organizationmanager_group_iam_binding` resources with the same group id will produce inconsistent behavior!\n",
 		CreateContext: resourceYandexOrganizationManagerGroupMembershipCreate,
 		ReadContext:   resourceYandexOrganizationManagerGroupMembershipRead,
 		UpdateContext: resourceYandexOrganizationManagerGroupMembershipUpdate,
@@ -32,14 +33,16 @@ func resourceYandexOrganizationManagerGroupMembership() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"group_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The Group to add/remove members to/from.",
+				ForceNew:    true,
+				Required:    true,
 			},
 			"members": {
-				Type:     schema.TypeSet,
-				Set:      schema.HashString,
-				Required: true,
+				Type:        schema.TypeSet,
+				Description: "A set of members of the Group. Each member is represented by an id.",
+				Set:         schema.HashString,
+				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

@@ -16,9 +16,10 @@ const yandexIAMDnsZoneUpdateAccessBindingsBatchSize = 1000
 
 var IamDnsZoneSchema = map[string]*schema.Schema{
 	"dns_zone_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [DNS](https://yandex.cloud/docs/dns/) Zone ID to apply a binding to.",
 	},
 }
 

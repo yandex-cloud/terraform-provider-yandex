@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,6 +20,8 @@ const yandexVPCRouteTableDefaultTimeout = 3 * time.Minute
 
 func resourceYandexVPCRouteTable() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts).\n\n* How-to Guides\n  * [Cloud Networking](https://yandex.cloud/docs/vpc/)\n",
+
 		Create: resourceYandexVPCRouteTableCreate,
 		Read:   resourceYandexVPCRouteTableRead,
 		Update: resourceYandexVPCRouteTableUpdate,
@@ -37,53 +40,62 @@ func resourceYandexVPCRouteTable() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the network this route table belongs to.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"static_route": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A list of static route records for the route table.\n\n~> Only one of `next_hop_address` or `gateway_id` should be specified.\n",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"destination_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Route prefix in CIDR notation.",
+							Optional:    true,
 						},
 						"next_hop_address": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Address of the next hop.",
+							Optional:    true,
 						},
 						"gateway_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "ID of the gateway used ad next hop.",
+							Optional:    true,
 						},
 					},
 				},
@@ -91,8 +103,9 @@ func resourceYandexVPCRouteTable() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

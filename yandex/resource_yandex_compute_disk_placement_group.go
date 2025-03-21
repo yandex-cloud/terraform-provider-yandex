@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -15,6 +16,8 @@ const yandexComputeDiskPlacementGroupDefaultTimeout = 1 * time.Minute
 
 func resourceYandexComputeDiskPlacementGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "A Disk Placement Group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk#nr-disks).\n",
+
 		Create: resourceYandexComputeDiskPlacementGroupCreate,
 		Read:   resourceYandexComputeDiskPlacementGroupRead,
 		Update: resourceYandexComputeDiskPlacementGroupUpdate,
@@ -33,44 +36,51 @@ func resourceYandexComputeDiskPlacementGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: common.ResourceDescriptions["name"],
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			// Conforms CLI behavior in regards to "zone_id"
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "ru-central1-b",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Optional:    true,
+				Default:     "ru-central1-b",
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the Disk Placement Group.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

@@ -35,6 +35,7 @@ var storageClassSet = []string{
 
 func resourceYandexStorageBucket() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Allows management of [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).\n\n~> By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.\n\n~> Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.\n\n~> For extended API usage, such as setting the `max_size`, `folder_id`, `anonymous_access_flags`, `default_storage_class`, and `https` parameters for a bucket, only the default authorization method will be used. This means the `IAM` token from the `provider` block will be applied.\nThis can be confusing in cases where a separate service account is used for managing buckets because, in such scenarios,buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.\n\n~> In case you are using IAM token from UserAccount, you are needed to explicitly specify `folder_id` in the resource, as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys, `folder_id` does not need to be specified unless you want to create the resource in a different folder than the account folder.\n\n~> Terraform will import this resource with `force_destroy` set to `false` in state. If you've set it to `true` in config, run `terraform apply` to update the value set in state. If you delete this resource before updating the value, objects in the bucket will not be destroyed.\n",
 		CreateContext: resourceYandexStorageBucketCreate,
 		ReadContext:   resourceYandexStorageBucketRead,
 		UpdateContext: resourceYandexStorageBucketUpdate,
@@ -56,6 +57,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:          schema.TypeString,
+				Description:   "The name of the bucket. If omitted, Terraform will assign a random, unique name.",
 				Optional:      true,
 				Computed:      true,
 				ForceNew:      true,
@@ -63,28 +65,33 @@ func resourceYandexStorageBucket() *schema.Resource {
 			},
 			"bucket_prefix": {
 				Type:          schema.TypeString,
+				Description:   "Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.",
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"bucket"},
 			},
 			"bucket_domain_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The bucket domain name.",
+				Computed:    true,
 			},
 
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
+				Optional:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
+				Optional:    true,
+				Sensitive:   true,
 			},
 
 			"acl": {
 				Type:          schema.TypeString,
+				Description:   "The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.\n\n~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.\n",
 				Optional:      true,
 				ConflictsWith: []string{"grant"},
 				ValidateFunc:  validation.StringInSlice(bucketACLAllowedValues, false),
@@ -92,32 +99,37 @@ func resourceYandexStorageBucket() *schema.Resource {
 
 			"grant": {
 				Type:          schema.TypeSet,
+				Description:   "An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.\n\n~> To manage `grant` argument, service account with `storage.admin` role should be used.\n",
 				Optional:      true,
 				Set:           grantHash,
 				ConflictsWith: []string{"acl"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Canonical user id to grant for. Used only when type is `CanonicalUser`.",
+							Optional:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of grantee to apply for. Valid values are `CanonicalUser` and `Group`.",
+							Required:    true,
 							ValidateFunc: validation.StringInSlice([]string{
 								s3.TypeCanonicalUser,
 								s3.TypeGroup,
 							}, false),
 						},
 						"uri": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "URI address to grant for. Used only when type is Group.",
+							Optional:    true,
 						},
 
 						"permissions": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Set:      schema.HashString,
+							Type:        schema.TypeSet,
+							Description: "List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.",
+							Required:    true,
+							Set:         schema.HashString,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								ValidateFunc: validation.StringInSlice([]string{
@@ -133,62 +145,73 @@ func resourceYandexStorageBucket() *schema.Resource {
 
 			"policy": {
 				Type:             schema.TypeString,
+				Description:      "The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.",
 				Optional:         true,
 				ValidateFunc:     validateStringIsJSON,
 				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
 			},
 
 			"cors_rule": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (CORS object).",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allowed_headers": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Description: "Specifies which headers are allowed.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"allowed_methods": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Description: "Specifies which methods are allowed. Can be `GET`, `PUT`, `POST`, `DELETE` or `HEAD`.",
+							Required:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"allowed_origins": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Description: "Specifies which origins are allowed.",
+							Required:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"expose_headers": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Description: "Specifies expose header in the response.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"max_age_seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Specifies time in seconds that browser can cache the response for a preflight request.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"website": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "A [Website Object](https://yandex.cloud/docs/storage/concepts/hosting)",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"index_document": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Storage returns this index document when requests are made to the root domain or any of the subfolders (unless using `redirect_all_requests_to`).",
+							Optional:    true,
 						},
 
 						"error_document": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "An absolute path to the document to return in case of a 4XX error.",
+							Optional:    true,
 						},
 
 						"redirect_all_requests_to": {
-							Type: schema.TypeString,
+							Description: "A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.",
+							Type:        schema.TypeString,
 							ConflictsWith: []string{
 								"website.0.index_document",
 								"website.0.error_document",
@@ -199,6 +222,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 
 						"routing_rules": {
 							Type:         schema.TypeString,
+							Description:  "A JSON array containing [routing rules](https://yandex.cloud/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.",
 							Optional:     true,
 							ValidateFunc: validateStringIsJSON,
 							StateFunc: func(v interface{}) string {
@@ -210,75 +234,86 @@ func resourceYandexStorageBucket() *schema.Resource {
 				},
 			},
 			"website_endpoint": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"website_domain": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"versioning": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning).\n\n~> To manage `versioning` argument, service account with `storage.admin` role should be used.\n",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket.",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
 			},
 
 			"object_lock_configuration": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock).",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"object_lock_enabled": {
 							Type:         schema.TypeString,
+							Description:  "Enable object locking in a bucket. Require versioning to be enabled.",
 							Optional:     true,
 							Default:      s3.ObjectLockEnabled,
 							ValidateFunc: validation.StringInSlice(s3.ObjectLockEnabledValues, false),
 						},
 						"rule": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Specifies a default locking configuration for added objects. Require object_lock_enabled to be enabled.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"default_retention": {
-										Type:     schema.TypeList,
-										Required: true,
-										MaxItems: 1,
+										Description: "Default retention object.",
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "Specifies a type of object lock. One of `[\"GOVERNANCE\", \"COMPLIANCE\"]`.",
+													Required:    true,
 													ValidateFunc: validation.StringInSlice(
 														s3.ObjectLockRetentionModeValues,
 														false,
 													),
 												},
 												"days": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "Specifies a retention period in days after uploading an object version. It must be a positive integer. You can't set it simultaneously with `years`.",
+													Optional:    true,
 													ExactlyOneOf: []string{
 														"object_lock_configuration.0.rule.0.default_retention.0.days",
 														"object_lock_configuration.0.rule.0.default_retention.0.years",
 													},
 												},
 												"years": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "Specifies a retention period in years after uploading an object version. It must be a positive integer. You can't set it simultaneously with `days`.",
+													Optional:    true,
 													ExactlyOneOf: []string{
 														"object_lock_configuration.0.rule.0.default_retention.0.days",
 														"object_lock_configuration.0.rule.0.default_retention.0.years",
@@ -295,17 +330,20 @@ func resourceYandexStorageBucket() *schema.Resource {
 			},
 
 			"logging": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs).",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"target_bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the bucket that will receive the log objects.",
+							Required:    true,
 						},
 						"target_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "To specify a key prefix for log objects.",
+							Optional:    true,
 						},
 					},
 				},
@@ -319,70 +357,82 @@ func resourceYandexStorageBucket() *schema.Resource {
 			},
 
 			"lifecycle_rule": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:         schema.TypeString,
+							Description:  "Unique identifier for the rule. Must be less than or equal to 255 characters in length.",
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringLenBetween(0, 255),
 						},
 						"prefix": {
 							Type:             schema.TypeString,
+							Description:      "Object key prefix identifying one or more objects to which the rule applies.",
 							Optional:         true,
 							Deprecated:       "Use filter instead",
 							DiffSuppressFunc: suppressPrefixDiffIfFilterPrefixSet,
 						},
 						"filter": {
 							Type:             schema.TypeList,
+							Description:      "Filter block identifies one or more objects to which the rule applies. A Filter must have exactly one of Prefix, Tag, or And specified. The filter supports options listed below.\n\nAt least one of `abort_incomplete_multipart_upload_days`, `expiration`, `transition`, `noncurrent_version_expiration`, `noncurrent_version_transition` must be specified.",
 							Optional:         true,
 							MaxItems:         1,
 							DiffSuppressFunc: suppressFilterIfPrefixEqualsFilterPrefix,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"and": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "A logical `and` operator applied to one or more filter parameters. It should be used when two or more of the above parameters are used.",
+										Optional:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"object_size_greater_than": {
 													Type:         schema.TypeInt,
+													Description:  "Minimum object size to which the rule applies.",
 													Optional:     true,
 													ValidateFunc: validation.IntAtLeast(0),
 												},
 												"object_size_less_than": {
 													Type:         schema.TypeInt,
+													Description:  "Maximum object size to which the rule applies.",
 													Optional:     true,
 													ValidateFunc: validation.IntAtLeast(1),
 												},
 												"prefix": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "Object key prefix identifying one or more objects to which the rule applies.",
+													Optional:    true,
 												},
 												"tags": tagsSchema(),
 											},
 										},
 									},
 									"object_size_greater_than": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Minimum object size to which the rule applies.",
+										Optional:    true,
 									},
 									"object_size_less_than": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Maximum object size to which the rule applies.",
+										Optional:    true,
 									},
 									"prefix": {
 										Type:             schema.TypeString,
+										Description:      "Object key prefix identifying one or more objects to which the rule applies.",
 										Optional:         true,
 										DiffSuppressFunc: suppressFilterPrefixDiffIfPrefixSet,
 									},
 									"tag": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A key and value pair for filtering objects. E.g.: `key=key1, value=value1`.",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"key": {
@@ -400,44 +450,52 @@ func resourceYandexStorageBucket() *schema.Resource {
 							},
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Description: "Specifies lifecycle rule status.",
+							Required:    true,
 						},
 						"abort_incomplete_multipart_upload_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Specifies the number of days after initiating a multipart upload when the multipart upload must be completed.",
+							Optional:    true,
 						},
 						"expiration": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Specifies a period in the object's expire.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"date": {
 										Type:         schema.TypeString,
+										Description:  "Specifies the date after which you want the corresponding action to take effect.",
 										Optional:     true,
 										ValidateFunc: validateS3BucketLifecycleTimestamp,
 									},
 									"days": {
 										Type:         schema.TypeInt,
+										Description:  "Specifies the number of days after object creation when the specific rule action takes effect.",
 										Optional:     true,
 										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"expired_object_delete_marker": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "n a versioned bucket (versioning-enabled or versioning-suspended bucket), you can add this element in the lifecycle configuration to direct Object Storage to delete expired object delete markers.",
+										Optional:    true,
 									},
 								},
 							},
 						},
 						"noncurrent_version_expiration": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Specifies when noncurrent object versions expire.",
+							MaxItems:    1,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"days": {
 										Type:         schema.TypeInt,
+										Description:  "Specifies the number of days noncurrent object versions expire.",
 										Optional:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -445,23 +503,27 @@ func resourceYandexStorageBucket() *schema.Resource {
 							},
 						},
 						"transition": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      s3.TransitionHash,
+							Type:        schema.TypeSet,
+							Description: "Specifies a period in the object's transitions.",
+							Optional:    true,
+							Set:         s3.TransitionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"date": {
 										Type:         schema.TypeString,
+										Description:  "Specifies the date after which you want the corresponding action to take effect.",
 										Optional:     true,
 										ValidateFunc: validateS3BucketLifecycleTimestamp,
 									},
 									"days": {
 										Type:         schema.TypeInt,
+										Description:  "Specifies the number of days after object creation when the specific rule action takes effect.",
 										Optional:     true,
 										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"storage_class": {
 										Type:         schema.TypeString,
+										Description:  "Specifies the storage class to which you want the object to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].",
 										Required:     true,
 										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},
@@ -469,18 +531,21 @@ func resourceYandexStorageBucket() *schema.Resource {
 							},
 						},
 						"noncurrent_version_transition": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      s3.TransitionHash,
+							Type:        schema.TypeSet,
+							Description: "Specifies when noncurrent object versions transitions.",
+							Optional:    true,
+							Set:         s3.TransitionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"days": {
 										Type:         schema.TypeInt,
+										Description:  "Specifies the number of days noncurrent object versions transition.",
 										Optional:     true,
 										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"storage_class": {
 										Type:         schema.TypeString,
+										Description:  "Specifies the storage class to which you want the noncurrent object versions to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].",
 										Required:     true,
 										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},
@@ -492,36 +557,42 @@ func resourceYandexStorageBucket() *schema.Resource {
 			},
 
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: " A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable. Default is `false`.",
+				Optional:    true,
+				Default:     false,
 			},
 
 			"server_side_encryption_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "A configuration of server-side encryption for the bucket.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"rule": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Required: true,
+							Type:        schema.TypeList,
+							Description: "A single object for server-side encryption by default configuration.",
+							MaxItems:    1,
+							Required:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"apply_server_side_encryption_by_default": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Required: true,
+										Type:        schema.TypeList,
+										Description: "A single object for setting server-side encryption by default.",
+										MaxItems:    1,
+										Required:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"kms_master_key_id": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "The KMS master key ID used for the SSE-KMS encryption.",
+													Required:    true,
 												},
 												"sse_algorithm": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "The server-side encryption algorithm to use. Single valid value is `aws:kms`.",
+													Required:    true,
 													ValidateFunc: validation.StringInSlice([]string{
 														s3.ServerSideEncryptionAwsKms,
 													}, false),
@@ -539,38 +610,44 @@ func resourceYandexStorageBucket() *schema.Resource {
 			// These fields use extended API and requires IAM token
 			// to be set in order to operate.
 			"default_storage_class": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Storage class which is used for storing objects by default. Available values are: \"STANDARD\", \"COLD\", \"ICE\". Default is `\"STANDARD\"`. See [Storage Class](https://yandex.cloud/docs/storage/concepts/storage-class) for more information.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Allow to create bucket in different folder. In case you are using IAM token from UserAccount, you are needed to explicitly specify folder_id in the resource, as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys, folder_id does not need to be specified unless you want to create the resource in a different folder than the account folder.\n\n~> It will try to create bucket using `IAM-token`, not using `access keys`.\n",
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"max_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume) for more information.",
+				Optional:    true,
 			},
 
 			"anonymous_access_flags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Set:      storageBucketS3SetFunc("list", "read", "config_read"),
+				Type:        schema.TypeSet,
+				Description: "Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Set:         storageBucketS3SetFunc("list", "read", "config_read"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"list": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Allows to list object in bucket anonymously.",
+							Optional:    true,
 						},
 						"read": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Allows to read objects in bucket anonymously.",
+							Optional:    true,
 						},
 						"config_read": {
 							Type:     schema.TypeBool,
@@ -581,15 +658,17 @@ func resourceYandexStorageBucket() *schema.Resource {
 			},
 
 			"https": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
-				Set:      storageBucketS3SetFunc("certificate_id"),
+				Type:        schema.TypeSet,
+				Description: "Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.",
+				Optional:    true,
+				MaxItems:    1,
+				Set:         storageBucketS3SetFunc("certificate_id"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"certificate_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Id of the certificate in Certificate Manager, that will be used for bucket.",
+							Required:    true,
 						},
 					},
 				},
@@ -601,9 +680,10 @@ func resourceYandexStorageBucket() *schema.Resource {
 
 func tagsSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeMap,
-		Optional: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
+		Type:        schema.TypeMap,
+		Description: "The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags) for more information.",
+		Optional:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
 	}
 }
 

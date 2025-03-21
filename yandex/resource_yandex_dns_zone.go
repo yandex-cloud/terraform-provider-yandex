@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
 	"github.com/yandex-cloud/go-sdk/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/status"
 )
 
@@ -39,69 +40,69 @@ func resourceYandexDnsZone() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"zone": {
 				Type:         schema.TypeString,
+				Description:  "The DNS name of this zone, e.g. `example.com.`. Must ends with dot.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateZoneName(),
-				Description:  "The DNS name of this zone, e.g. \"example.com.\". Must ends with dot.",
 			},
 
 			"folder_id": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "ID of the folder to create a zone in. If it is not provided, the default provider folder is used.",
 			},
 
 			"name": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
 				Optional:    true,
 				Default:     "",
-				Description: "User assigned name of a specific resource. Must be unique within the folder.",
 			},
 
 			"description": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
 				Optional:    true,
-				Description: "Description of the DNS zone.",
 			},
 
 			"labels": {
 				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
-				Description: "A set of key/value label pairs to assign to the DNS zone.",
 			},
 
 			"public": {
 				Type:        schema.TypeBool,
+				Description: "The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.",
 				Optional:    true,
 				Computed:    true,
-				Description: "The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.",
 			},
 
 			"private_networks": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: "For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:         schema.HashString,
-				Description: "For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.",
+				Set: schema.HashString,
 			},
 
 			"created_at": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
 				Computed:    true,
-				Description: "The DNS zone creation timestamp.",
 			},
 
 			"deletion_protection": {
 				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
 				Optional:    true,
-				Description: "Flag that protects the dns zone from accidental deletion.",
 			},
 		},
 	}

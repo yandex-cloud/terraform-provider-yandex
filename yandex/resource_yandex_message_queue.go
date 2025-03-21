@@ -36,6 +36,8 @@ var sqsQueueAttributeMap = map[string]string{
 
 func resourceYandexMessageQueue() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud Message Queue](https://yandex.cloud/docs/message-queue).",
+
 		Create: resourceYandexMessageQueueCreate,
 		Read:   resourceYandexMessageQueueRead,
 		Update: resourceYandexMessageQueueUpdate,
@@ -47,6 +49,7 @@ func resourceYandexMessageQueue() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:          schema.TypeString,
+				Description:   "Queue name. The maximum length is 80 characters. You can use numbers, letters, underscores, and hyphens in the name. The name of a FIFO queue must end with the `.fifo` suffix. If not specified, random name will be generated. Conflicts with `name_prefix`. For more information see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue).",
 				Optional:      true,
 				ForceNew:      true,
 				Computed:      true,
@@ -55,42 +58,49 @@ func resourceYandexMessageQueue() *schema.Resource {
 			},
 			"name_prefix": {
 				Type:          schema.TypeString,
+				Description:   "Generates random name with the specified prefix. Conflicts with `name`.",
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name"},
 			},
 			"delay_seconds": {
 				Type:         schema.TypeInt,
+				Description:  "Number of seconds to [delay the message from being available for processing](https://yandex.cloud/docs/message-queue/concepts/delay-queues#delay-queues). Valid values: from 0 to 900 seconds (15 minutes). Default: 0.",
 				Optional:     true,
 				Default:      0,
 				ValidateFunc: validation.IntBetween(0, 900),
 			},
 			"max_message_size": {
 				Type:         schema.TypeInt,
+				Description:  "Maximum message size in bytes. Valid values: from 1024 bytes (1 KB) to 262144 bytes (256 KB). Default: 262144 (256 KB). For more information see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue).",
 				Optional:     true,
 				Default:      262144,
 				ValidateFunc: validation.IntBetween(1024, 262144),
 			},
 			"message_retention_seconds": {
 				Type:         schema.TypeInt,
+				Description:  "The length of time in seconds to retain a message. Valid values: from 60 seconds (1 minute) to 1209600 seconds (14 days). Default: 345600 (4 days). For more information see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue).",
 				Optional:     true,
 				Default:      345600,
 				ValidateFunc: validation.IntBetween(60, 1209600),
 			},
 			"receive_wait_time_seconds": {
 				Type:         schema.TypeInt,
+				Description:  "Wait time for the [ReceiveMessage](https://yandex.cloud/docs/message-queue/api-ref/message/ReceiveMessage) method (for long polling), in seconds. Valid values: from 0 to 20 seconds. Default: 0. For more information about long polling see [documentation](https://yandex.cloud/docs/message-queue/concepts/long-polling).",
 				Optional:     true,
 				Default:      0,
 				ValidateFunc: validation.IntBetween(0, 20),
 			},
 			"visibility_timeout_seconds": {
 				Type:         schema.TypeInt,
+				Description:  "[Visibility timeout](https://yandex.cloud/docs/message-queue/concepts/visibility-timeout) for messages in a queue, specified in seconds. Valid values: from 0 to 43200 seconds (12 hours). Default: 30.",
 				Optional:     true,
 				Default:      30,
 				ValidateFunc: validation.IntBetween(0, 43200),
 			},
 			"redrive_policy": {
 				Type:         schema.TypeString,
+				Description:  "Message redrive policy in [Dead Letter Queue](https://yandex.cloud/docs/message-queue/concepts/dlq). The source queue and DLQ must be the same type: for FIFO queues, the DLQ must also be a FIFO queue. For more information about redrive policy see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue). Also you can use example in this page.",
 				Optional:     true,
 				ValidateFunc: validation.StringIsJSON,
 				StateFunc: func(v interface{}) string {
@@ -99,38 +109,44 @@ func resourceYandexMessageQueue() *schema.Resource {
 				},
 			},
 			"fifo_queue": {
-				Type:     schema.TypeBool,
-				Default:  false,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Is this queue [FIFO](https://yandex.cloud/docs/message-queue/concepts/queue#fifo-queues). If this parameter is not used, a standard queue is created. You cannot change the parameter value for a created queue.",
+				Default:     false,
+				ForceNew:    true,
+				Optional:    true,
 			},
 			"content_based_deduplication": {
-				Type:     schema.TypeBool,
-				Default:  false,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Enables [content-based deduplication](https://yandex.cloud/docs/message-queue/concepts/deduplication#content-based-deduplication). Can be used only if queue is [FIFO](https://yandex.cloud/docs/message-queue/concepts/queue#fifo-queues).",
+				Default:     false,
+				Optional:    true,
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  defaultYMQRegion,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the region where the message queue is located at. The default is 'ru-central1'.",
+				Optional:    true,
+				Default:     defaultYMQRegion,
+				ForceNew:    true,
 			},
 
 			// Credentials
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The [access key](https://yandex.cloud/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymq_access_key` specified in provider config is used. For more information see [documentation](https://yandex.cloud/docs/message-queue/quickstart).",
+				Optional:    true,
 			},
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The [secret key](https://yandex.cloud/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymq_secret_key` specified in provider config is used. For more information see [documentation](https://yandex.cloud/docs/message-queue/quickstart).",
+				Optional:    true,
+				Sensitive:   true,
 			},
 
 			// Computed
 			"arn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ARN of the Yandex Message Queue. It is used for setting up a [redrive policy](https://yandex.cloud/docs/message-queue/concepts/dlq). See [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/SetQueueAttributes).",
+				Computed:    true,
 			},
 		},
 	}

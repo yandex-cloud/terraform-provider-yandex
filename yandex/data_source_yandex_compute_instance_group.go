@@ -2,33 +2,40 @@ package yandex
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Compute instance group.",
+
 		Read: dataSourceYandexComputeInstanceGroupRead,
 
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"instance_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific instance group.",
+				Required:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Computed:    true,
 			},
 
 			"instance_template": {
@@ -457,9 +464,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			},
 
 			"variables": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Description: resourceYandexComputeInstanceGroup().Schema["variables"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"scale_policy": {
@@ -706,19 +714,22 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"health_check": {
@@ -781,8 +792,9 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			},
 
 			"max_checking_health_duration": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeInstanceGroup().Schema["max_checking_health_duration"].Description,
+				Computed:    true,
 			},
 
 			"load_balancer": {
@@ -862,8 +874,9 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"instances": {
@@ -990,13 +1003,15 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstanceGroup().Schema["status"].Description,
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 		},
 	}

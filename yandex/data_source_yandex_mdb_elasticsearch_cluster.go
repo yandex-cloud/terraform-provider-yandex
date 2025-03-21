@@ -6,60 +6,70 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexMDBElasticsearchClusterRead,
+		Description: "Get information about a Yandex Managed Elasticsearch cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+		Read:        dataSourceYandexMDBElasticsearchClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the Elasticsearch cluster.",
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"environment": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBElasticsearchCluster().Schema["environment"].Description,
+				Computed:    true,
 			},
 
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Computed:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"config": {
@@ -157,26 +167,30 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 			},
 
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBElasticsearchCluster().Schema["health"].Description,
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBElasticsearchCluster().Schema["status"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"host": {
@@ -216,9 +230,10 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"maintenance_window": {

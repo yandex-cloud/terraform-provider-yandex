@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 	"github.com/yandex-cloud/go-sdk/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -20,6 +21,7 @@ const yandexContainerRepositoryLifecyclePolicyDefaultTimeout = 5 * time.Minute
 
 func resourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Creates a new container repository lifecycle policy. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).",
 		CreateContext: resourceYandexContainerRepositoryLifecyclePolicyCreate,
 		ReadContext:   resourceYandexContainerRepositoryLifycyclePolicyRead,
 		UpdateContext: resourceYandexContainerRepositoryLifycyclePolicyUpdate,
@@ -37,35 +39,41 @@ func resourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the repository that the resource belongs to.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The status of lifecycle policy. Must be `active` or `disabled`.",
+				Required:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"rule": {
 				Type:             schema.TypeList,
+				Description:      "Repository rules.",
 				Computed:         true,
 				Optional:         true,
 				DiffSuppressFunc: shouldSuppressDiffForContainerRepositoryLifecyclePolicyRules,
@@ -74,6 +82,7 @@ func resourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Description of the lifecycle policy.",
 							Computed:     true,
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 256),
@@ -81,6 +90,7 @@ func resourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 
 						"expire_period": {
 							Type:             schema.TypeString,
+							Description:      "The period of time that must pass after creating a image for it to suit the automatic deletion criteria. It must be a multiple of 24 hours.",
 							Optional:         true,
 							ValidateFunc:     validateParsableValue(parseDuration),
 							DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
@@ -89,19 +99,22 @@ func resourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 
 						"tag_regexp": {
 							Type:         schema.TypeString,
+							Description:  "Tag to specify a filter as a regular expression. For example `.*` - all images with tags.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 256),
 							Default:      "",
 						},
 
 						"untagged": {
-							Type:     schema.TypeBool,
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "If enabled, rules apply to untagged Docker images.",
+							Computed:    true,
+							Optional:    true,
 						},
 
 						"retained_top": {
 							Type:         schema.TypeInt,
+							Description:  "The number of images to be retained even if the `expire_period` already expired.",
 							Computed:     true,
 							Optional:     true,
 							ValidateFunc: validation.IntAtLeast(0),

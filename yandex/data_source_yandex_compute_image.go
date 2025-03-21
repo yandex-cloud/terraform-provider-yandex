@@ -8,71 +8,87 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexComputeImage() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Compute image. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).\n\n~> Either `image_id`, `family` or `name` must be specified.\n\n~> If you specify `family` without `folder_id` then lookup takes place in the 'standard-images' folder.\n",
+
 		Read: dataSourceYandexComputeImageRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"image_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific image.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"family": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeImage().Schema["family"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"min_disk_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeImage().Schema["min_disk_size"].Description,
+				Computed:    true,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeImage().Schema["size"].Description,
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"os_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeImage().Schema["os_type"].Description,
+				Computed:    true,
 			},
 			"pooled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexComputeImage().Schema["pooled"].Description,
+				Computed:    true,
 			},
 			"product_ids": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Description: resourceYandexComputeImage().Schema["product_ids"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeImage().Schema["status"].Description,
+				Computed:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"hardware_generation": {
 				Type: schema.TypeList,
@@ -103,8 +119,9 @@ func dataSourceYandexComputeImage() *schema.Resource {
 				Computed: true,
 			},
 			"kms_key_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of KMS symmetric key used to encrypt image.",
+				Computed:    true,
 			},
 		},
 	}

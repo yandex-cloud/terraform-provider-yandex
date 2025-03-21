@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -19,6 +20,8 @@ const (
 
 func resourceYandexMDBSQLServerCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a SQLServer cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/).\n\nPlease read [Pricing for Managed Service for SQL Server](https://yandex.cloud/docs/managed-sqlserver/pricing#prices) before using SQLServer cluster.\n",
+
 		Create: resourceYandexMDBSQLServerClusterCreate,
 		Read:   resourceYandexMDBSQLServerClusterRead,
 		Update: resourceYandexMDBSQLServerClusterUpdate,
@@ -37,89 +40,106 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"environment": {
 				Type:         schema.TypeString,
+				Description:  "Deployment environment of the SQLServer cluster. (PRODUCTION, PRESTABLE).",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateParsableValue(parseSQLServerEnv),
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Required:    true,
+				ForceNew:    true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Version of the SQLServer cluster. (2016sp2std, 2016sp2ent).",
+				Required:    true,
 			},
 			"resources": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Resources allocated to hosts of the SQLServer cluster.",
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/concepts/instance-types).",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of SQLServer hosts.",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a SQLServer host, in gigabytes.",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"database": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "A database of the SQLServer cluster. ",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the database.",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"user": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "A user of the SQLServer cluster.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the user.",
+							Required:    true,
 						},
 						"password": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: "The password of the user.",
+							Required:    true,
+							Sensitive:   true,
 						},
 						"permission": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      sqlserverUserPermissionHash,
+							Type:        schema.TypeSet,
+							Description: "Set of permissions granted to the user.",
+							Optional:    true,
+							Set:         sqlserverUserPermissionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"database_name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "The name of the database that the permission grants access to.",
+										Required:    true,
 									},
 									"roles": {
-										Type: schema.TypeSet,
+										Type:        schema.TypeSet,
+										Description: "List user's roles in the database. Allowed roles: `OWNER`, `SECURITYADMIN`, `ACCESSADMIN`, `BACKUPOPERATOR`, `DDLADMIN`, `DATAWRITER`, `DATAREADER`, `DENYDATAWRITER`, `DENYDATAREADER`.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -132,64 +152,75 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 				},
 			},
 			"host": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "A host of the SQLServer cluster.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"zone": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: common.ResourceDescriptions["zone"],
+							Required:    true,
 						},
 						"assign_public_ip": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.",
+							Optional:    true,
+							Default:     false,
 						},
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"fqdn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The fully qualified domain name of the host.",
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeSet,
+				Description: "A list of IDs of the host groups hosting VMs of the cluster.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"backup_window_start": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Time to start the daily backup, in the UTC.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hours": {
 							Type:         schema.TypeInt,
+							Description:  "The hour at which backup will be started.",
 							Optional:     true,
 							Default:      0,
 							ValidateFunc: validation.IntBetween(0, 23),
 						},
 						"minutes": {
 							Type:         schema.TypeInt,
+							Description:  "The minute at which backup will be started.",
 							Optional:     true,
 							Default:      0,
 							ValidateFunc: validation.IntBetween(0, 59),
@@ -199,25 +230,30 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Aggregated health of the cluster.",
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the cluster.",
+				Computed:    true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
 			},
 			"sqlserver_config": {
 				Type:             schema.TypeMap,
+				Description:      "SQLServer cluster config. Detail info in `SQLServer config` section.",
 				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbSQLServerSettingsFieldsInfo),
@@ -227,14 +263,16 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 				},
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"sqlcollation": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "SQL Collation cluster will be created with. This attribute cannot be changed when cluster is created!",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

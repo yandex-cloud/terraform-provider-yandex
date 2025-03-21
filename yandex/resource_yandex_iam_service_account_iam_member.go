@@ -14,5 +14,6 @@ func resourceYandexIAMServiceAccountIAMMember() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamMemberImport(serviceAccountIDParseFunc),
 			}),
+		WithDescription(iamPolicyDescription),
 	)
 }

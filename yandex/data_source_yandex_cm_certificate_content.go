@@ -10,45 +10,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func dataSourceYandexCMCertificateContent() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get content (certificate, private key) from a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).\n\n~> One of `certificate_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexCMCertificateContentRead,
 
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"certificate_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Certificate Id.",
+				Optional:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Certificate name.",
+				Optional:    true,
 			},
 			"wait_validation": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "If `true`, the operation won't be completed while the certificate is in `VALIDATING`. Default is `false`.",
+				Optional:    true,
 			},
 			"private_key_format": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Format in which you want to export the private_key: `\"PKCS1\"` or `\"PKCS8\"`.",
+				Optional:    true,
 			},
 			"certificates": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "List of certificates in chain.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 			"private_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "Private key in specified format.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 		},
 	}

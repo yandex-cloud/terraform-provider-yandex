@@ -11,56 +11,67 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 func dataSourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about SecurityProfile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/profiles).\n\nThis data source is used to define SecurityProfile that can be used by other resources.\n\n~> One of `security_profile_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexSmartwebsecuritySecurityProfileRead,
 
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"advanced_rate_limiter_profile_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartwebsecuritySecurityProfile().Schema["advanced_rate_limiter_profile_id"].Description,
+				Computed:    true,
 			},
 
 			"captcha_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartwebsecuritySecurityProfile().Schema["captcha_id"].Description,
+				Computed:    true,
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"default_action": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartwebsecuritySecurityProfile().Schema["default_action"].Description,
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -70,14 +81,16 @@ func dataSourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"security_profile_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of the security profile.",
+				Optional:    true,
 			},
 
 			"security_rule": {

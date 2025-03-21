@@ -7,40 +7,48 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexFunctionTrigger() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).\n\nThis data source is used to define [Yandex Cloud Functions Trigger](https://yandex.cloud/docs/functions/concepts/trigger) that can be used by other resources.\n\n~> Either `trigger_id` or `name` must be specified.\n",
+
 		Read: dataSourceYandexFunctionTriggerRead,
 
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"trigger_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud Functions Trigger id used to define trigger.",
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			triggerTypeIoT: {
@@ -454,8 +462,9 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

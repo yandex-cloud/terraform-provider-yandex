@@ -9,71 +9,84 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Cloud Serverless Container. This data source is used to define Yandex Cloud Container that can be used by other resources.\n\n~> Either `container_id` or `name` must be specified.\n",
+
 		ReadContext: dataSourceYandexServerlessContainerRead,
 
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"container_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud Serverless Container ID used to define container.",
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"memory": {
 				Type:        schema.TypeInt,
+				Description: resourceYandexServerlessContainer().Schema["memory"].Description,
 				Computed:    true,
-				Description: "Container memory in megabytes, should be aligned to 128",
 			},
 
 			"cores": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexServerlessContainer().Schema["cores"].Description,
+				Computed:    true,
 			},
 
 			"core_fraction": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexServerlessContainer().Schema["core_fraction"].Description,
+				Computed:    true,
 			},
 
 			"execution_timeout": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexServerlessContainer().Schema["execution_timeout"].Description,
+				Computed:    true,
 			},
 
 			"concurrency": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexServerlessContainer().Schema["concurrency"].Description,
+				Computed:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Computed:    true,
 			},
 
 			"secrets": {
@@ -222,18 +235,21 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexServerlessContainer().Schema["url"].Description,
+				Computed:    true,
 			},
 
 			"revision_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexServerlessContainer().Schema["revision_id"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"runtime": {

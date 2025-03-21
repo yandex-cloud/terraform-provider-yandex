@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
@@ -17,12 +18,14 @@ func resourceAuditTrailsTrailResourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"resource_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "ID of the child resource.",
+				Required:    true,
 			},
 			"resource_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Resource type of the child resource.",
+				Required:    true,
 			},
 		},
 	}
@@ -30,6 +33,8 @@ func resourceAuditTrailsTrailResourceSchema() *schema.Resource {
 
 func resourceYandexAuditTrailsTrail() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail).\n\n## Migration from deprecated filter field\n\nIn order to migrate from using `filter` to the `filtering_policy`, you will have to:\n* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.\n* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.\n\n* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.\n\n",
+
 		ReadContext:   readTrailResource,
 		CreateContext: createTrailResource,
 		UpdateContext: updateTrailResource,
@@ -47,35 +52,42 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"trail_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the trail resource.",
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				ForceNew:    true,
+				Required:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Required:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of this trail.",
+				Computed:    true,
 			},
 			"storage_destination": {
 				ExactlyOneOf: []string{
@@ -83,18 +95,21 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					"logging_destination",
 					"data_stream_destination",
 				},
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).",
+							Required:    true,
 						},
 						"object_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.",
+							Optional:    true,
 						},
 					},
 				},
@@ -105,14 +120,16 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					"logging_destination",
 					"data_stream_destination",
 				},
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_group_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).",
+							Required:    true,
 						},
 					},
 				},
@@ -123,18 +140,21 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					"logging_destination",
 					"data_stream_destination",
 				},
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"database_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.",
+							Required:    true,
 						},
 						"stream_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.",
+							Required:    true,
 						},
 					},
 				},
@@ -144,9 +164,10 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					"filtering_policy",
 					"filter",
 				},
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"management_events_filter": {
@@ -154,16 +175,18 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 								"filtering_policy.0.management_events_filter",
 								"filtering_policy.0.data_events_filter",
 							},
-							Optional: true,
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Optional:    true,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for management events.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_scope": {
-										Required: true,
-										Type:     schema.TypeList,
-										MinItems: 1,
-										Elem:     resourceAuditTrailsTrailResourceSchema(),
+										Required:    true,
+										Type:        schema.TypeList,
+										Description: "Structure describing that events will be gathered from the specified resource.",
+										MinItems:    1,
+										Elem:        resourceAuditTrailsTrailResourceSchema(),
 									},
 								},
 							},
@@ -173,23 +196,27 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 								"filtering_policy.0.management_events_filter",
 								"filtering_policy.0.data_events_filter",
 							},
-							Optional: true,
-							Type:     schema.TypeList,
+							Optional:    true,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for the service-specific data events.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service": {
-										Required: true,
-										Type:     schema.TypeString,
+										Required:    true,
+										Type:        schema.TypeString,
+										Description: "ID of the service which events will be gathered.",
 									},
 									"included_events": {
-										Optional: true,
-										Type:     schema.TypeList,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										Type:        schema.TypeList,
+										Description: "A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
 									"excluded_events": {
-										Optional: true,
-										Type:     schema.TypeList,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										Type:        schema.TypeList,
+										Description: "A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
 									"resource_scope": {
 										Required: true,
@@ -208,16 +235,18 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 					"filtering_policy",
 					"filter",
 				},
-				Optional:   true,
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Deprecated: "Configure filtering_policy instead. This attribute will be removed",
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing event filtering process for the trail.",
+				MaxItems:    1,
+				Deprecated:  "Configure filtering_policy instead. This attribute will be removed",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path_filter": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"any_filter": {
@@ -225,10 +254,11 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 											"filter.0.path_filter.0.any_filter",
 											"filter.0.path_filter.0.some_filter",
 										},
-										Optional: true,
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Elem:     resourceAuditTrailsTrailResourceSchema(),
+										Optional:    true,
+										Type:        schema.TypeList,
+										Description: "Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`.",
+										MaxItems:    1,
+										Elem:        resourceAuditTrailsTrailResourceSchema(),
 									},
 									"some_filter": {
 										ExactlyOneOf: []string{
@@ -241,17 +271,20 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"resource_id": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "ID of the parent resource.",
+													Required:    true,
 												},
 												"resource_type": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "Resource type of the parent resource.",
+													Required:    true,
 												},
 												"any_filters": {
-													Type:     schema.TypeList,
-													Required: true,
-													Elem:     resourceAuditTrailsTrailResourceSchema(),
+													Type:        schema.TypeList,
+													Description: "List of child resources from which events will be gathered.",
+													Required:    true,
+													Elem:        resourceAuditTrailsTrailResourceSchema(),
 												},
 											},
 										},
@@ -260,35 +293,41 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 							},
 						},
 						"event_filters": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for the service-specific data plane events.",
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "ID of the service which events will be gathered.",
+										Required:    true,
 									},
 									"categories": {
-										Type:     schema.TypeList,
-										Required: true,
-										MinItems: 1,
+										Type:        schema.TypeList,
+										Description: "List of structures describing categories of gathered data plane events.",
+										Required:    true,
+										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"plane": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.",
+													Required:    true,
 												},
 												"type": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.",
+													Required:    true,
 												},
 											},
 										},
 									},
 									"path_filter": {
-										Type:     schema.TypeList,
-										Required: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`.",
+										Required:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"any_filter": {

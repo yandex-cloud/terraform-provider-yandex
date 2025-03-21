@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -16,6 +17,8 @@ const yandexLoggingGroupDefaultTimeout = 30 * time.Second
 
 func resourceYandexLoggingGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Cloud Logging group resource. For more information, see [the official documentation](https://yandex.cloud/docs/logging/concepts/log-group).",
+
 		Create: resourceYandexLoggingGroupCreate,
 		Read:   resourceYandexLoggingGroupRead,
 		Update: resourceYandexLoggingGroupUpdate,
@@ -32,13 +35,15 @@ func resourceYandexLoggingGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"folder_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["folder_id"],
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
@@ -47,6 +52,7 @@ func resourceYandexLoggingGroup() *schema.Resource {
 
 			"retention_period": {
 				Type:             schema.TypeString,
+				Description:      "Log entries retention period for the Yandex Cloud Logging group.",
 				Computed:         true,
 				Optional:         true,
 				ValidateFunc:     validateParsableValue(parseDuration),
@@ -54,35 +60,41 @@ func resourceYandexLoggingGroup() *schema.Resource {
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"data_stream": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Data Stream.",
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The Yandex Cloud Logging group status.",
+				Computed:    true,
 			},
 		},
 	}

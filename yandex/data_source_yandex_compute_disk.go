@@ -8,63 +8,78 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexComputeDisk() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Compute disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk).\n\n~> One of `disk_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexComputeDiskRead,
 		Schema: map[string]*schema.Schema{
 			"disk_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific disk.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeDisk().Schema["size"].Description,
+				Computed:    true,
 			},
 			"block_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeDisk().Schema["block_size"].Description,
+				Computed:    true,
 			},
 			"image_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeDisk().Schema["image_id"].Description,
+				Computed:    true,
 			},
 			"snapshot_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeDisk().Schema["snapshot_id"].Description,
+				Computed:    true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeDisk().Schema["type"].Description,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeDisk().Schema["status"].Description,
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 			"product_ids": {
 				Type:     schema.TypeList,
@@ -91,8 +106,9 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"hardware_generation": {
 				Type: schema.TypeList,
@@ -123,8 +139,9 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				Computed: true,
 			},
 			"kms_key_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeDisk().Schema["kms_key_id"].Description,
+				Computed:    true,
 			},
 		},
 	}

@@ -17,9 +17,10 @@ const yandexIAMFunctionDefaultTimeout = 1 * time.Minute
 
 var IamFunctionSchema = map[string]*schema.Schema{
 	"function_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Cloud Function](https://yandex.cloud/docs/functions/) ID to apply a binding to.",
 	},
 }
 

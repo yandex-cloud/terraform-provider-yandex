@@ -9,10 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).\n\n~> Either `lifecycle_policy_id` or `name` and `repository_id` must be specified.",
+
 		ReadContext: dataSourceYandexContainerRepositoryLifecyclePolicyRead,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -22,6 +25,7 @@ func dataSourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:          schema.TypeString,
+				Description:   common.ResourceDescriptions["name"],
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"lifecycle_policy_id"},
@@ -29,6 +33,7 @@ func dataSourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 
 			"repository_id": {
 				Type:          schema.TypeString,
+				Description:   resourceYandexContainerRepositoryLifecyclePolicy().Schema["repository_id"].Description,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"lifecycle_policy_id"},
@@ -36,24 +41,28 @@ func dataSourceYandexContainerRepositoryLifecyclePolicy() *schema.Resource {
 
 			"lifecycle_policy_id": {
 				Type:          schema.TypeString,
+				Description:   "The ID of a specific Lifecycle Policy.",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name", "repository_id"},
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexContainerRepositoryLifecyclePolicy().Schema["status"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"rule": {

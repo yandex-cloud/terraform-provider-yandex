@@ -8,34 +8,42 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Managed SQLServer cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexMDBSQLServerClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the SQLServer cluster.",
+				Computed:    true,
+				Optional:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The name of the SQLServer cluster.",
+				Computed:    true,
+				Optional:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"environment": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBSQLServerCluster().Schema["environment"].Description,
+				Computed:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Computed:    true,
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -111,10 +119,11 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 				},
 			},
 			"host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBSQLServerCluster().Schema["host_group_ids"].Description,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"host": {
 				Type:     schema.TypeList,
@@ -141,14 +150,16 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"backup_window_start": {
 				Type:     schema.TypeList,
@@ -168,25 +179,30 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBSQLServerCluster().Schema["health"].Description,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBSQLServerCluster().Schema["status"].Description,
+				Computed:    true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"sqlserver_config": {
 				Type:             schema.TypeMap,
+				Description:      resourceYandexMDBSQLServerCluster().Schema["sqlserver_config"].Description,
 				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbSQLServerSettingsFieldsInfo),
@@ -196,14 +212,16 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 				},
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"sqlcollation": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBSQLServerCluster().Schema["sqlcollation"].Description,
+				Computed:    true,
+				Optional:    true,
 			},
 		},
 	}

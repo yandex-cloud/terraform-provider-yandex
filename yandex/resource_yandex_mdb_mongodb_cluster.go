@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"golang.org/x/exp/maps"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -35,6 +36,8 @@ const (
 
 func resourceYandexMDBMongodbCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a MongoDB cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+
 		CreateContext: resourceYandexMDBMongodbClusterCreate,
 		ReadContext:   resourceYandexMDBMongodbClusterRead,
 		UpdateContext: resourceYandexMDBMongodbClusterUpdate,
@@ -53,50 +56,59 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Required:    true,
+				ForceNew:    true,
 			},
 			"environment": {
 				Type:         schema.TypeString,
+				Description:  "Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateParsableValue(parseMongoDBEnv),
 			},
 			"user": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Set:      mongodbUserHash,
+				Type:        schema.TypeSet,
+				Description: "A user of the MongoDB cluster.",
+				Optional:    true,
+				Computed:    true,
+				Set:         mongodbUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the user.",
+							Required:    true,
 						},
 						"password": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: "The password of the user.",
+							Required:    true,
+							Sensitive:   true,
 						},
 						"permission": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Set:      mongodbUserPermissionHash,
+							Type:        schema.TypeSet,
+							Description: "Set of permissions granted to the user.",
+							Optional:    true,
+							Computed:    true,
+							Set:         mongodbUserPermissionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"database_name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "The name of the database that the permission grants access to.",
+										Required:    true,
 									},
 									"roles": {
-										Type:     schema.TypeList,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).",
+										Optional:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -109,87 +121,103 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Deprecated: useResourceInstead("user", "yandex_mdb_mongodb_user"),
 			},
 			"database": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Set:      mongodbDatabaseHash,
+				Type:        schema.TypeSet,
+				Description: "A database of the MongoDB cluster.",
+				Optional:    true,
+				Computed:    true,
+				Set:         mongodbDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the database.",
+							Required:    true,
 						},
 					},
 				},
 				Deprecated: useResourceInstead("database", "yandex_mdb_mongodb_database"),
 			},
 			"host": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "A host of the MongoDB cluster.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The fully qualified domain name of the host. Computed on server side.",
+							Computed:    true,
 						},
 						"zone_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: common.ResourceDescriptions["zone"],
+							Required:    true,
 						},
 						"role": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The role of the cluster (either PRIMARY or SECONDARY).",
+							Optional:    true,
+							Computed:    true,
 						},
 						"health": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The health of the host.",
+							Computed:    true,
 						},
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.",
+							Required:    true,
 						},
 						"assign_public_ip": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Should this host have assigned public IP assigned. Can be either `true` or `false`.",
+							Optional:    true,
+							Default:     false,
 						},
 						"shard_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The name of the shard to which the host belongs. Only for sharded cluster.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"type": {
 							Type:         schema.TypeString,
+							Description:  "Type of Mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to `mongod`.",
 							Optional:     true,
 							Default:      "MONGOD",
 							ValidateFunc: validation.StringInSlice([]string{"MONGOS", "MONGOINFRA", "MONGOD", "MONGOCFG"}, true),
 							StateFunc:    stateToUpper,
 						},
 						"host_parameters": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "The parameters of mongod host in replicaset.",
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"hidden": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "Should this host be hidden in replicaset. Can be either `true` of `false`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.hidden).",
+										Optional:    true,
 									},
 									"priority": {
-										Type:     schema.TypeFloat,
-										Optional: true,
+										Type:        schema.TypeFloat,
+										Description: "A floating point number that indicates the relative likelihood of a replica set member to become the primary. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.priority).",
+										Optional:    true,
 									},
 									"secondary_delay_secs": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "The number of seconds `behind` the primary that this replica set member should `lag`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.secondaryDelaySecs).",
+										Optional:    true,
 									},
 									"tags": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Set:      schema.HashString,
+										Type:        schema.TypeMap,
+										Description: "A set of key/value pairs to assign for the replica set member. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.tags).",
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Set:         schema.HashString,
 									},
 								},
 							},
@@ -199,6 +227,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			},
 			"resources": {
 				Type:          schema.TypeList,
+				Description:   "(**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster.",
 				Optional:      true,
 				MaxItems:      1,
 				Deprecated:    useResourceInstead("`resources`", "`resources_mongo*`"),
@@ -207,103 +236,122 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"resources_mongod": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Resources allocated to `mongod` hosts of the MongoDB cluster.",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"resources_mongoinfra": {
 				Type:         schema.TypeList,
+				Description:  "Resources allocated to `mongoinfra` hosts of the MongoDB cluster.",
 				Optional:     true,
 				MaxItems:     1,
 				RequiredWith: []string{"resources_mongod"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"resources_mongocfg": {
 				Type:         schema.TypeList,
+				Description:  "Resources allocated to `mongocfg` hosts of the MongoDB cluster.",
 				Optional:     true,
 				MaxItems:     1,
 				RequiredWith: []string{"resources_mongod"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"resources_mongos": {
 				Type:         schema.TypeList,
+				Description:  "Resources allocated to `mongos` hosts of the MongoDB cluster.",
 				Optional:     true,
 				MaxItems:     1,
 				RequiredWith: []string{"resources_mongod", "resources_mongocfg"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).",
+							Required:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
+							Required:    true,
 						},
 					},
 				},
@@ -316,16 +364,19 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Limit of disk size after autoscaling (GiB).",
+							Required:    true,
 						},
 						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maintenance window autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Immediate autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 					},
 				},
@@ -338,16 +389,19 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Limit of disk size after autoscaling (GiB).",
+							Required:    true,
 						},
 						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maintenance window autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Immediate autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 					},
 				},
@@ -360,16 +414,19 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Limit of disk size after autoscaling (GiB).",
+							Required:    true,
 						},
 						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maintenance window autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Immediate autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 					},
 				},
@@ -382,55 +439,65 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Limit of disk size after autoscaling (GiB).",
+							Required:    true,
 						},
 						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maintenance window autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Immediate autoscaling disk usage (percent).",
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"cluster_config": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Configuration of the MongoDB subcluster.",
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Version of the MongoDB server software. Can be either `4.2`, `4.4`, `4.4-enterprise`, `5.0`, `5.0-enterprise`, `6.0` and `6.0-enterprise`.",
+							Required:    true,
 						},
 						"feature_compatibility_version": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Feature compatibility version of MongoDB. If not provided version is taken. Can be either `6.0`, `5.0`, `4.4` and `4.2`.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"backup_retain_period_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Retain period of automatically created backup in days.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"backup_window_start": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Time to start the daily backup, in the UTC timezone.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"hours": {
 										Type:         schema.TypeInt,
+										Description:  "The hour at which backup will be started.",
 										Optional:     true,
 										Default:      0,
 										ValidateFunc: validation.IntBetween(0, 23),
 									},
 									"minutes": {
 										Type:         schema.TypeInt,
+										Description:  "The minute at which backup will be started.",
 										Optional:     true,
 										Default:      0,
 										ValidateFunc: validation.IntBetween(0, 59),
@@ -439,128 +506,150 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							},
 						},
 						"performance_diagnostics": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Performance diagnostics to the MongoDB cluster.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "Enable or disable performance diagnostics.",
+										Optional:    true,
 									},
 								},
 							},
 						},
 						"access": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Access policy to the MongoDB cluster.",
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"data_lens": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Type:        schema.TypeBool,
+										Description: "Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).",
+										Optional:    true,
+										Default:     false,
 									},
 									"data_transfer": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Type:        schema.TypeBool,
+										Description: "Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).",
+										Optional:    true,
+										Default:     false,
 									},
 									"web_sql": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Type:        schema.TypeBool,
+										Description: "Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/).",
+										Optional:    true,
+										Default:     false,
 									},
 								},
 							},
 						},
 						"mongod": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Configuration of the mongod service.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"audit_log": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.",
+										MaxItems:    1,
+										Optional:    true,
+										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"filter": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
 												},
 												"runtime_configuration": {
-													Type:     schema.TypeBool,
-													Optional: true,
+													Type:        schema.TypeBool,
+													Description: "Specifies if a node allows runtime configuration of audit filters and the auditAuthorizationSuccess variable. For more information see [auditLog.runtimeConfiguration](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.runtimeConfiguration) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
 												},
 											},
 										},
 									},
 									"set_parameter": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).",
+										MaxItems:    1,
+										Optional:    true,
+										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"audit_authorization_success": {
-													Type:     schema.TypeBool,
-													Optional: true,
+													Type:        schema.TypeBool,
+													Description: "Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
 												},
 												"enable_flow_control": {
-													Type:     schema.TypeBool,
-													Optional: true,
+													Type:        schema.TypeBool,
+													Description: "Enables the flow control. Can be either true or false. For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl) description in the official documentation.",
+													Optional:    true,
 												},
 												"min_snapshot_history_window_in_seconds": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "The minimum time window in seconds for which the storage engine keeps the snapshot history. For more information, see the [minSnapshotHistoryWindowInSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.minSnapshotHistoryWindowInSeconds) description in the official documentation.",
+													Optional:    true,
 												},
 											},
 										},
 									},
 									"security": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "A set of MongoDB Security settings (see the [security](https://www.mongodb.com/docs/manual/reference/configuration-options/#security-options) option). Available only in enterprise edition.",
+										MaxItems:    1,
+										Optional:    true,
+										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enable_encryption": {
-													Type:     schema.TypeBool,
-													Optional: true,
+													Type:        schema.TypeBool,
+													Description: "Enables the encryption for the WiredTiger storage engine. Can be either true or false. For more information see [security.enableEncryption](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.enableEncryption) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
 												},
 												"kmip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Optional: true,
-													Computed: true,
+													Type:        schema.TypeList,
+													Description: "Configuration of the third party key management appliance via the Key Management Interoperability Protocol (KMIP) (see [Encryption tutorial](https://www.mongodb.com/docs/rapid/tutorial/configure-encryption) ). Requires `enable_encryption` to be true. The structure is documented below. Available only in enterprise edition.",
+													MaxItems:    1,
+													Optional:    true,
+													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"server_name": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:        schema.TypeString,
+																Description: "Hostname or IP address of the KMIP server to connect to. For more information see [security.kmip.serverName](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverName) description in the official documentation.",
+																Optional:    true,
 															},
 															"port": {
-																Type:     schema.TypeInt,
-																Optional: true,
+																Type:        schema.TypeInt,
+																Description: "Port number to use to communicate with the KMIP server. Default: 5696 For more information see [security.kmip.port](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.port) description in the official documentation.",
+																Optional:    true,
 															},
 															"server_ca": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:        schema.TypeString,
+																Description: "Path to CA File. Used for validating secure client connection to KMIP server. For more information see [security.kmip.serverCAFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverCAFile) description in the official documentation.",
+																Optional:    true,
 															},
 															"client_certificate": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:        schema.TypeString,
+																Description: "String containing the client certificate used for authenticating MongoDB to the KMIP server. For more information see [security.kmip.clientCertificateFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.clientCertificateFile) description in the official documentation.",
+																Optional:    true,
 															},
 															"key_identifier": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:        schema.TypeString,
+																Description: "Unique KMIP identifier for an existing key within the KMIP server. For more information see [security.kmip.keyIdentifier](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.keyIdentifier) description in the official documentation.",
+																Optional:    true,
 															},
 														},
 													},
@@ -569,42 +658,49 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										},
 									},
 									"operation_profiling": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
 													Type:         schema.TypeString,
+													Description:  "Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation.",
 													Optional:     true,
 													StateFunc:    stateToUpper,
 													ValidateFunc: validation.StringInSlice([]string{"OFF", "SLOW_OP", "ALL"}, true),
 												},
 												"slow_op_threshold": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.",
+													Optional:    true,
 												},
 												"slow_op_sample_rate": {
-													Type:     schema.TypeFloat,
-													Optional: true,
+													Type:        schema.TypeFloat,
+													Description: "The fraction of slow operations that should be profiled or logged. Accepts values between 0 and 1, inclusive. For more information, see the [operationProfiling.slowOpSampleRate](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpSampleRate) description in the official documentation.",
+													Optional:    true,
 												},
 											},
 										},
 									},
 									"net": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_incoming_connections": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.",
+													Optional:    true,
 												},
 												"compressors": {
-													Type:     schema.TypeList,
-													MaxItems: 3,
-													Optional: true,
+													Type:        schema.TypeList,
+													Description: "Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation.",
+													MaxItems:    3,
+													Optional:    true,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
 														StateFunc:    stateToUpper,
@@ -615,43 +711,50 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										},
 									},
 									"storage": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of storage settings (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"wired_tiger": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Optional: true,
+													Type:        schema.TypeList,
+													Description: "The WiredTiger engine settings. (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option). These settings available only on `mongod` hosts.",
+													MaxItems:    1,
+													Optional:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"cache_size_gb": {
-																Type:     schema.TypeFloat,
-																Optional: true,
+																Type:        schema.TypeFloat,
+																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.",
+																Optional:    true,
 															},
 															"block_compressor": {
 																Type:         schema.TypeString,
+																Description:  "Specifies the default compression for collection data. You can override this on a per-collection basis when creating collections. Available compressors are: none, snappy, zlib, zstd. This setting available only on `mongod` hosts. For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor) description in the official documentation.",
 																Optional:     true,
 																StateFunc:    stateToUpper,
 																ValidateFunc: validation.StringInSlice([]string{"NONE", "ZLIB", "SNAPPY", "ZSTD"}, true),
 															},
 															"prefix_compression": {
-																Type:     schema.TypeBool,
-																Optional: true,
+																Type:        schema.TypeBool,
+																Description: "Enables or disables prefix compression for index data. Сan be either true or false. For more information, see the [storage.wiredTiger.indexConfig.prefixCompression](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.indexConfig.prefixCompression) description in the official documentation.",
+																Optional:    true,
 															},
 														},
 													},
 												},
 												"journal": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Optional: true,
+													Type:        schema.TypeList,
+													Description: "The durability journal to ensure data files remain valid and recoverable.",
+													MaxItems:    1,
+													Optional:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"commit_interval": {
-																Type:     schema.TypeInt,
-																Optional: true,
+																Type:        schema.TypeInt,
+																Description: "The maximum amount of time in milliseconds that the mongod process allows between journal operations. For more information, see the [storage.journal.commitIntervalMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.journal.commitIntervalMs) description in the official documentation.",
+																Optional:    true,
 															},
 														},
 													},
@@ -663,16 +766,18 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							},
 						},
 						"mongocfg": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Configuration of the mongocfg service.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operation_profiling": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
@@ -688,9 +793,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										},
 									},
 									"net": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: " A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_incoming_connections": {
@@ -701,9 +807,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										},
 									},
 									"storage": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of storage settings (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"wired_tiger": {
@@ -726,16 +833,18 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							},
 						},
 						"mongos": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Configuration of the mongos service.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"net": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:        schema.TypeList,
+										Description: "A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).",
+										MaxItems:    1,
+										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_incoming_connections": {
@@ -762,62 +871,74 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the cluster.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"sharded": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "MongoDB Cluster mode enabled/disabled.",
+				Computed:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).",
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).",
+				Computed:    true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
 			},
 			"restore": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Description: "The cluster will be created from the specified backup.",
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-mongodb/operations/cluster-backups).",
+							Required:    true,
+							ForceNew:    true,
 						},
 						"time": {
 							Type:         schema.TypeString,
+							Description:  "Timestamp of the moment to which the MongoDB cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: stringToTimeValidateFunc,
@@ -826,24 +947,28 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Maintenance window settings of the MongoDB cluster.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:         schema.TypeString,
+							Description:  "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
 							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
 							Required:     true,
 						},
 						"day": {
 							Type:         schema.TypeString,
+							Description:  "Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
 							ValidateFunc: validateParsableValue(parseMongoDBWeekDay),
 							Optional:     true,
 						},
 						"hour": {
 							Type:         schema.TypeInt,
+							Description:  "Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.",
 							ValidateFunc: validation.IntBetween(1, 24),
 							Optional:     true,
 						},
@@ -851,9 +976,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 		CustomizeDiff: customdiff.All(

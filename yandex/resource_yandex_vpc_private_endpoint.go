@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -14,6 +15,8 @@ const yandexVPCPrivateEndpointDefaultTimeout = 1 * time.Minute
 
 func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a VPC Private Endpoint within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/private-endpoint).\n\n* How-to Guides\n  * [Cloud Networking](https://yandex.cloud/docs/vpc/)\n",
+
 		// TODO: Should we use *Context methods?
 		Create: resourceYandexVPCPrivateEndpointCreate,
 		Read:   resourceYandexVPCPrivateEndpointRead,
@@ -34,50 +37,58 @@ func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the private endpoint.",
+				Computed:    true,
 			},
 
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the network which private endpoint belongs to.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"object_storage": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Private endpoint for Object Storage.",
+				MaxItems:    1,
 				// NOTE: For now we require object storage, but later there will be more choices / services.
 				Required: true,
 				Elem: &schema.Resource{
@@ -86,42 +97,48 @@ func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 			},
 
 			"endpoint_address": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Private endpoint address specification block.\n\n~> Only one of `address_id` or `subnet_id` + `address` arguments can be specified.\n",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Subnet of the IP address.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Specifies IP address within `subnet_id`.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"address_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "ID of the address.",
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
 			},
 
 			"dns_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Private endpoint DNS options block.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"private_dns_records_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "If enabled - additional service DNS will be created.",
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},

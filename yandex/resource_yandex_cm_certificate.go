@@ -3,15 +3,17 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
-	"google.golang.org/genproto/protobuf/field_mask"
-	"google.golang.org/protobuf/encoding/protojson"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,6 +26,8 @@ const (
 
 func resourceYandexCMCertificate() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).\n\n~> At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.\n\nIn this case, the service does not provide the parameters of the required type of challenges.\n\n~> Only one type `managed` or `self_managed` should be specified.\n",
+
 		CreateContext: resourceYandexCMCertificateCreate,
 		ReadContext:   resourceYandexCMCertificateRead,
 		UpdateContext: resourceYandexCMCertificateUpdate,
@@ -43,21 +47,25 @@ func resourceYandexCMCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"domains": {
 				Type:          schema.TypeList,
+				Description:   "Domains for this certificate. Should be specified for managed certificates.",
 				Optional:      true,
 				MinItems:      1,
 				Elem:          &schema.Schema{Type: schema.TypeString},
@@ -65,7 +73,8 @@ func resourceYandexCMCertificate() *schema.Resource {
 				ConflictsWith: []string{"self_managed"},
 			},
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -74,40 +83,47 @@ func resourceYandexCMCertificate() *schema.Resource {
 				Optional: true,
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
 			},
 			"self_managed": {
 				Type:          schema.TypeList,
+				Description:   "Self-managed specification.\n\n~> Only one type `private_key` or `private_key_lockbox_secret` should be specified.\n",
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"managed", "domains"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"certificate": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Certificate with chain.",
+							Required:    true,
 						},
 						"private_key": {
 							Type:          schema.TypeString,
+							Description:   "Private key of certificate.",
 							Optional:      true,
 							Sensitive:     true,
 							ConflictsWith: []string{"self_managed.private_key_lockbox_secret"},
 						},
 						"private_key_lockbox_secret": {
 							Type:          schema.TypeList,
+							Description:   "Lockbox secret specification for getting private key.",
 							MaxItems:      1,
 							Optional:      true,
 							ConflictsWith: []string{"self_managed.private_key"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Lockbox secret Id.",
+										Required:    true,
 									},
 									"key": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Key of the Lockbox secret, the value of which contains the private key of the certificate.",
+										Required:    true,
 									},
 								},
 							},
@@ -117,6 +133,7 @@ func resourceYandexCMCertificate() *schema.Resource {
 			},
 			"managed": {
 				Type:          schema.TypeList,
+				Description:   "Managed specification.\n\n~> Resource creation awaits getting challenges from issue provider.\n",
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"self_managed"},
@@ -124,12 +141,14 @@ func resourceYandexCMCertificate() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"challenge_type": {
 							Type:         schema.TypeString,
+							Description:  "Domain owner-check method. Possible values:\n* `DNS_CNAME` - you will need to create a CNAME dns record with the specified value. Recommended for fully automated certificate renewal.\n* `DNS_TXT` - you will need to create a TXT dns record with specified value.\n* `HTTP` - you will need to place specified value into specified url.",
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DNS_CNAME", "DNS_TXT", "HTTP"}, false),
 						},
 						"challenge_count": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Expected number of challenge count needed to validate certificate. Resource creation will fail if the specified value does not match the actual number of challenges received from issue provider. This argument is helpful for safe automatic resource creation for passing challenges for multi-domain certificates.",
+							Optional:    true,
 						},
 					},
 				},
@@ -138,89 +157,110 @@ func resourceYandexCMCertificate() *schema.Resource {
 			// Exported attributes
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate update timestamp.",
+				Computed:    true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate type: `MANAGED` or `IMPORTED`.",
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate status: `VALIDATING`, `INVALID`, `ISSUED`, `REVOKED`, `RENEWING` or `RENEWAL_FAILED`.",
+				Computed:    true,
 			},
 			"issuer": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate Issuer.",
+				Computed:    true,
 			},
 			"subject": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate Subject.",
+				Computed:    true,
 			},
 			"serial": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate Serial Number.",
+				Computed:    true,
 			},
 			"issued_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate issue timestamp.",
+				Computed:    true,
 			},
 			"not_after": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate end valid period.",
+				Computed:    true,
 			},
 			"not_before": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Certificate start valid period.",
+				Computed:    true,
 			},
 			"challenges": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Array of challenges.",
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Validated domain.",
+							Computed:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Challenge type `DNS` or `HTTP`.",
+							Computed:    true,
 						},
 						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Time the challenge was created.",
+							Computed:    true,
 						},
 						"updated_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Last time the challenge was updated.",
+							Computed:    true,
 						},
 						"message": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Current status message.",
+							Computed:    true,
 						},
 						"dns_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "DNS record name (only for DNS challenge).",
+							Computed:    true,
 						},
 						"dns_type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "DNS record type: `TXT` or `CNAME` (only for DNS challenge).",
+							Computed:    true,
 						},
 						"dns_value": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "DNS record value (only for DNS challenge).",
+							Computed:    true,
 						},
 						"http_url": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "URL where the challenge content http_content should be placed (only for HTTP challenge).",
+							Computed:    true,
 						},
 						"http_content": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The content that should be made accessible with the given `http_url` (only for HTTP challenge).",
+							Computed:    true,
 						},
 					},
 				},

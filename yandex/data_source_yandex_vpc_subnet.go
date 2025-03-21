@@ -7,59 +7,72 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexVPCSubnet() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).\n\nThis data source is used to define [VPC Subnets](https://yandex.cloud/docs/vpc/concepts/network#subnet) that can be used by other resources.\n\n~> One of `subnet_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexVPCSubnetRead,
 		Schema: map[string]*schema.Schema{
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Subnet ID.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexVPCSubnet().Schema["network_id"].Description,
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
 			},
 			"route_table_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexVPCSubnet().Schema["route_table_id"].Description,
+				Computed:    true,
 			},
 			"v4_cidr_blocks": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexVPCSubnet().Schema["v4_cidr_blocks"].Description,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"v6_cidr_blocks": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexVPCSubnet().Schema["v6_cidr_blocks"].Description,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -87,8 +100,9 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

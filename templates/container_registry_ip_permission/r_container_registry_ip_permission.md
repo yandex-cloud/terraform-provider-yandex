@@ -7,22 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Creates a new Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access)
+{{ .Description | trimspace }}
 
 ## Example usage
 
 {{ tffile "examples/container_registry_ip_permission/r_container_registry_ip_permission_1.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `registry_id` - (Required) The ID of the registry that ip restrictions applied to.
-
-* `push` - List of configured CIDRs, from which push is allowed.
-
-* `pull` - List of configured CIDRs, from which pull is allowed.
-
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 

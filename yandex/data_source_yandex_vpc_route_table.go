@@ -7,40 +7,49 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexVPCRouteTable() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).\n\nThis data source is used to define [VPC Route Table](https://yandex.cloud/docs/vpc/concepts/) that can be used by other resources.\n\n~> One of `route_table_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexVPCRouteTableRead,
 		Schema: map[string]*schema.Schema{
 			"route_table_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Route table ID.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexVPCRouteTable().Schema["network_id"].Description,
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"static_route": {
 				Type:     schema.TypeSet,
@@ -65,8 +74,9 @@ func dataSourceYandexVPCRouteTable() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

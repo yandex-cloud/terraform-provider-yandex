@@ -13,10 +13,11 @@ import (
 
 func resourceYandexDnsRecordSet() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexDnsRecordSetCreate,
-		Read:   resourceYandexDnsRecordSetRead,
-		Update: resourceYandexDnsRecordSetUpdate,
-		Delete: resourceYandexDnsRecordSetDelete,
+		Description: "Manages a DNS RecordSet within Yandex Cloud.",
+		Create:      resourceYandexDnsRecordSetCreate,
+		Read:        resourceYandexDnsRecordSetRead,
+		Update:      resourceYandexDnsRecordSetUpdate,
+		Delete:      resourceYandexDnsRecordSetDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceDnsRecordSetImportState,
 		},
@@ -31,13 +32,15 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"zone_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The id of the zone in which this record set will reside.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  "The DNS name this record set will apply to.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(1, 254),
@@ -45,6 +48,7 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 
 			"type": {
 				Type:         schema.TypeString,
+				Description:  "The DNS record set type.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(1, 20),
@@ -52,15 +56,17 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 
 			"ttl": {
 				Type:         schema.TypeInt,
+				Description:  "The time-to-live of this record set (seconds).",
 				Required:     true,
 				ValidateFunc: validation.IntBetween(0, 2147483647),
 			},
 
 			"data": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 100,
+				Type:        schema.TypeSet,
+				Description: "The string data for the records in this record set.",
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    100,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 1024),

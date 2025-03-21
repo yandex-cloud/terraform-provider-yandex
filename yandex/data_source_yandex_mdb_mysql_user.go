@@ -6,15 +6,19 @@ import (
 
 func dataSourceYandexMDBMySQLUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).",
+
 		Read: dataSourceYandexMDBMySQLUserRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the MySQL cluster.",
+				Required:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the MySQL user.",
+				Required:    true,
 			},
 			"permission": {
 				Type:     schema.TypeSet,
@@ -38,7 +42,8 @@ func dataSourceYandexMDBMySQLUser() *schema.Resource {
 				},
 			},
 			"global_permissions": {
-				Type: schema.TypeSet,
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBMySQLUser().Schema["global_permissions"].Description,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -69,12 +74,14 @@ func dataSourceYandexMDBMySQLUser() *schema.Resource {
 				},
 			},
 			"authentication_plugin": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLUser().Schema["authentication_plugin"].Description,
+				Computed:    true,
 			},
 			"connection_manager": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Description: resourceYandexMDBMySQLUser().Schema["connection_manager"].Description,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

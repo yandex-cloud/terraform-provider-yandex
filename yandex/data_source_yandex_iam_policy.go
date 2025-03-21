@@ -23,17 +23,20 @@ import (
 // }
 
 var iamBinding = &schema.Schema{
-	Type:     schema.TypeSet,
-	Required: true,
+	Type:        schema.TypeSet,
+	Description: "Defines a binding to be included in the policy document. Multiple `binding` arguments are supported.",
+	Required:    true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"role": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The role/permission that will be granted to the members. See the [IAM Roles](https://yandex.cloud/docs/iam/concepts/access-control/roles) documentation for a complete list of roles.",
+				Required:    true,
 			},
 			"members": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:        schema.TypeSet,
+				Description: "An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:\n* **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.\n* **serviceAccount:{service_account_id}**: A unique service account ID.\n* **federatedUser:{federated_user_id}:**: A unique saml federation user account ID.\n* **group:{group_id}**: A unique group ID.\n* **system:group:federation:{federation_id}:users**: All users in federation.\n* **system:group:organization:{organization_id}:users**: All users in organization.\n* **system:allAuthenticatedUsers**: All authenticated users.\n* **system:allUsers**: All users, including unauthenticated ones.\n\n~> For more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).\n",
+				Required:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateIamMember,
@@ -46,11 +49,13 @@ var iamBinding = &schema.Schema{
 
 func dataSourceYandexIAMPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Generates an [IAM](https://yandex.cloud/docs/iam/) policy document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource.\n\nThis data source is used to define [IAM](https://yandex.cloud/docs/iam/) policies to apply to other resources. Currently, defining a policy through a data source and referencing that policy from another resource is the only way to apply an IAM policy to a resource.\n",
 		Schema: map[string]*schema.Schema{
 			"binding": iamBinding,
 			"policy_data": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The above bindings serialized in a format suitable for referencing from a resource that supports IAM.",
+				Computed:    true,
 			},
 		},
 		Read: dataSourceYandexIAMPolicyRead,

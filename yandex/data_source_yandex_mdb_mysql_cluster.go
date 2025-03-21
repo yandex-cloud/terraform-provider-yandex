@@ -9,43 +9,53 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexMDBMySQLClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the MySQL cluster.",
+				Computed:    true,
+				Optional:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"environment": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLCluster().Schema["environment"].Description,
+				Computed:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Computed:    true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLCluster().Schema["version"].Description,
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"backup_window_start": {
 				Type:     schema.TypeList,
@@ -210,27 +220,32 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLCluster().Schema["health"].Description,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLCluster().Schema["status"].Description,
+				Computed:    true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"mysql_config": {
 				Type:             schema.TypeMap,
@@ -288,9 +303,10 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"performance_diagnostics": {
 				Type:     schema.TypeList,
@@ -319,8 +335,9 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Computed: true,
 			},
 			"backup_retain_period_days": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBMySQLCluster().Schema["backup_retain_period_days"].Description,
+				Computed:    true,
 			},
 		},
 	}

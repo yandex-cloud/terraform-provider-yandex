@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+
 	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/auth"
 	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/table/index"
 
@@ -11,6 +12,8 @@ import (
 
 func resourceYandexYDBTableIndex() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manage a YDB Table Index.",
+
 		Schema:        index.ResourceSchema(),
 		SchemaVersion: 0,
 		CreateContext: resourceYandexYDBTableIndexCreate,

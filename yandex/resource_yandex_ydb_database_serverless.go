@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -15,6 +16,8 @@ const yandexYDBServerlessDefaultTimeout = 10 * time.Minute
 
 func resourceYandexYDBDatabaseServerless() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Database (serverless) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).",
+
 		Create: resourceYandexYDBDatabaseServerlessCreate,
 		Read:   resourceYandexYDBDatabaseServerlessRead,
 		Update: resourceYandexYDBDatabaseServerlessUpdate,
@@ -32,19 +35,22 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Required:     true,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"location_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Location ID for the Yandex Database serverless cluster.",
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"folder_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["folder_id"],
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
@@ -52,88 +58,103 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"document_api_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Document API endpoint of the Yandex Database serverless cluster.",
+				Computed:    true,
 			},
 
 			"ydb_full_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Full endpoint of the Yandex Database serverless cluster.",
+				Computed:    true,
 			},
 
 			"ydb_api_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "API endpoint of the Yandex Database serverless cluster. Useful for SDK configuration.",
+				Computed:    true,
 			},
 
 			"database_path": {
 				Type:        schema.TypeString,
+				Description: "Full database path of the Yandex Database serverless cluster. Useful for SDK configuration.",
 				Computed:    true,
-				Description: "",
 			},
 
 			"tls_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "Whether TLS is enabled for the Yandex Database serverless cluster. Useful for SDK configuration.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the Yandex Database serverless cluster.",
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Default:     false,
 			},
 			"sleep_after": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Description: "",
+				Optional:    true,
+				Default:     0,
 			},
 			"serverless_database": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: "",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"throttling_rcu_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
 						},
 						"storage_size_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
 						},
 						"enable_throttling_rcu_limit": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
 						},
 						"provisioned_rcu_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},

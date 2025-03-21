@@ -8,6 +8,7 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	validation "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	errdetails "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
@@ -33,10 +34,11 @@ const (
 
 func resourceYandexDatatransferTransfer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexDatatransferTransferCreateAndActivate,
-		Read:   resourceYandexDatatransferTransferRead,
-		Update: resourceYandexDatatransferTransferUpdate,
-		Delete: resourceYandexDatatransferTransferDeactivateAndDelete,
+		Description: "Manages a Data Transfer transfer. For more information, see [the official documentation](https://yandex.cloud/docs/data-transfer/).",
+		Create:      resourceYandexDatatransferTransferCreateAndActivate,
+		Read:        resourceYandexDatatransferTransferRead,
+		Update:      resourceYandexDatatransferTransferUpdate,
+		Delete:      resourceYandexDatatransferTransferDeactivateAndDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -46,11 +48,13 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"warning": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Error description if transfer has any errors.",
+				Computed:    true,
 			},
 			"on_create_activate_mode": {
 				Type:         schema.TypeString,
+				Description:  "Activation action on create a new incremental transfer. It is not part of the transfer parameter and is used only on create. One of `sync_activate`, `async_activate`, `dont_activate`. The default is `sync_activate`.",
 				Optional:     true,
 				Default:      asyncActivateMode,
 				ValidateFunc: stringInSliceWithHiddenDefault([]string{syncActivateMode, asyncActivateMode, dontActivateMode}, false),
@@ -59,18 +63,21 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
 			},
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -80,39 +87,46 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"runtime": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Runtime parameters for the transfer.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"yc_runtime": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "YC Runtime parameters for the transfer.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"job_count": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: "Number of workers in parallel replication.",
+										Optional:    true,
+										Computed:    true,
 									},
 									"upload_shard_params": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Parallel snapshot parameters.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"job_count": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
+													Type:        schema.TypeInt,
+													Description: "Number of workers.",
+													Optional:    true,
+													Computed:    true,
 												},
 												"process_count": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
+													Type:        schema.TypeInt,
+													Description: "Number of threads.",
+													Optional:    true,
+													Computed:    true,
 												},
 											},
 										},
@@ -130,45 +144,53 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 				Computed: true,
 			},
 			"source_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the source endpoint for the transfer.",
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
 			},
 			"target_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the target endpoint for the transfer.",
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
 			},
 			"transformation": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Transformation for the transfer.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"transformers": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "A list of transformers. You can specify exactly 1 transformer in each element of list.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"convert_to_string": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Convert column values to strings.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"columns": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "List of the columns to transfer to the target tables using lists of included and excluded columns.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_columns": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "List of columns that will be excluded to transfer.",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
 															},
 															"include_columns": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "List of columns that will be included to transfer.",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -179,19 +201,22 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 													Optional: true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "List of tables that will be excluded to transfer.",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
 															},
 															"include_tables": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "List of tables that will be included to transfer.",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -206,13 +231,15 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"filter_columns": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Set up a list of table columns to transfer.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"columns": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "List of the columns to transfer to the target tables using lists of included and excluded columns.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_columns": {
@@ -234,8 +261,9 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 													Optional: true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -261,17 +289,20 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"filter_rows": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "This filter only applies to transfers with queues (Apache Kafka®) as a data source. When running a transfer, only the strings meeting the specified criteria remain in a changefeed.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"filter": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "Filtering criterion. This can be comparison operators for numeric, string, and Boolean values, comparison to NULL, and checking whether a substring is part of a string. See details [here](https://yandex.cloud/docs/data-transfer/concepts/data-transformation#append-only-sources).",
+													Optional:    true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -297,30 +328,35 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"mask_field": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Mask field transformer allows you to hash data.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"columns": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "List of strings that specify the name of the column for data masking (a regular expression).",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
 													Optional: true,
 												},
 												"function": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Mask function.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"mask_function_hash": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "Hash mask function.",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"user_defined_salt": {
-																			Type:     schema.TypeString,
-																			Optional: true,
+																			Type:        schema.TypeString,
+																			Description: "This string will be used in the HMAC(sha256, salt) function applied to the column data.",
+																			Optional:    true,
 																		},
 																	},
 																},
@@ -331,8 +367,9 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 													Optional: true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -358,17 +395,20 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"rename_tables": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Set rules for renaming tables by specifying the current names of the tables in the source and new names for these tables in the target.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"rename_tables": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "List of renaming rules.",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"new_name": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "Specify the new names for this table in the target.",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"name": {
@@ -384,8 +424,9 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 																Optional: true,
 															},
 															"original_name": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "Specify the current names of the table in the source.",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"name": {
@@ -409,20 +450,23 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"replace_primary_key": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Override primary keys.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"keys": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "List of columns to be used as primary keys.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
 													Optional: true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -448,13 +492,15 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"sharder_transformer": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Set the number of shards for particular tables and a list of columns whose values will be used for calculating a hash to determine a shard.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"columns": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "List of the columns to transfer to the target tables using lists of included and excluded columns.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_columns": {
@@ -476,12 +522,14 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 													Optional: true,
 												},
 												"shards_count": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "Number of shards.",
+													Optional:    true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -507,24 +555,28 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 										Optional: true,
 									},
 									"table_splitter_transformer": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Splits the X table into multiple tables (X_1, X_2, ..., X_n) based on data.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"columns": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "List of strings that specify the columns in the tables to be partitioned.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
 													Optional: true,
 												},
 												"splitter": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "Specify the split string to be used for merging components in a new table name.",
+													Optional:    true,
 												},
 												"tables": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Table filter.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exclude_tables": {
@@ -559,6 +611,7 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 			},
 			"type": {
 				Type:         schema.TypeString,
+				Description:  "Type of the transfer. One of `SNAPSHOT_ONLY`, `INCREMENT_ONLY`, `SNAPSHOT_AND_INCREMENT`",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateParsableValue(parseDatatransferTransferTransferType),

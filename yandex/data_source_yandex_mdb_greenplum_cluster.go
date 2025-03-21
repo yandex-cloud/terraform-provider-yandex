@@ -8,76 +8,94 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexMDBGreenplumClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the Greenplum cluster.",
+				Computed:    true,
+				Optional:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"environment": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["environment"].Description,
+				Computed:    true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["network_id"],
+				Computed:    true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
 			},
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["subnet_id"].Description,
+				Computed:    true,
 			},
 			"assign_public_ip": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexMDBGreenplumCluster().Schema["assign_public_ip"].Description,
+				Computed:    true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["version"].Description,
+				Computed:    true,
 			},
 			"master_host_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBGreenplumCluster().Schema["master_host_count"].Description,
+				Computed:    true,
 			},
 			"segment_host_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBGreenplumCluster().Schema["segment_host_count"].Description,
+				Computed:    true,
 			},
 			"segment_in_host": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBGreenplumCluster().Schema["segment_in_host"].Description,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["service_account_id"].Description,
+				Computed:    true,
 			},
 			"logging": {
 				Type:     schema.TypeList,
@@ -199,27 +217,32 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 			},
 
 			"user_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["user_name"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"health": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["health"].Description,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBGreenplumCluster().Schema["status"].Description,
+				Computed:    true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
@@ -242,8 +265,9 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 				},
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 
 			"backup_window_start": {
@@ -331,18 +355,20 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 				},
 			},
 			"master_host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBGreenplumCluster().Schema["master_host_group_ids"].Description,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"segment_host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBGreenplumCluster().Schema["segment_host_group_ids"].Description,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"pxf_config": {
 				Type:     schema.TypeList,

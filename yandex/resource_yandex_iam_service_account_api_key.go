@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -14,30 +15,33 @@ import (
 
 func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexIAMServiceAccountAPIKeyCreate,
-		Read:   resourceYandexIAMServiceAccountAPIKeyRead,
-		Update: resourceYandexIAMServiceAccountAPIKeyUpdate,
-		Delete: resourceYandexIAMServiceAccountAPIKeyDelete,
+		Description: "Allows management of a [Yandex Cloud IAM service account API key](https://yandex.cloud/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex Cloud API. API keys are only used for [service accounts](https://yandex.cloud/docs/iam/concepts/users/service-accounts).\n\nAPI keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token).",
+		Create:      resourceYandexIAMServiceAccountAPIKeyCreate,
+		Read:        resourceYandexIAMServiceAccountAPIKeyRead,
+		Update:      resourceYandexIAMServiceAccountAPIKeyUpdate,
+		Delete:      resourceYandexIAMServiceAccountAPIKeyDelete,
 
 		Schema: ExtendWithOutputToLockbox(map[string]*schema.Schema{
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the service account to an API key for.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"scopes": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "The list of scopes of the key.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional:    true,
-				Description: "List of scopes.",
+				Optional: true,
 			},
 
 			"scope": {
@@ -47,35 +51,41 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 			},
 
 			"expires_at": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The key will be no longer valid after expiration timestamp.",
+				Optional:    true,
 			},
 
 			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The secret key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"key_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"encrypted_secret_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The encrypted secret key, base64 encoded. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		}, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs),
 	}

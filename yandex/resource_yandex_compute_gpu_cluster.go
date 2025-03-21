@@ -11,12 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexComputeGpuClusterDefaultTimeout = 5 * time.Minute
 
 func resourceYandexComputeGpuCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.\n\nUsers can create a cluster from several VMs and use GPUDirect RDMA to directly send data between GPUs on different VMs.\n\nFor more information about GPU cluster in Yandex Cloud, see:\n* [Documentation](https://yandex.cloud/docs/compute/concepts/gpu_cluster)\n",
+
 		CreateContext: resourceYandexComputeGpuClusterCreate,
 		ReadContext:   resourceYandexComputeGpuClusterRead,
 		UpdateContext: resourceYandexComputeGpuClusterUpdate,
@@ -36,49 +39,57 @@ func resourceYandexComputeGpuCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+				Default:     "",
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"interconnect_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "INFINIBAND",
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Type of interconnect between nodes to use in GPU cluster. Type `INFINIBAND` is set by default, and it is the only one available at the moment.",
+				Optional:    true,
+				Default:     "INFINIBAND",
+				ForceNew:    true,
 				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					return strings.EqualFold(old, new)
 				},
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the GPU cluster.",
+				Computed:    true,
 			},
 		},
 	}

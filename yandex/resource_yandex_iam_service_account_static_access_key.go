@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
@@ -12,56 +13,65 @@ import (
 
 func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexIAMServiceAccountStaticAccessKeyCreate,
-		Read:   resourceYandexIAMServiceAccountStaticAccessKeyRead,
-		Update: resourceYandexIAMServiceAccountStaticAccessKeyUpdate,
-		Delete: resourceYandexIAMServiceAccountStaticAccessKeyDelete,
+		Description: "Allows management of [Yandex Cloud IAM service account static access keys](https://yandex.cloud/docs/iam/operations/sa/create-access-key). Generated pair of keys is used to access [Yandex Object Storage](https://yandex.cloud/docs/storage) on behalf of service account.\n\nBefore using keys do not forget to [assign a proper role](https://yandex.cloud/docs/iam/operations/sa/assign-role-for-sa) to the service account.",
+		Create:      resourceYandexIAMServiceAccountStaticAccessKeyCreate,
+		Read:        resourceYandexIAMServiceAccountStaticAccessKeyRead,
+		Update:      resourceYandexIAMServiceAccountStaticAccessKeyUpdate,
+		Delete:      resourceYandexIAMServiceAccountStaticAccessKeyDelete,
 
 		Schema: ExtendWithOutputToLockbox(map[string]*schema.Schema{
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the service account which is used to get a static key.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			// There is no Update method for IAM SA Key resource,
 			// so "description" attr set as 'ForceNew:true'
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"access_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the static access key. This is only populated when `output_to_lockbox` is not provided.",
+				Computed:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "Private part of generated static access key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"key_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"encrypted_secret_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The encrypted secret, base64 encoded. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		}, resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs),
 	}

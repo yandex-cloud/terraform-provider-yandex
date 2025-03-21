@@ -17,6 +17,8 @@ const yandexContainerRegistryIPPermissionDefaultTimeout = 5 * time.Minute
 
 func resourceYandexContainerRegistryIPPermission() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a new Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access)",
+
 		CreateContext: resourceYandexContainerRegistryIPPermissionCreate,
 		ReadContext:   resourceYandexContainerRegistryIPPermissionRead,
 		UpdateContext: resourceYandexContainerRegistryIPPermissionUpdate,
@@ -34,15 +36,17 @@ func resourceYandexContainerRegistryIPPermission() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"registry_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the registry that ip restrictions applied to.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"push": {
-				Type:     schema.TypeSet,
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "List of configured CIDRs, from which `push` is allowed.",
+				Set:         schema.HashString,
+				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
@@ -53,9 +57,10 @@ func resourceYandexContainerRegistryIPPermission() *schema.Resource {
 			},
 
 			"pull": {
-				Type:     schema.TypeSet,
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "List of configured CIDRs, from which `pull` is allowed.",
+				Set:         schema.HashString,
+				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,

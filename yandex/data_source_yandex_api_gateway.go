@@ -7,48 +7,56 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexApiGateway() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexApiGatewayRead,
+		Description: "Get information about a Yandex Cloud API Gateway. For more information, see the official documentation [Yandex Cloud API Gateway](https://yandex.cloud/docs/api-gateway/).\n\n~> Either `api_gateway_id` or `name` must be specified.\n",
+		Read:        dataSourceYandexApiGatewayRead,
 
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"api_gateway_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud API Gateway id used to define api gateway.",
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"user_domains": {
-				Type:       schema.TypeSet,
-				Computed:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Set:        schema.HashString,
-				Deprecated: fieldDeprecatedForAnother("user_domains", "custom_domains"),
+				Type:        schema.TypeSet,
+				Description: resourceYandexApiGateway().Schema["user_domains"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Deprecated:  fieldDeprecatedForAnother("user_domains", "custom_domains"),
 			},
 
 			"custom_domains": {
@@ -74,23 +82,27 @@ func dataSourceYandexApiGateway() *schema.Resource {
 			},
 
 			"domain": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexApiGateway().Schema["domain"].Description,
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexApiGateway().Schema["status"].Description,
+				Computed:    true,
 			},
 
 			"log_group_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexApiGateway().Schema["log_group_id"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"connectivity": {
@@ -108,10 +120,11 @@ func dataSourceYandexApiGateway() *schema.Resource {
 			},
 
 			"variables": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: resourceYandexApiGateway().Schema["variables"].Description,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"canary": {
@@ -161,9 +174,10 @@ func dataSourceYandexApiGateway() *schema.Resource {
 			},
 
 			"execution_timeout": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexApiGateway().Schema["execution_timeout"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

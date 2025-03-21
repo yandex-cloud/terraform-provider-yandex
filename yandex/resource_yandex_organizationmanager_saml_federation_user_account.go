@@ -18,6 +18,8 @@ const yandexOrganizationManagerSamlFederationUserDefaultTimeout = 1 * time.Minut
 
 func resourceYandexOrganizationManagerSamlFederationUserAccount() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of a single SAML Federation user account within an existing Yandex Cloud Organization.. For more information, see [the official documentation](https://yandex.cloud/docs/organization/operations/federations/integration-common).\n\n~> If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.\n",
+
 		CreateContext: resourceYandexOrganizationManagerSamlFederationUserAccountCreate,
 		ReadContext:   resourceYandexOrganizationManagerSamlFederationUserAccountRead,
 		DeleteContext: resourceYandexOrganizationManagerSamlFederationUserAccountDelete,
@@ -38,12 +40,14 @@ func resourceYandexOrganizationManagerSamlFederationUserAccount() *schema.Resour
 		Schema: map[string]*schema.Schema{
 			"federation_id": {
 				Type:         schema.TypeString,
+				Description:  "ID of a SAML Federation.",
 				ForceNew:     true,
 				Required:     true,
 				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"name_id": {
 				Type:         schema.TypeString,
+				Description:  "Name ID of the SAML federated user.",
 				ForceNew:     true,
 				Required:     true,
 				ValidateFunc: validation.StringIsNotEmpty,

@@ -19,6 +19,8 @@ const (
 
 func resourceYandexMDBMySQLDatabase() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).",
+
 		Create: resourceYandexMDBMySQLDatabaseCreate,
 		Read:   resourceYandexMDBMySQLDatabaseRead,
 		Update: resourceYandexMDBMySQLDatabaseUpdate,
@@ -38,12 +40,14 @@ func resourceYandexMDBMySQLDatabase() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The MySQL cluster ID.",
+				Required:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the database.",
+				Required:    true,
 			},
 		},
 	}

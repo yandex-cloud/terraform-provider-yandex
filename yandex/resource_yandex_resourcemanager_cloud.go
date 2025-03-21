@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -17,6 +18,8 @@ const yandexResourceManagerCloudDeleteTimeout = 30 * time.Minute
 
 func resourceYandexResourceManagerCloud() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows creation and management of Cloud resources for an existing Yandex Cloud Organization. See [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy) for additional info. Note: deletion of clouds may take up to 30 minutes as it requires a lot of communication between cloud services.",
+
 		Create: resourceYandexResourceManagerCloudCreate,
 		Read:   resourceYandexResourceManagerCloudRead,
 		Update: resourceYandexResourceManagerCloudUpdate,
@@ -36,32 +39,37 @@ func resourceYandexResourceManagerCloud() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"organization_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud Organization that the cloud belongs to. If value is omitted, the default provider Organization ID is used.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

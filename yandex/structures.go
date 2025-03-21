@@ -1234,6 +1234,54 @@ func expandDhcpOptions(d *schema.ResourceData) (*vpc.DhcpOptions, error) {
 	return &dhcpOptions, nil
 }
 
+func securityRuleDescriptionToRuleSpec(dir string, v interface{}) (*vpc.SecurityGroupRuleSpec, error) {
+	res, ok := v.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
+	}
+
+	sr := new(vpc.SecurityGroupRuleSpec)
+
+	directionId := vpc.SecurityGroupRule_Direction_value[strings.ToUpper(dir)]
+	sr.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
+
+	if v, ok := res["description"].(string); ok {
+		sr.SetDescription(v)
+	}
+
+	if v, ok := res["security_group_id"].(string); ok && v != "" {
+		sr.SetSecurityGroupId(v)
+	}
+
+	if v, ok := res["predefined_target"].(string); ok && v != "" {
+		sr.SetPredefinedTarget(v)
+	}
+
+	if p, ok := res["protocol"].(string); ok {
+		sr.SetProtocolName(strings.ToUpper(p))
+	}
+
+	if v, ok := res["labels"]; ok {
+		labels, err := expandLabels(v)
+		if err != nil {
+			return sr, err
+		}
+		sr.SetLabels(labels)
+	}
+
+	if cidr, ok := securityRuleCidrsFromMap(res); ok {
+		sr.SetCidrBlocks(cidr)
+	}
+
+	ports, err := securityRulePortsFromMap(res)
+	if err != nil {
+		return sr, err
+	}
+	sr.SetPorts(ports)
+
+	return sr, nil
+}
+
 func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupRuleSpec, error) {
 
 	securityRules := make([]*vpc.SecurityGroupRuleSpec, 0)

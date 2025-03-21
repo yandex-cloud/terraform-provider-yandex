@@ -16,6 +16,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -27,6 +28,8 @@ const (
 
 func resourceYandexComputeInstance() *schema.Resource {
 	return &schema.Resource{
+		Description: "A VM instance resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).\n",
+
 		Create: resourceYandexComputeInstanceCreate,
 		Read:   resourceYandexComputeInstanceRead,
 		Update: resourceYandexComputeInstanceUpdate,
@@ -47,69 +50,79 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"resources": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Compute resources that are allocated for the instance.",
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"memory": {
 							Type:         schema.TypeFloat,
+							Description:  "Memory size in GB.",
 							Required:     true,
 							ForceNew:     false,
 							ValidateFunc: FloatAtLeast(0.0),
 						},
 
 						"cores": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: false,
+							Type:        schema.TypeInt,
+							Description: "CPU cores for the instance.",
+							Required:    true,
+							ForceNew:    false,
 						},
 
 						"gpus": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: false,
+							Type:        schema.TypeInt,
+							Description: "If provided, specifies the number of GPU devices for the instance.",
+							Optional:    true,
+							ForceNew:    false,
 						},
 
 						"core_fraction": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: false,
-							Default:  100,
+							Type:        schema.TypeInt,
+							Description: "If provided, specifies baseline performance for a core as a percent.",
+							Optional:    true,
+							ForceNew:    false,
+							Default:     100,
 						},
 					},
 				},
 			},
 
 			"boot_disk": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "The boot disk for the instance. Either `initialize_params` or `disk_id` must be specified.",
+				Required:    true,
+				ForceNew:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Description: "Defines whether the disk will be auto-deleted when the instance is deleted. The default value is `True`.",
+							Optional:    true,
+							Default:     true,
+							ForceNew:    true,
 						},
 
 						"device_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Name that can be used to access an attached disk.",
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 
 						"mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"disk_id": {
 							Type:          schema.TypeString,
+							Description:   "The ID of the existing disk (such as those managed by `yandex_compute_disk`) to attach as a boot disk.",
 							Optional:      true,
 							Computed:      true,
 							ForceNew:      true,
@@ -118,6 +131,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 						"initialize_params": {
 							Type:          schema.TypeList,
+							Description:   "Parameters for a new disk that will be created alongside the new instance. Either `initialize_params` or `disk_id` must be set. Either `image_id` or `snapshot_id` must be specified.",
 							Optional:      true,
 							Computed:      true,
 							ForceNew:      true,
@@ -126,21 +140,24 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "Name of the boot disk.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"description": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "Description of the boot disk.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"size": {
 										Type:         schema.TypeInt,
+										Description:  "Size of the disk in GB.",
 										Optional:     true,
 										Computed:     true,
 										ForceNew:     true,
@@ -148,21 +165,24 @@ func resourceYandexComputeInstance() *schema.Resource {
 									},
 
 									"block_size": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Description: "Block size of the disk, specified in bytes.",
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 									},
 
 									"type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Default:  "network-hdd",
+										Type:        schema.TypeString,
+										Description: "Disk type.",
+										Optional:    true,
+										ForceNew:    true,
+										Default:     "network-hdd",
 									},
 
 									"image_id": {
 										Type:          schema.TypeString,
+										Description:   "A disk image to initialize this disk from.",
 										Optional:      true,
 										Computed:      true,
 										ForceNew:      true,
@@ -171,6 +191,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 									"snapshot_id": {
 										Type:          schema.TypeString,
+										Description:   "A snapshot to initialize this disk from.",
 										Optional:      true,
 										Computed:      true,
 										ForceNew:      true,
@@ -178,9 +199,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 									},
 
 									"kms_key_id": {
-										Type:     schema.TypeString,
-										ForceNew: true,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "ID of KMS symmetric key used to encrypt disk.",
+										ForceNew:    true,
+										Optional:    true,
 									},
 								},
 							},
@@ -191,55 +213,64 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 			"network_acceleration_type": {
 				Type:         schema.TypeString,
+				Description:  "Type of network acceleration. Can be `standard` or `software_accelerated`. The default is `standard`.",
 				Optional:     true,
 				Default:      "standard",
 				ValidateFunc: validation.StringInSlice([]string{"standard", "software_accelerated"}, false),
 			},
 
 			"network_interface": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "Networks to attach to the instance. This can be specified multiple times.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the subnet to attach this interface to. The subnet must exist in the same zone where this instance will be created.",
+							Required:    true,
 						},
 
 						"ipv4": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "Allocate an IPv4 address for the interface. The default value is `true`.",
+							Optional:    true,
+							Default:     true,
 						},
 
 						"ip_address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The private IP address to assign to the instance. If empty, the address will be automatically assigned from the specified subnet.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"ipv6": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"ipv6_address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The private IPv6 address to assign to the instance.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"nat": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Provide a public address, for instance, to access the internet over NAT.",
+							Optional:    true,
+							Default:     false,
 						},
 
 						"index": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Index of network interface, will be calculated automatically for instance create or update operations if not specified. Required for attach/detach operations.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"mac_address": {
@@ -248,9 +279,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 						},
 
 						"nat_ip_address": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"nat_ip_version": {
@@ -259,83 +291,99 @@ func resourceYandexComputeInstance() *schema.Resource {
 						},
 
 						"security_group_ids": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							Optional: true,
+							Type:        schema.TypeSet,
+							Description: "Security Group (SG) IDs for network interface.",
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Optional:    true,
 						},
 
 						"dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "List of configurations for creating ipv4 DNS records.",
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "DNS record FQDN (must have a dot at the end).",
+										Required:    true,
 									},
 									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "DNS zone ID (if not set, private zone used).",
+										Optional:    true,
 									},
 									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "DNS record TTL in seconds.",
+										Optional:    true,
 									},
 									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "When set to `true`, also create a PTR DNS record.",
+										Optional:    true,
 									},
 								},
 							},
 						},
 
 						"ipv6_dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "List of configurations for creating ipv6 DNS records.",
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "DNS record FQDN (must have a dot at the end).",
+										Required:    true,
 									},
 									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "DNS zone ID (if not set, private zone used).",
+										Optional:    true,
 									},
 									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "DNS record TTL in seconds.",
+										Optional:    true,
 									},
 									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "When set to `true`, also create a PTR DNS record.",
+										Optional:    true,
 									},
 								},
 							},
 						},
 
 						"nat_dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "List of configurations for creating ipv4 NAT DNS records.",
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "DNS record FQDN (must have a dot at the end).",
+										Required:    true,
 									},
 									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "DNS zone ID (if not set, private zone used).",
+										Optional:    true,
 									},
 									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "DNS record TTL in seconds.",
+										Optional:    true,
 									},
 									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "When set to `true`, also create a PTR DNS record.",
+										Optional:    true,
 									},
 								},
 							},
@@ -345,38 +393,44 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"hostname": {
 				Type:             schema.TypeString,
+				Description:      "Host name for the instance. This field is used to generate the instance `fqdn` value. The host name must be unique within the network and region. If not specified, the host name will be equal to `id` of the instance and `fqdn` will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.",
 				Optional:         true,
 				Computed:         true,
 				ForceNew:         true,
@@ -384,22 +438,25 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: "Metadata key/value pairs to make available from within the instance.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"platform_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "standard-v1",
+				Type:        schema.TypeString,
+				Description: "The type of virtual machine to create.",
+				Optional:    true,
+				ForceNew:    false,
+				Default:     "standard-v1",
 			},
 
 			"allow_stopping_for_update": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "If `true`, allows Terraform to stop the instance in order to update its properties. If you try to update a property that requires stopping the instance without setting this field, the update will fail.",
+				Optional:    true,
 			},
 
 			"allow_recreate": {
@@ -408,30 +465,35 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"secondary_disk": {
-				Type:     schema.TypeSet,
-				Set:      hashInstanceSecondaryDisks,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A set of disks to attach to the instance. The structure is documented below.\n\n~> The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to `true` in order to update this structure.",
+				Set:         hashInstanceSecondaryDisks,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the disk that is attached to the instance.",
+							Required:    true,
 						},
 
 						"auto_delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Whether the disk is auto-deleted when the instance is deleted. The default value is `false`.",
+							Optional:    true,
+							Default:     false,
 						},
 
 						"device_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Name that can be used to access an attached disk under `/dev/disk/by-id/`.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"mode": {
 							Type:         schema.TypeString,
+							Description:  "Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.",
 							Optional:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
@@ -441,63 +503,72 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"scheduling_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Scheduling policy configuration.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Specifies if the instance is preemptible. Defaults to `false`.",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"placement_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "The placement policy configuration.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"placement_group_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Specifies the id of the Placement Group to assign to the instance.",
+							Optional:    true,
 						},
 						"placement_group_partition": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 						"host_affinity_rules": {
-							Type:       schema.TypeList,
-							Computed:   true,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:        schema.TypeList,
+							Description: "List of host affinity rules.\n\n~> Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:\n\nplacement_policy {\n    placement_group_id = \"\"\n    host_affinity_rules = []\n}",
+							Computed:    true,
+							Optional:    true,
+							ConfigMode:  schema.SchemaConfigModeAttr,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"key": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Affinity label or one of reserved values - `yc.hostId`, `yc.hostGroupId`.",
+										Required:    true,
 									},
 									"op": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Affinity action. The only value supported is `IN`.",
+										Required:    true,
 										ValidateFunc: validation.StringInSlice(
 											generateHostAffinityRuleOperators(), false),
 									},
 									"values": {
-										Type:     schema.TypeList,
-										Required: true,
-										MinItems: 1,
+										Type:        schema.TypeList,
+										Description: "List of values (host IDs or host group IDs).",
+										Required:    true,
+										MinItems:    1,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -510,43 +581,50 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"fqdn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The fully qualified DNS name of this instance.",
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of this instance.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"local_disk": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "List of local disks that are attached to the instance.\n\n~> Local disks are not available for all users by default.\n",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size_bytes": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Description: "Size of the disk, specified in bytes.",
+							Required:    true,
+							ForceNew:    true,
 						},
 						"device_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The name of the local disk device.",
+							Computed:    true,
 						},
 					},
 				},
 			},
 
 			"metadata_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Options allow user to configure access to instance's metadata.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"gce_http_endpoint": {
@@ -578,24 +656,28 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"filesystem": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      hashFilesystem,
+				Type:        schema.TypeSet,
+				Description: "List of filesystems that are attached to the instance.",
+				Optional:    true,
+				Set:         hashFilesystem,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"filesystem_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the filesystem that should be attached.",
+							Required:    true,
 						},
 
 						"device_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Name of the device representing the filesystem on the instance.",
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"mode": {
 							Type:         schema.TypeString,
+							Description:  "Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.",
 							Optional:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
@@ -605,21 +687,24 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"gpu_cluster_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the GPU cluster to attach this instance to.",
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"maintenance_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Behavior on maintenance events. Can be: `unspecified`, `migrate`, `restart`. The default is `unspecified`.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"maintenance_grace_period": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Time between notification via metadata service and maintenance. E.g., `60s`.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			// Computed is true while Required and Optional are both false, for a read only field.

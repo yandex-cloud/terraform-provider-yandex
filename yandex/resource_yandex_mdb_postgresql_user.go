@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -26,6 +27,8 @@ const (
 
 func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a PostgreSQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).",
+
 		Create: resourceYandexMDBPostgreSQLUserCreate,
 		Read:   resourceYandexMDBPostgreSQLUserRead,
 		Update: resourceYandexMDBPostgreSQLUserUpdate,
@@ -45,27 +48,32 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the PostgreSQL cluster.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the user.",
+				Required:    true,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The password of the user.",
+				Optional:    true,
+				Sensitive:   true,
 			},
 			"login": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "User's ability to login.",
+				Optional:    true,
+				Default:     true,
 			},
 			"grants": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "List of the user's grants.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringIsNotEmpty,
@@ -73,25 +81,29 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			},
 			// TODO change to permissions
 			"permission": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      pgUserPermissionHash,
+				Type:        schema.TypeSet,
+				Description: "Set of permissions granted to the user.",
+				Optional:    true,
+				Set:         pgUserPermissionHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"database_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The name of the database that the permission grants access to.",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"conn_limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "The maximum number of connections per user. (Default 50).",
+				Optional:    true,
+				Computed:    true,
 			},
 			"settings": {
 				Type:             schema.TypeMap,
+				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 0: `unspecified`\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 0: `unspecified`\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 0: `session`\n  - 1: `transaction`\n  - 2: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer\n\n",
 				Optional:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
 				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
@@ -101,21 +113,24 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			},
 			"deletion_protection": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["deletion_protection"],
 				Optional:     true,
 				Default:      "unspecified",
 				ValidateFunc: validation.StringInSlice([]string{"true", "false", "unspecified"}, false),
 			},
 			"connection_manager": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Description: "Connection Manager connection configuration. Filled in by the server automatically.",
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"generate_password": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+				Optional:    true,
+				Default:     false,
 			},
 		},
 	}

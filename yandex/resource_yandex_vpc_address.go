@@ -3,11 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -23,6 +25,8 @@ func handleAddressNotFoundError(err error, d *schema.ResourceData, id string) er
 
 func resourceYandexVPCAddress() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a address within the Yandex Cloud. You can only create a reserved (static) address via this resource. An ephemeral address could be obtained via implicit creation at a compute instance creation only. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).\n\n* How-to Guides\n  * [Cloud Networking](https://yandex.cloud/docs/vpc/)\n  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)\n",
+
 		Read:          resourceYandexVPCAddressRead,
 		Create:        resourceYandexVPCAddressCreate,
 		UpdateContext: resourceYandexVPCAddressUpdateContext,
@@ -41,97 +45,115 @@ func resourceYandexVPCAddress() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"reserved": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "`false` means that address is ephemeral.",
+				Computed:    true,
 			},
 			"external_ipv4_address": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Specification of IPv4 address.\n\n~> Either one `address` or `zone_id` arguments can be specified.\n\n~> Either one `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified.\n\n~> Change any argument in `external_ipv4_address` will cause an address recreate.\n",
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": {
-							Type:     schema.TypeString,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Allocated IP address.",
+							Computed:    true,
+							ForceNew:    true,
 						},
 						"zone_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: common.ResourceDescriptions["zone"],
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 						"ddos_protection_provider": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Enable DDOS protection. Possible values are: `qrator`",
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 						"outgoing_smtp_capability": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Wanted outgoing smtp capability.",
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 					},
 				},
 			},
 			"used": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "`true` if address is used.",
+				Computed:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"dns_record": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "DNS record specification of address.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dns_zone_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "DNS zone id to create record at.",
+							Required:    true,
 						},
 						"fqdn": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "FQDN for record to address.",
+							Required:    true,
 						},
 						"ttl": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "TTL of DNS record.",
+							Optional:    true,
 						},
 						"ptr": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "If PTR record is needed.",
+							Optional:    true,
 						},
 					},
 				},

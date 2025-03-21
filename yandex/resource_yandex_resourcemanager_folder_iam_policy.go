@@ -14,5 +14,6 @@ func resourceYandexResourceManagerFolderIAMPolicy() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamPolicyImport(folderIDParseFunc),
 			}),
+		WithDescription("Allows creation and management of the IAM policy for an existing Yandex Resource Manager folder."),
 	)
 }

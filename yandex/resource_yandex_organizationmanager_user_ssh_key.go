@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -17,6 +18,8 @@ const yandexOrganizationManagerUserSshKeyDefaultTimeout = 1 * time.Minute
 
 func resourceYandexOrganizationManagerUserSshKey() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of User SSH Keys within an existing Yandex Cloud Organization and Subject.",
+
 		CreateContext: resourceYandexOrganizationManagerUserSshKeyCreate,
 		ReadContext:   resourceYandexOrganizationManagerUserSshKeyRead,
 		UpdateContext: resourceYandexOrganizationManagerUserSshKeyUpdate,
@@ -36,46 +39,54 @@ func resourceYandexOrganizationManagerUserSshKey() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Resource ID.",
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"subject_id": {
 				Type:         schema.TypeString,
+				Description:  "Subject that the user ssh key belongs to.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 			"data": {
 				Type:         schema.TypeString,
+				Description:  "Data of the user ssh key.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 20000),
 			},
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "SSH Key Fingerprint.",
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"organization_id": {
 				Type:         schema.TypeString,
+				Description:  "Organization that the user ssh key belongs to.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"expires_at": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "User ssh key will be no longer valid after expiration timestamp.",
+				Optional:    true,
 			},
 		},
 	}

@@ -15,9 +15,10 @@ const yandexIAMCMUpdateAccessBindingsBatchSize = 1000
 
 var IamCMCertificateSchema = map[string]*schema.Schema{
 	"certificate_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Certificate](https://yandex.cloud/docs/certificate-manager/) ID to apply a binding to.",
 	},
 }
 

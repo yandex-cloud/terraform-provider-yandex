@@ -124,7 +124,7 @@ Read-Only:
 - `replica_priority` (Number) A replica with a low priority number is considered better for promotion.
 - `shard_name` (String) Shard Name of the host in the cluster.
 - `subnet_id` (String) ID of the subnet where the host is located.
-- `zone` (String) The [availability zone](https://cloud.yandex.com/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 
 
 <a id="nestedatt--maintenance_window"></a>

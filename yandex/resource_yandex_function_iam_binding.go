@@ -14,5 +14,6 @@ func resourceYandexFunctionIAMBinding() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamBindingImport(functionIDParseFunc),
 			}),
+		WithDescription("Allows management of a single IAM binding for a Yandex Cloud Function."),
 	)
 }

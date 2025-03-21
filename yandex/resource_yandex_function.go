@@ -21,6 +21,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 )
@@ -30,6 +31,8 @@ const versionCreateSourceContentMaxBytes = 3670016
 
 func resourceYandexFunction() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud Function](https://yandex.cloud/docs/functions)",
+
 		CreateContext: resourceYandexFunctionCreate,
 		ReadContext:   resourceYandexFunctionRead,
 		UpdateContext: resourceYandexFunctionUpdate,
@@ -56,93 +59,109 @@ func resourceYandexFunction() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"user_hash": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "User-defined string for current function version. User must change this string any times when function changed. Function will be updated when hash is changed.",
+				Required:    true,
 			},
 
 			"runtime": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Runtime for Yandex Cloud Function.",
+				Required:    true,
 			},
 
 			"entrypoint": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Entrypoint for Yandex Cloud Function.",
+				Required:    true,
 			},
 
 			"memory": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Description: "Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.",
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"execution_timeout": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Execution timeout in seconds for Yandex Cloud Function.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Optional:    true,
 			},
 
 			"environment": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: "A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"tags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Description: "Tags for Yandex Cloud Function. Tag `$latest` isn't returned.",
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"package": {
 				Type:          schema.TypeList,
+				Description:   "Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.",
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"content"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the bucket that stores the code for the version.",
+							Required:    true,
 						},
 						"object_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the object in the bucket that stores the code for the version.",
+							Required:    true,
 						},
 						"sha_256": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "SHA256 hash of the version deployment package.",
+							Optional:    true,
 						},
 					},
 				},
@@ -150,27 +169,31 @@ func resourceYandexFunction() *schema.Resource {
 
 			"content": {
 				Type:          schema.TypeList,
+				Description:   "Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.",
 				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"package"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"zip_filename": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Filename to zip archive for the version.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Version of Yandex Cloud Function.",
+				Computed:    true,
 			},
 
 			"image_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "Image size for Yandex Cloud Function.",
+				Computed:    true,
 			},
 
 			"created_at": {
@@ -179,52 +202,62 @@ func resourceYandexFunction() *schema.Resource {
 			},
 
 			"secrets": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Secrets for Yandex Cloud Function.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's ID.",
+							Required:    true,
 						},
 						"version_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's version ID.",
+							Required:    true,
 						},
 						"key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's entries key which value will be stored in environment variable.",
+							Required:    true,
 						},
 						"environment_variable": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Function's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"storage_mounts": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "(**DEPRECATED**, use `mounts -> object_storage` instead). Storage mounts for Yandex Cloud Function.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mount_point_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the mount point. The directory where the bucket is mounted will be accessible at the `/function/storage/<mount_point>` path.",
+							Required:    true,
 						},
 						"bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the mounting bucket.",
+							Required:    true,
 						},
 						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.",
+							Optional:    true,
 						},
 						"read_only": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Mount the bucket in read-only mode.",
+							Optional:    true,
 						},
 					},
 				},
@@ -232,52 +265,61 @@ func resourceYandexFunction() *schema.Resource {
 			},
 
 			"mounts": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Mounts for Yandex Cloud Function.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the mount point. The directory where the target is mounted will be accessible at the `/function/storage/<mounts.0.name>` path.",
+							Required:    true,
 						},
 						"mode": {
 							Type:         schema.TypeString,
+							Description:  "Mount’s accessibility mode. Valid values are `ro` and `rw`.",
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"rw", "ro"}, true),
 						},
 						"ephemeral_disk": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "One of the available mount types. Disk available during the function execution time.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size_gb": {
-										Type:     schema.TypeInt,
-										Required: true,
+										Type:        schema.TypeInt,
+										Description: "Size of the ephemeral disk in GB.",
+										Required:    true,
 									},
 									"block_size_kb": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: "Optional block size of the ephemeral disk in KB.",
+										Optional:    true,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"object_storage": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "One of the available mount types. Object storage as a mount.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bucket": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Name of the mounting bucket.",
+										Required:    true,
 									},
 									"prefix": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.",
+										Optional:    true,
 									},
 								},
 							},
@@ -287,63 +329,74 @@ func resourceYandexFunction() *schema.Resource {
 			},
 
 			"connectivity": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Function version connectivity. If specified the version will be attached to specified network.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Network the version will have access to. It's essential to specify network with subnets in all availability zones.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"async_invocation": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Config for asynchronous invocations of Yandex Cloud Function.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"retries_count": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maximum number of retries for async invocation.",
+							Optional:    true,
 						},
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Service account used for async invocation.",
+							Optional:    true,
 						},
 						"ymq_success_target": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Target for successful async invocation.",
+							MaxItems:    1,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"arn": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "YMQ ARN.",
+										Required:    true,
 									},
 									"service_account_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Service account used for writing result to queue.",
+										Required:    true,
 									},
 								},
 							},
 						},
 						"ymq_failure_target": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Target for unsuccessful async invocation.",
+							MaxItems:    1,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"arn": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "YMQ ARN.",
+										Required:    true,
 									},
 									"service_account_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Service account used for writing result to queue.",
+										Required:    true,
 									},
 								},
 							},
@@ -353,60 +406,70 @@ func resourceYandexFunction() *schema.Resource {
 			},
 
 			"log_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Options for logging from Yandex Cloud Function.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Is logging from function disabled.",
+							Optional:    true,
 						},
 						"log_group_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to specified log group.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to default log group for specified folder.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
 						},
 						"min_level": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Minimum log entry level.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"tmpfs_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "Tmpfs size for Yandex Cloud Function.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"concurrency": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "The maximum number of requests processed by a function instance at the same time.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"metadata_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Options set the access mode to function's metadata endpoints.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"gce_http_endpoint": {
 							Type:         schema.TypeInt,
+							Description:  "Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.",
 							ValidateFunc: validation.IntBetween(0, 2),
 							Optional:     true,
 							Computed:     true,
 						},
 						"aws_v1_http_endpoint": {
 							Type:         schema.TypeInt,
+							Description:  "Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.",
 							ValidateFunc: validation.IntBetween(0, 2),
 							Optional:     true,
 							Computed:     true,

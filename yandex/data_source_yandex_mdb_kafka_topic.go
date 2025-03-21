@@ -6,6 +6,9 @@ import (
 
 func dataSourceYandexMDBKafkaTopic() *schema.Resource {
 	dataSource := convertResourceToDataSource(resourceYandexMDBKafkaTopic())
+
+	dataSource.Description = "Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts)."
+
 	dataSource.Schema["cluster_id"].Computed = false
 	dataSource.Schema["cluster_id"].Required = true
 	dataSource.Schema["name"].Computed = false

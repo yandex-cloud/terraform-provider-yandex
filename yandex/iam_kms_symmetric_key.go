@@ -16,9 +16,10 @@ const yandexIAMKMSUpdateAccessBindingsBatchSize = 1000
 
 var IamKMSSymmetricKeySchema = map[string]*schema.Schema{
 	"symmetric_key_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Key Management Service](https://yandex.cloud/docs/kms/) Symmetric Key ID to apply a binding to.",
 	},
 }
 

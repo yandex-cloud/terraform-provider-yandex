@@ -12,12 +12,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexComputeFilesystemDefaultTimeout = 5 * time.Minute
 
 func resourceYandexComputeFilesystem() *schema.Resource {
 	return &schema.Resource{
+		Description: "File storage is a virtual file system that can be attached to multiple Compute Cloud VMs in the same availability zone.\n\nUsers can share files in storage and use them from different VMs.\n\nStorage is attached to a VM through the [Filesystem in Userspace](https://en.wikipedia.org/wiki/Filesystem_in_Userspace) (FUSE) interface as a [virtiofs](https://www.kernel.org/doc/html/latest/filesystems/virtiofs.html) device that is not linked to the host file system directly.\n\nFor more information about filesystems in Yandex Cloud, see:\n* [Documentation](https://yandex.cloud/docs/compute/concepts/filesystem)\n* How-to Guides\n  * [Attach filesystem to a VM](https://yandex.cloud/docs/compute/operations/filesystem/attach-to-vm)\n  * [Detach filesystem from VM](https://yandex.cloud/docs/compute/operations/filesystem/detach-from-vm)\n\n",
+
 		CreateContext: resourceYandexComputeFilesystemCreate,
 		ReadContext:   resourceYandexComputeFilesystemRead,
 		UpdateContext: resourceYandexComputeFilesystemUpdate,
@@ -37,59 +40,69 @@ func resourceYandexComputeFilesystem() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+				Default:     "",
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "network-hdd",
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Type of filesystem to create. Type `network-hdd` is set by default.",
+				Optional:    true,
+				Default:     "network-hdd",
+				ForceNew:    true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"size": {
 				Type:         schema.TypeInt,
+				Description:  "Size of the filesystem, specified in GB.",
 				Optional:     true,
 				Default:      150,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 			"block_size": {
 				Type:         schema.TypeInt,
+				Description:  "Block size of the filesystem, specified in bytes.",
 				Optional:     true,
 				ForceNew:     true,
 				Default:      4096,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the filesystem.",
+				Computed:    true,
 			},
 		},
 	}

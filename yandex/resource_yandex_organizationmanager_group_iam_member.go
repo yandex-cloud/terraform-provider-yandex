@@ -14,5 +14,6 @@ func resourceYandexOrganizationManagerGroupIAMMember() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamMemberImport(groupIDParseFunc),
 			}),
+		WithDescription("Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex Organization Manager Group."),
 	)
 }

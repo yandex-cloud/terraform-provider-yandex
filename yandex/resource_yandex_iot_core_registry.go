@@ -3,8 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"time"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -17,6 +19,8 @@ const yandexIoTDefaultTimeout = 5 * time.Minute
 
 func resourceYandexIoTCoreRegistry() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart).",
+
 		Create: resourceYandexIoTCoreRegistryCreate,
 		Read:   resourceYandexIoTCoreRegistryRead,
 		Update: resourceYandexIoTCoreRegistryUpdate,
@@ -32,77 +36,89 @@ func resourceYandexIoTCoreRegistry() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"certificates": {
-				Type:     schema.TypeSet,
-				MaxItems: 5,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Description: "A set of certificate's fingerprints for the IoT Core Registry.",
+				MaxItems:    5,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"passwords": {
-				Type:      schema.TypeSet,
-				MaxItems:  5,
-				Optional:  true,
-				Elem:      &schema.Schema{Type: schema.TypeString},
-				Set:       schema.HashString,
-				Sensitive: true,
+				Type:        schema.TypeSet,
+				Description: "A set of passwords's id for the IoT Core Registry.",
+				MaxItems:    5,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Sensitive:   true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"log_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Options for logging for IoT Core Registry.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Is logging for registry disabled.",
+							Optional:    true,
 						},
 						"log_group_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to specified log group.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
 							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to default log group for specified folder.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
 							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"min_level": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Minimum log entry level.",
+							Optional:    true,
 						},
 					},
 				},

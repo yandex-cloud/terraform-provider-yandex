@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
 
 const yandexIAMLockboxDefaultTimeout = 1 * time.Minute
@@ -14,9 +15,10 @@ const yandexIAMLockboxUpdateAccessBindingsBatchSize = 1000
 
 var IamLockboxSecretSchema = map[string]*schema.Schema{
 	"secret_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Lockbox Secret](https://yandex.cloud/docs/lockbox/) Secret ID to apply a binding to.",
 	},
 }
 

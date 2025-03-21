@@ -13,6 +13,8 @@ import (
 
 func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access).\n\n~> Either `registry_id` or `registry_name` must be specified.\n",
+
 		ReadContext: dataSourceYandexContainerRegistryIPPermissionRead,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -22,6 +24,7 @@ func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"registry_name": {
 				Type:          schema.TypeString,
+				Description:   "The Name of specific Container Registry.",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"registry_id"},
@@ -29,15 +32,17 @@ func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
 
 			"registry_id": {
 				Type:          schema.TypeString,
+				Description:   resourceYandexContainerRegistryIPPermission().Schema["registry_id"].Description,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"registry_name"},
 			},
 
 			"push": {
-				Type:     schema.TypeSet,
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexContainerRegistryIPPermission().Schema["push"].Description,
+				Set:         schema.HashString,
+				Computed:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -45,9 +50,10 @@ func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
 			},
 
 			"pull": {
-				Type:     schema.TypeSet,
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexContainerRegistryIPPermission().Schema["pull"].Description,
+				Set:         schema.HashString,
+				Computed:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

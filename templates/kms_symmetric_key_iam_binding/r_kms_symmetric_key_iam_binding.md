@@ -7,35 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows creation and management of a single binding within IAM policy for an existing Yandex KMS Symmetric Key.
-
-~> Roles controlled by `yandex_kms_symmetric_key_iam_binding` should not be assigned using `yandex_kms_symmetric_key_iam_member`.
-
-~> When you delete `yandex_kms_symmetric_key_iam_binding` resource, the roles can be deleted from other users within the folder as well. Be careful!
+{{ .Description | trimspace }}
 
 ## Example usage
 
 {{ tffile "examples/kms_symmetric_key_iam_binding/r_kms_symmetric_key_iam_binding_1.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `symmetric_key_id` - (Required) The [Yandex Key Management Service](https://yandex.cloud/docs/kms/) Symmetric Key ID to apply a binding to.
-
-* `role` - (Required) The role that should be applied. See [roles](https://yandex.cloud/docs/kms/security/).
-
-* `members` - (Required) Identities that will be granted the privilege in `role`. Each entry can have one of the following values:
-  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
-  * **federatedUser:{user_id}**: A unique user ID that represents a specific user account from an identity federation, like Active Directory.
-  * **serviceAccount:{service_account_id}**: A unique service account ID.
-  * **system:group:federation:{federation_id}:users**: All users in federation.
-  * **system:group:organization:{organization_id}:users**: All users in organization.
-  * **system:allAuthenticatedUsers**: All authenticated users.
-  * **system:allUsers**: All users, including unauthenticated ones.
-
-  Note: for more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
-
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 

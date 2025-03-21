@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -20,67 +21,78 @@ const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
 func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"network_id": {
-			Type:     schema.TypeString,
-			Required: true,
-			ForceNew: true,
+			Type:        schema.TypeString,
+			Description: "ID of the network this security group belongs to.",
+			Required:    true,
+			ForceNew:    true,
 		},
 
 		"folder_id": {
-			Type:     schema.TypeString,
-			Computed: true,
-			Optional: true,
-			ForceNew: true,
+			Type:        schema.TypeString,
+			Description: common.ResourceDescriptions["folder_id"],
+			Computed:    true,
+			Optional:    true,
+			ForceNew:    true,
 		},
 
 		"name": {
-			Type:     schema.TypeString,
-			Optional: true,
-			Default:  "",
+			Type:        schema.TypeString,
+			Description: common.ResourceDescriptions["name"],
+			Optional:    true,
+			Default:     "",
 		},
 
 		"description": {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:        schema.TypeString,
+			Description: common.ResourceDescriptions["description"],
+			Optional:    true,
 		},
 
 		"labels": {
-			Type:     schema.TypeMap,
-			Optional: true,
-			Computed: true,
-			Elem:     &schema.Schema{Type: schema.TypeString},
-			Set:      schema.HashString,
+			Type:        schema.TypeMap,
+			Description: common.ResourceDescriptions["labels"],
+			Optional:    true,
+			Computed:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
+			Set:         schema.HashString,
 		},
 
 		"ingress": {
-			Type:     schema.TypeSet,
-			Optional: true,
-			Computed: true,
-			Elem:     resourceYandexSecurityGroupRule(),
-			Set:      resourceYandexVPCSecurityGroupRuleHash,
+			Type:        schema.TypeSet,
+			Description: "A list of ingress rules.",
+			Optional:    true,
+			Computed:    true,
+			Elem:        resourceYandexSecurityGroupRule(),
+			Set:         resourceYandexVPCSecurityGroupRuleHash,
 		},
 
 		"egress": {
-			Type:     schema.TypeSet,
-			Optional: true,
-			Computed: true,
-			Elem:     resourceYandexSecurityGroupRule(),
-			Set:      resourceYandexVPCSecurityGroupRuleHash,
+			Type:        schema.TypeSet,
+			Description: "A list of egress rules.",
+			Optional:    true,
+			Computed:    true,
+			Elem:        resourceYandexSecurityGroupRule(),
+			Set:         resourceYandexVPCSecurityGroupRuleHash,
 		},
 
 		"status": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Description: "Status of this security group.",
+			Computed:    true,
 		},
 
 		"created_at": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Description: common.ResourceDescriptions["created_at"],
+			Computed:    true,
 		},
 	}
 }
 
 func resourceYandexVPCSecurityGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a Default Security Group within the Yandex Cloud. For more information, see the official documentation of [security group](https://yandex.cloud/docs/vpc/concepts/security-groups) or [default security group](https://yandex.cloud/docs/vpc/concepts/security-groups#default-security-group).\n\n~> This resource is not intended for managing security group in general case. To manage normal security group use [yandex_vpc_security_group](vpc_security_group.html)\n\nWhen [network](https://yandex.cloud/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it. Life time of default security group cannot be controlled, so in fact the resource `yandex_vpc_default_security_group` does not create or delete any security groups, instead it simply takes or releases control of the default security group.\n\n~> When Terraform takes over management of the default security group, it **deletes** all info in it (including security group rules) and replace it with specified configuration. When Terraform drops the management (i.e. when resource is deleted from statefile and management), the state of the security group **remains the same** as it was before the deletion.\n\n~> Duplicating a resource (specifying same `network_id` for two different default security groups) will cause errors in the apply stage of your's configuration.\n",
+
 		Create: resourceYandexVPCSecurityGroupCreate,
 		Read:   resourceYandexVPCSecurityGroupRead,
 		Update: resourceYandexVPCSecurityGroupUpdate,
@@ -102,64 +114,76 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 
 func resourceYandexSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
+		Description: "~> Either one `port` argument or both `from_port` and `to_port` arguments can be specified.\n\n~> If `port` or `from_port`/`to_port` aren't specified or set by -1, ANY port will be sent.\n\n~> Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.\n",
 		Schema: map[string]*schema.Schema{
 			"protocol": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.",
+				Required:    true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.EqualFold(old, new)
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Description of the rule.",
+				Optional:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: "Labels to assign to this rule.",
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"port": {
 				Type:         schema.TypeInt,
+				Description:  "Port number (if applied to a single port).",
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"from_port": {
 				Type:         schema.TypeInt,
+				Description:  "Minimum port number.",
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"to_port": {
 				Type:         schema.TypeInt,
+				Description:  "Maximum port number.",
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"v4_cidr_blocks": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Description: "The blocks of IPv4 addresses for this rule.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"v6_cidr_blocks": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Description: "The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"security_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Target security group ID for this rule.",
+				Optional:    true,
 			},
 			"predefined_target": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).",
+				Optional:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["id"],
+				Computed:    true,
 			},
 		},
 	}

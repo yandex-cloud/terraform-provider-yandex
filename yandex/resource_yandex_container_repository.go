@@ -14,6 +14,8 @@ const yandexContainerRepositoryDefaultTimeout = 5 * time.Minute
 
 func resourceYandexContainerRepository() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a new container repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).",
+
 		Create: resourceYandexContainerRepositoryCreate,
 		Read:   resourceYandexContainerRepositoryRead,
 		Delete: resourceYandexContainerRepositoryDelete,
@@ -28,9 +30,10 @@ func resourceYandexContainerRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "A name of the repository. The name of the repository should start with id of a container registry and match the name of the images that will be pushed in the repository.",
+				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}

@@ -26,29 +26,34 @@ const (
 
 func dataSourceYandexALBVirtualHost() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexALBVirtualHostRead,
+		Description: "Get information about a Yandex ALB Virtual Host. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).\n\nThis data source is used to define [Application Load Balancer Virtual Host](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.\n\n~> One of `virtual_host_id` or `name` with `http_router_id` should be specified.\n",
+		Read:        dataSourceYandexALBVirtualHostRead,
 
 		Schema: map[string]*schema.Schema{
 			"virtual_host_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific Virtual Host. Virtual Host ID is concatenation of HTTP Router ID and Virtual Host name with `/` symbol between them. For Example, `http_router_id/vhost_name`.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"http_router_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexALBVirtualHost().Schema["http_router_id"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexALBVirtualHost().Schema["name"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 			"authority": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexALBVirtualHost().Schema["authority"].Description,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"modify_request_headers":  dataSourceHeaderModification("modify_request_headers."),
 			"modify_response_headers": dataSourceHeaderModification("modify_response_headers."),

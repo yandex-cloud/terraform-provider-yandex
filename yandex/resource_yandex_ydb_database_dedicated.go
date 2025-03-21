@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -17,6 +18,8 @@ const yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
 
 func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Database (dedicated) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).",
+
 		Create: resourceYandexYDBDatabaseDedicatedCreate,
 		Read:   resourceYandexYDBDatabaseDedicatedRead,
 		Update: resourceYandexYDBDatabaseDedicatedUpdate,
@@ -34,45 +37,52 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Required:     true,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"network_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["network_id"],
 				Required:     true,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"subnet_ids": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["subnet_ids"],
+				Required:    true,
+				MinItems:    1,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"resource_preset_id": {
 				Type:         schema.TypeString,
+				Description:  "The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.",
 				Required:     true,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"scale_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "Scaling policy for the Yandex Database cluster.\n\n~> Currently, only `fixed_scale` is supported.\n",
+				MaxItems:    1,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_scale": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
-							MinItems: 1,
+							Type:        schema.TypeList,
+							Description: "Fixed scaling policy for the Yandex Database cluster.",
+							Required:    true,
+							MaxItems:    1,
+							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
 										Type:         schema.TypeInt,
+										Description:  "Number of instances for the Yandex Database cluster.",
 										Required:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -84,19 +94,22 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 			},
 
 			"storage_config": {
-				Type:     schema.TypeList,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "A list of storage configuration options for the Yandex Database cluster.",
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"storage_type_id": {
 							Type:         schema.TypeString,
+							Description:  "Storage type ID for the Yandex Database cluster. Available presets can be obtained via `yc ydb storage-type list` command.",
 							Required:     true,
 							ValidateFunc: validation.NoZeroValues,
 						},
 						"group_count": {
 							Type:         schema.TypeInt,
+							Description:  "Amount of storage groups of selected type for the Yandex Database cluster.",
 							Required:     true,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
@@ -105,21 +118,24 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 			},
 
 			"location": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Description: "Location for the Yandex Database cluster.",
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"region": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							ForceNew: true,
+							Type:        schema.TypeList,
+							Description: "Region for the Yandex Database cluster.",
+							Optional:    true,
+							MaxItems:    1,
+							ForceNew:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:         schema.TypeString,
+										Description:  "Region ID for the Yandex Database cluster.",
 										Required:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.NoZeroValues,
@@ -132,20 +148,23 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 			},
 
 			"location_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Location ID for the Yandex Database cluster.",
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"assign_public_ips": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "Whether public IP addresses should be assigned to the Yandex Database cluster.",
+				Optional:    true,
+				Default:     false,
 			},
 
 			"folder_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["folder_id"],
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
@@ -153,56 +172,66 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"ydb_full_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Full endpoint of the Yandex Database cluster.",
+				Computed:    true,
 			},
 
 			"ydb_api_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "API endpoint of the Yandex Database cluster. Useful for SDK configuration.",
+				Computed:    true,
 			},
 
 			"database_path": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Full database path of the Yandex Database cluster. Useful for SDK configuration.",
+				Computed:    true,
 			},
 
 			"tls_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "Whether TLS is enabled for the Yandex Database cluster. Useful for SDK configuration.",
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the Yandex Database cluster.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Default:     false,
 			},
 			"sleep_after": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Description: "",
+				Optional:    true,
+				Default:     0,
 			},
 		},
 	}

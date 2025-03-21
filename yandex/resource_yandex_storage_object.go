@@ -16,6 +16,7 @@ import (
 
 func resourceYandexStorageObject() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Allows management of [Yandex Cloud Storage Object](https://yandex.cloud/docs/storage/concepts/object).",
 		CreateContext: resourceYandexStorageObjectCreate,
 		ReadContext:   resourceYandexStorageObjectRead,
 		UpdateContext: resourceYandexStorageObjectUpdate,
@@ -25,65 +26,76 @@ func resourceYandexStorageObject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The name of the containing bucket.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
+				Optional:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
+				Optional:    true,
+				Sensitive:   true,
 			},
 
 			"acl": {
-				Type:     schema.TypeString,
-				Default:  "private",
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.\n\n~> To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.\n",
+				Default:     "private",
+				Optional:    true,
 			},
 
 			"key": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The name of the object once it is in the bucket.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"source": {
 				Type:          schema.TypeString,
+				Description:   "The path to a file that will be read and uploaded as raw bytes for the object content. Conflicts with `content` and `content_base64`.",
 				Optional:      true,
 				ConflictsWith: []string{"content", "content_base64"},
 			},
 
 			"source_hash": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Used to trigger object update when the source content changes. So the only meaningful value is `filemd5(\"path/to/source\"). The value is only stored in state and not saved by Yandex Storage.",
+				Optional:    true,
 			},
 
 			"content": {
 				Type:          schema.TypeString,
+				Description:   "Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text. Conflicts with `source` and `content_base64`.",
 				Optional:      true,
 				ConflictsWith: []string{"source", "content_base64"},
 			},
 
 			"content_base64": {
 				Type:          schema.TypeString,
+				Description:   "Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file. Conflicts with `source` and `content`.",
 				Optional:      true,
 				ConflictsWith: []string{"source", "content"},
 			},
 
 			"content_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are valid for this input.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"object_lock_legal_hold_status": {
 				Type:         schema.TypeString,
+				Description:  "Specifies a [legal hold status](https://yandex.cloud/docs/storage/concepts/object-lock#types) of an object. Requires `object_lock_configuration` to be enabled on a bucket.",
 				Optional:     true,
 				Default:      nil,
 				ValidateFunc: validation.StringInSlice(s3.ObjectLockLegalHoldStatusValues, false),
@@ -91,6 +103,7 @@ func resourceYandexStorageObject() *schema.Resource {
 
 			"object_lock_mode": {
 				Type:         schema.TypeString,
+				Description:  "Specifies a type of object lock. One of `[\"GOVERNANCE\", \"COMPLIANCE\"]`. It must be set simultaneously with `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.",
 				Optional:     true,
 				Default:      nil,
 				RequiredWith: []string{"object_lock_retain_until_date"},
@@ -99,6 +112,7 @@ func resourceYandexStorageObject() *schema.Resource {
 
 			"object_lock_retain_until_date": {
 				Type:         schema.TypeString,
+				Description:  "Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket.",
 				Optional:     true,
 				Default:      nil,
 				RequiredWith: []string{"object_lock_mode"},

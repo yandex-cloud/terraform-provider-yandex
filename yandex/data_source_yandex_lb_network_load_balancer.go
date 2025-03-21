@@ -8,45 +8,55 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/).\n\nThis data source is used to define [Load Balancer Network Load Balancers](https://yandex.cloud/docs/load-balancer/concepts/) that can be used by other resources.\n\n~> One of `network_load_balancer_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexLBNetworkLoadBalancerRead,
 		Schema: map[string]*schema.Schema{
 			"network_load_balancer_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Network load balancer ID.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexLBNetworkLoadBalancer().Schema["type"].Description,
+				Computed:    true,
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexLBNetworkLoadBalancer().Schema["region_id"].Description,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"listener": {
 				Type:     schema.TypeSet,
@@ -183,16 +193,19 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 			"allow_zonal_shift": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexLBNetworkLoadBalancer().Schema["allow_zonal_shift"].Description,
+				Computed:    true,
 			},
 		},
 	}

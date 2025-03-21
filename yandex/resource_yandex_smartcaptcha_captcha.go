@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	smartcaptcha "github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -18,6 +19,8 @@ import (
 
 func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a Captcha in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartcaptcha/).",
+
 		CreateContext: resourceYandexSmartcaptchaCaptchaCreate,
 		ReadContext:   resourceYandexSmartcaptchaCaptchaRead,
 		UpdateContext: resourceYandexSmartcaptchaCaptchaUpdate,
@@ -38,7 +41,8 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"allowed_sites": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of allowed host names, see [Domain validation](https://yandex.cloud/docs/smartcaptcha/concepts/domain-validation).",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -47,39 +51,46 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 
 			"challenge_type": {
 				Type:         schema.TypeString,
+				Description:  "Additional task type of the captcha. Possible values:\n* `IMAGE_TEXT` - Text recognition: The user has to type a distorted text from the picture into a special field.\n* `SILHOUETTES` - Silhouettes: The user has to mark several icons from the picture in a particular order.\n* `KALEIDOSCOPE` - Kaleidoscope: The user has to build a picture from individual parts by shuffling them using a slider.\n",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaChallengeType),
 			},
 
 			"client_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Client key of the captcha, see [CAPTCHA keys](https://yandex.cloud/docs/smartcaptcha/concepts/keys).",
+				Computed:    true,
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"complexity": {
 				Type:         schema.TypeString,
+				Description:  "Complexity of the captcha. Possible values:\n* `EASY` - High chance to pass pre-check and easy advanced challenge.\n* `MEDIUM` - Medium chance to pass pre-check and normal advanced challenge.\n* `HARD` - Little chance to pass pre-check and hard advanced challenge.\n* `FORCE_HARD` - Impossible to pass pre-check and hard advanced challenge.\n",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaComplexity),
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
 			},
 
 			"folder_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["folder_id"],
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
@@ -88,40 +99,47 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^(|[a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), ""),
 			},
 
 			"override_variant": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of variants to use in security_rules.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"challenge_type": {
 							Type:         schema.TypeString,
+							Description:  "Additional task type of the captcha.",
 							Optional:     true,
 							ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaChallengeType),
 						},
 
 						"complexity": {
 							Type:         schema.TypeString,
+							Description:  "Complexity of the captcha.",
 							Optional:     true,
 							ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaComplexity),
 						},
 
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Optional description of the rule. 0-512 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 512),
 						},
 
 						"pre_check_type": {
 							Type:         schema.TypeString,
+							Description:  "Basic check type of the captcha.",
 							Optional:     true,
 							ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaPreCheckType),
 						},
 
 						"uuid": {
 							Type:         schema.TypeString,
+							Description:  "Unique identifier of the variant.",
 							Optional:     true,
 							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(0, 64)),
 						},
@@ -132,17 +150,20 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 
 			"pre_check_type": {
 				Type:         schema.TypeString,
+				Description:  "Basic check type of the captcha.Possible values:\n* `CHECKBOX` - User must click the 'I am not a robot' button.\n* `SLIDER` - User must move the slider from left to right.\n",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseSmartcaptchaCaptchaPreCheckType),
 			},
 
 			"security_rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of security rules.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartcaptcha/v1/captcha.proto).",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"headers": {
@@ -453,23 +474,27 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Description of the rule. 0-512 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 512),
 						},
 
 						"name": {
 							Type:         schema.TypeString,
+							Description:  "Name of the rule. The name is unique within the captcha. 1-50 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 						},
 
 						"override_variant_uuid": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Variant UUID to show in case of match the rule. Keep empty to use defaults.",
+							Optional:    true,
 						},
 
 						"priority": {
 							Type:         schema.TypeInt,
+							Description:  "Priority of the rule. Lower value means higher priority.",
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 999999),
 						},
@@ -479,18 +504,21 @@ func resourceYandexSmartcaptchaCaptcha() *schema.Resource {
 			},
 
 			"style_json": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "JSON with variables to define the captcha appearance. For more details see generated JSON in cloud console.",
+				Optional:    true,
 			},
 
 			"suspend": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "",
+				Computed:    true,
 			},
 
 			"turn_off_hostname_check": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Turn off host name check, see [Domain validation](https://yandex.cloud/docs/smartcaptcha/concepts/domain-validation).",
+				Optional:    true,
 			},
 		},
 	}

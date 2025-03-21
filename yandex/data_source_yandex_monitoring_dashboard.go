@@ -3,48 +3,52 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"log"
 )
 
 func dataSourceYandexMonitoringDashboard() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Monitoring dashboard.\n\n~> One of `dashboard_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexMonitoringDashboardRead,
 		Schema: map[string]*schema.Schema{
 			"dashboard_id": {
 				Type:        schema.TypeString,
+				Description: "Dashboard ID.",
 				Optional:    true,
-				Description: "Dashboard ID",
 			},
 			"description": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
 				Optional:    true,
-				Description: "Dashboard description",
 			},
 			"folder_id": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
 				Computed:    true,
 				Optional:    true,
-				Description: "Folder ID",
 			},
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:         schema.HashString,
-				Computed:    true,
-				Description: "Dashboard labels",
+				Set:      schema.HashString,
+				Computed: true,
 			},
 			"name": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
 				Optional:    true,
-				Description: "Dashboard name, used as local identifier in folder_id",
 			},
 			"parametrization": {
 				Type: schema.TypeList,
@@ -173,8 +177,8 @@ func dataSourceYandexMonitoringDashboard() *schema.Resource {
 			},
 			"title": {
 				Type:        schema.TypeString,
+				Description: "Dashboard title.",
 				Computed:    true,
-				Description: "Dashboard title",
 			},
 			"widgets": {
 				Type: schema.TypeList,

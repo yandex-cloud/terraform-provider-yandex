@@ -7,18 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Allows creation and management of the IAM policy for an existing Yandex Resource Manager folder.
+{{ .Description | trimspace }}
 
 ## Example usage
 
 {{ tffile "examples/resourcemanager_folder_iam_policy/r_resourcemanager_folder_iam_policy_1.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `folder_id` - (Required) ID of the folder that the policy is attached to.
-* `policy_data` - (Required) The `yandex_iam_policy` data source that represents the IAM policy that will be applied to the folder. This policy overrides any existing policy applied to the folder.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 

@@ -13,36 +13,44 @@ import (
 
 func dataSourceYandexMessageQueue() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see [Yandex Cloud Message Queue](https://yandex.cloud/docs/message-queue).",
+
 		Read: dataSourceYandexMessageQueueRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMessageQueue().Schema["name"].Description,
+				Required:    true,
 			},
 
 			// Credentials
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMessageQueue().Schema["access_key"].Description,
+				Optional:    true,
 			},
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMessageQueue().Schema["secret_key"].Description,
+				Optional:    true,
+				Sensitive:   true,
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMessageQueue().Schema["region_id"].Description,
+				Optional:    true,
 			},
 
 			// Computed
 			"arn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMessageQueue().Schema["arn"].Description,
+				Computed:    true,
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "URL of the queue.",
+				Computed:    true,
 			},
 		},
 	}

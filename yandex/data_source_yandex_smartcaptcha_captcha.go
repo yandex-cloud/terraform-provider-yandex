@@ -9,19 +9,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	smartcaptcha "github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 func dataSourceYandexSmartcaptchaCaptcha() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about Yandex SmartCaptcha. For more information, see [the official documentation](https://yandex.cloud/docs/smartcaptcha/).This data source is used to define Captcha that can be used by other resources.\n\n~> One of `captcha_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexSmartcaptchaCaptchaRead,
 
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"allowed_sites": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["allowed_sites"].Description,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -29,51 +33,60 @@ func dataSourceYandexSmartcaptchaCaptcha() *schema.Resource {
 			},
 
 			"captcha_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of the Captcha.",
+				Optional:    true,
 			},
 
 			"challenge_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["challenge_type"].Description,
+				Computed:    true,
 			},
 
 			"client_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["client_key"].Description,
+				Computed:    true,
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"complexity": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["complexity"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"override_variant": {
@@ -110,8 +123,9 @@ func dataSourceYandexSmartcaptchaCaptcha() *schema.Resource {
 			},
 
 			"pre_check_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["pre_check_type"].Description,
+				Computed:    true,
 			},
 
 			"security_rule": {
@@ -417,18 +431,21 @@ func dataSourceYandexSmartcaptchaCaptcha() *schema.Resource {
 			},
 
 			"style_json": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["style_json"].Description,
+				Computed:    true,
 			},
 
 			"suspend": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["suspend"].Description,
+				Computed:    true,
 			},
 
 			"turn_off_hostname_check": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexSmartcaptchaCaptcha().Schema["turn_off_hostname_check"].Description,
+				Computed:    true,
 			},
 		},
 	}

@@ -6,47 +6,56 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexBackupPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Backup Policy. For more information, see [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).\n\n~> One of `policy_id` or `name` should be specified.\n\n~> In case you use `name`, an error will occur if two policies with the same name exist. In this case, rename the policy or use the `policy_id`.\n",
 		ReadContext: dataSourceYandexBackupPolicyRead,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the policy.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
 			},
 
 			"compression": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["compression"].Description,
+				Computed:    true,
 			},
 
 			"format": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["format"].Description,
+				Computed:    true,
 			},
 
 			"multi_volume_snapshotting_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["multi_volume_snapshotting_enabled"].Description,
+				Computed:    true,
 			},
 
 			"preserve_file_security_settings": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["preserve_file_security_settings"].Description,
+				Computed:    true,
 			},
 
 			"reattempts": {
@@ -93,28 +102,33 @@ func dataSourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"silent_mode_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["silent_mode_enabled"].Description,
+				Computed:    true,
 			},
 
 			"splitting_bytes": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["splitting_bytes"].Description,
+				Computed:    true,
 			},
 
 			"vss_provider": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["vss_provider"].Description,
+				Computed:    true,
 			},
 
 			"archive_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["archive_name"].Description,
+				Computed:    true,
 			},
 
 			"performance_window_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["performance_window_enabled"].Description,
+				Computed:    true,
 			},
 
 			"retention": {
@@ -248,33 +262,39 @@ func dataSourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"cbt": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["cbt"].Description,
+				Computed:    true,
 			},
 
 			"fast_backup_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["fast_backup_enabled"].Description,
+				Computed:    true,
 			},
 
 			"quiesce_snapshotting_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["quiesce_snapshotting_enabled"].Description,
+				Computed:    true,
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexBackupPolicy().Schema["enabled"].Description,
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexBackupPolicy().Schema["updated_at"].Description,
+				Computed:    true,
 			},
 		},
 	}

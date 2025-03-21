@@ -16,9 +16,10 @@ const yandexIAMServerlessContainerUpdateAccessBindingsBatchSize = 1000
 
 var IamServerlessContainerSchema = map[string]*schema.Schema{
 	"container_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Serverless Container](https://yandex.cloud/docs/serverless-containers/) ID to apply a binding to.",
 	},
 }
 

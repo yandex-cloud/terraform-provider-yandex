@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -18,6 +19,8 @@ const (
 
 func resourceYandexKMSSymmetricKey() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a Yandex KMS symmetric key that can be used for cryptographic operation.\n\n~> When Terraform destroys this key, any data previously encrypted with these key will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the resource to prevent accidental destruction.\n\nFor more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).\n",
+
 		Create: resourceYandexKMSSymmetricKeyCreate,
 		Read:   resourceYandexKMSSymmetricKeyRead,
 		Update: resourceYandexKMSSymmetricKeyUpdate,
@@ -36,62 +39,72 @@ func resourceYandexKMSSymmetricKey() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"default_algorithm": {
 				Type:         schema.TypeString,
+				Description:  "Encryption algorithm to be used with a new key version, generated with the next rotation. The default value is `AES_128`.",
 				Default:      "AES_128",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKmsDefaultAlgorithm),
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Default:  false,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Default:     false,
+				Optional:    true,
 			},
 
 			"rotation_period": {
 				Type:             schema.TypeString,
+				Description:      "Interval between automatic rotations. To disable automatic rotation, omit this parameter.",
 				Optional:         true,
 				ValidateFunc:     validateParsableValue(parsePositiveDuration),
 				DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the key.",
+				Computed:    true,
 			},
 
 			"rotated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Last rotation timestamp of the key.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

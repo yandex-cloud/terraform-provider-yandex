@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexComputeImageDefaultTimeout = 5 * time.Minute
@@ -18,6 +19,8 @@ const StandardImagesFolderID = "standard-images"
 
 func resourceYandexComputeImage() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing tarball. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).\n\n~> One of `source_family`, `source_image`, `source_snapshot`, `source_disk` or `source_url` must be specified.\n",
+
 		Create: resourceYandexComputeImageCreate,
 		Read:   resourceYandexComputeImageRead,
 		Update: resourceYandexComputeImageUpdate,
@@ -36,58 +39,67 @@ func resourceYandexComputeImage() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"family": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The name of the image family to which this image belongs.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"min_disk_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "Minimum size in GB of the disk that will be created from this image.",
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"os_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"pooled": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Description: "Optimize the image to create a disk.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"source_family": {
 				Type:          schema.TypeString,
+				Description:   "The name of the family to use as the source of the new image. The ID of the latest image is taken from the `standard-images` folder. Changing the family forces a new resource to be created.",
 				Computed:      true,
 				Optional:      true,
 				ForceNew:      true,
@@ -96,6 +108,7 @@ func resourceYandexComputeImage() *schema.Resource {
 
 			"source_image": {
 				Type:          schema.TypeString,
+				Description:   "The ID of an existing image to use as the source of the image. Changing this ID forces a new resource to be created.",
 				Computed:      true,
 				Optional:      true,
 				ForceNew:      true,
@@ -104,6 +117,7 @@ func resourceYandexComputeImage() *schema.Resource {
 
 			"source_snapshot": {
 				Type:          schema.TypeString,
+				Description:   "The ID of a snapshot to use as the source of the image. Changing this ID forces a new resource to be created.",
 				Computed:      true,
 				Optional:      true,
 				ForceNew:      true,
@@ -112,6 +126,7 @@ func resourceYandexComputeImage() *schema.Resource {
 
 			"source_disk": {
 				Type:          schema.TypeString,
+				Description:   "The ID of a disk to use as the source of the image. Changing this ID forces a new resource to be created.",
 				Computed:      true,
 				Optional:      true,
 				ForceNew:      true,
@@ -120,6 +135,7 @@ func resourceYandexComputeImage() *schema.Resource {
 
 			"source_url": {
 				Type:          schema.TypeString,
+				Description:   "The URL to use as the source of the image. Changing this URL forces a new resource to be created.",
 				Computed:      true,
 				Optional:      true,
 				ForceNew:      true,
@@ -127,36 +143,42 @@ func resourceYandexComputeImage() *schema.Resource {
 			},
 
 			"product_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: "License IDs that indicate which licenses are attached to this image.",
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "The size of the image, specified in GB.",
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the image.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"hardware_generation": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Hardware generation and its features, which will be applied to the instance when this image is used for creating a boot disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"generation2_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
@@ -166,12 +188,14 @@ func resourceYandexComputeImage() *schema.Resource {
 						},
 
 						"legacy_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Defines the first known hardware generation and its features.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"pci_topology": {
 										Type:         schema.TypeString,
+										Description:  "A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.",
 										Optional:     true,
 										ForceNew:     true,
 										Computed:     true,

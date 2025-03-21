@@ -9,24 +9,29 @@ import (
 
 func dataSourceYandexClientConfig() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexClientConfigRead,
+		Description: "Get attributes used by provider to configure client connection.",
+		Read:        dataSourceYandexClientConfigRead,
 		Schema: map[string]*schema.Schema{
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the cloud that the provider is connecting to.",
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the folder in which we operate.",
+				Computed:    true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The default availability zone.",
+				Computed:    true,
 			},
 			"iam_token": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "A short-lived token that can be used for authentication in a Kubernetes cluster.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 		},
 	}

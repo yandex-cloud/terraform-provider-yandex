@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -24,6 +25,8 @@ var resourceYandexLockboxSecretVersionMutex sync.Mutex
 
 func resourceYandexLockboxSecretVersion() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Cloud Lockbox secret version resource. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).",
+
 		ReadContext:   resourceYandexLockboxSecretVersionRead,
 		CreateContext: resourceYandexLockboxSecretVersionCreate,
 		DeleteContext: resourceYandexLockboxSecretVersionDelete,
@@ -39,11 +42,13 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"entries": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification.\n\n~> One either `text_value` or `command` is required.\n",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:         schema.TypeString,
+							Description:  "The key of the entry.",
 							Required:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile(`^([-_./\\@0-9a-zA-Z]+)$`), ""), validation.StringLenBetween(0, 256)),
@@ -51,6 +56,7 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 
 						"text_value": {
 							Type:         schema.TypeString,
+							Description:  "The text value of the entry.",
 							Optional:     true,
 							ForceNew:     true,
 							Sensitive:    true,
@@ -58,28 +64,32 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 						},
 
 						"command": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeList,
+							Description: "The command that generates the text value of the entry.",
+							MaxItems:    1,
+							Optional:    true,
+							ForceNew:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"path": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Description: "The path to the script or command to execute.",
+										Required:    true,
+										ForceNew:    true,
 									},
 									"env": {
-										Type:     schema.TypeMap,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeMap,
+										Description: "Map of environment variables to set before calling the script/command.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										ForceNew:    true,
 									},
 									"args": {
-										Type:     schema.TypeList,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeList,
+										Description: "List of arguments to be passed to the script/command.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Optional:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -92,6 +102,7 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 
 			"secret_id": {
 				Type:         schema.TypeString,
+				Description:  "The Yandex Cloud Lockbox secret ID where to add the version.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
@@ -99,6 +110,7 @@ func resourceYandexLockboxSecretVersion() *schema.Resource {
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["description"],
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),

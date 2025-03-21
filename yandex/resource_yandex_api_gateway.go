@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
@@ -19,10 +20,11 @@ const yandexApiGatewayDefaultTimeout = 5 * time.Minute
 
 func resourceYandexApiGateway() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexApiGatewayCreate,
-		Read:   resourceYandexApiGatewayRead,
-		Update: resourceYandexApiGatewayUpdate,
-		Delete: resourceYandexApiGatewayDelete,
+		Description: "Allows management of [Yandex Cloud API Gateway](https://yandex.cloud/docs/api-gateway/).\n",
+		Create:      resourceYandexApiGatewayCreate,
+		Read:        resourceYandexApiGatewayRead,
+		Update:      resourceYandexApiGatewayUpdate,
+		Delete:      resourceYandexApiGatewayDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexApiGatewayDefaultTimeout),
@@ -34,45 +36,52 @@ func resourceYandexApiGateway() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"spec": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The OpenAPI specification for Yandex Cloud API Gateway.",
+				Required:    true,
 			},
 
 			"user_domains": {
-				Type:       schema.TypeSet,
-				Computed:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Set:        schema.HashString,
-				Deprecated: fieldDeprecatedForAnother("user_domains", "custom_domains"),
+				Type:        schema.TypeSet,
+				Description: "~> **DEPRECATED** Use `custom_domains` instead. Set of user domains attached to Yandex Cloud API Gateway.\n",
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Deprecated:  fieldDeprecatedForAnother("user_domains", "custom_domains"),
 			},
 
 			"custom_domains": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "Set of custom domains to be attached to Yandex Cloud API Gateway.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain_id": {
@@ -93,99 +102,115 @@ func resourceYandexApiGateway() *schema.Resource {
 			},
 
 			"domain": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Default domain for the Yandex Cloud API Gateway. Generated at creation time.",
+				Computed:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Status of the Yandex Cloud API Gateway.",
+				Computed:    true,
 			},
 
 			"log_group_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the log group for the Yandex Cloud API Gateway.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"connectivity": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Gateway connectivity. If specified the gateway will be attached to specified network.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"variables": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: "A set of values for variables in gateway specification.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"canary": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Canary release settings of gateway.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"weight": {
 							Type:         schema.TypeInt,
+							Description:  "Percentage of requests, which will be processed by canary release.",
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 99),
 						},
 						"variables": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "A list of values for variables in gateway specification of canary release.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 					},
 				},
 			},
 
 			"log_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Options for logging from Yandex Cloud API Gateway.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Is logging from Yandex Cloud API Gateway disabled.",
+							Optional:    true,
 						},
 						"log_group_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to specified log group.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to default log group for specified folder.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
 						},
 						"min_level": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Minimum log entry level.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"execution_timeout": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Execution timeout in seconds for the Yandex Cloud API Gateway.",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

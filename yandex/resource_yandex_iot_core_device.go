@@ -8,10 +8,13 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func resourceYandexIoTCoreDevice() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart).",
+
 		Create: resourceYandexIoTCoreDeviceCreate,
 		Read:   resourceYandexIoTCoreDeviceRead,
 		Update: resourceYandexIoTCoreDeviceUpdate,
@@ -27,48 +30,55 @@ func resourceYandexIoTCoreDevice() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"registry_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "IoT Core Registry ID for the IoT Core Device.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"certificates": {
-				Type:     schema.TypeSet,
-				MaxItems: 5,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Description: "A set of certificate's fingerprints for the IoT Core Device.",
+				MaxItems:    5,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"passwords": {
-				Type:      schema.TypeSet,
-				MaxItems:  5,
-				Optional:  true,
-				Elem:      &schema.Schema{Type: schema.TypeString},
-				Set:       schema.HashString,
-				Sensitive: true,
+				Type:        schema.TypeSet,
+				Description: "A set of passwords's id for the IoT Core Device.",
+				MaxItems:    5,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Sensitive:   true,
 			},
 
 			"aliases": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: "A set of key/value aliases pairs to assign to the IoT Core Device.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

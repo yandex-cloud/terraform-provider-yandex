@@ -7,7 +7,7 @@ description: |-
 
 # yandex_kms_asymmetric_signature_key (Data Source)
 
-
+Get data from Yandex KMS asymmetric signature key.
 
 ## Example Usage
 
@@ -22,19 +22,19 @@ description: |-
 
 ### Required
 
-- `asymmetric_signature_key_id` (String)
+- `asymmetric_signature_key_id` (String) Asymmetric signature key ID.
 
 ### Optional
 
-- `deletion_protection` (Boolean)
-- `description` (String)
-- `folder_id` (String)
-- `labels` (Map of String)
-- `name` (String)
-- `signature_algorithm` (String)
+- `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
+- `description` (String) The resource description.
+- `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
+- `name` (String) The resource name.
+- `signature_algorithm` (String) Signature algorithm to be used with a new key. The default value is `RSA_2048_SIGN_PSS_SHA_256`.
 
 ### Read-Only
 
-- `created_at` (String)
+- `created_at` (String) The creation timestamp of the resource.
 - `id` (String) The ID of this resource.
-- `status` (String)
+- `status` (String) The status of the key.

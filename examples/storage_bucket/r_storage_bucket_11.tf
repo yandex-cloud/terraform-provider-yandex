@@ -1,5 +1,5 @@
 //
-// Using Object Lock Configuration.
+// Using Policy Configuration
 //
 resource "yandex_storage_bucket" "b" {
   bucket = "my-policy-bucket"

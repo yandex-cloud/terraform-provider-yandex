@@ -8,7 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	kms "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -17,6 +18,8 @@ const (
 
 func resourceYandexKMSAsymmetricEncryptionKey() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a Yandex KMS asymmetric encryption key that can be used for cryptographic operation.\n\n~> When Terraform destroys this key, any data previously encrypted with this key will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the resource to prevent accidental destruction.\n\nFor more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).\n",
+
 		Create: resourceYandexKMSAsymmetricEncryptionKeyCreate,
 		Read:   resourceYandexKMSAsymmetricEncryptionKeyRead,
 		Update: resourceYandexKMSAsymmetricEncryptionKeyUpdate,
@@ -35,50 +38,58 @@ func resourceYandexKMSAsymmetricEncryptionKey() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"encryption_algorithm": {
 				Type:         schema.TypeString,
+				Description:  "Encryption algorithm to be used with a new key. The default value is `RSA_2048_ENC_OAEP_SHA_256`.",
 				Default:      "RSA_2048_ENC_OAEP_SHA_256",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKmsAsymmetricEncryptionAlgorithm),
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Default:  false,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Default:     false,
+				Optional:    true,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the key.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

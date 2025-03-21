@@ -2,12 +2,10 @@
 subcategory: "Managed Service for MySQL"
 page_title: "Yandex: {{.Name}}"
 description: |-
-  Create a MySQL database at MySQL Cluster.
+  Get details from MySQL database at MySQL Cluster.
 ---
 
 # {{.Name}} ({{.Type}})
-
-Create a MySQL database at MySQL Cluster.
 
 {{ .Description | trimspace }}
 

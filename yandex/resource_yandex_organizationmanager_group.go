@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -18,6 +19,8 @@ const yandexOrganizationManagerGroupDefaultTimeout = 1 * time.Minute
 
 func resourceYandexOrganizationManagerGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of a single Group within an existing Yandex Cloud Organization. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups).",
+
 		CreateContext: resourceYandexOrganizationManagerGroupCreate,
 		ReadContext:   resourceYandexOrganizationManagerGroupRead,
 		UpdateContext: resourceYandexOrganizationManagerGroupUpdate,
@@ -37,24 +40,28 @@ func resourceYandexOrganizationManagerGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"organization_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The organization to attach this Group to.",
+				ForceNew:    true,
+				Required:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

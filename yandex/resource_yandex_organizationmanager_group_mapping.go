@@ -40,15 +40,15 @@ func resourceYandexOrganizationManagerGroupMapping() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"enabled": {
 				Type:        schema.TypeBool,
+				Description: "Set \"true\" to enable organization manager group mapping.",
 				Optional:    true,
-				Description: "Set \"true\" to enable organization manager group mapping",
 			},
 
 			"federation_id": {
 				Type:         schema.TypeString,
+				Description:  "ID of the SAML Federation.",
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
-				Description:  "ID of the SAML Federation",
 			},
 		},
 	}

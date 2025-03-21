@@ -8,6 +8,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexVPCDefaultSecurityGroupDefaultTimeout = yandexVPCSecurityGroupDefaultTimeout
@@ -17,8 +18,9 @@ func yandexVPCDefaultSecurityGroupSchema() map[string]*schema.Schema {
 
 	// name field cannot be updated in default security group
 	s["name"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Description: common.ResourceDescriptions["name"] + " Cannot be updated.",
+		Computed:    true,
 	}
 
 	return s
@@ -26,10 +28,11 @@ func yandexVPCDefaultSecurityGroupSchema() map[string]*schema.Schema {
 
 func resourceYandexVPCDefaultSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexVPCDefaultSecurityGroupCreate,
-		Read:   resourceYandexVPCDefaultSecurityGroupRead,
-		Update: resourceYandexVPCDefaultSecurityGroupUpdate,
-		Delete: resourceYandexVPCDefaultSecurityGroupDelete,
+		Description: "Manages a Default Security Group within the Yandex Cloud. For more information, see the official documentation of [security group](https://yandex.cloud/docs/vpc/concepts/security-groups) or [default security group](https://yandex.cloud/docs/vpc/concepts/security-groups#default-security-group).\n\n~> This resource is not intended for managing security group in general case. To manage normal security group use [yandex_vpc_security_group](vpc_security_group.html)\n\nWhen [network](https://yandex.cloud/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it. Life time of default security group cannot be controlled, so in fact the resource `yandex_vpc_default_security_group` does not create or delete any security groups, instead it simply takes or releases control of the default security group.\n\n~> When Terraform takes over management of the default security group, it **deletes** all info in it (including security group rules) and replace it with specified configuration. When Terraform drops the management (i.e. when resource is deleted from statefile and management), the state of the security group **remains the same** as it was before the deletion.\n\n~> Duplicating a resource (specifying same `network_id` for two different default security groups) will cause errors in the apply stage of your's configuration.\n",
+		Create:      resourceYandexVPCDefaultSecurityGroupCreate,
+		Read:        resourceYandexVPCDefaultSecurityGroupRead,
+		Update:      resourceYandexVPCDefaultSecurityGroupUpdate,
+		Delete:      resourceYandexVPCDefaultSecurityGroupDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,

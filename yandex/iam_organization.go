@@ -16,9 +16,10 @@ const yandexOrganizationManagerOrganizationUpdateAccessBindingsBatchSize = 1000
 
 var IamOrganizationSchema = map[string]*schema.Schema{
 	"organization_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The ID of the organization to attach the policy to.",
 	},
 }
 

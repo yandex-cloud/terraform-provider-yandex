@@ -14,9 +14,10 @@ const yandexResourceManagerFolderUpdateAccessBindingsBatchSize = 1000
 
 var IamFolderSchema = map[string]*schema.Schema{
 	"folder_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The ID of the folder to attach a policy to.",
 	},
 }
 

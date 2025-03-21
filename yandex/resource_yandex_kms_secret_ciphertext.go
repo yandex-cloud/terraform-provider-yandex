@@ -18,9 +18,10 @@ const (
 
 func resourceYandexKMSSecretCiphertext() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexKMSSecretCiphertextCreate,
-		Read:   resourceYandexKMSSecretCiphertextRead,
-		Delete: resourceYandexKMSSecretCiphertextDelete,
+		Description: "Encrypts given plaintext with the specified Yandex KMS key and provides access to the **CipherText**.\n\n~> Using this resource will allow you to conceal secret data within your resource definitions, but it does not take care of protecting that data in the logging output, plan output, or state output. Please take care to secure your secret data outside of resource definitions.\nFor more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).",
+		Create:      resourceYandexKMSSecretCiphertextCreate,
+		Read:        resourceYandexKMSSecretCiphertextRead,
+		Delete:      resourceYandexKMSSecretCiphertextDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexKMSSecretCiphertextDefaultTimeout),
@@ -29,14 +30,17 @@ func resourceYandexKMSSecretCiphertext() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			// `id` - an identifier for the resource with format `{key_id}/{ciphertext}`
 			"key_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the symmetric KMS key to use for encryption.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"aad_context": {
 				Type:         schema.TypeString,
+				Description:  "Additional authenticated data (AAD context), optional. If specified, this data will be required for decryption with the `SymmetricDecryptRequest`.",
 				ValidateFunc: validation.StringLenBetween(0, 8192),
 				ForceNew:     true,
 				Optional:     true,
@@ -44,6 +48,7 @@ func resourceYandexKMSSecretCiphertext() *schema.Resource {
 
 			"plaintext": {
 				Type:         schema.TypeString,
+				Description:  "Plaintext to be encrypted.",
 				ValidateFunc: validation.StringLenBetween(0, 32768),
 				Required:     true,
 				ForceNew:     true,
@@ -51,8 +56,9 @@ func resourceYandexKMSSecretCiphertext() *schema.Resource {
 			},
 
 			"ciphertext": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Resulting CipherText, encoded with `standard` base64 alphabet as defined in RFC 4648 section 4.",
+				Computed:    true,
 			},
 		},
 	}

@@ -9,37 +9,45 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexComputeSnapshotSchedule() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Compute snapshot schedule. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot-schedule).\n\n~> One of `snapshot_schedule_id` or `name` should be specified.",
+
 		ReadContext: dataSourceYandexComputeSnapshotScheduleRead,
 		Schema: map[string]*schema.Schema{
 			"snapshot_schedule_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific snapshot schedule.",
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -48,15 +56,17 @@ func dataSourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"retention_period": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeSnapshotSchedule().Schema["retention_period"].Description,
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"schedule_policy": {
@@ -81,13 +91,15 @@ func dataSourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"snapshot_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: resourceYandexComputeSnapshotSchedule().Schema["snapshot_count"].Description,
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"snapshot_spec": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeSnapshotSchedule().Schema["snapshot_spec"].Description,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": {
@@ -112,14 +124,16 @@ func dataSourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeSnapshotSchedule().Schema["status"].Description,
+				Computed:    true,
 			},
 
 			"disk_ids": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexComputeSnapshotSchedule().Schema["disk_ids"].Description,
+				Computed:    true,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

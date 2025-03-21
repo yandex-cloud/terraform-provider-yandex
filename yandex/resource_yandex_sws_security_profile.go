@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -18,6 +19,8 @@ import (
 
 func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "With security profiles you can protect your infrastructure from DDoS attacks at the application level (L7).\n\nCreates a Security Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/profiles).\n",
+
 		CreateContext: resourceYandexSmartwebsecuritySecurityProfileCreate,
 		ReadContext:   resourceYandexSmartwebsecuritySecurityProfileRead,
 		UpdateContext: resourceYandexSmartwebsecuritySecurityProfileUpdate,
@@ -38,47 +41,55 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"advanced_rate_limiter_profile_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Advanced rate limiter profile ID to use with this security profile. Set empty to use default.",
+				Optional:    true,
 			},
 
 			"captcha_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Captcha ID to use with this security profile. Set empty to use default.",
+				Optional:    true,
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"default_action": {
 				Type:         schema.TypeString,
+				Description:  "Action to perform if none of rules matched. Possible values: `ALLOW` or `DENY`.",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityProfileXDefaultAction),
 			},
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["description"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -89,51 +100,60 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 			},
 
 			"security_rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of security rules.\n\n~> Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be specified.\n",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Optional description of the rule. 0-512 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 512),
 						},
 
 						"dry_run": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "This mode allows you to test your security profile or a single rule.",
+							Optional:    true,
 						},
 
 						"name": {
 							Type:         schema.TypeString,
+							Description:  "Name of the rule. The name is unique within the security profile. 1-50 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 						},
 
 						"priority": {
 							Type:         schema.TypeInt,
+							Description:  "Determines the priority for checking the incoming traffic.",
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 999999),
 						},
 
 						"rule_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Rule actions, see [Rule actions](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#rule-action).",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action": {
 										Type:         schema.TypeString,
+										Description:  "Action to perform if this rule matched. Possible values: `ALLOW` or `DENY`.",
 										Optional:     true,
 										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXRuleConditionXAction),
 									},
 
 									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto).",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
@@ -500,13 +520,15 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 						},
 
 						"smart_protection": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Smart Protection rule, see [Smart Protection rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#smart-protection-rules).",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto).",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
@@ -870,6 +892,7 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 
 									"mode": {
 										Type:         schema.TypeString,
+										Description:  "Mode of protection. Possible values: `FULL` (full protection means that the traffic will be checked based on ML models and behavioral analysis, with suspicious requests being sent to SmartCaptcha) or `API` (API protection means checking the traffic based on ML models and behavioral analysis without sending suspicious requests to SmartCaptcha. The suspicious requests will be blocked).",
 										Optional:     true,
 										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXSmartProtectionXMode),
 									},
@@ -879,13 +902,15 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 						},
 
 						"waf": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Web Application Firewall (WAF) rule, see [WAF rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#waf-rules).",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto).",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
@@ -1249,13 +1274,15 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 
 									"mode": {
 										Type:         schema.TypeString,
+										Description:  "Mode of protection. Possible values: `FULL` (full protection means that the traffic will be checked based on ML models and behavioral analysis, with suspicious requests being sent to SmartCaptcha) or `API` (API protection means checking the traffic based on ML models and behavioral analysis without sending suspicious requests to SmartCaptcha. The suspicious requests will be blocked).",
 										Optional:     true,
 										ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityRuleXWafXMode),
 									},
 
 									"waf_profile_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "ID of WAF profile to use in this rule.",
+										Required:    true,
 									},
 								},
 							},

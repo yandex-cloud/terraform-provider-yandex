@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -25,6 +26,8 @@ const (
 
 func resourceYandexMDBKafkaTopic() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a topic of a Kafka Topic within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).",
+
 		Create: resourceYandexMDBKafkaTopicCreate,
 		Read:   resourceYandexMDBKafkaTopicRead,
 		Update: resourceYandexMDBKafkaTopicUpdate,
@@ -44,28 +47,33 @@ func resourceYandexMDBKafkaTopic() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the Kafka cluster.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
+				ForceNew:    true,
 			},
 			"partitions": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Description: "The number of the topic's partitions.",
+				Required:    true,
 			},
 			"replication_factor": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Description: "Amount of data copies (replicas) for the topic in the cluster.",
+				Required:    true,
 			},
 			"topic_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     resourceYandexMDBKafkaClusterTopicConfig(),
+				Type:        schema.TypeList,
+				Description: "User-defined settings for the topic. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).",
+				Optional:    true,
+				MaxItems:    1,
+				Elem:        resourceYandexMDBKafkaClusterTopicConfig(),
 			},
 		},
 	}

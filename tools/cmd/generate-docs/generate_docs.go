@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"github.com/yandex-cloud/terraform-provider-yandex/tools/cmd/pkg/categories"
-	"gopkg.in/yaml.v3"
+	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -12,6 +12,9 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/tools/cmd/pkg/categories"
+	"gopkg.in/yaml.v3"
 )
 
 const description = "A string that can be" +
@@ -30,6 +33,170 @@ const (
 	defaultTemplatesDir = "templates"
 	defaultDocsDir      = "docs"
 )
+
+/*
+// 1. Impose Docs to the resource (46)
+var resourcesOnlyList = []string{
++	"backup_policy_bindings",
++	"cm_certificate_iam_binding",
++	"container_registry_iam_binding",
++	"container_repository_iam_binding",
++	"dns_zone_iam_binding",
++	"function_iam_binding",
++	"iam_service_account_iam_binding",
++	"kms_asymmetric_encryption_key_iam_binding",
++	"kms_asymmetric_signature_key_iam_binding",
++	"kms_symmetric_key_iam_binding",
++	"lockbox_secret_iam_binding",
++	"organizationmanager_organization_iam_binding",
++	"resourcemanager_cloud_iam_binding",
++	"resourcemanager_folder_iam_binding",
++	"serverless_container_iam_binding",
++	"ydb_database_iam_binding",
+
++	"cm_certificate_iam_member",
++	"iam_service_account_iam_member",
++	"kms_asymmetric_encryption_key_iam_member",
++	"kms_asymmetric_signature_key_iam_member",
++	"kms_symmetric_key_iam_member",
++	"lockbox_secret_iam_member",
++	"organizationmanager_group_iam_member",
++	"organizationmanager_organization_iam_member",
++	"resourcemanager_cloud_iam_member",
++	"resourcemanager_folder_iam_member",
+
++	"iam_service_account_iam_policy",
++	"resourcemanager_folder_iam_policy",
+
++	"datatransfer_endpoint",
+	"datatransfer_transfer",
+	"dns_recordset",
+	"iam_service_account_api_key",
+	"iam_service_account_key",
+	"iam_service_account_static_access_key",
+	"kms_secret_ciphertext",
+	"lockbox_secret_version_hashed",
+	"organizationmanager_group_mapping",
+	"organizationmanager_group_mapping_item",
+	"organizationmanager_group_membership",
+	"storage_bucket",
+	"storage_object",
+	"vpc_default_security_group",
+!	"ydb_table",
+!	"ydb_table_changefeed",
+!	"ydb_table_index",
+!	"ydb_topic",
+}
+*/
+
+/*
+2. Impose Docs to the data-sources (7)
+var dataSourcesOnlyList = []string{
+	"client_config",
+	"cm_certificate_content",
+	"iam_policy",
+	"iam_role",
+	"iam_service_agent",
+	"iam_user",
+!!!	"sws_waf_rule_set_descriptor",
+}
+*/
+
+// =============================================
+// Resources with no Descriptions in Source Code
+// 3. Impose Docs for the resource and fix DS (89)
+// =============================================
+var notMigratedResourcesList = []string{
+	"alb_backend_group",
+	"alb_http_router",
+	"alb_load_balancer",
+	"alb_target_group",
+	"alb_virtual_host",
+	"api_gateway",
+	"audit_trails_trail",
+	"backup_policy",
+	"cdn_origin_group",
+	"cdn_resource",
+	"cm_certificate",
+	"compute_disk",
+	"compute_disk_placement_group",
+	"compute_filesystem",
+	"compute_gpu_cluster",
+	"compute_image",
+	"compute_instance",
+	"compute_instance_group",
+	"compute_placement_group",
+	"compute_snapshot",
+	"compute_snapshot_schedule",
+	"container_registry",
+	"container_registry_ip_permission",
+	"container_repository",
+	"container_repository_lifecycle_policy",
+	"dataproc_cluster",
+	"dns_zone",
+	"function",
+	"function_scaling_policy",
+	"function_trigger",
+	"iam_service_account",
+	"iam_workload_identity_federated_credential",
+	"iam_workload_identity_oidc_federation",
+	"iot_core_broker",
+	"iot_core_device",
+	"iot_core_registry",
+	"kms_asymmetric_encryption_key",
+	"kms_asymmetric_signature_key",
+	"kms_symmetric_key",
+	"kubernetes_cluster",
+	"kubernetes_node_group",
+	"lb_network_load_balancer",
+	"lb_target_group",
+	"loadtesting_agent",
+	"lockbox_secret",
+	"lockbox_secret_version",
+	"logging_group",
+	"mdb_clickhouse_cluster",
+	"mdb_elasticsearch_cluster",
+	"mdb_greenplum_cluster",
+	"mdb_kafka_cluster",
+	"mdb_kafka_connector",
+	"mdb_kafka_topic",
+	"mdb_kafka_user",
+	"mdb_mongodb_cluster",
+	"mdb_mysql_cluster",
+	"mdb_mysql_database",
+	"mdb_mysql_user",
+	"mdb_postgresql_cluster",
+	"mdb_postgresql_database",
+	"mdb_postgresql_user",
+	"mdb_redis_cluster",
+	"mdb_sqlserver_cluster",
+	"message_queue",
+	"monitoring_dashboard",
+	"organizationmanager_group",
+	"organizationmanager_os_login_settings",
+	"organizationmanager_saml_federation",
+	"organizationmanager_saml_federation_user_account",
+	"organizationmanager_user_ssh_key",
+	"resourcemanager_cloud",
+	"resourcemanager_folder",
+	"serverless_container",
+	"serverless_eventrouter_bus",
+	"serverless_eventrouter_connector",
+	"serverless_eventrouter_rule",
+	"smartcaptcha_captcha",
+	"sws_advanced_rate_limiter_profile",
+	"sws_security_profile",
+	"sws_waf_profile",
+	"vpc_address",
+	"vpc_gateway",
+	"vpc_network",
+	"vpc_private_endpoint",
+	"vpc_route_table",
+	"vpc_security_group",
+	"vpc_subnet",
+	"ydb_database_dedicated",
+	"ydb_database_serverless",
+}
 
 // Header представляет структуру YAML-заголовка
 type Header struct {
@@ -54,15 +221,31 @@ func extractSubcategory(input []byte) (string, error) {
 }
 
 func postProcessingDocs(resourcePath string) error {
+
+	//providerPrefix := "yandex"
 	log.Printf("Post processing resource %s", resourcePath)
 
 	err := filepath.Walk(resourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("failed while travising directory %s: %w", path, err)
+			return fmt.Errorf("failed while traversing directory %s: %w", path, err)
 		}
 
 		// Process only Markdown files
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") {
+			/*
+				resName := strings.TrimSuffix(info.Name(), ".md")
+				srcName := fmt.Sprintf("%s/resource_%s_%s.go", providerPrefix, providerPrefix, resName)
+
+				// If SDKv2 resource was found
+				_, err := os.Stat(srcName)
+
+				// If resource SDKv2 and doc's already migrated to source code
+				if err == nil && !slices.Contains(notMigratedResourcesList, resName) {
+					fmt.Printf("! %s\n", resName)
+					//dsName := "data_source_name"
+					//FixDataSourceDescriptions(dsName, GetResourceDescriptions(resName))
+				}
+			*/
 			return replaceTimeoutBlock(path)
 		}
 
@@ -70,13 +253,13 @@ func postProcessingDocs(resourcePath string) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to post hande docs %w", err)
+		return fmt.Errorf("failed to post process docs %w", err)
 	}
 	return nil
 }
 
 func replaceTimeoutBlock(filePath string) error {
-	log.Printf("Replacing timeout block in doc %s\n", filePath)
+	//log.Printf("Replacing timeout block in doc %s\n", filePath)
 	input, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %v", filePath, err)
@@ -106,7 +289,7 @@ func replaceTimeoutBlock(filePath string) error {
 		return fmt.Errorf("failed to write file %s: %v", filePath, err)
 	}
 
-	log.Printf("Post processed file: %s\n", filePath)
+	//log.Printf("Post processed file: %s\n", filePath)
 	return nil
 }
 
@@ -114,7 +297,7 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categories categories.Ca
 	log.Println("Reordering templates directory for sdk provider")
 	return filepath.WalkDir(templatesDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("failed while travising directory %s: %w", path, err)
+			return fmt.Errorf("failed while traversing directory %s: %w", path, err)
 		}
 
 		if d.IsDir() {
@@ -135,7 +318,7 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categories categories.Ca
 			}
 			_, ok := categories.LookUpMap[cat]
 			if !ok {
-				log.Printf("Category is not registed %s", cat)
+				log.Printf("Category is not registered %s", cat)
 				return nil
 			}
 		}
@@ -161,6 +344,162 @@ func regroupTemplatesFiles(templatesDir, tmpDir string, categories categories.Ca
 	})
 }
 
+func FixDataSourceDescriptions(FileName string, Data map[string]map[string]map[string]string) {
+
+	blockPrefix := "Nested Schema for "
+	nestedPrefix := "(see [below for nested schema]"
+	currentBlock := ""
+
+	// Open DataSource file for Read
+	file, err := os.Open(FileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	targetFile := FileName + ".tmp"
+
+	fileTmp, err := os.OpenFile(targetFile, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fileTmp.Close()
+
+	reader := bufio.NewReader(file)
+	for {
+		line, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		strLine := string(line)
+		strNew := ""
+
+		// Check line for block prefix
+		if strings.Contains(strLine, blockPrefix) {
+			currentBlock = strings.Split(strLine, "`")[1]
+		}
+
+		// Check line for attribute
+		if strings.HasPrefix(strLine, "- `") {
+			if len(currentBlock) > 0 {
+				// Parse attribute name
+				attrName := strings.Split(strLine, "`")[1]
+				attrDescr := ""
+				// if attribute description has nested reference to another block
+				if strings.Contains(strLine, nestedPrefix) {
+					attrDescr = strings.Split(strLine, nestedPrefix)[1]
+				}
+
+				// Build new line
+				val, key := Data[currentBlock][attrName]
+				if key {
+					// regular attribute
+					if len(attrDescr) == 0 {
+						strNew = fmt.Sprintf("%s %s\n", strLine, val["descr"])
+						// nested block with reference
+					} else {
+						strNew = fmt.Sprintf("- `%s` (%s) %s %s%s\n",
+							attrName, val["type"], val["descr"], nestedPrefix, attrDescr)
+					}
+					fmt.Println(strNew)
+					strLine = strNew
+				}
+			}
+		}
+
+		// Write line to the the Temp file (.tmp)
+		_, err = fileTmp.Write([]byte(strLine + "\n"))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func GetResourceDescriptions(FileName string) map[string]map[string]map[string]string {
+
+	blockPrefix := "Nested Schema for "
+	currentBlock := ""
+
+	data := make(map[string]map[string]map[string]string)
+
+	// Open Resource file for Read
+	file, err := os.Open(FileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+	for {
+		line, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		aData := string(line)
+
+		// Check line for block prefix
+		if strings.Contains(aData, blockPrefix) {
+			currentBlock = strings.Split(aData, "`")[1]
+			continue
+			// Check line for attribute prefix
+		} else if strings.HasPrefix(aData, "- `") {
+			if len(currentBlock) > 0 {
+				aName, aType, aDescr, aLink := "", "", "", ""
+				// Parse the attribute Name and clean it
+				aVal := strings.Split(aData, "` (")
+				aName = strings.TrimPrefix(aVal[0], "- `")
+				// Parse the attribute Type
+				aType = strings.Split(aVal[1], ")")[0]
+				//fmt.Printf("== %s, [%s], '%s' ==\n\n", aName, aType, aVal[1])
+
+				// if link to nested block was found. Save it separated from description
+				aBuf := strings.Split(aVal[1], "(see [below for nested schema](#nestedblock--")
+				if len(aBuf) > 1 {
+					aDescr = strings.TrimSpace(strings.Split(aBuf[0], aType+")")[1])
+					aLink = strings.TrimSuffix(aBuf[1], "))")
+					// If it regular attribute
+				} else {
+					aPrefix := fmt.Sprintf("`%s` (%s)", aName, aType)
+					aDescr = strings.TrimSpace(strings.Split(aData, aPrefix)[1])
+				}
+				//fmt.Printf("[%s] [%s] [%s] [%s]\n\n", currentBlock, aName, aType, aDescr)
+
+				// Save data. Skip "timeouts" block and attributes with empty descriptions
+				if len(aDescr) > 1 && currentBlock != "timeouts" {
+
+					/*
+						data[currentBlock] = make(map[string]map[string]string)
+						data[currentBlock][aName] = map[string]string{
+							"type":  aType,
+							"descr": aDescr,
+							"link":  aLink,
+						}
+					*/
+					// If current Block already exists just add attribute to it
+					if entry, ok := data[currentBlock]; ok {
+						entry[aName] = map[string]string{
+							"type":  aType,
+							"descr": aDescr,
+							"link":  aLink,
+						}
+						// If current Block is new, init it and add attribute
+					} else {
+						data[currentBlock] = make(map[string]map[string]string)
+						data[currentBlock][aName] = map[string]string{
+							"type":  aType,
+							"descr": aDescr,
+							"link":  aLink,
+						}
+					}
+					//fmt.Printf("%s, %+v\n", currentBlock, data[currentBlock])
+				}
+			}
+		}
+
+	}
+	return data
+}
+
 func main() {
 	flag.Parse()
 	templatesDir := flag.Arg(0)
@@ -173,8 +512,17 @@ func main() {
 		log.Println("Docs directory is not set, using default")
 		docsDir = defaultDocsDir
 	}
-	tmpDir, err := os.MkdirTemp(".", "templates-")
 
+	/*
+		err := postProcessingDocs(filepath.Join(docsDir, "resources"))
+		if err != nil {
+			log.Fatalf("Error post processing docs: %s\n", err)
+			return
+		}
+		os.Exit(2)
+	*/
+
+	tmpDir, err := os.MkdirTemp(".", "templates-")
 	if err != nil {
 		log.Fatalln("Error creating temporary dir")
 		return
@@ -220,8 +568,7 @@ func main() {
 	}
 	err = postProcessingDocs(filepath.Join(docsDir, "resources"))
 	if err != nil {
-		log.Fatalf("Error post proccessing docs: %s\n", err)
+		log.Fatalf("Error post processing docs: %s\n", err)
 		return
 	}
-
 }

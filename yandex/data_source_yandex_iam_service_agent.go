@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
@@ -9,22 +10,26 @@ import (
 
 func dataSourceYandexIamServiceAgent() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Cloud Service Agent.",
 		ReadContext: dataSourceYandexIamServiceAgentRead,
 		Schema: map[string]*schema.Schema{
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the cloud.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"service_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the service-control service.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"microservice_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the service-control microservice.",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

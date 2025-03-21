@@ -6,59 +6,73 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://yandex.cloud/docs/organization/add-federation).\n\n~> One of `federation_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexOrganizationManagerSamlFederationRead,
 		Schema: map[string]*schema.Schema{
 			"federation_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of a SAML Federation.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"organization_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Organization that the federation belongs to. If value is omitted, the default provider organization is used.",
+				Optional:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"issuer": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["issuer"].Description,
+				Computed:    true,
 			},
 			"sso_binding": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["sso_binding"].Description,
+				Computed:    true,
 			},
 			"sso_url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["sso_url"].Description,
+				Computed:    true,
 			},
 			"cookie_max_age": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["cookie_max_age"].Description,
+				Computed:    true,
 			},
 			"auto_create_account_on_login": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["auto_create_account_on_login"].Description,
+				Computed:    true,
 			},
 			"case_insensitive_name_ids": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexOrganizationManagerSamlFederation().Schema["case_insensitive_name_ids"].Description,
+				Computed:    true,
 			},
 			"security_settings": {
 				Type:     schema.TypeList,
@@ -77,8 +91,9 @@ func dataSourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

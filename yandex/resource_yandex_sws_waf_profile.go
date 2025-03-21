@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	waf "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/waf"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -18,6 +19,8 @@ import (
 
 func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a WAF Profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#waf).",
+
 		CreateContext: resourceYandexSmartwebsecurityWafWafProfileCreate,
 		ReadContext:   resourceYandexSmartwebsecurityWafWafProfileRead,
 		UpdateContext: resourceYandexSmartwebsecurityWafWafProfileUpdate,
@@ -38,22 +41,26 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"analyze_request_body": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Parameters for request body analyzer.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Possible to turn analyzer on and turn if off.",
+							Optional:    true,
 						},
 
 						"size_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Maximum size of body to pass to analyzer. In kilobytes.",
+							Optional:    true,
 						},
 
 						"size_limit_action": {
 							Type:         schema.TypeString,
+							Description:  "Action to perform if maximum size of body exceeded. Possible values: `IGNORE` and `DENY`.",
 							Optional:     true,
 							ValidateFunc: validateParsableValue(parseWafWafProfileXAnalyzeRequestBodyXAction),
 						},
@@ -63,25 +70,29 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"core_rule_set": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"inbound_anomaly_score": {
 							Type:         schema.TypeInt,
+							Description:  "Anomaly score. Enter an integer within the range of 2 and 10000. The higher this value, the more likely it is that the request that satisfies the rule is an attack. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#anomaly) for more details.",
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(2, 10000),
 						},
 
 						"paranoia_level": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Paranoia level. Enter an integer within the range of 1 and 4. Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#paranoia) for more details. NOTE: this option has no effect on enabling or disabling rules, it is used only as recommendation for user to enable all rules with paranoia_level <= this value.",
+							Optional:    true,
 						},
 
 						"rule_set": {
@@ -108,18 +119,21 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["description"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
 
 			"exclusion_rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"condition": {
@@ -488,22 +502,26 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Description of the rule. 0-512 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 512),
 						},
 
 						"exclude_rules": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Exclude rules.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"exclude_all": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Description: "Set this option true to exclude all rules.",
+										Optional:    true,
 									},
 
 									"rule_ids": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "List of rules to exclude.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -515,13 +533,15 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 						},
 
 						"log_excluded": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Records the fact that an exception rule is triggered.",
+							Optional:    true,
 						},
 
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Name of exclusion rule.",
+							Optional:    true,
 						},
 					},
 				},
@@ -529,14 +549,16 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -547,27 +569,32 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 			},
 
 			"rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "Settings for each rule in rule set.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_blocking": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Determines is it rule blocking or not.",
+							Optional:    true,
 						},
 
 						"is_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Determines is it rule enabled or not.",
+							Optional:    true,
 						},
 
 						"rule_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Rule ID.",
+							Required:    true,
 						},
 					},
 				},

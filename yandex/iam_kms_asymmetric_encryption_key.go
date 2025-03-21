@@ -12,9 +12,10 @@ import (
 
 var IamKMSAsymmetricEncryptionKeySchema = map[string]*schema.Schema{
 	"asymmetric_encryption_key_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Key Management Service](https://yandex.cloud/docs/kms/) Asymmetric Encryption Key ID to apply a binding to.",
 	},
 }
 

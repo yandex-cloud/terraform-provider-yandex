@@ -14,5 +14,6 @@ func resourceYandexKMSAsymmetricEncryptionKeyIAMMember() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamMemberImport(kmsAsymmetricEncryptionKeyIDParseFunc),
 			}),
+		WithDescription("Allows creation and management of a single member for a single binding within the IAM policy for an existing Yandex KMS Asymmetric Encryption Key.\n\n~> Roles controlled by `yandex_kms_asymmetric_encryption_key_iam_binding` should not be assigned using `yandex_kms_asymmetric_encryption_key_iam_member`.\n"),
 	)
 }

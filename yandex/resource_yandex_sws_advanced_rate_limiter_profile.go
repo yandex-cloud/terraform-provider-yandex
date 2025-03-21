@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	advanced_rate_limiter "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -18,6 +19,8 @@ import (
 
 func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates an SWS Advanced Rate Limiter (ARL) profile in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#arl).",
+
 		CreateContext: resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileCreate,
 		ReadContext:   resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileRead,
 		UpdateContext: resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfileUpdate,
@@ -38,54 +41,64 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 
 		Schema: map[string]*schema.Schema{
 			"advanced_rate_limiter_rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of rules.\n\n~> Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.\n",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": {
 							Type:         schema.TypeString,
+							Description:  "Description of the rule. 0-512 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 512),
 						},
 
 						"dry_run": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "This allows you to evaluate backend capabilities and find the optimum limit values. Requests will not be blocked in this mode.",
+							Optional:    true,
 						},
 
 						"dynamic_quota": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action": {
 										Type:         schema.TypeString,
+										Description:  "Action in case of exceeding this quota. Possible values: `DENY`.",
 										Optional:     true,
 										ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXAction),
 									},
 
 									"characteristic": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "List of characteristics.\n\n~> Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.\n",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"case_insensitive": {
-													Type:     schema.TypeBool,
-													Optional: true,
+													Type:        schema.TypeBool,
+													Description: "Determines case-sensitive or case-insensitive keys matching.",
+													Optional:    true,
 												},
 
 												"key_characteristic": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Characteristic based on key match in the Query params, HTTP header, and HTTP cookie attributes. See [Rules](https://yandex.cloud/docs/smartwebsecurity/concepts/arl#requests-counting) for more details.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"type": {
 																Type:         schema.TypeString,
+																Description:  "Type of key characteristic. Possible values: `COOKIE_KEY`, `HEADER_KEY`, `QUERY_KEY`.",
 																Optional:     true,
 																ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXDynamicQuotaXCharacteristicXKeyCharacteristicXType),
 															},
 
 															"value": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:        schema.TypeString,
+																Description: "String value of the key.",
+																Optional:    true,
 															},
 														},
 													},
@@ -93,12 +106,14 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 												},
 
 												"simple_characteristic": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Characteristic automatically based on the Request path, HTTP method, IP address, Region, and Host attributes. See [Rules](https://yandex.cloud/docs/smartwebsecurity/concepts/arl#requests-counting) for more details.",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"type": {
 																Type:         schema.TypeString,
+																Description:  "Type of simple characteristic. Possible values: `REQUEST_PATH`, `HTTP_METHOD`, `IP`, `GEO`, `HOST`.",
 																Optional:     true,
 																ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXDynamicQuotaXCharacteristicXSimpleCharacteristicXType),
 															},
@@ -112,8 +127,9 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 									},
 
 									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto).",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
@@ -477,13 +493,15 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 
 									"limit": {
 										Type:         schema.TypeInt,
+										Description:  "Desired maximum number of requests per period.",
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(1, 2147483647),
 									},
 
 									"period": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Period of time in seconds.",
+										Optional:    true,
 									},
 								},
 							},
@@ -492,30 +510,35 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 
 						"name": {
 							Type:         schema.TypeString,
+							Description:  "Name of the rule. The name is unique within the ARL profile. 1-50 characters long.",
 							Optional:     true,
 							ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 						},
 
 						"priority": {
 							Type:         schema.TypeInt,
+							Description:  "Determines the priority in case there are several matched rules. Enter an integer within the range of 1 and 999999. The rule priority must be unique within the entire ARL profile. A lower numeric value means a higher priority.",
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 999999),
 						},
 
 						"static_quota": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Static quota. Counting each request individually.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action": {
 										Type:         schema.TypeString,
+										Description:  "Action in case of exceeding this quota. Possible values: `DENY`.",
 										Optional:     true,
 										ValidateFunc: validateParsableValue(parseAdvancedXrateXlimiterAdvancedRateLimiterRuleXAction),
 									},
 
 									"condition": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto).",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
@@ -879,13 +902,15 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 
 									"limit": {
 										Type:         schema.TypeInt,
+										Description:  "Desired maximum number of requests per period.",
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(1, 2147483647),
 									},
 
 									"period": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Period of time in seconds.",
+										Optional:    true,
 									},
 								},
 							},
@@ -897,31 +922,36 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["description"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -932,6 +962,7 @@ func resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), ""), validation.StringLenBetween(1, 50)),
 			},

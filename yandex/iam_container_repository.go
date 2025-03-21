@@ -16,9 +16,10 @@ const yandexIAMContainerRepositoryUpdateAccessBindingsBatchSize = 1000
 
 var IamContainerRepositorySchema = map[string]*schema.Schema{
 	"repository_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Yandex Container Repository](https://yandex.cloud/docs/container-registry/concepts/repository) ID to apply a binding to.",
 	},
 }
 

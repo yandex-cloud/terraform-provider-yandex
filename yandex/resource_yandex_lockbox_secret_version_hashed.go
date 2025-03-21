@@ -22,6 +22,7 @@ const (
 
 func resourceYandexLockboxSecretVersionHashed() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Yandex Cloud Lockbox secret version resource (with values hashed in state). For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).\n\n ~> The `<NUMBER>` can range from `1` to `10`. If you only need one entry, use `key_1`/`text_value_1`. If you need a second entry, use `key_2`/`text_value_2`, and so on.",
 		ReadContext:   resourceYandexLockboxSecretVersionHashedRead,
 		CreateContext: resourceYandexLockboxSecretVersionHashedCreate,
 		DeleteContext: resourceYandexLockboxSecretVersionHashedDelete,
@@ -38,6 +39,7 @@ func resourceYandexLockboxSecretVersionHashed() *schema.Resource {
 		Schema: addSafeEntries(maxSafeEntries, map[string]*schema.Schema{
 			"secret_id": {
 				Type:         schema.TypeString,
+				Description:  "The Yandex Cloud Lockbox secret ID where to add the version.",
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
@@ -45,6 +47,7 @@ func resourceYandexLockboxSecretVersionHashed() *schema.Resource {
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  "The Yandex Cloud Lockbox secret version description.",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
@@ -83,12 +86,14 @@ func addSafeEntries(n int, schemaMap map[string]*schema.Schema) map[string]*sche
 		// schema properties were taken from "entries" in the original lockbox_secret_version
 		schemaMap[keyName(i)] = &schema.Schema{
 			Type:         schema.TypeString,
+			Description:  "Each of the entry keys in the Yandex Cloud Lockbox secret version.",
 			Optional:     true, // here key must be optional, since only some keys will be used
 			ForceNew:     true,
 			ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile(`^([-_./\\@0-9a-zA-Z]+)$`), ""), validation.StringLenBetween(0, 256)),
 		}
 		schemaMap[textValueName(i)] = &schema.Schema{
 			Type:         schema.TypeString,
+			Description:  "Each of the entry values in the Yandex Cloud Lockbox secret version.",
 			Optional:     true,
 			ForceNew:     true,
 			Sensitive:    true,

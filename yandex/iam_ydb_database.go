@@ -16,9 +16,10 @@ const yandexIAMYDBUpdateAccessBindingsBatchSize = 1000
 
 var IamYDBDatabaseSchema = map[string]*schema.Schema{
 	"database_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The [Managed Service YDB instance](https://yandex.cloud/docs/ydb/) Database ID to apply a binding to.",
 	},
 }
 

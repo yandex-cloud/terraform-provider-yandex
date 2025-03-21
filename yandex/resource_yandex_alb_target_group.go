@@ -9,16 +9,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexALBTargetGroupDefaultTimeout = 5 * time.Minute
 
 func resourceYandexALBTargetGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexALBTargetGroupCreate,
-		Read:   resourceYandexALBTargetGroupRead,
-		Update: resourceYandexALBTargetGroupUpdate,
-		Delete: resourceYandexALBTargetGroupDelete,
+		Description: "Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/target-group).\n",
+		Create:      resourceYandexALBTargetGroupCreate,
+		Read:        resourceYandexALBTargetGroupRead,
+		Update:      resourceYandexALBTargetGroupUpdate,
+		Delete:      resourceYandexALBTargetGroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -33,41 +35,48 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"target": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "A Target resource.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "ID of the subnet that targets are connected to. All targets in the target group must be connected to the same subnet within a single availability zone.",
+							Optional:    true,
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "IP address of the target.",
+							Required:    true,
 						},
 						"private_ipv4_address": {
 							Type:     schema.TypeBool,
@@ -78,8 +87,9 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
 			},
 		},
 	}

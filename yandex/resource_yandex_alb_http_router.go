@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -16,10 +17,11 @@ const yandexALBHTTPRouterDefaultTimeout = 5 * time.Minute
 
 func resourceYandexALBHTTPRouter() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexALBHTTPRouterCreate,
-		Read:   resourceYandexALBHTTPRouterRead,
-		Update: resourceYandexALBHTTPRouterUpdate,
-		Delete: resourceYandexALBHTTPRouterDelete,
+		Description: "Creates an HTTP Router in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/http-router).",
+		Create:      resourceYandexALBHTTPRouterCreate,
+		Read:        resourceYandexALBHTTPRouterRead,
+		Update:      resourceYandexALBHTTPRouterUpdate,
+		Delete:      resourceYandexALBHTTPRouterDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -34,34 +36,39 @@ func resourceYandexALBHTTPRouter() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"route_options": routeOptions(),
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}
@@ -69,15 +76,17 @@ func resourceYandexALBHTTPRouter() *schema.Resource {
 
 func routeOptions() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		MaxItems: 1,
-		Optional: true,
+		Type:        schema.TypeList,
+		Description: "Route options for the virtual host.",
+		MaxItems:    1,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"rbac": {
-					Type:     schema.TypeList,
-					MaxItems: 1,
-					Optional: true,
+					Type:        schema.TypeList,
+					Description: "RBAC configuration.",
+					MaxItems:    1,
+					Optional:    true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"action": {
@@ -130,8 +139,9 @@ func routeOptions() *schema.Schema {
 					},
 				},
 				"security_profile_id": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Type:        schema.TypeString,
+					Description: "SWS profile ID.",
+					Optional:    true,
 				},
 			},
 		},

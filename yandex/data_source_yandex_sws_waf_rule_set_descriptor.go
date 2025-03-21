@@ -14,39 +14,46 @@ import (
 
 func dataSourceYandexSmartwebsecurityWafRuleSetDescriptor() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about WAF rule sets. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#rules-set).\n\nThis data source is used to get list of rules that can be used by `yandex_sws_waf_profile`.\n\n",
 		ReadContext: dataSourceYandexSmartwebsecurityWafRuleSetDescriptorRead,
 
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Name of the rule set.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"rule_set_descriptor_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of the rule set.",
+				Optional:    true,
 			},
 
 			"rules": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of rules.\n  * `anomaly_score` (Number) Numeric anomaly value, i.e., a potential attack indicator. The higher this value, the more likely it is that the request that satisfies the rule is an attack. See [documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#anomaly).\n  * `paranoia_level` (Number) Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives. See [documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#paranoia).\n  * `id` (String) The rule ID.\n",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"anomaly_score": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Numeric anomaly value, i.e., a potential attack indicator. The higher this value, the more likely it is that the request that satisfies the rule is an attack. See [documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#anomaly).",
+							Computed:    true,
 						},
 
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The rule ID.",
+							Computed:    true,
 						},
 
 						"paranoia_level": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives. See [documentation](https://yandex.cloud/docs/smartwebsecurity/concepts/waf#paranoia).",
+							Computed:    true,
 						},
 					},
 				},
@@ -54,8 +61,9 @@ func dataSourceYandexSmartwebsecurityWafRuleSetDescriptor() *schema.Resource {
 			},
 
 			"version": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Version of the rule set.",
+				Required:    true,
 			},
 		},
 	}

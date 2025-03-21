@@ -191,7 +191,7 @@ Required:
 
 Required:
 
-- `zone` (String) The [availability zone](https://cloud.yandex.com/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 
 Optional:
 

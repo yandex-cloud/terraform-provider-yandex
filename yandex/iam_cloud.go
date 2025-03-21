@@ -16,9 +16,10 @@ const yandexResourceManagerCloudUpdateAccessBindingsBatchSize = 1000
 
 var IamCloudSchema = map[string]*schema.Schema{
 	"cloud_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The ID of the cloud to attach the policy to.",
 	},
 }
 

@@ -2,14 +2,12 @@
 subcategory: "Managed Service for MySQL"
 page_title: "Yandex: yandex_mdb_mysql_database"
 description: |-
-  Create a MySQL database at MySQL Cluster.
+  Get details from MySQL database at MySQL Cluster.
 ---
 
 # yandex_mdb_mysql_database (Data Source)
 
-Create a MySQL database at MySQL Cluster.
-
-
+Get details from MySQL database at MySQL Cluster.
 
 ## Example Usage
 
@@ -24,8 +22,8 @@ Create a MySQL database at MySQL Cluster.
 
 ### Required
 
-- `cluster_id` (String)
-- `name` (String)
+- `cluster_id` (String) The MySQL cluster ID.
+- `name` (String) The name of the database.
 
 ### Read-Only
 

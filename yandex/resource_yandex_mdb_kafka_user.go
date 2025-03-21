@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -18,6 +19,8 @@ const (
 
 func resourceYandexMDBKafkaUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a user of a Kafka User within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).",
+
 		Create: resourceYandexMDBKafkaUserCreate,
 		Read:   resourceYandexMDBKafkaUserRead,
 		Update: resourceYandexMDBKafkaUserUpdate,
@@ -37,25 +40,29 @@ func resourceYandexMDBKafkaUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the Kafka cluster.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
+				ForceNew:    true,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The password of the user.",
+				Required:    true,
+				Sensitive:   true,
 			},
 			"permission": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      kafkaUserPermissionHash,
-				Elem:     resourceYandexMDBKafkaPermission(),
+				Type:        schema.TypeSet,
+				Description: "Set of permissions granted to the user.",
+				Optional:    true,
+				Set:         kafkaUserPermissionHash,
+				Elem:        resourceYandexMDBKafkaPermission(),
 			},
 		},
 	}

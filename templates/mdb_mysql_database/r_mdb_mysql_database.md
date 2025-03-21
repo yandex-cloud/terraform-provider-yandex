@@ -7,17 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+{{ .Description | trimspace }}
 
 ## Example usage
 
 {{ tffile "examples/mdb_mysql_database/r_mdb_mysql_database_1.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `name` - (Required) The name of the database.
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 

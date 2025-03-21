@@ -9,7 +9,8 @@ description: |-
 
 Allows management of [Yandex Cloud Organization Manager Group Mapping Items](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping)
 
-NOTE: Group mapping items depends on [group mapping](organizationmanager_group_mapping.html). If you create group mapping via terraform use "depends_on" meta-argument to avoid errors (see example below).
+ ~> Group mapping items depends on [group mapping](organizationmanager_group_mapping.html). If you create group mapping via terraform use `depends_on` meta-argument to avoid errors (see example below)
+.
 
 ## Example Usage
 
@@ -63,4 +64,3 @@ The resource can be imported by using their `resource ID`. For getting the resou
 # terraform import yandex_organizationmanager_group_mapping_item.<resource Name> <resource Id>
 terraform import yandex_organizationmanager_group_mapping_item.group_mapping_item .../.../...
 ```
-

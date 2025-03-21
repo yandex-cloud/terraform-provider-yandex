@@ -6,15 +6,19 @@ import (
 
 func dataSourceYandexMDBMySQLDatabase() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get details from MySQL database at MySQL Cluster.",
+
 		Read: dataSourceYandexMDBMySQLDatabaseRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The MySQL cluster ID.",
+				Required:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the database.",
+				Required:    true,
 			},
 		},
 	}

@@ -26,11 +26,11 @@ resource "yandex_organizationmanager_group_mapping" "my_group_map" {
 
 ### Required
 
-- `federation_id` (String) ID of the SAML Federation
+- `federation_id` (String) ID of the SAML Federation.
 
 ### Optional
 
-- `enabled` (Boolean) Set "true" to enable organization manager group mapping
+- `enabled` (Boolean) Set "true" to enable organization manager group mapping.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only

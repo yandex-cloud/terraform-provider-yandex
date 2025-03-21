@@ -8,35 +8,40 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexCDNOriginGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexCDNOriginGroupRead,
+		Description: "Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/origins).\n\n~> One of `origin_group_id` or `name` should be specified.\n",
+		Read:        dataSourceYandexCDNOriginGroupRead,
 		Schema: map[string]*schema.Schema{
 			"origin_group_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "The ID of a specific origin group.",
+				Computed:    true,
+				Optional:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Computed:    true,
+				Optional:    true,
 			},
 			"use_next": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: resourceYandexCDNOriginGroup().Schema["use_next"].Description,
+				Computed:    true,
 			},
 			"origin": {
 				Type:     schema.TypeSet,
 				Computed: true,
-
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": {

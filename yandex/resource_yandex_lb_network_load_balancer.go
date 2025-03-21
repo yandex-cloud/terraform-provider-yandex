@@ -11,12 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexLBNetworkLoadBalancerDefaultTimeout = 5 * time.Minute
 
 func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts).",
+
 		Create: resourceYandexLBNetworkLoadBalancerCreate,
 		Read:   resourceYandexLBNetworkLoadBalancerRead,
 		Update: resourceYandexLBNetworkLoadBalancerUpdate,
@@ -35,81 +38,95 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"region_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "ID of the availability zone where the network load balancer resides. If omitted, default region is being used.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"type": {
 				Type:         schema.TypeString,
+				Description:  "Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.",
 				Default:      "external",
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"external", "internal"}, false),
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"listener": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      resourceLBNetworkLoadBalancerListenerHash,
+				Type:        schema.TypeSet,
+				Description: "Listener specification that will be used by a network load balancer.\n\n~> One of `external_address_spec` or `internal_address_spec` should be specified.\n",
+				Optional:    true,
+				Set:         resourceLBNetworkLoadBalancerListenerHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the listener. The name must be unique for each listener on a single load balancer.",
+							Required:    true,
 						},
 						"port": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Port for incoming traffic.",
+							Required:    true,
 						},
 						"target_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Port of a target. The default is the same as listener's port.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"protocol": {
 							Type:         schema.TypeString,
+							Description:  "Protocol for incoming traffic. TCP or UDP and the default is TCP.",
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"tcp", "udp"}, false),
 						},
 						"external_address_spec": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      resourceLBNetworkLoadBalancerExternalAddressHash,
-							MaxItems: 1,
+							Type:        schema.TypeSet,
+							Description: "External IP address specification. ",
+							Optional:    true,
+							Set:         resourceLBNetworkLoadBalancerExternalAddressHash,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "External IP address for a listener. IP address will be allocated if it wasn't been set.",
+										Optional:    true,
+										Computed:    true,
 									},
 									"ip_version": {
 										Type:         schema.TypeString,
+										Description:  "IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.",
 										Optional:     true,
 										Default:      "ipv4",
 										ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
@@ -118,23 +135,27 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							},
 						},
 						"internal_address_spec": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      resourceLBNetworkLoadBalancerInternalAddressHash,
-							MaxItems: 1,
+							Type:        schema.TypeSet,
+							Description: "Internal IP address specification. ",
+							Optional:    true,
+							Set:         resourceLBNetworkLoadBalancerInternalAddressHash,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"subnet_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "ID of the subnet to which the internal IP address belongs.",
+										Required:    true,
 									},
 									"address": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "Internal IP address for a listener. Must belong to the subnet that is referenced in subnet_id. IP address will be allocated if it wasn't been set.",
+										Optional:    true,
+										Computed:    true,
 									},
 									"ip_version": {
 										Type:         schema.TypeString,
+										Description:  "IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.",
 										Optional:     true,
 										Default:      "ipv4",
 										ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
@@ -147,70 +168,83 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			},
 
 			"attached_target_group": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      resourceLBNetworkLoadBalancerAttachedTargetGroupHash,
+				Type:        schema.TypeSet,
+				Description: "An AttachedTargetGroup resource.",
+				Optional:    true,
+				Set:         resourceLBNetworkLoadBalancerAttachedTargetGroupHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"target_group_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of the target group.",
+							Required:    true,
 						},
 						"healthcheck": {
-							Type:     schema.TypeList,
-							Required: true,
+							Type:        schema.TypeList,
+							Description: "A HealthCheck resource.\n\n~> One of `http_options` or `tcp_options` should be specified.\n",
+							Required:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Name of the health check. The name must be unique for each target group that attached to a single load balancer.",
+										Required:    true,
 									},
 									"interval": {
-										Type:     schema.TypeInt,
-										Default:  2,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "The interval between health checks. The default is 2 seconds.",
+										Default:     2,
+										Optional:    true,
 									},
 									"timeout": {
-										Type:     schema.TypeInt,
-										Default:  1,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Timeout for a target to return a response for the health check. The default is 1 second.",
+										Default:     1,
+										Optional:    true,
 									},
 									"unhealthy_threshold": {
-										Type:     schema.TypeInt,
-										Default:  2,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Number of failed health checks before changing the status to `UNHEALTHY`. The default is 2.",
+										Default:     2,
+										Optional:    true,
 									},
 									"healthy_threshold": {
-										Type:     schema.TypeInt,
-										Default:  2,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Description: "Number of successful health checks required in order to set the `HEALTHY` status for the target.",
+										Default:     2,
+										Optional:    true,
 									},
 									"http_options": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Options for HTTP health check.",
+										Optional:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"port": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Port to use for HTTP health checks.",
+													Required:    true,
 												},
 												"path": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "URL path to set for health checking requests for every target in the target group. For example `/ping`. The default path is `/`.",
+													Optional:    true,
 												},
 											},
 										},
 									},
 									"tcp_options": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Options for TCP health check.",
+										Optional:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"port": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Port to use for TCP health checks.",
+													Required:    true,
 												},
 											},
 										},
@@ -223,18 +257,21 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"allow_zonal_shift": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "Flag that marks the network load balancer as available to zonal shift.",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

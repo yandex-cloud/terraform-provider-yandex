@@ -9,58 +9,71 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexComputeInstance() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Compute instance. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).\n\n~> One of `instance_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexComputeInstanceRead,
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific instance.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"fqdn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["fqdn"].Description,
+				Computed:    true,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"metadata": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: resourceYandexComputeInstance().Schema["metadata"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"platform_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["platform_id"].Description,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["status"].Description,
+				Computed:    true,
 			},
 			"resources": {
 				Type:     schema.TypeList,
@@ -151,8 +164,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"network_acceleration_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["network_acceleration_type"].Description,
+				Computed:    true,
 			},
 			"network_interface": {
 				Type:     schema.TypeList,
@@ -318,8 +332,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Computed:    true,
 			},
 
 			"placement_policy": {
@@ -366,8 +381,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"local_disk": {
@@ -449,20 +465,23 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"gpu_cluster_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["gpu_cluster_id"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"maintenance_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["maintenance_policy"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 			"maintenance_grace_period": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["maintenance_grace_period"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"hardware_generation": {

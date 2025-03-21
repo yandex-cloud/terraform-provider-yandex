@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -35,40 +36,45 @@ const (
 
 func defineYandexCDNResourceBaseSchema() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.",
+
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
 			"cname": {
-				Type: schema.TypeString,
-
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "CDN endpoint CNAME, must be unique among resources.",
+				Computed:    true,
+				Optional:    true,
 
 				ValidateFunc: validation.NoZeroValues,
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"labels": {
-				Type: schema.TypeMap,
-
-				Optional: true,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"active": {
-				Type:     schema.TypeBool,
-				Default:  true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Flag to create Resource either in active or disabled state. `True` - the content from CDN is available to clients.",
+				Default:     true,
+				Optional:    true,
 			},
 			"secondary_hostnames": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "List of secondary hostname strings.",
+				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -80,8 +86,9 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				Default:  "http",
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 			"updated_at": {
 				Type:     schema.TypeString,
@@ -97,10 +104,11 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				Optional: true,
 			},
 			"ssl_certificate": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeSet,
+				Description: "SSL certificate of CDN resource.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
@@ -120,116 +128,116 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				},
 			},
 			"provider_cname": {
-				Type: schema.TypeString,
-
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Provider CNAME of CDN resource, computed value for read and update operations.",
+				Computed:    true,
 			},
 			"options": {
-				Type: schema.TypeList,
-
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "CDN Resource settings and options to tune CDN edge behavior.",
+				Optional:    true,
+				Computed:    true,
 
 				MaxItems: 1,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disable_cache": {
-							Type: schema.TypeBool,
-
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "Setup a cache status.",
+							Optional:    true,
+							Computed:    true,
 						},
 						// TODO: use CDN Provider custom values for response codes.
 						"edge_cache_settings": {
-							Type: schema.TypeInt,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"browser_cache_settings": {
-							Type: schema.TypeInt,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: "Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"cache_http_headers": {
-							Type: schema.TypeList,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "List HTTP headers that must be included in responses to clients.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"ignore_query_params": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Files with different query parameters are cached as objects with the same key regardless of the parameter value. selected by default.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"query_params_whitelist": {
-							Type: schema.TypeList,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Files with the specified query parameters are cached as objects with different keys, files with other parameters are cached as objects with the same key.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"query_params_blacklist": {
-							Type: schema.TypeList,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Files with the specified query parameters are cached as objects with the same key, files with other parameters are cached as objects with different keys.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"slice": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"fetched_compressed": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"gzip_on": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "GZip compression at CDN servers reduces file size by 70% and can be as high as 90%.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"redirect_http_to_https": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Set up a redirect from HTTP to HTTPS.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"redirect_https_to_http": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Set up a redirect from HTTPS to HTTP.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"custom_host_header": {
-							Type: schema.TypeString,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Custom value for the Host header. Your server must be able to process requests with the chosen header.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"forward_host_header": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Choose the Forward Host header option if is important to send in the request to the Origin the same Host header as was sent in the request to CDN server.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"static_response_headers": {
 							Type: schema.TypeMap,
@@ -242,68 +250,68 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							},
 						},
 						"cors": {
-							Type: schema.TypeList,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"allowed_http_methods": {
-							Type: schema.TypeList,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"proxy_cache_methods_set": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Allows caching for GET, HEAD and POST requests.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"disable_proxy_force_ranges": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Disabling proxy force ranges.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"static_request_headers": {
-							Type: schema.TypeMap,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeMap,
+							Description: "Set up custom headers that CDN servers will send in requests to origins.",
+							Computed:    true,
+							Optional:    true,
 
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"custom_server_name": {
-							Type: schema.TypeString,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"ignore_cookie": {
-							Type: schema.TypeBool,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Set for ignoring cookie.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"secure_key": {
-							Type: schema.TypeString,
-
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Set secure key for url encoding to protect contect and limit access by IP addresses and time limits.",
+							Computed:    true,
+							Optional:    true,
 						},
 						"enable_ip_url_signing": {
-							Type: schema.TypeBool,
-
+							Type:         schema.TypeBool,
+							Description:  "Enable access limiting by IP addresses, option available only with setting secure_key.",
 							Computed:     true,
 							Optional:     true,
 							RequiredWith: []string{"options.0.secure_key"},
@@ -319,18 +327,18 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"policy_type": {
-										Type: schema.TypeString,
-
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "The policy type for ACL. One of `allow` or `deny` values.",
+										Optional:    true,
+										Computed:    true,
 
 										ValidateFunc: validateACLPolicyTypeFunc(),
 									},
 									"excepted_values": {
-										Type: schema.TypeList,
-
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "The list of specified IP addresses to be allowed or denied depending on acl policy type.",
+										Optional:    true,
+										Computed:    true,
 
 										Elem: &schema.Schema{
 											Type: schema.TypeString,

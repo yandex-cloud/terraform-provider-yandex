@@ -14,5 +14,6 @@ func resourceYandexServerlessContainerIAMBinding() *schema.Resource {
 			&schema.ResourceImporter{
 				StateContext: iamBindingImport(serverlessContainerIDParseFunc),
 			}),
+		WithDescription("Allows management of a single IAM binding for a [Yandex Serverless Container](https://yandex.cloud/docs/serverless-containers/)."),
 	)
 }

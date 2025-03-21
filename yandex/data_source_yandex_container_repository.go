@@ -12,18 +12,22 @@ import (
 
 func dataSourceYandexContainerRepository() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).",
+
 		Read: dataSourceYandexContainerRepositoryRead,
 		Schema: map[string]*schema.Schema{
 			"repository_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The ID of a specific repository.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexContainerRepository().Schema["name"].Description,
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

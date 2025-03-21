@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
@@ -23,6 +24,8 @@ const (
 
 func resourceYandexLockboxSecret() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Cloud Lockbox secret resource. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/). The created secret will contain a version with the generated password. You can use `yandex_lockbox_secret_version` to create new versions.",
+
 		CreateContext: resourceYandexLockboxSecretCreate,
 		ReadContext:   resourceYandexLockboxSecretRead,
 		UpdateContext: resourceYandexLockboxSecretUpdate,
@@ -43,23 +46,27 @@ func resourceYandexLockboxSecret() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
 			},
 
 			"description": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["description"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 			},
 
 			"folder_id": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["folder_id"],
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
@@ -68,13 +75,15 @@ func resourceYandexLockboxSecret() *schema.Resource {
 
 			"kms_key_id": {
 				Type:         schema.TypeString,
+				Description:  "The KMS key used to encrypt the Yandex Cloud Lockbox secret.",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -85,24 +94,28 @@ func resourceYandexLockboxSecret() *schema.Resource {
 
 			"name": {
 				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["name"],
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 100),
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The Yandex Cloud Lockbox secret status.",
+				Computed:    true,
 			},
 
 			"password_payload_specification": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Payload specification for password generation.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"password_key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "The key with which the generated password will be placed in the secret version.",
+							Required:    true,
 							ValidateFunc: validation.All(
 								validation.StringLenBetween(1, 256),
 								validation.StringMatch(regexp.MustCompile(`^[-_./\\@0-9a-zA-Z]+$`), ""),
@@ -110,38 +123,45 @@ func resourceYandexLockboxSecret() *schema.Resource {
 						},
 						"length": {
 							Type:         schema.TypeInt,
+							Description:  "Length of generated password. Default is `36`.",
 							Optional:     true,
 							Default:      36,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 						"include_uppercase": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "Use capital letters in the generated password. Default is true.",
+							Optional:    true,
+							Default:     true,
 						},
 						"include_lowercase": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "Use lowercase letters in the generated password. Default is true.",
+							Optional:    true,
+							Default:     true,
 						},
 						"include_digits": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "Use digits in the generated password. Default is true.",
+							Optional:    true,
+							Default:     true,
 						},
 						"include_punctuation": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "Use punctuations (`!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~`) in the generated password. Default is true.",
+							Optional:    true,
+							Default:     true,
 						},
 						"included_punctuation": {
 							Type:          schema.TypeString,
+							Description:   "String of specific punctuation characters to use. Requires `include_punctuation = true`. Default is empty.",
 							Optional:      true,
 							ConflictsWith: []string{"password_payload_specification.0.excluded_punctuation"},
 							ValidateFunc:  validation.StringLenBetween(0, 32),
 						},
 						"excluded_punctuation": {
 							Type:          schema.TypeString,
+							Description:   "String of punctuation characters to exclude from the default. Requires `include_punctuation = true`. Default is empty.",
 							Optional:      true,
 							ConflictsWith: []string{"password_payload_specification.0.included_punctuation"},
 							ValidateFunc:  validation.StringLenBetween(0, 31),

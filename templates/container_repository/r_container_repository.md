@@ -7,17 +7,13 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-Creates a new container repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).
+{{ .Description | trimspace }}
 
 ## Example usage
 
 {{ tffile "examples/container_repository/r_container_repository_1.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `name` - A name of the repository. The name of the repository should start with id of a container registry and match the name of the images that will be pushed in the repository. 
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 

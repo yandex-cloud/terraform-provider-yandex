@@ -16,6 +16,8 @@ const yandexOrganizationManagerOsLoginSettingsDefaultTimeout = 1 * time.Minute
 
 func resourceYandexOrganizationManagerOsLoginSettings() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of OsLogin Settings within an existing Yandex Cloud Organization.",
+
 		CreateContext: resourceYandexOrganizationManagerOsLoginSettingsCreate,
 		ReadContext:   resourceYandexOrganizationManagerOsLoginSettingsRead,
 		UpdateContext: resourceYandexOrganizationManagerOsLoginSettingsUpdate,
@@ -36,35 +38,41 @@ func resourceYandexOrganizationManagerOsLoginSettings() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"organization_id": {
 				Type:         schema.TypeString,
+				Description:  "The organization to manage it's OsLogin Settings.",
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 			"user_ssh_key_settings": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Users SSH key settings.",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Enables or disables usage of ssh keys assigned to a specific subject.",
+							Optional:    true,
 						},
 						"allow_manage_own_keys": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "If set to true subject is allowed to manage own ssh keys without having to be assigned specific permissions.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"ssh_certificate_settings": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "SSH Certificate settings.",
+				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Enables or disables usage of SSH certificates signed by trusted Certification Authority (CA).",
+							Optional:    true,
 						},
 					},
 				},

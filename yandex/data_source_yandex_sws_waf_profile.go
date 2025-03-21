@@ -11,12 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	waf "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/waf"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about WAF Profile. For more information, see [the official documentation](https://yandex.cloud/docs/smartwebsecurity/quickstart#waf).\nThis data source is used to define WAF Profile that can be used by other resources.\n\n~> One of `waf_profile_id` or `name` should be specified.\n",
+
 		ReadContext: dataSourceYandexSmartwebsecurityWafWafProfileRead,
 
 		SchemaVersion: 1,
@@ -46,9 +49,10 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["cloud_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"core_rule_set": {
@@ -89,13 +93,15 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 
 			"exclusion_rule": {
@@ -463,13 +469,15 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.All(validation.StringMatch(regexp.MustCompile("^([-_0-9a-z]*)$"), ""), validation.StringLenBetween(0, 63)),
@@ -479,9 +487,10 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"rule": {
@@ -508,8 +517,9 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"waf_profile_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of the WAF profile.",
+				Optional:    true,
 			},
 		},
 	}

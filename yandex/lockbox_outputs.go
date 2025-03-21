@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
-	"log"
 )
 
 // Logic to store sensitive values of resources into Lockbox, to avoid leaking those values to the Terraform state
@@ -21,7 +22,7 @@ func ExtendWithOutputToLockbox(resourceSchema map[string]*schema.Schema, sensiti
 		"secret_id": {
 			Type:        schema.TypeString,
 			Required:    true,
-			Description: "secret where to add the version with the sensitive values",
+			Description: "ID of the Lockbox secret where to store the sensible values.",
 		},
 	}
 
@@ -44,9 +45,10 @@ func ExtendWithOutputToLockbox(resourceSchema map[string]*schema.Schema, sensiti
 	}
 
 	resourceSchema[lockboxOutputVersionIdAttr] = &schema.Schema{
-		Type:        schema.TypeString,
-		Computed:    true,
-		Description: "version generated, that will contain the sensitive outputs",
+		Type:     schema.TypeString,
+		Computed: true,
+		//Description: "version generated, that will contain the sensitive outputs",
+		Description: "ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `output_to_lockbox` is removed.",
 	}
 
 	return resourceSchema

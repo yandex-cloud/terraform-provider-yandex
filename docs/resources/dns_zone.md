@@ -47,22 +47,22 @@ resource "yandex_vpc_network" "foo" {}
 
 ### Required
 
-- `zone` (String) The DNS name of this zone, e.g. "example.com.". Must ends with dot.
+- `zone` (String) The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
 
 ### Optional
 
-- `deletion_protection` (Boolean) Flag that protects the dns zone from accidental deletion.
-- `description` (String) Description of the DNS zone.
-- `folder_id` (String) ID of the folder to create a zone in. If it is not provided, the default provider folder is used.
-- `labels` (Map of String) A set of key/value label pairs to assign to the DNS zone.
-- `name` (String) User assigned name of a specific resource. Must be unique within the folder.
+- `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
+- `description` (String) The resource description.
+- `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
+- `name` (String) The resource name.
 - `private_networks` (Set of String) For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
 - `public` (Boolean) The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
-- `created_at` (String) The DNS zone creation timestamp.
+- `created_at` (String) The creation timestamp of the resource.
 - `id` (String) The ID of this resource.
 
 <a id="nestedblock--timeouts"></a>

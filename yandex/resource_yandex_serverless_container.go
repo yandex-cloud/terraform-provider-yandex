@@ -12,6 +12,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -19,6 +20,8 @@ const yandexServerlessContainerDefaultTimeout = 5 * time.Minute
 
 func resourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of a Yandex Cloud Serverless Container.",
+
 		CreateContext: resourceYandexServerlessContainerCreate,
 		ReadContext:   resourceYandexServerlessContainerRead,
 		UpdateContext: resourceYandexServerlessContainerUpdate,
@@ -38,49 +41,56 @@ func resourceYandexServerlessContainer() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"memory": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Container memory in megabytes, should be aligned to 128",
+				Description: "Memory in megabytes (**aligned to 128 MB**).",
 			},
 
 			"cores": {
-				Type:     schema.TypeInt,
-				Default:  1,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "Cores (**1+**) of the Yandex Cloud Serverless Container.",
+				Default:     1,
+				Optional:    true,
 			},
 
 			"core_fraction": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "Core fraction (**0...100**) of the Yandex Cloud Serverless Container.",
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"execution_timeout": {
 				Type:             schema.TypeString,
+				Description:      "Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.",
 				Computed:         true,
 				Optional:         true,
 				ValidateFunc:     validateParsableValue(parsePositiveDuration),
@@ -88,62 +98,74 @@ func resourceYandexServerlessContainer() *schema.Resource {
 			},
 
 			"concurrency": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Description: "Concurrency of Yandex Cloud Serverless Container.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["service_account_id"],
+				Optional:    true,
 			},
 
 			"secrets": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Secrets for Yandex Cloud Serverless Container.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's ID.",
+							Required:    true,
 						},
 						"version_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's version ID.",
+							Required:    true,
 						},
 						"key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Secret's entries key which value will be stored in environment variable.",
+							Required:    true,
 						},
 						"environment_variable": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Container's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).",
+							Required:    true,
 						},
 					},
 				},
 			},
 			"storage_mounts": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "(**DEPRECATED**, use `mounts.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mount_point_path": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Path inside the container to access the directory in which the bucket is mounted.",
+							Required:    true,
 						},
 						"bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the mounting bucket.",
+							Required:    true,
 						},
 						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.",
+							Optional:    true,
 						},
 						"read_only": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Mount the bucket in read-only mode.",
+							Optional:    true,
 						},
 					},
 				},
@@ -151,52 +173,61 @@ func resourceYandexServerlessContainer() *schema.Resource {
 			},
 
 			"mounts": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Mounts for Yandex Cloud Serverless Container.",
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mount_point_path": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Path inside the container to access the directory in which the target is mounted.",
+							Required:    true,
 						},
 						"mode": {
 							Type:         schema.TypeString,
+							Description:  "Mount’s accessibility mode. Valid values are `ro` and `rw`.",
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"rw", "ro"}, true),
 						},
 						"ephemeral_disk": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "One of the available mount types. Disk available during the function execution time.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size_gb": {
-										Type:     schema.TypeInt,
-										Required: true,
+										Type:        schema.TypeInt,
+										Description: "Size of the ephemeral disk in GB.",
+										Required:    true,
 									},
 									"block_size_kb": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: "Block size of the ephemeral disk in KB.",
+										Optional:    true,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"object_storage": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Available mount types. Object storage as a mount.",
+							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bucket": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Name of the mounting bucket.",
+										Required:    true,
 									},
 									"prefix": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Description: "Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.",
+										Optional:    true,
 									},
 								},
 							},
@@ -206,66 +237,78 @@ func resourceYandexServerlessContainer() *schema.Resource {
 			},
 
 			"image": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "Revision deployment image for Yandex Cloud Serverless Container.",
+				MaxItems:    1,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"url": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "URL of image that will be deployed as Yandex Cloud Serverless Container.",
+							Required:    true,
 						},
 						"work_dir": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Working directory for Yandex Cloud Serverless Container.",
+							Optional:    true,
 						},
 						"digest": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Digest of image that will be deployed as Yandex Cloud Serverless Container. If presented, should be equal to digest that will be resolved at server side by URL. Container will be updated on digest change even if `image.0.url` stays the same. If field not specified then its value will be computed.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"command": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "List of commands for Yandex Cloud Serverless Container.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
 						},
 						"args": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
+							Type:        schema.TypeList,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "List of arguments for Yandex Cloud Serverless Container.",
+							Optional:    true,
 						},
 						"environment": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Type:        schema.TypeMap,
+							Description: "A set of key/value environment variable pairs for Yandex Cloud Serverless Container. Each key must begin with a letter (A-Z, a-z).",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
 						},
 					},
 				},
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Invoke URL for the Yandex Cloud Serverless Container.",
+				Computed:    true,
 			},
 
 			"revision_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Last revision ID of the Yandex Cloud Serverless Container.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"runtime": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Runtime for Yandex Cloud Serverless Container.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:         schema.TypeString,
+							Description:  "Type of the runtime for Yandex Cloud Serverless Container. Valid values are `http` and `task`.",
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"http", "task"}, true),
 						},
@@ -277,76 +320,88 @@ func resourceYandexServerlessContainer() *schema.Resource {
 			},
 
 			"connectivity": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Network access. If specified the revision will be attached to specified network.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Network the revision will have access to.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"provision_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Provision policy. If specified the revision will have prepared instances.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"min_instances": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Description: "Minimum number of prepared instances that are always ready to serve requests.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"log_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Options for logging from Yandex Cloud Serverless Container.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Is logging from container disabled.",
+							Optional:    true,
 						},
 						"log_group_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to specified log group.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.folder_id"},
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
+							Description:   "Log entries are written to default log group for specified folder.",
 							Optional:      true,
 							ConflictsWith: []string{"log_options.0.log_group_id"},
 						},
 						"min_level": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Minimum log entry level.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"metadata_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Options set the access mode to revision's metadata endpoints.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"gce_http_endpoint": {
 							Type:         schema.TypeInt,
+							Description:  "Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.",
 							ValidateFunc: validation.IntBetween(0, 2),
 							Optional:     true,
 							Computed:     true,
 						},
 						"aws_v1_http_endpoint": {
 							Type:         schema.TypeInt,
+							Description:  "Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.",
 							ValidateFunc: validation.IntBetween(0, 2),
 							Optional:     true,
 							Computed:     true,

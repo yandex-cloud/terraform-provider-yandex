@@ -7,7 +7,15 @@ description: |-
 
 # yandex_audit_trails_trail (Resource)
 
-Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail)
+Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail).
+
+## Migration from deprecated filter field
+
+In order to migrate from using `filter` to the `filtering_policy`, you will have to:
+* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.
+* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
+
+* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.
 
 ## Example usage
 
@@ -107,108 +115,6 @@ resource "yandex_audit_trails_trail" "basic_trail" {
 }
 ```
 
-## Argument Reference
-
-* `name` - (Required) Name of the trail.
-
-* `folder_id` - (Required) ID of the folder to which the trail belongs.
-
-* `description` - (Optional) Description of the trail.
-
-* `labels` - (Optional) Labels defined by the user.
-
-* `service_account_id` - (Required) ID of the [IAM service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) that is used by the trail.
-
-* `storage_destination` - Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.
-
-  * `bucket_name` - (Required) Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
-
-  * `object_prefix` - (Optional) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
-
-* `logging_destination` - Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.
-
-  * `log_group_id` - (Required) ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
-
-* `data_stream_destination` - Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.
-
-  * `database_id` - (Required) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
-
-  * `stream_name` - (Required) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
-
-* `filter` - Structure describing event filtering process for the trail.
-
-  * `path_filter` - (Optional) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category.
-
-    * `any_filter` - Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`.
-
-      * `resource_id` - (Required) ID of the parent resource.
-
-      * `resource_type` - (Required) Resource type of the parent resource.
-
-    * `some_filter` - Structure describing that events will be gathered from some of the cloud resources that belong to the parent resource. Mutually exclusive with `any_filter`.
-
-      * `resource_id` - (Required) ID of the parent resource.
-
-      * `resource_type` - (Required) Resource type of the parent resource.
-
-      * `any_filters` - (Required) List of child resources from which events will be gathered.
-
-        * `resource_id` - (Required) ID of the child resource.
-
-        * `resource_type` - (Required) Resource type of the child resource.
-
-  * `event_filters` - Structure describing filtering process for the service-specific data plane events.
-
-    * `service` - (Required) ID of the service which events will be gathered.
-
-    * `categories` - (Required) List of structures describing categories of gathered data plane events.
-
-      * `plane` - (Required) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
-
-      * `type` - (Required) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
-
-    * `path_filter` - (Required) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`.
-
-  * `filtering_policy` - (Optional) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled.
-
-    * `management_events_filter` - (Optional) Structure describing filtering process for management events.
-
-      * `resource_scope` - (Required) Structure describing that events will be gathered from the specified resource.
-
-        * `resource_id` - (Required) ID of the monitored resource.
-
-        * `resource_type` - (Required) Resource type of the monitored resource.
-
-    * `data_events_filter` - (Optional) Structure describing filtering process for the service-specific data events.
-
-      * `service` - (Required) ID of the service which events will be gathered.
-
-      * `resource_scope` - (Required) Structure describing that events will be gathered from the specified resource.
-
-        * `resource_id` - (Required) ID of the monitored resource.
-
-        * `resource_type` - (Required) Resource type of the monitored resource.
-
-      * `included_events` - (Optional) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
-
-      * `excluded_events` - (Optional) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
-
-## Attributes Reference
-
-In addition to the arguments listed above, the following computed attributes are exported:
-
-* `status` - Status of this trail.
-* `trail_id` - ID of the trail resource.
-
-
-## Migration from deprecated filter field
-
-In order to migrate from unsing `filter` to the `filtering_policy`, you will have to:
-
-* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.
-
-* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
-
 ```terraform
 //
 // Migration from deprecated filter field
@@ -246,8 +152,6 @@ data_events_filter {
 }
 ```
 
-* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.
-
 ```terraform
 //
 // Migration from deprecated filter field
@@ -274,13 +178,218 @@ filtering_policy {
 }
 ```
 
-## Timeouts
+<!-- schema generated by tfplugindocs -->
+## Schema
 
-`yandex_audit_trails_trail` provides the following configuration options for [timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+### Required
 
-- `create` - Default 5 minutes.
-- `update` - Default 5 minutes.
-- `delete` - Default 5 minutes.
+- `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+- `name` (String) The resource name.
+- `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+
+### Optional
+
+- `data_stream_destination` (Block List, Max: 1) Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`. (see [below for nested schema](#nestedblock--data_stream_destination))
+- `description` (String) The resource description.
+- `filter` (Block List, Max: 1, Deprecated) Structure describing event filtering process for the trail. (see [below for nested schema](#nestedblock--filter))
+- `filtering_policy` (Block List, Max: 1) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled. (see [below for nested schema](#nestedblock--filtering_policy))
+- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
+- `logging_destination` (Block List, Max: 1) Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`. (see [below for nested schema](#nestedblock--logging_destination))
+- `storage_destination` (Block List, Max: 1) Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`. (see [below for nested schema](#nestedblock--storage_destination))
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
+- `status` (String) Status of this trail.
+- `trail_id` (String) ID of the trail resource.
+
+<a id="nestedblock--data_stream_destination"></a>
+### Nested Schema for `data_stream_destination`
+
+Required:
+
+- `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
+- `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `event_filters` (Block List) Structure describing filtering process for the service-specific data plane events. (see [below for nested schema](#nestedblock--filter--event_filters))
+- `path_filter` (Block List, Max: 1) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category. (see [below for nested schema](#nestedblock--filter--path_filter))
+
+<a id="nestedblock--filter--event_filters"></a>
+### Nested Schema for `filter.event_filters`
+
+Required:
+
+- `categories` (Block List, Min: 1) List of structures describing categories of gathered data plane events. (see [below for nested schema](#nestedblock--filter--event_filters--categories))
+- `path_filter` (Block List, Min: 1, Max: 1) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter))
+- `service` (String) ID of the service which events will be gathered.
+
+<a id="nestedblock--filter--event_filters--categories"></a>
+### Nested Schema for `filter.event_filters.categories`
+
+Required:
+
+- `plane` (String) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
+- `type` (String) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
+
+
+<a id="nestedblock--filter--event_filters--path_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter`
+
+Optional:
+
+- `any_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--any_filter))
+- `some_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter))
+
+<a id="nestedblock--filter--event_filters--path_filter--any_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.any_filter`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+<a id="nestedblock--filter--event_filters--path_filter--some_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter`
+
+Required:
+
+- `any_filters` (Block List, Min: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter--any_filters))
+- `resource_id` (String)
+- `resource_type` (String)
+
+<a id="nestedblock--filter--event_filters--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter.any_filters`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+
+
+
+<a id="nestedblock--filter--path_filter"></a>
+### Nested Schema for `filter.path_filter`
+
+Optional:
+
+- `any_filter` (Block List, Max: 1) Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`. (see [below for nested schema](#nestedblock--filter--path_filter--any_filter))
+- `some_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--path_filter--some_filter))
+
+<a id="nestedblock--filter--path_filter--any_filter"></a>
+### Nested Schema for `filter.path_filter.any_filter`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+<a id="nestedblock--filter--path_filter--some_filter"></a>
+### Nested Schema for `filter.path_filter.some_filter`
+
+Required:
+
+- `any_filters` (Block List, Min: 1) List of child resources from which events will be gathered. (see [below for nested schema](#nestedblock--filter--path_filter--some_filter--any_filters))
+- `resource_id` (String) ID of the parent resource.
+- `resource_type` (String) Resource type of the parent resource.
+
+<a id="nestedblock--filter--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.path_filter.some_filter.any_filters`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+
+
+
+<a id="nestedblock--filtering_policy"></a>
+### Nested Schema for `filtering_policy`
+
+Optional:
+
+- `data_events_filter` (Block List) Structure describing filtering process for the service-specific data events. (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter))
+- `management_events_filter` (Block List, Max: 1) Structure describing filtering process for management events. (see [below for nested schema](#nestedblock--filtering_policy--management_events_filter))
+
+<a id="nestedblock--filtering_policy--data_events_filter"></a>
+### Nested Schema for `filtering_policy.data_events_filter`
+
+Required:
+
+- `resource_scope` (Block List, Min: 1) (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--resource_scope))
+- `service` (String) ID of the service which events will be gathered.
+
+Optional:
+
+- `excluded_events` (List of String) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
+- `included_events` (List of String) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
+
+<a id="nestedblock--filtering_policy--data_events_filter--resource_scope"></a>
+### Nested Schema for `filtering_policy.data_events_filter.resource_scope`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+
+<a id="nestedblock--filtering_policy--management_events_filter"></a>
+### Nested Schema for `filtering_policy.management_events_filter`
+
+Required:
+
+- `resource_scope` (Block List, Min: 1) Structure describing that events will be gathered from the specified resource. (see [below for nested schema](#nestedblock--filtering_policy--management_events_filter--resource_scope))
+
+<a id="nestedblock--filtering_policy--management_events_filter--resource_scope"></a>
+### Nested Schema for `filtering_policy.management_events_filter.resource_scope`
+
+Required:
+
+- `resource_id` (String) ID of the child resource.
+- `resource_type` (String) Resource type of the child resource.
+
+
+
+
+<a id="nestedblock--logging_destination"></a>
+### Nested Schema for `logging_destination`
+
+Required:
+
+- `log_group_id` (String) ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
+
+
+<a id="nestedblock--storage_destination"></a>
+### Nested Schema for `storage_destination`
+
+Required:
+
+- `bucket_name` (String) Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
+
+Optional:
+
+- `object_prefix` (String) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `default` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 
 ## Import
 

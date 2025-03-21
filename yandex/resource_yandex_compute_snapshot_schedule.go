@@ -13,12 +13,15 @@ import (
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexComputeSnapshotScheduleDefaultTimeout = 5 * time.Minute
 
 func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 	return &schema.Resource{
+		Description: "Creates a new snapshot schedule. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot-schedule).",
+
 		CreateContext: resourceYandexComputeSnapshotScheduleCreate,
 		ReadContext:   resourceYandexComputeSnapshotScheduleRead,
 		UpdateContext: resourceYandexComputeSnapshotScheduleUpdate,
@@ -37,17 +40,20 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"disk_ids": {
-				Type: schema.TypeSet,
+				Type:        schema.TypeSet,
+				Description: "IDs of the disk for snapshot schedule.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -56,14 +62,16 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -72,29 +80,34 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"retention_period": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each with optional fraction and a unit suffix. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. Examples: `300ms`, `1.5h` or `2h45m`.",
+				Optional:    true,
 			},
 
 			"schedule_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Schedule policy of the snapshot schedule.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"expression": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Cron expression to schedule snapshots (in cron format `\" * ****\"`).",
+							Optional:    true,
 						},
 
 						"start_at": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Time to start the snapshot schedule (in format RFC3339 `2006-01-02T15:04:05Z07:00`). If empty current time will be used. Unlike an `expression` that specifies regularity rules, the `start_at` parameter determines from what point these rules will be applied.",
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -103,22 +116,26 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"snapshot_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "Maximum number of snapshots for every disk of the snapshot schedule.",
+				Optional:    true,
 			},
 
 			"snapshot_spec": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Additional attributes for snapshots created by this snapshot schedule.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Description to assign to snapshots created by this snapshot schedule.",
+							Optional:    true,
 						},
 
 						"labels": {
-							Type: schema.TypeMap,
+							Type:        schema.TypeMap,
+							Description: "A set of key/value label pairs to assign to snapshots created by this snapshot schedule.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -132,8 +149,9 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the snapshot schedule.",
+				Computed:    true,
 			},
 		},
 	}

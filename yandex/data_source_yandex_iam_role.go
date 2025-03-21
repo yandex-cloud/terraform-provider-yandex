@@ -11,7 +11,8 @@ import (
 
 func dataSourceYandexIAMRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexIAMRoleRead,
+		Description: "Generates an [IAM](https://yandex.cloud/docs/iam/) role document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see [the official documentation](https://yandex.cloud/docs/iam/concepts/access-control/roles).\n\nThis data source is used to define [IAM](https://yandex.cloud/docs/iam/) roles in order to apply them to other resources. Currently, defining a role through a data source and referencing that role from another resource is the only way to apply an IAM role to a resource.\n\n",
+		Read:        dataSourceYandexIAMRoleRead,
 		Schema: map[string]*schema.Schema{
 			"role_id": {
 				Type:     schema.TypeString,

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexALBBackendGroupDefaultTimeout = 5 * time.Minute
@@ -20,10 +21,11 @@ const (
 
 func resourceYandexALBBackendGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexALBBackendGroupCreate,
-		Read:   resourceYandexALBBackendGroupRead,
-		Update: resourceYandexALBBackendGroupUpdate,
-		Delete: resourceYandexALBBackendGroupDelete,
+		Description: "Creates a backend group in the specified folder and adds the specified backends to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group).\n\n~> Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.\n",
+		Create:      resourceYandexALBBackendGroupCreate,
+		Read:        resourceYandexALBBackendGroupRead,
+		Update:      resourceYandexALBBackendGroupUpdate,
+		Delete:      resourceYandexALBBackendGroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -38,48 +40,56 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"session_affinity": sessionAffinity(),
 
 			"http_backend": {
 				Type:          schema.TypeList,
+				Description:   "HTTP backend specification that will be used by the ALB Backend Group.\n\n~> Only one of `target_group_ids` or `storage_bucket` should be specified.\n",
 				Optional:      true,
 				ConflictsWith: []string{"grpc_backend", "stream_backend"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the backend.",
+							Required:    true,
 						},
 						"weight": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  1,
+							Type:        schema.TypeInt,
+							Description: "Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.",
+							Optional:    true,
+							Default:     1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
+							Description:  "Port for incoming traffic.",
 							ValidateFunc: validation.IntBetween(0, 65535),
 							Optional:     true,
 						},
@@ -88,41 +98,48 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"tls":                   tlsBackend(),
 						// List of ID's of target groups that belong to the backend.
 						"target_group_ids": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "References target groups for the backend.",
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						// A resource for Object Storage bucket used as a backend
 						"storage_bucket": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Name of bucket which should be used as a backend.",
+							Optional:    true,
 						},
 						"http2": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"stream_backend": {
 				Type:          schema.TypeList,
+				Description:   "Stream backend specification that will be used by the ALB Backend Group.",
 				Optional:      true,
 				ConflictsWith: []string{"grpc_backend", "http_backend"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the backend.",
+							Required:    true,
 						},
 						"weight": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  1,
+							Type:        schema.TypeInt,
+							Description: "Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.",
+							Optional:    true,
+							Default:     1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
+							Description:  "Port for incoming traffic.",
 							ValidateFunc: validation.IntBetween(0, 65535),
 							Optional:     true,
 						},
@@ -130,8 +147,9 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"healthcheck":           healthCheck(),
 						"tls":                   tlsBackend(),
 						"target_group_ids": {
-							Type:     schema.TypeList,
-							Required: true,
+							Type:        schema.TypeList,
+							Description: "References target groups for the backend.",
+							Required:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -142,30 +160,35 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							Default:  false,
 						},
 						keepConnectionsOnHostHealthFailureSchemaKey: {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "If set, when a backend host becomes unhealthy (as determined by the configured health checks), keep connections to the failed host.",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
 			},
 			"grpc_backend": {
 				Type:          schema.TypeList,
+				Description:   "gRPC backend specification that will be used by the ALB Backend Group.",
 				Optional:      true,
 				ConflictsWith: []string{"http_backend", "stream_backend"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Name of the backend.",
+							Required:    true,
 						},
 						"weight": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  1,
+							Type:        schema.TypeInt,
+							Description: "Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.",
+							Optional:    true,
+							Default:     1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
+							Description:  "Port for incoming traffic.",
 							ValidateFunc: validation.IntBetween(0, 65535),
 							Optional:     true,
 						},
@@ -173,8 +196,9 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"healthcheck":           healthCheck(),
 						"tls":                   tlsBackend(),
 						"target_group_ids": {
-							Type:     schema.TypeList,
-							Required: true,
+							Type:        schema.TypeList,
+							Description: "References target groups for the backend.",
+							Required:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -184,8 +208,9 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}
@@ -193,66 +218,67 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 
 func sessionAffinity() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		MaxItems: 1,
-		Optional: true,
+		Type:        schema.TypeList,
+		Description: "Session affinity mode determines how incoming requests are grouped into one session.\n\n~> Only one type(`connection` or `cookie` or `header`) of session affinity should be specified.\n",
+		MaxItems:    1,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"connection": {
-					Type:     schema.TypeList,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "Requests received from the same IP are combined into a session. Stream backend groups only support session affinity by client IP address.",
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"source_ip": {
 								Type:        schema.TypeBool,
+								Description: "Source IP address to use with affinity.",
 								Optional:    true,
-								Description: "Use source IP address",
 							},
 						},
 					},
-					Optional:    true,
-					Description: "IP address affinity",
+					Optional: true,
 				},
 
 				"cookie": {
-					Type:     schema.TypeList,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "Requests with the same cookie value and the specified file name are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups.",
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"name": {
 								Type:         schema.TypeString,
+								Description:  "Name of the HTTP cookie to use with affinity.",
 								Required:     true,
 								ValidateFunc: validation.StringLenBetween(1, 256),
-								Description:  "Name of the HTTP cookie",
 							},
 
 							"ttl": {
 								Type:             schema.TypeString,
+								Description:      "TTL for the cookie (if not set, session cookie will be used).",
 								Optional:         true,
-								Description:      "TTL for the cookie (if not set, session cookie will be used)",
 								DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 							},
 						},
 					},
-					Optional:    true,
-					Description: "Cookie affinity",
+					Optional: true,
 				},
 
 				"header": {
-					Type:     schema.TypeList,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups.",
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"header_name": {
 								Type:         schema.TypeString,
+								Description:  "The name of the request header that will be used with affinity.",
 								Required:     true,
 								ValidateFunc: validation.StringLenBetween(1, 256),
-								Description:  "The name of the request header that will be used",
 							},
 						},
 					},
-					Optional:    true,
-					Description: "Request header affinity",
+					Optional: true,
 				},
 			},
 		},
@@ -261,27 +287,32 @@ func sessionAffinity() *schema.Schema {
 
 func loadBalancingConfig() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Description: "Load Balancing Config specification that will be used by this backend.",
+		Optional:    true,
+		MaxItems:    1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"panic_threshold": {
 					Type:         schema.TypeInt,
+					Description:  "If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.",
 					ValidateFunc: validation.IntBetween(0, 100),
 					Optional:     true,
 				},
 				"locality_aware_routing_percent": {
 					Type:         schema.TypeInt,
+					Description:  "Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.",
 					ValidateFunc: validation.IntBetween(0, 100),
 					Optional:     true,
 				},
 				"strict_locality": {
-					Type:     schema.TypeBool,
-					Optional: true,
+					Type:        schema.TypeBool,
+					Description: "If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.",
+					Optional:    true,
 				},
 				"mode": {
 					Type:         schema.TypeString,
+					Description:  "Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.",
 					Optional:     true,
 					Default:      "ROUND_ROBIN",
 					ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "RANDOM", "LEAST_REQUEST", "MAGLEV_HASH"}, false),
@@ -293,73 +324,88 @@ func loadBalancingConfig() *schema.Schema {
 
 func healthCheck() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		MaxItems: 1,
-		Optional: true,
+		Type:        schema.TypeList,
+		Description: "Healthcheck specification that will be used by this backend.\n\n~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.\n",
+		MaxItems:    1,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"timeout": {
-					Type:     schema.TypeString,
-					Required: true,
+					Type:        schema.TypeString,
+					Description: "Time to wait for a health check response.",
+					Required:    true,
 				},
 				"interval": {
-					Type:     schema.TypeString,
-					Required: true,
+					Type:        schema.TypeString,
+					Description: "Interval between health checks.",
+					Required:    true,
 				},
 				"interval_jitter_percent": {
-					Type:     schema.TypeFloat,
-					Optional: true,
+					Type:        schema.TypeFloat,
+					Description: "An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * interval_jitter_percent / 100) will be added to the wait time.",
+					Optional:    true,
 				},
 				"healthy_threshold": {
-					Type:     schema.TypeInt,
-					Optional: true,
+					Type:        schema.TypeInt,
+					Description: "Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.",
+					Optional:    true,
 				},
 				"unhealthy_threshold": {
-					Type:     schema.TypeInt,
-					Optional: true,
+					Type:        schema.TypeInt,
+					Description: "Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.",
+					Optional:    true,
 				},
 				"healthcheck_port": {
 					Type:         schema.TypeInt,
+					Description:  "Optional alternative port for health checking.",
 					ValidateFunc: validation.IntBetween(0, 65535),
 					Optional:     true,
 				},
 				"stream_healthcheck": {
-					Type:     schema.TypeList,
-					Optional: true,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "Stream Healthcheck specification that will be used by this healthcheck.",
+					Optional:    true,
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"send": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.",
+								Optional:    true,
 							},
 							"receive": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.",
+								Optional:    true,
 							},
 						},
 					},
 				},
 				"http_healthcheck": {
-					Type:     schema.TypeList,
-					Optional: true,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "HTTP Healthcheck specification that will be used by this healthcheck.",
+					Optional:    true,
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"host": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "`Host` HTTP header value.",
+								Optional:    true,
 							},
 							"path": {
-								Type:     schema.TypeString,
-								Required: true,
+								Type:        schema.TypeString,
+								Description: "HTTP path.",
+								Required:    true,
 							},
 							"http2": {
-								Type:     schema.TypeBool,
-								Optional: true,
+								Type:        schema.TypeBool,
+								Description: "If set, health checks will use HTTP2.",
+								Optional:    true,
 							},
 							expectedStatusesSchemaKey: {
-								Type: schema.TypeList,
+								Type:        schema.TypeList,
+								Description: "A list of HTTP response statuses considered healthy.",
 								Elem: &schema.Schema{
 									Type:         schema.TypeInt,
 									ValidateFunc: validation.IntBetween(100, 599),
@@ -370,14 +416,16 @@ func healthCheck() *schema.Schema {
 					},
 				},
 				"grpc_healthcheck": {
-					Type:     schema.TypeList,
-					Optional: true,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Description: "gRPC Healthcheck specification that will be used by this healthcheck.",
+					Optional:    true,
+					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"service_name": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "Service name for `grpc.health.v1.HealthCheckRequest` message.",
+								Optional:    true,
 							},
 						},
 					},
@@ -389,14 +437,16 @@ func healthCheck() *schema.Schema {
 
 func tlsBackend() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Description: "TLS specification that will be used by this backend.\n\n~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.\n",
+		Optional:    true,
+		MaxItems:    1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"sni": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Type:        schema.TypeString,
+					Description: "[SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.",
+					Optional:    true,
 				},
 				"validation_context": {
 					Type:     schema.TypeList,
@@ -405,12 +455,14 @@ func tlsBackend() *schema.Schema {
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"trusted_ca_id": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "Trusted CA certificate ID in the Certificate Manager.",
+								Optional:    true,
 							},
 							"trusted_ca_bytes": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:        schema.TypeString,
+								Description: "PEM-encoded trusted CA certificate chain.",
+								Optional:    true,
 							},
 						},
 					},

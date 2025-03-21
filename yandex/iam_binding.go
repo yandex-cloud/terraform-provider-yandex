@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/grpc/codes"
@@ -16,13 +17,15 @@ import (
 
 var accessBindingSchema = map[string]*schema.Schema{
 	"role": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The role that should be applied. See [roles catalog](https://yandex.cloud/docs/iam/roles-reference).",
 	},
 	"members": {
-		Type:     schema.TypeSet,
-		Required: true,
+		Type:        schema.TypeSet,
+		Description: "An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:\n  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.\n  * **serviceAccount:{service_account_id}**: A unique service account ID.\n  * **federatedUser:{federated_user_id}**: A unique federated user ID.\n  * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.\n  * **group:{group_id}**: A unique group ID.\n  * **system:group:federation:{federation_id}:users**: All users in federation.\n  * **system:group:organization:{organization_id}:users**: All users in organization.\n  * **system:allAuthenticatedUsers**: All authenticated users.\n  * **system:allUsers**: All users, including unauthenticated ones.\n\n~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).\n\n",
+		Required:    true,
 		Elem: &schema.Schema{
 			Type:         schema.TypeString,
 			ValidateFunc: validateIamMember,

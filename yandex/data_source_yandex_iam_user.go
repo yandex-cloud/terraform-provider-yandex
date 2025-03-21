@@ -11,23 +11,27 @@ import (
 
 func dataSourceYandexIAMUser() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexLoginRead,
+		Description: "Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).\n\nThis data source is used to define [IAM User](https://yandex.cloud/docs/iam/concepts/#passport) that can be used by other resources.\n\n~> Either `login` or `user_id` must be specified.\n\n",
+		Read:        dataSourceYandexLoginRead,
 		Schema: map[string]*schema.Schema{
 			"login": {
 				Type:          schema.TypeString,
+				Description:   "Login name used to sign in to Yandex Passport.",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"user_id"},
 			},
 			"user_id": {
 				Type:          schema.TypeString,
+				Description:   "User ID used to manage IAM access bindings.",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"login"},
 			},
 			"default_email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Email address of user account.",
+				Computed:    true,
 			},
 		},
 	}

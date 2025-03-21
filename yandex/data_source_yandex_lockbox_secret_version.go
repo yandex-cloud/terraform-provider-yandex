@@ -14,6 +14,8 @@ import (
 
 func dataSourceYandexLockboxSecretVersion() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about Yandex Cloud Lockbox secret version. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).\nIf you're creating the secret in the same project, then you should indicate `version_id`, since otherwise you may refer to a wrong version of the secret (e.g. the first version, when it is still empty).\n",
+
 		ReadContext: dataSourceYandexLockboxSecretVersionRead,
 
 		SchemaVersion: 1,
@@ -21,6 +23,7 @@ func dataSourceYandexLockboxSecretVersion() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"secret_id": {
 				Type:         schema.TypeString,
+				Description:  resourceYandexLockboxSecretVersion().Schema["secret_id"].Description,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
@@ -45,9 +48,10 @@ func dataSourceYandexLockboxSecretVersion() *schema.Resource {
 			},
 
 			"version_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The Yandex Cloud Lockbox secret version ID.",
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

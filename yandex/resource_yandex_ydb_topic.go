@@ -33,6 +33,8 @@ func ydbTimeouts() *schema.ResourceTimeout {
 
 func resourceYandexYDBTopic() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manage a YDB Topic. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/#ydb).",
+
 		Schema:        topic.ResourceSchema(),
 		SchemaVersion: 0,
 		CreateContext: resourceYandexYDBTopicCreate,

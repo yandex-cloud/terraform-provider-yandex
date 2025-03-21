@@ -3,19 +3,23 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
-	"time"
 )
 
 const yandexMonitoringDashboardDefaultTimeout = 2 * time.Minute
 
 func resourceYandexMonitoringDashboard() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex Monitoring dashboard.",
+
 		CreateContext: resourceMonitoringDashboardCreate,
 		ReadContext:   resourceMonitoringDashboardRead,
 		UpdateContext: resourceMonitoringDashboardUpdate,
@@ -33,202 +37,204 @@ func resourceYandexMonitoringDashboard() *schema.Resource {
 			Delete: schema.DefaultTimeout(yandexMonitoringDashboardDefaultTimeout),
 		},
 		SchemaVersion: 1,
-		Description:   "Monitoring dashboard",
 		Schema: map[string]*schema.Schema{
 			"dashboard_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Dashboard ID",
+				Description: "Dashboard ID.",
 			},
 			"description": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
 				Optional:    true,
-				Description: "Dashboard description",
 			},
 			"folder_id": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
-				Description: "Folder ID",
 			},
 			"labels": {
-				Type: schema.TypeMap,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:         schema.HashString,
-				Computed:    true,
-				Optional:    true,
-				Description: "Dashboard labels",
+				Set:      schema.HashString,
+				Computed: true,
+				Optional: true,
 			},
 			"name": {
 				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
 				Required:    true,
 				ForceNew:    true,
-				Description: "Dashboard name, used as local identifier in folder_id",
 			},
 			"parametrization": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "Dashboard parametrization.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"parameters": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "Dashboard parameters.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"custom": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Custom values parameter. Oneof: label_values, custom, text.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"default_values": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "Default value.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
-													Optional:    true,
-													Description: "Default value",
+													Optional: true,
 												},
 												"multiselectable": {
 													Type:        schema.TypeBool,
+													Description: "Specifies the multiselectable values of parameter.",
 													Optional:    true,
-													Description: "Specifies the multiselectable values of parameter",
 												},
 												"values": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "Parameter values.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
-													Optional:    true,
-													Description: "Parameter values",
+													Optional: true,
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Custom parameter",
+										Optional: true,
 									},
 									"description": {
 										Type:        schema.TypeString,
+										Description: "Parameter description.",
 										Optional:    true,
-										Description: "Parameter description",
 									},
 									"hidden": {
 										Type:        schema.TypeBool,
-										Optional:    true,
 										Description: "UI-visibility",
+										Optional:    true,
 									},
 									"label_values": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Label values parameter. Oneof: label_values, custom, text.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"default_values": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "Default value.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
-													Optional:    true,
-													Description: "Default value",
+													Optional: true,
 												},
 												"folder_id": {
 													Type:        schema.TypeString,
+													Description: "Folder ID.",
 													Optional:    true,
-													Description: "Folder ID",
 												},
 												"label_key": {
 													Type:        schema.TypeString,
+													Description: "Label key to list label values.",
 													Required:    true,
-													Description: "Required. Label key to list label values",
 												},
 												"multiselectable": {
 													Type:        schema.TypeBool,
+													Description: "Specifies the multiselectable values of parameter.",
 													Optional:    true,
-													Description: "Specifies the multiselectable values of parameter",
 												},
 												"selectors": {
 													Type:        schema.TypeString,
+													Description: "Selectors to select metric label values.",
 													Optional:    true,
-													Description: "Required. Selectors to select metric label values",
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Label values parameter",
+										Optional: true,
 									},
 									"id": {
 										Type:        schema.TypeString,
+										Description: "Parameter identifier.",
 										Required:    true,
-										Description: "Parameter identifier",
 									},
 									"text": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Text parameter. Oneof: label_values, custom, text.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"default_value": {
 													Type:        schema.TypeString,
+													Description: "Default value.",
 													Optional:    true,
-													Description: "Default value",
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Text parameter",
+										Optional: true,
 									},
 									"title": {
 										Type:        schema.TypeString,
+										Description: "UI-visible title of the parameter.",
 										Optional:    true,
-										Description: "UI-visible title of the parameter",
 									},
 								},
 							},
-							Optional:    true,
-							Description: "Dashboard parameter",
+							Optional: true,
 						},
 						"selectors": {
 							Type:        schema.TypeString,
+							Description: "Dashboard predefined parameters selector.",
 							Optional:    true,
-							Description: "Predefined selectors",
 						},
 					},
 				},
-				Optional:    true,
-				Computed:    true,
-				Description: "Dashboard parametrization",
+				Optional: true,
+				Computed: true,
 			},
 			"title": {
 				Type:        schema.TypeString,
+				Description: "Dashboard title.",
 				Optional:    true,
-				Description: "Dashboard title",
 			},
 			"widgets": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "Widgets.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"chart": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "Chart widget settings.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"chart_id": {
 										Type:        schema.TypeString,
+										Description: "Chart ID.",
 										Optional:    true,
-										Description: "Chart ID",
 									},
 									"description": {
 										Type:        schema.TypeString,
+										Description: "Chart description in dashboard (not enabled in UI).",
 										Optional:    true,
-										Description: "Chart description in dashboard (not enabled in UI)",
 									},
 									"display_legend": {
 										Type:        schema.TypeBool,
+										Description: "Enable legend under chart.",
 										Optional:    true,
-										Description: "Enable legend under chart",
 									},
 									"freeze": {
 										Type:        schema.TypeString,
+										Description: "Fixed time interval for chart. Values:\n- FREEZE_DURATION_HOUR: Last hour.\n- FREEZE_DURATION_DAY: Last day = last 24 hours.\n- FREEZE_DURATION_WEEK: Last 7 days.\n- FREEZE_DURATION_MONTH: Last 31 days.\n",
 										Optional:    true,
 										Computed:    true,
-										Description: "Fixed time interval for chart",
 									},
 									"name_hiding_settings": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Name hiding settings",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"names": {
@@ -246,11 +252,11 @@ func resourceYandexMonitoringDashboard() *schema.Resource {
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Name hiding settings",
+										Optional: true,
 									},
 									"queries": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Queries settings.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"downsampling": {
@@ -318,11 +324,11 @@ func resourceYandexMonitoringDashboard() *schema.Resource {
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Queries",
+										Optional: true,
 									},
 									"series_overrides": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Time series settings.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": {
@@ -385,18 +391,18 @@ func resourceYandexMonitoringDashboard() *schema.Resource {
 												},
 											},
 										},
-										Optional:    true,
-										Description: "",
+										Optional: true,
 									},
 
 									"title": {
 										Type:        schema.TypeString,
+										Description: "Chart widget title.",
 										Optional:    true,
-										Description: "Chart widget title",
 									},
 
 									"visualization_settings": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "Visualization settings.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"aggregation": {
@@ -633,85 +639,82 @@ func resourceYandexMonitoringDashboard() *schema.Resource {
 												},
 											},
 										},
-										Optional:    true,
-										Description: "Visualization settings",
+										Optional: true,
 									},
 								},
 							},
-							Optional:    true,
-							Description: "Chart widget",
+							Optional: true,
 						},
 						"position": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "Widget layout position.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"h": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Required. Height",
+										Description: "Height.",
 									},
 
 									"w": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Required. Weight",
+										Description: "Weight.",
 									},
 
 									"x": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Required. X-axis top-left corner coordinate",
+										Description: "X-axis top-left corner coordinate.",
 									},
 
 									"y": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Required. Y-axis top-left corner coordinate",
+										Description: "Y-axis top-left corner coordinate.",
 									},
 								},
 							},
-							Optional:    true,
-							Description: "Required. Widget layout position",
+							Optional: true,
 						},
 						"text": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "Text widget settings.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"text": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Text",
+										Description: "Widget text.",
 									},
 								},
 							},
-							Optional:    true,
-							Description: "Text widget",
+							Optional: true,
 						},
 						"title": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "Title widget settings.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
 										Type:        schema.TypeString,
+										Description: "Title size.\nTitle size. Values:\n- TITLE_SIZE_XS: Extra small size.\n- TITLE_SIZE_S: Small size.\n- TITLE_SIZE_M: Middle size.\n- TITLE_SIZE_L: Large size.\n",
 										Optional:    true,
 										Computed:    true,
-										Description: "Title size",
 									},
 
 									"text": {
 										Type:        schema.TypeString,
+										Description: "Title text.",
 										Required:    true,
-										Description: "Title text",
 									},
 								},
 							},
-							Optional:    true,
-							Description: "Title widget",
+							Optional: true,
 						},
 					},
 				},
-				Optional:    true,
-				Description: "Widgets",
+				Optional: true,
 			},
 		},
 	}

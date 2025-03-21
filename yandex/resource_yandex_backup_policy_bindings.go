@@ -8,11 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 )
 
 func resourceYandexBackupPolicyBindings() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Allows management of [Yandex Cloud Attach and Detach VM](https://yandex.cloud/docs/backup/operations/policy-vm/attach-and-detach-vm).\n\n ~> Cloud Backup Provider must be activated in order to manipulate with policies. \n",
 		CreateContext: resourceYandexBackupPolicyBindingsCreate,
 		ReadContext:   resourceYandexBackupPolicyBindingsRead,
 		DeleteContext: resourceYandexBackupPolicyBindingsDelete,
@@ -32,32 +34,37 @@ func resourceYandexBackupPolicyBindings() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Compute Cloud instance ID.",
 			},
 
 			"policy_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Backup Policy ID.",
 			},
 
 			// COMPUTED ONLY VALUES
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Flag is specifies whether the policy application is enabled. May be `false` if Processing flag is `true`.",
 			},
 
 			"processing": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Flag that specifies whether the policy is in the process of binding to an instance.",
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: common.ResourceDescriptions["created_at"],
 			},
 		},
 	}

@@ -10,6 +10,8 @@ import (
 
 func resourceYandexFunctionScalingPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud Function Scaling Policies](https://yandex.cloud/docs/functions/).",
+
 		Create: resourceYandexFunctionScalingPolicyCreate,
 		Read:   resourceYandexFunctionScalingPolicyRead,
 		Update: resourceYandexFunctionScalingPolicyUpdate,
@@ -22,29 +24,34 @@ func resourceYandexFunctionScalingPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"function_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Yandex Cloud Function id used to define function.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"policy": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "List definition for Yandex Cloud Function scaling policies.",
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"tag": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Yandex Cloud Function version tag for Yandex Cloud Function scaling policy.",
+							Required:    true,
 						},
 						"zone_requests_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  0,
+							Type:        schema.TypeInt,
+							Description: "Max number of requests in one zone for Yandex Cloud Function with tag.",
+							Optional:    true,
+							Default:     0,
 						},
 						"zone_instances_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  0,
+							Type:        schema.TypeInt,
+							Description: "Max number of instances in one zone for Yandex Cloud Function with tag.",
+							Optional:    true,
+							Default:     0,
 						},
 					},
 				},

@@ -15,3 +15,9 @@ func WithImporter(importer *schema.ResourceImporter) func(resource *schema.Resou
 		r.Importer = importer
 	}
 }
+
+func WithDescription(description string) func(resource *schema.Resource) {
+	return func(r *schema.Resource) {
+		r.Description = description
+	}
+}

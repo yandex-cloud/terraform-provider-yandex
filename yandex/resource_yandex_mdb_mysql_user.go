@@ -21,6 +21,8 @@ const (
 
 func resourceYandexMDBMySQLUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a MySQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).",
+
 		Create: resourceYandexMDBMySQLUserCreate,
 		Read:   resourceYandexMDBMySQLUserRead,
 		Update: resourceYandexMDBMySQLUserUpdate,
@@ -45,23 +47,27 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the user.",
+				Required:    true,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The password of the user.",
+				Optional:    true,
+				Sensitive:   true,
 			},
 			"permission": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Set:      mysqlUserPermissionHash,
-				Elem:     resourceYandexMDBMySQLUserPermission(),
+				Type:        schema.TypeSet,
+				Description: "Set of permissions granted to the user.",
+				Optional:    true,
+				Computed:    true,
+				Set:         mysqlUserPermissionHash,
+				Elem:        resourceYandexMDBMySQLUserPermission(),
 			},
 			"global_permissions": {
-				Type: schema.TypeSet,
+				Type:        schema.TypeSet,
+				Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` for clear list use empty list. If the attribute is not specified there will be no changes.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -69,28 +75,32 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 				Computed: true,
 			},
 			"connection_limits": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Elem:     resourceYandexMDBMySQLUserConnectionLimits(),
+				Type:        schema.TypeList,
+				Description: "User's connection limits. If the attribute is not specified there will be no changes. Default value is `-1`. When these parameters are set to `-1`, backend default values will be actually used.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem:        resourceYandexMDBMySQLUserConnectionLimits(),
 			},
 			"authentication_plugin": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`)",
+				Optional:    true,
+				Computed:    true,
 			},
 			"connection_manager": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Description: "Connection Manager connection configuration. Filled in by the server automatically.",
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"generate_password": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+				Optional:    true,
+				Default:     false,
 			},
 		},
 	}
@@ -100,11 +110,13 @@ func resourceYandexMDBMySQLUserPermission() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"database_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The name of the database that the permission grants access to.",
+				Required:    true,
 			},
 			"roles": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -118,24 +130,28 @@ func resourceYandexMDBMySQLUserConnectionLimits() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"max_questions_per_hour": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  -1,
+				Type:        schema.TypeInt,
+				Description: "Max questions per hour.",
+				Optional:    true,
+				Default:     -1,
 			},
 			"max_updates_per_hour": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  -1,
+				Type:        schema.TypeInt,
+				Description: "Max updates per hour.",
+				Optional:    true,
+				Default:     -1,
 			},
 			"max_connections_per_hour": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  -1,
+				Type:        schema.TypeInt,
+				Description: "Max connections per hour.",
+				Optional:    true,
+				Default:     -1,
 			},
 			"max_user_connections": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  -1,
+				Type:        schema.TypeInt,
+				Description: "Max user connections.",
+				Optional:    true,
+				Default:     -1,
 			},
 		},
 	}

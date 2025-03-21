@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -17,6 +18,8 @@ const yandexOrganizationManagerSamlFederationDefaultTimeout = 1 * time.Minute
 
 func resourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of a single SAML Federation within an existing Yandex Cloud Organization.",
+
 		Create: resourceYandexOrganizationManagerSamlFederationCreate,
 		Read:   resourceYandexOrganizationManagerSamlFederationRead,
 		Update: resourceYandexOrganizationManagerSamlFederationUpdate,
@@ -36,79 +39,93 @@ func resourceYandexOrganizationManagerSamlFederation() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"organization_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The organization to attach this SAML Federation to.",
+				ForceNew:    true,
+				Required:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 			"issuer": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the IdP server to be used for authentication. The IdP server also responds to IAM with this ID after the user authenticates.",
+				Required:    true,
 			},
 			"sso_binding": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Single sign-on endpoint binding type. Most Identity Providers support the `POST` binding type. SAML Binding is a mapping of a SAML protocol message onto standard messaging formats and/or communications protocols.",
+				Required:    true,
 			},
 			"sso_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Single sign-on (SSO) endpoint URL. Specify the link to the IdP login page here.",
+				Required:    true,
 			},
 			"cookie_max_age": {
 				Type:             schema.TypeString,
+				Description:      "The lifetime of a Browser cookie in seconds. If the cookie is still valid, the management console authenticates the user immediately and redirects them to the home page. The default value is `8h`.",
 				Optional:         true,
 				Computed:         true,
 				ValidateFunc:     validateParsableValue(parsePositiveDuration),
 				DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 			},
 			"auto_create_account_on_login": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "Add new users automatically on successful authentication. The user will get the `resource-manager.clouds.member` role automatically, but you need to grant other roles to them. If the value is `false`, users who aren't added to the cloud can't log in, even if they have authenticated on your server.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"case_insensitive_name_ids": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "Use case-insensitive name IDs.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"security_settings": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Federation security settings.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"encrypted_assertions": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "Enable encrypted assertions.",
+							Optional:    true,
+							Computed:    true,
 						},
 						"force_authn": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "Force authentication on session expiration",
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

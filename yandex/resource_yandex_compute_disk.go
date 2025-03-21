@@ -13,6 +13,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -22,6 +23,8 @@ const (
 
 func resourceYandexComputeDisk() *schema.Resource {
 	return &schema.Resource{
+		Description: "Persistent disks are used for data storage and function similarly to physical hard and solid state drives.\n\nA disk can be attached or detached from the virtual machine and can be located locally. A disk can be moved between virtual machines within the same availability zone. Each disk can be attached to only one virtual machine at a time.\n\nFor more information about disks in Yandex Cloud, see:\n* [Documentation](https://yandex.cloud/docs/compute/concepts/disk)\n* How-to Guides:\n  * [Attach and detach a disk](https://yandex.cloud/docs/compute/concepts/disk#attach-detach)\n  * [Backup operation](https://yandex.cloud/docs/compute/concepts/disk#backup)\n\n~> Only one of `image_id` or `snapshot_id` can be specified.\n",
+
 		Create: resourceYandexComputeDiskCreate,
 		Read:   resourceYandexComputeDiskRead,
 		Update: resourceYandexComputeDiskUpdate,
@@ -42,38 +45,44 @@ func resourceYandexComputeDisk() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"size": {
 				Type:         schema.TypeInt,
+				Description:  "Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the `image_id` or `snapshot_id` parameter, or specify it alone to create an empty persistent disk. If you specify this field along with `image_id` or `snapshot_id`, the size value must not be less than the size of the source image or the size of the snapshot.",
 				Optional:     true,
 				Default:      150,
 				ValidateFunc: validation.IntAtLeast(0),
@@ -81,6 +90,7 @@ func resourceYandexComputeDisk() *schema.Resource {
 
 			"block_size": {
 				Type:         schema.TypeInt,
+				Description:  "Block size of the disk, specified in bytes.",
 				Optional:     true,
 				ForceNew:     true,
 				Default:      4096,
@@ -89,6 +99,7 @@ func resourceYandexComputeDisk() *schema.Resource {
 
 			"image_id": {
 				Type:          schema.TypeString,
+				Description:   "The source image to use for disk creation.",
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"snapshot_id"},
@@ -96,33 +107,38 @@ func resourceYandexComputeDisk() *schema.Resource {
 
 			"snapshot_id": {
 				Type:          schema.TypeString,
+				Description:   "The source snapshot to use for disk creation.",
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"image_id"},
 			},
 
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "network-hdd",
+				Type:        schema.TypeString,
+				Description: "Type of disk to create. Provide this when creating a disk.",
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "network-hdd",
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The status of the disk.",
+				Computed:    true,
 			},
 
 			"disk_placement_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Disk placement policy configuration.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_placement_group_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Specifies Disk Placement Group id.",
+							Required:    true,
 						},
 					},
 				},
@@ -135,8 +151,9 @@ func resourceYandexComputeDisk() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"allow_recreate": {
@@ -145,13 +162,15 @@ func resourceYandexComputeDisk() *schema.Resource {
 			},
 
 			"hardware_generation": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Description: "Hardware generation and its features, which will be applied to the instance when this disk is used as a boot disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.",
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"generation2_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
@@ -161,12 +180,14 @@ func resourceYandexComputeDisk() *schema.Resource {
 						},
 
 						"legacy_features": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Defines the first known hardware generation and its features.",
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"pci_topology": {
 										Type:         schema.TypeString,
+										Description:  "A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.",
 										Optional:     true,
 										ForceNew:     true,
 										Computed:     true,
@@ -185,9 +206,10 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Computed: true,
 			},
 			"kms_key_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of KMS symmetric key used to encrypt disk.",
+				ForceNew:    true,
+				Optional:    true,
 			},
 		},
 	}

@@ -6,31 +6,36 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 func resourceYandexIAMServiceAccountKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexIAMServiceAccountKeyCreate,
-		Read:   resourceYandexIAMServiceAccountKeyRead,
-		Update: resourceYandexIAMServiceAccountKeyUpdate,
-		Delete: resourceYandexIAMServiceAccountKeyDelete,
+		Description: "Allows management of [Yandex Cloud IAM service account authorized keys](https://yandex.cloud/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) for a [service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts).",
+		Create:      resourceYandexIAMServiceAccountKeyCreate,
+		Read:        resourceYandexIAMServiceAccountKeyRead,
+		Update:      resourceYandexIAMServiceAccountKeyUpdate,
+		Delete:      resourceYandexIAMServiceAccountKeyDelete,
 
 		Schema: ExtendWithOutputToLockbox(map[string]*schema.Schema{
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the service account to create a pair for.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"format": {
 				Type:         schema.TypeString,
+				Description:  "The output format of the keys. `PEM_FILE` is the default format.",
 				Default:      "PEM_FILE",
 				Optional:     true,
 				ForceNew:     true,
@@ -39,6 +44,7 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 
 			"key_algorithm": {
 				Type:         schema.TypeString,
+				Description:  "The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API reference](https://yandex.cloud/docs/iam/api-ref/Key).",
 				Default:      "RSA_2048",
 				Optional:     true,
 				ForceNew:     true,
@@ -46,35 +52,41 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 			},
 
 			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"public_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The public key.",
+				Computed:    true,
 			},
 
 			"private_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The private key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"key_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The fingerprint of the PGP key used to encrypt the private key. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"encrypted_private_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The encrypted private key, base64 encoded. This is only populated when `pgp_key` is supplied.",
+				Computed:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		}, resourceYandexIAMServiceAccountKeySensitiveAttrs),
 	}

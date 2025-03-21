@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -20,6 +21,8 @@ const (
 
 func resourceYandexBackupPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud Backup Policy](https://yandex.cloud/docs/backup/concepts/policy).\n\n~> Cloud Backup Provider must be activated in order to manipulate with policies. Active it either by UI Console or by `yc` command.\n\n## Defined types\n\n### interval_type\n\n A string type, that accepts values in the format of: `number` + `time type`, where `time type` might be:\n* `s` — seconds\n* `m` — minutes\n* `h` — hours\n* `d` — days\n* `w` — weekdays\n* `M` — months\n\nExample of interval value: `5m`, `10d`, `2M`, `5w`\n\n### day_type\n\nA string type, that accepts the following values: `ALWAYS_INCREMENTAL`, `ALWAYS_FULL`, `WEEKLY_FULL_DAILY_INCREMENTAL`, `WEEKLY_INCREMENTAL`.\n\n### backup_set_type\n\n`TYPE_AUTO`, `TYPE_FULL`, `TYPE_INCREMENTAL`, `TYPE_DIFFERENTIAL`.",
+
 		CreateContext: resourceYandexBackupPolicyCreate,
 		ReadContext:   resourceYandexBackupPolicyRead,
 		UpdateContext: resourceYandexBackupPolicyUpdate,
@@ -40,19 +43,22 @@ func resourceYandexBackupPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"compression": {
 				Type:         schema.TypeString,
+				Description:  "Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.",
 				Optional:     true,
 				Default:      resourceYandexBackupCompressionValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupCompressionValues, false),
@@ -60,61 +66,70 @@ func resourceYandexBackupPolicy() *schema.Resource {
 
 			"format": {
 				Type:         schema.TypeString,
+				Description:  "Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`, `VERSION_11`, `VERSION_12`.",
 				Optional:     true,
 				Default:      resourceYandexBackupPolicyFormatValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupPolicyFormatValues, false),
 			},
 
 			"multi_volume_snapshotting_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"preserve_file_security_settings": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "Preserves file security settings. It's better to set this option to true. Default `true`.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"reattempts": {
-				Type:     schema.TypeSet,
-				MaxItems: 1,
-				Required: true,
-				Elem:     resourceYandexBackupPolicyRetryConfigurationResource(),
-				Set:      storageBucketS3SetFunc("enabled", "interval", "max_attempts"),
+				Type:        schema.TypeSet,
+				Description: "Amount of reattempts that should be performed while trying to make backup at the host.",
+				MaxItems:    1,
+				Required:    true,
+				Elem:        resourceYandexBackupPolicyRetryConfigurationResource(),
+				Set:         storageBucketS3SetFunc("enabled", "interval", "max_attempts"),
 			},
 
 			"vm_snapshot_reattempts": {
-				Type:     schema.TypeSet,
-				MaxItems: 1,
-				Required: true,
-				Elem:     resourceYandexBackupPolicyRetryConfigurationResource(),
+				Type:        schema.TypeSet,
+				Description: "Amount of reattempts that should be performed while trying to make snapshot.",
+				MaxItems:    1,
+				Required:    true,
+				Elem:        resourceYandexBackupPolicyRetryConfigurationResource(),
 			},
 
 			"silent_mode_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "If true, a user interaction will be avoided when possible. Default `true`.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"splitting_bytes": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "9223372036854775807", // almost max int
+				Type:        schema.TypeString,
+				Description: "Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.",
+				Optional:    true,
+				Default:     "9223372036854775807", // almost max int
 			},
 
 			"vss_provider": {
 				Type:         schema.TypeString,
+				Description:  "Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.",
 				Optional:     true,
 				Default:      resourceYandexBackupVSSProviderValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupVSSProviderValues, false),
 			},
 
 			"archive_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "[Machine Name]-[Plan ID]-[Unique ID]a",
+				Type:        schema.TypeString,
+				Description: "The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.",
+				Optional:    true,
+				Default:     "[Machine Name]-[Plan ID]-[Unique ID]a",
 				ValidateFunc: func(v any, _ string) (warnings []string, errs []error) {
 					value := v.(string)
 					if resourceYandexBackupBadArchiveNameTemplate.MatchString(value) {
@@ -126,29 +141,33 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"performance_window_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "Time windows for performance limitations of backup. Default `false`.",
+				Optional:    true,
+				Default:     false,
 			},
 
 			"retention": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MaxItems: 1,
-				Elem:     resourceYandexBacupPolicyRetentionSchema(),
-				Set:      storageBucketS3SetFunc("after_backup", "rules"),
+				Type:        schema.TypeSet,
+				Description: "Retention policy for backups. Allows to setup backups lifecycle.",
+				Required:    true,
+				MaxItems:    1,
+				Elem:        resourceYandexBacupPolicyRetentionSchema(),
+				Set:         storageBucketS3SetFunc("after_backup", "rules"),
 			},
 
 			"scheduling": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem:     resourceYandexBackupPolicySchedulingResource(),
+				Type:        schema.TypeSet,
+				Description: "Schedule settings for creating backups on the host.",
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Elem:        resourceYandexBackupPolicySchedulingResource(),
 			},
 
 			"cbt": {
 				Type:         schema.TypeString,
+				Description:  "Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`. Default `DO_NOT_USE`.",
 				Optional:     true,
 				Default:      resourceYandexBackupCBTValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupCBTValues, false),
@@ -168,9 +187,10 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"quiesce_snapshotting_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "If true, a quiesced snapshot of the virtual machine will be taken. Default `false`.",
+				Optional:    true,
+				Default:     false,
 			},
 
 			// COMPUTED ONLY VALUES
@@ -182,9 +202,10 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Optional: false,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Optional:    false,
+				Computed:    true,
 			},
 
 			"updated_at": {
@@ -200,22 +221,25 @@ func resourceYandexBackupPolicyRetryConfigurationResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "Enable flag. Default `true`.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"interval": {
 				Type:         schema.TypeString,
+				Description:  "Retry interval. See `interval_type` for available values. Default: `5m`.",
 				Optional:     true,
 				Default:      "5m",
 				ValidateFunc: resourceYandexBackupIntervalValidationFunc,
 			},
 
 			"max_attempts": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  5,
+				Type:        schema.TypeInt,
+				Description: "Maximum number of attempts before throwing an error. Default `5`.",
+				Optional:    true,
+				Default:     5,
 			},
 		},
 	}
@@ -226,13 +250,15 @@ func resourceYandexBackupRetentionRuleSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"max_age": {
 				Type:         schema.TypeString,
+				Description:  "Deletes backups that older than `max_age`. Exactly one of `max_count` or `max_age` should be set.",
 				Optional:     true,
 				ValidateFunc: resourceYandexBackupIntervalValidationFunc,
 			},
 
 			"max_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "Deletes backups if it's count exceeds `max_count`. Exactly one of `max_count` or `max_age` should be set.",
+				Optional:    true,
 			},
 
 			"repeat_period": {
@@ -277,9 +303,10 @@ func resourceYandexBacupPolicyRetentionSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"after_backup": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "Defines whether retention rule applies after creating backup or before.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"rules": {
@@ -297,41 +324,47 @@ func resourceYandexBackupPolicySchedulingResource() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"execute_by_interval": {
 				Type:         schema.TypeInt,
+				Description:  " Perform backup by interval, since last backup of the host. Maximum value is: 9999 days. See `interval_type` for available values. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
 				Optional:     true,
 				ValidateFunc: resourceYandexBackupSchedulingIntervalValidateFunc,
 				Deprecated:   fieldDeprecatedForAnother("execute_by_interval", "backup_sets"),
 			},
 
 			"execute_by_time": {
-				Type:       schema.TypeSet,
-				Optional:   true,
-				Set:        storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
-				Elem:       resourceYandexBackupPolicySchedulingRuleTimeResource(),
-				Deprecated: fieldDeprecatedForAnother("execute_by_time", "backup_sets"),
+				Type:        schema.TypeSet,
+				Description: "Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
+				Optional:    true,
+				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Elem:        resourceYandexBackupPolicySchedulingRuleTimeResource(),
+				Deprecated:  fieldDeprecatedForAnother("execute_by_time", "backup_sets"),
 			},
 
 			"backup_sets": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MinItems: 1,
-				Set:      storageBucketS3SetFunc("execute_by_interval", "execute_by_time", "type"),
-				Elem:     resourceYandexBackupPolicySchedulingBackupSetResource(),
+				Type:        schema.TypeSet,
+				Description: "A list of schedules with backup sets that compose the whole scheme.",
+				Optional:    true,
+				MinItems:    1,
+				Set:         storageBucketS3SetFunc("execute_by_interval", "execute_by_time", "type"),
+				Elem:        resourceYandexBackupPolicySchedulingBackupSetResource(),
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "Enables or disables scheduling. Default `true`.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"max_parallel_backups": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Description: "Maximum number of backup processes allowed to run in parallel. 0 for unlimited. Default `0`.",
+				Optional:    true,
+				Default:     0,
 			},
 
 			"random_max_delay": {
 				Type:         schema.TypeString,
+				Description:  "Configuration of the random delay between the execution of parallel tasks. See `interval_type` for available values. Default `30m`.",
 				Optional:     true,
 				Default:      "30m",
 				ValidateFunc: resourceYandexBackupIntervalValidationFunc,
@@ -339,6 +372,7 @@ func resourceYandexBackupPolicySchedulingResource() *schema.Resource {
 
 			"scheme": {
 				Type:         schema.TypeString,
+				Description:  "Scheme of the backups. Available values are: `ALWAYS_INCREMENTAL`, `ALWAYS_FULL`, `WEEKLY_FULL_DAILY_INCREMENTAL`, `WEEKLY_INCREMENTAL`. Default `ALWAYS_INCREMENTAL`.",
 				Optional:     true,
 				Default:      resourceYandexBackupTypeValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupTypeValues, false),
@@ -346,6 +380,7 @@ func resourceYandexBackupPolicySchedulingResource() *schema.Resource {
 
 			"weekly_backup_day": {
 				Type:         schema.TypeString,
+				Description:  "A day of week to start weekly backups. See `day_type` for available values. Default `MONDAY`.",
 				Optional:     true,
 				Default:      resourceYandexBackupDayValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupDayValues, false),
@@ -359,19 +394,22 @@ func resourceYandexBackupPolicySchedulingBackupSetResource() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"execute_by_interval": {
 				Type:         schema.TypeInt,
+				Description:  "Perform backup by interval, since last backup of the host. Maximum value is: 9999 days. See `interval_type` for available values. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
 				Optional:     true,
 				ValidateFunc: resourceYandexBackupSchedulingIntervalValidateFunc,
 			},
 
 			"execute_by_time": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
-				Elem:     resourceYandexBackupPolicySchedulingRuleTimeResource(),
+				Type:        schema.TypeSet,
+				Description: "Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
+				Optional:    true,
+				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Elem:        resourceYandexBackupPolicySchedulingRuleTimeResource(),
 			},
 
 			"type": {
 				Type:         schema.TypeString,
+				Description:  "BackupSet type. See `backup_set_type` for available values. Default `TYPE_AUTO`.",
 				Optional:     true,
 				Default:      resourceYandexBackupSchedulingBackupSetTypeValues[0],
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupSchedulingBackupSetTypeValues, false),
@@ -384,9 +422,10 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"weekdays": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 7,
+				Type:        schema.TypeList,
+				Description: "List of weekdays when the backup will be applied. Used in `WEEKLY` type.",
+				Optional:    true,
+				MaxItems:    7,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringInSlice(resourceYandexBackupDayValues, false),
@@ -394,8 +433,9 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 			},
 
 			"repeat_at": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "List of time in format `HH:MM` (24-hours format), when the schedule applies.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: resourceYandexBackupPolicySettingsTimeOfDayValidateFunc,
@@ -404,13 +444,15 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 
 			"repeat_every": {
 				Type:         schema.TypeString,
+				Description:  "Frequency of backup repetition. See `interval_type` for available values.",
 				Optional:     true,
 				ValidateFunc: resourceYandexBackupIntervalValidationFunc,
 			},
 
 			"monthdays": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "List of days when schedule applies. Used in `MONTHLY` type.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeInt,
 					ValidateFunc: validation.IntBetween(1, 31),
@@ -418,9 +460,10 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 			},
 
 			"include_last_day_of_month": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Description: "If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.",
+				Optional:    true,
+				Default:     false,
 			},
 
 			"months": {
@@ -434,6 +477,7 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 
 			"type": {
 				Type:         schema.TypeString,
+				Description:  "Type of the scheduling. Available values are: `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`.",
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupRepeatPeriodValues, false),
 				Required:     true,
 			},

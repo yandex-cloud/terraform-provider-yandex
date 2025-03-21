@@ -12,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -60,6 +61,8 @@ var levelEnumToName = map[logging.LogLevel_Level]string{
 
 func resourceYandexFunctionTrigger() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows management of [Yandex Cloud Functions Trigger](https://yandex.cloud/docs/functions/).",
+
 		Create: resourceYandexFunctionTriggerCreate,
 		Read:   resourceYandexFunctionTriggerRead,
 		Update: resourceYandexFunctionTriggerUpdate,
@@ -78,12 +81,14 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"function": {
 				Type:          schema.TypeList,
+				Description:   "[Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -92,28 +97,33 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Yandex Cloud Function ID.",
+							Required:    true,
 						},
 
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Service account ID for Yandex Cloud Function.",
+							Optional:    true,
 						},
 
 						"tag": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"retry_attempts": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Retry attempts for Yandex Cloud Function for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"retry_interval": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -121,6 +131,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			"container": {
 				Type:          schema.TypeList,
+				Description:   "[Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -129,54 +140,63 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Yandex Cloud Serverless Container ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Service account ID for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"path": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Path for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"retry_attempts": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Retry attempts for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"retry_interval": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			triggerTypeIoT: {
 				Type:          schema.TypeList,
+				Description:   "[IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present. Only one section `iot` or `message_queue`.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -184,27 +204,32 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"registry_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "IoT Registry ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"device_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "IoT Device ID for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"topic": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "IoT Topic for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -212,6 +237,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeMessageQueue: {
 				Type:          schema.TypeList,
+				Description:   "[Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -219,28 +245,33 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"queue_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Message Queue ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Message Queue Service Account ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"visibility_timeout": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Visibility timeout for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -248,6 +279,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeObjectStorage: {
 				Type:          schema.TypeList,
+				Description:   "[Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -255,42 +287,50 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Object Storage Bucket ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Prefix for Object Storage for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"suffix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Suffix for Object Storage for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"create": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `create` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"update": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `update` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `delete` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -298,6 +338,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeContainerRegistry: {
 				Type:          schema.TypeList,
+				Description:   "[Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -305,42 +346,51 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"registry_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Container Registry ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"image_name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Image name filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 						"tag": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Image tag filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"create_image": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `create image` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 						"delete_image": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `delete image` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 						"create_image_tag": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `create image tag` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 						"delete_image_tag": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Boolean flag for setting `delete image tag` event for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -348,6 +398,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeYDS: {
 				Type:          schema.TypeList,
+				Description:   "[Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -355,25 +406,30 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"stream_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Stream name for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"database": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Stream database for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Service account ID to access data stream for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -381,6 +437,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeTimer: {
 				Type:          schema.TypeList,
+				Description:   "[Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -388,12 +445,14 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cron_expression": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Cron expression for timer for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"payload": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Payload to be passed to function.",
+							Optional:    true,
 						},
 					},
 				},
@@ -401,6 +460,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeMail: {
 				Type:          schema.TypeList,
+				Description:   "[Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -408,21 +468,25 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"attachments_bucket_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Object Storage Bucket ID for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Service account ID to access object storage for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
@@ -462,6 +526,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeLogging: {
 				Type:          schema.TypeList,
+				Description:   "[Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex Cloud Functions Trigger, if present.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -469,77 +534,88 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Logging group ID for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"resource_ids": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							MinItems: 0,
+							Type:        schema.TypeSet,
+							Description: "Resource ID filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							MinItems:    0,
 						},
 
 						"resource_types": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							MinItems: 0,
+							Type:        schema.TypeSet,
+							Description: "Resource type filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							MinItems:    0,
 						},
 
 						"levels": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							MinItems: 0,
+							Type:        schema.TypeSet,
+							Description: "Logging level filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							MinItems:    0,
 						},
 
 						"stream_names": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							MinItems: 0,
+							Type:        schema.TypeSet,
+							Description: "Logging stream name filter setting for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							MinItems:    0,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"dlq": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"queue_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "ID of Dead Letter Queue for Trigger (Queue ARN).",
+							Required:    true,
 						},
 
 						"service_account_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger.",
+							Required:    true,
 						},
 					},
 				},
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

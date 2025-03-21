@@ -14,9 +14,10 @@ const yandexIAMServiceAccountUpdateAccessBindingsBatchSize = 1000
 
 var IamServiceAccountSchema = map[string]*schema.Schema{
 	"service_account_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: "The service account ID to apply a binding to.",
 	},
 }
 

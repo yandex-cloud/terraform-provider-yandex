@@ -10,12 +10,15 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const yandexVPCSubnetDefaultTimeout = 3 * time.Minute
 
 func resourceYandexVPCSubnet() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a subnet within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/network#subnet).\n\n* How-to Guides\n  * [Cloud Networking](https://yandex.cloud/docs/vpc/)\n  * [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)\n",
+
 		Create: resourceYandexVPCSubnetCreate,
 		Read:   resourceYandexVPCSubnetRead,
 		Update: resourceYandexVPCSubnetUpdate,
@@ -34,14 +37,16 @@ func resourceYandexVPCSubnet() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "ID of the network this subnet belongs to. Only networks that are in the distributed mode can have subnets.",
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"v4_cidr_blocks": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "A list of blocks of internal IPv4 addresses that are owned by this subnet. Provide this property when you create the subnet. For example, `10.0.0.0/22` or `192.168.0.0/16`. Blocks of addresses must be unique and non-overlapping within a network. Minimum subnet size is `/28`, and maximum subnet size is `/16`. Only IPv4 is supported.",
+				Required:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateCidrBlocks,
@@ -49,78 +54,90 @@ func resourceYandexVPCSubnet() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"route_table_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the route table to assign to this subnet. Assigned route table should belong to the same network as this subnet.",
+				Optional:    true,
 			},
 
 			"v6_cidr_blocks": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "An optional list of blocks of IPv6 addresses that are owned by this subnet.",
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 
 			"dhcp_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Options for DHCP client.",
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain_name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Domain name.",
+							Optional:    true,
 						},
 						"domain_name_servers": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Domain name server IP addresses.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
 						},
 						"ntp_servers": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "NTP server IP addresses.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
 						},
 					},
 				},
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

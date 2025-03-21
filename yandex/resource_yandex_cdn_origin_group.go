@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -19,10 +20,11 @@ const (
 
 func resourceYandexCDNOriginGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexCDNOriginGroupCreate,
-		Read:   resourceYandexCDNOriginGroupRead,
-		Update: resourceYandexCDNOriginGroupUpdate,
-		Delete: resourceYandexCDNOriginGroupDelete,
+		Description: "Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/cdn/concepts/origins).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.\n",
+		Create:      resourceYandexCDNOriginGroupCreate,
+		Read:        resourceYandexCDNOriginGroupRead,
+		Update:      resourceYandexCDNOriginGroupUpdate,
+		Delete:      resourceYandexCDNOriginGroupDelete,
 
 		SchemaVersion: 0,
 
@@ -38,44 +40,51 @@ func resourceYandexCDNOriginGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 			"use_next": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.",
+				Optional:    true,
+				Default:     true,
 			},
 			"origin": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
+				Type:        schema.TypeSet,
+				Description: "A set of available origins, an origins group must contain at least one enabled origin with fields below.",
+				Required:    true,
+				MinItems:    1,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "IP address or Domain name of your origin and the port.",
+							Required:    true,
 						},
 						"origin_group_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "The origin is enabled and used as a source for the CDN. Default `enabled`.",
+							Optional:    true,
+							Default:     true,
 						},
 						"backup": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},

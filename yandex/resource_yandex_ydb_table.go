@@ -12,6 +12,8 @@ import (
 
 func resourceYandexYDBTable() *schema.Resource {
 	return &schema.Resource{
+		Description: "Yandex Database table.",
+
 		Schema:        table.ResourceSchema(),
 		SchemaVersion: 0,
 		CreateContext: resourceYandexYDBTableCreate,

@@ -7,36 +7,44 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexIAMServiceAccount() *schema.Resource {
 	return &schema.Resource{
+		Description: "Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).\n\n~> One of `service_account_id` or `name` should be specified.\n",
+
 		Read: dataSourceYandexIAMServiceAccountRead,
 		Schema: map[string]*schema.Schema{
 			"service_account_id": {
 				Type:          schema.TypeString,
+				Description:   "ID of a specific service account.",
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
 			},
 			"folder_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
+				Computed:    true,
 			},
 			"name": {
 				Type:          schema.TypeString,
+				Description:   common.ResourceDescriptions["name"],
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"service_account_id"},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Computed:    true,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 		},
 	}

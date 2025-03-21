@@ -637,7 +637,7 @@ Resources:
     Category: "Key Management Service (KMS)"
     Type: sdk
     HasR: true
-    HasD: false
+    HasD: true
     HasI: true
     #HasF: false
     #HasE: false
@@ -661,7 +661,7 @@ Resources:
     Category: "Key Management Service (KMS)"
     Type: sdk
     HasR: true
-    HasD: false
+    HasD: true
     HasI: true
     #HasF: false
     #HasE: false
@@ -693,7 +693,7 @@ Resources:
     Category: "Key Management Service (KMS)"
     Type: sdk
     HasR: true
-    HasD: false
+    HasD: true
     HasI: true
     #HasF: false
     #HasE: false

@@ -7,11 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 func dataSourceYandexALBLoadBalancer() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexALBLoadBalancerRead,
+		//Description: resourceYandexALBLoadBalancer().Description,
+		Description: "Get information about a Yandex Application Load Balancer. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).\n\nThis data source is used to define [Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/concepts/application-load-balancer) that can be used by other resources.\n\n~> One of `load_balancer_id` or `name` should be specified.\n",
+		Read:        dataSourceYandexALBLoadBalancerRead,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough, // TODO: SA1019: schema.ImportStatePassthrough is deprecated: Please use the context aware ImportStatePassthroughContext instead (staticcheck)
 		},
@@ -26,63 +29,80 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"load_balancer_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: common.ResourceDescriptions["id"],
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: common.ResourceDescriptions["name"],
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: common.ResourceDescriptions["description"],
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: common.ResourceDescriptions["folder_id"],
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: common.ResourceDescriptions["labels"],
 			},
 
 			"region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["region_id"].Description,
 			},
 
 			"network_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["network_id"].Description,
 			},
 
 			"log_group_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["log_group_id"].Description,
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["status"].Description,
 			},
 
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: resourceYandexALBLoadBalancer().Schema["security_group_ids"].Description,
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: common.ResourceDescriptions["created_at"],
 			},
 
 			"allocation_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["allocation_policy"].Description,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"location": {
@@ -111,7 +131,9 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 			},
 
 			"log_options": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["log_options"].Description,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disable": {
@@ -120,7 +142,8 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 						},
 
 						"discard_rule": {
-							Type: schema.TypeList,
+							Type:     schema.TypeList,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"discard_percent": {
@@ -153,7 +176,6 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 									},
 								},
 							},
-							Computed: true,
 						},
 
 						"log_group_id": {
@@ -162,12 +184,12 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 						},
 					},
 				},
-				Computed: true,
 			},
 
 			"listener": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["listener"].Description,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -296,11 +318,6 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 						},
 					},
 				},
-			},
-
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 		},
 	}

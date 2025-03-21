@@ -7,7 +7,7 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
-{{ .Description }}
+{{ .Description | trimspace }}
 
 ## Example Usage
 

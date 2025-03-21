@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const (
@@ -36,6 +37,8 @@ func isVersionPrefix(prefix string, version string) bool {
 
 func resourceYandexDataprocCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages a Yandex Data Processing cluster. For more information, see [the official documentation](https://yandex.cloud/docs/data-proc/).",
+
 		Create: resourceYandexDataprocClusterCreate,
 		Read:   resourceYandexDataprocClusterRead,
 		Update: resourceYandexDataprocClusterUpdate,
@@ -54,104 +57,122 @@ func resourceYandexDataprocCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Required:    true,
 			},
 
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.",
+				Required:    true,
 			},
 
 			"cluster_config": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:        schema.TypeList,
+				Description: "Configuration and resources for hosts that should be created with the cluster.",
+				MaxItems:    1,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subcluster_spec": {
-							Type:     schema.TypeList,
-							MinItems: 1,
-							Required: true,
+							Type:        schema.TypeList,
+							Description: "Configuration of the Yandex Data Processing subcluster.",
+							MinItems:    1,
+							Required:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Name of the Yandex Data Processing subcluster.",
+										Required:    true,
 									},
 
 									"role": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "Role of the subcluster in the Yandex Data Processing cluster.",
+										Required:    true,
 										ValidateFunc: validation.StringInSlice(
 											[]string{"MASTERNODE", "DATANODE", "COMPUTENODE"}, false),
 									},
 
 									"resources": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Required: true,
+										Type:        schema.TypeList,
+										Description: "Resources allocated to each host of the Yandex Data Processing subcluster.",
+										MaxItems:    1,
+										Required:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"resource_preset_id": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://yandex.cloud/docs/data-proc/concepts/instance-types).",
+													Required:    true,
 												},
 												"disk_size": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Volume of the storage available to a host, in gigabytes.",
+													Required:    true,
 												},
 												"disk_type_id": {
-													Type:     schema.TypeString,
-													Optional: true,
-													ForceNew: true,
-													Default:  "network-hdd",
+													Type:        schema.TypeString,
+													Description: "Type of the storage of a host. One of `network-hdd` (default) or `network-ssd`.",
+													Optional:    true,
+													ForceNew:    true,
+													Default:     "network-hdd",
 												},
 											},
 										},
 									},
 
 									"autoscaling_config": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Description: "Autoscaling configuration for compute subclusters.",
+										Optional:    true,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_hosts_count": {
-													Type:     schema.TypeInt,
-													Required: true,
+													Type:        schema.TypeInt,
+													Description: "Maximum number of nodes in autoscaling subclusters.",
+													Required:    true,
 												},
 												"preemptible": {
-													Type:     schema.TypeBool,
-													Optional: true,
-													Default:  false,
+													Type:        schema.TypeBool,
+													Description: "Use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
+													Optional:    true,
+													Default:     false,
 												},
 												"measurement_duration": {
 													Type:         schema.TypeString,
+													Description:  "Time in seconds allotted for averaging metrics.",
 													Optional:     true,
 													Computed:     true,
 													ValidateFunc: ConvertableToInt(),
 												},
 												"warmup_duration": {
 													Type:         schema.TypeString,
+													Description:  "The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.",
 													Optional:     true,
 													Computed:     true,
 													ValidateFunc: ConvertableToInt(),
 												},
 												"stabilization_duration": {
 													Type:         schema.TypeString,
+													Description:  "Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.",
 													Optional:     true,
 													Computed:     true,
 													ValidateFunc: ConvertableToInt(),
 												},
 												"cpu_utilization_target": {
 													Type:         schema.TypeString,
+													Description:  "Defines an autoscaling rule based on the average CPU utilization of the instance group. If not set default autoscaling metric will be used.",
 													Optional:     true,
 													Computed:     true,
 													ValidateFunc: ConvertableToInt(),
 												},
 												"decommission_timeout": {
 													Type:         schema.TypeString,
+													Description:  "Timeout to gracefully decommission nodes during downscaling. In seconds.",
 													Optional:     true,
 													Computed:     true,
 													ValidateFunc: ConvertableToInt(),
@@ -161,40 +182,46 @@ func resourceYandexDataprocCluster() *schema.Resource {
 									},
 
 									"subnet_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Description: "The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.",
+										Required:    true,
 									},
 
 									"hosts_count": {
 										Type:         schema.TypeInt,
+										Description:  "Number of hosts within Yandex Data Processing subcluster.",
 										Required:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 
 									"id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "ID of the subcluster.",
+										Computed:    true,
 									},
 
 									"assign_public_ip": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
-										Default:  false,
+										Type:        schema.TypeBool,
+										Description: "If `true` then assign public IP addresses to the hosts of the subclusters.",
+										Optional:    true,
+										ForceNew:    true,
+										Default:     false,
 									},
 								},
 							},
 						},
 						"hadoop": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							Description: "Yandex Data Processing specific options.",
+							MaxItems:    1,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"services": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeSet,
+										Description: "List of services to run on Yandex Data Processing cluster.",
+										Optional:    true,
+										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
 											ValidateFunc: validation.StringInSlice(dataprocServiceNames(), false),
@@ -202,42 +229,48 @@ func resourceYandexDataprocCluster() *schema.Resource {
 									},
 
 									"properties": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeMap,
+										Description: "A set of key/value pairs that are used to configure cluster services.",
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
 
 									"ssh_public_keys": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeSet,
+										Description: "List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://yandex.cloud/docs/data-proc/operations/connect).",
+										Optional:    true,
+										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 
 									"initialization_action": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeList,
+										Description: "List of initialization scripts.",
+										Optional:    true,
+										ForceNew:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"uri": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeString,
+													Description: "Script URI.",
+													Required:    true,
+													ForceNew:    true,
 												},
 												"args": {
-													Type:     schema.TypeList,
-													Optional: true,
-													ForceNew: true,
-													Computed: true,
+													Type:        schema.TypeList,
+													Description: "List of arguments of the initialization script.",
+													Optional:    true,
+													ForceNew:    true,
+													Computed:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
 												},
 												"timeout": {
 													Type:         schema.TypeString,
+													Description:  "Script execution timeout, in seconds.",
 													Optional:     true,
 													ForceNew:     true,
 													Computed:     true,
@@ -250,10 +283,11 @@ func resourceYandexDataprocCluster() *schema.Resource {
 							},
 						},
 						"version_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Version of Yandex Data Processing image.",
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								return isVersionPrefix(new, old)
 							},
@@ -263,73 +297,85 @@ func resourceYandexDataprocCluster() *schema.Resource {
 			},
 
 			"bucket": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of job driver's process to specified bucket. In order for this to work service account (specified by the `service_account_id` argument) should be given permission to create objects within this bucket.",
+				Optional:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ui_proxy": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Whether to enable UI Proxy feature.",
+				Optional:    true,
 			},
 
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
 			},
 
 			"host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeSet,
+				Description: "A list of host group IDs to place VMs of the cluster on.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"zone_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["zone"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"log_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "ID of the cloud logging group for cluster logs.",
+				Optional:    true,
 			},
 
 			"environment": {
 				Type:         schema.TypeString,
+				Description:  "Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.",
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "PRESTABLE",
