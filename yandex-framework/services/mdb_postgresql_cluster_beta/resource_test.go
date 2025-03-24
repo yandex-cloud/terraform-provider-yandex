@@ -76,7 +76,7 @@ resource "yandex_vpc_security_group" "sgroup2" {
 
 var (
 	pgVersions   = [...]string{"13", "14", "15", "16", "17"}
-	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c"}
+	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c"} //nolint:unused
 )
 
 func init() {

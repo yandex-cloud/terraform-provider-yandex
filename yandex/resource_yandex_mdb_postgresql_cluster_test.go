@@ -1489,6 +1489,7 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
 `, version)
 }
 
+//nolint:unused
 func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {

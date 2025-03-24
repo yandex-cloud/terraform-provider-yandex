@@ -295,7 +295,6 @@ func (r *communityResource) Delete(ctx context.Context, req resource.DeleteReque
 		),
 	)
 
-	err = op.Wait(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Delete Resource",
@@ -306,6 +305,7 @@ func (r *communityResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
+	err = op.Wait(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Delete Resource",

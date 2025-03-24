@@ -17,8 +17,7 @@ import (
 )
 
 func TestPubKeyFilesFlag_implements(t *testing.T) {
-	var raw interface{}
-	raw = new(PubKeyFilesFlag)
+	var raw interface{} = new(PubKeyFilesFlag)
 	if _, ok := raw.(flag.Value); !ok {
 		t.Fatalf("PubKeysFilesFlag should be a Value")
 	}

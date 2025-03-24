@@ -1316,6 +1316,7 @@ func securityRuleCidrsFromMap(res map[string]interface{}) (*vpc.CidrBlocks, bool
 	return securityRuleCirds(v4Blocks, v6Blocks)
 }
 
+//nolint:unused
 func securityRuleCidrsFromResourceData(data *schema.ResourceData) (*vpc.CidrBlocks, bool) {
 	return securityRuleCirds(data.Get("v4_cidr_blocks"), data.Get("v6_cidr_blocks"))
 }
@@ -1352,6 +1353,7 @@ func securityRulePortsFromMap(res map[string]interface{}) (*vpc.PortRange, error
 	return securityRulePorts(port, fromPort, toPort)
 }
 
+//nolint:unused
 func securityRulePortsFromResourceData(data *schema.ResourceData) (*vpc.PortRange, error) {
 	port := int64(data.Get("port").(int))
 	fromPort := int64(data.Get("from_port").(int))

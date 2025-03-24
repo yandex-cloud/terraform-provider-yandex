@@ -515,6 +515,7 @@ func testAccCommonIamDependenciesEditorConfig(randInt int) string {
 	return testAccCommonIamDependenciesConfigImpl(randInt, "editor")
 }
 
+//nolint:unused
 func testAccCommonIamDependenciesAdminConfig(randInt int) string {
 	return testAccCommonIamDependenciesConfigImpl(randInt, "admin")
 }

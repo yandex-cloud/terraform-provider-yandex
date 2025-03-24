@@ -1193,7 +1193,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 `, name, desc)
 }
 
-func testAccMDBOpenSearchClusterConfigNetworksRestore(name, desc, environment string, randInt int) string {
+func testAccMDBOpenSearchClusterConfigNetworksRestore(name, desc, environment string, randInt int) string { //nolint:unused
 	return testAccMDBOpenSearchClusterConfig(name, desc, environment, false, randInt)
 }
 

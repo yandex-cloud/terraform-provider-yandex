@@ -40,9 +40,15 @@ linters-settings:
       - copylocks
 
 issues:
-  new-from-rev: master # Analyse only differense between master->${git branch git branch --show-current}
+  # new-from-rev: master # Analyse only differense between master->${git branch git branch --show-current}
   max-same-issues: 0
   exclude-rules:
+    - linters:
+        - gosimple
+      text: "S1009:" # should omit nil check; len() for nil slices is defined as zero
+    - linters:
+        - staticcheck
+      text: "SA1006:" # printf-style function with dynamic format string and no further arguments should use print-style function instead
     - linters:
         - staticcheck
       text: "SA1019:" # Using a deprecated function, variable, constant or field

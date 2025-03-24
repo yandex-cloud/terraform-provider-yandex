@@ -14,10 +14,16 @@ SWEEP_DIR= ./yandex ./yandex-framework/...
 
 SWEEPERS_FOR_RUNNING?=""
 
-git_version := $(shell git describe --abbrev=0 --tags)
-git_hash := $(shell git rev-parse --short HEAD)
+ifeq ($(ARC_BRANCH),)
+    version_tag := $(shell git describe --abbrev=0 --tags)
+    commit_hash := $(shell git rev-parse --short HEAD)
+else
+    version_tag := $(shell echo "v0.135.0")  # HOW get real tag???
+    commit_hash := $(shell arc rev-parse HEAD | head -c 8)
+endif
+
 current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")
-LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${git_version}-${current_time}+dev.${git_hash}"
+LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${version_tag}-${current_time}+dev.${commit_hash}"
 
 
 default: build
@@ -57,7 +63,8 @@ fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 lint:
-	golangci-lint run --modules-download-mode mod $(LINT_PACKAGES)
+	golangci-lint version
+	golangci-lint run --modules-download-mode mod $(LINT_PACKAGES) -v
 
 tools:
 	@echo "==> installing required tooling..."

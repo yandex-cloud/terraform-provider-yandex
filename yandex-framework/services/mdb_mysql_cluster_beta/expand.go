@@ -33,8 +33,8 @@ func expandAccess(ctx context.Context, cfgAccess types.Object, diags *diag.Diagn
 }
 
 const (
-	anytimeType = "ANYTIME"
-	weeklyType  = "WEEKLY"
+	anytimeType = "ANYTIME" //nolint:unused
+	weeklyType  = "WEEKLY"  //nolint:unused
 )
 
 func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *diag.Diagnostics) *mysql.PerformanceDiagnostics {

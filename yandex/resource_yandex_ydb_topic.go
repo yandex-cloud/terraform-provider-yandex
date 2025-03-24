@@ -11,6 +11,7 @@ import (
 	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/topic"
 )
 
+//nolint:unused
 func defaultTimeouts() *schema.ResourceTimeout {
 	return &schema.ResourceTimeout{
 		Create:  schema.DefaultTimeout(time.Minute * 20),

@@ -48,11 +48,11 @@ import (
 type saKeyValidator struct{}
 
 func (v saKeyValidator) Description(ctx context.Context) string {
-	return fmt.Sprintf("Validate Service Account Key")
+	return "Validate Service Account Key"
 }
 
 func (v saKeyValidator) MarkdownDescription(ctx context.Context) string {
-	return fmt.Sprintf("Validate Service Account Key")
+	return "Validate Service Account Key"
 }
 
 func (v saKeyValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {

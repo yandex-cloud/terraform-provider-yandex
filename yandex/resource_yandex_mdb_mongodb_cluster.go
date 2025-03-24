@@ -1204,6 +1204,7 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
 }
 
+//nolint:unused
 func updateMongoDBMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *mongodb.MaintenanceWindow) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().MongoDB().Cluster().Update(ctx, &mongodb.UpdateClusterRequest{

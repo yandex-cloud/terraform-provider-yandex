@@ -1048,6 +1048,7 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+//nolint:unused
 func updateRedisMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *redis.MaintenanceWindow) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Redis().Cluster().Update(ctx, &redis.UpdateClusterRequest{

@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func prepareUpdateAfterCreateRequest(ctx context.Context, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
+func prepareUpdateAfterCreateRequest(ctx context.Context, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) { //nolint:unused
 	var diags diag.Diagnostics
 
 	var paths []string

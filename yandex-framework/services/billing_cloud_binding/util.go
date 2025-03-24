@@ -27,7 +27,7 @@ func ParseBindServiceInstanceId(s string) (*InstanceID, error) {
 	splitId := strings.Split(s, "/")
 
 	if len(splitId) != 3 {
-		return nil, fmt.Errorf("unexcepted Id format occured while parsing InstanceID")
+		return nil, fmt.Errorf("unexcepted Id format occurred while parsing InstanceID")
 	}
 
 	id := InstanceID{

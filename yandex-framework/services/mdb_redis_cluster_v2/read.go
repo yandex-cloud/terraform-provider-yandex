@@ -62,9 +62,7 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.Access, diags = flattenAccess(ctx, cluster.GetConfig().GetAccess())
 	diagnostics.Append(diags...)
 
-	var entityIdToApiHosts map[string]Host
-
-	entityIdToApiHosts = mdbcommon.ReadHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
+	var entityIdToApiHosts map[string]Host = mdbcommon.ReadHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
 
 	state.HostSpecs, diags = types.MapValueFrom(ctx, HostType, entityIdToApiHosts)
 	diagnostics.Append(diags...)
