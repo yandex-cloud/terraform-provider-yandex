@@ -34,79 +34,15 @@ const (
 	defaultDocsDir      = "docs"
 )
 
-/*
-// 1. Impose Docs to the resource (46)
-var resourcesOnlyList = []string{
-+	"backup_policy_bindings",
-+	"cm_certificate_iam_binding",
-+	"container_registry_iam_binding",
-+	"container_repository_iam_binding",
-+	"dns_zone_iam_binding",
-+	"function_iam_binding",
-+	"iam_service_account_iam_binding",
-+	"kms_asymmetric_encryption_key_iam_binding",
-+	"kms_asymmetric_signature_key_iam_binding",
-+	"kms_symmetric_key_iam_binding",
-+	"lockbox_secret_iam_binding",
-+	"organizationmanager_organization_iam_binding",
-+	"resourcemanager_cloud_iam_binding",
-+	"resourcemanager_folder_iam_binding",
-+	"serverless_container_iam_binding",
-+	"ydb_database_iam_binding",
-
-+	"cm_certificate_iam_member",
-+	"iam_service_account_iam_member",
-+	"kms_asymmetric_encryption_key_iam_member",
-+	"kms_asymmetric_signature_key_iam_member",
-+	"kms_symmetric_key_iam_member",
-+	"lockbox_secret_iam_member",
-+	"organizationmanager_group_iam_member",
-+	"organizationmanager_organization_iam_member",
-+	"resourcemanager_cloud_iam_member",
-+	"resourcemanager_folder_iam_member",
-
-+	"iam_service_account_iam_policy",
-+	"resourcemanager_folder_iam_policy",
-
-+	"datatransfer_endpoint",
-	"datatransfer_transfer",
-	"dns_recordset",
-	"iam_service_account_api_key",
-	"iam_service_account_key",
-	"iam_service_account_static_access_key",
-	"kms_secret_ciphertext",
-	"lockbox_secret_version_hashed",
-	"organizationmanager_group_mapping",
-	"organizationmanager_group_mapping_item",
-	"organizationmanager_group_membership",
-	"storage_bucket",
-	"storage_object",
-	"vpc_default_security_group",
-!	"ydb_table",
-!	"ydb_table_changefeed",
-!	"ydb_table_index",
-!	"ydb_topic",
-}
-*/
-
-/*
-2. Impose Docs to the data-sources (7)
-var dataSourcesOnlyList = []string{
-	"client_config",
-	"cm_certificate_content",
-	"iam_policy",
-	"iam_role",
-	"iam_service_agent",
-	"iam_user",
-!!!	"sws_waf_rule_set_descriptor",
-}
-*/
-
-// =============================================
-// Resources with no Descriptions in Source Code
-// 3. Impose Docs for the resource and fix DS (89)
-// =============================================
-var notMigratedResourcesList = []string{
+// ===============================================================
+// SDKv2 Resource & Data-source pairs List where empty Description
+// fields should be filled for nested Attributes blocks and
+// Attributes in such nested blocks.
+//
+// When Resource and Data-source pair has been migrated to
+// Terraform plugin framework, it should be removed from this list.
+// ================================================================
+var SDKv2ResourcesList = []string{
 	"alb_backend_group",
 	"alb_http_router",
 	"alb_load_balancer",
@@ -222,8 +158,16 @@ func extractSubcategory(input []byte) (string, error) {
 
 func postProcessingDocs(resourcePath string) error {
 
-	//providerPrefix := "yandex"
 	log.Printf("Post processing resource %s", resourcePath)
+
+	// Copy Descriptions of nested blocks (attributes & blocks)
+	// from SDKv2 resource generated doc to the SDKv2 data-source generated doc
+	wd, _ := os.Getwd()
+	for _, resName := range SDKv2ResourcesList {
+		srcName := fmt.Sprintf("%s/docs/resources/%s.md", wd, resName)
+		dstName := fmt.Sprintf("%s/docs/data-sources/%s.md", wd, resName)
+		FixDataSourceDescriptions(dstName, GetResourceDescriptions(srcName))
+	}
 
 	err := filepath.Walk(resourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -232,20 +176,6 @@ func postProcessingDocs(resourcePath string) error {
 
 		// Process only Markdown files
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") {
-			/*
-				resName := strings.TrimSuffix(info.Name(), ".md")
-				srcName := fmt.Sprintf("%s/resource_%s_%s.go", providerPrefix, providerPrefix, resName)
-
-				// If SDKv2 resource was found
-				_, err := os.Stat(srcName)
-
-				// If resource SDKv2 and doc's already migrated to source code
-				if err == nil && !slices.Contains(notMigratedResourcesList, resName) {
-					fmt.Printf("! %s\n", resName)
-					//dsName := "data_source_name"
-					//FixDataSourceDescriptions(dsName, GetResourceDescriptions(resName))
-				}
-			*/
 			return replaceTimeoutBlock(path)
 		}
 
@@ -350,14 +280,15 @@ func FixDataSourceDescriptions(FileName string, Data map[string]map[string]map[s
 	nestedPrefix := "(see [below for nested schema]"
 	currentBlock := ""
 
+	tmpSuffix := ".tmp"
+	targetFile := FileName + tmpSuffix
+
 	// Open DataSource file for Read
 	file, err := os.Open(FileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
-	targetFile := FileName + ".tmp"
 
 	fileTmp, err := os.OpenFile(targetFile, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
@@ -401,7 +332,6 @@ func FixDataSourceDescriptions(FileName string, Data map[string]map[string]map[s
 						strNew = fmt.Sprintf("- `%s` (%s) %s %s%s\n",
 							attrName, val["type"], val["descr"], nestedPrefix, attrDescr)
 					}
-					fmt.Println(strNew)
 					strLine = strNew
 				}
 			}
@@ -412,6 +342,11 @@ func FixDataSourceDescriptions(FileName string, Data map[string]map[string]map[s
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+	// Rename temp filename to the target filename
+	err = os.Rename(targetFile, strings.TrimSuffix(targetFile, tmpSuffix))
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -450,7 +385,6 @@ func GetResourceDescriptions(FileName string) map[string]map[string]map[string]s
 				aName = strings.TrimPrefix(aVal[0], "- `")
 				// Parse the attribute Type
 				aType = strings.Split(aVal[1], ")")[0]
-				//fmt.Printf("== %s, [%s], '%s' ==\n\n", aName, aType, aVal[1])
 
 				// if link to nested block was found. Save it separated from description
 				aBuf := strings.Split(aVal[1], "(see [below for nested schema](#nestedblock--")
@@ -462,19 +396,9 @@ func GetResourceDescriptions(FileName string) map[string]map[string]map[string]s
 					aPrefix := fmt.Sprintf("`%s` (%s)", aName, aType)
 					aDescr = strings.TrimSpace(strings.Split(aData, aPrefix)[1])
 				}
-				//fmt.Printf("[%s] [%s] [%s] [%s]\n\n", currentBlock, aName, aType, aDescr)
 
 				// Save data. Skip "timeouts" block and attributes with empty descriptions
 				if len(aDescr) > 1 && currentBlock != "timeouts" {
-
-					/*
-						data[currentBlock] = make(map[string]map[string]string)
-						data[currentBlock][aName] = map[string]string{
-							"type":  aType,
-							"descr": aDescr,
-							"link":  aLink,
-						}
-					*/
 					// If current Block already exists just add attribute to it
 					if entry, ok := data[currentBlock]; ok {
 						entry[aName] = map[string]string{
@@ -491,7 +415,6 @@ func GetResourceDescriptions(FileName string) map[string]map[string]map[string]s
 							"link":  aLink,
 						}
 					}
-					//fmt.Printf("%s, %+v\n", currentBlock, data[currentBlock])
 				}
 			}
 		}
@@ -512,15 +435,6 @@ func main() {
 		log.Println("Docs directory is not set, using default")
 		docsDir = defaultDocsDir
 	}
-
-	/*
-		err := postProcessingDocs(filepath.Join(docsDir, "resources"))
-		if err != nil {
-			log.Fatalf("Error post processing docs: %s\n", err)
-			return
-		}
-		os.Exit(2)
-	*/
 
 	tmpDir, err := os.MkdirTemp(".", "templates-")
 	if err != nil {
