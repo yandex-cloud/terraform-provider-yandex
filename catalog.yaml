@@ -29,7 +29,7 @@ Resources:
     Category: "Managed Service for Apache Airflow"
     Type: fw
     HasR: true
-    HasD: false
+    HasD: true
     HasI: true
     #HasF: false
     #HasE: false

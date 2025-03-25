@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'airflow: added `yandex_airflow_cluster` datasource'
+time: 2025-03-24T21:28:20.648772+03:00

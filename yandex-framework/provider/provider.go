@@ -294,6 +294,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 				billing_cloud_binding.BindingServiceInstanceCloudType,
 				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
+		airflow_cluster.NewDatasource,
 		datasphere_project.NewDataSource,
 		datasphere_community.NewDataSource,
 		mdb_clickhouse_database.NewDataSource,

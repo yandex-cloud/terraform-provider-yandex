@@ -12,6 +12,7 @@
             "name": "id",
             "string": {
               "computed_optional_required": "computed",
+              "description": "The resource identifier.",
               "plan_modifiers": [
                 {
                   "custom": {
@@ -26,6 +27,7 @@
             "name": "folder_id",
             "string": {
               "computed_optional_required": "computed_optional",
+              "description": "The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.",
               "plan_modifiers": [
                 {
                   "custom": {
@@ -46,6 +48,7 @@
             "name": "created_at",
             "string": {
               "computed_optional_required": "computed",
+              "description": "The creation timestamp of the resource.",
               "plan_modifiers": [
                 {
                   "custom": {
@@ -60,59 +63,50 @@
             "name": "health",
             "string": {
               "computed_optional_required": "computed",
-              "plan_modifiers": [
-                {
-                  "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
-                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
-                  }
-                }
-              ]
+              "description": "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/)."
             }
           },
           {
             "name": "status",
             "string": {
               "computed_optional_required": "computed",
-              "plan_modifiers": [
-                {
-                  "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
-                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
-                  }
-                }
-              ]
+              "description": "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/)."
             }
           },
           {
             "name": "name",
             "string": {
-              "computed_optional_required": "required"
+              "computed_optional_required": "required",
+              "description": "The resource name."
             }
           },
           {
             "name": "description",
             "string": {
-              "computed_optional_required": "optional"
+              "computed_optional_required": "optional",
+              "description": "The resource description."
             }
           },
           {
             "name": "labels",
             "map": {
               "computed_optional_required": "optional",
+              "description": "A set of key/value label pairs which assigned to resource.",
               "element_type": {"string": {}}
             }
           },
           {
             "name": "service_account_id",
             "string": {
-              "computed_optional_required": "required"
+              "computed_optional_required": "required",
+              "description": "[Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource. For more information, see [documentation](https://yandex.cloud/docs/managed-airflow/concepts/impersonation)."
             }
           },
           {
             "name": "subnet_ids",
             "set": {
               "computed_optional_required": "required",
+              "description": "The list of VPC subnets identifiers which resource is attached.",
               "element_type": {
                 "string": {}
               },
@@ -130,6 +124,7 @@
             "name": "security_group_ids",
             "set": {
               "computed_optional_required": "optional",
+              "description": "The list of security groups applied to resource or their components.",
               "element_type": {
                 "string": {}
               }
@@ -139,6 +134,7 @@
             "name": "admin_password",
             "string": {
               "computed_optional_required": "computed_optional",
+              "description": "Password that is used to log in to Apache Airflow web UI under `admin` user.",
               "sensitive": true,
               "plan_modifiers": [
                 {
@@ -153,16 +149,19 @@
             "name": "code_sync",
             "single_nested": {
               "computed_optional_required": "required",
+              "description": "Parameters of the location and access to the code that will be executed in the cluster.",
               "attributes": [
                 {
                   "name": "s3",
                   "single_nested": {
                     "computed_optional_required": "required",
+                    "description": "Currently only Object Storage (S3) is supported as the source of DAG files.",
                     "attributes": [
                       {
                         "name": "bucket",
                         "string": {
-                          "computed_optional_required": "required"
+                          "computed_optional_required": "required",
+                          "description": "The name of the Object Storage bucket that stores DAG files used in the cluster."
                         }
                       }
                     ]
@@ -175,6 +174,7 @@
             "name": "deletion_protection",
             "bool": {
               "computed_optional_required": "computed_optional",
+              "description": "The `true` value means that resource is protected from accidental deletion.",
               "default": {"static": false}
             }
           },
@@ -182,6 +182,7 @@
             "name": "pip_packages",
             "set": {
               "computed_optional_required": "optional",
+              "description": "Python packages that are installed in the cluster.",
               "element_type": {
                 "string": {}
               }
@@ -191,6 +192,7 @@
             "name": "deb_packages",
             "set": {
               "computed_optional_required": "optional",
+              "description": "System packages that are installed in the cluster.",
               "element_type": {
                 "string": {}
               }
@@ -200,29 +202,34 @@
             "name": "logging",
             "single_nested": {
               "computed_optional_required": "optional",
+              "description": "Cloud Logging configuration.",
               "attributes": [
                 {
                   "name": "enabled",
                   "bool": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "Enables delivery of logs generated by the Airflow components to [Cloud Logging](https://yandex.cloud/docs/logging/)."
                   }
                 },
                 {
                   "name": "folder_id",
                   "string": {
-                    "computed_optional_required": "optional"
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
                   }
                 },
                 {
                   "name": "log_group_id",
                   "string": {
-                    "computed_optional_required": "optional"
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
                   }
                 },
                 {
                   "name": "min_level",
                   "string": {
                     "computed_optional_required": "optional",
+                    "description": "Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).",
                     "validators": [
                       {
                         "custom": {
@@ -240,11 +247,13 @@
             "name": "lockbox_secrets_backend",
             "single_nested": {
               "computed_optional_required": "optional",
+              "description": "Configuration of Lockbox Secrets Backend. [See documentation](https://yandex.cloud/docs/managed-airflow/tutorials/lockbox-secrets-in-maf-cluster) for details.",
               "attributes": [
                 {
                   "name": "enabled",
                   "bool": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "Enables usage of Lockbox Secrets Backend."
                   }
                 }
               ]
@@ -254,6 +263,7 @@
             "name": "airflow_config",
             "map": {
               "computed_optional_required": "optional",
+              "description": "Configuration of the Apache Airflow application itself. The value of this attribute is a two-level map. Keys of top-level map are the names of [configuration sections](https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#airflow-configuration-options). Keys of inner maps are the names of configuration options within corresponding section.",
               "element_type": {
                 "map": {
                   "element_type": {
@@ -274,17 +284,20 @@
             "name": "webserver",
             "single_nested": {
               "computed_optional_required": "required",
+              "description": "Configuration of `webserver` instances.",
               "attributes": [
                 {
                   "name": "count",
                   "int64": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The number of webserver instances in the cluster."
                   }
                 },
                 {
                   "name": "resource_preset_id",
                   "string": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
                   }
                 }
               ]
@@ -294,17 +307,20 @@
             "name": "scheduler",
             "single_nested": {
               "computed_optional_required": "required",
+              "description": "Configuration of scheduler instances.",
               "attributes": [
                 {
                   "name": "count",
                   "int64": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The number of scheduler instances in the cluster."
                   }
                 },
                 {
                   "name": "resource_preset_id",
                   "string": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
                   }
                 }
               ]
@@ -314,23 +330,27 @@
             "name": "worker",
             "single_nested": {
               "computed_optional_required": "required",
+              "description": "Configuration of worker instances.",
               "attributes": [
                 {
                   "name": "min_count",
                   "int64": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The minimum number of worker instances in the cluster."
                   }
                 },
                 {
                   "name": "max_count",
                   "int64": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The maximum number of worker instances in the cluster."
                   }
                 },
                 {
                   "name": "resource_preset_id",
                   "string": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
                   }
                 }
               ]
@@ -340,17 +360,20 @@
             "name": "triggerer",
             "single_nested": {
               "computed_optional_required": "optional",
+              "description": "Configuration of `triggerer` instances.",
               "attributes": [
                 {
                   "name": "count",
                   "int64": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The number of triggerer instances in the cluster."
                   }
                 },
                 {
                   "name": "resource_preset_id",
                   "string": {
-                    "computed_optional_required": "required"
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
                   }
                 }
               ]
