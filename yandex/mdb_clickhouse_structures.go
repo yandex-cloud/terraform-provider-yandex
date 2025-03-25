@@ -2869,6 +2869,10 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	return result
 }
 
+func flattenClickHouseUserConnectionManager(cm *clickhouse.ConnectionManager) map[string]string {
+	return map[string]string{"connection_id": cm.ConnectionId}
+}
+
 func expandClickHouseUserQuotas(ps *schema.Set) []*clickhouse.UserQuota {
 	result := []*clickhouse.UserQuota{}
 
@@ -2913,7 +2917,7 @@ func expandClickHouseUserQuotasExists(d *schema.ResourceData, hash int) []*click
 	return result
 }
 
-func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]string) *schema.Set {
+func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]string, generatePasswordsFlags map[string]bool) *schema.Set {
 	result := schema.NewSet(clickHouseUserHash, nil)
 
 	for _, user := range users {
@@ -2932,6 +2936,11 @@ func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]strin
 			u["password"] = p
 		}
 
+		if generate_passord, ok := generatePasswordsFlags[user.Name]; ok {
+			u["generate_password"] = generate_passord
+		}
+
+		u["connection_manager"] = flattenClickHouseUserConnectionManager(user.ConnectionManager)
 		u["settings"] = []interface{}{flattenClickHouseUserSettings(user.Settings)}
 
 		if len(user.Quotas) > 0 {
@@ -2982,17 +2991,30 @@ func expandClickHouseUser(u map[string]interface{}, d *schema.ResourceData, hash
 		}
 	}
 
+	if v, ok := u["generate_password"]; ok {
+		user.GeneratePassword = wrapperspb.Bool(v.(bool))
+	}
+
 	return user
 }
 
-func expandClickHouseUserSpecs(d *schema.ResourceData) ([]*clickhouse.UserSpec, error) {
+// checkPassword - we need to check passwords only during user creation, not during updates. This is possible when both
+// password and generate_password are absent in the state during a resource update (for example, when we've created a user
+// via the yandex_mdb_clickhouse_user resource, the password is absent in the yandex_mdb_clickhouse_cluster resource's state).
+func expandClickHouseUserSpecs(d *schema.ResourceData, checkPassword bool) ([]*clickhouse.UserSpec, error) {
 	result := []*clickhouse.UserSpec{}
 	users := d.Get("user").(*schema.Set)
 
 	for _, u := range users.List() {
 		m := u.(map[string]interface{})
 		hash := clickHouseUserHash(u)
-		result = append(result, expandClickHouseUser(m, d, hash))
+		userSpec := expandClickHouseUser(m, d, hash)
+
+		if checkPassword && !isValidClickhousePasswordConfiguration(userSpec) {
+			return nil, fmt.Errorf("must specify either password or generate_password")
+		}
+
+		result = append(result, userSpec)
 	}
 
 	return result, nil
@@ -3059,6 +3081,16 @@ func clickHouseUsersPasswords(users []*clickhouse.UserSpec) map[string]string {
 	result := map[string]string{}
 	for _, u := range users {
 		result[u.Name] = u.Password
+	}
+	return result
+}
+
+func clickHouseUsersGeneratePasswords(users []*clickhouse.UserSpec) map[string]bool {
+	result := map[string]bool{}
+	for _, u := range users {
+		if u.GeneratePassword.GetValue() {
+			result[u.Name] = u.GetGeneratePassword().GetValue()
+		}
 	}
 	return result
 }
@@ -3412,4 +3444,12 @@ func expandClickhouseShardResources(s map[string]interface{}) *clickhouse.Resour
 		return &resources
 	}
 	return nil
+}
+
+func isValidClickhousePasswordConfiguration(userSpec *clickhouse.UserSpec) bool {
+	passwordSpecified := len(userSpec.Password) > 0
+
+	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
+	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
+	return !isBothFieldNotSpecified && !isBothFieldSpecified
 }

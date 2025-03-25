@@ -119,6 +119,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"clickhouse.0.config.0.kafka_topic", // passwords are not returned
 			"clickhouse.0.config.0.rabbitmq",    // passwords are not returned
 			"shard",                             // MDB-32162
+			"generate_password",                 // generate_password are not returned
 		},
 	}
 }
@@ -642,6 +643,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "user.0.generate_password", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.connection_manager.%", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "0"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194304"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "0"),
@@ -693,6 +696,8 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "user.0.generate_password", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.connection_manager.%", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194301"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "1"),
@@ -3927,7 +3932,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   user {
     name     = "john"
-    password = "password"
+	generate_password = "true"
     permission {
       database_name = "testdb"
     }
@@ -4027,7 +4032,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   user {
     name     = "john"
-    password = "password"
+	generate_password = "true"
     permission {
       database_name = "testdb"
     }

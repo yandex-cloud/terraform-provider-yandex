@@ -395,7 +395,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 						"password": {
 							Type:        schema.TypeString,
 							Description: "The password of the user.",
-							Required:    true,
+							Optional:    true,
 							Sensitive:   true,
 						},
 						"permission": {
@@ -413,6 +413,20 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 									},
 								},
 							},
+						},
+						"connection_manager": {
+							Type:        schema.TypeMap,
+							Description: "Connection Manager connection configuration. Filled in by the server automatically.",
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"generate_password": {
+							Type:        schema.TypeBool,
+							Description: "Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+							Optional:    true,
+							Default:     false,
 						},
 						"settings": {
 							Type:        schema.TypeList,
@@ -1182,7 +1196,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		return nil, nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
 	}
 
-	users, err := expandClickHouseUserSpecs(d)
+	users, err := expandClickHouseUserSpecs(d, true)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
 	}
@@ -1409,17 +1423,18 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	dUsers, err := expandClickHouseUserSpecs(d)
+	dUsers, err := expandClickHouseUserSpecs(d, false)
 	if err != nil {
 		return err
 	}
 	passwords := clickHouseUsersPasswords(dUsers)
+	generatePasswordsFlags := clickHouseUsersGeneratePasswords(dUsers)
 
 	users, err := listClickHouseUsers(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
-	us := flattenClickHouseUsers(users, passwords)
+	us := flattenClickHouseUsers(users, passwords, generatePasswordsFlags)
 	if err := d.Set("user", us); err != nil {
 		return err
 	}
@@ -1858,7 +1873,7 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	targetUsers, err := expandClickHouseUserSpecs(d)
+	targetUsers, err := expandClickHouseUserSpecs(d, false)
 	if err != nil {
 		return err
 	}
@@ -1871,6 +1886,9 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	for _, u := range toAdd {
+		if !isValidClickhousePasswordConfiguration(u) {
+			return fmt.Errorf("must specify either password or generate_password")
+		}
 		err := createClickHouseUser(ctx, config, d, u)
 		if err != nil {
 			return err
@@ -1884,6 +1902,9 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 	changedUsers, updatedPathsOfChangedUsers := clickHouseChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), d)
 
 	for i, u := range changedUsers {
+		if !isValidClickhousePasswordConfiguration(u) {
+			return fmt.Errorf("must specify either password or generate_password")
+		}
 		err := updateClickHouseUser(ctx, config, d, u, updatedPathsOfChangedUsers[i])
 		if err != nil {
 			return err
