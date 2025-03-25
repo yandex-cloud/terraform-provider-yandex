@@ -137,6 +137,7 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 
 	retryOptions, err := retry.RetryDialOption(
 		retry.WithRetries(retry.DefaultNameConfig(), c.MaxRetries),
+		retry.WithThrottlingMode(retry.ThrottlingModeTemporary),
 	)
 	if err != nil {
 		return err
