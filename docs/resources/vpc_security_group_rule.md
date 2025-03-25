@@ -97,8 +97,9 @@ Optional:
 ## Import
 
 The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+You can get `security_gruop_rule id` from `yc vpc security-group get <security_gruop_id>`.
 
 ```bash
-# terraform import yandex_vpc_security_group.<resource Name> <resource Id>
-terraform import yandex_vpc_security_group_rule.myrule enphq**********cjsw4
+# terraform import yandex_vpc_security_group.<resource Name> <security_gruop_id>:<resource Id>
+terraform import yandex_vpc_security_group_rule.myrule enp2h**********7akj7:enphq**********cjsw4
 ```
