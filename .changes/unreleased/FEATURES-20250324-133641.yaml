@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'ydb: yandex_ydb_database_dedicated add new field security_group_ids'
+time: 2025-03-24T13:36:41.885758+03:00

@@ -313,6 +313,34 @@ resource "yandex_vpc_subnet" "ydb-db-dedicated-test-subnet-d" {
   network_id     = "${yandex_vpc_network.ydb-db-dedicated-test-net.id}"
   v4_cidr_blocks = ["10.4.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "ydb-db-dedicated-test-security-group" {
+  network_id     = "${yandex_vpc_network.ydb-db-dedicated-test-net.id}"
+  ingress {
+    protocol = "TCP"
+        v6_cidr_blocks = ["::/0"]
+        v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol = "TCP"
+        v6_cidr_blocks = ["::/0"]
+        v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "ydb-db-dedicated-test-security-group-second" {
+  network_id     = "${yandex_vpc_network.ydb-db-dedicated-test-net.id}"
+  ingress {
+    protocol = "TCP"
+        v6_cidr_blocks = ["::/0"]
+        v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol = "TCP"
+        v6_cidr_blocks = ["::/0"]
+        v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 `
 
 func testYandexYDBDatabaseDedicatedBasic(name, desc, deletionProtection, labelKey, labelValue, ydbLocationId string) string {
@@ -348,6 +376,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
+  ]
+  security_group_ids = [
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group.id}",
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group-second.id}",
   ]
 }
 `, name, desc, deletionProtection, labelKey, labelValue, ydbLocationId)
@@ -395,6 +427,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
+  ]
+  security_group_ids = [
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group.id}",
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group-second.id}",
   ]
 }
 `,

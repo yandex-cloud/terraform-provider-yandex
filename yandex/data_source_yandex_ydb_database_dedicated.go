@@ -44,6 +44,14 @@ func dataSourceYandexYDBDatabaseDedicated() *schema.Resource {
 				Set:         schema.HashString,
 			},
 
+			"security_group_ids": {
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
 			"resource_preset_id": {
 				Type:        schema.TypeString,
 				Description: resourceYandexYDBDatabaseDedicated().Schema["resource_preset_id"].Description,

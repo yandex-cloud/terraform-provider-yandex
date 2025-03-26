@@ -119,3 +119,15 @@ func changeYDBsubnetIdsSpec(d *schema.ResourceData) ([]string, error) {
 	}
 	return nil, nil
 }
+
+func changeYDBsecurityGroupIdsSpec(d *schema.ResourceData) ([]string, error) {
+	if _, ok := d.GetOk("security_group_ids"); ok {
+		v := d.Get("security_group_ids").(*schema.Set)
+		var securityGroups []string
+		for _, k := range v.List() {
+			securityGroups = append(securityGroups, k.(string))
+		}
+		return securityGroups, nil
+	}
+	return nil, nil
+}

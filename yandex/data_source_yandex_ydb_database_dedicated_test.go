@@ -123,6 +123,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
   ]
+  security_group_ids = [
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group.id}",
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group-second.id}",
+  ]
 }`, name, desc, ydbLocationId)
 }
 
@@ -155,6 +159,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
+  ]
+  security_group_ids = [
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group.id}",
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group-second.id}",
   ]
 }
 `, name, desc, ydbLocationId)
@@ -195,6 +203,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
+  ]
+  security_group_ids = [
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group.id}",
+    "${yandex_vpc_security_group.ydb-db-dedicated-test-security-group-second.id}",
   ]
 }
 `,

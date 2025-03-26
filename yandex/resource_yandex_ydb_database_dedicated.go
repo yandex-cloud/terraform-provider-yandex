@@ -58,6 +58,14 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 				Set:         schema.HashString,
 			},
 
+			"security_group_ids": {
+				Type:        schema.TypeSet,
+				Description: common.ResourceDescriptions["security_group_ids"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
 			"resource_preset_id": {
 				Type:         schema.TypeString,
 				Description:  "The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.",
@@ -260,6 +268,13 @@ func resourceYandexYDBDatabaseDedicatedCreate(d *schema.ResourceData, meta inter
 		}
 	}
 
+	securityGroupIDs := convertStringSet(d.Get("security_group_ids").(*schema.Set))
+	for _, securityGroupID := range securityGroupIDs {
+		if len(securityGroupID) == 0 {
+			return fmt.Errorf("Error checking security_group IDs while creating database: %s", err)
+		}
+	}
+
 	storageConfig, err := expandYDBStorageConfigSpec(d)
 	if err != nil {
 		return fmt.Errorf("Error expanding storage configuration while creating database: %s", err)
@@ -284,6 +299,7 @@ func resourceYandexYDBDatabaseDedicatedCreate(d *schema.ResourceData, meta inter
 		ScalePolicy:        scalePolicy,
 		NetworkId:          d.Get("network_id").(string),
 		SubnetIds:          subnetIDs,
+		SecurityGroupIds:   securityGroupIDs,
 		AssignPublicIps:    d.Get("assign_public_ips").(bool),
 		LocationId:         d.Get("location_id").(string),
 		Labels:             labels,
@@ -387,6 +403,15 @@ func resourceYandexYDBDatabaseDedicatedUpdate(d *schema.ResourceData, meta inter
 		}
 		req.SubnetIds = subnetIds
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "subnet_ids")
+	}
+
+	if d.HasChange("security_group_ids") {
+		securityGroupIds, err := changeYDBsecurityGroupIdsSpec(d)
+		if err != nil {
+			return fmt.Errorf("Error changing security_group_ids while updating database: %s", err)
+		}
+		req.SecurityGroupIds = securityGroupIds
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
 	}
 
 	if err := performYandexYDBDatabaseUpdate(d, config, &req); err != nil {
@@ -510,6 +535,9 @@ func flattenYandexYDBDatabaseDedicated(d *schema.ResourceData, database *ydb.Dat
 
 	d.Set("network_id", database.NetworkId)
 	if err := d.Set("subnet_ids", database.SubnetIds); err != nil {
+		return err
+	}
+	if err := d.Set("security_group_ids", database.SecurityGroupIds); err != nil {
 		return err
 	}
 
