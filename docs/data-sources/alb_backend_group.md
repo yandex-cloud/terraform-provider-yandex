@@ -49,41 +49,58 @@ data "yandex_alb_backend_group" "my_alb_bg" {
 
 Optional:
 
-- `healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--healthcheck))
-- `load_balancing_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--load_balancing_config))
-- `port` (Number)
-- `tls` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--tls))
-- `weight` (Number)
+- `healthcheck` (Block List, Max: 1) Healthcheck specification that will be used by this backend. (see [below for nested schema](#nestedblock--grpc_backend--healthcheck))
+
+- `load_balancing_config` (Block List, Max: 1) Load Balancing Config specification that will be used by this backend. (see [below for nested schema](#nestedblock--grpc_backend--load_balancing_config))
+
+- `port` (Number) Port for incoming traffic.
+
+- `tls` (Block List, Max: 1) TLS specification that will be used by this backend. (see [below for nested schema](#nestedblock--grpc_backend--tls))
+
+- `weight` (Number) Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+
 
 Read-Only:
 
-- `name` (String)
-- `target_group_ids` (List of String)
+- `name` (String) Name of the backend.
+
+- `target_group_ids` (List of String) References target groups for the backend.
+
 
 <a id="nestedblock--grpc_backend--healthcheck"></a>
 ### Nested Schema for `grpc_backend.healthcheck`
 
 Optional:
 
-- `grpc_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--grpc_healthcheck))
-- `healthcheck_port` (Number)
-- `healthy_threshold` (Number)
-- `http_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--http_healthcheck))
-- `interval_jitter_percent` (Number)
-- `stream_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--stream_healthcheck))
-- `unhealthy_threshold` (Number)
+- `grpc_healthcheck` (Block List, Max: 1) gRPC Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--grpc_healthcheck))
+
+- `healthcheck_port` (Number) Optional alternative port for health checking.
+
+- `healthy_threshold` (Number) Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+
+- `http_healthcheck` (Block List, Max: 1) HTTP Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--http_healthcheck))
+
+- `interval_jitter_percent` (Number) An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * interval_jitter_percent / 100) will be added to the wait time.
+
+- `stream_healthcheck` (Block List, Max: 1) Stream Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--grpc_backend--healthcheck--stream_healthcheck))
+
+- `unhealthy_threshold` (Number) Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+
 
 Read-Only:
 
-- `interval` (String)
-- `timeout` (String)
+- `interval` (String) Interval between health checks.
+
+- `timeout` (String) Time to wait for a health check response.
+
 
 <a id="nestedblock--grpc_backend--healthcheck--grpc_healthcheck"></a>
 ### Nested Schema for `grpc_backend.healthcheck.grpc_healthcheck`
 
 Optional:
 
-- `service_name` (String)
+- `service_name` (String) Service name for `grpc.health.v1.HealthCheckRequest` message.
+
 
 
 <a id="nestedblock--grpc_backend--healthcheck--http_healthcheck"></a>
@@ -91,13 +108,17 @@ Optional:
 
 Optional:
 
-- `host` (String)
-- `http2` (Boolean)
+- `host` (String) `Host` HTTP header value.
+
+- `http2` (Boolean) If set, health checks will use HTTP2.
+
 
 Read-Only:
 
-- `expected_statuses` (List of Number)
-- `path` (String)
+- `expected_statuses` (List of Number) A list of HTTP response statuses considered healthy.
+
+- `path` (String) HTTP path.
+
 
 
 <a id="nestedblock--grpc_backend--healthcheck--stream_healthcheck"></a>
@@ -105,8 +126,10 @@ Read-Only:
 
 Optional:
 
-- `receive` (String)
-- `send` (String)
+- `receive` (String) Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+
+- `send` (String) Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+
 
 
 
@@ -115,10 +138,14 @@ Optional:
 
 Optional:
 
-- `locality_aware_routing_percent` (Number)
-- `mode` (String)
-- `panic_threshold` (Number)
-- `strict_locality` (Boolean)
+- `locality_aware_routing_percent` (Number) Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+
+- `mode` (String) Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+
+- `panic_threshold` (Number) If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+
+- `strict_locality` (Boolean) If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+
 
 
 <a id="nestedblock--grpc_backend--tls"></a>
@@ -126,7 +153,8 @@ Optional:
 
 Optional:
 
-- `sni` (String)
+- `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+
 - `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--tls--validation_context))
 
 <a id="nestedblock--grpc_backend--tls--validation_context"></a>
@@ -134,8 +162,10 @@ Optional:
 
 Optional:
 
-- `trusted_ca_bytes` (String)
-- `trusted_ca_id` (String)
+- `trusted_ca_bytes` (String) PEM-encoded trusted CA certificate chain.
+
+- `trusted_ca_id` (String) Trusted CA certificate ID in the Certificate Manager.
+
 
 
 
@@ -145,43 +175,62 @@ Optional:
 
 Optional:
 
-- `healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--healthcheck))
-- `http2` (Boolean)
-- `load_balancing_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--load_balancing_config))
-- `port` (Number)
-- `storage_bucket` (String)
-- `target_group_ids` (List of String)
-- `tls` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--tls))
-- `weight` (Number)
+- `healthcheck` (Block List, Max: 1) Healthcheck specification that will be used by this backend. (see [below for nested schema](#nestedblock--http_backend--healthcheck))
+
+- `http2` (Boolean) Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.
+
+- `load_balancing_config` (Block List, Max: 1) Load Balancing Config specification that will be used by this backend. (see [below for nested schema](#nestedblock--http_backend--load_balancing_config))
+
+- `port` (Number) Port for incoming traffic.
+
+- `storage_bucket` (String) Name of bucket which should be used as a backend.
+
+- `target_group_ids` (List of String) References target groups for the backend.
+
+- `tls` (Block List, Max: 1) TLS specification that will be used by this backend. (see [below for nested schema](#nestedblock--http_backend--tls))
+
+- `weight` (Number) Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+
 
 Read-Only:
 
-- `name` (String)
+- `name` (String) Name of the backend.
+
 
 <a id="nestedblock--http_backend--healthcheck"></a>
 ### Nested Schema for `http_backend.healthcheck`
 
 Optional:
 
-- `grpc_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--healthcheck--grpc_healthcheck))
-- `healthcheck_port` (Number)
-- `healthy_threshold` (Number)
-- `http_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--healthcheck--http_healthcheck))
-- `interval_jitter_percent` (Number)
-- `stream_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--healthcheck--stream_healthcheck))
-- `unhealthy_threshold` (Number)
+- `grpc_healthcheck` (Block List, Max: 1) gRPC Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--http_backend--healthcheck--grpc_healthcheck))
+
+- `healthcheck_port` (Number) Optional alternative port for health checking.
+
+- `healthy_threshold` (Number) Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+
+- `http_healthcheck` (Block List, Max: 1) HTTP Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--http_backend--healthcheck--http_healthcheck))
+
+- `interval_jitter_percent` (Number) An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * interval_jitter_percent / 100) will be added to the wait time.
+
+- `stream_healthcheck` (Block List, Max: 1) Stream Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--http_backend--healthcheck--stream_healthcheck))
+
+- `unhealthy_threshold` (Number) Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+
 
 Read-Only:
 
-- `interval` (String)
-- `timeout` (String)
+- `interval` (String) Interval between health checks.
+
+- `timeout` (String) Time to wait for a health check response.
+
 
 <a id="nestedblock--http_backend--healthcheck--grpc_healthcheck"></a>
 ### Nested Schema for `http_backend.healthcheck.grpc_healthcheck`
 
 Optional:
 
-- `service_name` (String)
+- `service_name` (String) Service name for `grpc.health.v1.HealthCheckRequest` message.
+
 
 
 <a id="nestedblock--http_backend--healthcheck--http_healthcheck"></a>
@@ -189,13 +238,17 @@ Optional:
 
 Optional:
 
-- `host` (String)
-- `http2` (Boolean)
+- `host` (String) `Host` HTTP header value.
+
+- `http2` (Boolean) If set, health checks will use HTTP2.
+
 
 Read-Only:
 
-- `expected_statuses` (List of Number)
-- `path` (String)
+- `expected_statuses` (List of Number) A list of HTTP response statuses considered healthy.
+
+- `path` (String) HTTP path.
+
 
 
 <a id="nestedblock--http_backend--healthcheck--stream_healthcheck"></a>
@@ -203,8 +256,10 @@ Read-Only:
 
 Optional:
 
-- `receive` (String)
-- `send` (String)
+- `receive` (String) Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+
+- `send` (String) Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+
 
 
 
@@ -213,10 +268,14 @@ Optional:
 
 Optional:
 
-- `locality_aware_routing_percent` (Number)
-- `mode` (String)
-- `panic_threshold` (Number)
-- `strict_locality` (Boolean)
+- `locality_aware_routing_percent` (Number) Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+
+- `mode` (String) Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+
+- `panic_threshold` (Number) If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+
+- `strict_locality` (Boolean) If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+
 
 
 <a id="nestedblock--http_backend--tls"></a>
@@ -224,7 +283,8 @@ Optional:
 
 Optional:
 
-- `sni` (String)
+- `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+
 - `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--tls--validation_context))
 
 <a id="nestedblock--http_backend--tls--validation_context"></a>
@@ -232,8 +292,10 @@ Optional:
 
 Optional:
 
-- `trusted_ca_bytes` (String)
-- `trusted_ca_id` (String)
+- `trusted_ca_bytes` (String) PEM-encoded trusted CA certificate chain.
+
+- `trusted_ca_id` (String) Trusted CA certificate ID in the Certificate Manager.
+
 
 
 
@@ -243,16 +305,20 @@ Optional:
 
 Optional:
 
-- `connection` (Block List, Max: 1) IP address affinity (see [below for nested schema](#nestedblock--session_affinity--connection))
-- `cookie` (Block List, Max: 1) Cookie affinity (see [below for nested schema](#nestedblock--session_affinity--cookie))
-- `header` (Block List, Max: 1) Request header affinity (see [below for nested schema](#nestedblock--session_affinity--header))
+- `connection` (Block List, Max: 1) Requests received from the same IP are combined into a session. Stream backend groups only support session affinity by client IP address. (see [below for nested schema](#nestedblock--session_affinity--connection))
+
+- `cookie` (Block List, Max: 1) Requests with the same cookie value and the specified file name are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups. (see [below for nested schema](#nestedblock--session_affinity--cookie))
+
+- `header` (Block List, Max: 1) Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups. (see [below for nested schema](#nestedblock--session_affinity--header))
+
 
 <a id="nestedblock--session_affinity--connection"></a>
 ### Nested Schema for `session_affinity.connection`
 
 Optional:
 
-- `source_ip` (Boolean) Use source IP address
+- `source_ip` (Boolean) Use source IP address Source IP address to use with affinity.
+
 
 
 <a id="nestedblock--session_affinity--cookie"></a>
@@ -260,11 +326,13 @@ Optional:
 
 Optional:
 
-- `ttl` (String) TTL for the cookie (if not set, session cookie will be used)
+- `ttl` (String) TTL for the cookie (if not set, session cookie will be used) TTL for the cookie (if not set, session cookie will be used).
+
 
 Read-Only:
 
-- `name` (String) Name of the HTTP cookie
+- `name` (String) Name of the HTTP cookie Name of the HTTP cookie to use with affinity.
+
 
 
 <a id="nestedblock--session_affinity--header"></a>
@@ -272,7 +340,8 @@ Read-Only:
 
 Optional:
 
-- `header_name` (String) The name of the request header that will be used
+- `header_name` (String) The name of the request header that will be used The name of the request header that will be used with affinity.
+
 
 
 
@@ -282,42 +351,60 @@ Optional:
 Optional:
 
 - `enable_proxy_protocol` (Boolean)
-- `healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--healthcheck))
-- `keep_connections_on_host_health_failure` (Boolean)
-- `load_balancing_config` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--load_balancing_config))
-- `port` (Number)
-- `tls` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--tls))
-- `weight` (Number)
+- `healthcheck` (Block List, Max: 1) Healthcheck specification that will be used by this backend. (see [below for nested schema](#nestedblock--stream_backend--healthcheck))
+
+- `keep_connections_on_host_health_failure` (Boolean) If set, when a backend host becomes unhealthy (as determined by the configured health checks), keep connections to the failed host.
+
+- `load_balancing_config` (Block List, Max: 1) Load Balancing Config specification that will be used by this backend. (see [below for nested schema](#nestedblock--stream_backend--load_balancing_config))
+
+- `port` (Number) Port for incoming traffic.
+
+- `tls` (Block List, Max: 1) TLS specification that will be used by this backend. (see [below for nested schema](#nestedblock--stream_backend--tls))
+
+- `weight` (Number) Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+
 
 Read-Only:
 
-- `name` (String)
-- `target_group_ids` (List of String)
+- `name` (String) Name of the backend.
+
+- `target_group_ids` (List of String) References target groups for the backend.
+
 
 <a id="nestedblock--stream_backend--healthcheck"></a>
 ### Nested Schema for `stream_backend.healthcheck`
 
 Optional:
 
-- `grpc_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--healthcheck--grpc_healthcheck))
-- `healthcheck_port` (Number)
-- `healthy_threshold` (Number)
-- `http_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--healthcheck--http_healthcheck))
-- `interval_jitter_percent` (Number)
-- `stream_healthcheck` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--healthcheck--stream_healthcheck))
-- `unhealthy_threshold` (Number)
+- `grpc_healthcheck` (Block List, Max: 1) gRPC Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--stream_backend--healthcheck--grpc_healthcheck))
+
+- `healthcheck_port` (Number) Optional alternative port for health checking.
+
+- `healthy_threshold` (Number) Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+
+- `http_healthcheck` (Block List, Max: 1) HTTP Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--stream_backend--healthcheck--http_healthcheck))
+
+- `interval_jitter_percent` (Number) An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * interval_jitter_percent / 100) will be added to the wait time.
+
+- `stream_healthcheck` (Block List, Max: 1) Stream Healthcheck specification that will be used by this healthcheck. (see [below for nested schema](#nestedblock--stream_backend--healthcheck--stream_healthcheck))
+
+- `unhealthy_threshold` (Number) Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+
 
 Read-Only:
 
-- `interval` (String)
-- `timeout` (String)
+- `interval` (String) Interval between health checks.
+
+- `timeout` (String) Time to wait for a health check response.
+
 
 <a id="nestedblock--stream_backend--healthcheck--grpc_healthcheck"></a>
 ### Nested Schema for `stream_backend.healthcheck.grpc_healthcheck`
 
 Optional:
 
-- `service_name` (String)
+- `service_name` (String) Service name for `grpc.health.v1.HealthCheckRequest` message.
+
 
 
 <a id="nestedblock--stream_backend--healthcheck--http_healthcheck"></a>
@@ -325,13 +412,17 @@ Optional:
 
 Optional:
 
-- `host` (String)
-- `http2` (Boolean)
+- `host` (String) `Host` HTTP header value.
+
+- `http2` (Boolean) If set, health checks will use HTTP2.
+
 
 Read-Only:
 
-- `expected_statuses` (List of Number)
-- `path` (String)
+- `expected_statuses` (List of Number) A list of HTTP response statuses considered healthy.
+
+- `path` (String) HTTP path.
+
 
 
 <a id="nestedblock--stream_backend--healthcheck--stream_healthcheck"></a>
@@ -339,8 +430,10 @@ Read-Only:
 
 Optional:
 
-- `receive` (String)
-- `send` (String)
+- `receive` (String) Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+
+- `send` (String) Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+
 
 
 
@@ -349,10 +442,14 @@ Optional:
 
 Optional:
 
-- `locality_aware_routing_percent` (Number)
-- `mode` (String)
-- `panic_threshold` (Number)
-- `strict_locality` (Boolean)
+- `locality_aware_routing_percent` (Number) Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+
+- `mode` (String) Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+
+- `panic_threshold` (Number) If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+
+- `strict_locality` (Boolean) If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+
 
 
 <a id="nestedblock--stream_backend--tls"></a>
@@ -360,7 +457,8 @@ Optional:
 
 Optional:
 
-- `sni` (String)
+- `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+
 - `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--tls--validation_context))
 
 <a id="nestedblock--stream_backend--tls--validation_context"></a>
@@ -368,5 +466,7 @@ Optional:
 
 Optional:
 
-- `trusted_ca_bytes` (String)
-- `trusted_ca_id` (String)
+- `trusted_ca_bytes` (String) PEM-encoded trusted CA certificate chain.
+
+- `trusted_ca_id` (String) Trusted CA certificate ID in the Certificate Manager.
+

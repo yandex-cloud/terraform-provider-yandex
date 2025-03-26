@@ -51,11 +51,16 @@ Get information about Serverless Event Router Rule.
 
 Read-Only:
 
-- `batch_settings` (String)
-- `container_id` (String)
-- `container_revision_id` (String)
-- `path` (String)
-- `service_account_id` (String)
+- `batch_settings` (String) Batch settings
+
+- `container_id` (String) Container ID
+
+- `container_revision_id` (String) Container revision ID
+
+- `path` (String) Endpoint HTTP path to invoke
+
+- `service_account_id` (String) Service account which should be used to call a container
+
 
 
 <a id="nestedatt--function"></a>
@@ -63,19 +68,26 @@ Read-Only:
 
 Read-Only:
 
-- `batch_settings` (List of Object) (see [below for nested schema](#nestedobjatt--function--batch_settings))
-- `function_id` (String)
-- `function_tag` (String)
-- `service_account_id` (String)
+- `batch_settings` (Block List, Max: 1) Batch settings (see [below for nested schema](#nestedobjatt--function--batch_settings))
+
+- `function_id` (String) Function ID
+
+- `function_tag` (String) Function tag
+
+- `service_account_id` (String) Service account which has call permission on the function
+
 
 <a id="nestedobjatt--function--batch_settings"></a>
 ### Nested Schema for `function.batch_settings`
 
 Read-Only:
 
-- `cutoff` (String)
-- `max_bytes` (Number)
-- `max_count` (Number)
+- `cutoff` (String) Maximum batch size: rule will send a batch if its lifetime exceeds this value
+
+- `max_bytes` (Number) Maximum batch size: rule will send a batch if total size of events exceeds this value
+
+- `max_count` (Number) Maximum batch size: rule will send a batch if number of events exceeds this value
+
 
 
 
@@ -84,10 +96,14 @@ Read-Only:
 
 Read-Only:
 
-- `batch_settings` (String)
-- `gateway_id` (String)
-- `path` (String)
-- `service_account_id` (String)
+- `batch_settings` (String) Batch settings
+
+- `gateway_id` (String) Gateway ID
+
+- `path` (String) Path
+
+- `service_account_id` (String) Service account which has permission for writing to websockets
+
 
 
 <a id="nestedatt--logging"></a>
@@ -95,9 +111,12 @@ Read-Only:
 
 Read-Only:
 
-- `folder_id` (String)
-- `log_group_id` (String)
-- `service_account_id` (String)
+- `folder_id` (String) Folder ID
+
+- `log_group_id` (String) Log group ID
+
+- `service_account_id` (String) Service account which has permission for writing logs
+
 
 
 <a id="nestedatt--workflow"></a>
@@ -105,9 +124,12 @@ Read-Only:
 
 Read-Only:
 
-- `batch_settings` (String)
-- `service_account_id` (String)
-- `workflow_id` (String)
+- `batch_settings` (String) Batch settings
+
+- `service_account_id` (String) Service account which should be used to start workflow
+
+- `workflow_id` (String) Workflow ID
+
 
 
 <a id="nestedatt--yds"></a>
@@ -115,9 +137,12 @@ Read-Only:
 
 Read-Only:
 
-- `database` (String)
-- `service_account_id` (String)
-- `stream_name` (String)
+- `database` (String) Stream database
+
+- `service_account_id` (String) Service account, which has write permission on the stream
+
+- `stream_name` (String) Full stream name, like /ru-central1/aoegtvhtp8ob********/cc8004q4lbo6********/test
+
 
 
 <a id="nestedatt--ymq"></a>
@@ -125,5 +150,7 @@ Read-Only:
 
 Read-Only:
 
-- `queue_arn` (String)
-- `service_account_id` (String)
+- `queue_arn` (String) Queue ARN. Example: yrn:yc:ymq:ru-central1:aoe***:test
+
+- `service_account_id` (String) Service account which has write access to the queue
+

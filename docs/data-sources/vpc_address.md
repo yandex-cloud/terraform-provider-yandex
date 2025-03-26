@@ -50,10 +50,14 @@ data "yandex_vpc_address" "addr" {
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone id to create record at.
+
+- `fqdn` (String) FQDN for record to address.
+
+- `ptr` (Boolean) If PTR record is needed.
+
+- `ttl` (Number) TTL of DNS record.
+
 
 
 <a id="nestedatt--external_ipv4_address"></a>
@@ -61,7 +65,11 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
-- `ddos_protection_provider` (String)
-- `outgoing_smtp_capability` (String)
-- `zone_id` (String)
+- `address` (String) Allocated IP address.
+
+- `ddos_protection_provider` (String) Enable DDOS protection. Possible values are: `qrator`
+
+- `outgoing_smtp_capability` (String) Wanted outgoing smtp capability.
+
+- `zone_id` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+

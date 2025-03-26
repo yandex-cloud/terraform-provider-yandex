@@ -71,11 +71,16 @@ data "yandex_smartcaptcha_captcha" "by-name" {
 
 Read-Only:
 
-- `challenge_type` (String)
-- `complexity` (String)
-- `description` (String)
-- `pre_check_type` (String)
-- `uuid` (String)
+- `challenge_type` (String) Additional task type of the captcha.
+
+- `complexity` (String) Complexity of the captcha.
+
+- `description` (String) Optional description of the rule. 0-512 characters long.
+
+- `pre_check_type` (String) Basic check type of the captcha.
+
+- `uuid` (String) Unique identifier of the variant.
+
 
 
 <a id="nestedatt--security_rule"></a>
@@ -83,11 +88,16 @@ Read-Only:
 
 Read-Only:
 
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--condition))
-- `description` (String)
-- `name` (String)
-- `override_variant_uuid` (String)
-- `priority` (Number)
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartcaptcha/v1/captcha.proto). (see [below for nested schema](#nestedobjatt--security_rule--condition))
+
+- `description` (String) Description of the rule. 0-512 characters long.
+
+- `name` (String) Name of the rule. The name is unique within the captcha. 1-50 characters long.
+
+- `override_variant_uuid` (String) Variant UUID to show in case of match the rule. Keep empty to use defaults.
+
+- `priority` (Number) Priority of the rule. Lower value means higher priority.
+
 
 <a id="nestedobjatt--security_rule--condition"></a>
 ### Nested Schema for `security_rule.condition`

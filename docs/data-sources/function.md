@@ -62,7 +62,8 @@ data "yandex_function" "my_function" {
 
 Required:
 
-- `network_id` (String)
+- `network_id` (String) Network the version will have access to. It's essential to specify network with subnets in all availability zones.
+
 
 
 <a id="nestedblock--metadata_options"></a>
@@ -70,8 +71,10 @@ Required:
 
 Optional:
 
-- `aws_v1_http_endpoint` (Number)
-- `gce_http_endpoint` (Number)
+- `aws_v1_http_endpoint` (Number) Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.
+
+- `gce_http_endpoint` (Number) Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.
+
 
 
 <a id="nestedblock--mounts"></a>
@@ -79,24 +82,30 @@ Optional:
 
 Required:
 
-- `name` (String)
+- `name` (String) Name of the mount point. The directory where the target is mounted will be accessible at the `/function/storage/<mounts.0.name>` path.
+
 
 Optional:
 
-- `ephemeral_disk` (Block List, Max: 1) (see [below for nested schema](#nestedblock--mounts--ephemeral_disk))
-- `mode` (String)
-- `object_storage` (Block List, Max: 1) (see [below for nested schema](#nestedblock--mounts--object_storage))
+- `ephemeral_disk` (Block List, Max: 1) One of the available mount types. Disk available during the function execution time. (see [below for nested schema](#nestedblock--mounts--ephemeral_disk))
+
+- `mode` (String) Mount’s accessibility mode. Valid values are `ro` and `rw`.
+
+- `object_storage` (Block List, Max: 1) One of the available mount types. Object storage as a mount. (see [below for nested schema](#nestedblock--mounts--object_storage))
+
 
 <a id="nestedblock--mounts--ephemeral_disk"></a>
 ### Nested Schema for `mounts.ephemeral_disk`
 
 Required:
 
-- `size_gb` (Number)
+- `size_gb` (Number) Size of the ephemeral disk in GB.
+
 
 Optional:
 
-- `block_size_kb` (Number)
+- `block_size_kb` (Number) Optional block size of the ephemeral disk in KB.
+
 
 
 <a id="nestedblock--mounts--object_storage"></a>
@@ -104,11 +113,13 @@ Optional:
 
 Required:
 
-- `bucket` (String)
+- `bucket` (String) Name of the mounting bucket.
+
 
 Optional:
 
-- `prefix` (String)
+- `prefix` (String) Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
 
 
 
@@ -117,10 +128,14 @@ Optional:
 
 Required:
 
-- `environment_variable` (String)
-- `id` (String)
-- `key` (String)
-- `version_id` (String)
+- `environment_variable` (String) Function's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
+
+- `id` (String) Secret's ID.
+
+- `key` (String) Secret's entries key which value will be stored in environment variable.
+
+- `version_id` (String) Secret's version ID.
+
 
 
 <a id="nestedblock--storage_mounts"></a>
@@ -128,13 +143,17 @@ Required:
 
 Required:
 
-- `bucket` (String)
-- `mount_point_name` (String)
+- `bucket` (String) Name of the mounting bucket.
+
+- `mount_point_name` (String) Name of the mount point. The directory where the bucket is mounted will be accessible at the `/function/storage/<mount_point>` path.
+
 
 Optional:
 
-- `prefix` (String)
-- `read_only` (Boolean)
+- `prefix` (String) Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
+- `read_only` (Boolean) Mount the bucket in read-only mode.
+
 
 
 <a id="nestedatt--async_invocation"></a>
@@ -142,18 +161,24 @@ Optional:
 
 Read-Only:
 
-- `retries_count` (Number)
-- `service_account_id` (String)
-- `ymq_failure_target` (List of Object) (see [below for nested schema](#nestedobjatt--async_invocation--ymq_failure_target))
-- `ymq_success_target` (List of Object) (see [below for nested schema](#nestedobjatt--async_invocation--ymq_success_target))
+- `retries_count` (Number) Maximum number of retries for async invocation.
+
+- `service_account_id` (String) Service account used for async invocation.
+
+- `ymq_failure_target` (Block List, Max: 1) Target for unsuccessful async invocation. (see [below for nested schema](#nestedobjatt--async_invocation--ymq_failure_target))
+
+- `ymq_success_target` (Block List, Max: 1) Target for successful async invocation. (see [below for nested schema](#nestedobjatt--async_invocation--ymq_success_target))
+
 
 <a id="nestedobjatt--async_invocation--ymq_failure_target"></a>
 ### Nested Schema for `async_invocation.ymq_failure_target`
 
 Read-Only:
 
-- `arn` (String)
-- `service_account_id` (String)
+- `arn` (String) YMQ ARN.
+
+- `service_account_id` (String) Service account used for writing result to queue.
+
 
 
 <a id="nestedobjatt--async_invocation--ymq_success_target"></a>
@@ -161,8 +186,10 @@ Read-Only:
 
 Read-Only:
 
-- `arn` (String)
-- `service_account_id` (String)
+- `arn` (String) YMQ ARN.
+
+- `service_account_id` (String) Service account used for writing result to queue.
+
 
 
 
@@ -171,7 +198,11 @@ Read-Only:
 
 Read-Only:
 
-- `disabled` (Boolean)
-- `folder_id` (String)
-- `log_group_id` (String)
-- `min_level` (String)
+- `disabled` (Boolean) Is logging from function disabled.
+
+- `folder_id` (String) Log entries are written to default log group for specified folder.
+
+- `log_group_id` (String) Log entries are written to specified log group.
+
+- `min_level` (String) Minimum log entry level.
+

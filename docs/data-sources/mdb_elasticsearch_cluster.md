@@ -57,28 +57,38 @@ output "network_id" {
 
 Read-Only:
 
-- `admin_password` (String)
-- `data_node` (List of Object) (see [below for nested schema](#nestedobjatt--config--data_node))
-- `edition` (String)
-- `master_node` (List of Object) (see [below for nested schema](#nestedobjatt--config--master_node))
-- `plugins` (Set of String)
-- `version` (String)
+- `admin_password` (String) Password for admin user of Elasticsearch.
+
+- `data_node` (Block List, Min: 1, Max: 1) Configuration for Elasticsearch data nodes subcluster. (see [below for nested schema](#nestedobjatt--config--data_node))
+
+- `edition` (String) Edition of Elasticsearch. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts/es-editions).
+
+- `master_node` (Block List, Max: 1) Configuration for Elasticsearch master nodes subcluster. (see [below for nested schema](#nestedobjatt--config--master_node))
+
+- `plugins` (Set of String) A set of Elasticsearch plugins to install.
+
+- `version` (String) Version of Elasticsearch.
+
 
 <a id="nestedobjatt--config--data_node"></a>
 ### Nested Schema for `config.data_node`
 
 Read-Only:
 
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--config--data_node--resources))
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the Elasticsearch data nodes subcluster. (see [below for nested schema](#nestedobjatt--config--data_node--resources))
+
 
 <a id="nestedobjatt--config--data_node--resources"></a>
 ### Nested Schema for `config.data_node.resources`
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of Elasticsearch hosts.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
+
 
 
 
@@ -87,16 +97,20 @@ Read-Only:
 
 Read-Only:
 
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--config--master_node--resources))
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the Elasticsearch master nodes subcluster. (see [below for nested schema](#nestedobjatt--config--master_node--resources))
+
 
 <a id="nestedobjatt--config--master_node--resources"></a>
 ### Nested Schema for `config.master_node.resources`
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of Elasticsearch hosts.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
+
 
 
 
@@ -106,12 +120,18 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean)
-- `fqdn` (String)
-- `name` (String)
-- `subnet_id` (String)
-- `type` (String)
-- `zone` (String)
+- `assign_public_ip` (Boolean) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+
+- `fqdn` (String) The fully qualified domain name of the host.
+
+- `name` (String) User defined host name.
+
+- `subnet_id` (String) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+
+- `type` (String) The type of the host to be deployed. Can be either `DATA_NODE` or `MASTER_NODE`.
+
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
 
 
 <a id="nestedatt--maintenance_window"></a>
@@ -119,6 +139,9 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `hour` (Number)
-- `type` (String)
+- `day` (String) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+- `hour` (Number) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+

@@ -49,8 +49,10 @@ data "yandex_compute_snapshot_schedule" "my_snapshot_schedule" {
 
 Optional:
 
-- `expression` (String)
-- `start_at` (String)
+- `expression` (String) Cron expression to schedule snapshots (in cron format `" * ****"`).
+
+- `start_at` (String) Time to start the snapshot schedule (in format RFC3339 `2006-01-02T15:04:05Z07:00`). If empty current time will be used. Unlike an `expression` that specifies regularity rules, the `start_at` parameter determines from what point these rules will be applied.
+
 
 
 <a id="nestedblock--snapshot_spec"></a>
@@ -58,5 +60,7 @@ Optional:
 
 Optional:
 
-- `description` (String)
-- `labels` (Map of String)
+- `description` (String) Description to assign to snapshots created by this snapshot schedule.
+
+- `labels` (Map of String) A set of key/value label pairs to assign to snapshots created by this snapshot schedule.
+

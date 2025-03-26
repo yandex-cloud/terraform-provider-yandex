@@ -64,16 +64,20 @@ Optional:
 
 Read-Only:
 
-- `location` (Set of Object) (see [below for nested schema](#nestedobjatt--allocation_policy--location))
+- `location` (Block Set, Min: 1) Unique set of locations. (see [below for nested schema](#nestedobjatt--allocation_policy--location))
+
 
 <a id="nestedobjatt--allocation_policy--location"></a>
 ### Nested Schema for `allocation_policy.location`
 
 Read-Only:
 
-- `disable_traffic` (Boolean)
-- `subnet_id` (String)
-- `zone_id` (String)
+- `disable_traffic` (Boolean) If set, will disable all L7 instances in the zone for request handling.
+
+- `subnet_id` (String) ID of the subnet that location is located at.
+
+- `zone_id` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
 
 
 
@@ -82,9 +86,12 @@ Read-Only:
 
 Read-Only:
 
-- `endpoint` (List of Object) (see [below for nested schema](#nestedobjatt--listener--endpoint))
-- `http` (List of Object) (see [below for nested schema](#nestedobjatt--listener--http))
-- `name` (String)
+- `endpoint` (Block List) Network endpoint (addresses and ports) of the listener. (see [below for nested schema](#nestedobjatt--listener--endpoint))
+
+- `http` (Block List, Max: 1) HTTP handler that sets plain text HTTP router. (see [below for nested schema](#nestedobjatt--listener--http))
+
+- `name` (String) Name of the listener.
+
 - `stream` (List of Object) (see [below for nested schema](#nestedobjatt--listener--stream))
 - `tls` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls))
 
@@ -93,24 +100,30 @@ Read-Only:
 
 Read-Only:
 
-- `address` (List of Object) (see [below for nested schema](#nestedobjatt--listener--endpoint--address))
-- `ports` (List of Number)
+- `address` (Block List, Min: 1) One or more addresses to listen on. (see [below for nested schema](#nestedobjatt--listener--endpoint--address))
+
+- `ports` (List of Number) One or more ports to listen on.
+
 
 <a id="nestedobjatt--listener--endpoint--address"></a>
 ### Nested Schema for `listener.endpoint.address`
 
 Read-Only:
 
-- `external_ipv4_address` (List of Object) (see [below for nested schema](#nestedobjatt--listener--endpoint--address--external_ipv4_address))
-- `external_ipv6_address` (List of Object) (see [below for nested schema](#nestedobjatt--listener--endpoint--address--external_ipv6_address))
-- `internal_ipv4_address` (List of Object) (see [below for nested schema](#nestedobjatt--listener--endpoint--address--internal_ipv4_address))
+- `external_ipv4_address` (Block List, Max: 1) External IPv4 address. (see [below for nested schema](#nestedobjatt--listener--endpoint--address--external_ipv4_address))
+
+- `external_ipv6_address` (Block List, Max: 1) External IPv6 address. (see [below for nested schema](#nestedobjatt--listener--endpoint--address--external_ipv6_address))
+
+- `internal_ipv4_address` (Block List, Max: 1) Internal IPv4 address. (see [below for nested schema](#nestedobjatt--listener--endpoint--address--internal_ipv4_address))
+
 
 <a id="nestedobjatt--listener--endpoint--address--external_ipv4_address"></a>
 ### Nested Schema for `listener.endpoint.address.external_ipv4_address`
 
 Read-Only:
 
-- `address` (String)
+- `address` (String) Provided by the client or computed automatically.
+
 
 
 <a id="nestedobjatt--listener--endpoint--address--external_ipv6_address"></a>
@@ -118,7 +131,8 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
+- `address` (String) Provided by the client or computed automatically.
+
 
 
 <a id="nestedobjatt--listener--endpoint--address--internal_ipv4_address"></a>
@@ -126,8 +140,10 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
-- `subnet_id` (String)
+- `address` (String) Provided by the client or computed automatically.
+
+- `subnet_id` (String) Provided by the client or computed automatically.
+
 
 
 
@@ -137,25 +153,32 @@ Read-Only:
 
 Read-Only:
 
-- `handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--http--handler))
-- `redirects` (List of Object) (see [below for nested schema](#nestedobjatt--listener--http--redirects))
+- `handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--http--handler))
+
+- `redirects` (Block List, Max: 1) Shortcut for adding http -> https redirects. (see [below for nested schema](#nestedobjatt--listener--http--redirects))
+
 
 <a id="nestedobjatt--listener--http--handler"></a>
 ### Nested Schema for `listener.http.handler`
 
 Read-Only:
 
-- `allow_http10` (Boolean)
-- `http2_options` (List of Object) (see [below for nested schema](#nestedobjatt--listener--http--handler--http2_options))
-- `http_router_id` (String)
-- `rewrite_request_id` (Boolean)
+- `allow_http10` (Boolean) If set, will enable only HTTP1 protocol with HTTP1.0 support.
+
+- `http2_options` (Block List, Max: 1) If set, will enable HTTP2 protocol for the handler. (see [below for nested schema](#nestedobjatt--listener--http--handler--http2_options))
+
+- `http_router_id` (String) HTTP router id.
+
+- `rewrite_request_id` (Boolean) When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
+
 
 <a id="nestedobjatt--listener--http--handler--http2_options"></a>
 ### Nested Schema for `listener.http.handler.http2_options`
 
 Read-Only:
 
-- `max_concurrent_streams` (Number)
+- `max_concurrent_streams` (Number) Maximum number of concurrent streams.
+
 
 
 
@@ -164,7 +187,8 @@ Read-Only:
 
 Read-Only:
 
-- `http_to_https` (Boolean)
+- `http_to_https` (Boolean) If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.
+
 
 
 
@@ -173,15 +197,18 @@ Read-Only:
 
 Read-Only:
 
-- `handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--stream--handler))
+- `handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedobjatt--listener--stream--handler))
+
 
 <a id="nestedobjatt--listener--stream--handler"></a>
 ### Nested Schema for `listener.stream.handler`
 
 Read-Only:
 
-- `backend_group_id` (String)
-- `idle_timeout` (String)
+- `backend_group_id` (String) Backend Group ID.
+
+- `idle_timeout` (String) The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+
 
 
 
@@ -190,7 +217,8 @@ Read-Only:
 
 Read-Only:
 
-- `default_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--default_handler))
+- `default_handler` (Block List, Min: 1, Max: 1) TLS handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler))
+
 - `sni_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler))
 
 <a id="nestedobjatt--listener--tls--default_handler"></a>
@@ -198,19 +226,26 @@ Read-Only:
 
 Read-Only:
 
-- `certificate_ids` (Set of String)
-- `http_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--http_handler))
-- `stream_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--stream_handler))
+- `certificate_ids` (Set of String) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+
+- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--http_handler))
+
+- `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--stream_handler))
+
 
 <a id="nestedobjatt--listener--tls--default_handler--http_handler"></a>
 ### Nested Schema for `listener.tls.default_handler.http_handler`
 
 Read-Only:
 
-- `allow_http10` (Boolean)
-- `http2_options` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--stream_handler--http2_options))
-- `http_router_id` (String)
-- `rewrite_request_id` (Boolean)
+- `allow_http10` (Boolean) If set, will enable only HTTP1 protocol with HTTP1.0 support.
+
+- `http2_options` (Block List, Max: 1) If set, will enable HTTP2 protocol for the handler. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--stream_handler--http2_options))
+
+- `http_router_id` (String) HTTP router id.
+
+- `rewrite_request_id` (Boolean) When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
+
 
 <a id="nestedobjatt--listener--tls--default_handler--stream_handler--http2_options"></a>
 ### Nested Schema for `listener.tls.default_handler.stream_handler.http2_options`
@@ -226,8 +261,10 @@ Read-Only:
 
 Read-Only:
 
-- `backend_group_id` (String)
-- `idle_timeout` (String)
+- `backend_group_id` (String) Backend Group ID.
+
+- `idle_timeout` (String) The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+
 
 
 
@@ -236,7 +273,8 @@ Read-Only:
 
 Read-Only:
 
-- `handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--handler))
+- `handler` (Block List, Min: 1, Max: 1) TLS handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--handler))
+
 - `name` (String)
 - `server_names` (Set of String)
 
@@ -245,9 +283,12 @@ Read-Only:
 
 Read-Only:
 
-- `certificate_ids` (Set of String)
-- `http_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--http_handler))
-- `stream_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--stream_handler))
+- `certificate_ids` (Set of String) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+
+- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--http_handler))
+
+- `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--stream_handler))
+
 
 <a id="nestedobjatt--listener--tls--sni_handler--server_names--http_handler"></a>
 ### Nested Schema for `listener.tls.sni_handler.server_names.http_handler`
@@ -286,16 +327,23 @@ Read-Only:
 
 Read-Only:
 
-- `disable` (Boolean)
-- `discard_rule` (List of Object) (see [below for nested schema](#nestedobjatt--log_options--discard_rule))
-- `log_group_id` (String)
+- `disable` (Boolean) Set to `true` to disable Cloud Logging for the balancer.
+
+- `discard_rule` (Block List) List of rules to discard a fraction of logs. (see [below for nested schema](#nestedobjatt--log_options--discard_rule))
+
+- `log_group_id` (String) Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+
 
 <a id="nestedobjatt--log_options--discard_rule"></a>
 ### Nested Schema for `log_options.discard_rule`
 
 Read-Only:
 
-- `discard_percent` (Number)
-- `grpc_codes` (List of String)
-- `http_code_intervals` (List of String)
-- `http_codes` (List of Number)
+- `discard_percent` (Number) The percent of logs which will be discarded.
+
+- `grpc_codes` (List of String) list of grpc codes by name, e.g, [**NOT_FOUND**, **RESOURCE_EXHAUSTED**].
+
+- `http_code_intervals` (List of String) List of http code intervals *1XX*-*5XX* or *ALL*
+
+- `http_codes` (List of Number) List of http codes *100*-*599*.
+

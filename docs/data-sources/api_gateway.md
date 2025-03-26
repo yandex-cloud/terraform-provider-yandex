@@ -53,8 +53,10 @@ data "yandex_api_gateway" "my-api-gateway" {
 
 Optional:
 
-- `variables` (Map of String)
-- `weight` (Number)
+- `variables` (Map of String) A list of values for variables in gateway specification of canary release.
+
+- `weight` (Number) Percentage of requests, which will be processed by canary release.
+
 
 
 <a id="nestedblock--connectivity"></a>
@@ -62,7 +64,8 @@ Optional:
 
 Required:
 
-- `network_id` (String)
+- `network_id` (String) Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.
+
 
 
 <a id="nestedblock--custom_domains"></a>
@@ -83,7 +86,11 @@ Optional:
 
 Read-Only:
 
-- `disabled` (Boolean)
-- `folder_id` (String)
-- `log_group_id` (String)
-- `min_level` (String)
+- `disabled` (Boolean) Is logging from Yandex Cloud API Gateway disabled.
+
+- `folder_id` (String) Log entries are written to default log group for specified folder.
+
+- `log_group_id` (String) Log entries are written to specified log group.
+
+- `min_level` (String) Minimum log entry level.
+

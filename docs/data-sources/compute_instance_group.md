@@ -60,16 +60,20 @@ output "instance_external_ip" {
 
 Read-Only:
 
-- `instance_tags_pool` (List of Object) (see [below for nested schema](#nestedobjatt--allocation_policy--instance_tags_pool))
-- `zones` (Set of String)
+- `instance_tags_pool` (Block List) Array of availability zone IDs with list of instance tags. (see [below for nested schema](#nestedobjatt--allocation_policy--instance_tags_pool))
+
+- `zones` (Set of String) A list of [availability zones](https://yandex.cloud/docs/overview/concepts/geo-scope).
+
 
 <a id="nestedobjatt--allocation_policy--instance_tags_pool"></a>
 ### Nested Schema for `allocation_policy.instance_tags_pool`
 
 Read-Only:
 
-- `tags` (List of String)
-- `zone` (String)
+- `tags` (List of String) List of tags for instances in zone.
+
+- `zone` (String) Availability zone.
+
 
 
 
@@ -87,13 +91,18 @@ Read-Only:
 
 Read-Only:
 
-- `ignore_health_checks` (Boolean)
-- `max_opening_traffic_duration` (Number)
+- `ignore_health_checks` (Boolean) Do not wait load balancer health checks.
+
+- `max_opening_traffic_duration` (Number) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
 - `status_message` (String)
-- `target_group_description` (String)
+- `target_group_description` (String) A description of the target group.
+
 - `target_group_id` (String)
-- `target_group_labels` (Map of String)
-- `target_group_name` (String)
+- `target_group_labels` (Map of String) A set of key/value label pairs.
+
+- `target_group_name` (String) The name of the target group.
+
 
 
 <a id="nestedatt--deploy_policy"></a>
@@ -101,12 +110,18 @@ Read-Only:
 
 Read-Only:
 
-- `max_creating` (Number)
-- `max_deleting` (Number)
-- `max_expansion` (Number)
-- `max_unavailable` (Number)
-- `startup_duration` (Number)
-- `strategy` (String)
+- `max_creating` (Number) The maximum number of instances that can be created at the same time.
+
+- `max_deleting` (Number) The maximum number of instances that can be deleted at the same time.
+
+- `max_expansion` (Number) The maximum number of instances that can be temporarily allocated above the group's target size during the update process.
+
+- `max_unavailable` (Number) The maximum number of running instances that can be taken offline (stopped or deleted) at the same time during the update process.
+
+- `startup_duration` (Number) The amount of time in seconds to allow for an instance to start. Instance will be considered up and running (and start receiving traffic) only after the startup_duration has elapsed and all health checks are passed.
+
+- `strategy` (String) Affects the lifecycle of the instance during deployment. If set to `proactive` (default), Instance Groups can forcefully stop a running instance. If `opportunistic`, Instance Groups does not stop a running instance. Instead, it will wait until the instance stops itself or becomes unhealthy.
+
 
 
 <a id="nestedatt--health_check"></a>
@@ -114,20 +129,28 @@ Read-Only:
 
 Read-Only:
 
-- `healthy_threshold` (Number)
-- `http_options` (List of Object) (see [below for nested schema](#nestedobjatt--health_check--http_options))
-- `interval` (Number)
-- `tcp_options` (List of Object) (see [below for nested schema](#nestedobjatt--health_check--tcp_options))
-- `timeout` (Number)
-- `unhealthy_threshold` (Number)
+- `healthy_threshold` (Number) The number of successful health checks before the managed instance is declared healthy.
+
+- `http_options` (Block List, Max: 1) HTTP check options. (see [below for nested schema](#nestedobjatt--health_check--http_options))
+
+- `interval` (Number) The interval to wait between health checks in seconds.
+
+- `tcp_options` (Block List, Max: 1) TCP check options. (see [below for nested schema](#nestedobjatt--health_check--tcp_options))
+
+- `timeout` (Number) The length of time to wait for a response before the health check times out in seconds.
+
+- `unhealthy_threshold` (Number) The number of failed health checks before the managed instance is declared unhealthy.
+
 
 <a id="nestedobjatt--health_check--http_options"></a>
 ### Nested Schema for `health_check.http_options`
 
 Read-Only:
 
-- `path` (String)
-- `port` (Number)
+- `path` (String) The URL path used for health check requests.
+
+- `port` (Number) The port used for HTTP health checks.
+
 
 
 <a id="nestedobjatt--health_check--tcp_options"></a>
@@ -135,7 +158,8 @@ Read-Only:
 
 Read-Only:
 
-- `port` (Number)
+- `port` (Number) The port used for TCP health checks.
+
 
 
 
@@ -144,44 +168,69 @@ Read-Only:
 
 Read-Only:
 
-- `boot_disk` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--boot_disk))
-- `description` (String)
-- `filesystem` (Set of Object) (see [below for nested schema](#nestedobjatt--instance_template--filesystem))
-- `hostname` (String)
-- `labels` (Map of String)
-- `metadata` (Map of String)
-- `metadata_options` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--metadata_options))
-- `name` (String)
-- `network_interface` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface))
-- `network_settings` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_settings))
-- `placement_policy` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--placement_policy))
-- `platform_id` (String)
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--resources))
-- `scheduling_policy` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--scheduling_policy))
-- `secondary_disk` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--secondary_disk))
-- `service_account_id` (String)
+- `boot_disk` (Block List, Min: 1, Max: 1) Boot disk specifications for the instance. (see [below for nested schema](#nestedobjatt--instance_template--boot_disk))
+
+- `description` (String) A description of the instance.
+
+- `filesystem` (Block Set) List of filesystems to attach to the instance. (see [below for nested schema](#nestedobjatt--instance_template--filesystem))
+
+- `hostname` (String) Hostname template for the instance. This field is used to generate the FQDN value of instance. The `hostname` must be unique within the network and region. If not specified, the hostname will be equal to `id` of the instance and FQDN will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.
+
+- `labels` (Map of String) A set of key/value label pairs to assign to the instance.
+
+- `metadata` (Map of String) A set of metadata key/value pairs to make available from within the instance.
+
+- `metadata_options` (Block List, Max: 1) Options allow user to configure access to managed instances metadata (see [below for nested schema](#nestedobjatt--instance_template--metadata_options))
+
+- `name` (String) Name template of the instance.
+
+- `network_interface` (Block List, Min: 1) Network specifications for the instance. This can be used multiple times for adding multiple interfaces. (see [below for nested schema](#nestedobjatt--instance_template--network_interface))
+
+- `network_settings` (Block List) Network acceleration type for instance. (see [below for nested schema](#nestedobjatt--instance_template--network_settings))
+
+- `placement_policy` (Block List, Max: 1) The placement policy configuration. (see [below for nested schema](#nestedobjatt--instance_template--placement_policy))
+
+- `platform_id` (String) The ID of the hardware platform configuration for the instance.
+
+- `resources` (Block List, Min: 1, Max: 1) Compute resource specifications for the instance. (see [below for nested schema](#nestedobjatt--instance_template--resources))
+
+- `scheduling_policy` (Block List, Max: 1) The scheduling policy configuration. (see [below for nested schema](#nestedobjatt--instance_template--scheduling_policy))
+
+- `secondary_disk` (Block List) A list of disks to attach to the instance. (see [below for nested schema](#nestedobjatt--instance_template--secondary_disk))
+
+- `service_account_id` (String) The ID of the service account authorized for this instance.
+
 
 <a id="nestedobjatt--instance_template--boot_disk"></a>
 ### Nested Schema for `instance_template.boot_disk`
 
 Read-Only:
 
-- `device_name` (String)
+- `device_name` (String) This value can be used to reference the device under `/dev/disk/by-id/`.
+
 - `disk_id` (String)
-- `initialize_params` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--boot_disk--initialize_params))
-- `mode` (String)
-- `name` (String)
+- `initialize_params` (Block List, Max: 1) Parameters for creating a disk alongside the instance. (see [below for nested schema](#nestedobjatt--instance_template--boot_disk--initialize_params))
+
+- `mode` (String) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+
+- `name` (String) When set can be later used to change DiskSpec of actual disk.
+
 
 <a id="nestedobjatt--instance_template--boot_disk--initialize_params"></a>
 ### Nested Schema for `instance_template.boot_disk.initialize_params`
 
 Read-Only:
 
-- `description` (String)
-- `image_id` (String)
-- `size` (Number)
-- `snapshot_id` (String)
-- `type` (String)
+- `description` (String) A description of the boot disk.
+
+- `image_id` (String) The disk image to initialize this disk from.
+
+- `size` (Number) The size of the disk in GB.
+
+- `snapshot_id` (String) The snapshot to initialize this disk from.
+
+- `type` (String) The disk type.
+
 
 
 
@@ -190,9 +239,12 @@ Read-Only:
 
 Read-Only:
 
-- `device_name` (String)
-- `filesystem_id` (String)
-- `mode` (String)
+- `device_name` (String) Name of the device representing the filesystem on the instance.
+
+- `filesystem_id` (String) ID of the filesystem that should be attached.
+
+- `mode` (String) Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.
+
 
 
 <a id="nestedobjatt--instance_template--metadata_options"></a>
@@ -211,28 +263,42 @@ Read-Only:
 
 Read-Only:
 
-- `dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface--dns_record))
-- `ip_address` (String)
+- `dns_record` (Block List) List of DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--dns_record))
+
+- `ip_address` (String) Manual set static IP address.
+
 - `ipv4` (Boolean)
 - `ipv6` (Boolean)
-- `ipv6_address` (String)
-- `ipv6_dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv6_dns_record))
-- `nat` (Boolean)
-- `nat_dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface--nat_dns_record))
-- `nat_ip_address` (String)
-- `network_id` (String)
-- `security_group_ids` (Set of String)
-- `subnet_ids` (Set of String)
+- `ipv6_address` (String) Manual set static IPv6 address.
+
+- `ipv6_dns_record` (Block List) List of IPv6 DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv6_dns_record))
+
+- `nat` (Boolean) Flag for using NAT.
+
+- `nat_dns_record` (Block List) List of NAT DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--nat_dns_record))
+
+- `nat_ip_address` (String) A public address that can be used to access the internet over NAT. Use `variables` to set.
+
+- `network_id` (String) The ID of the network.
+
+- `security_group_ids` (Set of String) Security group (SG) `IDs` for network interface.
+
+- `subnet_ids` (Set of String) The ID of the subnets to attach this interface to.
+
 
 <a id="nestedobjatt--instance_template--network_interface--dns_record"></a>
 ### Nested Schema for `instance_template.network_interface.dns_record`
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone id (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have dot at the end).
+
+- `ptr` (Boolean) When set to true, also create PTR DNS record.
+
+- `ttl` (Number) DNS record TTL.
+
 
 
 <a id="nestedobjatt--instance_template--network_interface--ipv6_dns_record"></a>
@@ -240,10 +306,14 @@ Read-Only:
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone id (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have dot at the end).
+
+- `ptr` (Boolean) When set to true, also create PTR DNS record.
+
+- `ttl` (Number) DNS record TTL.
+
 
 
 <a id="nestedobjatt--instance_template--network_interface--nat_dns_record"></a>
@@ -251,10 +321,14 @@ Read-Only:
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone id (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have dot at the end).
+
+- `ptr` (Boolean) When set to true, also create PTR DNS record.
+
+- `ttl` (Number) DNS record TTL.
+
 
 
 
@@ -263,7 +337,8 @@ Read-Only:
 
 Read-Only:
 
-- `type` (String)
+- `type` (String) Network acceleration type. By default a network is in `STANDARD` mode.
+
 
 
 <a id="nestedobjatt--instance_template--placement_policy"></a>
@@ -271,7 +346,8 @@ Read-Only:
 
 Read-Only:
 
-- `placement_group_id` (String)
+- `placement_group_id` (String) Specifies the id of the Placement Group to assign to the instances.
+
 
 
 <a id="nestedobjatt--instance_template--resources"></a>
@@ -279,10 +355,13 @@ Read-Only:
 
 Read-Only:
 
-- `core_fraction` (Number)
-- `cores` (Number)
+- `core_fraction` (Number) If provided, specifies baseline core performance as a percent.
+
+- `cores` (Number) The number of CPU cores for the instance.
+
 - `gpus` (Number)
-- `memory` (Number)
+- `memory` (Number) The memory size in GB.
+
 
 
 <a id="nestedobjatt--instance_template--scheduling_policy"></a>
@@ -290,7 +369,8 @@ Read-Only:
 
 Read-Only:
 
-- `preemptible` (Boolean)
+- `preemptible` (Boolean) Specifies if the instance is preemptible. Defaults to `false`.
+
 
 
 <a id="nestedobjatt--instance_template--secondary_disk"></a>
@@ -298,22 +378,32 @@ Read-Only:
 
 Read-Only:
 
-- `device_name` (String)
-- `disk_id` (String)
-- `initialize_params` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--secondary_disk--initialize_params))
-- `mode` (String)
-- `name` (String)
+- `device_name` (String) This value can be used to reference the device under `/dev/disk/by-id/`.
+
+- `disk_id` (String) ID of the existing disk. To set use variables.
+
+- `initialize_params` (Block List, Max: 1) Parameters used for creating a disk alongside the instance. (see [below for nested schema](#nestedobjatt--instance_template--secondary_disk--initialize_params))
+
+- `mode` (String) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+
+- `name` (String) When set can be later used to change DiskSpec of actual disk.
+
 
 <a id="nestedobjatt--instance_template--secondary_disk--initialize_params"></a>
 ### Nested Schema for `instance_template.secondary_disk.initialize_params`
 
 Read-Only:
 
-- `description` (String)
-- `image_id` (String)
-- `size` (Number)
-- `snapshot_id` (String)
-- `type` (String)
+- `description` (String) A description of the boot disk.
+
+- `image_id` (String) The disk image to initialize this disk from.
+
+- `size` (Number) The size of the disk in GB.
+
+- `snapshot_id` (String) The snapshot to initialize this disk from.
+
+- `type` (String) The disk type.
+
 
 
 
@@ -327,7 +417,8 @@ Read-Only:
 - `instance_id` (String)
 - `instance_tag` (String)
 - `name` (String)
-- `network_interface` (List of Object) (see [below for nested schema](#nestedobjatt--instances--network_interface))
+- `network_interface` (List of Object) (see [below for nested schema](#nestedobjatt--instances--network_interface)) (see [below for nested schema](#nestedobjatt--instances--network_interface))
+
 - `status` (String)
 - `status_changed_at` (String)
 - `status_message` (String)
@@ -356,13 +447,20 @@ Read-Only:
 
 Read-Only:
 
-- `ignore_health_checks` (Boolean)
-- `max_opening_traffic_duration` (Number)
-- `status_message` (String)
-- `target_group_description` (String)
-- `target_group_id` (String)
-- `target_group_labels` (Map of String)
-- `target_group_name` (String)
+- `ignore_health_checks` (Boolean) Do not wait load balancer health checks.
+
+- `max_opening_traffic_duration` (Number) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
+- `status_message` (String) The status message of the target group.
+
+- `target_group_description` (String) A description of the target group.
+
+- `target_group_id` (String) The ID of the target group.
+
+- `target_group_labels` (Map of String) A set of key/value label pairs.
+
+- `target_group_name` (String) The name of the target group.
+
 
 
 <a id="nestedatt--load_balancer_state"></a>
@@ -379,24 +477,36 @@ Read-Only:
 
 Read-Only:
 
-- `auto_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale))
-- `fixed_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
-- `test_auto_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--test_auto_scale))
+- `auto_scale` (Block List, Max: 1) The auto scaling policy of the instance group. (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale))
+
+- `fixed_scale` (Block List, Max: 1) The fixed scaling policy of the instance group. (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+
+- `test_auto_scale` (Block List, Max: 1) The test auto scaling policy of the instance group. Use it to test how the auto scale works. (see [below for nested schema](#nestedobjatt--scale_policy--test_auto_scale))
+
 
 <a id="nestedobjatt--scale_policy--auto_scale"></a>
 ### Nested Schema for `scale_policy.auto_scale`
 
 Read-Only:
 
-- `auto_scale_type` (String)
-- `cpu_utilization_target` (Number)
-- `custom_rule` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale--custom_rule))
-- `initial_size` (Number)
-- `max_size` (Number)
-- `measurement_duration` (Number)
-- `min_zone_size` (Number)
-- `stabilization_duration` (Number)
-- `warmup_duration` (Number)
+- `auto_scale_type` (String) Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
+
+- `cpu_utilization_target` (Number) Target CPU load level.
+
+- `custom_rule` (Block List) A list of custom rules. (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale--custom_rule))
+
+- `initial_size` (Number) The initial number of instances in the instance group.
+
+- `max_size` (Number) The maximum number of virtual machines in the group.
+
+- `measurement_duration` (Number) The amount of time, in seconds, that metrics are averaged for. If the average value at the end of the interval is higher than the `cpu_utilization_target`, the instance group will increase the number of virtual machines in the group.
+
+- `min_zone_size` (Number) The minimum number of virtual machines in a single availability zone.
+
+- `stabilization_duration` (Number) The minimum time interval, in seconds, to monitor the load before an instance group can reduce the number of virtual machines in the group. During this time, the group will not decrease even if the average load falls below the value of `cpu_utilization_target`.
+
+- `warmup_duration` (Number) The warm-up time of the virtual machine, in seconds. During this time, traffic is fed to the virtual machine, but load metrics are not taken into account.
+
 
 <a id="nestedobjatt--scale_policy--auto_scale--custom_rule"></a>
 ### Nested Schema for `scale_policy.auto_scale.custom_rule`
@@ -418,7 +528,8 @@ Read-Only:
 
 Read-Only:
 
-- `size` (Number)
+- `size` (Number) The number of instances in the instance group.
+
 
 
 <a id="nestedobjatt--scale_policy--test_auto_scale"></a>
@@ -426,25 +537,41 @@ Read-Only:
 
 Read-Only:
 
-- `auto_scale_type` (String)
-- `cpu_utilization_target` (Number)
-- `custom_rule` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--test_auto_scale--custom_rule))
-- `initial_size` (Number)
-- `max_size` (Number)
-- `measurement_duration` (Number)
-- `min_zone_size` (Number)
-- `stabilization_duration` (Number)
-- `warmup_duration` (Number)
+- `auto_scale_type` (String) Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
+
+- `cpu_utilization_target` (Number) Target CPU load level.
+
+- `custom_rule` (Block List) A list of custom rules. (see [below for nested schema](#nestedobjatt--scale_policy--test_auto_scale--custom_rule))
+
+- `initial_size` (Number) The initial number of instances in the instance group.
+
+- `max_size` (Number) The maximum number of virtual machines in the group.
+
+- `measurement_duration` (Number) The amount of time, in seconds, that metrics are averaged for. If the average value at the end of the interval is higher than the `cpu_utilization_target`, the instance group will increase the number of virtual machines in the group.
+
+- `min_zone_size` (Number) The minimum number of virtual machines in a single availability zone.
+
+- `stabilization_duration` (Number) The minimum time interval, in seconds, to monitor the load before an instance group can reduce the number of virtual machines in the group. During this time, the group will not decrease even if the average load falls below the value of `cpu_utilization_target`.
+
+- `warmup_duration` (Number) The warm-up time of the virtual machine, in seconds. During this time, traffic is fed to the virtual machine, but load metrics are not taken into account.
+
 
 <a id="nestedobjatt--scale_policy--test_auto_scale--custom_rule"></a>
 ### Nested Schema for `scale_policy.test_auto_scale.custom_rule`
 
 Read-Only:
 
-- `folder_id` (String)
-- `labels` (Map of String)
-- `metric_name` (String)
-- `metric_type` (String)
-- `rule_type` (String)
-- `service` (String)
-- `target` (Number)
+- `folder_id` (String) Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+
+- `labels` (Map of String) A map of labels of metric.
+
+- `metric_name` (String) The name of metric.
+
+- `metric_type` (String) Metric type, `GAUGE` or `COUNTER`.
+
+- `rule_type` (String) Rule type: `UTILIZATION` - This type means that the metric applies to one instance. First, Instance Groups calculates the average metric value for each instance, then averages the values for instances in one availability zone. This type of metric must have the `instance_id` label. `WORKLOAD` - This type means that the metric applies to instances in one availability zone. This type of metric must have the `zone_id` label.
+
+- `service` (String) Service of custom metric in Yandex Monitoring that should be used for scaling.
+
+- `target` (Number) Target metric value level.
+

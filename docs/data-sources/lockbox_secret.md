@@ -66,11 +66,19 @@ Read-Only:
 
 Read-Only:
 
-- `excluded_punctuation` (String)
-- `include_digits` (Boolean)
-- `include_lowercase` (Boolean)
-- `include_punctuation` (Boolean)
-- `include_uppercase` (Boolean)
-- `included_punctuation` (String)
-- `length` (Number)
-- `password_key` (String)
+- `excluded_punctuation` (String) String of punctuation characters to exclude from the default. Requires `include_punctuation = true`. Default is empty.
+
+- `include_digits` (Boolean) Use digits in the generated password. Default is true.
+
+- `include_lowercase` (Boolean) Use lowercase letters in the generated password. Default is true.
+
+- `include_punctuation` (Boolean) Use punctuations (`!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~`) in the generated password. Default is true.
+
+- `include_uppercase` (Boolean) Use capital letters in the generated password. Default is true.
+
+- `included_punctuation` (String) String of specific punctuation characters to use. Requires `include_punctuation = true`. Default is empty.
+
+- `length` (Number) Length of generated password. Default is `36`.
+
+- `password_key` (String) The key with which the generated password will be placed in the secret version.
+

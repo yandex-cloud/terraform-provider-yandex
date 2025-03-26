@@ -51,29 +51,40 @@ data "yandex_lb_network_load_balancer" "my_nlb" {
 
 Read-Only:
 
-- `healthcheck` (List of Object) (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck))
-- `target_group_id` (String)
+- `healthcheck` (Block List, Min: 1) A HealthCheck resource. (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck))
+
+- `target_group_id` (String) ID of the target group.
+
 
 <a id="nestedobjatt--attached_target_group--healthcheck"></a>
 ### Nested Schema for `attached_target_group.healthcheck`
 
 Read-Only:
 
-- `healthy_threshold` (Number)
-- `http_options` (List of Object) (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck--http_options))
-- `interval` (Number)
-- `name` (String)
-- `tcp_options` (List of Object) (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck--tcp_options))
-- `timeout` (Number)
-- `unhealthy_threshold` (Number)
+- `healthy_threshold` (Number) Number of successful health checks required in order to set the `HEALTHY` status for the target.
+
+- `http_options` (Block List, Max: 1) Options for HTTP health check. (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck--http_options))
+
+- `interval` (Number) The interval between health checks. The default is 2 seconds.
+
+- `name` (String) Name of the health check. The name must be unique for each target group that attached to a single load balancer.
+
+- `tcp_options` (Block List, Max: 1) Options for TCP health check. (see [below for nested schema](#nestedobjatt--attached_target_group--healthcheck--tcp_options))
+
+- `timeout` (Number) Timeout for a target to return a response for the health check. The default is 1 second.
+
+- `unhealthy_threshold` (Number) Number of failed health checks before changing the status to `UNHEALTHY`. The default is 2.
+
 
 <a id="nestedobjatt--attached_target_group--healthcheck--http_options"></a>
 ### Nested Schema for `attached_target_group.healthcheck.http_options`
 
 Read-Only:
 
-- `path` (String)
-- `port` (Number)
+- `path` (String) URL path to set for health checking requests for every target in the target group. For example `/ping`. The default path is `/`.
+
+- `port` (Number) Port to use for HTTP health checks.
+
 
 
 <a id="nestedobjatt--attached_target_group--healthcheck--tcp_options"></a>
@@ -81,7 +92,8 @@ Read-Only:
 
 Read-Only:
 
-- `port` (Number)
+- `port` (Number) Port to use for TCP health checks.
+
 
 
 
@@ -91,20 +103,28 @@ Read-Only:
 
 Read-Only:
 
-- `external_address_spec` (Set of Object) (see [below for nested schema](#nestedobjatt--listener--external_address_spec))
-- `internal_address_spec` (Set of Object) (see [below for nested schema](#nestedobjatt--listener--internal_address_spec))
-- `name` (String)
-- `port` (Number)
-- `protocol` (String)
-- `target_port` (Number)
+- `external_address_spec` (Block Set, Max: 1) External IP address specification. (see [below for nested schema](#nestedobjatt--listener--external_address_spec))
+
+- `internal_address_spec` (Block Set, Max: 1) Internal IP address specification. (see [below for nested schema](#nestedobjatt--listener--internal_address_spec))
+
+- `name` (String) Name of the listener. The name must be unique for each listener on a single load balancer.
+
+- `port` (Number) Port for incoming traffic.
+
+- `protocol` (String) Protocol for incoming traffic. TCP or UDP and the default is TCP.
+
+- `target_port` (Number) Port of a target. The default is the same as listener's port.
+
 
 <a id="nestedobjatt--listener--external_address_spec"></a>
 ### Nested Schema for `listener.external_address_spec`
 
 Read-Only:
 
-- `address` (String)
-- `ip_version` (String)
+- `address` (String) External IP address for a listener. IP address will be allocated if it wasn't been set.
+
+- `ip_version` (String) IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.
+
 
 
 <a id="nestedobjatt--listener--internal_address_spec"></a>
@@ -112,6 +132,9 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
-- `ip_version` (String)
-- `subnet_id` (String)
+- `address` (String) Internal IP address for a listener. Must belong to the subnet that is referenced in subnet_id. IP address will be allocated if it wasn't been set.
+
+- `ip_version` (String) IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.
+
+- `subnet_id` (String) ID of the subnet to which the internal IP address belongs.
+

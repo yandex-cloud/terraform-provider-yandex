@@ -45,30 +45,42 @@ data "yandex_monitoring_dashboard" "my_dashboard" {
 
 Read-Only:
 
-- `parameters` (List of Object) (see [below for nested schema](#nestedobjatt--parametrization--parameters))
-- `selectors` (String)
+- `parameters` (Block List) Dashboard parameters. (see [below for nested schema](#nestedobjatt--parametrization--parameters))
+
+- `selectors` (String) Dashboard predefined parameters selector.
+
 
 <a id="nestedobjatt--parametrization--parameters"></a>
 ### Nested Schema for `parametrization.parameters`
 
 Read-Only:
 
-- `custom` (List of Object) (see [below for nested schema](#nestedobjatt--parametrization--parameters--custom))
-- `description` (String)
-- `hidden` (Boolean)
-- `id` (String)
-- `label_values` (List of Object) (see [below for nested schema](#nestedobjatt--parametrization--parameters--label_values))
-- `text` (List of Object) (see [below for nested schema](#nestedobjatt--parametrization--parameters--text))
-- `title` (String)
+- `custom` (Block List) Custom values parameter. Oneof: label_values, custom, text. (see [below for nested schema](#nestedobjatt--parametrization--parameters--custom))
+
+- `description` (String) Parameter description.
+
+- `hidden` (Boolean) UI-visibility
+
+- `id` (String) Parameter identifier.
+
+- `label_values` (Block List) Label values parameter. Oneof: label_values, custom, text. (see [below for nested schema](#nestedobjatt--parametrization--parameters--label_values))
+
+- `text` (Block List) Text parameter. Oneof: label_values, custom, text. (see [below for nested schema](#nestedobjatt--parametrization--parameters--text))
+
+- `title` (String) UI-visible title of the parameter.
+
 
 <a id="nestedobjatt--parametrization--parameters--custom"></a>
 ### Nested Schema for `parametrization.parameters.custom`
 
 Read-Only:
 
-- `default_values` (List of String)
-- `multiselectable` (Boolean)
-- `values` (List of String)
+- `default_values` (List of String) Default value.
+
+- `multiselectable` (Boolean) Specifies the multiselectable values of parameter.
+
+- `values` (List of String) Parameter values.
+
 
 
 <a id="nestedobjatt--parametrization--parameters--label_values"></a>
@@ -76,11 +88,16 @@ Read-Only:
 
 Read-Only:
 
-- `default_values` (List of String)
-- `folder_id` (String)
-- `label_key` (String)
-- `multiselectable` (Boolean)
-- `selectors` (String)
+- `default_values` (List of String) Default value.
+
+- `folder_id` (String) Folder ID.
+
+- `label_key` (String) Label key to list label values.
+
+- `multiselectable` (Boolean) Specifies the multiselectable values of parameter.
+
+- `selectors` (String) Selectors to select metric label values.
+
 
 
 <a id="nestedobjatt--parametrization--parameters--text"></a>
@@ -88,7 +105,8 @@ Read-Only:
 
 Read-Only:
 
-- `default_value` (String)
+- `default_value` (String) Default value.
+
 
 
 
@@ -98,25 +116,38 @@ Read-Only:
 
 Read-Only:
 
-- `chart` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart))
-- `position` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--position))
-- `text` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--text))
-- `title` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--title))
+- `chart` (Block List) Chart widget settings. (see [below for nested schema](#nestedobjatt--widgets--chart))
+
+- `position` (Block List) Widget layout position. (see [below for nested schema](#nestedobjatt--widgets--position))
+
+- `text` (Block List) Text widget settings. (see [below for nested schema](#nestedobjatt--widgets--text))
+
+- `title` (Block List) Title widget settings. (see [below for nested schema](#nestedobjatt--widgets--title))
+
 
 <a id="nestedobjatt--widgets--chart"></a>
 ### Nested Schema for `widgets.chart`
 
 Read-Only:
 
-- `chart_id` (String)
-- `description` (String)
-- `display_legend` (Boolean)
-- `freeze` (String)
-- `name_hiding_settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--name_hiding_settings))
-- `queries` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--queries))
-- `series_overrides` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--series_overrides))
-- `title` (String)
-- `visualization_settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings))
+- `chart_id` (String) Chart ID.
+
+- `description` (String) Chart description in dashboard (not enabled in UI).
+
+- `display_legend` (Boolean) Enable legend under chart.
+
+- `freeze` (String) Fixed time interval for chart. Values:
+
+- `name_hiding_settings` (Block List) Name hiding settings (see [below for nested schema](#nestedobjatt--widgets--chart--name_hiding_settings))
+
+- `queries` (Block List) Queries settings. (see [below for nested schema](#nestedobjatt--widgets--chart--queries))
+
+- `series_overrides` (Block List) Time series settings. (see [below for nested schema](#nestedobjatt--widgets--chart--series_overrides))
+
+- `title` (String) Chart widget title.
+
+- `visualization_settings` (Block List) Visualization settings. (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings))
+
 
 <a id="nestedobjatt--widgets--chart--name_hiding_settings"></a>
 ### Nested Schema for `widgets.chart.name_hiding_settings`
@@ -124,7 +155,8 @@ Read-Only:
 Read-Only:
 
 - `names` (List of String)
-- `positive` (Boolean)
+- `positive` (Boolean) True if we want to show concrete series names only, false if we want to hide concrete series names
+
 
 
 <a id="nestedobjatt--widgets--chart--queries"></a>
@@ -132,19 +164,26 @@ Read-Only:
 
 Read-Only:
 
-- `downsampling` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--queries--downsampling))
-- `target` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--queries--target))
+- `downsampling` (Block List) Downsampling settings (see [below for nested schema](#nestedobjatt--widgets--chart--queries--downsampling))
+
+- `target` (Block List) Downsampling settings (see [below for nested schema](#nestedobjatt--widgets--chart--queries--target))
+
 
 <a id="nestedobjatt--widgets--chart--queries--downsampling"></a>
 ### Nested Schema for `widgets.chart.queries.downsampling`
 
 Read-Only:
 
-- `disabled` (Boolean)
-- `gap_filling` (String)
-- `grid_aggregation` (String)
-- `grid_interval` (Number)
-- `max_points` (Number)
+- `disabled` (Boolean) Disable downsampling
+
+- `gap_filling` (String) Parameters for filling gaps in data
+
+- `grid_aggregation` (String) Function that is used for downsampling
+
+- `grid_interval` (Number) Time interval (grid) for downsampling in milliseconds. Points in the specified range are aggregated into one time point
+
+- `max_points` (Number) Maximum number of points to be returned
+
 
 
 <a id="nestedobjatt--widgets--chart--queries--target"></a>
@@ -152,9 +191,12 @@ Read-Only:
 
 Read-Only:
 
-- `hidden` (Boolean)
-- `query` (String)
-- `text_mode` (Boolean)
+- `hidden` (Boolean) Checks that target is visible or invisible
+
+- `query` (String) Required. Query
+
+- `text_mode` (Boolean) Text mode
+
 
 
 
@@ -163,21 +205,30 @@ Read-Only:
 
 Read-Only:
 
-- `name` (String)
-- `settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--series_overrides--settings))
-- `target_index` (String)
+- `name` (String) Series name
+
+- `settings` (Block List) Override settings (see [below for nested schema](#nestedobjatt--widgets--chart--series_overrides--settings))
+
+- `target_index` (String) Target index
+
 
 <a id="nestedobjatt--widgets--chart--series_overrides--settings"></a>
 ### Nested Schema for `widgets.chart.series_overrides.settings`
 
 Read-Only:
 
-- `color` (String)
-- `grow_down` (Boolean)
-- `name` (String)
-- `stack_name` (String)
-- `type` (String)
-- `yaxis_position` (String)
+- `color` (String) Series color or empty
+
+- `grow_down` (Boolean) Stack grow down
+
+- `name` (String) Series name or empty
+
+- `stack_name` (String) Stack name or empty
+
+- `type` (String) Type
+
+- `yaxis_position` (String) Yaxis position
+
 
 
 
@@ -186,24 +237,36 @@ Read-Only:
 
 Read-Only:
 
-- `aggregation` (String)
-- `color_scheme_settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--color_scheme_settings))
-- `heatmap_settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--heatmap_settings))
-- `interpolate` (String)
-- `normalize` (Boolean)
-- `show_labels` (Boolean)
-- `title` (String)
-- `type` (String)
-- `yaxis_settings` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings))
+- `aggregation` (String) Aggregation
+
+- `color_scheme_settings` (Block List) Color scheme settings (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--color_scheme_settings))
+
+- `heatmap_settings` (Block List) Heatmap settings (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--heatmap_settings))
+
+- `interpolate` (String) Interpolate
+
+- `normalize` (Boolean) Normalize
+
+- `show_labels` (Boolean) Show chart labels
+
+- `title` (String) Inside chart title
+
+- `type` (String) Visualization type
+
+- `yaxis_settings` (Block List) Y axis settings (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings))
+
 
 <a id="nestedobjatt--widgets--chart--visualization_settings--color_scheme_settings"></a>
 ### Nested Schema for `widgets.chart.visualization_settings.color_scheme_settings`
 
 Read-Only:
 
-- `automatic` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--automatic))
-- `gradient` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--gradient))
-- `standard` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--standard))
+- `automatic` (Block List) Automatic color scheme (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--automatic))
+
+- `gradient` (Block List) Gradient color scheme (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--gradient))
+
+- `standard` (Block List) Standard color scheme (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--standard))
+
 
 <a id="nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--automatic"></a>
 ### Nested Schema for `widgets.chart.visualization_settings.yaxis_settings.automatic`
@@ -236,10 +299,14 @@ Read-Only:
 
 Read-Only:
 
-- `green_value` (String)
-- `red_value` (String)
-- `violet_value` (String)
-- `yellow_value` (String)
+- `green_value` (String) Heatmap green value
+
+- `red_value` (String) Heatmap red value
+
+- `violet_value` (String) Heatmap violet_value
+
+- `yellow_value` (String) Heatmap yellow value
+
 
 
 <a id="nestedobjatt--widgets--chart--visualization_settings--yaxis_settings"></a>
@@ -247,20 +314,28 @@ Read-Only:
 
 Read-Only:
 
-- `left` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--left))
-- `right` (List of Object) (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--right))
+- `left` (Block List) Left Y axis settings (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--left))
+
+- `right` (Block List) Right Y axis settings (see [below for nested schema](#nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--right))
+
 
 <a id="nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--left"></a>
 ### Nested Schema for `widgets.chart.visualization_settings.yaxis_settings.left`
 
 Read-Only:
 
-- `max` (String)
-- `min` (String)
-- `precision` (Number)
-- `title` (String)
-- `type` (String)
-- `unit_format` (String)
+- `max` (String) Max value in extended number format or empty
+
+- `min` (String) Min value in extended number format or empty
+
+- `precision` (Number) Tick value precision (null as default, 0-7 in other cases)
+
+- `title` (String) Title or empty
+
+- `type` (String) Type
+
+- `unit_format` (String) Unit format
+
 
 
 <a id="nestedobjatt--widgets--chart--visualization_settings--yaxis_settings--right"></a>
@@ -268,12 +343,18 @@ Read-Only:
 
 Read-Only:
 
-- `max` (String)
-- `min` (String)
-- `precision` (Number)
-- `title` (String)
-- `type` (String)
-- `unit_format` (String)
+- `max` (String) Max value in extended number format or empty
+
+- `min` (String) Min value in extended number format or empty
+
+- `precision` (Number) Tick value precision (null as default, 0-7 in other cases)
+
+- `title` (String) Title or empty
+
+- `type` (String) Type
+
+- `unit_format` (String) Unit format
+
 
 
 
@@ -284,10 +365,14 @@ Read-Only:
 
 Read-Only:
 
-- `h` (Number)
-- `w` (Number)
-- `x` (Number)
-- `y` (Number)
+- `h` (Number) Height.
+
+- `w` (Number) Weight.
+
+- `x` (Number) X-axis top-left corner coordinate.
+
+- `y` (Number) Y-axis top-left corner coordinate.
+
 
 
 <a id="nestedobjatt--widgets--text"></a>
@@ -295,7 +380,8 @@ Read-Only:
 
 Read-Only:
 
-- `text` (String)
+- `text` (String) Widget text.
+
 
 
 <a id="nestedobjatt--widgets--title"></a>
@@ -303,5 +389,7 @@ Read-Only:
 
 Read-Only:
 
-- `size` (String)
-- `text` (String)
+- `size` (String) Title size.
+
+- `text` (String) Title text.
+

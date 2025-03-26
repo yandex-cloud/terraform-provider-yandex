@@ -57,11 +57,16 @@ data "yandex_function_trigger" "my_trigger" {
 
 Read-Only:
 
-- `id` (String)
-- `path` (String)
-- `retry_attempts` (String)
-- `retry_interval` (String)
-- `service_account_id` (String)
+- `id` (String) Yandex Cloud Serverless Container ID for Yandex Cloud Functions Trigger.
+
+- `path` (String) Path for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+
+- `retry_attempts` (String) Retry attempts for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+
+- `retry_interval` (String) Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+
+- `service_account_id` (String) Service account ID for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--container_registry"></a>
@@ -69,15 +74,24 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `create_image` (Boolean)
-- `create_image_tag` (Boolean)
-- `delete_image` (Boolean)
-- `delete_image_tag` (Boolean)
-- `image_name` (String)
-- `registry_id` (String)
-- `tag` (String)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `create_image` (Boolean) Boolean flag for setting `create image` event for Yandex Cloud Functions Trigger.
+
+- `create_image_tag` (Boolean) Boolean flag for setting `create image tag` event for Yandex Cloud Functions Trigger.
+
+- `delete_image` (Boolean) Boolean flag for setting `delete image` event for Yandex Cloud Functions Trigger.
+
+- `delete_image_tag` (Boolean) Boolean flag for setting `delete image tag` event for Yandex Cloud Functions Trigger.
+
+- `image_name` (String) Image name filter setting for Yandex Cloud Functions Trigger.
+
+- `registry_id` (String) Container Registry ID for Yandex Cloud Functions Trigger.
+
+- `tag` (String) Image tag filter setting for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--data_streams"></a>
@@ -85,11 +99,16 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `database` (String)
-- `service_account_id` (Boolean)
-- `stream_name` (String)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `database` (String) Stream database for Yandex Cloud Functions Trigger.
+
+- `service_account_id` (Boolean) Service account ID to access data stream for Yandex Cloud Functions Trigger.
+
+- `stream_name` (String) Stream name for Yandex Cloud Functions Trigger.
+
 - `suffix` (String)
 
 
@@ -98,8 +117,10 @@ Read-Only:
 
 Read-Only:
 
-- `queue_id` (String)
-- `service_account_id` (String)
+- `queue_id` (String) ID of Dead Letter Queue for Trigger (Queue ARN).
+
+- `service_account_id` (String) Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--function"></a>
@@ -107,11 +128,16 @@ Read-Only:
 
 Read-Only:
 
-- `id` (String)
-- `retry_attempts` (String)
-- `retry_interval` (String)
-- `service_account_id` (String)
-- `tag` (String)
+- `id` (String) Yandex Cloud Function ID.
+
+- `retry_attempts` (String) Retry attempts for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+
+- `retry_interval` (String) Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+
+- `service_account_id` (String) Service account ID for Yandex Cloud Function.
+
+- `tag` (String) Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--iot"></a>
@@ -119,11 +145,16 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `device_id` (String)
-- `registry_id` (String)
-- `topic` (String)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `device_id` (String) IoT Device ID for Yandex Cloud Functions Trigger.
+
+- `registry_id` (String) IoT Registry ID for Yandex Cloud Functions Trigger.
+
+- `topic` (String) IoT Topic for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--log_group"></a>
@@ -141,13 +172,20 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `group_id` (String)
-- `levels` (Set of String)
-- `resource_ids` (Set of String)
-- `resource_types` (Set of String)
-- `stream_names` (Set of String)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `group_id` (String) Logging group ID for Yandex Cloud Functions Trigger.
+
+- `levels` (Set of String) Logging level filter setting for Yandex Cloud Functions Trigger.
+
+- `resource_ids` (Set of String) Resource ID filter setting for Yandex Cloud Functions Trigger.
+
+- `resource_types` (Set of String) Resource type filter setting for Yandex Cloud Functions Trigger.
+
+- `stream_names` (Set of String) Logging stream name filter setting for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--mail"></a>
@@ -155,10 +193,14 @@ Read-Only:
 
 Read-Only:
 
-- `attachments_bucket_id` (String)
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `service_account_id` (String)
+- `attachments_bucket_id` (String) Object Storage Bucket ID for Yandex Cloud Functions Trigger.
+
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `service_account_id` (String) Service account ID to access object storage for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--message_queue"></a>
@@ -166,11 +208,16 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `queue_id` (String)
-- `service_account_id` (String)
-- `visibility_timeout` (String)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `queue_id` (String) Message Queue ID for Yandex Cloud Functions Trigger.
+
+- `service_account_id` (String) Message Queue Service Account ID for Yandex Cloud Functions Trigger.
+
+- `visibility_timeout` (String) Visibility timeout for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--object_storage"></a>
@@ -178,14 +225,22 @@ Read-Only:
 
 Read-Only:
 
-- `batch_cutoff` (String)
-- `batch_size` (String)
-- `bucket_id` (String)
-- `create` (Boolean)
-- `delete` (Boolean)
-- `prefix` (String)
-- `suffix` (String)
-- `update` (Boolean)
+- `batch_cutoff` (String) Batch Duration in seconds for Yandex Cloud Functions Trigger.
+
+- `batch_size` (String) Batch Size for Yandex Cloud Functions Trigger.
+
+- `bucket_id` (String) Object Storage Bucket ID for Yandex Cloud Functions Trigger.
+
+- `create` (Boolean) Boolean flag for setting `create` event for Yandex Cloud Functions Trigger.
+
+- `delete` (Boolean) Boolean flag for setting `delete` event for Yandex Cloud Functions Trigger.
+
+- `prefix` (String) Prefix for Object Storage for Yandex Cloud Functions Trigger.
+
+- `suffix` (String) Suffix for Object Storage for Yandex Cloud Functions Trigger.
+
+- `update` (Boolean) Boolean flag for setting `update` event for Yandex Cloud Functions Trigger.
+
 
 
 <a id="nestedatt--timer"></a>
@@ -193,5 +248,7 @@ Read-Only:
 
 Read-Only:
 
-- `cron_expression` (String)
-- `payload` (String)
+- `cron_expression` (String) Cron expression for timer for Yandex Cloud Functions Trigger.
+
+- `payload` (String) Payload to be passed to function.
+

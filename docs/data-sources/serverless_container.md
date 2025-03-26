@@ -59,7 +59,8 @@ data "yandex_serverless_container" "my-container" {
 
 Required:
 
-- `network_id` (String)
+- `network_id` (String) Network the revision will have access to.
+
 
 
 <a id="nestedblock--metadata_options"></a>
@@ -67,8 +68,10 @@ Required:
 
 Optional:
 
-- `aws_v1_http_endpoint` (Number)
-- `gce_http_endpoint` (Number)
+- `aws_v1_http_endpoint` (Number) Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.
+
+- `gce_http_endpoint` (Number) Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.
+
 
 
 <a id="nestedblock--mounts"></a>
@@ -76,24 +79,30 @@ Optional:
 
 Required:
 
-- `mount_point_path` (String)
+- `mount_point_path` (String) Path inside the container to access the directory in which the target is mounted.
+
 
 Optional:
 
-- `ephemeral_disk` (Block List, Max: 1) (see [below for nested schema](#nestedblock--mounts--ephemeral_disk))
-- `mode` (String)
-- `object_storage` (Block List, Max: 1) (see [below for nested schema](#nestedblock--mounts--object_storage))
+- `ephemeral_disk` (Block List, Max: 1) One of the available mount types. Disk available during the function execution time. (see [below for nested schema](#nestedblock--mounts--ephemeral_disk))
+
+- `mode` (String) Mount’s accessibility mode. Valid values are `ro` and `rw`.
+
+- `object_storage` (Block List, Max: 1) Available mount types. Object storage as a mount. (see [below for nested schema](#nestedblock--mounts--object_storage))
+
 
 <a id="nestedblock--mounts--ephemeral_disk"></a>
 ### Nested Schema for `mounts.ephemeral_disk`
 
 Required:
 
-- `size_gb` (Number)
+- `size_gb` (Number) Size of the ephemeral disk in GB.
+
 
 Optional:
 
-- `block_size_kb` (Number)
+- `block_size_kb` (Number) Block size of the ephemeral disk in KB.
+
 
 
 <a id="nestedblock--mounts--object_storage"></a>
@@ -101,11 +110,13 @@ Optional:
 
 Required:
 
-- `bucket` (String)
+- `bucket` (String) Name of the mounting bucket.
+
 
 Optional:
 
-- `prefix` (String)
+- `prefix` (String) Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
 
 
 
@@ -114,7 +125,8 @@ Optional:
 
 Required:
 
-- `type` (String)
+- `type` (String) Type of the runtime for Yandex Cloud Serverless Container. Valid values are `http` and `task`.
+
 
 
 <a id="nestedblock--secrets"></a>
@@ -122,10 +134,14 @@ Required:
 
 Required:
 
-- `environment_variable` (String)
-- `id` (String)
-- `key` (String)
-- `version_id` (String)
+- `environment_variable` (String) Container's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
+
+- `id` (String) Secret's ID.
+
+- `key` (String) Secret's entries key which value will be stored in environment variable.
+
+- `version_id` (String) Secret's version ID.
+
 
 
 <a id="nestedblock--storage_mounts"></a>
@@ -133,13 +149,17 @@ Required:
 
 Required:
 
-- `bucket` (String)
-- `mount_point_path` (String)
+- `bucket` (String) Name of the mounting bucket.
+
+- `mount_point_path` (String) Path inside the container to access the directory in which the bucket is mounted.
+
 
 Optional:
 
-- `prefix` (String)
-- `read_only` (Boolean)
+- `prefix` (String) Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
+- `read_only` (Boolean) Mount the bucket in read-only mode.
+
 
 
 <a id="nestedatt--image"></a>
@@ -147,12 +167,18 @@ Optional:
 
 Read-Only:
 
-- `args` (List of String)
-- `command` (List of String)
-- `digest` (String)
-- `environment` (Map of String)
-- `url` (String)
-- `work_dir` (String)
+- `args` (List of String) List of arguments for Yandex Cloud Serverless Container.
+
+- `command` (List of String) List of commands for Yandex Cloud Serverless Container.
+
+- `digest` (String) Digest of image that will be deployed as Yandex Cloud Serverless Container. If presented, should be equal to digest that will be resolved at server side by URL. Container will be updated on digest change even if `image.0.url` stays the same. If field not specified then its value will be computed.
+
+- `environment` (Map of String) A set of key/value environment variable pairs for Yandex Cloud Serverless Container. Each key must begin with a letter (A-Z, a-z).
+
+- `url` (String) URL of image that will be deployed as Yandex Cloud Serverless Container.
+
+- `work_dir` (String) Working directory for Yandex Cloud Serverless Container.
+
 
 
 <a id="nestedatt--log_options"></a>
@@ -160,7 +186,11 @@ Read-Only:
 
 Read-Only:
 
-- `disabled` (Boolean)
-- `folder_id` (String)
-- `log_group_id` (String)
-- `min_level` (String)
+- `disabled` (Boolean) Is logging from container disabled.
+
+- `folder_id` (String) Log entries are written to default log group for specified folder.
+
+- `log_group_id` (String) Log entries are written to specified log group.
+
+- `min_level` (String) Minimum log entry level.
+

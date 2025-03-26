@@ -62,19 +62,29 @@ output "network_id" {
 Required:
 
 - `kafka` (Block List, Min: 1, Max: 1) Configuration of the Kafka subcluster. (see [below for nested schema](#nestedblock--config--kafka))
-- `version` (String) Version of the Kafka server software.
-- `zones` (List of String) List of availability zones.
+
+- `version` (String) Version of the Kafka server software. Version of the Kafka server software.
+
+- `zones` (List of String) List of availability zones. List of availability zones.
+
 
 Optional:
 
 - `access` (Block List, Max: 1) Access policy to the Kafka cluster. (see [below for nested schema](#nestedblock--config--access))
-- `assign_public_ip` (Boolean) Determines whether each broker will be assigned a public IP address. The default is `false`.
-- `brokers_count` (Number) Count of brokers per availability zone. The default is `1`.
+
+- `assign_public_ip` (Boolean) Determines whether each broker will be assigned a public IP address. The default is `false`. Determines whether each broker will be assigned a public IP address. The default is `false`.
+
+- `brokers_count` (Number) Count of brokers per availability zone. The default is `1`. Count of brokers per availability zone. The default is `1`.
+
 - `disk_size_autoscaling` (Block List, Max: 1) Disk autoscaling settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--disk_size_autoscaling))
+
 - `kraft` (Block List, Max: 1) Configuration of the KRaft-controller subcluster. (see [below for nested schema](#nestedblock--config--kraft))
-- `schema_registry` (Boolean) Enables managed schema registry on cluster. The default is `false`.
+
+- `schema_registry` (Boolean) Enables managed schema registry on cluster. The default is `false`. Enables managed schema registry on cluster. The default is `false`.
+
 - `unmanaged_topics` (Boolean, Deprecated)
 - `zookeeper` (Block List, Max: 1) Configuration of the ZooKeeper subcluster. (see [below for nested schema](#nestedblock--config--zookeeper))
+
 
 <a id="nestedblock--config--kafka"></a>
 ### Nested Schema for `config.kafka`
@@ -83,18 +93,23 @@ Required:
 
 - `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the Kafka subcluster. (see [below for nested schema](#nestedblock--config--kafka--resources))
 
+
 Optional:
 
 - `kafka_config` (Block List, Max: 1) User-defined settings for the Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/operations/cluster-update) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration). (see [below for nested schema](#nestedblock--config--kafka--kafka_config))
+
 
 <a id="nestedblock--config--kafka--resources"></a>
 ### Nested Schema for `config.kafka.resources`
 
 Required:
 
-- `disk_size` (Number) Volume of the storage available to a Kafka host, in gigabytes.
-- `disk_type_id` (String) Type of the storage of Kafka hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
-- `resource_preset_id` (String) The ID of the preset for computational resources available to a Kafka host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+- `disk_size` (Number) Volume of the storage available to a Kafka host, in gigabytes. Volume of the storage available to a Kafka host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of Kafka hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage). Type of the storage of Kafka hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a Kafka host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts). The ID of the preset for computational resources available to a Kafka host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+
 
 
 <a id="nestedblock--config--kafka--kafka_config"></a>
@@ -130,7 +145,8 @@ Optional:
 
 Optional:
 
-- `data_transfer` (Boolean) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+- `data_transfer` (Boolean) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+
 
 
 <a id="nestedblock--config--disk_size_autoscaling"></a>
@@ -138,12 +154,15 @@ Optional:
 
 Required:
 
-- `disk_size_limit` (Number) Maximum possible size of disk in bytes.
+- `disk_size_limit` (Number) Maximum possible size of disk in bytes. Maximum possible size of disk in bytes.
+
 
 Optional:
 
-- `emergency_usage_threshold` (Number) Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
-- `planned_usage_threshold` (Number) Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled).
+- `emergency_usage_threshold` (Number) Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value. Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
+
+- `planned_usage_threshold` (Number) Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled).
+
 
 
 <a id="nestedblock--config--kraft"></a>
@@ -153,14 +172,18 @@ Optional:
 
 - `resources` (Block List, Max: 1) Resources allocated to hosts of the KRaft-controller subcluster. (see [below for nested schema](#nestedblock--config--kraft--resources))
 
+
 <a id="nestedblock--config--kraft--resources"></a>
 ### Nested Schema for `config.kraft.resources`
 
 Optional:
 
-- `disk_size` (Number) Volume of the storage available to a KRaft-controller host, in gigabytes.
-- `disk_type_id` (String) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
-- `resource_preset_id` (String) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+- `disk_size` (Number) Volume of the storage available to a KRaft-controller host, in gigabytes. Volume of the storage available to a KRaft-controller host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage). Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts). The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+
 
 
 
@@ -171,14 +194,18 @@ Optional:
 
 - `resources` (Block List, Max: 1) Resources allocated to hosts of the ZooKeeper subcluster. (see [below for nested schema](#nestedblock--config--zookeeper--resources))
 
+
 <a id="nestedblock--config--zookeeper--resources"></a>
 ### Nested Schema for `config.zookeeper.resources`
 
 Optional:
 
-- `disk_size` (Number) Volume of the storage available to a ZooKeeper host, in gigabytes.
-- `disk_type_id` (String) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
-- `resource_preset_id` (String) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+- `disk_size` (Number) Volume of the storage available to a ZooKeeper host, in gigabytes. Volume of the storage available to a ZooKeeper host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage). Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts). The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+
 
 
 
@@ -188,13 +215,17 @@ Optional:
 
 Required:
 
-- `name` (String) The name of the topic.
-- `partitions` (Number) The number of the topic's partitions.
-- `replication_factor` (Number) Amount of data copies (replicas) for the topic in the cluster.
+- `name` (String) The name of the topic. The name of the topic.
+
+- `partitions` (Number) The number of the topic's partitions. The number of the topic's partitions.
+
+- `replication_factor` (Number) Amount of data copies (replicas) for the topic in the cluster. Amount of data copies (replicas) for the topic in the cluster.
+
 
 Optional:
 
 - `topic_config` (Block List, Max: 1) User-defined settings for the topic. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/operations/cluster-topics#update-topic) and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration). (see [below for nested schema](#nestedblock--topic--topic_config))
+
 
 <a id="nestedblock--topic--topic_config"></a>
 ### Nested Schema for `topic.topic_config`
@@ -222,24 +253,30 @@ Optional:
 
 Required:
 
-- `name` (String) The name of the user.
-- `password` (String, Sensitive) The password of the user.
+- `name` (String) The name of the user. The name of the user.
+
+- `password` (String, Sensitive) The password of the user. The password of the user.
+
 
 Optional:
 
 - `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedblock--user--permission))
+
 
 <a id="nestedblock--user--permission"></a>
 ### Nested Schema for `user.permission`
 
 Required:
 
-- `role` (String) The role type to grant to the topic.
-- `topic_name` (String) The name of the topic that the permission grants access to.
+- `role` (String) The role type to grant to the topic. The role type to grant to the topic.
+
+- `topic_name` (String) The name of the topic that the permission grants access to. The name of the topic that the permission grants access to.
+
 
 Optional:
 
-- `allow_hosts` (Set of String) Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
+- `allow_hosts` (Set of String) Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host. Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
+
 
 
 
@@ -269,6 +306,9 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `hour` (Number)
-- `type` (String)
+- `day` (String) Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
+
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+

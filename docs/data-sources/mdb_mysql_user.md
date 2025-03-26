@@ -50,11 +50,13 @@ output "permission" {
 
 Optional:
 
-- `roles` (List of String)
+- `roles` (List of String) List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.
+
 
 Read-Only:
 
-- `database_name` (String)
+- `database_name` (String) The name of the database that the permission grants access to.
+
 
 
 <a id="nestedatt--connection_limits"></a>
@@ -62,7 +64,11 @@ Read-Only:
 
 Read-Only:
 
-- `max_connections_per_hour` (Number)
-- `max_questions_per_hour` (Number)
-- `max_updates_per_hour` (Number)
-- `max_user_connections` (Number)
+- `max_connections_per_hour` (Number) Max connections per hour.
+
+- `max_questions_per_hour` (Number) Max questions per hour.
+
+- `max_updates_per_hour` (Number) Max updates per hour.
+
+- `max_user_connections` (Number) Max user connections.
+

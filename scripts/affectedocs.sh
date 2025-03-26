@@ -1,6 +1,11 @@
 #!/bin/bash
 
-files=$(git diff --merge-base origin/master --name-only --no-color --diff-filter=d)
+arc_info_output=$(arc info 2>&1)
+if echo "$arc_info_output" | grep -q "Not a mounted arc repository"; then
+    files=$(git diff --merge-base origin/master --name-only --no-color --diff-filter=d)
+else
+    files=$(arc diff $(arc merge-base HEAD cloudia/trunk) . --name-only)
+fi
 
 file_pattern=$(echo "$files" | sed 's/[./]/\\&/g' | sed 's/^/(/' | sed 's/$/)/' | sed 's/$/|/' | tr -d '\n' | sed 's/\\|$//' | sed 's/.$//')
 

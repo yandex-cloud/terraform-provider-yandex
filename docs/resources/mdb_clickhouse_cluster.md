@@ -901,13 +901,20 @@ Optional:
 Required:
 
 - `name` (String) The name of the user.
-- `password` (String, Sensitive) The password of the user.
 
 Optional:
 
+- `generate_password` (Boolean) Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.
+
+~> **Must specify either password or generate_password**.
+- `password` (String, Sensitive) The password of the user.
 - `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedblock--user--permission))
 - `quota` (Block Set) Set of user quotas. (see [below for nested schema](#nestedblock--user--quota))
 - `settings` (Block List, Max: 1) Custom settings for user. (see [below for nested schema](#nestedblock--user--settings))
+
+Read-Only:
+
+- `connection_manager` (Map of String) Connection Manager connection configuration. Filled in by the server automatically.
 
 <a id="nestedblock--user--permission"></a>
 ### Nested Schema for `user.permission`

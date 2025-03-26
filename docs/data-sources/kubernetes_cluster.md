@@ -63,7 +63,8 @@ output "cluster_external_v4_endpoint" {
 
 Read-Only:
 
-- `key_id` (String)
+- `key_id` (String) KMS key ID.
+
 
 
 <a id="nestedatt--master"></a>
@@ -71,31 +72,47 @@ Read-Only:
 
 Read-Only:
 
-- `cluster_ca_certificate` (String)
+- `cluster_ca_certificate` (String) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.
+
 - `etcd_cluster_size` (Number)
-- `external_v4_address` (String)
-- `external_v4_endpoint` (String)
+- `external_v4_address` (String) An IPv4 external network address that is assigned to the master.
+
+- `external_v4_endpoint` (String) External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
+
 - `external_v6_address` (String)
 - `external_v6_endpoint` (String)
-- `internal_v4_address` (String)
-- `internal_v4_endpoint` (String)
-- `maintenance_policy` (List of Object) (see [below for nested schema](#nestedobjatt--master--maintenance_policy))
-- `master_location` (List of Object) (see [below for nested schema](#nestedobjatt--master--master_location))
-- `master_logging` (List of Object) (see [below for nested schema](#nestedobjatt--master--master_logging))
-- `public_ip` (Boolean)
-- `regional` (List of Object) (see [below for nested schema](#nestedobjatt--master--regional))
-- `security_group_ids` (Set of String)
-- `version` (String)
-- `version_info` (List of Object) (see [below for nested schema](#nestedobjatt--master--version_info))
-- `zonal` (List of Object) (see [below for nested schema](#nestedobjatt--master--zonal))
+- `internal_v4_address` (String) An IPv4 internal network address that is assigned to the master.
+
+- `internal_v4_endpoint` (String) Internal endpoint that can be used to connect to the master from cloud networks.
+
+- `maintenance_policy` (Block List, Max: 1) Maintenance policy for Kubernetes master. If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. 1.29. Minor version upgrades (e.g. 1.29->1.30) should be performed manually. (see [below for nested schema](#nestedobjatt--master--maintenance_policy))
+
+- `master_location` (Block List) Cluster master's instances locations array (zone and subnet). Cannot be used together with `zonal` or `regional`. Currently, supports either one, for zonal master, or three instances of `master_location`. Can be updated in place. When creating regional cluster (three master instances), its `region` will be evaluated automatically by backend. (see [below for nested schema](#nestedobjatt--master--master_location))
+
+- `master_logging` (Block List, Max: 1) Master Logging options. (see [below for nested schema](#nestedobjatt--master--master_logging))
+
+- `public_ip` (Boolean) When `true`, Kubernetes master will have visible ipv4 address.
+
+- `regional` (Block List, Max: 1) Initialize parameters for Regional Master (highly available master). (see [below for nested schema](#nestedobjatt--master--regional))
+
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
+
+- `version` (String) Version of Kubernetes that will be used for master.
+
+- `version_info` (List of Object) Information about cluster version. (see [below for nested schema](#nestedatt--master--version_info)) (see [below for nested schema](#nestedobjatt--master--version_info))
+
+- `zonal` (Block List, Max: 1) Initialize parameters for Zonal Master (single node master). (see [below for nested schema](#nestedobjatt--master--zonal))
+
 
 <a id="nestedobjatt--master--maintenance_policy"></a>
 ### Nested Schema for `master.maintenance_policy`
 
 Read-Only:
 
-- `auto_upgrade` (Boolean)
-- `maintenance_window` (Set of Object) (see [below for nested schema](#nestedobjatt--master--maintenance_policy--maintenance_window))
+- `auto_upgrade` (Boolean) Boolean flag that specifies if master can be upgraded automatically. When omitted, default value is TRUE.
+
+- `maintenance_window` (Block Set) This structure specifies maintenance window, when update for master is allowed. When omitted, it defaults to any time. To specify time of day interval, for all days, one element should be provided, with two fields set, `start_time` and `duration`. Please see `zonal_cluster_resource_name` config example. (see [below for nested schema](#nestedobjatt--master--maintenance_policy--maintenance_window))
+
 
 <a id="nestedobjatt--master--maintenance_policy--maintenance_window"></a>
 ### Nested Schema for `master.maintenance_policy.maintenance_window`
@@ -113,8 +130,10 @@ Read-Only:
 
 Read-Only:
 
-- `subnet_id` (String)
-- `zone` (String)
+- `subnet_id` (String) ID of the subnet.
+
+- `zone` (String) ID of the availability zone.
+
 
 
 <a id="nestedobjatt--master--master_logging"></a>
@@ -122,13 +141,20 @@ Read-Only:
 
 Read-Only:
 
-- `audit_enabled` (Boolean)
-- `cluster_autoscaler_enabled` (Boolean)
-- `enabled` (Boolean)
-- `events_enabled` (Boolean)
-- `folder_id` (String)
-- `kube_apiserver_enabled` (Boolean)
-- `log_group_id` (String)
+- `audit_enabled` (Boolean) Boolean flag that specifies if kube-apiserver audit logs should be sent to Yandex Cloud Logging.
+
+- `cluster_autoscaler_enabled` (Boolean) Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.
+
+- `enabled` (Boolean) Boolean flag that specifies if master components logs should be sent to [Yandex Cloud Logging](https://yandex.cloud/docs/logging/). The exact components that will send their logs must be configured via the options described below.
+
+- `events_enabled` (Boolean) Boolean flag that specifies if kubernetes cluster events should be sent to Yandex Cloud Logging.
+
+- `folder_id` (String) ID of the folder default Log group of which should be used to collect logs.
+
+- `kube_apiserver_enabled` (Boolean) Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
+
+- `log_group_id` (String) ID of the Yandex Cloud Logging [Log group](https://yandex.cloud/docs/logging/concepts/log-group).
+
 
 
 <a id="nestedobjatt--master--regional"></a>
@@ -136,7 +162,8 @@ Read-Only:
 
 Read-Only:
 
-- `region` (String)
+- `region` (String) Name of availability region (e.g. `ru-central1`), where master instances will be allocated.
+
 
 
 <a id="nestedobjatt--master--version_info"></a>
@@ -155,7 +182,8 @@ Read-Only:
 
 Read-Only:
 
-- `zone` (String)
+- `zone` (String) ID of the availability zone.
+
 
 
 
@@ -164,7 +192,8 @@ Read-Only:
 
 Read-Only:
 
-- `cilium` (List of Object) (see [below for nested schema](#nestedobjatt--network_implementation--cilium))
+- `cilium` (Block List, Max: 1) Cilium network implementation configuration. No options exist. (see [below for nested schema](#nestedobjatt--network_implementation--cilium))
+
 
 <a id="nestedobjatt--network_implementation--cilium"></a>
 ### Nested Schema for `network_implementation.cilium`

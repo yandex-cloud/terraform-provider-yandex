@@ -42,7 +42,8 @@ output "my_organization_ssh_certificates_enabled" {
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Enables or disables usage of SSH certificates signed by trusted Certification Authority (CA).
+
 
 
 <a id="nestedblock--user_ssh_key_settings"></a>
@@ -50,5 +51,7 @@ Optional:
 
 Optional:
 
-- `allow_manage_own_keys` (Boolean)
-- `enabled` (Boolean)
+- `allow_manage_own_keys` (Boolean) If set to true subject is allowed to manage own ssh keys without having to be assigned specific permissions.
+
+- `enabled` (Boolean) Enables or disables usage of ssh keys assigned to a specific subject.
+

@@ -45,10 +45,14 @@ Get information about Serverless Event Router Connector.
 
 Read-Only:
 
-- `consumer` (String)
-- `database` (String)
-- `service_account_id` (String)
-- `stream_name` (String)
+- `consumer` (String) Consumer name
+
+- `database` (String) Stream database
+
+- `service_account_id` (String) Service account which has read permission on the stream
+
+- `stream_name` (String) Stream name, absolute or relative
+
 
 
 <a id="nestedatt--ymq"></a>
@@ -56,8 +60,13 @@ Read-Only:
 
 Read-Only:
 
-- `batch_size` (Number)
-- `polling_timeout` (String)
-- `queue_arn` (String)
-- `service_account_id` (String)
-- `visibility_timeout` (String)
+- `batch_size` (Number) Batch size for polling
+
+- `polling_timeout` (String) Queue polling timeout
+
+- `queue_arn` (String) Queue ARN. Example: yrn:yc:ymq:ru-central1:aoe***:test
+
+- `service_account_id` (String) Service account which has read access to the queue
+
+- `visibility_timeout` (String) Queue visibility timeout override
+

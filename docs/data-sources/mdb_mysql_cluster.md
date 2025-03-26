@@ -65,9 +65,12 @@ output "network_id" {
 
 Optional:
 
-- `data_lens` (Boolean)
-- `data_transfer` (Boolean)
-- `web_sql` (Boolean)
+- `data_lens` (Boolean) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+
+- `data_transfer` (Boolean) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+
+- `web_sql` (Boolean) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+
 
 
 <a id="nestedatt--backup_window_start"></a>
@@ -75,8 +78,10 @@ Optional:
 
 Read-Only:
 
-- `hours` (Number)
-- `minutes` (Number)
+- `hours` (Number) The hour at which backup will be started.
+
+- `minutes` (Number) The minute at which backup will be started.
+
 
 
 <a id="nestedatt--database"></a>
@@ -84,7 +89,8 @@ Read-Only:
 
 Read-Only:
 
-- `name` (String)
+- `name` (String) The name of the database.
+
 
 
 <a id="nestedatt--host"></a>
@@ -92,13 +98,20 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean)
-- `backup_priority` (Number)
-- `fqdn` (String)
-- `priority` (Number)
-- `replication_source` (String)
-- `subnet_id` (String)
-- `zone` (String)
+- `assign_public_ip` (Boolean) Sets whether the host should get a public IP address. It can be changed on the fly only when `name` is set.
+
+- `backup_priority` (Number) Host backup priority. Value is between 0 and 100, default is 0.
+
+- `fqdn` (String) The fully qualified domain name of the host.
+
+- `priority` (Number) Host master promotion priority. Value is between 0 and 100, default is 0.
+
+- `replication_source` (String) Host replication source (fqdn), when replication_source is empty then host is in HA group.
+
+- `subnet_id` (String) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
 
 
 <a id="nestedatt--maintenance_window"></a>
@@ -106,9 +119,12 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `hour` (Number)
-- `type` (String)
+- `day` (String) Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`
+
+- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
+
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
 
 
 <a id="nestedatt--performance_diagnostics"></a>
@@ -116,9 +132,12 @@ Read-Only:
 
 Read-Only:
 
-- `enabled` (Boolean)
-- `sessions_sampling_interval` (Number)
-- `statements_sampling_interval` (Number)
+- `enabled` (Boolean) Enable performance diagnostics.
+
+- `sessions_sampling_interval` (Number) Interval (in seconds) for my_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+
+- `statements_sampling_interval` (Number) Interval (in seconds) for my_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
+
 
 
 <a id="nestedatt--resources"></a>
@@ -126,9 +145,12 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a MySQL host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of MySQL hosts.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/concepts/instance-types).
+
 
 
 <a id="nestedatt--user"></a>
@@ -136,22 +158,32 @@ Read-Only:
 
 Read-Only:
 
-- `authentication_plugin` (String)
-- `connection_limits` (List of Object) (see [below for nested schema](#nestedobjatt--user--connection_limits))
-- `global_permissions` (Set of String)
-- `name` (String)
-- `password` (String)
-- `permission` (Set of Object) (see [below for nested schema](#nestedobjatt--user--permission))
+- `authentication_plugin` (String) Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`).
+
+- `connection_limits` (Block List, Max: 1) User's connection limits. If not specified there will be no changes. Default value is -1. When these parameters are set to -1, backend default values will be actually used. (see [below for nested schema](#nestedobjatt--user--connection_limits))
+
+- `global_permissions` (Set of String) List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` for clear list use empty list. If the attribute is not specified there will be no changes.
+
+- `name` (String) The name of the user.
+
+- `password` (String) The password of the user.
+
+- `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedobjatt--user--permission))
+
 
 <a id="nestedobjatt--user--connection_limits"></a>
 ### Nested Schema for `user.connection_limits`
 
 Read-Only:
 
-- `max_connections_per_hour` (Number)
-- `max_questions_per_hour` (Number)
-- `max_updates_per_hour` (Number)
-- `max_user_connections` (Number)
+- `max_connections_per_hour` (Number) Max connections per hour.
+
+- `max_questions_per_hour` (Number) Max questions per hour.
+
+- `max_updates_per_hour` (Number) Max updates per hour.
+
+- `max_user_connections` (Number) Max user connections.
+
 
 
 <a id="nestedobjatt--user--permission"></a>
@@ -159,5 +191,7 @@ Read-Only:
 
 Read-Only:
 
-- `database_name` (String)
-- `roles` (List of String)
+- `database_name` (String) The name of the database that the permission grants access to.
+
+- `roles` (List of String) List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`.
+

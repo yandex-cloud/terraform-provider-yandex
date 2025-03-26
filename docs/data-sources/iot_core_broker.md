@@ -46,7 +46,11 @@ data "yandex_iot_core_broker" "my_broker" {
 
 Read-Only:
 
-- `disabled` (Boolean)
-- `folder_id` (String)
-- `log_group_id` (String)
-- `min_level` (String)
+- `disabled` (Boolean) Is logging for broker disabled.
+
+- `folder_id` (String) Log entries are written to default log group for specified folder.
+
+- `log_group_id` (String) Log entries are written to specified log group.
+
+- `min_level` (String) Minimum log entry level.
+

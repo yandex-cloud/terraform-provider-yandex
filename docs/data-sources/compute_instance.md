@@ -67,12 +67,15 @@ output "instance_external_ip" {
 
 Optional:
 
-- `mode` (String)
+- `mode` (String) Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.
+
 
 Read-Only:
 
-- `device_name` (String)
-- `filesystem_id` (String)
+- `device_name` (String) Name of the device representing the filesystem on the instance.
+
+- `filesystem_id` (String) ID of the filesystem that should be attached.
+
 
 
 <a id="nestedblock--local_disk"></a>
@@ -80,11 +83,13 @@ Read-Only:
 
 Required:
 
-- `size_bytes` (Number)
+- `size_bytes` (Number) Size of the disk, specified in bytes.
+
 
 Read-Only:
 
-- `device_name` (String)
+- `device_name` (String) The name of the local disk device.
+
 
 
 <a id="nestedblock--metadata_options"></a>
@@ -103,8 +108,10 @@ Optional:
 
 Optional:
 
-- `host_affinity_rules` (List of Object) (see [below for nested schema](#nestedatt--placement_policy--host_affinity_rules))
-- `placement_group_id` (String)
+- `host_affinity_rules` (List of Object) List of host affinity rules. (see [below for nested schema](#nestedatt--placement_policy--host_affinity_rules))
+
+- `placement_group_id` (String) Specifies the id of the Placement Group to assign to the instance.
+
 - `placement_group_partition` (Number)
 
 <a id="nestedatt--placement_policy--host_affinity_rules"></a>
@@ -123,25 +130,38 @@ Optional:
 
 Read-Only:
 
-- `auto_delete` (Boolean)
-- `device_name` (String)
-- `disk_id` (String)
-- `initialize_params` (List of Object) (see [below for nested schema](#nestedobjatt--boot_disk--initialize_params))
-- `mode` (String)
+- `auto_delete` (Boolean) Defines whether the disk will be auto-deleted when the instance is deleted. The default value is `True`.
+
+- `device_name` (String) Name that can be used to access an attached disk.
+
+- `disk_id` (String) The ID of the existing disk (such as those managed by `yandex_compute_disk`) to attach as a boot disk.
+
+- `initialize_params` (Block List, Max: 1) Parameters for a new disk that will be created alongside the new instance. Either `initialize_params` or `disk_id` must be set. Either `image_id` or `snapshot_id` must be specified. (see [below for nested schema](#nestedobjatt--boot_disk--initialize_params))
+
+- `mode` (String) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+
 
 <a id="nestedobjatt--boot_disk--initialize_params"></a>
 ### Nested Schema for `boot_disk.initialize_params`
 
 Read-Only:
 
-- `block_size` (Number)
-- `description` (String)
-- `image_id` (String)
-- `kms_key_id` (String)
-- `name` (String)
-- `size` (Number)
-- `snapshot_id` (String)
-- `type` (String)
+- `block_size` (Number) Block size of the disk, specified in bytes.
+
+- `description` (String) Description of the boot disk.
+
+- `image_id` (String) A disk image to initialize this disk from.
+
+- `kms_key_id` (String) ID of KMS symmetric key used to encrypt disk.
+
+- `name` (String) Name of the boot disk.
+
+- `size` (Number) Size of the disk in GB.
+
+- `snapshot_id` (String) A snapshot to initialize this disk from.
+
+- `type` (String) Disk type.
+
 
 
 
@@ -150,8 +170,10 @@ Read-Only:
 
 Read-Only:
 
-- `generation2_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--generation2_features))
-- `legacy_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--legacy_features))
+- `generation2_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--generation2_features)) (see [below for nested schema](#nestedobjatt--hardware_generation--generation2_features))
+
+- `legacy_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--legacy_features)) (see [below for nested schema](#nestedobjatt--hardware_generation--legacy_features))
+
 
 <a id="nestedobjatt--hardware_generation--generation2_features"></a>
 ### Nested Schema for `hardware_generation.generation2_features`
@@ -174,30 +196,46 @@ Read-Only:
 
 Read-Only:
 
-- `dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--network_interface--dns_record))
-- `index` (Number)
-- `ip_address` (String)
-- `ipv4` (Boolean)
-- `ipv6` (Boolean)
-- `ipv6_address` (String)
-- `ipv6_dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--network_interface--ipv6_dns_record))
+- `dns_record` (Block List) List of configurations for creating ipv4 DNS records. (see [below for nested schema](#nestedobjatt--network_interface--dns_record))
+
+- `index` (Number) Index of network interface, will be calculated automatically for instance create or update operations if not specified. Required for attach/detach operations.
+
+- `ip_address` (String) The private IP address to assign to the instance. If empty, the address will be automatically assigned from the specified subnet.
+
+- `ipv4` (Boolean) Allocate an IPv4 address for the interface. The default value is `true`.
+
+- `ipv6` (Boolean) If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+
+- `ipv6_address` (String) The private IPv6 address to assign to the instance.
+
+- `ipv6_dns_record` (Block List) List of configurations for creating ipv6 DNS records. (see [below for nested schema](#nestedobjatt--network_interface--ipv6_dns_record))
+
 - `mac_address` (String)
-- `nat` (Boolean)
-- `nat_dns_record` (List of Object) (see [below for nested schema](#nestedobjatt--network_interface--nat_dns_record))
-- `nat_ip_address` (String)
+- `nat` (Boolean) Provide a public address, for instance, to access the internet over NAT.
+
+- `nat_dns_record` (Block List) List of configurations for creating ipv4 NAT DNS records. (see [below for nested schema](#nestedobjatt--network_interface--nat_dns_record))
+
+- `nat_ip_address` (String) Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.
+
 - `nat_ip_version` (String)
-- `security_group_ids` (Set of String)
-- `subnet_id` (String)
+- `security_group_ids` (Set of String) Security Group (SG) IDs for network interface.
+
+- `subnet_id` (String) ID of the subnet to attach this interface to. The subnet must exist in the same zone where this instance will be created.
+
 
 <a id="nestedobjatt--network_interface--dns_record"></a>
 ### Nested Schema for `network_interface.dns_record`
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone ID (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have a dot at the end).
+
+- `ptr` (Boolean) When set to `true`, also create a PTR DNS record.
+
+- `ttl` (Number) DNS record TTL in seconds.
+
 
 
 <a id="nestedobjatt--network_interface--ipv6_dns_record"></a>
@@ -205,10 +243,14 @@ Read-Only:
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone ID (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have a dot at the end).
+
+- `ptr` (Boolean) When set to `true`, also create a PTR DNS record.
+
+- `ttl` (Number) DNS record TTL in seconds.
+
 
 
 <a id="nestedobjatt--network_interface--nat_dns_record"></a>
@@ -216,10 +258,14 @@ Read-Only:
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone ID (if not set, private zone used).
+
+- `fqdn` (String) DNS record FQDN (must have a dot at the end).
+
+- `ptr` (Boolean) When set to `true`, also create a PTR DNS record.
+
+- `ttl` (Number) DNS record TTL in seconds.
+
 
 
 
@@ -228,10 +274,14 @@ Read-Only:
 
 Read-Only:
 
-- `core_fraction` (Number)
-- `cores` (Number)
-- `gpus` (Number)
-- `memory` (Number)
+- `core_fraction` (Number) If provided, specifies baseline performance for a core as a percent.
+
+- `cores` (Number) CPU cores for the instance.
+
+- `gpus` (Number) If provided, specifies the number of GPU devices for the instance.
+
+- `memory` (Number) Memory size in GB.
+
 
 
 <a id="nestedatt--scheduling_policy"></a>
@@ -239,7 +289,8 @@ Read-Only:
 
 Read-Only:
 
-- `preemptible` (Boolean)
+- `preemptible` (Boolean) Specifies if the instance is preemptible. Defaults to `false`.
+
 
 
 <a id="nestedatt--secondary_disk"></a>
@@ -247,7 +298,11 @@ Read-Only:
 
 Read-Only:
 
-- `auto_delete` (Boolean)
-- `device_name` (String)
-- `disk_id` (String)
-- `mode` (String)
+- `auto_delete` (Boolean) Whether the disk is auto-deleted when the instance is deleted. The default value is `false`.
+
+- `device_name` (String) Name that can be used to access an attached disk under `/dev/disk/by-id/`.
+
+- `disk_id` (String) ID of the disk that is attached to the instance.
+
+- `mode` (String) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+

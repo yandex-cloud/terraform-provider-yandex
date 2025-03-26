@@ -59,15 +59,18 @@ output "my_node_group.status" {
 
 Read-Only:
 
-- `location` (List of Object) (see [below for nested schema](#nestedobjatt--allocation_policy--location))
+- `location` (Block List) Repeated field, that specify subnets (zones), that will be used by node group compute instances. Subnet specified by `subnet_id` should be allocated in zone specified by 'zone' argument. (see [below for nested schema](#nestedobjatt--allocation_policy--location))
+
 
 <a id="nestedobjatt--allocation_policy--location"></a>
 ### Nested Schema for `allocation_policy.location`
 
 Read-Only:
 
-- `subnet_id` (String)
-- `zone` (String)
+- `subnet_id` (String) ID of the subnet, that will be used by one compute instance in node group.
+
+- `zone` (String) ID of the availability zone where for one compute instance in node group.
+
 
 
 
@@ -76,8 +79,10 @@ Read-Only:
 
 Read-Only:
 
-- `max_expansion` (Number)
-- `max_unavailable` (Number)
+- `max_expansion` (Number) The maximum number of instances that can be temporarily allocated above the group's target size during the update.
+
+- `max_unavailable` (Number) The maximum number of running instances that can be taken offline during update.
+
 
 
 <a id="nestedatt--instance_template"></a>
@@ -85,28 +90,43 @@ Read-Only:
 
 Read-Only:
 
-- `boot_disk` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--boot_disk))
-- `container_network` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--container_network))
-- `container_runtime` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--container_runtime))
-- `gpu_settings` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--gpu_settings))
-- `labels` (Map of String)
-- `metadata` (Map of String)
-- `name` (String)
-- `nat` (Boolean)
-- `network_acceleration_type` (String)
-- `network_interface` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface))
-- `placement_policy` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--placement_policy))
-- `platform_id` (String)
+- `boot_disk` (Block List, Max: 1) The specifications for boot disks that will be attached to the instance. (see [below for nested schema](#nestedobjatt--instance_template--boot_disk))
+
+- `container_network` (Block List, Max: 1) Container network configuration. (see [below for nested schema](#nestedobjatt--instance_template--container_network))
+
+- `container_runtime` (Block List, Max: 1) Container runtime configuration. (see [below for nested schema](#nestedobjatt--instance_template--container_runtime))
+
+- `gpu_settings` (Block List, Max: 1) GPU settings. (see [below for nested schema](#nestedobjatt--instance_template--gpu_settings))
+
+- `labels` (Map of String) Labels that will be assigned to compute nodes (instances), created by the Node Group.
+
+- `metadata` (Map of String) The set of metadata `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys. **Note**: key `user-data` won't be provided into instances. It reserved for internal activity in `kubernetes_node_group` resource.
+
+- `name` (String) Name template of the instance. In order to be unique it must contain at least one of instance unique placeholders:
+
+- `nat` (Boolean) Enables NAT for node group compute instances.
+
+- `network_acceleration_type` (String) Type of network acceleration. Values: `standard`, `software_accelerated`.
+
+- `network_interface` (Block List) An array with the network interfaces that will be attached to the instance. (see [below for nested schema](#nestedobjatt--instance_template--network_interface))
+
+- `placement_policy` (Block List, Max: 1) The placement policy configuration. (see [below for nested schema](#nestedobjatt--instance_template--placement_policy))
+
+- `platform_id` (String) The ID of the hardware platform configuration for the node group compute instances.
+
 - `resources` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--resources))
-- `scheduling_policy` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--scheduling_policy))
+- `scheduling_policy` (Block List, Max: 1) The scheduling policy for the instances in node group. (see [below for nested schema](#nestedobjatt--instance_template--scheduling_policy))
+
 
 <a id="nestedobjatt--instance_template--boot_disk"></a>
 ### Nested Schema for `instance_template.boot_disk`
 
 Read-Only:
 
-- `size` (Number)
-- `type` (String)
+- `size` (Number) The size of the disk in GB. Allowed minimal size: 64 GB.
+
+- `type` (String) The disk type.
+
 
 
 <a id="nestedobjatt--instance_template--container_network"></a>
@@ -114,7 +134,8 @@ Read-Only:
 
 Read-Only:
 
-- `pod_mtu` (Number)
+- `pod_mtu` (Number) MTU for pods.
+
 
 
 <a id="nestedobjatt--instance_template--container_runtime"></a>
@@ -122,7 +143,8 @@ Read-Only:
 
 Read-Only:
 
-- `type` (String)
+- `type` (String) Type of container runtime. Values: `docker`, `containerd`.
+
 
 
 <a id="nestedobjatt--instance_template--gpu_settings"></a>
@@ -130,8 +152,10 @@ Read-Only:
 
 Read-Only:
 
-- `gpu_cluster_id` (String)
-- `gpu_environment` (String)
+- `gpu_cluster_id` (String) GPU cluster id.
+
+- `gpu_environment` (String) GPU environment. Values: `runc`, `runc_drivers_cuda`.
+
 
 
 <a id="nestedobjatt--instance_template--network_interface"></a>
@@ -139,23 +163,34 @@ Read-Only:
 
 Read-Only:
 
-- `ipv4` (Boolean)
-- `ipv4_dns_records` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv4_dns_records))
-- `ipv6` (Boolean)
-- `ipv6_dns_records` (List of Object) (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv6_dns_records))
-- `nat` (Boolean)
-- `security_group_ids` (Set of String)
-- `subnet_ids` (Set of String)
+- `ipv4` (Boolean) Allocate an IPv4 address for the interface. The default value is `true`.
+
+- `ipv4_dns_records` (Block List) List of configurations for creating ipv4 DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv4_dns_records))
+
+- `ipv6` (Boolean) If true, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+
+- `ipv6_dns_records` (Block List) List of configurations for creating ipv6 DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv6_dns_records))
+
+- `nat` (Boolean) A public address that can be used to access the internet over NAT.
+
+- `security_group_ids` (Set of String) Security group IDs for network interface.
+
+- `subnet_ids` (Set of String) The IDs of the subnets.
+
 
 <a id="nestedobjatt--instance_template--network_interface--ipv4_dns_records"></a>
 ### Nested Schema for `instance_template.network_interface.ipv4_dns_records`
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone ID (if not set, private zone is used).
+
+- `fqdn` (String) DNS record FQDN.
+
+- `ptr` (Boolean) When set to `true`, also create a PTR DNS record.
+
+- `ttl` (Number) DNS record TTL (in seconds).
+
 
 
 <a id="nestedobjatt--instance_template--network_interface--ipv6_dns_records"></a>
@@ -163,10 +198,14 @@ Read-Only:
 
 Read-Only:
 
-- `dns_zone_id` (String)
-- `fqdn` (String)
-- `ptr` (Boolean)
-- `ttl` (Number)
+- `dns_zone_id` (String) DNS zone ID (if not set, private zone is used).
+
+- `fqdn` (String) DNS record FQDN.
+
+- `ptr` (Boolean) When set to `true`, also create a PTR DNS record.
+
+- `ttl` (Number) DNS record TTL (in seconds).
+
 
 
 
@@ -175,7 +214,8 @@ Read-Only:
 
 Read-Only:
 
-- `placement_group_id` (String)
+- `placement_group_id` (String) Specifies the id of the Placement Group to assign to the instances.
+
 
 
 <a id="nestedobjatt--instance_template--resources"></a>
@@ -183,10 +223,14 @@ Read-Only:
 
 Read-Only:
 
-- `core_fraction` (Number)
-- `cores` (Number)
-- `gpus` (Number)
-- `memory` (Number)
+- `core_fraction` (Number) Baseline core performance as a percent.
+
+- `cores` (Number) Number of CPU cores allocated to the instance.
+
+- `gpus` (Number) Number of GPU cores allocated to the instance.
+
+- `memory` (Number) The memory size allocated to the instance.
+
 
 
 <a id="nestedobjatt--instance_template--scheduling_policy"></a>
@@ -194,7 +238,8 @@ Read-Only:
 
 Read-Only:
 
-- `preemptible` (Boolean)
+- `preemptible` (Boolean) Specifies if the instance is preemptible. Defaults to `false`.
+
 
 
 
@@ -203,9 +248,12 @@ Read-Only:
 
 Read-Only:
 
-- `auto_repair` (Boolean)
-- `auto_upgrade` (Boolean)
-- `maintenance_window` (Set of Object) (see [below for nested schema](#nestedobjatt--maintenance_policy--maintenance_window))
+- `auto_repair` (Boolean) Flag that specifies if node group can be repaired automatically. When omitted, default value is `true`.
+
+- `auto_upgrade` (Boolean) Flag specifies if node group can be upgraded automatically. When omitted, default value is `true`.
+
+- `maintenance_window` (Block Set) Set of day intervals, when maintenance is allowed for this node group. When omitted, it defaults to any time. (see [below for nested schema](#nestedobjatt--maintenance_policy--maintenance_window))
+
 
 <a id="nestedobjatt--maintenance_policy--maintenance_window"></a>
 ### Nested Schema for `maintenance_policy.maintenance_window`
@@ -223,17 +271,22 @@ Read-Only:
 
 Read-Only:
 
-- `auto_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale))
-- `fixed_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+- `auto_scale` (Block List, Max: 1) Scale policy for an autoscaled node group. (see [below for nested schema](#nestedobjatt--scale_policy--auto_scale))
+
+- `fixed_scale` (Block List, Max: 1) Scale policy for a fixed scale node group. (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+
 
 <a id="nestedobjatt--scale_policy--auto_scale"></a>
 ### Nested Schema for `scale_policy.auto_scale`
 
 Read-Only:
 
-- `initial` (Number)
-- `max` (Number)
-- `min` (Number)
+- `initial` (Number) Initial number of instances in the node group.
+
+- `max` (Number) Maximum number of instances in the node group.
+
+- `min` (Number) Minimum number of instances in the node group.
+
 
 
 <a id="nestedobjatt--scale_policy--fixed_scale"></a>
@@ -241,7 +294,8 @@ Read-Only:
 
 Read-Only:
 
-- `size` (Number)
+- `size` (Number) The number of instances in the node group.
+
 
 
 

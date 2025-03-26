@@ -55,5 +55,7 @@ output "my_federation.name" {
 
 Read-Only:
 
-- `encrypted_assertions` (Boolean)
-- `force_authn` (Boolean)
+- `encrypted_assertions` (Boolean) Enable encrypted assertions.
+
+- `force_authn` (Boolean) Force authentication on session expiration
+

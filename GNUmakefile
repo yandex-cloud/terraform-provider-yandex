@@ -14,12 +14,13 @@ SWEEP_DIR= ./yandex ./yandex-framework/...
 
 SWEEPERS_FOR_RUNNING?=""
 
-ifeq ($(ARC_BRANCH),)
+VCS_TYPE := $(shell arc info 2>&1 | grep -q "Not a mounted arc repository" && echo "git" || echo "arc")
+ifeq ($(VCS_TYPE),arc)
+    version_tag := $(shell arc describe --svn | cut -d'-' -f1 | cut -d'r' -f2 | tr -d ' \n')  # TODO: get real tag instead of revision number
+    commit_hash := $(shell arc rev-parse HEAD | head -c 8)
+else
     version_tag := $(shell git describe --abbrev=0 --tags)
     commit_hash := $(shell git rev-parse --short HEAD)
-else
-    version_tag := $(shell echo "v0.135.0")  # HOW get real tag???
-    commit_hash := $(shell arc rev-parse HEAD | head -c 8)
 endif
 
 current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")

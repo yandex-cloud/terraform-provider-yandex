@@ -59,26 +59,40 @@ output "fqdn" {
 
 Read-Only:
 
-- `access` (List of Object) (see [below for nested schema](#nestedobjatt--config--access))
-- `autofailover` (Boolean)
-- `backup_retain_period_days` (Number)
-- `backup_window_start` (List of Object) (see [below for nested schema](#nestedobjatt--config--backup_window_start))
-- `disk_size_autoscaling` (List of Object) (see [below for nested schema](#nestedobjatt--config--disk_size_autoscaling))
-- `performance_diagnostics` (List of Object) (see [below for nested schema](#nestedobjatt--config--performance_diagnostics))
-- `pooler_config` (List of Object) (see [below for nested schema](#nestedobjatt--config--pooler_config))
-- `postgresql_config` (Map of String)
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--config--resources))
-- `version` (String)
+- `access` (Block List, Max: 1) Access policy to the PostgreSQL cluster. (see [below for nested schema](#nestedobjatt--config--access))
+
+- `autofailover` (Boolean) Configuration setting which enables/disables autofailover in cluster.
+
+- `backup_retain_period_days` (Number) The period in days during which backups are stored.
+
+- `backup_window_start` (Block List, Max: 1) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedobjatt--config--backup_window_start))
+
+- `disk_size_autoscaling` (Block List, Max: 1) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedobjatt--config--disk_size_autoscaling))
+
+- `performance_diagnostics` (Block List, Max: 1) Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics). (see [below for nested schema](#nestedobjatt--config--performance_diagnostics))
+
+- `pooler_config` (Block List, Max: 1) Configuration of the connection pooler. (see [below for nested schema](#nestedobjatt--config--pooler_config))
+
+- `postgresql_config` (Map of String) PostgreSQL cluster config. Detail info in `postresql config` section.
+
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedobjatt--config--resources))
+
+- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
+
 
 <a id="nestedobjatt--config--access"></a>
 ### Nested Schema for `config.access`
 
 Read-Only:
 
-- `data_lens` (Boolean)
-- `data_transfer` (Boolean)
-- `serverless` (Boolean)
-- `web_sql` (Boolean)
+- `data_lens` (Boolean) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+
+- `data_transfer` (Boolean) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+
+- `serverless` (Boolean) Allow access for [connection to managed databases from functions](https://yandex.cloud/docs/functions/operations/database-connection).
+
+- `web_sql` (Boolean) Allow access for [SQL queries in the management console](https://yandex.cloud/docs/managed-postgresql/operations/web-sql-query).
+
 
 
 <a id="nestedobjatt--config--backup_window_start"></a>
@@ -86,8 +100,10 @@ Read-Only:
 
 Read-Only:
 
-- `hours` (Number)
-- `minutes` (Number)
+- `hours` (Number) The hour at which backup will be started (UTC).
+
+- `minutes` (Number) The hour at which backup will be started (UTC).
+
 
 
 <a id="nestedobjatt--config--disk_size_autoscaling"></a>
@@ -95,9 +111,12 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size_limit` (Number)
-- `emergency_usage_threshold` (Number)
-- `planned_usage_threshold` (Number)
+- `disk_size_limit` (Number) Limit of disk size after autoscaling (GiB).
+
+- `emergency_usage_threshold` (Number) Immediate autoscaling disk usage (percent).
+
+- `planned_usage_threshold` (Number) Maintenance window autoscaling disk usage (percent).
+
 
 
 <a id="nestedobjatt--config--performance_diagnostics"></a>
@@ -105,9 +124,12 @@ Read-Only:
 
 Read-Only:
 
-- `enabled` (Boolean)
-- `sessions_sampling_interval` (Number)
-- `statements_sampling_interval` (Number)
+- `enabled` (Boolean) Enable performance diagnostics.
+
+- `sessions_sampling_interval` (Number) Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+
+- `statements_sampling_interval` (Number) Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
+
 
 
 <a id="nestedobjatt--config--pooler_config"></a>
@@ -115,8 +137,10 @@ Read-Only:
 
 Read-Only:
 
-- `pool_discard` (Boolean)
-- `pooling_mode` (String)
+- `pool_discard` (Boolean) Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_discard-yesno).
+
+- `pooling_mode` (String) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
+
 
 
 <a id="nestedobjatt--config--resources"></a>
@@ -124,9 +148,12 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a PostgreSQL host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of PostgreSQL hosts.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a PostgreSQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/concepts/instance-types).
+
 
 
 
@@ -157,13 +184,19 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean)
-- `fqdn` (String)
-- `priority` (Number)
-- `replication_source` (String)
+- `assign_public_ip` (Boolean) Sets whether the host should get a public IP address on creation. It can be changed on the fly only when `name` is set.
+
+- `fqdn` (String) The fully qualified domain name of the host.
+
+- `priority` (Number) Host priority in HA group. It works only when `name` is set.
+
+- `replication_source` (String) Host replication source (fqdn), when replication_source is empty then host is in HA group.
+
 - `role` (String)
-- `subnet_id` (String)
-- `zone` (String)
+- `subnet_id` (String) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
 
 
 <a id="nestedatt--maintenance_window"></a>
@@ -171,9 +204,12 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `hour` (Number)
-- `type` (String)
+- `day` (String) Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`
+
+- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
+
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
 
 
 <a id="nestedatt--user"></a>

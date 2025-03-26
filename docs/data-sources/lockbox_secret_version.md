@@ -70,5 +70,7 @@ output "my_secret_entries" {
 
 Read-Only:
 
-- `key` (String)
-- `text_value` (String)
+- `key` (String) The key of the entry.
+
+- `text_value` (String) The text value of the entry.
+

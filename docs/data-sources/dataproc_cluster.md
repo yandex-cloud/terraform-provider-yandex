@@ -55,28 +55,38 @@ output "service_account_id" {
 
 Read-Only:
 
-- `hadoop` (List of Object) (see [below for nested schema](#nestedobjatt--cluster_config--hadoop))
-- `subcluster_spec` (List of Object) (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec))
-- `version_id` (String)
+- `hadoop` (Block List, Max: 1) Yandex Data Processing specific options. (see [below for nested schema](#nestedobjatt--cluster_config--hadoop))
+
+- `subcluster_spec` (Block List, Min: 1) Configuration of the Yandex Data Processing subcluster. (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec))
+
+- `version_id` (String) Version of Yandex Data Processing image.
+
 
 <a id="nestedobjatt--cluster_config--hadoop"></a>
 ### Nested Schema for `cluster_config.hadoop`
 
 Read-Only:
 
-- `initialization_action` (List of Object) (see [below for nested schema](#nestedobjatt--cluster_config--hadoop--initialization_action))
-- `properties` (Map of String)
-- `services` (Set of String)
-- `ssh_public_keys` (Set of String)
+- `initialization_action` (Block List) List of initialization scripts. (see [below for nested schema](#nestedobjatt--cluster_config--hadoop--initialization_action))
+
+- `properties` (Map of String) A set of key/value pairs that are used to configure cluster services.
+
+- `services` (Set of String) List of services to run on Yandex Data Processing cluster.
+
+- `ssh_public_keys` (Set of String) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://yandex.cloud/docs/data-proc/operations/connect).
+
 
 <a id="nestedobjatt--cluster_config--hadoop--initialization_action"></a>
 ### Nested Schema for `cluster_config.hadoop.initialization_action`
 
 Read-Only:
 
-- `args` (List of String)
-- `timeout` (String)
-- `uri` (String)
+- `args` (List of String) List of arguments of the initialization script.
+
+- `timeout` (String) Script execution timeout, in seconds.
+
+- `uri` (String) Script URI.
+
 
 
 
@@ -85,27 +95,42 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean)
-- `autoscaling_config` (List of Object) (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec--autoscaling_config))
-- `hosts_count` (Number)
-- `id` (String)
-- `name` (String)
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec--resources))
-- `role` (String)
-- `subnet_id` (String)
+- `assign_public_ip` (Boolean) If `true` then assign public IP addresses to the hosts of the subclusters.
+
+- `autoscaling_config` (Block List, Max: 1) Autoscaling configuration for compute subclusters. (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec--autoscaling_config))
+
+- `hosts_count` (Number) Number of hosts within Yandex Data Processing subcluster.
+
+- `id` (String) ID of the subcluster.
+
+- `name` (String) Name of the Yandex Data Processing subcluster.
+
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to each host of the Yandex Data Processing subcluster. (see [below for nested schema](#nestedobjatt--cluster_config--subcluster_spec--resources))
+
+- `role` (String) Role of the subcluster in the Yandex Data Processing cluster.
+
+- `subnet_id` (String) The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.
+
 
 <a id="nestedobjatt--cluster_config--subcluster_spec--autoscaling_config"></a>
 ### Nested Schema for `cluster_config.subcluster_spec.autoscaling_config`
 
 Read-Only:
 
-- `cpu_utilization_target` (String)
-- `decommission_timeout` (String)
-- `max_hosts_count` (Number)
-- `measurement_duration` (String)
-- `preemptible` (Boolean)
-- `stabilization_duration` (String)
-- `warmup_duration` (String)
+- `cpu_utilization_target` (String) Defines an autoscaling rule based on the average CPU utilization of the instance group. If not set default autoscaling metric will be used.
+
+- `decommission_timeout` (String) Timeout to gracefully decommission nodes during downscaling. In seconds.
+
+- `max_hosts_count` (Number) Maximum number of nodes in autoscaling subclusters.
+
+- `measurement_duration` (String) Time in seconds allotted for averaging metrics.
+
+- `preemptible` (Boolean) Use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).
+
+- `stabilization_duration` (String) Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
+
+- `warmup_duration` (String) The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
+
 
 
 <a id="nestedobjatt--cluster_config--subcluster_spec--resources"></a>
@@ -113,6 +138,9 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of a host. One of `network-hdd` (default) or `network-ssd`.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://yandex.cloud/docs/data-proc/concepts/instance-types).
+

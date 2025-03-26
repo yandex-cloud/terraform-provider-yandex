@@ -77,19 +77,26 @@ output "network_id" {
 
 Optional:
 
-- `analyze_and_vacuum` (Block List) (see [below for nested schema](#nestedblock--background_activities--analyze_and_vacuum))
-- `query_killer_idle` (Block List) (see [below for nested schema](#nestedblock--background_activities--query_killer_idle))
-- `query_killer_idle_in_transaction` (Block List) (see [below for nested schema](#nestedblock--background_activities--query_killer_idle_in_transaction))
-- `query_killer_long_running` (Block List) (see [below for nested schema](#nestedblock--background_activities--query_killer_long_running))
+- `analyze_and_vacuum` (Block List) Block to configure 'ANALYZE' and 'VACUUM' daily operations. (see [below for nested schema](#nestedblock--background_activities--analyze_and_vacuum))
+
+- `query_killer_idle` (Block List) Block to configure script that kills long running queries that are in `idle` state. (see [below for nested schema](#nestedblock--background_activities--query_killer_idle))
+
+- `query_killer_idle_in_transaction` (Block List) Block to configure script that kills long running queries that are in `idle in transaction` state. (see [below for nested schema](#nestedblock--background_activities--query_killer_idle_in_transaction))
+
+- `query_killer_long_running` (Block List) Block to configure script that kills long running queries (in any state). (see [below for nested schema](#nestedblock--background_activities--query_killer_long_running))
+
 
 <a id="nestedblock--background_activities--analyze_and_vacuum"></a>
 ### Nested Schema for `background_activities.analyze_and_vacuum`
 
 Optional:
 
-- `analyze_timeout` (Number)
-- `start_time` (String)
-- `vacuum_timeout` (Number)
+- `analyze_timeout` (Number) Maximum duration of the `ANALYZE` operation, in seconds. The default value is `36000`. As soon as this period expires, the `ANALYZE` operation will be forced to terminate.
+
+- `start_time` (String) Time of day in 'HH:MM' format when scripts should run.
+
+- `vacuum_timeout` (Number) Maximum duration of the `VACUUM` operation, in seconds. The default value is `36000`. As soon as this period expires, the `VACUUM` operation will be forced to terminate.
+
 
 
 <a id="nestedblock--background_activities--query_killer_idle"></a>
@@ -97,9 +104,12 @@ Optional:
 
 Optional:
 
-- `enable` (Boolean)
-- `ignore_users` (List of String)
-- `max_age` (Number)
+- `enable` (Boolean) Flag that indicates whether script is enabled.
+
+- `ignore_users` (List of String) List of users to ignore when considering queries to terminate.
+
+- `max_age` (Number) Maximum duration for this type of queries (in seconds).
+
 
 
 <a id="nestedblock--background_activities--query_killer_idle_in_transaction"></a>
@@ -107,9 +117,12 @@ Optional:
 
 Optional:
 
-- `enable` (Boolean)
-- `ignore_users` (List of String)
-- `max_age` (Number)
+- `enable` (Boolean) Flag that indicates whether script is enabled.
+
+- `ignore_users` (List of String) List of users to ignore when considering queries to terminate.
+
+- `max_age` (Number) Maximum duration for this type of queries (in seconds).
+
 
 
 <a id="nestedblock--background_activities--query_killer_long_running"></a>
@@ -117,9 +130,12 @@ Optional:
 
 Optional:
 
-- `enable` (Boolean)
-- `ignore_users` (List of String)
-- `max_age` (Number)
+- `enable` (Boolean) Flag that indicates whether script is enabled.
+
+- `ignore_users` (List of String) List of users to ignore when considering queries to terminate.
+
+- `max_age` (Number) Maximum duration for this type of queries (in seconds).
+
 
 
 
@@ -128,9 +144,12 @@ Optional:
 
 Optional:
 
-- `pool_client_idle_timeout` (Number)
-- `pool_size` (Number)
-- `pooling_mode` (String)
+- `pool_client_idle_timeout` (Number) Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).
+
+- `pool_size` (Number) Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).
+
+- `pooling_mode` (String) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
+
 
 
 <a id="nestedblock--pxf_config"></a>
@@ -138,15 +157,24 @@ Optional:
 
 Optional:
 
-- `connection_timeout` (Number)
-- `max_threads` (Number)
-- `pool_allow_core_thread_timeout` (Boolean)
-- `pool_core_size` (Number)
-- `pool_max_size` (Number)
-- `pool_queue_capacity` (Number)
-- `upload_timeout` (Number)
-- `xms` (Number)
-- `xmx` (Number)
+- `connection_timeout` (Number) The Tomcat server connection timeout for read operations in seconds. Value is between 5 and 600.
+
+- `max_threads` (Number) The maximum number of PXF tomcat threads. Value is between 1 and 1024.
+
+- `pool_allow_core_thread_timeout` (Boolean) Identifies whether or not core streaming threads are allowed to time out.
+
+- `pool_core_size` (Number) The number of core streaming threads. Value is between 1 and 1024.
+
+- `pool_max_size` (Number) The maximum allowed number of core streaming threads. Value is between 1 and 1024.
+
+- `pool_queue_capacity` (Number) The capacity of the core streaming thread pool queue. Value is positive.
+
+- `upload_timeout` (Number) The Tomcat server connection timeout for write operations in seconds. Value is between 5 and 600.
+
+- `xms` (Number) Maximum JVM heap size for PXF daemon. Value is between 64 and 16384.
+
+- `xmx` (Number) Initial JVM heap size for PXF daemon. Value is between 64 and 16384.
+
 
 
 <a id="nestedatt--access"></a>
@@ -154,10 +182,14 @@ Optional:
 
 Read-Only:
 
-- `data_lens` (Boolean)
-- `data_transfer` (Boolean)
-- `web_sql` (Boolean)
-- `yandex_query` (Boolean)
+- `data_lens` (Boolean) Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+
+- `data_transfer` (Boolean) Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
+
+- `web_sql` (Boolean) Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+
+- `yandex_query` (Boolean) Allow access for [Yandex Query](https://yandex.cloud/services/query)
+
 
 
 <a id="nestedatt--backup_window_start"></a>
@@ -165,8 +197,10 @@ Read-Only:
 
 Read-Only:
 
-- `hours` (Number)
-- `minutes` (Number)
+- `hours` (Number) The hour at which backup will be started (UTC).
+
+- `minutes` (Number) The minute at which backup will be started (UTC).
+
 
 
 <a id="nestedatt--cloud_storage"></a>
@@ -174,7 +208,8 @@ Read-Only:
 
 Read-Only:
 
-- `enable` (Boolean)
+- `enable` (Boolean) Whether to use cloud storage or not.
+
 
 
 <a id="nestedatt--logging"></a>
@@ -195,9 +230,12 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `hour` (Number)
-- `type` (String)
+- `day` (String) Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
+
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
 
 
 <a id="nestedatt--master_hosts"></a>
@@ -214,7 +252,8 @@ Read-Only:
 
 Read-Only:
 
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--master_subcluster--resources))
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts for master subcluster of the Greenplum cluster. (see [below for nested schema](#nestedobjatt--master_subcluster--resources))
+
 
 <a id="nestedobjatt--master_subcluster--resources"></a>
 ### Nested Schema for `master_subcluster.resources`
@@ -240,7 +279,8 @@ Read-Only:
 
 Read-Only:
 
-- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--segment_subcluster--resources))
+- `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts for segment subcluster of the Greenplum cluster. (see [below for nested schema](#nestedobjatt--segment_subcluster--resources))
+
 
 <a id="nestedobjatt--segment_subcluster--resources"></a>
 ### Nested Schema for `segment_subcluster.resources`

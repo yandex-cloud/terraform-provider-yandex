@@ -49,40 +49,56 @@ data "yandex_sws_advanced_rate_limiter_profile" "by-name" {
 
 Read-Only:
 
-- `description` (String)
-- `dry_run` (Boolean)
-- `dynamic_quota` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota))
-- `name` (String)
-- `priority` (Number)
-- `static_quota` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--static_quota))
+- `description` (String) Description of the rule. 0-512 characters long.
+
+- `dry_run` (Boolean) This allows you to evaluate backend capabilities and find the optimum limit values. Requests will not be blocked in this mode.
+
+- `dynamic_quota` (Block List, Max: 1) Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups. (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota))
+
+- `name` (String) Name of the rule. The name is unique within the ARL profile. 1-50 characters long.
+
+- `priority` (Number) Determines the priority in case there are several matched rules. Enter an integer within the range of 1 and 999999. The rule priority must be unique within the entire ARL profile. A lower numeric value means a higher priority.
+
+- `static_quota` (Block List, Max: 1) Static quota. Counting each request individually. (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--static_quota))
+
 
 <a id="nestedobjatt--advanced_rate_limiter_rule--dynamic_quota"></a>
 ### Nested Schema for `advanced_rate_limiter_rule.dynamic_quota`
 
 Read-Only:
 
-- `action` (String)
-- `characteristic` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic))
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--condition))
-- `limit` (Number)
-- `period` (Number)
+- `action` (String) Action in case of exceeding this quota. Possible values: `DENY`.
+
+- `characteristic` (Block List) List of characteristics. (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic))
+
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto). (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--condition))
+
+- `limit` (Number) Desired maximum number of requests per period.
+
+- `period` (Number) Period of time in seconds.
+
 
 <a id="nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic"></a>
 ### Nested Schema for `advanced_rate_limiter_rule.dynamic_quota.characteristic`
 
 Read-Only:
 
-- `case_insensitive` (Boolean)
-- `key_characteristic` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--key_characteristic))
-- `simple_characteristic` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--simple_characteristic))
+- `case_insensitive` (Boolean) Determines case-sensitive or case-insensitive keys matching.
+
+- `key_characteristic` (Block List, Max: 1) Characteristic based on key match in the Query params, HTTP header, and HTTP cookie attributes. See [Rules](https://yandex.cloud/docs/smartwebsecurity/concepts/arl#requests-counting) for more details. (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--key_characteristic))
+
+- `simple_characteristic` (Block List, Max: 1) Characteristic automatically based on the Request path, HTTP method, IP address, Region, and Host attributes. See [Rules](https://yandex.cloud/docs/smartwebsecurity/concepts/arl#requests-counting) for more details. (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--simple_characteristic))
+
 
 <a id="nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--key_characteristic"></a>
 ### Nested Schema for `advanced_rate_limiter_rule.dynamic_quota.characteristic.key_characteristic`
 
 Read-Only:
 
-- `type` (String)
-- `value` (String)
+- `type` (String) Type of key characteristic. Possible values: `COOKIE_KEY`, `HEADER_KEY`, `QUERY_KEY`.
+
+- `value` (String) String value of the key.
+
 
 
 <a id="nestedobjatt--advanced_rate_limiter_rule--dynamic_quota--characteristic--simple_characteristic"></a>
@@ -90,7 +106,8 @@ Read-Only:
 
 Read-Only:
 
-- `type` (String)
+- `type` (String) Type of simple characteristic. Possible values: `REQUEST_PATH`, `HTTP_METHOD`, `IP`, `GEO`, `HOST`.
+
 
 
 
@@ -263,10 +280,14 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String)
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--static_quota--condition))
-- `limit` (Number)
-- `period` (Number)
+- `action` (String) Action in case of exceeding this quota. Possible values: `DENY`.
+
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto). (see [below for nested schema](#nestedobjatt--advanced_rate_limiter_rule--static_quota--condition))
+
+- `limit` (Number) Desired maximum number of requests per period.
+
+- `period` (Number) Period of time in seconds.
+
 
 <a id="nestedobjatt--advanced_rate_limiter_rule--static_quota--condition"></a>
 ### Nested Schema for `advanced_rate_limiter_rule.static_quota.condition`

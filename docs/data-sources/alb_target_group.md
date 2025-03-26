@@ -46,6 +46,8 @@ data "yandex_alb_target_group" "foo" {
 
 Read-Only:
 
-- `ip_address` (String)
+- `ip_address` (String) IP address of the target.
+
 - `private_ipv4_address` (Boolean)
-- `subnet_id` (String)
+- `subnet_id` (String) ID of the subnet that targets are connected to. All targets in the target group must be connected to the same subnet within a single availability zone.
+

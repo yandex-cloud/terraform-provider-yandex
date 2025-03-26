@@ -67,6 +67,7 @@ resource "yandex_ydb_database_dedicated" "database1" {
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `location` (Block List, Max: 1) Location for the Yandex Database cluster. (see [below for nested schema](#nestedblock--location))
 - `location_id` (String) Location ID for the Yandex Database cluster.
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `sleep_after` (Number)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 

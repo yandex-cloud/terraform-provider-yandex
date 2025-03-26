@@ -46,30 +46,42 @@ output "tasks_max" {
 
 Read-Only:
 
-- `replication_factor` (Number)
-- `source_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster))
-- `target_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster))
-- `topics` (String)
+- `replication_factor` (Number) Replication factor for topics created in target cluster.
+
+- `source_cluster` (Block List, Min: 1, Max: 1) Settings for source cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster))
+
+- `target_cluster` (Block List, Min: 1, Max: 1) Settings for target cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster))
+
+- `topics` (String) The pattern for topic names to be replicated.
+
 
 <a id="nestedobjatt--connector_config_mirrormaker--source_cluster"></a>
 ### Nested Schema for `connector_config_mirrormaker.source_cluster`
 
 Read-Only:
 
-- `alias` (String)
-- `external_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster--external_cluster))
-- `this_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster--this_cluster))
+- `alias` (String) Name of the cluster. Used also as a topic prefix.
+
+- `external_cluster` (Block List) Connection settings for external cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster--external_cluster))
+
+- `this_cluster` (Block List) Using this section in the cluster definition (source or target) means it's this cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--source_cluster--this_cluster))
+
 
 <a id="nestedobjatt--connector_config_mirrormaker--source_cluster--external_cluster"></a>
 ### Nested Schema for `connector_config_mirrormaker.source_cluster.external_cluster`
 
 Read-Only:
 
-- `bootstrap_servers` (String)
-- `sasl_mechanism` (String)
-- `sasl_password` (String)
-- `sasl_username` (String)
-- `security_protocol` (String)
+- `bootstrap_servers` (String) List of bootstrap servers to connect to cluster.
+
+- `sasl_mechanism` (String) Type of SASL authentification mechanism to use.
+
+- `sasl_password` (String) Password to use in SASL authentification mechanism
+
+- `sasl_username` (String) Username to use in SASL authentification mechanism.
+
+- `security_protocol` (String) Security protocol to use.
+
 
 
 <a id="nestedobjatt--connector_config_mirrormaker--source_cluster--this_cluster"></a>
@@ -85,20 +97,28 @@ Read-Only:
 
 Read-Only:
 
-- `alias` (String)
-- `external_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster--external_cluster))
-- `this_cluster` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster--this_cluster))
+- `alias` (String) Name of the cluster. Used also as a topic prefix.
+
+- `external_cluster` (Block List) Connection settings for external cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster--external_cluster))
+
+- `this_cluster` (Block List) Using this section in the cluster definition (source or target) means it's this cluster. (see [below for nested schema](#nestedobjatt--connector_config_mirrormaker--target_cluster--this_cluster))
+
 
 <a id="nestedobjatt--connector_config_mirrormaker--target_cluster--external_cluster"></a>
 ### Nested Schema for `connector_config_mirrormaker.target_cluster.external_cluster`
 
 Read-Only:
 
-- `bootstrap_servers` (String)
-- `sasl_mechanism` (String)
-- `sasl_password` (String)
-- `sasl_username` (String)
-- `security_protocol` (String)
+- `bootstrap_servers` (String) List of bootstrap servers to connect to cluster.
+
+- `sasl_mechanism` (String) Type of SASL authentification mechanism to use.
+
+- `sasl_password` (String) Password to use in SASL authentification mechanism
+
+- `sasl_username` (String) Username to use in SASL authentification mechanism.
+
+- `security_protocol` (String) Security protocol to use.
+
 
 
 <a id="nestedobjatt--connector_config_mirrormaker--target_cluster--this_cluster"></a>
@@ -115,25 +135,35 @@ Read-Only:
 
 Read-Only:
 
-- `file_compression_type` (String)
-- `file_max_records` (Number)
-- `s3_connection` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_s3_sink--s3_connection))
-- `topics` (String)
+- `file_compression_type` (String) Compression type for messages. Cannot be changed.
+
+- `file_max_records` (Number) Max records per file.
+
+- `s3_connection` (Block List, Min: 1, Max: 1) Settings for connection to s3-compatible storage. (see [below for nested schema](#nestedobjatt--connector_config_s3_sink--s3_connection))
+
+- `topics` (String) The pattern for topic names to be copied to s3 bucket.
+
 
 <a id="nestedobjatt--connector_config_s3_sink--s3_connection"></a>
 ### Nested Schema for `connector_config_s3_sink.s3_connection`
 
 Read-Only:
 
-- `bucket_name` (String)
-- `external_s3` (List of Object) (see [below for nested schema](#nestedobjatt--connector_config_s3_sink--s3_connection--external_s3))
+- `bucket_name` (String) Name of the bucket in s3-compatible storage.
+
+- `external_s3` (Block List, Min: 1) Connection params for external s3-compatible storage. (see [below for nested schema](#nestedobjatt--connector_config_s3_sink--s3_connection--external_s3))
+
 
 <a id="nestedobjatt--connector_config_s3_sink--s3_connection--external_s3"></a>
 ### Nested Schema for `connector_config_s3_sink.s3_connection.external_s3`
 
 Read-Only:
 
-- `access_key_id` (String)
-- `endpoint` (String)
-- `region` (String)
-- `secret_access_key` (String)
+- `access_key_id` (String) ID of aws-compatible static key.
+
+- `endpoint` (String) URL of s3-compatible storage.
+
+- `region` (String) Region of s3-compatible storage. [Available region list](https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/regions/Regions.html).
+
+- `secret_access_key` (String) Secret key of aws-compatible static key.
+

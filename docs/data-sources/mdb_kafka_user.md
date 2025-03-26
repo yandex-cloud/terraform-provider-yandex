@@ -45,6 +45,9 @@ output "username" {
 
 Read-Only:
 
-- `allow_hosts` (Set of String)
-- `role` (String)
-- `topic_name` (String)
+- `allow_hosts` (Set of String) Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
+
+- `role` (String) The role type to grant to the topic.
+
+- `topic_name` (String) The name of the topic that the permission grants access to.
+

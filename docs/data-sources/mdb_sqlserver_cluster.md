@@ -62,8 +62,10 @@ output "network_id" {
 
 Read-Only:
 
-- `hours` (Number)
-- `minutes` (Number)
+- `hours` (Number) The hour at which backup will be started.
+
+- `minutes` (Number) The minute at which backup will be started.
+
 
 
 <a id="nestedatt--database"></a>
@@ -71,7 +73,8 @@ Read-Only:
 
 Read-Only:
 
-- `name` (String)
+- `name` (String) The name of the database.
+
 
 
 <a id="nestedatt--host"></a>
@@ -79,10 +82,14 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean)
-- `fqdn` (String)
-- `subnet_id` (String)
-- `zone` (String)
+- `assign_public_ip` (Boolean) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.
+
+- `fqdn` (String) The fully qualified domain name of the host.
+
+- `subnet_id` (String) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
 
 
 <a id="nestedatt--resources"></a>
@@ -90,9 +97,12 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a SQLServer host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of SQLServer hosts.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a SQLServer host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-sqlserver/concepts/instance-types).
+
 
 
 <a id="nestedatt--user"></a>
@@ -100,14 +110,19 @@ Read-Only:
 
 Read-Only:
 
-- `name` (String)
-- `password` (String)
-- `permission` (Set of Object) (see [below for nested schema](#nestedobjatt--user--permission))
+- `name` (String) The name of the user.
+
+- `password` (String) The password of the user.
+
+- `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedobjatt--user--permission))
+
 
 <a id="nestedobjatt--user--permission"></a>
 ### Nested Schema for `user.permission`
 
 Read-Only:
 
-- `database_name` (String)
-- `roles` (Set of String)
+- `database_name` (String) The name of the database that the permission grants access to.
+
+- `roles` (Set of String) List user's roles in the database. Allowed roles: `OWNER`, `SECURITYADMIN`, `ACCESSADMIN`, `BACKUPOPERATOR`, `DDLADMIN`, `DATAWRITER`, `DATAREADER`, `DENYDATAWRITER`, `DENYDATAREADER`.
+

@@ -53,8 +53,13 @@ Optional:
 
 Read-Only:
 
-- `description` (String)
-- `expire_period` (String)
-- `retained_top` (Number)
-- `tag_regexp` (String)
-- `untagged` (Boolean)
+- `description` (String) Description of the lifecycle policy.
+
+- `expire_period` (String) The period of time that must pass after creating a image for it to suit the automatic deletion criteria. It must be a multiple of 24 hours.
+
+- `retained_top` (Number) The number of images to be retained even if the `expire_period` already expired.
+
+- `tag_regexp` (String) Tag to specify a filter as a regular expression. For example `.*` - all images with tags.
+
+- `untagged` (Boolean) If enabled, rules apply to untagged Docker images.
+

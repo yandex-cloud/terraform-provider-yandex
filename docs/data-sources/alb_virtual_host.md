@@ -49,10 +49,14 @@ data "yandex_alb_virtual_host" "my-vhost" {
 
 Read-Only:
 
-- `append` (String)
-- `name` (String)
-- `remove` (Boolean)
-- `replace` (String)
+- `append` (String) Append string to the header value.
+
+- `name` (String) Name of the header to modify.
+
+- `remove` (Boolean) If set, remove the header.
+
+- `replace` (String) New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
+
 
 
 <a id="nestedatt--modify_response_headers"></a>
@@ -60,10 +64,14 @@ Read-Only:
 
 Read-Only:
 
-- `append` (String)
-- `name` (String)
-- `remove` (Boolean)
-- `replace` (String)
+- `append` (String) Append string to the header value.
+
+- `name` (String) Name of the header to modify.
+
+- `remove` (Boolean) If set, remove the header.
+
+- `replace` (String) New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
+
 
 
 <a id="nestedatt--rate_limit"></a>
@@ -71,16 +79,20 @@ Read-Only:
 
 Read-Only:
 
-- `all_requests` (List of Object) (see [below for nested schema](#nestedobjatt--rate_limit--all_requests))
-- `requests_per_ip` (List of Object) (see [below for nested schema](#nestedobjatt--rate_limit--requests_per_ip))
+- `all_requests` (Block List, Max: 1) Rate limit configuration applied to all incoming requests (see [below for nested schema](#nestedobjatt--rate_limit--all_requests))
+
+- `requests_per_ip` (Block List, Max: 1) Rate limit configuration applied separately for each set of requests grouped by client IP address (see [below for nested schema](#nestedobjatt--rate_limit--requests_per_ip))
+
 
 <a id="nestedobjatt--rate_limit--all_requests"></a>
 ### Nested Schema for `rate_limit.all_requests`
 
 Read-Only:
 
-- `per_minute` (Number)
-- `per_second` (Number)
+- `per_minute` (Number) Limit value specified with per minute time unit
+
+- `per_second` (Number) Limit value specified with per second time unit
+
 
 
 <a id="nestedobjatt--rate_limit--requests_per_ip"></a>
@@ -88,8 +100,10 @@ Read-Only:
 
 Read-Only:
 
-- `per_minute` (Number)
-- `per_second` (Number)
+- `per_minute` (Number) Limit value specified with per minute time unit
+
+- `per_second` (Number) Limit value specified with per second time unit
+
 
 
 
@@ -98,35 +112,46 @@ Read-Only:
 
 Read-Only:
 
-- `grpc_route` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route))
-- `http_route` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route))
-- `name` (String)
-- `route_options` (List of Object) (see [below for nested schema](#nestedobjatt--route--route_options))
+- `grpc_route` (Block List, Max: 1) gRPC route resource. (see [below for nested schema](#nestedobjatt--route--grpc_route))
+
+- `http_route` (Block List, Max: 1) HTTP route resource. (see [below for nested schema](#nestedobjatt--route--http_route))
+
+- `name` (String) Name of the route.
+
+- `route_options` (Block List, Max: 1) Route options for the virtual host. (see [below for nested schema](#nestedobjatt--route--route_options))
+
 
 <a id="nestedobjatt--route--grpc_route"></a>
 ### Nested Schema for `route.grpc_route`
 
 Read-Only:
 
-- `grpc_match` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_match))
-- `grpc_route_action` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action))
-- `grpc_status_response_action` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_status_response_action))
+- `grpc_match` (Block List) Checks `/` prefix by default. (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_match))
+
+- `grpc_route_action` (Block List, Max: 1) gRPC route action resource. (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action))
+
+- `grpc_status_response_action` (Block List, Max: 1) gRPC status response action resource. (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_status_response_action))
+
 
 <a id="nestedobjatt--route--grpc_route--grpc_match"></a>
 ### Nested Schema for `route.grpc_route.grpc_match`
 
 Read-Only:
 
-- `fqmn` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_match--fqmn))
+- `fqmn` (Block List, Max: 1) The `path` and `fqmn` blocks. (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_match--fqmn))
+
 
 <a id="nestedobjatt--route--grpc_route--grpc_match--fqmn"></a>
 ### Nested Schema for `route.grpc_route.grpc_match.fqmn`
 
 Read-Only:
 
-- `exact` (String)
-- `prefix` (String)
-- `regex` (String)
+- `exact` (String) Match exactly.
+
+- `prefix` (String) Match prefix.
+
+- `regex` (String) Match regex.
+
 
 
 
@@ -135,28 +160,38 @@ Read-Only:
 
 Read-Only:
 
-- `auto_host_rewrite` (Boolean)
-- `backend_group_id` (String)
-- `host_rewrite` (String)
-- `idle_timeout` (String)
-- `max_timeout` (String)
-- `rate_limit` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit))
+- `auto_host_rewrite` (Boolean) If set, will automatically rewrite host.
+
+- `backend_group_id` (String) Backend group to route requests.
+
+- `host_rewrite` (String) Host rewrite specifier.
+
+- `idle_timeout` (String) Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios - one should set idle_timeout to something meaningful and max_timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.
+
+- `max_timeout` (String) Lower timeout may be specified by the client (using grpc-timeout header). If not set, default is 60 seconds.
+
+- `rate_limit` (Block List, Max: 1) Rate limit configuration applied for a whole virtual host (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit))
+
 
 <a id="nestedobjatt--route--grpc_route--grpc_route_action--rate_limit"></a>
 ### Nested Schema for `route.grpc_route.grpc_route_action.rate_limit`
 
 Read-Only:
 
-- `all_requests` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--all_requests))
-- `requests_per_ip` (List of Object) (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--requests_per_ip))
+- `all_requests` (Block List, Max: 1) Rate limit configuration applied to all incoming requests (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--all_requests))
+
+- `requests_per_ip` (Block List, Max: 1) Rate limit configuration applied separately for each set of requests grouped by client IP address (see [below for nested schema](#nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--requests_per_ip))
+
 
 <a id="nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--all_requests"></a>
 ### Nested Schema for `route.grpc_route.grpc_route_action.rate_limit.all_requests`
 
 Read-Only:
 
-- `per_minute` (Number)
-- `per_second` (Number)
+- `per_minute` (Number) Limit value specified with per minute time unit
+
+- `per_second` (Number) Limit value specified with per second time unit
+
 
 
 <a id="nestedobjatt--route--grpc_route--grpc_route_action--rate_limit--requests_per_ip"></a>
@@ -164,8 +199,10 @@ Read-Only:
 
 Read-Only:
 
-- `per_minute` (Number)
-- `per_second` (Number)
+- `per_minute` (Number) Limit value specified with per minute time unit
+
+- `per_second` (Number) Limit value specified with per second time unit
+
 
 
 
@@ -175,7 +212,8 @@ Read-Only:
 
 Read-Only:
 
-- `status` (String)
+- `status` (String) The status of the response. Supported values are: ok, invalid_argumet, not_found, permission_denied, unauthenticated, unimplemented, internal, unavailable.
+
 
 
 
@@ -184,18 +222,24 @@ Read-Only:
 
 Read-Only:
 
-- `direct_response_action` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--direct_response_action))
-- `http_match` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_match))
-- `http_route_action` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action))
-- `redirect_action` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--redirect_action))
+- `direct_response_action` (Block List, Max: 1) Direct response action resource. (see [below for nested schema](#nestedobjatt--route--http_route--direct_response_action))
+
+- `http_match` (Block List) Checks `/` prefix by default. (see [below for nested schema](#nestedobjatt--route--http_route--http_match))
+
+- `http_route_action` (Block List, Max: 1) HTTP route action resource. (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action))
+
+- `redirect_action` (Block List, Max: 1) Redirect action resource. (see [below for nested schema](#nestedobjatt--route--http_route--redirect_action))
+
 
 <a id="nestedobjatt--route--http_route--direct_response_action"></a>
 ### Nested Schema for `route.http_route.direct_response_action`
 
 Read-Only:
 
-- `body` (String)
-- `status` (Number)
+- `body` (String) Response body text.
+
+- `status` (Number) HTTP response status. Should be between `100` and `599`.
+
 
 
 <a id="nestedobjatt--route--http_route--http_match"></a>
@@ -203,17 +247,22 @@ Read-Only:
 
 Read-Only:
 
-- `http_method` (Set of String)
-- `path` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_match--path))
+- `http_method` (Set of String) List of methods (strings).
+
+- `path` (Block List, Max: 1) The `path` and `fqmn` blocks. (see [below for nested schema](#nestedobjatt--route--http_route--http_match--path))
+
 
 <a id="nestedobjatt--route--http_route--http_match--path"></a>
 ### Nested Schema for `route.http_route.http_match.path`
 
 Read-Only:
 
-- `exact` (String)
-- `prefix` (String)
-- `regex` (String)
+- `exact` (String) Match exactly.
+
+- `prefix` (String) Match prefix.
+
+- `regex` (String) Match regex.
+
 
 
 
@@ -222,22 +271,32 @@ Read-Only:
 
 Read-Only:
 
-- `auto_host_rewrite` (Boolean)
-- `backend_group_id` (String)
-- `host_rewrite` (String)
-- `idle_timeout` (String)
-- `prefix_rewrite` (String)
-- `rate_limit` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--rate_limit))
-- `timeout` (String)
-- `upgrade_types` (Set of String)
+- `auto_host_rewrite` (Boolean) If set, will automatically rewrite host.
+
+- `backend_group_id` (String) Backend group to route requests.
+
+- `host_rewrite` (String) Host rewrite specifier.
+
+- `idle_timeout` (String) Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios (i.e. long-polling, server-sent events) - one should set idle_timeout to something meaningful and timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.
+
+- `prefix_rewrite` (String) If not empty, matched path prefix will be replaced by this value.
+
+- `rate_limit` (Block List, Max: 1) Rate limit configuration applied for a whole virtual host (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--rate_limit))
+
+- `timeout` (String) Specifies the request timeout (overall time request processing is allowed to take) for the route. If not set, default is 60 seconds.
+
+- `upgrade_types` (Set of String) List of upgrade types. Only specified upgrade types will be allowed. For example, `websocket`.
+
 
 <a id="nestedobjatt--route--http_route--http_route_action--rate_limit"></a>
 ### Nested Schema for `route.http_route.http_route_action.rate_limit`
 
 Read-Only:
 
-- `all_requests` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--upgrade_types--all_requests))
-- `requests_per_ip` (List of Object) (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--upgrade_types--requests_per_ip))
+- `all_requests` (Block List, Max: 1) Rate limit configuration applied to all incoming requests (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--upgrade_types--all_requests))
+
+- `requests_per_ip` (Block List, Max: 1) Rate limit configuration applied separately for each set of requests grouped by client IP address (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--upgrade_types--requests_per_ip))
+
 
 <a id="nestedobjatt--route--http_route--http_route_action--upgrade_types--all_requests"></a>
 ### Nested Schema for `route.http_route.http_route_action.upgrade_types.all_requests`
@@ -264,13 +323,20 @@ Read-Only:
 
 Read-Only:
 
-- `remove_query` (Boolean)
-- `replace_host` (String)
-- `replace_path` (String)
-- `replace_port` (Number)
-- `replace_prefix` (String)
-- `replace_scheme` (String)
-- `response_code` (String)
+- `remove_query` (Boolean) If set, remove query part.
+
+- `replace_host` (String) Replaces hostname.
+
+- `replace_path` (String) Replace path.
+
+- `replace_port` (Number) Replaces port.
+
+- `replace_prefix` (String) Replace only matched prefix. Example:<br/> match:{ prefix_match: `/some` } <br/> redirect: { replace_prefix: `/other` } <br/> will redirect `/something` to `/otherthing`.
+
+- `replace_scheme` (String) Replaces scheme. If the original scheme is `http` or `https`, will also remove the 80 or 443 port, if present.
+
+- `response_code` (String) The HTTP status code to use in the redirect response. Supported values are: `moved_permanently`, `found`, `see_other`, `temporary_redirect`, `permanent_redirect`.
+
 
 
 
@@ -279,8 +345,10 @@ Read-Only:
 
 Read-Only:
 
-- `rbac` (List of Object) (see [below for nested schema](#nestedobjatt--route--route_options--rbac))
-- `security_profile_id` (String)
+- `rbac` (Block List, Max: 1) RBAC configuration. (see [below for nested schema](#nestedobjatt--route--route_options--rbac))
+
+- `security_profile_id` (String) SWS profile ID.
+
 
 <a id="nestedobjatt--route--route_options--rbac"></a>
 ### Nested Schema for `route.route_options.rbac`
@@ -335,8 +403,10 @@ Read-Only:
 
 Read-Only:
 
-- `rbac` (List of Object) (see [below for nested schema](#nestedobjatt--route_options--rbac))
-- `security_profile_id` (String)
+- `rbac` (Block List, Max: 1) RBAC configuration. (see [below for nested schema](#nestedobjatt--route_options--rbac))
+
+- `security_profile_id` (String) SWS profile ID.
+
 
 <a id="nestedobjatt--route_options--rbac"></a>
 ### Nested Schema for `route_options.rbac`

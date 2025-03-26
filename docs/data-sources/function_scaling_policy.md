@@ -42,9 +42,12 @@ data "yandex_function_scaling_policy" "my_scaling_policy" {
 
 Optional:
 
-- `zone_instances_limit` (Number)
-- `zone_requests_limit` (Number)
+- `zone_instances_limit` (Number) Max number of instances in one zone for Yandex Cloud Function with tag.
+
+- `zone_requests_limit` (Number) Max number of requests in one zone for Yandex Cloud Function with tag.
+
 
 Read-Only:
 
-- `tag` (String)
+- `tag` (String) Yandex Cloud Function version tag for Yandex Cloud Function scaling policy.
+

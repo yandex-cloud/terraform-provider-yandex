@@ -65,7 +65,8 @@ resource "yandex_compute_instance" "default" {
 
 Required:
 
-- `disk_placement_group_id` (String)
+- `disk_placement_group_id` (String) Specifies Disk Placement Group id.
+
 
 
 <a id="nestedatt--hardware_generation"></a>
@@ -73,8 +74,10 @@ Required:
 
 Read-Only:
 
-- `generation2_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--generation2_features))
-- `legacy_features` (List of Object) (see [below for nested schema](#nestedobjatt--hardware_generation--legacy_features))
+- `generation2_features` (Block List, Max: 1) A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot. (see [below for nested schema](#nestedobjatt--hardware_generation--generation2_features))
+
+- `legacy_features` (Block List, Max: 1) Defines the first known hardware generation and its features. (see [below for nested schema](#nestedobjatt--hardware_generation--legacy_features))
+
 
 <a id="nestedobjatt--hardware_generation--generation2_features"></a>
 ### Nested Schema for `hardware_generation.generation2_features`
@@ -88,4 +91,5 @@ Read-Only:
 
 Read-Only:
 
-- `pci_topology` (String)
+- `pci_topology` (String) A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+

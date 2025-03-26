@@ -47,8 +47,10 @@ data "yandex_audit_trails_trail" "basic-trail" {
 
 Read-Only:
 
-- `database_id` (String)
-- `stream_name` (String)
+- `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
+
+- `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+
 
 
 <a id="nestedatt--filter"></a>
@@ -56,25 +58,32 @@ Read-Only:
 
 Read-Only:
 
-- `event_filters` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters))
-- `path_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--path_filter))
+- `event_filters` (Block List) Structure describing filtering process for the service-specific data plane events. (see [below for nested schema](#nestedobjatt--filter--event_filters))
+
+- `path_filter` (Block List, Max: 1) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category. (see [below for nested schema](#nestedobjatt--filter--path_filter))
+
 
 <a id="nestedobjatt--filter--event_filters"></a>
 ### Nested Schema for `filter.event_filters`
 
 Read-Only:
 
-- `categories` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters--categories))
-- `path_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter))
-- `service` (String)
+- `categories` (Block List, Min: 1) List of structures describing categories of gathered data plane events. (see [below for nested schema](#nestedobjatt--filter--event_filters--categories))
+
+- `path_filter` (Block List, Min: 1, Max: 1) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter))
+
+- `service` (String) ID of the service which events will be gathered.
+
 
 <a id="nestedobjatt--filter--event_filters--categories"></a>
 ### Nested Schema for `filter.event_filters.categories`
 
 Read-Only:
 
-- `plane` (String)
-- `type` (String)
+- `plane` (String) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
+
+- `type` (String) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
+
 
 
 <a id="nestedobjatt--filter--event_filters--path_filter"></a>
@@ -90,8 +99,10 @@ Read-Only:
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 <a id="nestedobjatt--filter--event_filters--path_filter--some_filter"></a>
@@ -108,8 +119,10 @@ Read-Only:
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 
@@ -120,7 +133,8 @@ Read-Only:
 
 Read-Only:
 
-- `any_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--path_filter--any_filter))
+- `any_filter` (Block List, Max: 1) Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`. (see [below for nested schema](#nestedobjatt--filter--path_filter--any_filter))
+
 - `some_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter))
 
 <a id="nestedobjatt--filter--path_filter--any_filter"></a>
@@ -128,8 +142,10 @@ Read-Only:
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 <a id="nestedobjatt--filter--path_filter--some_filter"></a>
@@ -137,17 +153,22 @@ Read-Only:
 
 Read-Only:
 
-- `any_filters` (List of Object) (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter--any_filters))
-- `resource_id` (String)
-- `resource_type` (String)
+- `any_filters` (Block List, Min: 1) List of child resources from which events will be gathered. (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter--any_filters))
+
+- `resource_id` (String) ID of the parent resource.
+
+- `resource_type` (String) Resource type of the parent resource.
+
 
 <a id="nestedobjatt--filter--path_filter--some_filter--any_filters"></a>
 ### Nested Schema for `filter.path_filter.some_filter.any_filters`
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 
@@ -158,26 +179,33 @@ Read-Only:
 
 Read-Only:
 
-- `data_events_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter))
-- `management_events_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filtering_policy--management_events_filter))
+- `data_events_filter` (Block List) Structure describing filtering process for the service-specific data events. (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter))
+
+- `management_events_filter` (Block List, Max: 1) Structure describing filtering process for management events. (see [below for nested schema](#nestedobjatt--filtering_policy--management_events_filter))
+
 
 <a id="nestedobjatt--filtering_policy--data_events_filter"></a>
 ### Nested Schema for `filtering_policy.data_events_filter`
 
 Read-Only:
 
-- `excluded_events` (List of String)
-- `included_events` (List of String)
+- `excluded_events` (List of String) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
+
+- `included_events` (List of String) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
+
 - `resource_scope` (List of Object) (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter--resource_scope))
-- `service` (String)
+- `service` (String) ID of the service which events will be gathered.
+
 
 <a id="nestedobjatt--filtering_policy--data_events_filter--resource_scope"></a>
 ### Nested Schema for `filtering_policy.data_events_filter.resource_scope`
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 
@@ -186,15 +214,18 @@ Read-Only:
 
 Read-Only:
 
-- `resource_scope` (List of Object) (see [below for nested schema](#nestedobjatt--filtering_policy--management_events_filter--resource_scope))
+- `resource_scope` (Block List, Min: 1) Structure describing that events will be gathered from the specified resource. (see [below for nested schema](#nestedobjatt--filtering_policy--management_events_filter--resource_scope))
+
 
 <a id="nestedobjatt--filtering_policy--management_events_filter--resource_scope"></a>
 ### Nested Schema for `filtering_policy.management_events_filter.resource_scope`
 
 Read-Only:
 
-- `resource_id` (String)
-- `resource_type` (String)
+- `resource_id` (String) ID of the child resource.
+
+- `resource_type` (String) Resource type of the child resource.
+
 
 
 
@@ -204,7 +235,8 @@ Read-Only:
 
 Read-Only:
 
-- `log_group_id` (String)
+- `log_group_id` (String) ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
+
 
 
 <a id="nestedatt--storage_destination"></a>
@@ -212,5 +244,7 @@ Read-Only:
 
 Read-Only:
 
-- `bucket_name` (String)
-- `object_prefix` (String)
+- `bucket_name` (String) Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
+
+- `object_prefix` (String) Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.
+

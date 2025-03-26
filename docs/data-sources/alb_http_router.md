@@ -46,8 +46,10 @@ data "yandex_alb_http_router" "tf-router" {
 
 Read-Only:
 
-- `rbac` (List of Object) (see [below for nested schema](#nestedobjatt--route_options--rbac))
-- `security_profile_id` (String)
+- `rbac` (Block List, Max: 1) RBAC configuration. (see [below for nested schema](#nestedobjatt--route_options--rbac))
+
+- `security_profile_id` (String) SWS profile ID.
+
 
 <a id="nestedobjatt--route_options--rbac"></a>
 ### Nested Schema for `route_options.rbac`

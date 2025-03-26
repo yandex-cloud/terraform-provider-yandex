@@ -95,4 +95,5 @@ output "permission" {
 
 Read-Only:
 
-- `database_name` (String)
+- `database_name` (String) The name of the database that the permission grants access to.
+

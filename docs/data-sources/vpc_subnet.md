@@ -51,6 +51,9 @@ data "yandex_vpc_subnet" "admin" {
 
 Read-Only:
 
-- `domain_name` (String)
-- `domain_name_servers` (List of String)
-- `ntp_servers` (List of String)
+- `domain_name` (String) Domain name.
+
+- `domain_name_servers` (List of String) Domain name server IP addresses.
+
+- `ntp_servers` (List of String) NTP server IP addresses.
+

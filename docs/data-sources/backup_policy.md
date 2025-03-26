@@ -65,9 +65,12 @@ output "my_policy_name" {
 
 Read-Only:
 
-- `enabled` (Boolean)
-- `interval` (String)
-- `max_attempts` (Number)
+- `enabled` (Boolean) Enable flag. Default `true`.
+
+- `interval` (String) Retry interval. See `interval_type` for available values. Default: `5m`.
+
+- `max_attempts` (Number) Maximum number of attempts before throwing an error. Default `5`.
+
 
 
 <a id="nestedatt--retention"></a>
@@ -75,7 +78,8 @@ Read-Only:
 
 Read-Only:
 
-- `after_backup` (Boolean)
+- `after_backup` (Boolean) Defines whether retention rule applies after creating backup or before.
+
 - `rules` (Set of Object) (see [below for nested schema](#nestedobjatt--retention--rules))
 
 <a id="nestedobjatt--retention--rules"></a>
@@ -83,8 +87,10 @@ Read-Only:
 
 Read-Only:
 
-- `max_age` (String)
-- `max_count` (Number)
+- `max_age` (String) Deletes backups that older than `max_age`. Exactly one of `max_count` or `max_age` should be set.
+
+- `max_count` (Number) Deletes backups if it's count exceeds `max_count`. Exactly one of `max_count` or `max_age` should be set.
+
 - `repeat_period` (List of String)
 
 
@@ -94,34 +100,49 @@ Read-Only:
 
 Read-Only:
 
-- `backup_sets` (Set of Object) (see [below for nested schema](#nestedobjatt--scheduling--backup_sets))
-- `enabled` (Boolean)
-- `max_parallel_backups` (Number)
-- `random_max_delay` (String)
-- `scheme` (String)
-- `weekly_backup_day` (String)
+- `backup_sets` (Block Set) A list of schedules with backup sets that compose the whole scheme. (see [below for nested schema](#nestedobjatt--scheduling--backup_sets))
+
+- `enabled` (Boolean) Enables or disables scheduling. Default `true`.
+
+- `max_parallel_backups` (Number) Maximum number of backup processes allowed to run in parallel. 0 for unlimited. Default `0`.
+
+- `random_max_delay` (String) Configuration of the random delay between the execution of parallel tasks. See `interval_type` for available values. Default `30m`.
+
+- `scheme` (String) Scheme of the backups. Available values are: `ALWAYS_INCREMENTAL`, `ALWAYS_FULL`, `WEEKLY_FULL_DAILY_INCREMENTAL`, `WEEKLY_INCREMENTAL`. Default `ALWAYS_INCREMENTAL`.
+
+- `weekly_backup_day` (String) A day of week to start weekly backups. See `day_type` for available values. Default `MONDAY`.
+
 
 <a id="nestedobjatt--scheduling--backup_sets"></a>
 ### Nested Schema for `scheduling.backup_sets`
 
 Read-Only:
 
-- `execute_by_interval` (Number)
-- `execute_by_time` (Set of Object) (see [below for nested schema](#nestedobjatt--scheduling--backup_sets--execute_by_time))
-- `type` (String)
+- `execute_by_interval` (Number) Perform backup by interval, since last backup of the host. Maximum value is: 9999 days. See `interval_type` for available values. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
+
+- `execute_by_time` (Block Set) Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`. (see [below for nested schema](#nestedobjatt--scheduling--backup_sets--execute_by_time))
+
+- `type` (String) BackupSet type. See `backup_set_type` for available values. Default `TYPE_AUTO`.
+
 
 <a id="nestedobjatt--scheduling--backup_sets--execute_by_time"></a>
 ### Nested Schema for `scheduling.backup_sets.execute_by_time`
 
 Read-Only:
 
-- `include_last_day_of_month` (Boolean)
-- `monthdays` (List of Number)
+- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.
+
+- `monthdays` (List of Number) List of days when schedule applies. Used in `MONTHLY` type.
+
 - `months` (List of Number)
-- `repeat_at` (List of String)
-- `repeat_every` (String)
-- `type` (String)
-- `weekdays` (List of String)
+- `repeat_at` (List of String) List of time in format `HH:MM` (24-hours format), when the schedule applies.
+
+- `repeat_every` (String) Frequency of backup repetition. See `interval_type` for available values.
+
+- `type` (String) Type of the scheduling. Available values are: `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`.
+
+- `weekdays` (List of String) List of weekdays when the backup will be applied. Used in `WEEKLY` type.
+
 
 
 
@@ -131,7 +152,10 @@ Read-Only:
 
 Read-Only:
 
-- `enabled` (Boolean)
-- `interval` (String)
-- `max_attempts` (Number)
+- `enabled` (Boolean) Enable flag. Default `true`.
+
+- `interval` (String) Retry interval. See `interval_type` for available values. Default: `5m`.
+
+- `max_attempts` (Number) Maximum number of attempts before throwing an error. Default `5`.
+
 

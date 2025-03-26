@@ -49,6 +49,7 @@ output "ydb_api_endpoint" {
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `resource_preset_id` (String) The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
 - `scale_policy` (List of Object) (see [below for nested schema](#nestedatt--scale_policy))
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `status` (String) Status of the Yandex Database cluster.
 - `storage_config` (List of Object) (see [below for nested schema](#nestedatt--storage_config))
 - `subnet_ids` (Set of String) The list of VPC subnets identifiers which resource is attached.
@@ -61,7 +62,8 @@ output "ydb_api_endpoint" {
 
 Read-Only:
 
-- `region` (List of Object) (see [below for nested schema](#nestedobjatt--location--region))
+- `region` (Block List, Max: 1) Region for the Yandex Database cluster. (see [below for nested schema](#nestedobjatt--location--region))
+
 - `zone` (List of Object) (see [below for nested schema](#nestedobjatt--location--zone))
 
 <a id="nestedobjatt--location--region"></a>
@@ -69,7 +71,8 @@ Read-Only:
 
 Read-Only:
 
-- `id` (String)
+- `id` (String) Region ID for the Yandex Database cluster.
+
 
 
 <a id="nestedobjatt--location--zone"></a>
@@ -86,14 +89,16 @@ Read-Only:
 
 Read-Only:
 
-- `fixed_scale` (List of Object) (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+- `fixed_scale` (Block List, Min: 1, Max: 1) Fixed scaling policy for the Yandex Database cluster. (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+
 
 <a id="nestedobjatt--scale_policy--fixed_scale"></a>
 ### Nested Schema for `scale_policy.fixed_scale`
 
 Read-Only:
 
-- `size` (Number)
+- `size` (Number) Number of instances for the Yandex Database cluster.
+
 
 
 
@@ -102,5 +107,7 @@ Read-Only:
 
 Read-Only:
 
-- `group_count` (Number)
-- `storage_type_id` (String)
+- `group_count` (Number) Amount of storage groups of selected type for the Yandex Database cluster.
+
+- `storage_type_id` (String) Storage type ID for the Yandex Database cluster. Available presets can be obtained via `yc ydb storage-type list` command.
+

@@ -51,8 +51,10 @@ output "owner" {
 
 Required:
 
-- `name` (String)
+- `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
+
 
 Optional:
 
-- `version` (String)
+- `version` (String) Version of the extension.
+

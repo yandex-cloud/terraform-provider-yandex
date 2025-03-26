@@ -54,7 +54,8 @@ data "yandex_vpc_private_endpoint" "pe" {
 
 Read-Only:
 
-- `private_dns_records_enabled` (Boolean)
+- `private_dns_records_enabled` (Boolean) If enabled - additional service DNS will be created.
+
 
 
 <a id="nestedatt--endpoint_address"></a>
@@ -62,6 +63,9 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
-- `address_id` (String)
-- `subnet_id` (String)
+- `address` (String) Specifies IP address within `subnet_id`.
+
+- `address_id` (String) ID of the address.
+
+- `subnet_id` (String) Subnet of the IP address.
+

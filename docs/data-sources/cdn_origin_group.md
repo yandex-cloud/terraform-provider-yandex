@@ -46,7 +46,10 @@ output "origin_group_name" {
 
 Read-Only:
 
-- `backup` (Boolean)
-- `enabled` (Boolean)
+- `backup` (Boolean) Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
+
+- `enabled` (Boolean) The origin is enabled and used as a source for the CDN. Default `enabled`.
+
 - `origin_group_id` (Number)
-- `source` (String)
+- `source` (String) IP address or Domain name of your origin and the port.
+

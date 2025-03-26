@@ -47,6 +47,9 @@ data "yandex_vpc_route_table" "my_rt" {
 
 Read-Only:
 
-- `destination_prefix` (String)
-- `gateway_id` (String)
-- `next_hop_address` (String)
+- `destination_prefix` (String) Route prefix in CIDR notation.
+
+- `gateway_id` (String) ID of the gateway used ad next hop.
+
+- `next_hop_address` (String) Address of the next hop.
+

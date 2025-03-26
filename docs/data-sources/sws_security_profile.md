@@ -54,21 +54,30 @@ data "yandex_sws_security_profile" "by-name" {
 
 Read-Only:
 
-- `description` (String)
-- `dry_run` (Boolean)
-- `name` (String)
-- `priority` (Number)
-- `rule_condition` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--rule_condition))
-- `smart_protection` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--smart_protection))
-- `waf` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--waf))
+- `description` (String) Optional description of the rule. 0-512 characters long.
+
+- `dry_run` (Boolean) This mode allows you to test your security profile or a single rule.
+
+- `name` (String) Name of the rule. The name is unique within the security profile. 1-50 characters long.
+
+- `priority` (Number) Determines the priority for checking the incoming traffic.
+
+- `rule_condition` (Block List, Max: 1) Rule actions, see [Rule actions](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#rule-action). (see [below for nested schema](#nestedobjatt--security_rule--rule_condition))
+
+- `smart_protection` (Block List, Max: 1) Smart Protection rule, see [Smart Protection rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#smart-protection-rules). (see [below for nested schema](#nestedobjatt--security_rule--smart_protection))
+
+- `waf` (Block List, Max: 1) Web Application Firewall (WAF) rule, see [WAF rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/rules#waf-rules). (see [below for nested schema](#nestedobjatt--security_rule--waf))
+
 
 <a id="nestedobjatt--security_rule--rule_condition"></a>
 ### Nested Schema for `security_rule.rule_condition`
 
 Read-Only:
 
-- `action` (String)
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--rule_condition--condition))
+- `action` (String) Action to perform if this rule matched. Possible values: `ALLOW` or `DENY`.
+
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto). (see [below for nested schema](#nestedobjatt--security_rule--rule_condition--condition))
+
 
 <a id="nestedobjatt--security_rule--rule_condition--condition"></a>
 ### Nested Schema for `security_rule.rule_condition.condition`
@@ -239,8 +248,10 @@ Read-Only:
 
 Read-Only:
 
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--smart_protection--condition))
-- `mode` (String)
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto). (see [below for nested schema](#nestedobjatt--security_rule--smart_protection--condition))
+
+- `mode` (String) Mode of protection. Possible values: `FULL` (full protection means that the traffic will be checked based on ML models and behavioral analysis, with suspicious requests being sent to SmartCaptcha) or `API` (API protection means checking the traffic based on ML models and behavioral analysis without sending suspicious requests to SmartCaptcha. The suspicious requests will be blocked).
+
 
 <a id="nestedobjatt--security_rule--smart_protection--condition"></a>
 ### Nested Schema for `security_rule.smart_protection.condition`
@@ -411,9 +422,12 @@ Read-Only:
 
 Read-Only:
 
-- `condition` (List of Object) (see [below for nested schema](#nestedobjatt--security_rule--waf--condition))
-- `mode` (String)
-- `waf_profile_id` (String)
+- `condition` (Block List, Max: 1) The condition for matching the rule. You can find all possibilities of condition in [gRPC specs](https://github.com/yandex-cloud/cloudapi/blob/master/yandex/cloud/smartwebsecurity/v1/security_profile.proto). (see [below for nested schema](#nestedobjatt--security_rule--waf--condition))
+
+- `mode` (String) Mode of protection. Possible values: `FULL` (full protection means that the traffic will be checked based on ML models and behavioral analysis, with suspicious requests being sent to SmartCaptcha) or `API` (API protection means checking the traffic based on ML models and behavioral analysis without sending suspicious requests to SmartCaptcha. The suspicious requests will be blocked).
+
+- `waf_profile_id` (String) ID of WAF profile to use in this rule.
+
 
 <a id="nestedobjatt--security_rule--waf--condition"></a>
 ### Nested Schema for `security_rule.waf.condition`

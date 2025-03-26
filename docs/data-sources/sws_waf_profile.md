@@ -53,9 +53,12 @@ data "yandex_sws_waf_profile" "by-name" {
 
 Read-Only:
 
-- `is_enabled` (Boolean)
-- `size_limit` (Number)
-- `size_limit_action` (String)
+- `is_enabled` (Boolean) Possible to turn analyzer on and turn if off.
+
+- `size_limit` (Number) Maximum size of body to pass to analyzer. In kilobytes.
+
+- `size_limit_action` (String) Action to perform if maximum size of body exceeded. Possible values: `IGNORE` and `DENY`.
+
 
 
 <a id="nestedatt--core_rule_set"></a>
@@ -63,8 +66,10 @@ Read-Only:
 
 Read-Only:
 
-- `inbound_anomaly_score` (Number)
-- `paranoia_level` (Number)
+- `inbound_anomaly_score` (Number) Anomaly score. Enter an integer within the range of 2 and 10000. The higher this value, the more likely it is that the request that satisfies the rule is an attack. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#anomaly) for more details.
+
+- `paranoia_level` (Number) Paranoia level. Enter an integer within the range of 1 and 4. Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#paranoia) for more details. NOTE: this option has no effect on enabling or disabling rules, it is used only as recommendation for user to enable all rules with paranoia_level <= this value.
+
 - `rule_set` (List of Object) (see [below for nested schema](#nestedobjatt--core_rule_set--rule_set))
 
 <a id="nestedobjatt--core_rule_set--rule_set"></a>
@@ -83,10 +88,14 @@ Read-Only:
 Read-Only:
 
 - `condition` (List of Object) (see [below for nested schema](#nestedobjatt--exclusion_rule--condition))
-- `description` (String)
-- `exclude_rules` (List of Object) (see [below for nested schema](#nestedobjatt--exclusion_rule--exclude_rules))
-- `log_excluded` (Boolean)
-- `name` (String)
+- `description` (String) Description of the rule. 0-512 characters long.
+
+- `exclude_rules` (Block List, Min: 1, Max: 1) Exclude rules. (see [below for nested schema](#nestedobjatt--exclusion_rule--exclude_rules))
+
+- `log_excluded` (Boolean) Records the fact that an exception rule is triggered.
+
+- `name` (String) Name of exclusion rule.
+
 
 <a id="nestedobjatt--exclusion_rule--condition"></a>
 ### Nested Schema for `exclusion_rule.condition`
@@ -256,8 +265,10 @@ Read-Only:
 
 Read-Only:
 
-- `exclude_all` (Boolean)
-- `rule_ids` (List of String)
+- `exclude_all` (Boolean) Set this option true to exclude all rules.
+
+- `rule_ids` (List of String) List of rules to exclude.
+
 
 
 
@@ -266,6 +277,9 @@ Read-Only:
 
 Read-Only:
 
-- `is_blocking` (Boolean)
-- `is_enabled` (Boolean)
-- `rule_id` (String)
+- `is_blocking` (Boolean) Determines is it rule blocking or not.
+
+- `is_enabled` (Boolean) Determines is it rule enabled or not.
+
+- `rule_id` (String) Rule ID.
+
