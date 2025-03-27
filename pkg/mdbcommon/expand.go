@@ -91,45 +91,6 @@ func ExpandLabels(ctx context.Context, labels types.Map, diags *diag.Diagnostics
 	return lMap
 }
 
-const (
-	anytimeType = "ANYTIME"
-	weeklyType  = "WEEKLY"
-)
-
-var weekdays = map[string]int32{
-	"WEEK_DAY_UNSPECIFIED": 0,
-	"MON":                  1,
-	"TUE":                  2,
-	"WED":                  3,
-	"THU":                  4,
-	"FRI":                  5,
-	"SAT":                  6,
-	"SUN":                  7,
-}
-
-type weeklyMaintenanceWindow[T any, WD ~int32] interface {
-	SetDay(WD)
-	SetHour(int64)
-
-	*T
-}
-
-type anytimeMaintenanceWindow[T any] interface {
-	*T
-}
-
-type maintenanceWindow[
-	T any,
-	VW any, VA any,
-	WD ~int32,
-	W weeklyMaintenanceWindow[VW, WD],
-	A anytimeMaintenanceWindow[VA],
-] interface {
-	SetAnytime(A)
-	SetWeeklyMaintenanceWindow(W)
-	*T
-}
-
 func ExpandClusterMaintenanceWindow[
 	V any,
 	VW any,
@@ -163,7 +124,7 @@ func ExpandClusterMaintenanceWindow[
 		out.SetAnytime(new(VA))
 	} else if mwType == weeklyType {
 		mwDay, mwHour := mwConf.Day.ValueString(), mwConf.Hour.ValueInt64()
-		day := weekdays[mwDay]
+		day := weekdayNames[mwDay]
 
 		w := W(new(VW))
 		w.SetDay(WD(day))
@@ -205,4 +166,15 @@ func ExpandFolderId(ctx context.Context, f types.String, providerConfig *config.
 	folderID, d := validate.FolderID(f, providerConfig)
 	diags.Append(d)
 	return folderID
+}
+
+func ExpandInt64Wrapper(ctx context.Context, in types.Int64, diags *diag.Diagnostics) *wrapperspb.Int64Value {
+	var w *wrapperspb.Int64Value
+	if !in.IsNull() && !in.IsUnknown() {
+		w = &wrapperspb.Int64Value{
+			Value: in.ValueInt64(),
+		}
+	}
+
+	return w
 }

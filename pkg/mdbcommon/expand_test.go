@@ -57,6 +57,14 @@ func (w *WeeklyMaintenanceWindowMock) SetHour(v int64) {
 	w.Hour = v
 }
 
+func (w *WeeklyMaintenanceWindowMock) GetDay() WeekDayMock {
+	return w.Day
+}
+
+func (w *WeeklyMaintenanceWindowMock) GetHour() int64 {
+	return w.Hour
+}
+
 type AnytimePolicyMock struct{}
 
 type MaintenanceWindowMock struct {
@@ -69,6 +77,20 @@ func (m *MaintenanceWindowMock) SetAnytime(v *AnytimePolicyMock) {
 
 func (m *MaintenanceWindowMock) SetWeeklyMaintenanceWindow(v *WeeklyMaintenanceWindowMock) {
 	m.Policy = v
+}
+
+func (m *MaintenanceWindowMock) GetAnytime() *AnytimePolicyMock {
+	if p, ok := m.Policy.(*AnytimePolicyMock); ok {
+		return p
+	}
+	return nil
+}
+
+func (m *MaintenanceWindowMock) GetWeeklyMaintenanceWindow() *WeeklyMaintenanceWindowMock {
+	if p, ok := m.Policy.(*WeeklyMaintenanceWindowMock); ok {
+		return p
+	}
+	return nil
 }
 
 func TestYandexProvider_MDBMySQLClusterMaintenanceWindowExpand(t *testing.T) {
@@ -487,7 +509,7 @@ func buildTestBwsObj(h, m *int64) types.Object {
 	)
 }
 
-func TestYandexProvider_MDBClusterConfigBackupWindowStartExpand(t *testing.T) {
+func TestYandexProvider_MDBTimeOfDayExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -561,6 +583,52 @@ func TestYandexProvider_MDBClusterConfigBackupWindowStartExpand(t *testing.T) {
 				c.testname,
 				c.expectedVal,
 				pgBws,
+			)
+		}
+	}
+}
+
+func TestYandexProvider_Int64WrapperExpand(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	cases := []struct {
+		testname    string
+		reqVal      types.Int64
+		expectedVal *wrapperspb.Int64Value
+	}{
+		{
+			testname: "ExplicitCheck",
+			reqVal:   types.Int64Value(5),
+			expectedVal: &wrapperspb.Int64Value{
+				Value: 5,
+			},
+		},
+		{
+			testname:    "NullCheck",
+			reqVal:      types.Int64Null(),
+			expectedVal: nil,
+		},
+	}
+
+	for _, c := range cases {
+		diags := diag.Diagnostics{}
+		pgBrpd := ExpandInt64Wrapper(ctx, c.reqVal, &diags)
+		if diags.HasError() {
+			t.Errorf(
+				"Unexpected expansion diagnostics status %s test: errors: %v",
+				c.testname,
+				diags.Errors(),
+			)
+			continue
+		}
+
+		if !reflect.DeepEqual(pgBrpd, c.expectedVal) {
+			t.Errorf(
+				"Unexpected expansion result value %s test: expected %s, actual %s",
+				c.testname,
+				c.expectedVal,
+				pgBrpd,
 			)
 		}
 	}

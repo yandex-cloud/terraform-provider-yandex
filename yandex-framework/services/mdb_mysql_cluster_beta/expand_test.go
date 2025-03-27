@@ -199,52 +199,6 @@ func TestYandexProvider_MDBMySQLClusterConfigPerfomanceDiagnosticsExpand(t *test
 	}
 }
 
-func TestYandexProvider_MDBMySQLClusterConfigBackupRetainPeriodDaysExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname    string
-		reqVal      types.Int64
-		expectedVal *wrapperspb.Int64Value
-	}{
-		{
-			testname: "ExplicitCheck",
-			reqVal:   types.Int64Value(5),
-			expectedVal: &wrapperspb.Int64Value{
-				Value: 5,
-			},
-		},
-		{
-			testname:    "NullCheck",
-			reqVal:      types.Int64Null(),
-			expectedVal: nil,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		pgBrpd := expandBackupRetainPeriodDays(ctx, c.reqVal, &diags)
-		if diags.HasError() {
-			t.Errorf(
-				"Unexpected expansion diagnostics status %s test: errors: %v",
-				c.testname,
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(pgBrpd, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expansion result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				pgBrpd,
-			)
-		}
-	}
-}
-
 var expectedBwsAttrTypes = map[string]attr.Type{
 	"hours":   types.Int64Type,
 	"minutes": types.Int64Type,

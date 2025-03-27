@@ -40,8 +40,7 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.SecurityGroupIDs = sgs
 	diagnostics.Append(diags...)
 
-	state.Resources, diags = mdbcommon.FlattenResources[redisproto.Resources](ctx, cluster.GetConfig().GetResources())
-	diagnostics.Append(diags...)
+	state.Resources = mdbcommon.FlattenResources[redisproto.Resources](ctx, cluster.GetConfig().GetResources(), diagnostics)
 
 	conf := FlattenConfig(cluster.Config)
 	if state.Config != nil {
@@ -49,8 +48,8 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	}
 
 	state.Config = &conf
-	state.Config.BackupWindowStart, diags = mdbcommon.FlattenBackupWindow(ctx, cluster.Config.GetBackupWindowStart())
-	diagnostics.Append(diags...)
+	state.Config.BackupWindowStart = mdbcommon.FlattenBackupWindowStart(ctx, cluster.Config.GetBackupWindowStart(), diagnostics)
+
 	state.Config.BackupRetainPeriodDays = types.Int64Value(cluster.Config.BackupRetainPeriodDays.GetValue())
 
 	state.DiskSizeAutoscaling, diags = flattenAutoscaling(ctx, cluster.GetConfig().GetDiskSizeAutoscaling())

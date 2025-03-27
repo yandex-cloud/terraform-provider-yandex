@@ -12,7 +12,6 @@ import (
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // Set access to default if null
@@ -55,17 +54,6 @@ func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *d
 	}
 }
 
-func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags *diag.Diagnostics) *wrapperspb.Int64Value {
-	var pgBws *wrapperspb.Int64Value
-	if !cfgBws.IsNull() && !cfgBws.IsUnknown() {
-		pgBws = &wrapperspb.Int64Value{
-			Value: cfgBws.ValueInt64(),
-		}
-	}
-
-	return pgBws
-}
-
 var msVersionConfig = map[string]mysql.ConfigSpec_MysqlConfig{
 	"5.7": &mysql.ConfigSpec_MysqlConfig_5_7{},
 	"8.0": &mysql.ConfigSpec_MysqlConfig_8_0{},
@@ -101,7 +89,7 @@ func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostic
 		Resources:              mdbcommon.ExpandResources[mysql.Resources](ctx, configSpec.Resources, diags),
 		Access:                 expandAccess(ctx, configSpec.Access, diags),
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
-		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
+		BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		MysqlConfig:            expandMySQLConfig(ctx, configSpec.Version.ValueString(), configSpec.MySQLConfig, diags),
 	}

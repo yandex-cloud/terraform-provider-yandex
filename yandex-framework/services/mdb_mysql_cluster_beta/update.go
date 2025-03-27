@@ -129,7 +129,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 
 	if !plan.BackupRetainPeriodDays.Equal(state.BackupRetainPeriodDays) {
 		updConf = true
-		config.SetBackupRetainPeriodDays(expandBackupRetainPeriodDays(ctx, plan.BackupRetainPeriodDays, &diags))
+		config.SetBackupRetainPeriodDays(mdbcommon.ExpandInt64Wrapper(ctx, plan.BackupRetainPeriodDays, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "config_spec.backup_retain_period_days")
 	}
 

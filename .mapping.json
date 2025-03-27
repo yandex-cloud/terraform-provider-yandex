@@ -829,6 +829,8 @@
   "pkg/mdbcommon/data_source.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/data_source.go",
   "pkg/mdbcommon/expand.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/expand.go",
   "pkg/mdbcommon/expand_test.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/expand_test.go",
+  "pkg/mdbcommon/flatten.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/flatten.go",
+  "pkg/mdbcommon/flatten_test.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/flatten_test.go",
   "pkg/mdbcommon/hosts.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/hosts.go",
   "pkg/mdbcommon/hosts_test.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/hosts_test.go",
   "pkg/mdbcommon/model.go":"opensource/terraform-provider-yandex-mirror/pkg/mdbcommon/model.go",

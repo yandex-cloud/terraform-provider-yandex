@@ -1,14 +1,9 @@
 package mdbcommon
 
 import (
-	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
-	"google.golang.org/genproto/googleapis/type/timeofday"
 )
 
 var (
@@ -66,28 +61,57 @@ var ResourceType = types.ObjectType{
 	},
 }
 
-func FlattenBackupWindow(ctx context.Context, bw *timeofday.TimeOfDay) (types.Object, diag.Diagnostics) {
-	if bw == nil {
-		return types.ObjectNull(BackupWindowType.AttributeTypes()), nil
-	}
+const (
+	anytimeType = "ANYTIME"
+	weeklyType  = "WEEKLY"
+)
 
-	result := BackupWindow{
-		Hours:   types.Int64Value(int64(bw.GetHours())),
-		Minutes: types.Int64Value(int64(bw.GetMinutes())),
+var (
+	weekdayNums = map[int32]string{
+		0: "WEEK_DAY_UNSPECIFIED",
+		1: "MON",
+		2: "TUE",
+		3: "WED",
+		4: "THU",
+		5: "FRI",
+		6: "SAT",
+		7: "SUN",
 	}
+	weekdayNames = map[string]int32{
+		"WEEK_DAY_UNSPECIFIED": 0,
+		"MON":                  1,
+		"TUE":                  2,
+		"WED":                  3,
+		"THU":                  4,
+		"FRI":                  5,
+		"SAT":                  6,
+		"SUN":                  7,
+	}
+)
 
-	return types.ObjectValueFrom(ctx, BackupWindowType.AttributeTypes(), result)
+type weeklyMaintenanceWindow[T any, WD ~int32] interface {
+	SetDay(WD)
+	SetHour(int64)
+	GetDay() WD
+	GetHour() int64
+
+	*T
 }
 
-func FlattenResources[V any, T resourceModel[V]](ctx context.Context, r T) (types.Object, diag.Diagnostics) {
-	if r == nil {
-		return types.ObjectNull(ResourceType.AttributeTypes()), nil
-	}
+type anytimeMaintenanceWindow[T any] interface {
+	*T
+}
 
-	a := Resource{
-		ResourcePresetId: types.StringValue(r.GetResourcePresetId()),
-		DiskSize:         types.Int64Value(datasize.ToGigabytes(r.GetDiskSize())),
-		DiskTypeId:       types.StringValue(r.GetDiskTypeId()),
-	}
-	return types.ObjectValueFrom(ctx, ResourceType.AttributeTypes(), a)
+type maintenanceWindow[
+	T any,
+	VW any, VA any,
+	WD ~int32,
+	W weeklyMaintenanceWindow[VW, WD],
+	A anytimeMaintenanceWindow[VA],
+] interface {
+	SetAnytime(A)
+	SetWeeklyMaintenanceWindow(W)
+	GetAnytime() A
+	GetWeeklyMaintenanceWindow() W
+	*T
 }

@@ -488,10 +488,15 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Name = types.StringValue(cluster.Name)
 	state.Description = types.StringValue(cluster.Description)
 	state.Environment = types.StringValue(cluster.Environment.String())
-	state.Labels = flattenMapString(ctx, cluster.Labels, respDiagnostics)
+	state.Labels = mdbcommon.FlattenMapString(ctx, cluster.Labels, respDiagnostics)
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
-	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
-	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
+	state.MaintenanceWindow = mdbcommon.FlattenMaintenanceWindow[
+		mysql.MaintenanceWindow,
+		mysql.WeeklyMaintenanceWindow,
+		mysql.AnytimeMaintenanceWindow,
+		mysql.WeeklyMaintenanceWindow_WeekDay,
+	](ctx, cluster.MaintenanceWindow, respDiagnostics)
+	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
 	cfg := flattenConfig(ctx, state.MySQLConfig, cluster.GetConfig(), respDiagnostics)
 
