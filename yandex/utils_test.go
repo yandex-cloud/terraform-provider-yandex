@@ -515,11 +515,6 @@ func testAccCommonIamDependenciesEditorConfig(randInt int) string {
 	return testAccCommonIamDependenciesConfigImpl(randInt, "editor")
 }
 
-//nolint:unused
-func testAccCommonIamDependenciesAdminConfig(randInt int) string {
-	return testAccCommonIamDependenciesConfigImpl(randInt, "admin")
-}
-
 func testAccCommonIamDependenciesConfigImpl(randInt int, role string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "sa" {
@@ -662,6 +657,7 @@ func testAccCheckResourceAttrWithValueFactory(name, key string, valueFactory fun
 
 func TestParseDuration(t *testing.T) {
 	d := (&schema.Resource{
+		//lintignore:XS001
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -848,6 +844,7 @@ func TestEveryOf(t *testing.T) {
 
 	t.Run("checkEveryOf", func(t *testing.T) {
 		d := (&schema.Resource{
+			//lintignore:XS001
 			Schema: map[string]*schema.Schema{
 				"field_one": {
 					Type:     schema.TypeString,
