@@ -71,9 +71,9 @@ The `settings` block supports: [Full description](https://yandex.cloud/docs/mana
   - 4: "all"
 
 * `pool_mode` - Mode that the connection pooler is working in with specified user. One of:
-  - 0: "session"
-  - 1: "transaction"
-  - 2: "statement"
+  - 1: "session"
+  - 2: "transaction"
+  - 3: "statement"
 
 * `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
 
