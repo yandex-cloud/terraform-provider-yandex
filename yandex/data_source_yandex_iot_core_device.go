@@ -43,6 +43,14 @@ func dataSourceYandexIoTCoreDevice() *schema.Resource {
 				Computed:    true,
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
 			"certificates": {
 				Type:        schema.TypeSet,
 				Description: resourceYandexIoTCoreDevice().Schema["certificates"].Description,

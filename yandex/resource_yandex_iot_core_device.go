@@ -48,6 +48,14 @@ func resourceYandexIoTCoreDevice() *schema.Resource {
 				Optional:    true,
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
 			"certificates": {
 				Type:        schema.TypeSet,
 				Description: "A set of certificate's fingerprints for the IoT Core Device.",
@@ -90,6 +98,11 @@ func resourceYandexIoTCoreDeviceCreate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
+	labels, err := expandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while creating IoT Device: %s", err)
+	}
+
 	aliases, err := expandLabels(d.Get("aliases"))
 	if err != nil {
 		return fmt.Errorf("Error expanding aliases while creating IoT Device: %s", err)
@@ -105,6 +118,7 @@ func resourceYandexIoTCoreDeviceCreate(d *schema.ResourceData, meta interface{})
 		RegistryId:   d.Get("registry_id").(string),
 		Name:         d.Get("name").(string),
 		Description:  d.Get("description").(string),
+		Labels:       labels,
 		Certificates: certs,
 		TopicAliases: aliases,
 	}
@@ -144,6 +158,9 @@ func flattenYandexIoTCoreDevice(d *schema.ResourceData, device *iot.Device) erro
 	d.Set("name", device.Name)
 	d.Set("description", device.Description)
 	d.Set("created_at", getTimestamp(device.CreatedAt))
+	if err := d.Set("labels", device.Labels); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -191,6 +208,11 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	labels, err := expandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while updating IoT Registry: %s", err)
+	}
+
 	aliases, err := expandLabels(d.Get("aliases"))
 	if err != nil {
 		return fmt.Errorf("Error expanding aliases while updating IoT Device: %s", err)
@@ -207,6 +229,10 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 		updatePaths = append(updatePaths, "description")
 	}
 
+	if d.HasChange("labels") {
+		updatePaths = append(updatePaths, "labels")
+	}
+
 	if d.HasChange("aliases") {
 		updatePaths = append(updatePaths, "topic_aliases")
 	}
@@ -216,6 +242,7 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 			DeviceId:     d.Id(),
 			Name:         d.Get("name").(string),
 			Description:  d.Get("description").(string),
+			Labels:       labels,
 			TopicAliases: aliases,
 			UpdateMask:   &field_mask.FieldMask{Paths: updatePaths},
 		}

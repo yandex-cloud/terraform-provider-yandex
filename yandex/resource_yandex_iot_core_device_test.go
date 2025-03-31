@@ -104,6 +104,8 @@ func TestAccYandexIoTCoreDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(iotDeviceResource, "name", deviceName),
 					resource.TestCheckResourceAttrSet(iotDeviceResource, "registry_id"),
 					testYandexIoTCoreDeviceRegistryID(iotDeviceResource, &registry),
+					testYandexIoTCoreDeviceContainsLabel(&device, "key", "value"),
+					testYandexIoTCoreDeviceContainsLabel(&device, "empty", ""),
 					testAccCheckCreatedAtAttr(iotDeviceResource),
 				),
 			},
@@ -230,6 +232,19 @@ func testYandexIoTCoreDeviceRegistryID(name string, registry *iot.Registry) reso
 	}
 }
 
+func testYandexIoTCoreDeviceContainsLabel(device *iot.Device, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := device.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
 func testYandexIoTCoreDeviceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -340,6 +355,10 @@ resource "yandex_iot_core_registry" "test-registry" {
 resource "yandex_iot_core_device" "test-device" {
   registry_id = "${yandex_iot_core_registry.test-registry.id}"
   name        = "%s"
+  labels = {
+    key    = "value"
+    empty  = ""
+  }
 }
 	`, registryName, deviceName)
 }

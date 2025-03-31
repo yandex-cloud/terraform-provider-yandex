@@ -90,6 +90,8 @@ func TestAccYandexDataSourceIoTCoreDevice_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(iotDataSourceDeviceResource, "name", deviceName),
 					resource.TestCheckResourceAttr(iotDataSourceDeviceResource, "description", "description"),
+					resource.TestCheckResourceAttr(iotDataSourceResource, "labels.key", "value"),
+					resource.TestCheckResourceAttr(iotDataSourceResource, "labels.empty", ""),
 					resource.TestCheckResourceAttr(iotDataSourceDeviceResource, "certificates.#", "1"),
 					resource.TestCheckResourceAttr(iotDataSourceDeviceResource, "passwords.#", "1"),
 					resource.TestCheckResourceAttr(iotDataSourceDeviceResource, "aliases.%", "1"),
@@ -149,6 +151,10 @@ resource "yandex_iot_core_device" "test-dev" {
   registry_id = "${yandex_iot_core_registry.test-reg.id}"
   name        = "{{.Name}}"
   description = "{{.Descr}}"
+  labels = {
+    key = "value",
+    empty   = ""
+  }
   passwords = [
     "{{.Password}}"
   ]
