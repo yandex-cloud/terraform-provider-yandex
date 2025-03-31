@@ -945,8 +945,16 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
-  mdb_postgresql_cluster_beta:
-    Category: "Beta Resources"
+  mdb_postgresql_cluster_v2:
+    Category: "V2 Resources"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_mysql_cluster_v2:
+    Category: "V2 Resources"
     Type: fw
     HasR: true
     HasD: false

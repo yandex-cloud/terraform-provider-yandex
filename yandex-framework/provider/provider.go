@@ -37,9 +37,9 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_user"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mysql_cluster_beta"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mysql_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_beta"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
 	// "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group"
@@ -97,6 +97,7 @@ func (p *Provider) Metadata(ctx context.Context, req provider.MetadataRequest, r
 
 func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				Optional:    true,
@@ -280,9 +281,9 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		compute_snapshot_schedule_iam_binding.NewIamBinding,
 		airflow_cluster.NewResource,
 		vpc_security_group_rule.NewResource,
-		mdb_postgresql_cluster_beta.NewPostgreSQLClusterResourceBeta,
+		mdb_postgresql_cluster_v2.NewPostgreSQLClusterResourceV2,
 		mdb_redis_cluster_v2.NewResource,
-		mdb_mysql_cluster_beta.NewMySQLClusterResourceBeta,
+		mdb_mysql_cluster_v2.NewMySQLClusterResourceV2,
 		kubernetes_marketplace_helm_release.NewResource,
 	}
 }

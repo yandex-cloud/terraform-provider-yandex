@@ -2,7 +2,7 @@
 subcategory: "V2 Resources"
 page_title: "Yandex: {{.Name}}"
 description: |-
-  Manages a PostgreSQL cluster within Yandex Cloud.
+  Manages a MySQL cluster within the Yandex Cloud. For more information, see the official documentation https://cloud.yandex.com/docs/managed-mysql/. How to connect to the DB https://yandex.cloud/docs/managed-mysql/quickstart#connect. To connect, use port 6432. The port number is not configurable.
 ---
 
 # {{.Name}} ({{.Type}})
@@ -11,7 +11,7 @@ description: |-
 
 ## Example Usage
 
-{{ tffile "examples/mdb_postgresql_cluster_v2/r_mdb_postgresql_cluster_v2_1.tf" }}
+{{ tffile "examples/mdb_mysql_cluster_v2/r_mdb_mysql_cluster_v2_1.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
 
