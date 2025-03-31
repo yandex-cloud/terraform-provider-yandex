@@ -128,6 +128,12 @@ func resourceYandexMessageQueue() *schema.Resource {
 				Default:     defaultYMQRegion,
 				ForceNew:    true,
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Description: "SQS tags",
+				Elem:        &schema.Schema{Type: schema.TypeString, ValidateFunc: validation.StringIsNotEmpty},
+				Optional:    true,
+			},
 
 			// Credentials
 			"access_key": {
@@ -193,8 +199,14 @@ func resourceYandexMessageQueueCreate(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[INFO] Creating message queue with name %s", name)
 
+	tags := make(map[string]*string)
+	for k, v := range d.Get("tags").(map[string]interface{}) {
+		tags[k] = aws.String(v.(string))
+	}
+
 	req := &sqs.CreateQueueInput{
 		QueueName: aws.String(name),
+		Tags:      tags,
 	}
 
 	attributes := make(map[string]*string)
@@ -252,6 +264,56 @@ func resourceYandexMessageQueueUpdate(d *schema.ResourceData, meta interface{}) 
 	ymqClient, err := newYMQClient(d, meta)
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("tags") {
+		old, new := d.GetChange("tags")
+
+		oldMap, ok := old.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("failed to parse old tags as map")
+		}
+
+		newMap, ok := new.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("failed to parse new tags as map")
+		}
+
+		// Collecting tags for deletion
+		var tagsToDelete []string
+		for tag := range oldMap {
+			if _, exists := newMap[tag]; !exists {
+				tagsToDelete = append(tagsToDelete, tag)
+			}
+		}
+
+		// Collecting tags to add/update
+		tagsToAdd := make(map[string]string)
+		for tag, newValue := range newMap {
+			if oldValue, exists := oldMap[tag]; !exists || oldValue.(string) != newValue.(string) {
+				tagsToAdd[tag] = newValue.(string)
+			}
+		}
+
+		// Deleting old tags
+		if len(tagsToDelete) > 0 {
+			if _, err := ymqClient.UntagQueue(&sqs.UntagQueueInput{
+				QueueUrl: aws.String(d.Id()),
+				TagKeys:  aws.StringSlice(tagsToDelete),
+			}); err != nil {
+				return fmt.Errorf("error deleting message queue tags: %s", err)
+			}
+		}
+
+		// Adding new tags
+		if len(tagsToAdd) > 0 {
+			if _, err := ymqClient.TagQueue(&sqs.TagQueueInput{
+				QueueUrl: aws.String(d.Id()),
+				Tags:     aws.StringMap(tagsToAdd),
+			}); err != nil {
+				return fmt.Errorf("error adding message queue tags: %s", err)
+			}
+		}
 	}
 
 	attributes := make(map[string]*string)
@@ -319,8 +381,31 @@ func resourceYandexMessageQueueReadImpl(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	var attributeOutput *sqs.GetQueueAttributesOutput
-	err = resource.Retry(30*time.Second, func() *resource.RetryError {
+	var (
+		attributeOutput     *sqs.GetQueueAttributesOutput
+		queueTagsOutput     *sqs.ListQueueTagsOutput
+		listErr, getAttrErr error
+	)
+	// The first call to resource.Retry for ListQueueTags
+	listErr = resource.Retry(30*time.Second, func() *resource.RetryError {
+		var err error
+		queueTagsOutput, err = ymqClient.ListQueueTags(&sqs.ListQueueTagsInput{
+			QueueUrl: aws.String(d.Id()),
+		})
+
+		if err != nil {
+			// Queue can be not found immediately after its creation.
+			// It can occur in not found or access denied exception.
+			if assumeQueueCreatedRecently && (isAWSSQSErr(err, sqs.ErrCodeQueueDoesNotExist) || isAWSSQSErr(err, "AccessDeniedException")) {
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
+	// The second call to resource.Retry for GetQueueAttributes
+	getAttrErr = resource.Retry(30*time.Second, func() *resource.RetryError {
 		var err error
 		attributeOutput, err = ymqClient.GetQueueAttributes(&sqs.GetQueueAttributesInput{
 			QueueUrl:       aws.String(d.Id()),
@@ -338,16 +423,43 @@ func resourceYandexMessageQueueReadImpl(d *schema.ResourceData, meta interface{}
 		return nil
 	})
 
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			log.Printf("[ERROR] Found %s", awsErr.Code())
-			if awsErr.Code() == sqs.ErrCodeQueueDoesNotExist || isAWSSQSErr(err, "AccessDeniedException") {
-				d.SetId("")
-				log.Printf("[DEBUG] Message queue (%s) was not found", d.Get("name").(string))
-				return nil
+	// Error handling after both calls
+	if listErr != nil || getAttrErr != nil {
+		queueNotFoundOrAccessDenied := false
+
+		// Checking for ListQueueTags errors
+		if listErr != nil {
+			if awsErr, ok := listErr.(awserr.Error); ok {
+				if awsErr.Code() == sqs.ErrCodeQueueDoesNotExist || awsErr.Code() == "AccessDeniedException" {
+					queueNotFoundOrAccessDenied = true
+				}
 			}
 		}
-		return err
+
+		// Checking for GetQueueAttributes errors, if not found yet
+		if !queueNotFoundOrAccessDenied && getAttrErr != nil {
+			if awsErr, ok := getAttrErr.(awserr.Error); ok {
+				if awsErr.Code() == sqs.ErrCodeQueueDoesNotExist || awsErr.Code() == "AccessDeniedException" {
+					queueNotFoundOrAccessDenied = true
+				}
+			}
+		}
+
+		if queueNotFoundOrAccessDenied {
+			d.SetId("")
+			log.Printf("[DEBUG] Message queue (%s) not found or access denied", d.Get("name").(string))
+			return nil
+		}
+
+		// We collect all errors if they are not related to the lack of a queue.
+		var errorMessages []string
+		if listErr != nil {
+			errorMessages = append(errorMessages, fmt.Sprintf("ListQueueTags: %v", listErr))
+		}
+		if getAttrErr != nil {
+			errorMessages = append(errorMessages, fmt.Sprintf("GetQueueAttributes: %v", getAttrErr))
+		}
+		return fmt.Errorf("errors occurred:\n%v", strings.Join(errorMessages, "\n"))
 	}
 
 	name, err := extractNameFromQueueUrl(d.Id())
@@ -367,6 +479,12 @@ func resourceYandexMessageQueueReadImpl(d *schema.ResourceData, meta interface{}
 	d.Set("redrive_policy", "")
 	d.Set("visibility_timeout_seconds", 30)
 	d.Set("region_id", defaultYMQRegion)
+
+	if queueTagsOutput != nil {
+		if err := d.Set("tags", aws.StringValueMap(queueTagsOutput.Tags)); err != nil {
+			return err
+		}
+	}
 
 	if attributeOutput != nil {
 		queueAttributes := aws.StringValueMap(attributeOutput.Attributes)

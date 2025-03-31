@@ -20,7 +20,7 @@ import (
 )
 
 func TestAccMessageQueue_basic(t *testing.T) {
-	var queueAttributes map[string]*string
+	var queueAttributes, tags map[string]*string
 
 	resourceName := "yandex_message_queue.queue"
 	var randInt int = acctest.RandInt()
@@ -55,6 +55,13 @@ func TestAccMessageQueue_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMessageQueueExists(resourceName, &queueAttributes),
 					testAccCheckMessageQueueVisibilityZero(&queueAttributes),
+				),
+			},
+			{
+				Config: testAccMessageQueueConfigWithDefaults(randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMessageQueueTagsExists(resourceName, &tags),
+					testAccCheckMessageQueueDefaultTags(&tags),
 				),
 			},
 		},
@@ -545,6 +552,55 @@ func testAccMessageQueueSetTmpKeysForProvider() (cleanupFunc func(), err error) 
 	return
 }
 
+func testAccCheckMessageQueueTagsExists(resourceName string, tags *map[string]*string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No Queue URL specified!")
+		}
+
+		ymqClient, err := testAccNewYMQClientForResource(rs)
+		if err != nil {
+			return err
+		}
+
+		input := &sqs.ListQueueTagsInput{
+			QueueUrl: aws.String(rs.Primary.ID),
+		}
+		output, err := ymqClient.ListQueueTags(input)
+
+		if err != nil {
+			return err
+		}
+
+		*tags = output.Tags
+
+		return nil
+	}
+}
+
+func testAccCheckMessageQueueDefaultTags(tags *map[string]*string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// checking if tags match our etalon values
+		for key, valuePointer := range *tags {
+			value := aws.StringValue(valuePointer)
+			if key == "env" && value != "prod" {
+				return fmt.Errorf("tag 'env' (%s) was not set to 'prod'", value)
+			}
+
+			if key == "type" && value != "acctests" {
+				return fmt.Errorf("tag 'type' (%s) was not set to 'acctests'", value)
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccMessageQueueConfigWithDefaults(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_message_queue" "queue" {
@@ -553,6 +609,11 @@ resource "yandex_message_queue" "queue" {
 
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  tags = {
+    env = "prod"
+	type = "acctests"
+  }
 }
 `, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
