@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'iot: added attribute `labels` to resource and datasource yandex_iot_core_device'
-time: 2025-03-31T13:54:14.996351205+03:00
