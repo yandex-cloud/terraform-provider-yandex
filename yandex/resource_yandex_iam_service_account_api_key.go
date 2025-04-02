@@ -42,12 +42,14 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
+				Computed: true,
 			},
 
 			"scope": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "Attribute `scope` deprecated and will be removed in the next major version of the provider. Use attribute `scopes` instead.",
+				Type:        schema.TypeString,
+				Description: "The scope of the key.",
+				Optional:    true,
+				Deprecated:  "Attribute `scope` deprecated and will be removed in the next major version of the provider. Use attribute `scopes` instead.",
 			},
 
 			"expires_at": {
