@@ -3,6 +3,7 @@ package mdb_postgresql_cluster_v2
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 type Cluster struct {
@@ -39,16 +40,16 @@ var hostType = types.ObjectType{
 }
 
 type Config struct {
-	Version                types.String       `tfsdk:"version"`
-	Resources              types.Object       `tfsdk:"resources"`
-	Autofailover           types.Bool         `tfsdk:"autofailover"`
-	Access                 types.Object       `tfsdk:"access"`
-	PerformanceDiagnostics types.Object       `tfsdk:"performance_diagnostics"`
-	BackupRetainPeriodDays types.Int64        `tfsdk:"backup_retain_period_days"`
-	BackupWindowStart      types.Object       `tfsdk:"backup_window_start"`
-	PostgtgreSQLConfig     PgSettingsMapValue `tfsdk:"postgresql_config"`
-	PoolerConfig           types.Object       `tfsdk:"pooler_config"`
-	DiskSizeAutoscaling    types.Object       `tfsdk:"disk_size_autoscaling"`
+	Version                types.String               `tfsdk:"version"`
+	Resources              types.Object               `tfsdk:"resources"`
+	Autofailover           types.Bool                 `tfsdk:"autofailover"`
+	Access                 types.Object               `tfsdk:"access"`
+	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
+	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
+	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
+	PostgtgreSQLConfig     mdbcommon.SettingsMapValue `tfsdk:"postgresql_config"`
+	PoolerConfig           types.Object               `tfsdk:"pooler_config"`
+	DiskSizeAutoscaling    types.Object               `tfsdk:"disk_size_autoscaling"`
 }
 
 type PoolerConfig struct {
@@ -81,7 +82,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
-	"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
+	"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }

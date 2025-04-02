@@ -417,11 +417,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 					},
 					"postgresql_config": schema.MapAttribute{
-						CustomType: PgSettingsMapType{
-							MapType: types.MapType{
-								ElemType: types.StringType,
-							},
-						},
+						CustomType: mdbcommon.NewSettingsMapType(pgAttrProvider),
 						PlanModifiers: []planmodifier.Map{
 							mapplanmodifier.UseStateForUnknown(),
 						},

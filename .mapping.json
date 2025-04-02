@@ -1532,7 +1532,6 @@
   "yandex-framework/services/mdb_postgresql_cluster_v2/hosts.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/hosts.go",
   "yandex-framework/services/mdb_postgresql_cluster_v2/models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/models.go",
   "yandex-framework/services/mdb_postgresql_cluster_v2/pg_settings_map_type.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/pg_settings_map_type.go",
-  "yandex-framework/services/mdb_postgresql_cluster_v2/pg_settings_map_type_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/pg_settings_map_type_test.go",
   "yandex-framework/services/mdb_postgresql_cluster_v2/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/resource.go",
   "yandex-framework/services/mdb_postgresql_cluster_v2/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/resource_test.go",
   "yandex-framework/services/mdb_postgresql_cluster_v2/update.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_postgresql_cluster_v2/update.go",

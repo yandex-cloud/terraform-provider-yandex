@@ -10,6 +10,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -24,7 +25,7 @@ var (
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
-		"postgresql_config":         PgSettingsMapType{MapType: types.MapType{ElemType: types.StringType}},
+		"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 		"pooler_config":             types.ObjectType{AttrTypes: expectedPCAttrTypes},
 		"disk_size_autoscaling":     types.ObjectType{AttrTypes: expectedDiskSizeAutoscalingAttrs},
 	}
@@ -107,7 +108,7 @@ var (
 	)
 )
 
-func TestYandexProvider_MDBPostgresClusterPrepateCreateRequest(t *testing.T) {
+func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 

@@ -12,6 +12,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
@@ -215,7 +216,7 @@ var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
 
 func expandPostgresqlConfig(
 	ctx context.Context,
-	version string, config PgSettingsMapValue,
+	version string, config mdbcommon.SettingsMapValue,
 	diags *diag.Diagnostics,
 ) postgresql.ConfigSpec_PostgresqlConfig {
 

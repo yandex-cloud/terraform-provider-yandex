@@ -14,6 +14,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
@@ -707,7 +708,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testi
 	cases := []struct {
 		testname      string
 		reqVal        postgresql.ClusterConfig_PostgresqlConfig
-		expectedVal   PgSettingsMapValue
+		expectedVal   mdbcommon.SettingsMapValue
 		expectedError bool
 	}{
 		{
@@ -729,7 +730,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testi
 					},
 				},
 			},
-			expectedVal: PgSettingsMapValue{
+			expectedVal: mdbcommon.SettingsMapValue{
 				MapValue: types.MapValueMust(
 					types.StringType,
 					map[string]attr.Value{
@@ -760,7 +761,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testi
 					},
 				},
 			},
-			expectedVal: PgSettingsMapValue{
+			expectedVal: mdbcommon.SettingsMapValue{
 				MapValue: types.MapValueMust(
 					types.StringType,
 					map[string]attr.Value{
@@ -775,7 +776,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPostgresqlConfigFlatten(t *testi
 		{
 			testname:    "CheckNull",
 			reqVal:      nil,
-			expectedVal: PgSettingsMapValue{MapValue: types.MapValueMust(types.StringType, map[string]attr.Value{})},
+			expectedVal: mdbcommon.SettingsMapValue{MapValue: types.MapValueMust(types.StringType, map[string]attr.Value{})},
 		},
 		{
 			testname:      "CheckInvalidStructure",
@@ -1043,7 +1044,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 	for _, c := range cases {
 		diags := diag.Diagnostics{}
 
-		conf := flattenConfig(ctx, PgSettingsMapValue{MapValue: types.MapNull(types.StringType)}, c.reqVal, &diags)
+		conf := flattenConfig(ctx, mdbcommon.SettingsMapValue{MapValue: types.MapNull(types.StringType)}, c.reqVal, &diags)
 		if diags.HasError() != c.expectedError {
 			if !c.expectedError {
 				t.Errorf(
@@ -1108,7 +1109,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlattenPgConfig(t *testing.T) {
 		},
 	}
 
-	expectedVal := PgSettingsMapValue{
+	expectedVal := mdbcommon.SettingsMapValue{
 		MapValue: types.MapValueMust(
 			types.StringType,
 			map[string]attr.Value{

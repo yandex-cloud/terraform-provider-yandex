@@ -80,7 +80,6 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Optional:    true,
 			},
 			"folder_id": schema.StringAttribute{
-
 				Description: common.ResourceDescriptions["folder_id"],
 				Optional:    true,
 				Computed:    true,

@@ -16,6 +16,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 var expectedAccessAttrTypes = map[string]attr.Type{
@@ -710,29 +711,48 @@ func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
+	pgSettingsType := NewPgSettingsMapType()
+	correctPGMap, d := pgSettingsType.ValueFromMap(
+		ctx, types.MapValueMust(
+			types.StringType,
+			map[string]attr.Value{
+				"max_connections":                types.StringValue("395"),
+				"enable_parallel_hash":           types.StringValue("true"),
+				"autovacuum_vacuum_scale_factor": types.StringValue("0.34"),
+				"default_transaction_isolation":  types.StringValue("TRANSACTION_ISOLATION_READ_COMMITTED"),
+				"shared_preload_libraries":       types.StringValue("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+			},
+		),
+	)
+
+	if d.HasError() {
+		t.Errorf("Unexpected error: %s", d.Errors())
+	}
+
+	randomPGMap, diags := pgSettingsType.ValueFromMap(
+		ctx, types.MapValueMust(
+			types.Int64Type,
+			map[string]attr.Value{
+				"random": types.Int64Value(11),
+			},
+		),
+	)
+
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+
 	cases := []struct {
 		testname      string
 		version       string
-		reqVal        PgSettingsMapValue
+		reqVal        mdbcommon.SettingsMapValue
 		expectedVal   postgresql.ConfigSpec_PostgresqlConfig
 		expectedError bool
 	}{
 		{
 			testname: "CheckPartlyAttributes",
 			version:  "15",
-			reqVal: PgSettingsMapValue{
-				MapValue: types.MapValueMust(
-					types.StringType,
-					map[string]attr.Value{
-						"max_connections":                types.StringValue("395"),
-						"enable_parallel_hash":           types.StringValue("true"),
-						"autovacuum_vacuum_scale_factor": types.StringValue("0.34"),
-						"default_transaction_isolation":  types.StringValue("TRANSACTION_ISOLATION_READ_COMMITTED"),
-						"shared_preload_libraries":       types.StringValue("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
-					},
-				),
-			},
-
+			reqVal:   correctPGMap.(mdbcommon.SettingsMapValue),
 			expectedVal: &postgresql.ConfigSpec_PostgresqlConfig_15{
 				PostgresqlConfig_15: &config.PostgresqlConfig15{
 					MaxConnections:              wrapperspb.Int64(395),
@@ -746,16 +766,8 @@ func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
 			},
 		},
 		{
-			testname: "CheckAccessWithRandomAttributes",
-			reqVal: PgSettingsMapValue{
-				MapValue: types.MapValueMust(
-					types.Int64Type,
-					map[string]attr.Value{
-						"random": types.Int64Value(11),
-					},
-				),
-			},
-
+			testname:      "CheckAccessWithRandomAttributes",
+			reqVal:        randomPGMap.(mdbcommon.SettingsMapValue),
 			expectedError: true,
 		},
 	}

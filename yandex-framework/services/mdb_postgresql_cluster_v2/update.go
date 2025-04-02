@@ -15,26 +15,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func prepareUpdateAfterCreateRequest(ctx context.Context, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) { //nolint:unused
-	var diags diag.Diagnostics
-
-	var paths []string
-	mw := expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags)
-	if mw != nil {
-		paths = append(paths, "maintenance_window")
-	}
-
-	if diags.HasError() || len(paths) == 0 {
-		return nil, diags
-	}
-
-	return &postgresql.UpdateClusterRequest{
-		ClusterId:         plan.Id.ValueString(),
-		MaintenanceWindow: expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags),
-		UpdateMask:        &field_mask.FieldMask{Paths: paths},
-	}, nil
-}
-
 func prepareVersionUpdateRequest(state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
 
 	const versionAttr = "version"

@@ -3,8 +3,6 @@ package mdb_postgresql_cluster_v2
 import (
 	"context"
 	"fmt"
-	"reflect"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -12,6 +10,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -167,7 +166,7 @@ func flattenDiskSizeAutoscaling(ctx context.Context, pgDiskSizeAutoscaling *post
 	return obj
 }
 
-func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgresql.ClusterConfig, diags *diag.Diagnostics) types.Object {
+func flattenConfig(ctx context.Context, statePGCfg mdbcommon.SettingsMapValue, c *postgresql.ClusterConfig, diags *diag.Diagnostics) types.Object {
 	if c == nil {
 		diags.AddError("Failed to flatten config.", "Config of cluster can't be nil. It's error in provider")
 		return types.ObjectNull(ConfigAttrTypes)
@@ -193,113 +192,10 @@ func flattenConfig(ctx context.Context, statePGCfg PgSettingsMapValue, c *postgr
 	return obj
 }
 
-func getUserConfig(ctx context.Context, c postgresql.ClusterConfig_PostgresqlConfig, diags *diag.Diagnostics) interface{} {
-
-	if c == nil {
-		return nil
-	}
-
-	rc := reflect.ValueOf(c)
-
-	if rc.Kind() == reflect.Ptr {
-		if rc.IsNil() {
-			diags.AddError(
-				"Failed to flatten postgresql_config.",
-				fmt.Sprintf("Can't scan type %T for extract attributes. It's error in provider", c),
-			)
-			return nil
-		}
-
-		rc = rc.Elem()
-	}
-
-	if rc.Kind() != reflect.Struct {
-		diags.AddError(
-			"Failed to flatten postgresql_config.",
-			fmt.Sprintf("Can't scan type %T for extract attributes. It's error in provider", c),
-		)
-		return nil
-	}
-
-	rcType := rc.Type()
-	var pgConf reflect.Value
-	for i := 0; i < rcType.NumField(); i++ {
-		field := rcType.Field(i)
-		t, ok := protobuf_adapter.FindTag(field, "protobuf", "name")
-		if !ok {
-			continue
-		}
-
-		if !strings.Contains(t, "postgresql_config") {
-			continue
-		}
-
-		pgConf = rc.Field(i)
-	}
-	if !pgConf.IsValid() {
-		diags.AddError(
-			"Failed to flatten postgresql_config.",
-			fmt.Sprintf(
-				`
-				Can't find postgresql config in source struct type %T
-				It's error in provider.
-				`, c,
-			),
-		)
-		return nil
-	}
-
-	if pgConf.Kind() == reflect.Ptr {
-		pgConf = pgConf.Elem()
-	}
-	if pgConf.Kind() != reflect.Struct {
-		diags.AddError(
-			"Failed to flatten postgresql_config.",
-			fmt.Sprintf(
-				`
-				Can't scan type %T for extract attributes: postgresql_config must be a struct. 
-				It's error in provider.
-				`, c,
-			),
-		)
-		return nil
-	}
-
-	pgConfType := pgConf.Type()
-	var uConf interface{}
-	for i := 0; i < pgConfType.NumField(); i++ {
-		field := pgConfType.Field(i)
-		t, ok := protobuf_adapter.FindTag(field, "protobuf", "name")
-		if !ok {
-			continue
-		}
-
-		if t != "user_config" {
-			continue
-		}
-
-		uConf = pgConf.Field(i).Interface()
-	}
-
-	if uConf == nil {
-		diags.AddError(
-			"Failed to flatten postgresql_config.",
-			fmt.Sprintf(
-				`
-				Can't find user config in source struct type %T
-				It's error in provider.
-				`, c,
-			),
-		)
-	}
-
-	return uConf
-}
-
-func flattenPostgresqlConfig(ctx context.Context, c postgresql.ClusterConfig_PostgresqlConfig, diags *diag.Diagnostics) PgSettingsMapValue {
+func flattenPostgresqlConfig(ctx context.Context, c postgresql.ClusterConfig_PostgresqlConfig, diags *diag.Diagnostics) mdbcommon.SettingsMapValue {
 
 	a := protobuf_adapter.NewProtobufMapDataAdapter()
-	uc := getUserConfig(ctx, c, diags)
+	uc := mdbcommon.GetUserConfig(ctx, c, "postgresql_config", diags)
 	if diags.HasError() {
 		return NewPgSettingsMapNull()
 	}
@@ -311,56 +207,13 @@ func flattenPostgresqlConfig(ctx context.Context, c postgresql.ClusterConfig_Pos
 
 	attrsPresent := make(map[string]attr.Value)
 	for attr, val := range attrs {
-		if val.IsNull() || val.IsUnknown() {
-			continue
-		}
-
-		if valInt, ok := val.(types.Int64); ok {
-			if valInt.ValueInt64() != 0 {
-				attrsPresent[attr] = val
-			}
-			continue
-		}
-
-		if valStr, ok := val.(types.String); ok {
-			if valStr.ValueString() != "" {
-				attrsPresent[attr] = val
-			}
-			continue
-		}
-
-		if _, ok := val.(types.Bool); ok {
+		if ok := mdbcommon.IsAttrZeroValue(val, diags); !ok {
 			attrsPresent[attr] = val
-			continue
 		}
 
-		if _, ok := val.(types.List); ok {
-			attrsPresent[attr] = val
-			continue
+		if diags.HasError() {
+			diags.AddError("Flatten PostgreSQL Config Erorr", fmt.Sprintf("Can't check zero attribute %s", attr))
 		}
-
-		if valFloat, ok := val.(types.Float64); ok {
-			if valFloat.ValueFloat64() != 0 {
-				attrsPresent[attr] = val
-			}
-			continue
-		}
-
-		if valNum, ok := val.(types.Number); ok {
-			i, _ := valNum.ValueBigFloat().Int64()
-			if !valNum.ValueBigFloat().IsInt() || i != 0 {
-				attrsPresent[attr] = val
-			}
-			continue
-		}
-
-		if _, ok := val.(types.Tuple); ok {
-			attrsPresent[attr] = val
-			continue
-		}
-
-		diags.AddError("Flatten Postgresql Config Erorr", fmt.Sprintf("Attribute %s has a unknown handling value %v", attr, val.String()))
-
 	}
 
 	mv, d := NewPgSettingsMapValue(attrsPresent)
