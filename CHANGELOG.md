@@ -1,3 +1,8 @@
+## 0.140.1 (April 3, 2025)
+
+BUG FIXES:
+* connection_manager: fix NPE for clickhouse, mysql and postgresql clusters without connection-manager integration
+
 ## 0.140.0 (March 31, 2025)
 
 FEATURES:
