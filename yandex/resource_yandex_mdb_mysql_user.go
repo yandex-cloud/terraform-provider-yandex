@@ -42,9 +42,10 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The ID of the MySQL cluster.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -282,7 +283,9 @@ func resourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) er
 	if user.AuthenticationPlugin != 0 {
 		d.Set("authentication_plugin", mysql.AuthPlugin_name[int32(user.AuthenticationPlugin)])
 	}
-	d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
+	if user.ConnectionManager != nil {
+		d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
+	}
 	return nil
 }
 

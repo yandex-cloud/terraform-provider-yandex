@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'connection_manager: fix NPE for clickhouse, mysql and postgresql clusters without connection-manager integration'
+time: 2025-04-03T13:52:45.701152+03:00

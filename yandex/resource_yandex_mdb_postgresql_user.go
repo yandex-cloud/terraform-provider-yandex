@@ -275,7 +275,9 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 
 	d.Set("settings", settings)
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(user.DeletionProtection))
-	d.Set("connection_manager", flattenPGUserConnectionManager(user.ConnectionManager))
+	if user.ConnectionManager != nil {
+		d.Set("connection_manager", flattenPGUserConnectionManager(user.ConnectionManager))
+	}
 
 	return nil
 }

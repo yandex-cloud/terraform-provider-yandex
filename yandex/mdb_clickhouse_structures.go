@@ -2940,7 +2940,9 @@ func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]strin
 			u["generate_password"] = generate_passord
 		}
 
-		u["connection_manager"] = flattenClickHouseUserConnectionManager(user.ConnectionManager)
+		if user.ConnectionManager != nil {
+			u["connection_manager"] = flattenClickHouseUserConnectionManager(user.ConnectionManager)
+		}
 		u["settings"] = []interface{}{flattenClickHouseUserSettings(user.Settings)}
 
 		if len(user.Quotas) > 0 {

@@ -215,6 +215,7 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 	owner      = yandex_mdb_postgresql_user.alice.name
 	lc_collate = "en_US.UTF-8"
 	lc_type    = "en_US.UTF-8"
+	deletion_protection = "false"
 }
 `
 }
