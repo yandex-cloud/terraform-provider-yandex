@@ -13,3 +13,7 @@ var _ = schema.ObjectAttribute{} // want "description field should be configured
 var _ = schema.ListAttribute{
 	Description: "Another valid attribute",
 }
+
+var _ = schema.StringAttribute{
+	MarkdownDescription: "This is a valid markdown description",
+}

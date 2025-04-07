@@ -78,7 +78,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 
 				keyIdent, ok := kvExpr.Key.(*ast.Ident)
-				if ok && keyIdent.Name == "Description" {
+				if ok && (keyIdent.Name == "Description" || keyIdent.Name == "MarkdownDescription") {
 					descriptionPresent = true
 					break
 				}
