@@ -1328,6 +1328,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 			enable_parallel_hash              = true
 			autovacuum_vacuum_scale_factor    = 0.34
 			default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+			shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
 		  }
 		}
 	  
