@@ -174,16 +174,18 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"file_filters": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     resourceYandexBacupPolicyFileFiltersSchema(),
+				Type:        schema.TypeList,
+				Description: "File filters to specify masks of files to backup or to exclude of backuping.",
+				Optional:    true,
+				MaxItems:    1,
+				Elem:        resourceYandexBacupPolicyFileFiltersSchema(),
 			},
 
 			"fast_backup_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Description: "If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are compared to those stored in the backup.",
+				Optional:    true,
+				Default:     true,
 			},
 
 			"quiesce_snapshotting_enabled": {
@@ -196,9 +198,10 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			// COMPUTED ONLY VALUES
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: false,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Description: "If this field is true, it means that the policy is enabled.",
+				Optional:    false,
+				Computed:    true,
 			},
 
 			"created_at": {
@@ -209,9 +212,10 @@ func resourceYandexBackupPolicy() *schema.Resource {
 			},
 
 			"updated_at": {
-				Type:     schema.TypeString,
-				Optional: false,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "The update timestamp of the resource.",
+				Optional:    false,
+				Computed:    true,
 			},
 		},
 	}
@@ -262,8 +266,9 @@ func resourceYandexBackupRetentionRuleSchema() *schema.Resource {
 			},
 
 			"repeat_period": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Possible types: `REPEATE_PERIOD_UNSPECIFIED`, `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`. Specifies repeat period of the backupset.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringInSlice(resourceYandexBackupRepeatPeriodValues, false),
@@ -279,6 +284,8 @@ func resourceYandexBacupPolicyFileFiltersSchema() *schema.Resource {
 			"exclusion_masks": {
 				Type: schema.TypeList,
 
+				Description: "Do not backup files that match the following criteria.",
+
 				Optional: true,
 
 				Elem: &schema.Schema{
@@ -288,6 +295,8 @@ func resourceYandexBacupPolicyFileFiltersSchema() *schema.Resource {
 
 			"inclusion_masks": {
 				Type: schema.TypeList,
+
+				Description: "Backup only files that match the following criteria.",
 
 				Optional: true,
 
@@ -310,10 +319,11 @@ func resourceYandexBacupPolicyRetentionSchema() *schema.Resource {
 			},
 
 			"rules": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     resourceYandexBackupRetentionRuleSchema(),
-				Set:      storageBucketS3SetFunc("max_age", "max_count", "repeat_period"),
+				Type:        schema.TypeSet,
+				Description: "A list of retention rules.",
+				Optional:    true,
+				Elem:        resourceYandexBackupRetentionRuleSchema(),
+				Set:         storageBucketS3SetFunc("max_age", "max_count", "repeat_period"),
 			},
 		},
 	}
@@ -467,8 +477,9 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 			},
 
 			"months": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: "Set of values. Allowed values form 1 to 12.",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeInt,
 					ValidateFunc: validation.IntBetween(1, 12),
