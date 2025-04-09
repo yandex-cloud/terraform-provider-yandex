@@ -26,6 +26,7 @@ import (
 
 const chVersion = "24.8"
 const chUpdatedVersion = "25.3"
+const chDowngradeVersion = "25.2"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -386,7 +387,6 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	const createClusterDiskSize = 10
-	const createFirstShardDiskSize = 11
 	const createSecondShardDiskSize = 12
 
 	const updateClusterDiskSize = 15
@@ -398,7 +398,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterConfigSharded(chName, createClusterDiskSize, createFirstShardDiskSize, createSecondShardDiskSize, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigSharded(chName, createClusterDiskSize, createClusterDiskSize, createSecondShardDiskSize, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
@@ -406,14 +406,14 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.name", "shard1"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.weight", "11"),
 
-					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_size", strconv.Itoa(createFirstShardDiskSize)),
-					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.resource_preset_id", "s3-c4-m16"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_size", strconv.Itoa(createClusterDiskSize)),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.resource_preset_id", "s3-c2-m8"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_type_id", "network-ssd"),
 
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard2"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.weight", "22"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_size", strconv.Itoa(createSecondShardDiskSize)),
-					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.resource_preset_id", "s3-c2-m8"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.resource_preset_id", "s3-c4-m16"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_type_id", "network-ssd"),
 
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
@@ -589,12 +589,12 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Downgrade ClickHouse version and cluster resources
 			{
-				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chUpdatedVersion, secondStep),
+				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chDowngradeVersion, secondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
+					resource.TestCheckResourceAttr(chResource, "version", chDowngradeVersion),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", secondStep.ResourcePresetId),
 					testAccCheckMDBClickHouseClusterHasResources(&r, secondStep.ResourcePresetId, secondStep.DiskTypeId, secondStep.DiskSize),
 
@@ -603,7 +603,7 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Add host, creates implicit ZooKeeper subclusters
 			{
-				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, thirdStepCluster, thirdStepZookeeper),
+				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chDowngradeVersion, thirdStepCluster, thirdStepZookeeper),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -1934,6 +1934,8 @@ resource "yandex_storage_bucket" "tmp_bucket" {
 
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  force_destroy = true
 }
 
 resource "yandex_storage_object" "test_capnp" {
@@ -2759,7 +2761,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl)
 }
 
-func testAccMDBClickHouseClusterResourceZookeepers(name, desc, bucket string, randInt int, resourcesCluster, resourcesZookeeper *clickhouse.Resources) string {
+func testAccMDBClickHouseClusterResourceZookeepers(name, desc, bucket string, randInt int, version string, resourcesCluster, resourcesZookeeper *clickhouse.Resources) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
@@ -2827,7 +2829,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
-`, name, desc, chVersion,
+`, name, desc, version,
 		buildResources(resourcesCluster),
 		buildResources(resourcesZookeeper))
 }
@@ -2865,7 +2867,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 	name = "shard1"
 	weight = 11
 	resources {
-      resource_preset_id = "s3-c4-m16"
+      resource_preset_id = "s3-c2-m8"
       disk_type_id       = "network-ssd"
       disk_size          = %d
     }
@@ -2875,7 +2877,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 	name = "shard2"
 	weight = 22
 	resources {
-      resource_preset_id = "s3-c2-m8"
+      resource_preset_id = "s3-c4-m16"
       disk_type_id       = "network-ssd"
       disk_size          = %d
     }

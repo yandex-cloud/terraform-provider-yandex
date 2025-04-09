@@ -1050,3 +1050,47 @@ func getOrDefault[V any, T any, PT Wrapper[V, T]](wrapper PT, def V) V {
 	}
 	return wrapper.GetValue()
 }
+
+type OperationRetryConfig struct {
+	retriableCodes []codes.Code
+	retryCount     int
+	retryInterval  time.Duration
+	pollInterval   time.Duration
+}
+
+func waitOperationWithRetry(ctx context.Context, config *Config, retryConfig *OperationRetryConfig, action func() (*operation.Operation, error)) error {
+	var err error
+	for step := 0; step < retryConfig.retryCount; step++ {
+		var op *sdkoperation.Operation
+		op, err = retryConflictingOperation(ctx, config, action)
+
+		if err != nil {
+			return err
+		}
+
+		err = op.WaitInterval(ctx, retryConfig.pollInterval)
+		if shouldRetryOperationByCode(op, retryConfig.retriableCodes, err) {
+			time.Sleep(retryConfig.retryInterval)
+			continue
+		}
+		break
+	}
+
+	return err
+}
+
+func shouldRetryOperationByCode(op *sdkoperation.Operation, retriableCodes []codes.Code, err error) bool {
+	if err != nil {
+		status, ok := status.FromError(err)
+		if ok {
+			for _, code := range retriableCodes {
+				if status.Code() == code {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	return op.Failed()
+}

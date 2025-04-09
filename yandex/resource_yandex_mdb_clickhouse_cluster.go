@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -22,7 +23,15 @@ const (
 	yandexMDBClickHouseClusterCreateTimeout = 60 * time.Minute
 	yandexMDBClickHouseClusterDeleteTimeout = 30 * time.Minute
 	yandexMDBClickHouseClusterUpdateTimeout = 90 * time.Minute
+	yandexMDBClickHouseClusterPollInterval  = 10 * time.Second
 )
+
+var yandexMDBClickhouseRetryOperationConfig = &OperationRetryConfig{
+	retriableCodes: []codes.Code{codes.Internal, codes.Unavailable, codes.DeadlineExceeded},
+	retryCount:     3,
+	retryInterval:  2 * time.Minute,
+	pollInterval:   5 * time.Second,
+}
 
 var schemaResources = map[string]*schema.Schema{
 	"resource_preset_id": {
@@ -45,64 +54,64 @@ var schemaResources = map[string]*schema.Schema{
 	},
 }
 var schemaConfig = map[string]*schema.Schema{
-	"log_level":                                     {Type: schema.TypeString, Optional: true, Computed: true},
-	"max_connections":                               {Type: schema.TypeInt, Optional: true, Computed: true},
-	"max_concurrent_queries":                        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"keep_alive_timeout":                            {Type: schema.TypeInt, Optional: true, Computed: true},
-	"uncompressed_cache_size":                       {Type: schema.TypeInt, Optional: true, Computed: true},
-	"mark_cache_size":                               {Type: schema.TypeInt, Optional: true, Computed: true},
-	"max_table_size_to_drop":                        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"max_partition_size_to_drop":                    {Type: schema.TypeInt, Optional: true, Computed: true},
-	"timezone":                                      {Type: schema.TypeString, Optional: true, Computed: true},
-	"geobase_uri":                                   {Type: schema.TypeString, Optional: true, Computed: true},
-	"geobase_enabled":                               {Type: schema.TypeBool, Optional: true, Computed: true},
-	"query_log_retention_size":                      {Type: schema.TypeInt, Optional: true, Computed: true},
-	"query_log_retention_time":                      {Type: schema.TypeInt, Optional: true, Computed: true},
-	"query_thread_log_enabled":                      {Type: schema.TypeBool, Optional: true, Computed: true},
-	"query_thread_log_retention_size":               {Type: schema.TypeInt, Optional: true, Computed: true},
-	"query_thread_log_retention_time":               {Type: schema.TypeInt, Optional: true, Computed: true},
-	"part_log_retention_size":                       {Type: schema.TypeInt, Optional: true, Computed: true},
-	"part_log_retention_time":                       {Type: schema.TypeInt, Optional: true, Computed: true},
-	"metric_log_enabled":                            {Type: schema.TypeBool, Optional: true, Computed: true},
-	"metric_log_retention_size":                     {Type: schema.TypeInt, Optional: true, Computed: true},
-	"metric_log_retention_time":                     {Type: schema.TypeInt, Optional: true, Computed: true},
-	"trace_log_enabled":                             {Type: schema.TypeBool, Optional: true, Computed: true},
-	"trace_log_retention_size":                      {Type: schema.TypeInt, Optional: true, Computed: true},
-	"trace_log_retention_time":                      {Type: schema.TypeInt, Optional: true, Computed: true},
-	"text_log_enabled":                              {Type: schema.TypeBool, Optional: true, Computed: true},
-	"text_log_retention_size":                       {Type: schema.TypeInt, Optional: true, Computed: true},
-	"text_log_retention_time":                       {Type: schema.TypeInt, Optional: true, Computed: true},
-	"opentelemetry_span_log_enabled":                {Type: schema.TypeBool, Optional: true, Computed: true},
-	"opentelemetry_span_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
-	"opentelemetry_span_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true},
-	"query_views_log_enabled":                       {Type: schema.TypeBool, Optional: true, Computed: true},
-	"query_views_log_retention_size":                {Type: schema.TypeInt, Optional: true, Computed: true},
-	"query_views_log_retention_time":                {Type: schema.TypeInt, Optional: true, Computed: true},
-	"asynchronous_metric_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true},
-	"asynchronous_metric_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"asynchronous_metric_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"session_log_enabled":                           {Type: schema.TypeBool, Optional: true, Computed: true},
-	"session_log_retention_size":                    {Type: schema.TypeInt, Optional: true, Computed: true},
-	"session_log_retention_time":                    {Type: schema.TypeInt, Optional: true, Computed: true},
-	"zookeeper_log_enabled":                         {Type: schema.TypeBool, Optional: true, Computed: true},
-	"zookeeper_log_retention_size":                  {Type: schema.TypeInt, Optional: true, Computed: true},
-	"zookeeper_log_retention_time":                  {Type: schema.TypeInt, Optional: true, Computed: true},
-	"asynchronous_insert_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true},
-	"asynchronous_insert_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"asynchronous_insert_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
-	"text_log_level":                                {Type: schema.TypeString, Optional: true, Computed: true},
-	"background_pool_size":                          {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_schedule_pool_size":                 {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_fetches_pool_size":                  {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_move_pool_size":                     {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_distributed_schedule_pool_size":     {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_buffer_flush_schedule_pool_size":    {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_message_broker_schedule_pool_size":  {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_common_pool_size":                   {Type: schema.TypeInt, Optional: true, Computed: true},
-	"background_merges_mutations_concurrency_ratio": {Type: schema.TypeInt, Optional: true, Computed: true},
-	"default_database":                              {Type: schema.TypeString, Optional: true, Computed: true},
-	"total_memory_profiler_step":                    {Type: schema.TypeInt, Optional: true, Computed: true},
-	"dictionaries_lazy_load":                        {Type: schema.TypeBool, Optional: true, Computed: true},
+	"log_level":                                     {Type: schema.TypeString, Optional: true, Computed: true, Description: "Logging level."},
+	"max_connections":                               {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Max server connections."},
+	"max_concurrent_queries":                        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Limit on total number of concurrently executed queries."},
+	"keep_alive_timeout":                            {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The number of seconds that ClickHouse waits for incoming requests for HTTP protocol before closing the connection."},
+	"uncompressed_cache_size":                       {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Cache size (in bytes) for uncompressed data used by table engines from the MergeTree family. Zero means disabled."},
+	"mark_cache_size":                               {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Maximum size of cache for marks "},
+	"max_table_size_to_drop":                        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Restriction on deleting tables."},
+	"max_partition_size_to_drop":                    {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Restriction on dropping partitions."},
+	"timezone":                                      {Type: schema.TypeString, Optional: true, Computed: true, Description: "The server's time zone."},
+	"geobase_uri":                                   {Type: schema.TypeString, Optional: true, Computed: true, Description: "Address of the archive with the user geobase in Object Storage."},
+	"geobase_enabled":                               {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable geobase."},
+	"query_log_retention_size":                      {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that query_log can grow to before old data will be removed."},
+	"query_log_retention_time":                      {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that query_log records will be retained before removal."},
+	"query_thread_log_enabled":                      {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable query_thread_log system table."},
+	"query_thread_log_retention_size":               {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that query_thread_log can grow to before old data will be removed."},
+	"query_thread_log_retention_time":               {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that query_thread_log records will be retained before removal."},
+	"part_log_retention_size":                       {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that part_log can grow to before old data will be removed."},
+	"part_log_retention_time":                       {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that part_log records will be retained before removal."},
+	"metric_log_enabled":                            {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable metric_log system table."},
+	"metric_log_retention_size":                     {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that metric_log can grow to before old data will be removed."},
+	"metric_log_retention_time":                     {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that metric_log records will be retained before removal."},
+	"trace_log_enabled":                             {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable trace_log system table."},
+	"trace_log_retention_size":                      {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that trace_log can grow to before old data will be removed."},
+	"trace_log_retention_time":                      {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that trace_log records will be retained before removal."},
+	"text_log_enabled":                              {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable text_log system table."},
+	"text_log_retention_size":                       {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that text_log can grow to before old data will be removed."},
+	"text_log_retention_time":                       {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that text_log records will be retained before removal."},
+	"opentelemetry_span_log_enabled":                {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable opentelemetry_span_log system table."},
+	"opentelemetry_span_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that opentelemetry_span_log can grow to before old data will be removed."},
+	"opentelemetry_span_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that opentelemetry_span_log records will be retained before removal."},
+	"query_views_log_enabled":                       {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable query_views_log system table."},
+	"query_views_log_retention_size":                {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that query_views_log can grow to before old data will be removed."},
+	"query_views_log_retention_time":                {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that query_views_log records will be retained before removal."},
+	"asynchronous_metric_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable asynchronous_metric_log system table."},
+	"asynchronous_metric_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that asynchronous_metric_log can grow to before old data will be removed."},
+	"asynchronous_metric_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that asynchronous_metric_log records will be retained before removal."},
+	"session_log_enabled":                           {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable session_log system table."},
+	"session_log_retention_size":                    {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that session_log can grow to before old data will be removed."},
+	"session_log_retention_time":                    {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that session_log records will be retained before removal."},
+	"zookeeper_log_enabled":                         {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable zookeeper_log system table."},
+	"zookeeper_log_retention_size":                  {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that zookeeper_log can grow to before old data will be removed."},
+	"zookeeper_log_retention_time":                  {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that zookeeper_log records will be retained before removal."},
+	"asynchronous_insert_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enable or disable asynchronous_insert_log system table."},
+	"asynchronous_insert_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum size that asynchronous_insert_log can grow to before old data will be removed."},
+	"asynchronous_insert_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum time that asynchronous_insert_log records will be retained before removal."},
+	"text_log_level":                                {Type: schema.TypeString, Optional: true, Computed: true, Description: "Logging level for text_log system table."},
+	"background_pool_size":                          {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Sets the number of threads performing background merges and mutations for MergeTree-engine tables."},
+	"background_schedule_pool_size":                 {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for constantly executing some lightweight periodic operations for replicated tables, Kafka streaming, and DNS cache updates."},
+	"background_fetches_pool_size":                  {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for fetching data parts from another replica for MergeTree-engine tables in a background."},
+	"background_move_pool_size":                     {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for moving data parts to another disk or volume for MergeTree-engine tables in a background."},
+	"background_distributed_schedule_pool_size":     {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for executing distributed sends."},
+	"background_buffer_flush_schedule_pool_size":    {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for performing flush operations for Buffer-engine tables in the background."},
+	"background_message_broker_schedule_pool_size":  {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for executing background operations for message streaming."},
+	"background_common_pool_size":                   {Type: schema.TypeInt, Optional: true, Computed: true, Description: "The maximum number of threads that will be used for performing a variety of operations (mostly garbage collection) for MergeTree-engine tables in a background."},
+	"background_merges_mutations_concurrency_ratio": {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Sets a ratio between the number of threads and the number of background merges and mutations that can be executed concurrently."},
+	"default_database":                              {Type: schema.TypeString, Optional: true, Computed: true, Description: "Default database name."},
+	"total_memory_profiler_step":                    {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Whenever server memory usage becomes larger than every next step in number of bytes the memory profiler will collect the allocating stack trace."},
+	"dictionaries_lazy_load":                        {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Lazy loading of dictionaries. If true, then each dictionary is loaded on the first use."},
 
 	"merge_tree": {
 		Type:        schema.TypeList,
@@ -326,9 +335,10 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "The cluster identifier.",
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -607,10 +617,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				},
 			},
 			"shard": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Set:      clickHouseShardHash,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Set:         clickHouseShardHash,
+				Description: "A shard of the ClickHouse cluster.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -1015,10 +1026,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				},
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
@@ -1063,7 +1075,7 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 	backupOriginalClusterResource(d)
 	config := meta.(*Config)
 
-	req, shardsToAdd, shardsFromSpec, err := prepareCreateClickHouseCreateRequest(d, config)
+	req, shardsToAdd, err := prepareCreateClickHouseCreateRequest(d, config)
 
 	if err != nil {
 		return err
@@ -1098,39 +1110,16 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("ClickHouse Cluster creation failed: %s", err)
 	}
 
-	for shardName, shardHosts := range shardsToAdd {
-		var shardSpec *clickhouse.ShardConfigSpec
-		if v, ok := shardsFromSpec[shardName]; ok {
-			shardSpec = v
-		}
-		err = createClickHouseShard(ctx, config, d, shardName, shardHosts, shardSpec)
-		if err != nil {
-			return err
-		}
-		delete(shardsFromSpec, shardName)
+	// Will add all other ClickHouse shards, except of the first one(shard1 by default)
+	err = addClickHouseShards(ctx, config, d, shardsToAdd)
+	if err != nil {
+		return fmt.Errorf("error while adding shards to ClickHouse Cluster: %s", err)
 	}
 
-	for shardNameFromSpec, shardConfigFromSpec := range shardsFromSpec {
-		shardExistsInSpec := false
-		if req.ShardName == "" {
-			for _, h := range req.HostSpecs {
-				if h.ShardName == shardNameFromSpec {
-					shardExistsInSpec = true
-					break
-				}
-			}
-		} else {
-			shardExistsInSpec = req.ShardName == shardNameFromSpec
-		}
-
-		if !shardExistsInSpec {
-			log.Printf("[ERROR] trying to update non-existent shard, name=%s\n", shardNameFromSpec)
-			continue
-		}
-		log.Printf("[DEBUG] update exists shard=%s\n", shardNameFromSpec)
-		if err := updateClickHouseShard(ctx, config, d, shardNameFromSpec, shardConfigFromSpec); err != nil {
-			return err
-		}
+	// First shard will always be added with default weight and cluster resources, have to check and update weight
+	err = updateClickHouseFirstShard(ctx, config, d)
+	if err != nil {
+		return err
 	}
 
 	shardGroups, err := expandClickHouseShardGroups(d)
@@ -1173,37 +1162,37 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 }
 
 // Returns request for creating the Cluster and the map of the remaining shards to add.
-func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.ShardConfigSpec, error) {
+func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, map[string][]*clickhouse.HostSpec, error) {
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
+		return nil, nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseClickHouseEnv(e)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
+		return nil, nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
 	}
 
 	dbSpecs, err := expandClickHouseDatabases(d)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
 	}
 
 	users, err := expandClickHouseUserSpecs(d, true)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
 	}
 
 	hosts, err := expandClickHouseHosts(d)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
 	}
 
 	_, toAdd, _ := clickHouseHostsDiff(nil, hosts)
@@ -1211,20 +1200,49 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	firstHosts := toAdd["zk"]
 	delete(toAdd, "zk")
-	for shardName, shardHosts := range toAdd {
-		firstHosts = append(firstHosts, shardHosts...)
-		delete(toAdd, shardName)
-		break
-	}
 
 	clickhouseConfigSpec, err := expandClickHouseSpec(d)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
+	}
+
+	shardSpecs, err := expandClickhouseShardSpecs(d)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var firstShardName = ""
+	// try to use default shard name as first shard
+	for shardName, shardHosts := range toAdd {
+		if shardName == "shard1" {
+			firstHosts = append(firstHosts, shardHosts...)
+			delete(toAdd, shardName)
+			firstShardName = shardName
+			break
+		}
+	}
+
+	if firstShardName == "" {
+		for shardName, shardHosts := range toAdd {
+			firstHosts = append(firstHosts, shardHosts...)
+			delete(toAdd, shardName)
+			firstShardName = shardName
+			break
+		}
+	}
+
+	if firstShardSpecs, ok := shardSpecs[firstShardName]; ok {
+		if !isEqualResources(clickhouseConfigSpec.Resources, firstShardSpecs.Clickhouse.Resources) {
+			return nil, nil, fmt.Errorf("cluster resources should be equal to first shard resources %s", firstShardName)
+		}
+		if firstShardSpecs.Clickhouse.Weight.GetValue() == 0 {
+			return nil, nil, fmt.Errorf("weight of first shard %s should be greater than zero", firstShardName)
+		}
 	}
 
 	cloudStorage, err := expandClickHouseCloudStorage(d)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding cloud storage on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding cloud storage on ClickHouse Cluster create: %s", err)
 	}
 
 	configSpec := &clickhouse.ConfigSpec{
@@ -1237,9 +1255,8 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		BackupRetainPeriodDays: expandClickhouseBackupRetainPeriodDays(d),
 	}
 
-	shardsFromSpec, err := expandClickhouseShardSpecs(d)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding shard specs on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding shard specs on ClickHouse Cluster create: %s", err)
 	}
 
 	if val, ok := d.GetOk("admin_password"); ok {
@@ -1262,12 +1279,12 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
 	}
 
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
+		return nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
 	}
 
 	req := clickhouse.CreateClusterRequest{
@@ -1287,7 +1304,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		MaintenanceWindow:  mw,
 	}
 
-	return &req, toAdd, shardsFromSpec, nil
+	return &req, toAdd, nil
 }
 
 func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -1678,7 +1695,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("error while requesting API to update ClickHouse Cluster version %q: %s", d.Id(), err)
 		}
 
-		err = op.Wait(ctx)
+		err = op.WaitInterval(ctx, yandexMDBClickHouseClusterPollInterval)
 		if err != nil {
 			return fmt.Errorf("error while updating ClickHouse Cluster version %q: %s", d.Id(), err)
 		}
@@ -1994,7 +2011,8 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	hostSpecsToAdd := []*clickhouse.HostSpec{}
+	hostSpecsToAddToExistingShards := []*clickhouse.HostSpec{}
+	hostSpecsOfNewShards := map[string][]*clickhouse.HostSpec{}
 	for shardName, specs := range toAdd {
 		shardExists := false
 		for _, s := range currShards {
@@ -2004,17 +2022,19 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if shardName != "" && shardName != "zk" && !shardExists {
-			err = createClickHouseShard(ctx, config, d, shardName, specs, nil)
-			if err != nil {
-				return err
-			}
+			hostSpecsOfNewShards[shardName] = specs
 		} else {
-			hostSpecsToAdd = append(hostSpecsToAdd, specs...)
+			hostSpecsToAddToExistingShards = append(hostSpecsToAddToExistingShards, specs...)
 		}
 	}
 
-	if len(hostSpecsToAdd) > 0 {
-		err := createClickHouseHosts(ctx, config, d, hostSpecsToAdd)
+	err = addClickHouseShards(ctx, config, d, hostSpecsOfNewShards)
+	if err != nil {
+		return err
+	}
+
+	if len(hostSpecsToAddToExistingShards) > 0 {
+		err := createClickHouseHosts(ctx, config, d, hostSpecsToAddToExistingShards)
 		if err != nil {
 			return err
 		}
@@ -2073,6 +2093,36 @@ func updateClickHouseClusterShards(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("failed update shard from config: %s", err)
 			}
 		}
+	}
+
+	return nil
+}
+
+func updateClickHouseFirstShard(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	shardsOnCluster, err := listClickHouseShards(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	firstShardName := shardsOnCluster[0].Name
+
+	log.Printf("[DEBUG] first shard name from from cluster: %s\n", firstShardName)
+
+	shardsFromSpec, err := expandClickhouseShardSpecs(d)
+	if err != nil {
+		return nil
+	}
+
+	firstShardFromSpec, ok := shardsFromSpec[firstShardName]
+	if !ok {
+		log.Printf("[DEBUG] not found special specs for first shard: %s\n", firstShardName)
+		return nil
+	}
+
+	log.Printf("[DEBUG] before update shards got shard from schema: %+v\n", firstShardFromSpec)
+
+	if err = updateClickHouseShard(ctx, config, d, firstShardName, firstShardFromSpec); err != nil {
+		return fmt.Errorf("failed update shard from config: %s", err)
 	}
 
 	return nil
@@ -2193,19 +2243,16 @@ func updateClickHouseMlModels(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createClickHouseDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
-			ClusterId: d.Id(),
-			DatabaseSpec: &clickhouse.DatabaseSpec{
-				Name: dbName,
-			},
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
+				ClusterId: d.Id(),
+				DatabaseSpec: &clickhouse.DatabaseSpec{
+					Name: dbName,
+				},
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to create database in ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding database to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2213,17 +2260,14 @@ func createClickHouseDatabase(ctx context.Context, config *Config, d *schema.Res
 }
 
 func deleteClickHouseDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Database().Delete(ctx, &clickhouse.DeleteDatabaseRequest{
-			ClusterId:    d.Id(),
-			DatabaseName: dbName,
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Database().Delete(ctx, &clickhouse.DeleteDatabaseRequest{
+				ClusterId:    d.Id(),
+				DatabaseName: dbName,
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to delete database from ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting database from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2231,17 +2275,14 @@ func deleteClickHouseDatabase(ctx context.Context, config *Config, d *schema.Res
 }
 
 func createClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().User().Create(ctx, &clickhouse.CreateUserRequest{
-			ClusterId: d.Id(),
-			UserSpec:  user,
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().User().Create(ctx, &clickhouse.CreateUserRequest{
+				ClusterId: d.Id(),
+				UserSpec:  user,
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to create user for ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating user for ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2249,17 +2290,14 @@ func createClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 }
 
 func deleteClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().User().Delete(ctx, &clickhouse.DeleteUserRequest{
-			ClusterId: d.Id(),
-			UserName:  userName,
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().User().Delete(ctx, &clickhouse.DeleteUserRequest{
+				ClusterId: d.Id(),
+				UserName:  userName,
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to delete user from ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting user from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2268,8 +2306,8 @@ func deleteClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 
 func updateClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec, changedFields []string) error {
 
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().User().Update(ctx, &clickhouse.UpdateUserRequest{
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig, func() (*operation.Operation, error) {
+		return config.sdk.MDB().Clickhouse().User().Update(ctx, &clickhouse.UpdateUserRequest{
 			ClusterId:   d.Id(),
 			UserName:    user.Name,
 			Password:    user.Password,
@@ -2277,14 +2315,9 @@ func updateClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 			Settings:    user.Settings,
 			Quotas:      user.Quotas,
 			UpdateMask:  &field_mask.FieldMask{Paths: changedFields},
-		}),
-	)
+		})
+	})
 
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update user in ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2319,7 +2352,7 @@ func updateClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host of ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	err = op.WaitInterval(ctx, yandexMDBClickHouseClusterPollInterval)
 	if err != nil {
 		return fmt.Errorf("error while updating host of ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2344,62 +2377,21 @@ func deleteClickHouseHosts(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec, shardSpec *clickhouse.ShardConfigSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
-			ClusterId:  d.Id(),
-			ShardName:  name,
-			ConfigSpec: shardSpec,
-			HostSpecs:  specs,
-			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
+				ClusterId:  d.Id(),
+				ShardName:  name,
+				ConfigSpec: shardSpec,
+				HostSpecs:  specs,
+				CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to add shard to ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding shard to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
-}
-
-func isShardResourceDiskSizeChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
-	if fromCluster != nil && fromSpec == nil {
-		log.Printf("[DEBUG] shard's weight is removed from configuration. set default value.")
-		return true
-	}
-	if fromCluster.DiskSize != fromSpec.DiskSize {
-		log.Printf("[DEBUG] change shard's weight according to the configuration tf file.")
-		return true
-	}
-	log.Printf("[DEBUG] no change in shard's weight.")
-	return false
-}
-
-func isShardResourceResourcePresetIdChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
-	if fromCluster != nil && fromSpec == nil {
-		log.Printf("[DEBUG] shard's ResourcePresetId is removed from configuration. set default value.")
-		return true
-	}
-	if fromCluster.ResourcePresetId != fromSpec.ResourcePresetId {
-		log.Printf("[DEBUG] change shard's ResourcePresetId according to the configuration tf file.")
-		return true
-	}
-	log.Printf("[DEBUG] no change in shard's ResourcePresetId.")
-	return false
-}
-
-func isShardResourceDiskTypeIdChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
-	if fromCluster != nil && fromSpec == nil {
-		log.Printf("[DEBUG] shard's DiskTypeId is removed from configuration. set default value.")
-		return true
-	}
-	if fromCluster.DiskTypeId != fromSpec.DiskTypeId {
-		log.Printf("[DEBUG] change shard's DiskTypeId according to the configuration tf file.")
-		return true
-	}
-	log.Printf("[DEBUG] no change in shard's DiskTypeId.")
-	return false
 }
 
 func updateClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, shardSpec *clickhouse.ShardConfigSpec) error {
@@ -2408,7 +2400,7 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 		ShardName: shardName,
 	})
 	if err != nil {
-		return fmt.Errorf("eerror while requesting API to get shard's config, shard name=%s. Error=%s", shardName, err)
+		return fmt.Errorf("error while requesting API to get shard's config, shard name=%s. Error=%s", shardName, err)
 	}
 
 	updateRequired := false
@@ -2421,24 +2413,22 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 		updatePath = append(updatePath, "config_spec.clickhouse.weight")
 	}
 
-	if shardSpec.Clickhouse.Resources != nil {
-		if isShardResourceDiskSizeChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
-			log.Printf("[DEBUG] shard=%s has disk_size=%d, update to %d\n", shardName, resp.Config.Clickhouse.Resources.GetDiskSize(), shardSpec.Clickhouse.Resources.GetDiskSize())
-			updateRequired = true
-			updatePath = append(updatePath, "config_spec.clickhouse.resources.disk_size")
-		}
+	if resp.Config.Clickhouse.Resources.GetDiskSize() != shardSpec.Clickhouse.Resources.GetDiskSize() {
+		log.Printf("[DEBUG] shard=%s has disk_size=%d, update to %d\n", shardName, resp.Config.Clickhouse.Resources.GetDiskSize(), shardSpec.Clickhouse.Resources.GetDiskSize())
+		updateRequired = true
+		updatePath = append(updatePath, "config_spec.clickhouse.resources.disk_size")
+	}
 
-		if isShardResourceResourcePresetIdChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
-			log.Printf("[DEBUG] shard=%s has resource_preset_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetResourcePresetId(), shardSpec.Clickhouse.Resources.GetResourcePresetId())
-			updateRequired = true
-			updatePath = append(updatePath, "config_spec.clickhouse.resources.ResourcePresetId")
-		}
+	if resp.Config.Clickhouse.Resources.GetResourcePresetId() != shardSpec.Clickhouse.Resources.GetResourcePresetId() {
+		log.Printf("[DEBUG] shard=%s has resource_preset_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetResourcePresetId(), shardSpec.Clickhouse.Resources.GetResourcePresetId())
+		updateRequired = true
+		updatePath = append(updatePath, "config_spec.clickhouse.resources.resource_preset_id")
+	}
 
-		if isShardResourceDiskTypeIdChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
-			log.Printf("[DEBUG] shard=%s has disk_type_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetDiskTypeId(), shardSpec.Clickhouse.Resources.GetDiskTypeId())
-			updateRequired = true
-			updatePath = append(updatePath, "config_spec.clickhouse.resources.DiskTypeId")
-		}
+	if resp.Config.Clickhouse.Resources.GetDiskTypeId() != shardSpec.Clickhouse.Resources.GetDiskTypeId() {
+		log.Printf("[DEBUG] shard=%s has disk_type_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetDiskTypeId(), shardSpec.Clickhouse.Resources.GetDiskTypeId())
+		updateRequired = true
+		updatePath = append(updatePath, "config_spec.clickhouse.resources.disk_type_id")
 	}
 
 	if !updateRequired {
@@ -2454,46 +2444,69 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 		}),
 	)
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update shard to ClickHouse Cluster %q: %s", d.Id(), err)
+		// It can happen on resources update and it easier to ignore this error rather than fix shard state
+		// In the end we get shard in desirable state
+		if strings.Contains(err.Error(), "no changes detected") {
+			log.Printf("[DEBUG] ignored no changes error from API for shard %s of Cluster %q\n", shardName, d.Id())
+			return nil
+		}
+		return fmt.Errorf("error while requesting API to update shard %s to ClickHouse Cluster %q: %s", shardName, d.Id(), err)
 	}
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating shard to ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while updating shard %s to ClickHouse Cluster %q: %s", shardName, d.Id(), err)
 	}
 
 	return nil
 }
 
 func deleteClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
-			ClusterId: d.Id(),
-			ShardName: name,
-		}),
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Cluster().DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
+				ClusterId: d.Id(),
+				ShardName: name,
+			})
+		},
 	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to delete shard from ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting shard from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }
 
-func createClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().CreateShardGroup(ctx, &clickhouse.CreateClusterShardGroupRequest{
-			ClusterId:      d.Id(),
-			ShardGroupName: group.Name,
-			Description:    group.Description,
-			ShardNames:     group.ShardNames,
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to add shard group to ClickHouse Cluster %q: %s", d.Id(), err)
+func addClickHouseShards(ctx context.Context, config *Config, d *schema.ResourceData, hostSpecsByShard map[string][]*clickhouse.HostSpec) error {
+	if len(hostSpecsByShard) == 0 {
+		return nil
 	}
-	err = op.Wait(ctx)
+
+	shardSpecs, err := expandClickhouseShardSpecs(d)
+	if err != nil {
+		return err
+	}
+
+	for shardName, specs := range hostSpecsByShard {
+		log.Printf("[DEBUG] Shard %s specs to add: %v shard specs to add: %v\n", shardName, specs, shardSpecs[shardName])
+		err := createClickHouseShard(ctx, config, d, shardName, specs, shardSpecs[shardName])
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func createClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Cluster().CreateShardGroup(ctx, &clickhouse.CreateClusterShardGroupRequest{
+				ClusterId:      d.Id(),
+				ShardGroupName: group.Name,
+				Description:    group.Description,
+				ShardNames:     group.ShardNames,
+			})
+		},
+	)
 	if err != nil {
 		return fmt.Errorf("error while adding shard group to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2521,16 +2534,13 @@ func updateClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 }
 
 func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
-			ClusterId:      d.Id(),
-			ShardGroupName: name,
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to delete shard group from ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().Cluster().DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
+				ClusterId:      d.Id(),
+				ShardGroupName: name,
+			})
+		})
 	if err != nil {
 		return fmt.Errorf("error while deleting shard group from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2538,18 +2548,15 @@ func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 }
 
 func createClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, schema *clickhouse.FormatSchema) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().FormatSchema().Create(ctx, &clickhouse.CreateFormatSchemaRequest{
-			ClusterId:        d.Id(),
-			FormatSchemaName: schema.Name,
-			Type:             schema.Type,
-			Uri:              schema.Uri,
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to create format schema in ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().FormatSchema().Create(ctx, &clickhouse.CreateFormatSchemaRequest{
+				ClusterId:        d.Id(),
+				FormatSchemaName: schema.Name,
+				Type:             schema.Type,
+				Uri:              schema.Uri,
+			})
+		})
 	if err != nil {
 		return fmt.Errorf("error while creating format schema in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2576,16 +2583,13 @@ func updateClickHouseFormatSchema(ctx context.Context, config *Config, d *schema
 }
 
 func deleteClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().FormatSchema().Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
-			ClusterId:        d.Id(),
-			FormatSchemaName: name,
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to delete format schema from ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
+	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (*operation.Operation, error) {
+			return config.sdk.MDB().Clickhouse().FormatSchema().Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
+				ClusterId:        d.Id(),
+				FormatSchemaName: name,
+			})
+		})
 	if err != nil {
 		return fmt.Errorf("error while deleting format schema from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2648,13 +2652,13 @@ func deleteClickHouseMlModel(ctx context.Context, config *Config, d *schema.Reso
 }
 
 func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.ResourceData, resources *clickhouse.Resources, specs []*clickhouse.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		return config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
 			ClusterId: d.Id(),
 			Resources: resources,
 			HostSpecs: specs,
-		}),
-	)
+		})
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create ZooKeeper subcluster in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2891,7 +2895,7 @@ func setShardsToSchema(ctx context.Context, config *Config, d *schema.ResourceDa
 	if err := d.Set("shard", shards); err != nil {
 		return fmt.Errorf("read cluster: failed to set shards in schema: %s", err)
 	}
-	fmt.Printf("[DEBUG] read data for fill schema: shards=%v\n", shards)
+	log.Printf("[DEBUG] read data for fill schema: shards=%v\n", shards)
 
 	return nil
 }

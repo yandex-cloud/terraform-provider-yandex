@@ -21,19 +21,15 @@ import (
 var originalClusterResources *clickhouse.Resources
 
 func isEqualResources(clusterResources *clickhouse.Resources, shardResources *clickhouse.Resources) bool {
-	if clusterResources.GetDiskSize() != shardResources.GetDiskSize() {
-		log.Printf("[DEBUG] resource is different by disk_size: cluster disk_size=%d, shard disk_size=%d\n", clusterResources.GetDiskSize(), shardResources.GetDiskSize())
+	if shardResources.GetDiskSize() != 0 && clusterResources.GetDiskSize() != shardResources.GetDiskSize() {
 		return false
 	}
-	if clusterResources.GetDiskTypeId() != shardResources.GetDiskTypeId() {
-		log.Printf("[DEBUG] resource is different by disk_type_id: cluster disk_type_id=%s, shard disk_type_id=%s\n", clusterResources.GetDiskTypeId(), shardResources.GetDiskTypeId())
+	if shardResources.GetDiskTypeId() != "" && clusterResources.GetDiskTypeId() != shardResources.GetDiskTypeId() {
 		return false
 	}
-	if clusterResources.GetResourcePresetId() != shardResources.GetResourcePresetId() {
-		log.Printf("[DEBUG] resource is different by resource_preset_id: cluster resource_preset_id=%s, shard resource_preset_id=%s\n", clusterResources.GetResourcePresetId(), shardResources.GetResourcePresetId())
+	if shardResources.GetResourcePresetId() != "" && clusterResources.GetResourcePresetId() != shardResources.GetResourcePresetId() {
 		return false
 	}
-	log.Println("[DEBUG] resources are equal")
 	return true
 }
 
@@ -158,6 +154,24 @@ func clickHouseShardHash(v interface{}) int {
 	if w, ok := m["weight"]; ok {
 		buf.WriteString(fmt.Sprintf("%d-", w.(int)))
 	}
+	// TODO: fix detection of resource changes for shard
+	// if r, ok := m["resources"]; ok {
+	// 	for _, resources := range r.([]interface{}) {
+	// 		v, ok := resources.(map[string]interface{})
+	// 		if !ok {
+	// 			break
+	// 		}
+	// 		if rpi, ok := v["resource_preset_id"]; ok {
+	// 			buf.WriteString(fmt.Sprintf("%s-", rpi.(string)))
+	// 		}
+	// 		if ds, ok := v["disk_size"]; ok {
+	// 			buf.WriteString(fmt.Sprintf("%d-", ds.(int)))
+	// 		}
+	// 		if dti, ok := v["disk_type_id"]; ok {
+	// 			buf.WriteString(fmt.Sprintf("%s-", dti.(string)))
+	// 		}
+	// 	}
+	// }
 	return hashcode.String(buf.String())
 }
 
@@ -3022,7 +3036,8 @@ func expandClickHouseUserSpecs(d *schema.ResourceData, checkPassword bool) ([]*c
 	return result, nil
 }
 
-func expandClickhouseShard(s map[string]interface{}, _ *schema.ResourceData, hash int) *clickhouse.ShardConfigSpec {
+func expandClickhouseShard(s map[string]interface{}, clusterResources *clickhouse.Resources) *clickhouse.ShardConfigSpec {
+
 	shardFromSpec := &clickhouse.ShardConfigSpec{
 		Clickhouse: &clickhouse.ShardConfigSpec_Clickhouse{},
 	}
@@ -3030,25 +3045,25 @@ func expandClickhouseShard(s map[string]interface{}, _ *schema.ResourceData, has
 	if v, ok := s["weight"]; ok {
 		shardFromSpec.Clickhouse.Weight = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	shardFromSpec.Clickhouse.Resources = expandClickhouseShardResources(s)
+	shardFromSpec.Clickhouse.Resources = expandClickhouseShardResources(s, clusterResources)
 
 	return shardFromSpec
 }
 
 func expandClickhouseShardSpecs(d *schema.ResourceData) (map[string]*clickhouse.ShardConfigSpec, error) {
 	rawShardsFromSpec := d.Get("shard").(*schema.Set)
-	return expandClickhouseShardSpecsFromSchema(rawShardsFromSpec)
+	clusterCHResources := expandClickHouseResources(d, "clickhouse.0.resources.0")
+	return expandClickhouseShardSpecsFromSchema(rawShardsFromSpec, clusterCHResources)
 }
 
-func expandClickhouseShardSpecsFromSchema(rawShardsFromSpec *schema.Set) (map[string]*clickhouse.ShardConfigSpec, error) {
+func expandClickhouseShardSpecsFromSchema(rawShardsFromSpec *schema.Set, clusterResources *clickhouse.Resources) (map[string]*clickhouse.ShardConfigSpec, error) {
 	resultShardsFromSpec := map[string]*clickhouse.ShardConfigSpec{}
 
 	log.Printf("[DEBUG] shards config from spec = %v\n", rawShardsFromSpec.List())
 	for _, shard := range rawShardsFromSpec.List() {
 		m := shard.(map[string]interface{})
-		hash := clickHouseShardHash(shard)
 		if v, ok := m["name"]; ok {
-			resultShardsFromSpec[v.(string)] = expandClickhouseShard(m, nil, hash)
+			resultShardsFromSpec[v.(string)] = expandClickhouseShard(m, clusterResources)
 		}
 	}
 	return resultShardsFromSpec, nil
@@ -3407,13 +3422,13 @@ func flattenClickHouseMlModels(schemas []*clickhouse.MlModel) ([]map[string]inte
 	return res, nil
 }
 
-func expandClickhouseShardResources(s map[string]interface{}) *clickhouse.Resources {
+func expandClickhouseShardResources(s map[string]interface{}, defaultResources *clickhouse.Resources) *clickhouse.Resources {
 	valueResources, ok := s["resources"]
 	if !ok {
 		log.Println("[TRACE] shard has empty resource.")
 		return nil
 	}
-	log.Printf("[DEBUG] parse shard resources: %v\n", valueResources)
+	log.Printf("[DEBUG] parse shard resources: %v with given defaults: %v\n", valueResources, defaultResources)
 
 	resourcesShardSpec := valueResources.([]interface{})
 
@@ -3427,19 +3442,31 @@ func expandClickhouseShardResources(s map[string]interface{}) *clickhouse.Resour
 	resourceSpec := resourcesShardSpec[0].(map[string]interface{})
 
 	if diskSize, ok := resourceSpec["disk_size"]; ok {
-		log.Printf("[DEBUG] shard has resource: disk_size=%d\n", resources.GetDiskSize())
-		hasResource = true
-		resources.SetDiskSize(toBytes(diskSize.(int)))
+		log.Printf("[DEBUG] shard has resource: disk_size=%d, try to change to %d\n", resources.GetDiskSize(), diskSize)
+		if diskSize != 0 {
+			hasResource = true
+			resources.SetDiskSize(toBytes(diskSize.(int)))
+		} else {
+			resources.SetDiskSize(defaultResources.DiskSize)
+		}
 	}
 	if resourcePresetId, ok := resourceSpec["resource_preset_id"]; ok {
-		log.Printf("[DEBUG] shard has resource: resource_preset_id=%s\n", resources.GetResourcePresetId())
-		hasResource = true
-		resources.SetResourcePresetId(resourcePresetId.(string))
+		log.Printf("[DEBUG] shard has resource: resourcePresetId=%v, try to change to: %v\n", resources.GetResourcePresetId(), resourcePresetId)
+		if resourcePresetId != "" {
+			hasResource = true
+			resources.SetResourcePresetId(resourcePresetId.(string))
+		} else {
+			resources.SetResourcePresetId(defaultResources.ResourcePresetId)
+		}
 	}
 	if diskTypeId, ok := resourceSpec["disk_type_id"]; ok {
-		log.Printf("[DEBUG] shard has resource: disk_type_id=%s\n", resources.GetDiskTypeId())
-		hasResource = true
-		resources.SetDiskTypeId(diskTypeId.(string))
+		log.Printf("[DEBUG] shard has resource: disk_type_id=%v, try to change to %v\n", resources.GetDiskTypeId(), diskTypeId)
+		if diskTypeId != "" {
+			hasResource = true
+			resources.SetDiskTypeId(diskTypeId.(string))
+		} else {
+			resources.SetDiskTypeId(defaultResources.DiskTypeId)
+		}
 	}
 
 	if hasResource {

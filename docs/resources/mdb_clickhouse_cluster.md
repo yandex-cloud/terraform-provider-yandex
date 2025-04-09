@@ -453,7 +453,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `backup_window_start` (Block List, Max: 1) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedblock--backup_window_start))
 - `clickhouse` (Block List, Max: 1) Configuration of the ClickHouse subcluster. (see [below for nested schema](#nestedblock--clickhouse))
 - `cloud_storage` (Block List, Max: 1) Cloud Storage settings. (see [below for nested schema](#nestedblock--cloud_storage))
-- `cluster_id` (String)
+- `cluster_id` (String) The cluster identifier.
 - `copy_schema_on_new_hosts` (Boolean) Whether to copy schema on new ClickHouse hosts.
 - `database` (Block Set) A database of the ClickHouse cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
@@ -466,7 +466,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `ml_model` (Block Set) A group of machine learning models. (see [below for nested schema](#nestedblock--ml_model))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
-- `shard` (Block Set) (see [below for nested schema](#nestedblock--shard))
+- `shard` (Block Set) A shard of the ClickHouse cluster. (see [below for nested schema](#nestedblock--shard))
 - `shard_group` (Block List) A group of clickhouse shards. (see [below for nested schema](#nestedblock--shard_group))
 - `sql_database_management` (Boolean) Grants `admin` user database management permission.
 - `sql_user_management` (Boolean) Enables `admin` user with user management permission.
@@ -536,73 +536,73 @@ Optional:
 
 Optional:
 
-- `asynchronous_insert_log_enabled` (Boolean)
-- `asynchronous_insert_log_retention_size` (Number)
-- `asynchronous_insert_log_retention_time` (Number)
-- `asynchronous_metric_log_enabled` (Boolean)
-- `asynchronous_metric_log_retention_size` (Number)
-- `asynchronous_metric_log_retention_time` (Number)
-- `background_buffer_flush_schedule_pool_size` (Number)
-- `background_common_pool_size` (Number)
-- `background_distributed_schedule_pool_size` (Number)
-- `background_fetches_pool_size` (Number)
-- `background_merges_mutations_concurrency_ratio` (Number)
-- `background_message_broker_schedule_pool_size` (Number)
-- `background_move_pool_size` (Number)
-- `background_pool_size` (Number)
-- `background_schedule_pool_size` (Number)
+- `asynchronous_insert_log_enabled` (Boolean) Enable or disable asynchronous_insert_log system table.
+- `asynchronous_insert_log_retention_size` (Number) The maximum size that asynchronous_insert_log can grow to before old data will be removed.
+- `asynchronous_insert_log_retention_time` (Number) The maximum time that asynchronous_insert_log records will be retained before removal.
+- `asynchronous_metric_log_enabled` (Boolean) Enable or disable asynchronous_metric_log system table.
+- `asynchronous_metric_log_retention_size` (Number) The maximum size that asynchronous_metric_log can grow to before old data will be removed.
+- `asynchronous_metric_log_retention_time` (Number) The maximum time that asynchronous_metric_log records will be retained before removal.
+- `background_buffer_flush_schedule_pool_size` (Number) The maximum number of threads that will be used for performing flush operations for Buffer-engine tables in the background.
+- `background_common_pool_size` (Number) The maximum number of threads that will be used for performing a variety of operations (mostly garbage collection) for MergeTree-engine tables in a background.
+- `background_distributed_schedule_pool_size` (Number) The maximum number of threads that will be used for executing distributed sends.
+- `background_fetches_pool_size` (Number) The maximum number of threads that will be used for fetching data parts from another replica for MergeTree-engine tables in a background.
+- `background_merges_mutations_concurrency_ratio` (Number) Sets a ratio between the number of threads and the number of background merges and mutations that can be executed concurrently.
+- `background_message_broker_schedule_pool_size` (Number) The maximum number of threads that will be used for executing background operations for message streaming.
+- `background_move_pool_size` (Number) The maximum number of threads that will be used for moving data parts to another disk or volume for MergeTree-engine tables in a background.
+- `background_pool_size` (Number) Sets the number of threads performing background merges and mutations for MergeTree-engine tables.
+- `background_schedule_pool_size` (Number) The maximum number of threads that will be used for constantly executing some lightweight periodic operations for replicated tables, Kafka streaming, and DNS cache updates.
 - `compression` (Block List) Data compression configuration. (see [below for nested schema](#nestedblock--clickhouse--config--compression))
-- `default_database` (String)
-- `dictionaries_lazy_load` (Boolean)
-- `geobase_enabled` (Boolean)
-- `geobase_uri` (String)
+- `default_database` (String) Default database name.
+- `dictionaries_lazy_load` (Boolean) Lazy loading of dictionaries. If true, then each dictionary is loaded on the first use.
+- `geobase_enabled` (Boolean) Enable or disable geobase.
+- `geobase_uri` (String) Address of the archive with the user geobase in Object Storage.
 - `graphite_rollup` (Block List) Graphite rollup configuration. (see [below for nested schema](#nestedblock--clickhouse--config--graphite_rollup))
 - `jdbc_bridge` (Block List, Max: 1) JDBC bridge configuration. (see [below for nested schema](#nestedblock--clickhouse--config--jdbc_bridge))
 - `kafka` (Block List, Max: 1) Kafka connection configuration. (see [below for nested schema](#nestedblock--clickhouse--config--kafka))
 - `kafka_topic` (Block List) Kafka topic connection configuration. (see [below for nested schema](#nestedblock--clickhouse--config--kafka_topic))
-- `keep_alive_timeout` (Number)
-- `log_level` (String)
-- `mark_cache_size` (Number)
-- `max_concurrent_queries` (Number)
-- `max_connections` (Number)
-- `max_partition_size_to_drop` (Number)
-- `max_table_size_to_drop` (Number)
+- `keep_alive_timeout` (Number) The number of seconds that ClickHouse waits for incoming requests for HTTP protocol before closing the connection.
+- `log_level` (String) Logging level.
+- `mark_cache_size` (Number) Maximum size of cache for marks
+- `max_concurrent_queries` (Number) Limit on total number of concurrently executed queries.
+- `max_connections` (Number) Max server connections.
+- `max_partition_size_to_drop` (Number) Restriction on dropping partitions.
+- `max_table_size_to_drop` (Number) Restriction on deleting tables.
 - `merge_tree` (Block List, Max: 1) MergeTree engine configuration. (see [below for nested schema](#nestedblock--clickhouse--config--merge_tree))
-- `metric_log_enabled` (Boolean)
-- `metric_log_retention_size` (Number)
-- `metric_log_retention_time` (Number)
-- `opentelemetry_span_log_enabled` (Boolean)
-- `opentelemetry_span_log_retention_size` (Number)
-- `opentelemetry_span_log_retention_time` (Number)
-- `part_log_retention_size` (Number)
-- `part_log_retention_time` (Number)
+- `metric_log_enabled` (Boolean) Enable or disable metric_log system table.
+- `metric_log_retention_size` (Number) The maximum size that metric_log can grow to before old data will be removed.
+- `metric_log_retention_time` (Number) The maximum time that metric_log records will be retained before removal.
+- `opentelemetry_span_log_enabled` (Boolean) Enable or disable opentelemetry_span_log system table.
+- `opentelemetry_span_log_retention_size` (Number) The maximum size that opentelemetry_span_log can grow to before old data will be removed.
+- `opentelemetry_span_log_retention_time` (Number) The maximum time that opentelemetry_span_log records will be retained before removal.
+- `part_log_retention_size` (Number) The maximum size that part_log can grow to before old data will be removed.
+- `part_log_retention_time` (Number) The maximum time that part_log records will be retained before removal.
 - `query_cache` (Block List, Max: 1) Query cache configuration. (see [below for nested schema](#nestedblock--clickhouse--config--query_cache))
-- `query_log_retention_size` (Number)
-- `query_log_retention_time` (Number)
+- `query_log_retention_size` (Number) The maximum size that query_log can grow to before old data will be removed.
+- `query_log_retention_time` (Number) The maximum time that query_log records will be retained before removal.
 - `query_masking_rules` (Block List) Query masking rules configuration. (see [below for nested schema](#nestedblock--clickhouse--config--query_masking_rules))
-- `query_thread_log_enabled` (Boolean)
-- `query_thread_log_retention_size` (Number)
-- `query_thread_log_retention_time` (Number)
-- `query_views_log_enabled` (Boolean)
-- `query_views_log_retention_size` (Number)
-- `query_views_log_retention_time` (Number)
+- `query_thread_log_enabled` (Boolean) Enable or disable query_thread_log system table.
+- `query_thread_log_retention_size` (Number) The maximum size that query_thread_log can grow to before old data will be removed.
+- `query_thread_log_retention_time` (Number) The maximum time that query_thread_log records will be retained before removal.
+- `query_views_log_enabled` (Boolean) Enable or disable query_views_log system table.
+- `query_views_log_retention_size` (Number) The maximum size that query_views_log can grow to before old data will be removed.
+- `query_views_log_retention_time` (Number) The maximum time that query_views_log records will be retained before removal.
 - `rabbitmq` (Block List, Max: 1) RabbitMQ connection configuration. (see [below for nested schema](#nestedblock--clickhouse--config--rabbitmq))
-- `session_log_enabled` (Boolean)
-- `session_log_retention_size` (Number)
-- `session_log_retention_time` (Number)
-- `text_log_enabled` (Boolean)
-- `text_log_level` (String)
-- `text_log_retention_size` (Number)
-- `text_log_retention_time` (Number)
-- `timezone` (String)
-- `total_memory_profiler_step` (Number)
-- `trace_log_enabled` (Boolean)
-- `trace_log_retention_size` (Number)
-- `trace_log_retention_time` (Number)
-- `uncompressed_cache_size` (Number)
-- `zookeeper_log_enabled` (Boolean)
-- `zookeeper_log_retention_size` (Number)
-- `zookeeper_log_retention_time` (Number)
+- `session_log_enabled` (Boolean) Enable or disable session_log system table.
+- `session_log_retention_size` (Number) The maximum size that session_log can grow to before old data will be removed.
+- `session_log_retention_time` (Number) The maximum time that session_log records will be retained before removal.
+- `text_log_enabled` (Boolean) Enable or disable text_log system table.
+- `text_log_level` (String) Logging level for text_log system table.
+- `text_log_retention_size` (Number) The maximum size that text_log can grow to before old data will be removed.
+- `text_log_retention_time` (Number) The maximum time that text_log records will be retained before removal.
+- `timezone` (String) The server's time zone.
+- `total_memory_profiler_step` (Number) Whenever server memory usage becomes larger than every next step in number of bytes the memory profiler will collect the allocating stack trace.
+- `trace_log_enabled` (Boolean) Enable or disable trace_log system table.
+- `trace_log_retention_size` (Number) The maximum size that trace_log can grow to before old data will be removed.
+- `trace_log_retention_time` (Number) The maximum time that trace_log records will be retained before removal.
+- `uncompressed_cache_size` (Number) Cache size (in bytes) for uncompressed data used by table engines from the MergeTree family. Zero means disabled.
+- `zookeeper_log_enabled` (Boolean) Enable or disable zookeeper_log system table.
+- `zookeeper_log_retention_size` (Number) The maximum size that zookeeper_log can grow to before old data will be removed.
+- `zookeeper_log_retention_time` (Number) The maximum time that zookeeper_log records will be retained before removal.
 
 <a id="nestedblock--clickhouse--config--compression"></a>
 ### Nested Schema for `clickhouse.config.compression`

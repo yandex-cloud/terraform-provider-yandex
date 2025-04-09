@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'clickhouse: added retries for API requests with unavailable error codes'
+time: 2025-03-27T12:25:36.825339943+03:00
