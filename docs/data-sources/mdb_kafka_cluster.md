@@ -42,7 +42,6 @@ output "network_id" {
 
 ### Read-Only
 
-- `access` (List of Object) (see [below for nested schema](#nestedatt--access))
 - `created_at` (String) The creation timestamp of the resource.
 - `description` (String) The resource description.
 - `environment` (String) Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRODUCTION`.
@@ -79,6 +78,8 @@ Optional:
 - `disk_size_autoscaling` (Block List, Max: 1) Disk autoscaling settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--disk_size_autoscaling))
 
 - `kraft` (Block List, Max: 1) Configuration of the KRaft-controller subcluster. (see [below for nested schema](#nestedblock--config--kraft))
+
+- `rest_api` (Block List, Max: 1) REST API settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--rest_api))
 
 - `schema_registry` (Boolean) Enables managed schema registry on cluster. The default is `false`. Enables managed schema registry on cluster. The default is `false`.
 
@@ -187,6 +188,15 @@ Optional:
 
 
 
+<a id="nestedblock--config--rest_api"></a>
+### Nested Schema for `config.rest_api`
+
+Optional:
+
+- `enabled` (Boolean) Enables REST API on cluster. The default is `false`. Enables REST API on cluster. The default is `false`.
+
+
+
 <a id="nestedblock--config--zookeeper"></a>
 ### Nested Schema for `config.zookeeper`
 
@@ -278,14 +288,6 @@ Optional:
 - `allow_hosts` (Set of String) Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host. Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
 
 
-
-
-<a id="nestedatt--access"></a>
-### Nested Schema for `access`
-
-Read-Only:
-
-- `data_transfer` (Boolean)
 
 
 <a id="nestedatt--host"></a>

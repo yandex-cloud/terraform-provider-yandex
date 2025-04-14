@@ -29,6 +29,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     zones            = ["ru-central1-a"]
     assign_public_ip = false
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.micro"
@@ -108,6 +111,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -206,6 +212,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -281,6 +290,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -380,6 +392,7 @@ Optional:
 - `brokers_count` (Number) Count of brokers per availability zone. The default is `1`.
 - `disk_size_autoscaling` (Block List, Max: 1) Disk autoscaling settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--disk_size_autoscaling))
 - `kraft` (Block List, Max: 1) Configuration of the KRaft-controller subcluster. (see [below for nested schema](#nestedblock--config--kraft))
+- `rest_api` (Block List, Max: 1) REST API settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--rest_api))
 - `schema_registry` (Boolean) Enables managed schema registry on cluster. The default is `false`.
 - `unmanaged_topics` (Boolean, Deprecated)
 - `zookeeper` (Block List, Max: 1) Configuration of the ZooKeeper subcluster. (see [below for nested schema](#nestedblock--config--zookeeper))
@@ -470,6 +483,14 @@ Optional:
 - `disk_type_id` (String) Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).
 - `resource_preset_id` (String) The ID of the preset for computational resources available to a KRaft-controller host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
 
+
+
+<a id="nestedblock--config--rest_api"></a>
+### Nested Schema for `config.rest_api`
+
+Optional:
+
+- `enabled` (Boolean) Enables REST API on cluster. The default is `false`.
 
 
 <a id="nestedblock--config--zookeeper"></a>

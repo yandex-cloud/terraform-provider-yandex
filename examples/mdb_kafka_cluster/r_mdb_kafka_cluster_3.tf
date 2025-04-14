@@ -14,6 +14,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"

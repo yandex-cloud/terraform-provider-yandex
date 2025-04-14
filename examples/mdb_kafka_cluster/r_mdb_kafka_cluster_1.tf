@@ -13,6 +13,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     zones            = ["ru-central1-a"]
     assign_public_ip = false
     schema_registry  = false
+    rest_api {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.micro"

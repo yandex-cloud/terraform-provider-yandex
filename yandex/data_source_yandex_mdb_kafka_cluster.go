@@ -86,15 +86,19 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"topic": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     resourceYandexMDBKafkaClusterTopicBlock(),
+				Type:        schema.TypeList,
+				Description: "List of kafka topics.",
+				Optional:    true,
+				Elem:        resourceYandexMDBKafkaClusterTopicBlock(),
+				Deprecated:  useResourceInstead("topic", "yandex_mdb_kafka_topic"),
 			},
 			"user": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      kafkaUserHash,
-				Elem:     resourceYandexMDBKafkaClusterUserBlock(),
+				Type:        schema.TypeSet,
+				Description: "List of kafka users.",
+				Optional:    true,
+				Set:         kafkaUserHash,
+				Elem:        resourceYandexMDBKafkaClusterUserBlock(),
+				Deprecated:  useResourceInstead("user", "yandex_mdb_kafka_user"),
 			},
 			"security_group_ids": {
 				Type:        schema.TypeSet,
@@ -124,33 +128,25 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Optional:    true,
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: "Maintenance policy of the Kafka cluster.",
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
+							Computed:    true,
 						},
 						"day": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+							Computed:    true,
 						},
 						"hour": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"access": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"data_transfer": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.",
+							Computed:    true,
 						},
 					},
 				},

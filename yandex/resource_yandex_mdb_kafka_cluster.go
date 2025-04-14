@@ -167,7 +167,7 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:         schema.TypeString,
-							Description:  " Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
+							Description:  "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
 							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
 							Required:     true,
 						},
@@ -224,10 +224,11 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Default:     false,
 			},
 			"unmanaged_topics": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Default:    false,
-				Deprecated: "The 'unmanaged_topics' field has been deprecated, because feature enabled permanently and can't be disabled.",
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+				Default:     false,
+				Deprecated:  "The 'unmanaged_topics' field has been deprecated, because feature enabled permanently and can't be disabled.",
 			},
 			"schema_registry": {
 				Type:        schema.TypeBool,
@@ -288,6 +289,23 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 						"data_transfer": {
 							Type:        schema.TypeBool,
 							Description: "Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).",
+							Optional:    true,
+							Default:     false,
+						},
+					},
+				},
+			},
+			"rest_api": {
+				Type:        schema.TypeList,
+				Description: "REST API settings of the Kafka cluster.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "Enables REST API on cluster. The default is `false`.",
 							Optional:    true,
 							Default:     false,
 						},
@@ -476,100 +494,120 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"compression_type": {
 				Type:         schema.TypeString,
+				Description:  "Compression type of kafka topics.",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKafkaCompression),
 			},
 			"log_flush_interval_messages": {
 				Type:         schema.TypeString,
+				Description:  "The number of messages accumulated on a log partition before messages are flushed to disk.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_flush_interval_ms": {
 				Type:         schema.TypeString,
+				Description:  "The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_flush_scheduler_interval_ms": {
 				Type:         schema.TypeString,
+				Description:  "The frequency in ms that the log flusher checks whether any log needs to be flushed to disk.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_retention_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The maximum size of the log before deleting it.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_retention_hours": {
 				Type:         schema.TypeString,
+				Description:  "The number of hours to keep a log file before deleting it (in hours), tertiary to log.retention.ms property.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_retention_minutes": {
 				Type:         schema.TypeString,
+				Description:  "The number of minutes to keep a log file before deleting it (in minutes), secondary to log.retention.ms property. If not set, the value in log.retention.hours is used.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_retention_ms": {
 				Type:         schema.TypeString,
+				Description:  "The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_segment_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The maximum size of a single log file.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"log_preallocate": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Should pre allocate file when create new segment?",
+				Optional:    true,
 			},
 			"socket_send_buffer_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The SO_SNDBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"socket_receive_buffer_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The SO_RCVBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"auto_create_topics_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Enable auto creation of topic on the server.",
+				Optional:    true,
 			},
 			"num_partitions": {
 				Type:         schema.TypeString,
+				Description:  "The default number of log partitions per topic.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"default_replication_factor": {
 				Type:         schema.TypeString,
+				Description:  "The replication factor for automatically created topics, and for topics created with -1 as the replication factor.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"message_max_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The largest record batch size allowed by Kafka (after compression if compression is enabled).",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"replica_fetch_max_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The number of bytes of messages to attempt to fetch for each partition.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"ssl_cipher_suites": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: "A list of cipher suites.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Optional:    true,
 			},
 			"offsets_retention_minutes": {
 				Type:         schema.TypeString,
+				Description:  "For subscribed consumers, committed offset of a specific partition will be expired and discarded after this period of time.",
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
 			"sasl_enabled_mechanisms": {
-				Type: schema.TypeSet,
+				Type:        schema.TypeSet,
+				Description: "The list of SASL mechanisms enabled in the Kafka server.",
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateParsableValue(parseKafkaSaslMechanism),
@@ -586,67 +624,80 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"cleanup_policy": {
 				Type:         schema.TypeString,
+				Description:  "Retention policy to use on log segments.",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKafkaTopicCleanupPolicy),
 			},
 			"compression_type": {
 				Type:         schema.TypeString,
+				Description:  "Compression type of kafka topic.",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKafkaCompression),
 			},
 			"delete_retention_ms": {
 				Type:         schema.TypeString,
+				Description:  "The amount of time to retain delete tombstone markers for log compacted topics.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"file_delete_delay_ms": {
 				Type:         schema.TypeString,
+				Description:  "The time to wait before deleting a file from the filesystem.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"flush_messages": {
 				Type:         schema.TypeString,
+				Description:  "This setting allows specifying an interval at which we will force an fsync of data written to the log.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"flush_ms": {
 				Type:         schema.TypeString,
+				Description:  "This setting allows specifying a time interval at which we will force an fsync of data written to the log.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"min_compaction_lag_ms": {
 				Type:         schema.TypeString,
+				Description:  "The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"retention_bytes": {
 				Type:         schema.TypeString,
+				Description:  "This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the \"delete\" retention policy.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"retention_ms": {
 				Type:         schema.TypeString,
+				Description:  "This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the \"delete\" retention policy.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"max_message_bytes": {
 				Type:         schema.TypeString,
+				Description:  "The largest record batch size allowed by Kafka (after compression if compression is enabled).",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"min_insync_replicas": {
 				Type:         schema.TypeString,
+				Description:  "When a producer sets acks to \"all\" (or \"-1\"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. ",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"segment_bytes": {
 				Type:         schema.TypeString,
+				Description:  "This configuration controls the segment file size for the log.",
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
 			"preallocate": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "True if we should preallocate the file on disk when creating a new log segment.",
+				Optional:    true,
 			},
 		},
 	}
@@ -1112,6 +1163,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kraft.0.resources.0.resource_preset_id":                 "config_spec.kraft.resources.resource_preset_id",
 	"config.0.kraft.0.resources.0.disk_type_id":                       "config_spec.kraft.resources.disk_type_id",
 	"config.0.kraft.0.resources.0.disk_size":                          "config_spec.kraft.resources.disk_size",
+	"config.0.rest_api":                                               "config_spec.rest_api",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {
