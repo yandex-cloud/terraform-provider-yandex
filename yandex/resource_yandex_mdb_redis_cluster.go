@@ -698,7 +698,6 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
-
 	if err := setRedisFolderID(d, meta); err != nil {
 		return err
 	}
@@ -889,16 +888,15 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
 	}
-
-	if d.HasChange("config_spec.access") {
+	if d.HasChange("access") {
 		if req.ConfigSpec == nil {
 			req.ConfigSpec = &redis.ConfigSpec{}
 		}
 		req.ConfigSpec.Access = expandRedisAccess(d)
-		if d.HasChange("config_spec.access.0.web_sql") {
+		if d.HasChange("access.0.web_sql") {
 			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.access.web_sql")
 		}
-		if d.HasChange("config_spec.access.0.data_lens") {
+		if d.HasChange("access.0.data_lens") {
 			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.access.data_lens")
 		}
 	}

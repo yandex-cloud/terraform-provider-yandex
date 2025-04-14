@@ -344,6 +344,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
+						resource.TestCheckResourceAttr(redisResource, "access.0.web_sql", "true"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -1214,6 +1215,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     disk_size_limit           = %d
     planned_usage_threshold   = 70
     emergency_usage_threshold = 85
+  }
+  
+  access {
+    web_sql = true
   }
 }
 `, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
