@@ -1109,6 +1109,9 @@ func flattenMysqlDatabases(dbs []*mysql.Database) *schema.Set {
 }
 
 func flattenMySQLUserConnectionManager(cm *mysql.ConnectionManager) map[string]string {
+	if cm == nil {
+		return nil
+	}
 	return map[string]string{"connection_id": cm.ConnectionId}
 }
 

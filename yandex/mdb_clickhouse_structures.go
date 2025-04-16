@@ -2884,6 +2884,9 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 }
 
 func flattenClickHouseUserConnectionManager(cm *clickhouse.ConnectionManager) map[string]string {
+	if cm == nil {
+		return nil
+	}
 	return map[string]string{"connection_id": cm.ConnectionId}
 }
 
@@ -2954,9 +2957,7 @@ func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]strin
 			u["generate_password"] = generate_passord
 		}
 
-		if user.ConnectionManager != nil {
-			u["connection_manager"] = flattenClickHouseUserConnectionManager(user.ConnectionManager)
-		}
+		u["connection_manager"] = flattenClickHouseUserConnectionManager(user.ConnectionManager)
 		u["settings"] = []interface{}{flattenClickHouseUserSettings(user.Settings)}
 
 		if len(user.Quotas) > 0 {

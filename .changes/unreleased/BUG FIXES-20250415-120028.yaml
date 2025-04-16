@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'connection_manager: fix (known after apply) plan diff on each terraform apply for clusters without connman integration'
+time: 2025-04-15T12:00:28.990446+03:00

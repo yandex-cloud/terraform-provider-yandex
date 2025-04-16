@@ -283,9 +283,7 @@ func resourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) er
 	if user.AuthenticationPlugin != 0 {
 		d.Set("authentication_plugin", mysql.AuthPlugin_name[int32(user.AuthenticationPlugin)])
 	}
-	if user.ConnectionManager != nil {
-		d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
-	}
+	d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
 	return nil
 }
 

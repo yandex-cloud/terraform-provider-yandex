@@ -383,6 +383,9 @@ func flattenPGUserPermissions(ps []*postgresql.Permission) *schema.Set {
 }
 
 func flattenPGUserConnectionManager(cm *postgresql.ConnectionManager) map[string]string {
+	if cm == nil {
+		return nil
+	}
 	return map[string]string{"connection_id": cm.ConnectionId}
 }
 
