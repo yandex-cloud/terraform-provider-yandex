@@ -76,7 +76,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -106,7 +106,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_3.fqdn"),
 					resource.TestCheckResourceAttr(redisResource, "hosts.hst_3.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(redisResource, "hosts.hst_3.replica_priority", "100"),
@@ -141,7 +141,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -165,7 +165,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -244,7 +244,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 					DeletionProtection: newPtr(true),
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -265,7 +265,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 			{
 				Config: makeConfig(t, conf, testAccAllSettingsConfig(redisName, redisDesc2, version, baseDiskSize, diskTypeId, baseFlavor, nonShardedHosts)),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, "OFF"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, true, "OFF"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -286,7 +286,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 						"Elg", 5000, 19, 18, version,
 						normalLimits, pubsubLimits, 70, 4444, 15, true, true, true,
-						14, 13, true, true, true, true),
+						14, 13, true, true, true, true, 256),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					resource.TestCheckResourceAttr(redisResource, "labels.%", "2"),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "foo", "bar"),
@@ -315,7 +315,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 					DeletionProtection: newPtr(false),
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, "OFF"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, true, "OFF"),
 					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 					testAccCheckMDBRedisOperations(redisResource, ops[:4]),
 				),
@@ -332,7 +332,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
 
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, "OFF"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, true, true, "OFF"),
 					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 					testAccCheckMDBRedisOperations(redisResource, ops),
 				),
@@ -391,7 +391,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 			{
 				Config: makeConfig(t, confg, nil),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, true, "OFF"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, true, true, "OFF"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -399,6 +399,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "environment", "PRESTABLE"),
 					resource.TestCheckResourceAttr(redisResource, "tls_enabled", "true"),
 					resource.TestCheckResourceAttr(redisResource, "announce_hostnames", "true"),
+					resource.TestCheckResourceAttr(redisResource, "auth_sentinel", "true"),
 					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(redisResource, "maintenance_window.type", "WEEKLY"),
@@ -418,7 +419,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 						"Elg", 5000, 19, 18, version,
 						normalLimits, pubsubLimits, 70, 4444, 15, true, true, true,
-						14, 13, true, true, true, true),
+						14, 13, true, true, true, true, 256),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					resource.TestCheckResourceAttr(redisResource, "labels.%", "2"),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "foo", "bar"),
@@ -436,7 +437,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 			{
 				Config: makeConfig(t, confg, testAccAllSettingsConfigChanged(redisNameUp, redisDescUp, version, baseDiskSize, diskTypeId, baseFlavor, nonShardedHosts)),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisNameUp),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDescUp),
@@ -444,6 +445,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "environment", "PRESTABLE"),
 					resource.TestCheckResourceAttr(redisResource, "tls_enabled", "true"),
 					resource.TestCheckResourceAttr(redisResource, "announce_hostnames", "false"),
+					resource.TestCheckResourceAttr(redisResource, "auth_sentinel", "false"),
 					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttr(redisResource, "maintenance_window.type", "WEEKLY"),
@@ -463,7 +465,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 101,
 						"Ex", 5001, 20, 21, version,
 						normalUpdatedLimits, pubsubUpdatedLimits, 71, 4440, 16, false, false, false,
-						22, 23, false, false, false, false),
+						22, 23, false, false, false, false, 128),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					resource.TestCheckResourceAttr(redisResource, "labels.%", "2"),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "qwe", "rty"),
@@ -493,7 +495,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, "ON"),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, false, "ON"),
 					resource.TestCheckResourceAttr(redisResource, "name", redisNameUp),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDescUp),
@@ -515,7 +517,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 101,
 						"Ex", 5001, 20, 21, version,
 						normalUpdatedLimits, pubsubUpdatedLimits, 71, 4440, 16, false, false, false,
-						22, 23, false, false, false, false),
+						22, 23, false, false, false, false, 128),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					resource.TestCheckResourceAttr(redisResource, "labels.%", "0"),
 					resource.TestCheckResourceAttr(redisResource, "config.backup_retain_period_days", "31"),
@@ -548,6 +550,7 @@ func TestAccMDBRedisClusterV2_enable_sharding(t *testing.T) {
 	tlsEnabled := false
 	persistenceMode := "ON"
 	announceHostnames := false
+	authSentinel := false
 	password := "12345678P"
 	version := "7.2"
 	ops := []Op{
@@ -578,7 +581,7 @@ func TestAccMDBRedisClusterV2_enable_sharding(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
@@ -599,7 +602,7 @@ func TestAccMDBRedisClusterV2_enable_sharding(t *testing.T) {
 					Sharded: newPtr(true),
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"shard1", "second"}),
@@ -621,7 +624,7 @@ func TestAccMDBRedisClusterV2_enable_sharding(t *testing.T) {
 					Sharded: newPtr(true),
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"shard1", "second"}),
@@ -659,6 +662,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 	diskTypeId := "network-ssd"
 	tlsEnabled := false
 	announceHostnames := false
+	authSentinel := false
 	persistenceMode := "ON"
 	password := "12345678P"
 	conf := testAccBaseConfig(redisName, desc)
@@ -691,7 +695,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 					Sharded: newPtr(true),
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
@@ -721,7 +725,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize, diskTypeId),
@@ -737,7 +741,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 						Password: &password,
 					}}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, authSentinel, persistenceMode),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize, diskTypeId),

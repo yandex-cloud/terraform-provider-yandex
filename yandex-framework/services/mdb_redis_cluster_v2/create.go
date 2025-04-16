@@ -90,6 +90,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 		PersistenceMode:    persistenceMode,
 		AnnounceHostnames:  plan.AnnounceHostnames.ValueBool(),
 		MaintenanceWindow:  maintenanceWindow,
+		AuthSentinel:       plan.AuthSentinel.ValueBool(),
 	}
 	return &req
 }

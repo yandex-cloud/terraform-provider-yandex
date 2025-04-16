@@ -20,6 +20,7 @@ type Cluster struct {
 	FolderID           types.String `tfsdk:"folder_id"`
 	CreatedAt          types.String `tfsdk:"created_at"`
 	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
+	AuthSentinel       types.Bool   `tfsdk:"auth_sentinel"`
 
 	Labels              types.Map    `tfsdk:"labels"`
 	SecurityGroupIDs    types.Set    `tfsdk:"security_group_ids"`
@@ -96,4 +97,5 @@ type Config struct {
 	AllowDataLoss                   types.Bool   `tfsdk:"allow_data_loss"`
 	BackupRetainPeriodDays          types.Int64  `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart               types.Object `tfsdk:"backup_window_start"`
+	ZsetMaxListpackEntries          types.Int64  `tfsdk:"zset_max_listpack_entries"`
 }

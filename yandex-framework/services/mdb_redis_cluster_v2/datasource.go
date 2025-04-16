@@ -64,6 +64,7 @@ func (o *redisClusterDataSource) Read(ctx context.Context, req datasource.ReadRe
 func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	tflog.Info(ctx, "Initializing Redis data source schema")
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/). [How to connect to the DB](https://yandex.cloud/docs/managed-redis/quickstart#connect). To connect, use port 6379. The port number is not configurable.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -162,9 +163,13 @@ func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.Schema
 				Computed:            true,
 				MarkdownDescription: common.ResourceDescriptions["deletion_protection"],
 			},
-
+			"auth_sentinel": schema.BoolAttribute{
+				Computed:            true,
+				MarkdownDescription: "Allows to use ACL users to auth in sentinel",
+			},
 			"resources": schema.SingleNestedAttribute{
-				Computed: true,
+				MarkdownDescription: "Resources allocated to hosts of the Redis cluster.",
+				Computed:            true,
 				Attributes: map[string]schema.Attribute{
 					"resource_preset_id": schema.StringAttribute{
 						Computed:            true,
@@ -181,7 +186,8 @@ func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.Schema
 				},
 			},
 			"config": schema.SingleNestedAttribute{
-				Computed: true,
+				MarkdownDescription: "Configuration of the Redis cluster.",
+				Computed:            true,
 				Attributes: map[string]schema.Attribute{
 					"timeout": schema.Int64Attribute{
 						Computed:            true,
@@ -275,6 +281,10 @@ func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.Schema
 					"backup_retain_period_days": schema.Int64Attribute{
 						Computed:            true,
 						MarkdownDescription: "Retain period of automatically created backup in days.",
+					},
+					"zset_max_listpack_entries": schema.Int64Attribute{
+						Computed:            true,
+						MarkdownDescription: "Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist",
 					},
 					"backup_window_start": schema.SingleNestedAttribute{
 						Computed:            true,

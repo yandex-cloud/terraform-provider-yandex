@@ -37,7 +37,8 @@ output "network_id" {
 
 - `access` (Attributes) Access policy to the Redis cluster. (see [below for nested schema](#nestedatt--access))
 - `announce_hostnames` (Boolean) Announce fqdn instead of ip address. Can be either true or false.
-- `config` (Attributes) (see [below for nested schema](#nestedatt--config))
+- `auth_sentinel` (Boolean) Allows to use ACL users to auth in sentinel
+- `config` (Attributes) Configuration of the Redis cluster. (see [below for nested schema](#nestedatt--config))
 - `created_at` (String) The creation timestamp of the resource.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
@@ -50,7 +51,7 @@ output "network_id" {
 - `maintenance_window` (Attributes) Maintenance window settings of the Redis cluster. (see [below for nested schema](#nestedatt--maintenance_window))
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `persistence_mode` (String) Persistence mode.
-- `resources` (Attributes) (see [below for nested schema](#nestedatt--resources))
+- `resources` (Attributes) Resources allocated to hosts of the Redis cluster. (see [below for nested schema](#nestedatt--resources))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `sharded` (Boolean) Redis sharded mode. Can be either true or false.
 - `tls_enabled` (Boolean) TLS port and functionality. Can be either true or false.
@@ -93,6 +94,7 @@ Read-Only:
 - `turn_before_switchover` (Boolean) Allows to turn before switchover in RDSync. Can be either true or false.
 - `use_luajit` (Boolean) Use JIT for lua scripts and functions. Can be either true or false.
 - `version` (String) Redis version.
+- `zset_max_listpack_entries` (Number) Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist
 
 <a id="nestedatt--config--backup_window_start"></a>
 ### Nested Schema for `config.backup_window_start`

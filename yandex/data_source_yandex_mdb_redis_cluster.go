@@ -14,8 +14,7 @@ import (
 func dataSourceYandexMDBRedisCluster() *schema.Resource {
 	return &schema.Resource{
 		Description: "Get information about a Yandex Managed Redis cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).\n\n~> Either `cluster_id` or `name` should be specified.\n",
-
-		Read: dataSourceYandexMDBRedisClusterRead,
+		Read:        dataSourceYandexMDBRedisClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
 				Type:        schema.TypeString,
@@ -46,107 +45,136 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"config": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: resourceYandexMDBRedisCluster().Schema["config"].Description,
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"timeout": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Close the connection after a client is idle for N seconds.",
 						},
 						"maxmemory_policy": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Redis key eviction policy for a dataset that reaches maximum memory. Can be any of the listed in [the official RedisDB documentation](https://docs.redislabs.com/latest/rs/administering/database-operations/eviction-policy/).",
 						},
 						"notify_keyspace_events": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Select the events that Redis will notify among a set of classes.",
 						},
 						"slowlog_log_slower_than": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Log slow queries below this number in microseconds.",
 						},
 						"slowlog_max_len": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Slow queries log length.",
 						},
 						"client_output_buffer_limit_normal": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Normal clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1841).",
 						},
 						"client_output_buffer_limit_pubsub": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Pubsub clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1843).",
 						},
 						"use_luajit": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Use JIT for lua scripts and functions.",
 						},
 						"io_threads_allowed": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Allow Redis to use io-threads.",
 						},
 						"databases": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Number of databases (changing requires redis-server restart).",
 						},
 						"maxmemory_percent": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Redis maxmemory usage in percent",
 						},
 						"version": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Version of Redis",
 						},
 						"lua_time_limit": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Maximum time in milliseconds for Lua scripts.",
 						},
 						"repl_backlog_size_percent": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Replication backlog size as a percentage of flavor maxmemory.",
 						},
 						"cluster_require_full_coverage": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Controls whether all hash slots must be covered by nodes.",
 						},
 						"cluster_allow_reads_when_down": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Allows read operations when cluster is down.",
 						},
 						"cluster_allow_pubsubshard_when_down": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Permits Pub/Sub shard operations when cluster is down.",
 						},
 						"lfu_decay_time": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The time, in minutes, that must elapse in order for the key counter to be divided by two (or decremented if it has a value less <= 10).",
 						},
 						"lfu_log_factor": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Determines how the frequency counter represents key hits.",
 						},
 						"turn_before_switchover": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Allows to turn before switchover in RDSync.",
 						},
 						"allow_data_loss": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Allows some data to be lost in favor of faster switchover/restart by RDSync.",
 						},
-
+						"zset_max_listpack_entries": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist",
+						},
 						"backup_window_start": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Description: "Time to start the daily backup, in the UTC timezone.",
+							Type:        schema.TypeList,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"hours": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: "The hour at which backup will be started.",
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 									"minutes": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Description: "The minute at which backup will be started.",
+										Type:        schema.TypeInt,
+										Computed:    true,
 									},
 								},
 							},
@@ -155,74 +183,89 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				},
 			},
 			"resources": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: resourceYandexMDBRedisCluster().Schema["resources"].Description,
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).",
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Volume of the storage available to a host, in gigabytes.",
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: "Type of the storage of Redis hosts - environment default is used if missing.",
 						},
 					},
 				},
 			},
 			"disk_size_autoscaling": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: resourceYandexMDBRedisCluster().Schema["disk_size_autoscaling"].Description,
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Limit of disk size after autoscaling (GiB).",
 						},
 						"planned_usage_threshold": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Maintenance window autoscaling disk usage (percent).",
 						},
 						"emergency_usage_threshold": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Immediate autoscaling disk usage (percent).",
 						},
 					},
 				},
 			},
 			"host": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: resourceYandexMDBRedisCluster().Schema["host"].Description,
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"zone": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: common.ResourceDescriptions["zone"],
 						},
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.",
 						},
 						"shard_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the shard to which the host belongs.",
 						},
 						"fqdn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The fully qualified domain name of the host.",
 						},
 						"replica_priority": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Replica priority of a current replica (usable for non-sharded only).",
 						},
 						"assign_public_ip": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Sets whether the host should get a public IP address or not.",
 						},
 					},
 				},
@@ -259,6 +302,11 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Description: resourceYandexMDBRedisCluster().Schema["announce_hostnames"].Description,
 				Computed:    true,
 			},
+			"auth_sentinel": {
+				Type:        schema.TypeBool,
+				Description: resourceYandexMDBRedisCluster().Schema["auth_sentinel"].Description,
+				Computed:    true,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["created_at"],
@@ -282,21 +330,25 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: resourceYandexMDBRedisCluster().Schema["maintenance_window"].Description,
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
 						},
 						"day": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
 						},
 						"hour": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.",
 						},
 					},
 				},
@@ -367,6 +419,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("sharded", cluster.Sharded)
 	d.Set("tls_enabled", cluster.TlsEnabled)
 	d.Set("announce_hostnames", cluster.AnnounceHostnames)
+	d.Set("auth_sentinel", cluster.AuthSentinel)
 	err = d.Set("persistence_mode", cluster.GetPersistenceMode().String())
 	if err != nil {
 		return err
@@ -395,6 +448,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 			"turn_before_switchover":              conf.turnBeforeSwitchover,
 			"allow_data_loss":                     conf.allowDataLoss,
 			"use_luajit":                          conf.useLuajit,
+			"zset_max_listpack_entries":           conf.zsetMaxListpackEntries,
 			"io_threads_allowed":                  conf.ioThreadsAllowed,
 			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},

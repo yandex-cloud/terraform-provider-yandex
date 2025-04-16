@@ -72,6 +72,7 @@ func testAccAllSettingsConfig(name, description, version string, baseDiskSize in
 		PersistenceMode:    newPtr("OFF"),
 		AnnounceHostnames:  newPtr(true),
 		DeletionProtection: newPtr(true),
+		AuthSentinel:       newPtr(true),
 		Resources: &hostResource{
 			ResourcePresetId: newPtr(baseFlavor),
 			DiskSize:         newPtr(baseDiskSize),
@@ -117,6 +118,7 @@ func testAccAllSettingsConfig(name, description, version string, baseDiskSize in
 			TurnBeforeSwitchover:            newPtr(true),
 			AllowDataLoss:                   newPtr(true),
 			BackupRetainPeriodDays:          newPtr(12),
+			ZsetMaxListpackEntries:          newPtr(256),
 			BackupWindowStart: &backupWindowStart{
 				Hours:   newPtr(10),
 				Minutes: newPtr(11),
@@ -134,6 +136,7 @@ func testAccAllSettingsConfigChanged(name, description, version string, baseDisk
 		PersistenceMode:    newPtr("ON"),
 		AnnounceHostnames:  newPtr(false),
 		DeletionProtection: newPtr(false),
+		AuthSentinel:       newPtr(false),
 		Resources: &hostResource{
 			ResourcePresetId: newPtr(baseFlavor),
 			DiskSize:         newPtr(baseDiskSize),
@@ -179,6 +182,7 @@ func testAccAllSettingsConfigChanged(name, description, version string, baseDisk
 			TurnBeforeSwitchover:            newPtr(false),
 			AllowDataLoss:                   newPtr(false),
 			BackupRetainPeriodDays:          newPtr(31),
+			ZsetMaxListpackEntries:          newPtr(128),
 			BackupWindowStart: &backupWindowStart{
 				Hours:   newPtr(20),
 				Minutes: newPtr(15),
@@ -252,6 +256,7 @@ type config struct {
 	AllowDataLoss                   *bool
 	BackupRetainPeriodDays          *int
 	BackupWindowStart               *backupWindowStart
+	ZsetMaxListpackEntries          *int
 }
 
 type redisConfigTest struct {
@@ -264,6 +269,7 @@ type redisConfigTest struct {
 	AnnounceHostnames  *bool
 	FolderId           *string
 	DeletionProtection *bool
+	AuthSentinel       *bool
 
 	Resources           *hostResource
 	Labels              map[string]string
@@ -341,6 +347,7 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
   {{with .AnnounceHostnames}} announce_hostnames  = {{.}} {{end}}
   {{with .FolderId}} folder_id  = "{{.}}" {{end}}
   {{with .DeletionProtection}} deletion_protection  = {{.}} {{end}}
+  {{with .AuthSentinel}} auth_sentinel  = {{.}} {{end}}
 
 
 
@@ -423,6 +430,7 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
 	  {{with .ClusterAllowPubsubshardWhenDown}} cluster_allow_pubsubshard_when_down  = {{.}} {{end}}
 	  {{with .LfuDecayTime}} lfu_decay_time  = {{.}} {{end}}
 	  {{with .LfuLogFactor}} lfu_log_factor  = {{.}} {{end}}
+      {{with .ZsetMaxListpackEntries}} zset_max_listpack_entries  = {{.}} {{end}}
 	  {{with .TurnBeforeSwitchover}} turn_before_switchover  = {{.}} {{end}}
 	  {{with .AllowDataLoss}} allow_data_loss  = {{.}} {{end}}
 	  {{with .BackupRetainPeriodDays}} backup_retain_period_days  = {{.}} {{end}}

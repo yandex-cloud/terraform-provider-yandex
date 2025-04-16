@@ -140,6 +140,7 @@ func expandRedisConfig(d *Config) (*config.RedisConfig, error) {
 		AllowDataLoss:                   utils.BoolFromTF(d.AllowDataLoss),
 		UseLuajit:                       utils.BoolFromTF(d.UseLuajit),
 		IoThreadsAllowed:                utils.BoolFromTF(d.IoThreadsAllowed),
+		ZsetMaxListpackEntries:          utils.Int64FromTF(d.ZsetMaxListpackEntries),
 	}
 
 	if utils.IsPresent(d.ClientOutputBufferLimitNormal) {

@@ -68,6 +68,7 @@ func (r *redisClusterResource) Configure(_ context.Context,
 func (r *redisClusterResource) Schema(ctx context.Context,
 	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/). [How to connect to the DB](https://yandex.cloud/docs/managed-redis/quickstart#connect). To connect, use port 6379. The port number is not configurable.",
 		Attributes: map[string]schema.Attribute{
 			"id": defaultschema.Id(),
 			"cluster_id": schema.StringAttribute{
@@ -201,8 +202,17 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 			"created_at":          defaultschema.CreatedAt(),
 			"security_group_ids":  defaultschema.SecurityGroupIds(),
 			"deletion_protection": defaultschema.DeletionProtection(),
+			"auth_sentinel": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+				MarkdownDescription: "Allows to use ACL users to auth in sentinel",
+			},
 			"resources": schema.SingleNestedAttribute{
-				Required: true,
+				MarkdownDescription: "Resources allocated to hosts of the Redis cluster.",
+				Required:            true,
 				Attributes: map[string]schema.Attribute{
 					"resource_preset_id": schema.StringAttribute{
 						MarkdownDescription: "ID of the resource preset that determines the number of CPU cores and memory size for the host.",
@@ -223,7 +233,8 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				},
 			},
 			"config": schema.SingleNestedAttribute{
-				Required: true,
+				MarkdownDescription: "Configuration of the Redis cluster.",
+				Required:            true,
 				Attributes: map[string]schema.Attribute{
 					"password": schema.StringAttribute{
 						Required:            true,
@@ -401,6 +412,14 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 							int64planmodifier.UseStateForUnknown(),
 						},
 						MarkdownDescription: "Retain period of automatically created backup in days.",
+					},
+					"zset_max_listpack_entries": schema.Int64Attribute{
+						Optional: true,
+						Computed: true,
+						PlanModifiers: []planmodifier.Int64{
+							int64planmodifier.UseStateForUnknown(),
+						},
+						MarkdownDescription: "Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist",
 					},
 					"backup_window_start": schema.SingleNestedAttribute{
 						Optional:            true,

@@ -31,6 +31,7 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.FolderID = types.StringValue(cluster.FolderId)
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.CreatedAt))
 	state.DeletionProtection = types.BoolValue(cluster.DeletionProtection)
+	state.AuthSentinel = types.BoolValue(cluster.AuthSentinel)
 
 	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
 	state.Labels = labels

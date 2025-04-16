@@ -39,19 +39,20 @@ output "network_id" {
 ### Read-Only
 
 - `announce_hostnames` (Boolean) Announce fqdn instead of ip address.
-- `config` (List of Object) (see [below for nested schema](#nestedatt--config))
+- `auth_sentinel` (Boolean) Allows to use ACL users to auth in sentinel
+- `config` (List of Object) Configuration of the Redis cluster. (see [below for nested schema](#nestedatt--config))
 - `created_at` (String) The creation timestamp of the resource.
 - `description` (String) The resource description.
-- `disk_size_autoscaling` (List of Object) (see [below for nested schema](#nestedatt--disk_size_autoscaling))
+- `disk_size_autoscaling` (List of Object) Disk size autoscaling settings. (see [below for nested schema](#nestedatt--disk_size_autoscaling))
 - `environment` (String) Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 - `health` (String) Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
-- `host` (List of Object) (see [below for nested schema](#nestedatt--host))
+- `host` (List of Object) A host of the Redis cluster. (see [below for nested schema](#nestedatt--host))
 - `id` (String) The ID of this resource.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `maintenance_window` (List of Object) (see [below for nested schema](#nestedatt--maintenance_window))
+- `maintenance_window` (List of Object) Maintenance window settings. (see [below for nested schema](#nestedatt--maintenance_window))
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `persistence_mode` (String) Persistence mode. Possible values: `ON`, `OFF`.
-- `resources` (List of Object) (see [below for nested schema](#nestedatt--resources))
+- `resources` (List of Object) Resources allocated to hosts of the Redis cluster. (see [below for nested schema](#nestedatt--resources))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `sharded` (Boolean) Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not allowed.
 - `status` (String) Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
@@ -104,7 +105,9 @@ Read-Only:
 
 - `use_luajit` (Boolean) Use JIT for lua scripts and functions.
 
-- `version` (String) Version of Redis (6.2).
+- `version` (String) Version of Redis.
+
+- `zset_max_listpack_entries` (Number) Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist
 
 
 <a id="nestedobjatt--config--backup_window_start"></a>

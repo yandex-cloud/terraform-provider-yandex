@@ -36,6 +36,7 @@ type redisConfig struct {
 	allowDataLoss                   bool
 	useLuajit                       bool
 	ioThreadsAllowed                bool
+	zsetMaxListpackEntries          int64
 }
 
 const defaultReplicaPriority = 100
@@ -236,6 +237,7 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res.allowDataLoss = c.GetAllowDataLoss().GetValue()
 	res.useLuajit = c.GetUseLuajit().GetValue()
 	res.ioThreadsAllowed = c.GetIoThreadsAllowed().GetValue()
+	res.zsetMaxListpackEntries = c.GetZsetMaxListpackEntries().GetValue()
 	return res
 }
 
@@ -367,6 +369,11 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		ioThreadsAllowed = &wrappers.BoolValue{Value: v.(bool)}
 	}
 
+	var zsetMaxListpackEntries *wrappers.Int64Value
+	if v := d.Get("config.0.zset_max_listpack_entries"); v != nil {
+		zsetMaxListpackEntries = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
 	c := config.RedisConfig{
 		Password:                        password,
 		Timeout:                         timeout,
@@ -386,6 +393,7 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		AllowDataLoss:                   allowDataLoss,
 		UseLuajit:                       useLuajit,
 		IoThreadsAllowed:                ioThreadsAllowed,
+		ZsetMaxListpackEntries:          zsetMaxListpackEntries,
 	}
 
 	if len(expandedNormal) != 0 {

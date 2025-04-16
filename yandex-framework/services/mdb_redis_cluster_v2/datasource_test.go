@@ -86,6 +86,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"tls_enabled",
 			"persistence_mode",
 			"announce_hostnames",
+			"auth_sentinel",
 			"config.timeout", // Cannot test full config, because API doesn't return password
 			"config.maxmemory_policy",
 			"config.notify_keyspace_events",
@@ -106,6 +107,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.lfu_log_factor",
 			"config.turn_before_switchover",
 			"config.allow_data_loss",
+			"config.zset_max_listpack_entries",
 			"config.version",
 			"security_group_ids",
 			"maintenance_window.type",
@@ -149,6 +151,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "tls_enabled", "true"),
 		resource.TestCheckResourceAttr(datasourceName, "persistence_mode", "OFF"),
 		resource.TestCheckResourceAttr(datasourceName, "announce_hostnames", "true"),
+		resource.TestCheckResourceAttr(datasourceName, "auth_sentinel", "true"),
 		resource.TestCheckResourceAttr(datasourceName, "hosts.%", "1"),
 		test.AccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),

@@ -146,7 +146,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						},
 						"version": {
 							Type:        schema.TypeString,
-							Description: "Version of Redis (6.2).",
+							Description: "Version of Redis.",
 							Required:    true,
 						},
 						"lua_time_limit": {
@@ -192,6 +192,11 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						"allow_data_loss": {
 							Type:        schema.TypeBool,
 							Description: "Allows some data to be lost in favor of faster switchover/restart by RDSync.",
+							Optional:    true,
+						},
+						"zset_max_listpack_entries": {
+							Type:        schema.TypeInt,
+							Description: "Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist",
 							Optional:    true,
 						},
 						"backup_window_start": {
@@ -376,6 +381,11 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 			"announce_hostnames": {
 				Type:        schema.TypeBool,
 				Description: "Announce fqdn instead of ip address.",
+				Optional:    true,
+			},
+			"auth_sentinel": {
+				Type:        schema.TypeBool,
+				Description: "Allows to use ACL users to auth in sentinel",
 				Optional:    true,
 			},
 			"folder_id": {
@@ -570,6 +580,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  mw,
+		AuthSentinel:       d.Get("auth_sentinel").(bool),
 	}
 	return &req, nil
 }
@@ -604,6 +615,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	d.Set("tls_enabled", cluster.TlsEnabled)
 	d.Set("persistence_mode", cluster.GetPersistenceMode().String())
 	d.Set("announce_hostnames", cluster.AnnounceHostnames)
+	d.Set("auth_sentinel", cluster.AuthSentinel)
 
 	resources, err := flattenRedisResources(cluster.Config.Resources)
 	if err != nil {
@@ -649,6 +661,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 			"turn_before_switchover":              conf.turnBeforeSwitchover,
 			"allow_data_loss":                     conf.allowDataLoss,
 			"use_luajit":                          conf.useLuajit,
+			"zset_max_listpack_entries":           conf.zsetMaxListpackEntries,
 			"io_threads_allowed":                  conf.ioThreadsAllowed,
 			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
 		},
@@ -760,6 +773,12 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
+	if d.HasChange("auth_sentinel") {
+		req.AuthSentinel = d.Get("auth_sentinel").(bool)
+
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "auth_sentinel")
+	}
+
 	if d.HasChange("labels") {
 		labelsProp, err := expandLabels(d.Get("labels"))
 		if err != nil {
@@ -845,6 +864,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"allow_data_loss",
 			"use_luajit",
 			"io_threads_allowed",
+			"zset_max_listpack_entries",
 		}
 		for _, field := range fields {
 			fullPath := "config_spec.redis." + field

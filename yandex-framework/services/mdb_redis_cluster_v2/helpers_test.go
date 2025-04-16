@@ -74,7 +74,7 @@ func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 }
 
 func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tlsEnabled, announceHostnames bool,
-	persistenceMode string) resource.TestCheckFunc {
+	authSentinel bool, persistenceMode string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -104,6 +104,10 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		if found.AnnounceHostnames != announceHostnames {
 			return fmt.Errorf("announceHostnames mode: found = %t; expected = %t", found.AnnounceHostnames, announceHostnames)
+		}
+
+		if found.AuthSentinel != authSentinel {
+			return fmt.Errorf("authSentinel: found = %t; expected = %t", found.AuthSentinel, authSentinel)
 		}
 
 		if found.GetPersistenceMode().String() != persistenceMode {
@@ -181,6 +185,7 @@ func testAccCheckMDBRedisClusterHasConfig(
 	allowDataLoss bool,
 	useLuajit bool,
 	ioThreadsAllowed bool,
+	zsetMaxListpackEntries int64,
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := mdb_redis_cluster_v2.FlattenConfig(r.Config)
@@ -248,6 +253,9 @@ func testAccCheckMDBRedisClusterHasConfig(
 		}
 		if c.IoThreadsAllowed.ValueBool() != ioThreadsAllowed {
 			return fmt.Errorf("expected config.io_threads_allowed '%t', got '%t'", ioThreadsAllowed, c.IoThreadsAllowed.ValueBool())
+		}
+		if c.ZsetMaxListpackEntries.ValueInt64() != zsetMaxListpackEntries {
+			return fmt.Errorf("expected config.zset_max_listpack_entries '%d', got '%d'", zsetMaxListpackEntries, c.ZsetMaxListpackEntries.ValueInt64())
 		}
 		return nil
 	}

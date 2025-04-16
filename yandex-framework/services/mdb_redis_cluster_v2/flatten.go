@@ -95,6 +95,7 @@ func FlattenConfig(cc *redis.ClusterConfig) Config {
 		TurnBeforeSwitchover:            types.BoolValue(c.GetTurnBeforeSwitchover().GetValue()),
 		AllowDataLoss:                   types.BoolValue(c.GetAllowDataLoss().GetValue()),
 		BackupRetainPeriodDays:          types.Int64Value(cc.GetBackupRetainPeriodDays().GetValue()),
+		ZsetMaxListpackEntries:          types.Int64Value(c.GetZsetMaxListpackEntries().GetValue()),
 	}
 
 	return res

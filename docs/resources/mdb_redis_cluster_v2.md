@@ -7,7 +7,7 @@ description: |-
 
 # yandex_mdb_redis_cluster_v2 (Resource)
 
-
+Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/). [How to connect to the DB](https://yandex.cloud/docs/managed-redis/quickstart#connect). To connect, use port 6379. The port number is not configurable.
 
 ## Example Usage
 
@@ -115,17 +115,18 @@ resource "yandex_vpc_subnet" "baz" {
 
 ### Required
 
-- `config` (Attributes) (see [below for nested schema](#nestedatt--config))
+- `config` (Attributes) Configuration of the Redis cluster. (see [below for nested schema](#nestedatt--config))
 - `environment` (String) Deployment environment of the Redis cluster.
 - `hosts` (Attributes Map) A hosts of the Redis cluster as label:host_info pairs. (see [below for nested schema](#nestedatt--hosts))
 - `name` (String) The resource name.
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
-- `resources` (Attributes) (see [below for nested schema](#nestedatt--resources))
+- `resources` (Attributes) Resources allocated to hosts of the Redis cluster. (see [below for nested schema](#nestedatt--resources))
 
 ### Optional
 
 - `access` (Attributes) Access policy to the Redis cluster. (see [below for nested schema](#nestedatt--access))
 - `announce_hostnames` (Boolean) Announce fqdn instead of ip address. Can be either true or false.
+- `auth_sentinel` (Boolean) Allows to use ACL users to auth in sentinel
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
 - `disk_size_autoscaling` (Attributes) Disk size autoscaling settings. (see [below for nested schema](#nestedatt--disk_size_autoscaling))
@@ -175,6 +176,7 @@ Optional:
 - `timeout` (Number) Time that Redis keeps the connection open while the client is idle.
 - `turn_before_switchover` (Boolean) Allows to turn before switchover in RDSync. Can be either true or false.
 - `use_luajit` (Boolean) Use JIT for lua scripts and functions. Can be either true or false.
+- `zset_max_listpack_entries` (Number) Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist
 
 <a id="nestedatt--config--backup_window_start"></a>
 ### Nested Schema for `config.backup_window_start`

@@ -46,6 +46,12 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 
 	}
 
+	if !plan.AuthSentinel.Equal(state.AuthSentinel) {
+		req.AuthSentinel = plan.AuthSentinel.ValueBool()
+
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "auth_sentinel")
+	}
+
 	if !plan.Labels.Equal(state.Labels) {
 		var labels map[string]string
 		diagnostics.Append(plan.Labels.ElementsAs(ctx, &labels, false)...)
@@ -227,6 +233,9 @@ func (c Config) EvalUpdateMask(o *Config) []string {
 	}
 	if !c.BackupRetainPeriodDays.Equal(o.BackupRetainPeriodDays) {
 		updateMask = append(updateMask, "backup_retain_period_days")
+	}
+	if !c.ZsetMaxListpackEntries.Equal(o.ZsetMaxListpackEntries) {
+		updateMask = append(updateMask, "zset_max_listpack_entries")
 	}
 
 	for i := range updateMask {

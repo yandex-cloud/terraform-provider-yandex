@@ -126,6 +126,7 @@ resource "yandex_vpc_subnet" "baz" {
 
 - `access` (Block List, Max: 1) Access policy to the Redis cluster. (see [below for nested schema](#nestedblock--access))
 - `announce_hostnames` (Boolean) Announce fqdn instead of ip address.
+- `auth_sentinel` (Boolean) Allows to use ACL users to auth in sentinel
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
 - `disk_size_autoscaling` (Block List, Max: 1) Disk size autoscaling settings. (see [below for nested schema](#nestedblock--disk_size_autoscaling))
@@ -151,7 +152,7 @@ resource "yandex_vpc_subnet" "baz" {
 Required:
 
 - `password` (String, Sensitive) Password for the Redis cluster.
-- `version` (String) Version of Redis (6.2).
+- `version` (String) Version of Redis.
 
 Optional:
 
@@ -176,6 +177,7 @@ Optional:
 - `timeout` (Number) Close the connection after a client is idle for N seconds.
 - `turn_before_switchover` (Boolean) Allows to turn before switchover in RDSync.
 - `use_luajit` (Boolean) Use JIT for lua scripts and functions.
+- `zset_max_listpack_entries` (Number) Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist
 
 <a id="nestedblock--config--backup_window_start"></a>
 ### Nested Schema for `config.backup_window_start`

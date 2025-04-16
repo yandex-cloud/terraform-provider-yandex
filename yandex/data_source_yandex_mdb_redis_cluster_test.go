@@ -22,11 +22,11 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, nil, persistenceMode,
 					"7.2", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, nil, persistenceMode),
 			},
 		},
 	})
@@ -40,6 +40,7 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 	tlsEnabled := true
 	persistenceMode := "ON"
 	announceHostnames := true
+	authSentinel := true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -47,11 +48,11 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, &authSentinel, persistenceMode,
 					"7.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, &authSentinel, persistenceMode),
 			},
 		},
 	})
@@ -137,7 +138,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 }
 
 func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName string, redisName string, desc string,
-	tlsEnabled, announceHostnames *bool, persistenceMode string) resource.TestCheckFunc {
+	tlsEnabled, announceHostnames *bool, authSentinel *bool, persistenceMode string) resource.TestCheckFunc {
 	folderID := getExampleFolderID()
 	env := "PRESTABLE"
 	tlsEnabledStr := "false"
@@ -147,6 +148,10 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 	announceHostnamesStr := "false"
 	if announceHostnames != nil && *announceHostnames {
 		announceHostnamesStr = "true"
+	}
+	authSentinelStr := "false"
+	if authSentinel != nil && *authSentinel {
+		authSentinelStr = "true"
 	}
 	persistenceModeStr := "ON"
 	if persistenceMode == "OFF" {
@@ -165,6 +170,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "tls_enabled", tlsEnabledStr),
 		resource.TestCheckResourceAttr(datasourceName, "persistence_mode", persistenceModeStr),
 		resource.TestCheckResourceAttr(datasourceName, "announce_hostnames", announceHostnamesStr),
+		resource.TestCheckResourceAttr(datasourceName, "auth_sentinel", authSentinelStr),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		resource.TestCheckResourceAttr(datasourceName, "host.0.replica_priority", fmt.Sprintf("%d", defaultReplicaPriority)),
@@ -196,14 +202,14 @@ data "yandex_mdb_redis_cluster" "bar" {
 const mdbRedisDiskSizeGB = 16
 
 func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnabled, announceHostnames *bool,
-	persistenceMode, version string, useDataID bool) string {
+	authSentinel *bool, persistenceMode, version string, useDataID bool) string {
 	if useDataID {
 		return testAccMDBRedisClusterConfigMainWithMW(redisName, redisDesc, "PRESTABLE", false,
-			tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
+			tlsEnabled, announceHostnames, authSentinel, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
 			[]*bool{nil}, []*int{nil}) + mdbRedisClusterByIDConfig
 	}
 
 	return testAccMDBRedisClusterConfigMainWithMW(redisName, redisDesc, "PRESTABLE", false,
-		tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
+		tlsEnabled, announceHostnames, authSentinel, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
 		[]*bool{nil}, []*int{nil}) + mdbRedisClusterByNameConfig
 }
