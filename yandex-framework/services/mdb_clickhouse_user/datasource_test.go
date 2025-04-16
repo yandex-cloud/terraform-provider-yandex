@@ -75,6 +75,10 @@ func testAccDataSourceMDBClickHouseUserAttributesCheck(datasourceName string, re
 				"settings.%",
 				"settings.%",
 			},
+			{
+				"connection_manager.connection_id",
+				"connection_manager.connection_id",
+			},
 		}
 
 		log.Printf("[DEBUG] data attributes: %v\n", datasourceAttributes)

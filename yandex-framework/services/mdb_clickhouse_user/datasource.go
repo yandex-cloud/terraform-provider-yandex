@@ -44,7 +44,7 @@ func (d *bindingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 }
 
 func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state User
+	var state DatasourceUser
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return

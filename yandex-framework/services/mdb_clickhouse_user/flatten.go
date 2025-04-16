@@ -238,6 +238,22 @@ func flattenSettings(ctx context.Context, settings *clickhouse.UserSettings, dia
 	return obj
 }
 
+func flattenConnectionManager(ctx context.Context, connectionManager *clickhouse.ConnectionManager, diags *diag.Diagnostics) types.Object {
+	if connectionManager == nil {
+		return types.ObjectNull(connectionManagerType)
+	}
+
+	obj, d := types.ObjectValueFrom(
+		ctx, connectionManagerType, ConnectionManager{
+			ConnectionId: typesNullableString(connectionManager.ConnectionId),
+		},
+	)
+
+	log.Printf("[TRACE] mdb_clickhouse_user: flatten connection_manager to state: %+v\n", obj)
+	diags.Append(d...)
+	return obj
+}
+
 func typesInt64FromWrapper(value *wrapperspb.Int64Value) types.Int64 {
 	if value == nil {
 		return types.Int64Null()

@@ -3,6 +3,7 @@ package mdb_clickhouse_user
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -37,9 +38,16 @@ func UserSchema() schema.Schema {
 			},
 			"password": schema.StringAttribute{
 				MarkdownDescription: "Password of the ClickHouse user. Provided by the client when the user is created.",
-				Required:            true,
+				Optional:            true,
 				Sensitive:           true,
 			},
+			"generate_password": schema.BoolAttribute{
+				MarkdownDescription: "Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"connection_manager": ConnectionManagerSchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"permission": PermissionSchema(),
@@ -668,5 +676,17 @@ If the parameter is set to 0 (default), no hops is allowed.`,
 			},
 		},
 	}
+}
 
+func ConnectionManagerSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Connection Manager connection configuration. Filled in by the server automatically.",
+		Attributes: map[string]schema.Attribute{
+			"connection_id": schema.StringAttribute{
+				MarkdownDescription: "ID of Connection Manager connection. Filled in by the server automatically. String.",
+				Computed:            true,
+			},
+		},
+		Computed: true,
+	}
 }

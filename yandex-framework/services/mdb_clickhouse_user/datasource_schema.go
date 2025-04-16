@@ -23,9 +23,11 @@ func DataSourceUserSchema() schema.Schema {
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				MarkdownDescription: "Password of the ClickHouse user. Provided by the client when the user is created.",
+				Computed:            true,
+				Sensitive:           true,
 			},
+			"connection_manager": DataSourceConnectionManagerSchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"permission": DataSourcePermissionSchema(),
@@ -646,4 +648,17 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 		},
 	}
 
+}
+
+func DataSourceConnectionManagerSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Connection Manager connection configuration. Filled in by the server automatically.",
+		Attributes: map[string]schema.Attribute{
+			"connection_id": schema.StringAttribute{
+				MarkdownDescription: "ID of Connection Manager connection. Filled in by the server automatically. String.",
+				Computed:            true,
+			},
+		},
+		Computed: true,
+	}
 }

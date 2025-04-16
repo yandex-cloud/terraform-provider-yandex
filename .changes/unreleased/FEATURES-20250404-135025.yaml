@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: generate password using Connection Manager for new user resource'
+time: 2025-04-04T13:50:25.601389+03:00

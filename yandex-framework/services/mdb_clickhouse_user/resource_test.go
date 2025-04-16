@@ -29,7 +29,8 @@ func mdbClickHouseUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", // sensitive
+			"password",          // sensitive
+			"generate_password", // does not return
 		},
 	}
 
@@ -53,6 +54,8 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseUserResourceIDField(chUserResourceID1),
 					resource.TestCheckResourceAttr(chUserResourceID1, "name", chUserResourceName1),
+					resource.TestCheckResourceAttr(chUserResourceID1, "generate_password", "false"),
+					resource.TestCheckResourceAttr(chUserResourceID1, "connection_manager.%", "1"),
 					testAccCheckMDBClickHouseClusterHasUsers(chClusterResourceID, []string{chUserResourceName1}),
 				),
 			},
@@ -62,6 +65,8 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseUserResourceIDField(chUserResourceID1),
 					resource.TestCheckResourceAttr(chUserResourceID1, "name", chUserResourceName1),
+					resource.TestCheckResourceAttr(chUserResourceID1, "generate_password", "false"),
+					resource.TestCheckResourceAttr(chUserResourceID1, "connection_manager.%", "1"),
 					testAccCheckMDBClickHouseUserHasDatabases(chUserResourceID1, []string{chDBResourceName1, chDBResourceName2}),
 					resource.TestCheckResourceAttr(chUserResourceID1, "quota.0.interval_duration", "79800000"),
 					resource.TestCheckResourceAttr(chUserResourceID1, "quota.0.queries", "5000"),
@@ -394,6 +399,8 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseUserResourceIDField(chResourceID),
 					resource.TestCheckResourceAttr(chResourceID, "name", chUserName),
+					resource.TestCheckResourceAttr(chResourceID, "generate_password", "true"),
+					resource.TestCheckResourceAttr(chResourceID, "connection_manager.%", "1"),
 					testAccCheckMDBClickHouseUserSettingsSet(chResourceID, settingsCreate),
 				),
 			},
@@ -403,6 +410,8 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseUserResourceIDField(chResourceID),
 					resource.TestCheckResourceAttr(chResourceID, "name", chUserName),
+					resource.TestCheckResourceAttr(chResourceID, "generate_password", "true"),
+					resource.TestCheckResourceAttr(chResourceID, "connection_manager.%", "1"),
 					testAccCheckMDBClickHouseUserSettingsSet(chResourceID, settingsUpdate),
 				),
 			},
@@ -487,7 +496,7 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
    resource "yandex_mdb_clickhouse_user" "%s" {
     cluster_id = %s
     name     = "%s"
-    password = "SuperS@cret"
+    generate_password = "true"
     permission {
       database_name = %s.name
     }

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -51,7 +52,7 @@ func (r *bindingResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 }
 
 func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state User
+	var state ResourceUser
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -82,7 +83,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan User
+	var plan ResourceUser
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -94,6 +95,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	log.Printf("[DEBUG] User state: %v\n", plan)
 	userSpec, diags := userFromState(ctx, &plan)
 	log.Printf("[DEBUG] User spec from state: %v\n", userSpec)
+
+	if !isValidPasswordConfiguration(userSpec) {
+		resp.Diagnostics.AddError(
+			"Invalid user configuration",
+			"must specify either password or generate_password",
+		)
+	}
+
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -114,7 +123,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-func getUpdatePaths(plan, state *User) []string {
+func getUpdatePaths(plan, state *ResourceUser) []string {
 	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
 	if state.Password != plan.Password {
@@ -133,8 +142,8 @@ func getUpdatePaths(plan, state *User) []string {
 }
 
 func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan User
-	var state User
+	var plan ResourceUser
+	var state ResourceUser
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
@@ -144,6 +153,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	cid := plan.ClusterID.ValueString()
 	userPlan, diags := userFromState(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+
+	if !isValidPasswordConfiguration(userPlan) {
+		resp.Diagnostics.AddError(
+			"Invalid user configuration",
+			"must specify either password or generate_password",
+		)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -168,7 +185,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state User
+	var state ResourceUser
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -193,14 +210,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	var state User
+	var state ResourceUser
 	resp.Diagnostics.Append(userToState(ctx, user, &state)...)
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *bindingResource) refreshResourceState(ctx context.Context, state *User, respDiagnostics *diag.Diagnostics) {
+func (r *bindingResource) refreshResourceState(ctx context.Context, state *ResourceUser, respDiagnostics *diag.Diagnostics) {
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
 	user := readUser(ctx, r.providerConfig.SDK, respDiagnostics, cid, userName)
@@ -212,4 +229,12 @@ func (r *bindingResource) refreshResourceState(ctx context.Context, state *User,
 	if respDiagnostics.HasError() {
 		return
 	}
+}
+
+func isValidPasswordConfiguration(userSpec *clickhouse.UserSpec) bool {
+	passwordSpecified := len(userSpec.Password) > 0
+
+	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
+	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
+	return !isBothFieldNotSpecified && !isBothFieldSpecified
 }
