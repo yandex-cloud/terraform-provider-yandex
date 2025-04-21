@@ -195,9 +195,9 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 	res.ReplicaFetchMaxBytes = parseIntKafkaConfigParam(d, "replica_fetch_max_bytes", &retErr)
 	res.OffsetsRetentionMinutes = parseIntKafkaConfigParam(d, "offsets_retention_minutes", &retErr)
 
-	if v, ok := d.GetOk(kafkaConfigPath + ".log_preallocate"); ok {
-		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
-	}
+	// if v, ok := d.GetOk(kafkaConfigPath + ".log_preallocate"); ok {
+	// 	res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
+	// }
 	if v, ok := d.GetOk(kafkaConfigPath + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
 	}
@@ -705,9 +705,9 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	if kafkaConfig.GetLogSegmentBytes() != nil {
 		res["log_segment_bytes"] = strconv.FormatInt(kafkaConfig.GetLogSegmentBytes().GetValue(), 10)
 	}
-	if kafkaConfig.GetLogPreallocate() != nil {
-		res["log_preallocate"] = kafkaConfig.GetLogPreallocate().GetValue()
-	}
+	// if kafkaConfig.GetLogPreallocate() != nil {
+	// 	res["log_preallocate"] = kafkaConfig.GetLogPreallocate().GetValue()
+	// }
 	if kafkaConfig.GetSocketSendBufferBytes() != nil {
 		res["socket_send_buffer_bytes"] = strconv.FormatInt(kafkaConfig.GetSocketSendBufferBytes().GetValue(), 10)
 	}

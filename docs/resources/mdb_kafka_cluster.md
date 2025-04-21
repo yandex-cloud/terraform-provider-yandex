@@ -48,7 +48,6 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
         log_retention_minutes           = 10080
         log_retention_ms                = 86400000
         log_segment_bytes               = 134217728
-        log_preallocate                 = true
         num_partitions                  = 10
         default_replication_factor      = 1
         message_max_bytes               = 1048588
@@ -130,7 +129,6 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
         log_retention_minutes           = 10080
         log_retention_ms                = 86400000
         log_segment_bytes               = 134217728
-        log_preallocate                 = true
         num_partitions                  = 10
         default_replication_factor      = 6
         message_max_bytes               = 1048588
@@ -231,7 +229,6 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
         log_retention_minutes           = 10080
         log_retention_ms                = 86400000
         log_segment_bytes               = 134217728
-        log_preallocate                 = true
         num_partitions                  = 10
         default_replication_factor      = 6
         message_max_bytes               = 1048588
@@ -309,7 +306,6 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
         log_retention_minutes           = 10080
         log_retention_ms                = 86400000
         log_segment_bytes               = 134217728
-        log_preallocate                 = true
         num_partitions                  = 10
         default_replication_factor      = 6
         message_max_bytes               = 1048588
@@ -429,7 +425,6 @@ Optional:
 - `log_flush_interval_messages` (String)
 - `log_flush_interval_ms` (String)
 - `log_flush_scheduler_interval_ms` (String)
-- `log_preallocate` (Boolean)
 - `log_retention_bytes` (String)
 - `log_retention_hours` (String)
 - `log_retention_minutes` (String)

@@ -124,7 +124,6 @@ Optional:
 - `log_flush_interval_messages` (String)
 - `log_flush_interval_ms` (String)
 - `log_flush_scheduler_interval_ms` (String)
-- `log_preallocate` (Boolean)
 - `log_retention_bytes` (String)
 - `log_retention_hours` (String)
 - `log_retention_minutes` (String)
