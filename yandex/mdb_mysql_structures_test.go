@@ -58,6 +58,8 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 	}
 
 	ethalon := map[string]string{
+		"audit_log_policy":                       "0",
+		"innodb_change_buffering":                "0",
 		"binlog_transaction_dependency_tracking": "0",
 		"max_connections":                        "555",
 		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
@@ -100,7 +102,10 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 		t.Errorf("FlattenMySQLSettings fail: flatten 8_0 error: %v", err)
 	}
 
+	// TODO remove deep equal
 	ethalon := map[string]string{
+		"audit_log_policy":                       "0",
+		"innodb_change_buffering":                "0",
 		"binlog_transaction_dependency_tracking": "0",
 		"max_connections":                        "555",
 		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
