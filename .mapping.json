@@ -1461,6 +1461,7 @@
   "yandex-framework/services/kubernetes_marketplace_helm_release/api.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/kubernetes_marketplace_helm_release/api.go",
   "yandex-framework/services/kubernetes_marketplace_helm_release/model.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/kubernetes_marketplace_helm_release/model.go",
   "yandex-framework/services/kubernetes_marketplace_helm_release/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/kubernetes_marketplace_helm_release/resource.go",
+  "yandex-framework/services/kubernetes_marketplace_helm_release/resource_acc_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/kubernetes_marketplace_helm_release/resource_acc_test.go",
   "yandex-framework/services/kubernetes_marketplace_helm_release/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/kubernetes_marketplace_helm_release/resource_test.go",
   "yandex-framework/services/mdb_clickhouse_database/api.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_clickhouse_database/api.go",
   "yandex-framework/services/mdb_clickhouse_database/common_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_clickhouse_database/common_test.go",
