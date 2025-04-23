@@ -7,6 +7,8 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
+**Deprecated. Service will be removed soon. Please migrate to Yandex Managed OpenSearch cluster** 
+
 Manages a Elasticsearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-elasticsearch/concepts).
 
 ## Example usage
