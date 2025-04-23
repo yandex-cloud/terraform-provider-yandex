@@ -113,6 +113,12 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 				Description: common.ResourceDescriptions["security_group_ids"],
 			},
 
+			"allow_zonal_shift": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Specifies whether application load balancer is available to zonal shift",
+			},
+
 			"allocation_policy": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -278,7 +284,7 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 																Type:        schema.TypeString,
 																Computed:    true,
 																Optional:    true,
-																Description: "Provided by the client or computed automatically.",
+																Description: "ID of the subnet that the address belongs to.",
 															},
 														},
 													},
@@ -334,9 +340,10 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"stream": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Stream configuration",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"handler": streamHandler(),
@@ -344,26 +351,30 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"tls": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "TLS configuration",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"default_handler": tlsHandler(),
 									"sni_handler": {
-										Type:     schema.TypeList,
-										Optional: true,
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Settings for handling requests with Server Name Indication (SNI)",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Name of the SNI handler",
 												},
 												"server_names": {
-													Type:     schema.TypeSet,
-													Required: true,
-													Elem:     &schema.Schema{Type: schema.TypeString},
-													Set:      schema.HashString,
+													Type:        schema.TypeSet,
+													Required:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Set:         schema.HashString,
+													Description: "Server names that are matched by the SNI handler",
 												},
 												"handler": tlsHandler(),
 											},
@@ -406,7 +417,7 @@ func httpHandler() *schema.Schema {
 		Type:        schema.TypeList,
 		MaxItems:    1,
 		Optional:    true,
-		Description: "Stream handler that sets plaintext Stream backend group.",
+		Description: "HTTP handler.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"http_router_id": {
@@ -490,6 +501,7 @@ func buildALBLoadBalancerCreateRequest(d *schema.ResourceData, config *Config) (
 		NetworkId:        d.Get("network_id").(string),
 		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
 		Labels:           labels,
+		AllowZonalShift:  d.Get("allow_zonal_shift").(bool),
 	}
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)
@@ -581,6 +593,7 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 	d.Set("security_group_ids", alb.SecurityGroupIds)
 	d.Set("log_group_id", alb.LogGroupId)
 	d.Set("status", strings.ToLower(alb.Status.String()))
+	d.Set("allow_zonal_shift", alb.AllowZonalShift)
 
 	allocationPolicy, err := flattenALBAllocationPolicy(alb)
 	if err != nil {
@@ -625,6 +638,7 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 		Description:      d.Get("description").(string),
 		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
 		Labels:           labels,
+		AllowZonalShift:  d.Get("allow_zonal_shift").(bool),
 	}
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)

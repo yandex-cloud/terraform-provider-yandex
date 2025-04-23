@@ -88,6 +88,7 @@ type resourceALBLoadBalancerInfo struct {
 	HTTPToHTTPS          string
 	CertificateID        string
 	IdleTimeout          string
+	AllowZonalShift      bool
 }
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
@@ -117,6 +118,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		HTTPToHTTPS:          albDefaultHTTPToHTTPS,
 		CertificateID:        os.Getenv("ALB_TEST_CERTIFICATE_ID"),
 		IdleTimeout:          albDefaultIdleTimeout,
+		AllowZonalShift:      false,
 	}
 
 	return res
@@ -319,7 +321,7 @@ const albVirtualHostConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_virtual_host" "test-virtual-host-ds" {
   virtual_host_id = yandex_alb_virtual_host.test-vh.id
-}		
+}
 {{ end }}
 resource "yandex_alb_http_router" "test-router" {
   name        = "{{.RouterName}}"
@@ -351,7 +353,7 @@ resource "yandex_alb_virtual_host" "test-vh" {
   modify_request_headers {
     name   = "test-header"
     append = "{{.ModificationAppend}}"
-  } 
+  }
   {{if .IsVirtualHostRBAC}}
   route_options {
     rbac {
@@ -430,7 +432,7 @@ resource "yandex_alb_virtual_host" "test-vh" {
       direct_response_action {
         status = {{.DirectResponseStatus}}
         body = "{{.DirectResponseBody}}"
-      }  
+      }
       {{end}}
       {{if .IsRedirectAction}}
       redirect_action {
@@ -484,7 +486,7 @@ resource "yandex_alb_virtual_host" "test-vh" {
       {{if .IsGRPCStatusResponseAction}}
       grpc_status_response_action {
         status = "{{.GRPCStatusResponseActionStatus}}"
-      }  
+      }
       {{end}}
     }
     {{end}}
@@ -541,7 +543,7 @@ const albHTTPRouterConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_http_router" "test-http-router-ds" {
   http_router_id = yandex_alb_http_router.test-vh.id
-}		
+}
 {{ end }}
 resource "yandex_alb_http_router" "test-router" {
   name        = "{{.RouterName}}"
@@ -607,6 +609,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   name        = "{{.BalancerName}}"
   description = "{{.BalancerDescription}}"
 
+  allow_zonal_shift = "{{.AllowZonalShift}}"
   security_group_ids = [yandex_vpc_security_group.test-security-group.id]
   network_id  = yandex_vpc_network.test-network.id
   labels = {
@@ -616,7 +619,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   allocation_policy {
     location {
       zone_id   = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.test-subnet.id 
+      subnet_id = yandex_vpc_subnet.test-subnet.id
     }
   }
   {{ if .IsLogOptions }}
@@ -643,7 +646,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         }
       }
       ports = [ {{.EndpointPort}} ]
-    }    
+    }
     {{if .IsHTTPListener}}
     http {
       {{if .IsHTTPHandler}}
@@ -705,7 +708,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
           backend_group_id = yandex_alb_backend_group.test-bg.id
           {{if .IsIdleTimeout}}
           idle_timeout = {{.IdleTimeout}}
-          {{end}}          
+          {{end}}
         }
         {{end}}
         certificate_ids = ["{{.CertificateID}}"]
@@ -724,7 +727,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       }
     }
     {{end}}
-  }    
+  }
   {{end}}
 }
 
@@ -746,7 +749,7 @@ const albBackendGroupConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_backend_group" "test-bg-ds" {
   name = yandex_alb_backend_group.test-bg.name
-}		
+}
 {{ end }}
 resource "yandex_alb_backend_group" "test-bg" {
   name        = "{{.BGName}}"
@@ -1051,7 +1054,7 @@ func testAccALBGeneralTGTemplate(tgName, tgDesc, baseTemplate string, targetsCou
 {{ if .IsDataSource }}
 data "yandex_alb_target_group" "test-tg-ds" {
   name = yandex_alb_target_group.test-tg.name
-}		
+}
 {{ end }}
 resource "yandex_alb_target_group" "test-tg" {
   name        = "{{.TGName}}"
@@ -1065,7 +1068,7 @@ resource "yandex_alb_target_group" "test-tg" {
   target {
     subnet_id  = yandex_vpc_subnet.test-subnet.id
     ip_address = yandex_compute_instance.{{.}}.network_interface.0.ip_address
-  }		
+  }
   {{end}}
 }
 

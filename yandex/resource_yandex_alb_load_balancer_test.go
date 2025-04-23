@@ -623,11 +623,11 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     tf-label    = "tf-label-value"
     empty-label = ""
   }
-  
+
   allocation_policy {
     location {
       zone_id   = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.test-subnet.id 
+      subnet_id = yandex_vpc_subnet.test-subnet.id
     }
   }
 }
@@ -734,6 +734,29 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 		assert.Equal(t, req.GetFolderId(), "folder1")
 		assert.Equal(t, req.GetName(), "lb-name")
 		assert.NotNil(t, req.GetLogOptions())
+	})
+
+	t.Run("allow-zonal-shift", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":                "lbid",
+			"name":              "lb-name",
+			"log_options":       []interface{}{nil},
+			"allocation_policy": testMakeAllocations("1"),
+			"allow_zonal_shift": true,
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "folder1")
+		assert.Equal(t, req.GetName(), "lb-name")
+		assert.True(t, req.GetAllowZonalShift())
 	})
 
 	t.Run("full-log-options", func(t *testing.T) {
