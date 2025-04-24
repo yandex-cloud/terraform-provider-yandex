@@ -844,6 +844,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 
 	dsa := `
 		disk_size_limit = 20
+    	emergency_usage_threshold = 85
 	`
 
 	stepsFullBasic := []resource.TestStep{
@@ -985,7 +986,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 					"disk_size_limit":           knownvalue.Int64Exact(20),
-					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"emergency_usage_threshold": knownvalue.Int64Exact(85),
 					"planned_usage_threshold":   knownvalue.Int64Exact(0),
 				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
@@ -1026,7 +1027,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
 					DiskSizeLimit:           datasize.ToBytes(20),
 					PlannedUsageThreshold:   0,
-					EmergencyUsageThreshold: 0,
+					EmergencyUsageThreshold: 85,
 				}),
 				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
 					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
@@ -1078,7 +1079,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 					"disk_size_limit":           knownvalue.Int64Exact(20),
-					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"emergency_usage_threshold": knownvalue.Int64Exact(85),
 					"planned_usage_threshold":   knownvalue.Int64Exact(0),
 				})),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
@@ -1115,7 +1116,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
 					DiskSizeLimit:           datasize.ToBytes(20),
 					PlannedUsageThreshold:   0,
-					EmergencyUsageThreshold: 0,
+					EmergencyUsageThreshold: 85,
 				}),
 				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
 					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,

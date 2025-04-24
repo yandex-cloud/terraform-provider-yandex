@@ -189,7 +189,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 12. Change some options
+			// 10. Change some options
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -223,7 +223,16 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 13. Check it is possible to drop users and dbs
+			// 12. remove pooler_config section
+			{
+				Config: testAccMDBPGClusterConfigUpdated_removePoolerConfig(clusterName, pgDesc2, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					testAccCheckMDBPGClusterHasNoPoolerConfig(&cluster),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// 14. Check it is possible to drop users and dbs
 			{
 				Config: testAccMDBPGClusterConfigCheckUsersAndDBsDropping(clusterName, pgDesc2, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -236,7 +245,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 14. Check if description can be set to null
+			// 16. Check if description can be set to null
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version),
 				Check: resource.ComposeTestCheckFunc(
@@ -603,6 +612,17 @@ func testAccCheckMDBPGClusterHasPoolerConfig(r *postgresql.Cluster, poolingMode 
 
 		if rs.PoolingMode.String() != poolingMode {
 			return fmt.Errorf("Expected pooling mode %v, got %v", poolingMode, rs.PoolingMode.String())
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBPGClusterHasNoPoolerConfig(r *postgresql.Cluster) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := r.Config.PoolerConfig
+		if rs != nil {
+			return fmt.Errorf("Expected pooling mode is absent, but it present %v", r.Config.PoolerConfig)
 		}
 
 		return nil
@@ -1273,6 +1293,126 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 `, name, desc, version)
 }
 
+func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string) string {
+
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "WED"
+    hour = 22
+  }
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 18
+      disk_type_id       = "network-ssd"
+    }
+    access {
+      web_sql       = true
+      serverless    = false
+      data_lens     = false
+	  data_transfer = false
+    }
+    performance_diagnostics {
+      sessions_sampling_interval   = 9
+      statements_sampling_interval = 60
+    }
+
+    disk_size_autoscaling {
+      disk_size_limit           = 40
+      planned_usage_threshold   = 70
+      emergency_usage_threshold = 90
+    }
+    
+    backup_retain_period_days = 12
+
+    postgresql_config = {
+      max_connections                   = 395
+      enable_parallel_hash              = true
+      autovacuum_vacuum_scale_factor    = 0.34
+      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+	  shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+  }
+
+  user {
+    name       = "alice"
+    password   = "mysecurepassword"
+    conn_limit = 42
+
+    permission {
+      database_name = "testdb"
+    }
+
+    permission {
+      database_name = "newdb"
+    }
+
+    settings = {
+      default_transaction_isolation = "read uncommitted"
+      log_min_duration_statement    = 5000
+    }
+  }
+
+  user {
+    name     = "bob"
+    password = "anothersecurepassword"
+
+    permission {
+      database_name = "newdb"
+    }
+
+    permission {
+      database_name = "fornewuserdb"
+    }
+
+    settings = {
+      default_transaction_isolation = "read committed"
+      log_min_duration_statement    = 5000
+    }
+  }
+
+  host {
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    assign_public_ip = true
+  }
+
+  database {
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
+  }
+
+  database {
+    owner = "alice"
+    name  = "newdb"
+  }
+
+  database {
+    owner = "bob"
+    name  = "fornewuserdb"
+  }
+
+  security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
+}
+`, name, desc, version)
+}
+
 func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 	resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1317,11 +1457,6 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 		  }
 		  
 		  backup_retain_period_days = 12
-		  
-		  pooler_config {
-			pooling_mode = "TRANSACTION"
-			pool_discard = false
-		  }
 	  
 		  postgresql_config = {
 			max_connections                   = 395
