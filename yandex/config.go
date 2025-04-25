@@ -27,6 +27,7 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
+    yqsdk "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk"
 )
 
 type iamToken struct {
@@ -40,6 +41,7 @@ func (t iamToken) IsValid() bool {
 
 type Config struct {
 	Endpoint                       string
+    YQEndpoint                     string
 	FolderID                       string
 	CloudID                        string
 	OrganizationID                 string
@@ -72,6 +74,7 @@ type Config struct {
 
 	userAgent         string
 	sdk               *ycsdk.SDK
+    yqSdk             *yqsdk.SDK
 	sharedCredentials *SharedCredentials
 	defaultS3Client   *s3.Client
 	iamToken          *iamToken
@@ -95,7 +98,7 @@ func (c *Config) ContextWithClientTraceID(ctx context.Context) context.Context {
 	return ctx
 }
 
-// Client configures and returns a fully initialized Yandex Cloud sdk
+// Client configures and returns a fully initialized Yandex Cloud sdk and YQ sdk
 func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string, sweeper bool) error {
 	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
 
@@ -148,6 +151,21 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
 		grpc.WithUnaryInterceptor(interceptorChain),
 		retryOptions)
+	if err != nil {
+		return err
+	}
+
+    yqSDKConfig := &yqsdk.Config{
+		AuthToken: c.Token,
+		FolderID:  c.FolderID,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: c.Insecure,
+		},
+		Endpoint:  c.YQEndpoint,
+		Plaintext: c.Plaintext,
+	}
+
+	c.yqSdk, err = yqsdk.NewYQSDK(c.contextWithClientTraceID, *yqSDKConfig)
 	if err != nil {
 		return err
 	}

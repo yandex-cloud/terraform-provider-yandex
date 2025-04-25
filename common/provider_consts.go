@@ -6,12 +6,13 @@ const (
 	DefaultStorageEndpoint = "storage.yandexcloud.net"
 	DefaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
 	DefaultRegion          = "ru-central1"
+    DefaultYQEndpoint      = "grpc.yandex-query.cloud.yandex.net:2135"
 )
 
 var Descriptions = map[string]string{
 	"endpoint": "The endpoint for API calls, default value is **" + DefaultEndpoint + "**.\n" +
 		"This can also be defined by environment variable `YC_ENDPOINT`.",
-
+    "yq_endpoint": "The API endpoint for Yandex.Cloud YQ SDK client.",
 	"folder_id": "The ID of the [Folder](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder) to operate under, if not specified by a given resource.\n" +
 		"This can also be specified using environment variable `YC_FOLDER_ID`.",
 

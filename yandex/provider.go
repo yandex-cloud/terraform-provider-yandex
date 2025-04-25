@@ -37,6 +37,11 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 				Optional:    true,
 				Description: common.Descriptions["endpoint"],
 			},
+    		"yq_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: common.Descriptions["yq_endpoint"],
+			},
 			"folder_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -366,6 +371,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_table":                                         resourceYandexYDBTable(),
 			"yandex_ydb_table_changefeed":                              resourceYandexYDBTableChangefeed(),
 			"yandex_ydb_table_index":                                   resourceYandexYDBTableIndex(),
+            "yandex_yq_object_storage_connection":                      resourceYandexYQObjectStorageConnection(),
 			"yandex_sws_security_profile":                              resourceYandexSmartwebsecuritySecurityProfile(),
 			"yandex_sws_advanced_rate_limiter_profile":                 resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
 			"yandex_sws_waf_profile":                                   resourceYandexSmartwebsecurityWafWafProfile(),
@@ -438,6 +444,7 @@ func setToDefaultBoolIfNeeded(osEnvName string, defaultVal bool) bool {
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool, testConfig bool) (interface{}, diag.Diagnostics) {
 	config := Config{
 		Endpoint:                       setToDefaultIfNeeded(d.Get("endpoint").(string), "YC_ENDPOINT", common.DefaultEndpoint),
+        YQEndpoint:                     setToDefaultIfNeeded(d.Get("yq_endpoint").(string), "YQ_ENDPOINT", common.DefaultYQEndpoint),
 		FolderID:                       setToDefaultIfNeeded(d.Get("folder_id").(string), "YC_FOLDER_ID", ""),
 		CloudID:                        setToDefaultIfNeeded(d.Get("cloud_id").(string), "YC_CLOUD_ID", ""),
 		OrganizationID:                 setToDefaultIfNeeded(d.Get("organization_id").(string), "YC_ORGANIZATION_ID", ""),
