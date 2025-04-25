@@ -82,8 +82,15 @@ type airflowClusterConfigParams struct {
 	Triggerer          *airflowComponentParams
 	Worker             airflowWorkerParams
 	Labels             map[string]string
+	MaintenanceWindow  *MaintenanceWindow
 	DeletionProtection bool
 	AdditionalParams   bool
+}
+
+type MaintenanceWindow struct {
+	Type string
+	Hour int
+	Day  string
 }
 
 type airflowComponentParams struct {
@@ -140,6 +147,16 @@ resource "yandex_airflow_cluster" "airflow_cluster" {
     {{ range $key, $val := .Labels}}
 	{{ $key }} = "{{ $val }}"
     {{ end }}
+  }
+  {{ end }}
+
+  {{ if .MaintenanceWindow }}
+  maintenance_window = {
+	type = "{{ .MaintenanceWindow.Type }}"
+	{{ if eq .MaintenanceWindow.Type "WEEKLY"}}
+	day  = "{{ .MaintenanceWindow.Day }}"
+	hour = {{ .MaintenanceWindow.Hour }}
+	{{ end }}
   }
   {{ end }}
 
@@ -275,6 +292,8 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.0"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.2"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "airflow_version"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "name", fmt.Sprintf("airflow-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "folder_id", folderID),
@@ -286,6 +305,7 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "worker.max_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "worker.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.type", "ANYTIME"),
 				),
 			},
 			airflowClusterImportStep("yandex_airflow_cluster.airflow_cluster"),
@@ -313,6 +333,11 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					Labels: map[string]string{
 						"label": "value",
 					},
+					MaintenanceWindow: &MaintenanceWindow{
+						Type: "WEEKLY",
+						Day:  "MON",
+						Hour: 2,
+					},
 					DeletionProtection: true,
 					AdditionalParams:   true,
 				}),
@@ -323,6 +348,8 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.0"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.2"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "airflow_version"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "name", fmt.Sprintf("airflow-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "folder_id", folderID),
@@ -338,6 +365,9 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "triggerer.resource_preset_id", "c1-m2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "labels.label", "value"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "deletion_protection", "true"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.type", "WEEKLY"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.day", "MON"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.hour", "2"),
 					// Additional
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "airflow_config.api.auth_backends"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "security_group_ids.0"),
@@ -371,6 +401,9 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 						MaxCount:         1,
 						ResourcePresetID: "c1-m4",
 					},
+					MaintenanceWindow: &MaintenanceWindow{
+						Type: "ANYTIME",
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAirflowExists("yandex_airflow_cluster.airflow_cluster", &cluster),
@@ -379,6 +412,8 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.0"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "subnet_ids.2"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "airflow_version"),
+					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "name", fmt.Sprintf("airflow-%s", randSuffix)),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "folder_id", folderID),
@@ -390,6 +425,7 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "worker.max_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "worker.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.type", "ANYTIME"),
 				),
 			},
 			airflowClusterImportStep("yandex_airflow_cluster.airflow_cluster"),

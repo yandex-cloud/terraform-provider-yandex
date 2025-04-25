@@ -41,6 +41,7 @@ data "yandex_airflow_cluster" "airflow_cluster_by_id" {
 
 - `admin_password` (String, Sensitive) Password that is used to log in to Apache Airflow web UI under `admin` user.
 - `airflow_config` (Map of Map of String) Configuration of the Apache Airflow application itself. The value of this attribute is a two-level map. Keys of top-level map are the names of [configuration sections](https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#airflow-configuration-options). Keys of inner maps are the names of configuration options within corresponding section.
+- `airflow_version` (String) Apache Airflow version in format `<major>.<minor>`.
 - `code_sync` (Attributes) Parameters of the location and access to the code that will be executed in the cluster. (see [below for nested schema](#nestedatt--code_sync))
 - `created_at` (String) The creation timestamp of the resource.
 - `deb_packages` (Set of String) System packages that are installed in the cluster.
@@ -50,7 +51,9 @@ data "yandex_airflow_cluster" "airflow_cluster_by_id" {
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `lockbox_secrets_backend` (Attributes) Configuration of Lockbox Secrets Backend. [See documentation](https://yandex.cloud/docs/managed-airflow/tutorials/lockbox-secrets-in-maf-cluster) for details. (see [below for nested schema](#nestedatt--lockbox_secrets_backend))
 - `logging` (Attributes) Cloud Logging configuration. (see [below for nested schema](#nestedatt--logging))
+- `maintenance_window` (Attributes) Configuration of window for maintenance operations. (see [below for nested schema](#nestedatt--maintenance_window))
 - `pip_packages` (Set of String) Python packages that are installed in the cluster.
+- `python_version` (String) Version of Python that Airflow will run on. Must be in format `<major>.<minor>`.
 - `scheduler` (Attributes) Configuration of scheduler instances. (see [below for nested schema](#nestedatt--scheduler))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource. For more information, see [documentation](https://yandex.cloud/docs/managed-airflow/concepts/impersonation).
@@ -101,6 +104,16 @@ Read-Only:
 - `folder_id` (String) Logs are written to **default log group** of specified folder.
 - `log_group_id` (String) Logs are written to the **specified log group**.
 - `min_level` (String) Minimum level of messages that are sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`.
+
+
+<a id="nestedatt--maintenance_window"></a>
+### Nested Schema for `maintenance_window`
+
+Read-Only:
+
+- `day` (String) Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+- `hour` (Number) Hour of day in UTC time zone (1-24) for maintenance window.
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.
 
 
 <a id="nestedatt--scheduler"></a>

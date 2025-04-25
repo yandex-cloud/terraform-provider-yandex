@@ -28,6 +28,10 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 					airflowConfigValidator(),
 				},
 			},
+			"airflow_version": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Apache Airflow version in format `<major>.<minor>`.",
+			},
 			"code_sync": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"s3": schema.SingleNestedAttribute{
@@ -138,6 +142,41 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				MarkdownDescription: "Cloud Logging configuration.",
 			},
+			"maintenance_window": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"day": schema.StringAttribute{
+						Computed:            true,
+						MarkdownDescription: "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+						Validators: []validator.String{
+							mwDayValidator(),
+						},
+					},
+					"hour": schema.Int64Attribute{
+						Computed:            true,
+						MarkdownDescription: "Hour of day in UTC time zone (1-24) for maintenance window.",
+						Validators: []validator.Int64{
+							mwHourValidator(),
+						},
+					},
+					"type": schema.StringAttribute{
+						Computed:            true,
+						MarkdownDescription: "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+						Validators: []validator.String{
+							mwTypeValidator(),
+						},
+					},
+				},
+				CustomType: MaintenanceWindowType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MaintenanceWindowValue{}.AttributeTypes(ctx),
+					},
+				},
+				Computed:            true,
+				MarkdownDescription: "Configuration of window for maintenance operations.",
+				Validators: []validator.Object{
+					mwValidator(),
+				},
+			},
 			"name": schema.StringAttribute{
 				Computed:            true,
 				Optional:            true,
@@ -147,6 +186,10 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Computed:            true,
 				MarkdownDescription: "Python packages that are installed in the cluster.",
+			},
+			"python_version": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Version of Python that Airflow will run on. Must be in format `<major>.<minor>`.",
 			},
 			"scheduler": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -252,5 +295,6 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Read: true,
 			}),
 		},
+		Description: "Managed Airflow cluster.",
 	}
 }

@@ -79,6 +79,8 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 	state.Scheduler = schedulerValueFromAPI(cluster.GetConfig().GetScheduler())
 	state.Worker = workerValueFromAPI(cluster.GetConfig().GetWorker())
 	state.Triggerer = triggererValueFromAPI(cluster.GetConfig().GetTriggerer())
+	state.AirflowVersion = types.StringValue(cluster.GetConfig().GetAirflowVersion())
+	state.PythonVersion = types.StringValue(cluster.GetConfig().GetPythonVersion())
 
 	codeSyncConfigObject, diags := codeSyncValueFromAPI(ctx, cluster.GetCodeSync())
 	if diags.HasError() {
@@ -106,6 +108,12 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 	if !state.AirflowConfig.IsNull() || airflowConfig.IsNull() || len(airflowConfig.Elements()) != 0 {
 		state.AirflowConfig = airflowConfig
 	}
+
+	maintenanceWindow, diags := maintenanceWindowFromAPI(cluster.GetMaintenanceWindow())
+	if diags.HasError() {
+		return diags
+	}
+	state.MaintenanceWindow = maintenanceWindow
 
 	return diags
 }
@@ -237,6 +245,38 @@ func lockboxValueFromAPI(cfg *airflow.LockboxConfig) LockboxSecretsBackendValue 
 		Enabled: types.BoolValue(cfg.GetEnabled()),
 		state:   attr.ValueStateKnown,
 	}
+}
+
+func maintenanceWindowFromAPI(mw *airflow.MaintenanceWindow) (MaintenanceWindowValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	if mw == nil {
+		return NewMaintenanceWindowValueNull(), diags
+	}
+
+	var res MaintenanceWindowValue
+	switch policy := mw.GetPolicy().(type) {
+	case *airflow.MaintenanceWindow_Anytime:
+		res = MaintenanceWindowValue{
+			MaintenanceWindowType: types.StringValue("ANYTIME"),
+			state:                 attr.ValueStateKnown,
+		}
+	case *airflow.MaintenanceWindow_WeeklyMaintenanceWindow:
+		day := airflow.WeeklyMaintenanceWindow_WeekDay_name[int32(policy.WeeklyMaintenanceWindow.GetDay())]
+		res = MaintenanceWindowValue{
+			MaintenanceWindowType: types.StringValue("WEEKLY"),
+			Day:                   types.StringValue(day),
+			Hour:                  types.Int64Value(policy.WeeklyMaintenanceWindow.GetHour()),
+			state:                 attr.ValueStateKnown,
+		}
+	default:
+		diags.AddError(
+			"Failed to parse Airflow maintenance window received from Cloud API",
+			"Maintenance window has unexpected type",
+		)
+		return NewMaintenanceWindowValueNull(), diags
+	}
+
+	return res, diags
 }
 
 func airflowConfigFromAPI(ctx context.Context, cfg *airflow.AirflowConfig) (basetypes.MapValue, diag.Diagnostics) {

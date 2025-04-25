@@ -55,6 +55,11 @@ func airflowDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) 
 		Labels: map[string]string{
 			"label": "value",
 		},
+		MaintenanceWindow: &MaintenanceWindow{
+			Type: "WEEKLY",
+			Day:  "MON",
+			Hour: 2,
+		},
 		AdditionalParams: true,
 	})
 
@@ -82,6 +87,8 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttrSet("data.yandex_airflow_cluster.airflow_cluster", "subnet_ids.0"),
 		resource.TestCheckResourceAttrSet("data.yandex_airflow_cluster.airflow_cluster", "subnet_ids.1"),
 		resource.TestCheckResourceAttrSet("data.yandex_airflow_cluster.airflow_cluster", "subnet_ids.2"),
+		resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "airflow_version"),
+		resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster", "python_version"),
 		resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
 		resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "name", fmt.Sprintf("airflow-%s", randSuffix)),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "folder_id", folderID),
@@ -96,6 +103,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "triggerer.resource_preset_id", "c1-m2"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "labels.label", "value"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "deletion_protection", "false"),
+
 		// Additional
 		resource.TestCheckResourceAttrSet("data.yandex_airflow_cluster.airflow_cluster", "airflow_config.api.auth_backends"),
 		resource.TestCheckResourceAttrSet("data.yandex_airflow_cluster.airflow_cluster", "security_group_ids.0"),
@@ -106,5 +114,8 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.enabled", "true"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.min_level", "INFO"),
+		resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.type", "WEEKLY"),
+		resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.day", "MON"),
+		resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster", "maintenance_window.hour", "2"),
 	)
 }

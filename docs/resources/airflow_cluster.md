@@ -80,6 +80,7 @@ resource "yandex_airflow_cluster" "my_airflow_cluster" {
 
 - `admin_password` (String, Sensitive) Password that is used to log in to Apache Airflow web UI under `admin` user.
 - `airflow_config` (Map of Map of String) Configuration of the Apache Airflow application itself. The value of this attribute is a two-level map. Keys of top-level map are the names of [configuration sections](https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#airflow-configuration-options). Keys of inner maps are the names of configuration options within corresponding section.
+- `airflow_version` (String) Apache Airflow version in format `<major>.<minor>`.
 - `deb_packages` (Set of String) System packages that are installed in the cluster.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
@@ -87,7 +88,9 @@ resource "yandex_airflow_cluster" "my_airflow_cluster" {
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `lockbox_secrets_backend` (Attributes) Configuration of Lockbox Secrets Backend. [See documentation](https://yandex.cloud/docs/managed-airflow/tutorials/lockbox-secrets-in-maf-cluster) for details. (see [below for nested schema](#nestedatt--lockbox_secrets_backend))
 - `logging` (Attributes) Cloud Logging configuration. (see [below for nested schema](#nestedatt--logging))
+- `maintenance_window` (Attributes) Configuration of window for maintenance operations. (see [below for nested schema](#nestedatt--maintenance_window))
 - `pip_packages` (Set of String) Python packages that are installed in the cluster.
+- `python_version` (String) Version of Python that Airflow will run on. Must be in format `<major>.<minor>`.
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `triggerer` (Attributes) Configuration of `triggerer` instances. (see [below for nested schema](#nestedatt--triggerer))
@@ -163,6 +166,16 @@ Optional:
 - `folder_id` (String) Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.
 - `log_group_id` (String) Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.
 - `min_level` (String) Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).
+
+
+<a id="nestedatt--maintenance_window"></a>
+### Nested Schema for `maintenance_window`
+
+Optional:
+
+- `day` (String) Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+- `hour` (Number) Hour of day in UTC time zone (1-24) for maintenance window.
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.
 
 
 <a id="nestedblock--timeouts"></a>

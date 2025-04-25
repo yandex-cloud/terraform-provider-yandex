@@ -3,13 +3,9 @@ package airflow_cluster
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/airflow/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
@@ -46,13 +42,15 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		Description: common.Description,
 		Labels:      common.Labels,
 		Config: &airflow.ClusterConfig{
-			Airflow:      common.AirflowConfig,
-			Webserver:    common.Webserver,
-			Scheduler:    common.Scheduler,
-			Triggerer:    common.Triggerer,
-			Worker:       common.Worker,
-			Dependencies: common.Dependencies,
-			Lockbox:      common.Lockbox,
+			Airflow:        common.AirflowConfig,
+			Webserver:      common.Webserver,
+			Scheduler:      common.Scheduler,
+			Triggerer:      common.Triggerer,
+			Worker:         common.Worker,
+			Dependencies:   common.Dependencies,
+			Lockbox:        common.Lockbox,
+			AirflowVersion: common.AirflowVersion,
+			PythonVersion:  common.PythonVersion,
 		},
 		Network: &airflow.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -63,6 +61,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		ServiceAccountId:   common.ServiceAccountId,
 		Logging:            common.Logging,
 		AdminPassword:      clusterModel.AdminPassword.ValueString(),
+		MaintenanceWindow:  common.MaintenanceWindow,
 	}
 
 	return clusterCreateRequest, diags
@@ -77,14 +76,17 @@ type CommonForCreateAndUpdate struct {
 	DeletionProtection bool
 	ServiceAccountId   string
 	Logging            *airflow.LoggingConfig
+	AirflowVersion     string
+	PythonVersion      string
 
-	AirflowConfig *airflow.AirflowConfig
-	Webserver     *airflow.WebserverConfig
-	Scheduler     *airflow.SchedulerConfig
-	Worker        *airflow.WorkerConfig
-	Triggerer     *airflow.TriggererConfig
-	Dependencies  *airflow.Dependencies
-	Lockbox       *airflow.LockboxConfig
+	AirflowConfig     *airflow.AirflowConfig
+	Webserver         *airflow.WebserverConfig
+	Scheduler         *airflow.SchedulerConfig
+	Worker            *airflow.WorkerConfig
+	Triggerer         *airflow.TriggererConfig
+	Dependencies      *airflow.Dependencies
+	Lockbox           *airflow.LockboxConfig
+	MaintenanceWindow *airflow.MaintenanceWindow
 }
 
 func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterModel) (*CommonForCreateAndUpdate, []string, diag.Diagnostics) {
@@ -103,6 +105,23 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		}
 		if !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
 			updateMaskPaths = append(updateMaskPaths, "service_account_id")
+		}
+	}
+
+	var airflowVersion, pythonVersion string
+	if !plan.AirflowVersion.IsNull() && !plan.AirflowVersion.IsUnknown() {
+		airflowVersion = plan.AirflowVersion.ValueString()
+	}
+	if !plan.PythonVersion.IsNull() && !plan.PythonVersion.IsUnknown() {
+		pythonVersion = plan.PythonVersion.ValueString()
+	}
+
+	if state != nil {
+		if !plan.AirflowVersion.Equal(state.AirflowVersion) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.airflow_version")
+		}
+		if !plan.PythonVersion.Equal(state.PythonVersion) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.python_version")
 		}
 	}
 
@@ -257,6 +276,46 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "config_spec.triggerer")
 	}
 
+	var maintenanceWindow *airflow.MaintenanceWindow
+	if !plan.MaintenanceWindow.IsNull() && !plan.MaintenanceWindow.IsUnknown() {
+		maintenanceWindow = &airflow.MaintenanceWindow{}
+
+		switch plan.MaintenanceWindow.MaintenanceWindowType.ValueString() {
+		case "ANYTIME":
+			if !plan.MaintenanceWindow.Day.IsNull() || !plan.MaintenanceWindow.Hour.IsNull() {
+				diags.AddError(
+					"Invalid Airflow maintenance window configuration",
+					"Any of attributes `day` and `hour` must not be specified for `ANYTIME` window type",
+				)
+				return nil, nil, diags
+			}
+			maintenanceWindow.SetAnytime(&airflow.AnytimeMaintenanceWindow{})
+		case "WEEKLY":
+			if plan.MaintenanceWindow.Day.IsNull() || plan.MaintenanceWindow.Hour.IsNull() {
+				diags.AddError(
+					"Invalid Airflow maintenance window configuration",
+					"Attributes `day` and `hour` booth must be specified for `WEEKLY` window type",
+				)
+				return nil, nil, diags
+			}
+
+			day := plan.MaintenanceWindow.Day.ValueString()
+			maintenanceWindow.SetWeeklyMaintenanceWindow(&airflow.WeeklyMaintenanceWindow{
+				Day:  airflow.WeeklyMaintenanceWindow_WeekDay(airflow.WeeklyMaintenanceWindow_WeekDay_value[day]),
+				Hour: plan.MaintenanceWindow.Hour.ValueInt64(),
+			})
+		default:
+			diags.AddError(
+				"Invalid Airflow maintenance window configuration",
+				fmt.Sprintf("Type must be `ANYTIME` or `WEEKLY`, but '%s' given", plan.MaintenanceWindow.MaintenanceWindowType.ValueString()),
+			)
+			return nil, nil, diags
+		}
+	}
+	if state != nil && !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
+		updateMaskPaths = append(updateMaskPaths, "maintenance_window")
+	}
+
 	params := &CommonForCreateAndUpdate{
 		Name:               plan.Name.ValueString(),
 		Description:        plan.Description.ValueString(),
@@ -266,6 +325,8 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		ServiceAccountId:   plan.ServiceAccountId.ValueString(),
 		Logging:            loggingConfig,
+		AirflowVersion:     airflowVersion,
+		PythonVersion:      pythonVersion,
 		AirflowConfig:      airflowConfig,
 		Webserver:          webserverConfig,
 		Scheduler:          schedulerConfig,
@@ -275,7 +336,8 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			PipPackages: pipPackages,
 			DebPackages: debPackages,
 		},
-		Lockbox: lockboxConfig,
+		Lockbox:           lockboxConfig,
+		MaintenanceWindow: maintenanceWindow,
 	}
 
 	return params, updateMaskPaths, diags
@@ -310,13 +372,15 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		Description: common.Description,
 		Labels:      common.Labels,
 		ConfigSpec: &airflow.UpdateClusterConfigSpec{
-			Airflow:      common.AirflowConfig,
-			Webserver:    common.Webserver,
-			Scheduler:    common.Scheduler,
-			Triggerer:    common.Triggerer,
-			Worker:       common.Worker,
-			Dependencies: common.Dependencies,
-			Lockbox:      common.Lockbox,
+			Airflow:        common.AirflowConfig,
+			Webserver:      common.Webserver,
+			Scheduler:      common.Scheduler,
+			Triggerer:      common.Triggerer,
+			Worker:         common.Worker,
+			Dependencies:   common.Dependencies,
+			Lockbox:        common.Lockbox,
+			AirflowVersion: common.AirflowVersion,
+			PythonVersion:  common.PythonVersion,
 		},
 		CodeSync: common.CodeSync,
 		NetworkSpec: &airflow.UpdateNetworkConfigSpec{
@@ -325,6 +389,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		DeletionProtection: common.DeletionProtection,
 		ServiceAccountId:   common.ServiceAccountId,
 		Logging:            common.Logging,
+		MaintenanceWindow:  common.MaintenanceWindow,
 	}
 
 	return updateClusterRequest, diags
@@ -393,26 +458,4 @@ func loggingValuesAreEqual(val1, val2 LoggingValue) bool {
 	}
 
 	return false
-}
-
-func airflowConfigValidator() validator.Map {
-	return mapvalidator.KeysAre(stringvalidator.RegexMatches(
-		regexp.MustCompile(`^[^\.]*$`),
-		"must not contain dots",
-	))
-}
-
-func allowedLogLevels() []string {
-	allowedLevels := make([]string, 0, len(logging.LogLevel_Level_value))
-	for levelName, val := range logging.LogLevel_Level_value {
-		if val == 0 {
-			continue
-		}
-		allowedLevels = append(allowedLevels, levelName)
-	}
-	return allowedLevels
-}
-
-func logLevelValidator() validator.String {
-	return stringvalidator.OneOf(allowedLogLevels()...)
 }

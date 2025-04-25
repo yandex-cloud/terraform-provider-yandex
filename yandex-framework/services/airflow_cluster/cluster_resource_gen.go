@@ -45,6 +45,15 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					airflowConfigValidator(),
 				},
 			},
+			"airflow_version": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Apache Airflow version in format `<major>.<minor>`.",
+				MarkdownDescription: "Apache Airflow version in format `<major>.<minor>`.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"code_sync": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"s3": schema.SingleNestedAttribute{
@@ -114,6 +123,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
 				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -181,6 +193,49 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Cloud Logging configuration.",
 				MarkdownDescription: "Cloud Logging configuration.",
 			},
+			"maintenance_window": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"day": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+						MarkdownDescription: "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+						Validators: []validator.String{
+							mwDayValidator(),
+						},
+					},
+					"hour": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Hour of day in UTC time zone (1-24) for maintenance window.",
+						MarkdownDescription: "Hour of day in UTC time zone (1-24) for maintenance window.",
+						Validators: []validator.Int64{
+							mwHourValidator(),
+						},
+					},
+					"type": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+						MarkdownDescription: "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+						Validators: []validator.String{
+							mwTypeValidator(),
+						},
+					},
+				},
+				CustomType: MaintenanceWindowType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MaintenanceWindowValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Computed:            true,
+				Description:         "Configuration of window for maintenance operations.",
+				MarkdownDescription: "Configuration of window for maintenance operations.",
+				PlanModifiers: []planmodifier.Object{
+					mwPlanModifier(),
+				},
+				Validators: []validator.Object{
+					mwValidator(),
+				},
+			},
 			"name": schema.StringAttribute{
 				Required:            true,
 				Description:         "The resource name.",
@@ -191,6 +246,15 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Python packages that are installed in the cluster.",
 				MarkdownDescription: "Python packages that are installed in the cluster.",
+			},
+			"python_version": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Version of Python that Airflow will run on. Must be in format `<major>.<minor>`.",
+				MarkdownDescription: "Version of Python that Airflow will run on. Must be in format `<major>.<minor>`.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"scheduler": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -229,6 +293,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
 				MarkdownDescription: "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"subnet_ids": schema.SetAttribute{
 				ElementType:         types.StringType,
@@ -316,12 +383,14 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				CustomType: timeouts.Type{},
 			},
 		},
+		Description: "Managed Airflow cluster.",
 	}
 }
 
 type ClusterModel struct {
 	AdminPassword         types.String               `tfsdk:"admin_password"`
 	AirflowConfig         types.Map                  `tfsdk:"airflow_config"`
+	AirflowVersion        types.String               `tfsdk:"airflow_version"`
 	CodeSync              CodeSyncValue              `tfsdk:"code_sync"`
 	CreatedAt             types.String               `tfsdk:"created_at"`
 	DebPackages           types.Set                  `tfsdk:"deb_packages"`
@@ -333,8 +402,10 @@ type ClusterModel struct {
 	Labels                types.Map                  `tfsdk:"labels"`
 	LockboxSecretsBackend LockboxSecretsBackendValue `tfsdk:"lockbox_secrets_backend"`
 	Logging               LoggingValue               `tfsdk:"logging"`
+	MaintenanceWindow     MaintenanceWindowValue     `tfsdk:"maintenance_window"`
 	Name                  types.String               `tfsdk:"name"`
 	PipPackages           types.Set                  `tfsdk:"pip_packages"`
+	PythonVersion         types.String               `tfsdk:"python_version"`
 	Scheduler             SchedulerValue             `tfsdk:"scheduler"`
 	SecurityGroupIds      types.Set                  `tfsdk:"security_group_ids"`
 	ServiceAccountId      types.String               `tfsdk:"service_account_id"`
@@ -1831,6 +1902,440 @@ func (v LoggingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"folder_id":    basetypes.StringType{},
 		"log_group_id": basetypes.StringType{},
 		"min_level":    basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MaintenanceWindowType{}
+
+type MaintenanceWindowType struct {
+	basetypes.ObjectType
+}
+
+func (t MaintenanceWindowType) Equal(o attr.Type) bool {
+	other, ok := o.(MaintenanceWindowType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MaintenanceWindowType) String() string {
+	return "MaintenanceWindowType"
+}
+
+func (t MaintenanceWindowType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	dayAttribute, ok := attributes["day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day is missing from object`)
+
+		return nil, diags
+	}
+
+	dayVal, ok := dayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day expected to be basetypes.StringValue, was: %T`, dayAttribute))
+	}
+
+	hourAttribute, ok := attributes["hour"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hour is missing from object`)
+
+		return nil, diags
+	}
+
+	hourVal, ok := hourAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hour expected to be basetypes.Int64Value, was: %T`, hourAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MaintenanceWindowValue{
+		Day:                   dayVal,
+		Hour:                  hourVal,
+		MaintenanceWindowType: typeVal,
+		state:                 attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMaintenanceWindowValueNull() MaintenanceWindowValue {
+	return MaintenanceWindowValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMaintenanceWindowValueUnknown() MaintenanceWindowValue {
+	return MaintenanceWindowValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMaintenanceWindowValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MaintenanceWindowValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MaintenanceWindowValue Attribute Value",
+				"While creating a MaintenanceWindowValue value, a missing attribute value was detected. "+
+					"A MaintenanceWindowValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MaintenanceWindowValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MaintenanceWindowValue Attribute Type",
+				"While creating a MaintenanceWindowValue value, an invalid attribute value was detected. "+
+					"A MaintenanceWindowValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MaintenanceWindowValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MaintenanceWindowValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MaintenanceWindowValue Attribute Value",
+				"While creating a MaintenanceWindowValue value, an extra attribute value was detected. "+
+					"A MaintenanceWindowValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MaintenanceWindowValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMaintenanceWindowValueUnknown(), diags
+	}
+
+	dayAttribute, ok := attributes["day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day is missing from object`)
+
+		return NewMaintenanceWindowValueUnknown(), diags
+	}
+
+	dayVal, ok := dayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day expected to be basetypes.StringValue, was: %T`, dayAttribute))
+	}
+
+	hourAttribute, ok := attributes["hour"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hour is missing from object`)
+
+		return NewMaintenanceWindowValueUnknown(), diags
+	}
+
+	hourVal, ok := hourAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hour expected to be basetypes.Int64Value, was: %T`, hourAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewMaintenanceWindowValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMaintenanceWindowValueUnknown(), diags
+	}
+
+	return MaintenanceWindowValue{
+		Day:                   dayVal,
+		Hour:                  hourVal,
+		MaintenanceWindowType: typeVal,
+		state:                 attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMaintenanceWindowValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MaintenanceWindowValue {
+	object, diags := NewMaintenanceWindowValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMaintenanceWindowValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MaintenanceWindowType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMaintenanceWindowValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMaintenanceWindowValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMaintenanceWindowValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMaintenanceWindowValueMust(MaintenanceWindowValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MaintenanceWindowType) ValueType(ctx context.Context) attr.Value {
+	return MaintenanceWindowValue{}
+}
+
+var _ basetypes.ObjectValuable = MaintenanceWindowValue{}
+
+type MaintenanceWindowValue struct {
+	Day                   basetypes.StringValue `tfsdk:"day"`
+	Hour                  basetypes.Int64Value  `tfsdk:"hour"`
+	MaintenanceWindowType basetypes.StringValue `tfsdk:"type"`
+	state                 attr.ValueState
+}
+
+func (v MaintenanceWindowValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["day"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hour"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Day.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["day"] = val
+
+		val, err = v.Hour.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hour"] = val
+
+		val, err = v.MaintenanceWindowType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MaintenanceWindowValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MaintenanceWindowValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MaintenanceWindowValue) String() string {
+	return "MaintenanceWindowValue"
+}
+
+func (v MaintenanceWindowValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"day":  basetypes.StringType{},
+		"hour": basetypes.Int64Type{},
+		"type": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"day":  v.Day,
+			"hour": v.Hour,
+			"type": v.MaintenanceWindowType,
+		})
+
+	return objVal, diags
+}
+
+func (v MaintenanceWindowValue) Equal(o attr.Value) bool {
+	other, ok := o.(MaintenanceWindowValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Day.Equal(other.Day) {
+		return false
+	}
+
+	if !v.Hour.Equal(other.Hour) {
+		return false
+	}
+
+	if !v.MaintenanceWindowType.Equal(other.MaintenanceWindowType) {
+		return false
+	}
+
+	return true
+}
+
+func (v MaintenanceWindowValue) Type(ctx context.Context) attr.Type {
+	return MaintenanceWindowType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MaintenanceWindowValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"day":  basetypes.StringType{},
+		"hour": basetypes.Int64Type{},
+		"type": basetypes.StringType{},
 	}
 }
 
