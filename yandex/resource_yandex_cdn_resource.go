@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -81,9 +82,10 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				},
 			},
 			"origin_protocol": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "http",
+				Type:        schema.TypeString,
+				Description: "Protocol of origin resource. `http` or `https`.",
+				Optional:    true,
+				Default:     "http",
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -91,17 +93,20 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				Computed:    true,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "Last update timestamp. Computed value for read and update operations.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"origin_group_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Description: "The ID of a specific origin group.",
+				Optional:    true,
 			},
 			"origin_group_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "The name of a specific origin group.",
+				Optional:    true,
 			},
 			"ssl_certificate": {
 				Type:        schema.TypeSet,
@@ -113,16 +118,19 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:         schema.TypeString,
+							Description:  "SSL certificate type.",
 							Required:     true,
 							ValidateFunc: validateResourceSSLCertTypeFunc(),
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "SSL certificate status.",
+							Computed:    true,
 						},
 						"certificate_manager_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Certificate Manager ID.",
+							Optional:    true,
 						},
 					},
 				},
@@ -240,7 +248,8 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							Optional:    true,
 						},
 						"static_response_headers": {
-							Type: schema.TypeMap,
+							Type:        schema.TypeMap,
+							Description: "Set up a static response header. The header name must be lowercase.",
 
 							Computed: true,
 							Optional: true,
@@ -317,10 +326,10 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							RequiredWith: []string{"options.0.secure_key"},
 						},
 						"ip_address_acl": {
-							Type: schema.TypeList,
-
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "IP address access control list. The list of specified IP addresses to be allowed or denied depending on acl policy type.",
+							Optional:    true,
+							Computed:    true,
 
 							MaxItems: 1,
 
@@ -1202,7 +1211,7 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 		if groupName != "" {
 			folderID, err := getFolderID(d, config)
 			if err != nil {
-				return nil, fmt.Errorf("Error getting folder ID while creating instance: %s", err)
+				return nil, fmt.Errorf("error getting folder ID while creating instance: %s", err)
 			}
 
 			groupID, err := resolveCDNOriginGroupID(ctx, config, folderID, groupName)

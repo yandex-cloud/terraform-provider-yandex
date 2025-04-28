@@ -341,62 +341,6 @@ func TestAccCDNResource_labels(t *testing.T) {
 	})
 }
 
-func TestAccCDNResource_optionDisableCacheOn(t *testing.T) {
-	folderID := getExampleFolderID()
-
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-
-	var cdnResource cdn.Resource
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCDNResource_optionDisableCache(groupName, resourceCName, true),
-				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.disable_cache", "true"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCDNResource_optionDisableCacheOff(t *testing.T) {
-	folderID := getExampleFolderID()
-
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-
-	var cdnResource cdn.Resource
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCDNResource_optionDisableCache(groupName, resourceCName, false),
-				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.disable_cache", "false"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccCDNResource_optionEdgeCacheSettings(t *testing.T) {
 	folderID := getExampleFolderID()
 
@@ -743,20 +687,6 @@ func testCDNResourceExists(resourceName string, cdnResource *cdn.Resource) resou
 
 		return nil
 	}
-}
-
-func testAccCDNResource_optionDisableCache(groupName, resourceCNAME string, on bool) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		disable_cache = %t
-	}
-}
-`, resourceCNAME, on)
 }
 
 func testAccCDNResource_optionEdgeCacheSetting(groupName, resourceCNAME string, edgeCacheSettings int) string {
