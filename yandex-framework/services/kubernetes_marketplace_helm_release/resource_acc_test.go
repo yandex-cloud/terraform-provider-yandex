@@ -32,10 +32,7 @@ func TestAccK8sMarketplaceHelmRelease_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {Source: "hashicorp/time"},
-		},
-		CheckDestroy: testAccCheckHelmReleaseDestroy,
+		CheckDestroy:             testAccCheckHelmReleaseDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccK8sMarketplaceHelmRelease_basic(appName, versionID),
@@ -134,6 +131,9 @@ func testAccKubernetesCluster() string {
 resource "yandex_kubernetes_cluster" "test" {
   depends_on = [
     yandex_resourcemanager_folder_iam_member.cluster_sa,
+    yandex_resourcemanager_folder_iam_member.cluster_sa_common_extaddr,
+    yandex_resourcemanager_folder_iam_member.cluster_sa_common_vpc_admin,
+    yandex_resourcemanager_folder_iam_member.cluster_sa_common_vpc_user,
   ]
 
   release_channel = "%s"
@@ -206,6 +206,24 @@ resource "yandex_iam_service_account" "cluster-sa" {
 resource "yandex_resourcemanager_folder_iam_member" "cluster_sa" {
   folder_id = "%s"
   role      = "admin"
+  member    = "serviceAccount:${yandex_iam_service_account.cluster-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "cluster_sa_common_extaddr" {
+  folder_id = local.common_folder_id
+  role      = "vpc.externalAddresses.user"
+  member    = "serviceAccount:${yandex_iam_service_account.cluster-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "cluster_sa_common_vpc_admin" {
+  folder_id = local.common_folder_id
+  role      = "vpc.admin"
+  member    = "serviceAccount:${yandex_iam_service_account.cluster-sa.id}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "cluster_sa_common_vpc_user" {
+  folder_id = local.common_folder_id
+  role      = "vpc.user"
   member    = "serviceAccount:${yandex_iam_service_account.cluster-sa.id}"
 }
 
