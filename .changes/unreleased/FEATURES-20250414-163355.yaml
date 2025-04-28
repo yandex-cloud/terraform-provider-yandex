@@ -1,4 +1,0 @@
-kind: FEATURES
-body: 'redis: add "auth_sentinel" attribute and "zset_max_listpack_entries" to resources
-  and datasources'
-time: 2025-04-14T16:33:55.042287+05:00
