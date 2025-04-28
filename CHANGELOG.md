@@ -1,3 +1,22 @@
+## 0.141.0 (April 28, 2025)
+
+FEATURES:
+* kafka: add new kafka-user role ACCESS_ROLE_TOPIC_ADMIN
+* kafka: `enabled` flag in `ClusterConfig.rest_api`
+* clickhouse: generate password using Connection Manager for new user resource
+* redis: add "auth_sentinel" attribute and "zset_max_listpack_entries" to resources and datasources
+* airflow: possibility to specify maintenance window and versions of Apache Airflow and Python
+* alb: add "allow_zonal_shift" attribute to yandex_alb_load_balancer resource and datasource
+* IAM: added new resource yandex_iam_workload_identity_oidc_federation_iam_binding
+
+BUG FIXES:
+* clickhouse: create shard with correct weight without update
+* clickhouse: added retries for API requests with unavailable error codes
+* postgresql: fix disabling access flags
+* redis: fix update access flags
+* connection_manager: fix (known after apply) plan diff on each terraform apply for clusters without connman integration
+* postgresql: fix cluster poolerConfig update masks
+
 ## 0.140.1 (April 3, 2025)
 
 BUG FIXES:

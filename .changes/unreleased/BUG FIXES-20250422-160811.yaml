@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix cluster poolerConfig update masks'
-time: 2025-04-22T16:08:11.008241+03:00
