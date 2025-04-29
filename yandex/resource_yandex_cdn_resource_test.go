@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -997,6 +998,34 @@ resource "yandex_cdn_resource" "foobar_resource" {
 	}
 }
 `, resourceCNAME)
+}
+
+func TestAccCDNResource_changeCNameError(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	originalCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+	newCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			// Create the CDN resource with the initial CNAME.
+			{
+				Config: testAccCDNResource_basicByName(groupName, originalCName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", originalCName),
+				),
+			},
+			// Attempt to change the CNAME, which should result in an error.
+			{
+				Config:      testAccCDNResource_basicByName(groupName, newCName),
+				ExpectError: regexp.MustCompile("cdn resource cname cannot be changed after creation"),
+			},
+		},
+	})
 }
 
 func makeGroupResource(groupName string) string {

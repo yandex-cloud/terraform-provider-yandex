@@ -1197,6 +1197,10 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 		ResourceId: d.Id(),
 	}
 
+	if d.HasChange("cname") {
+		return nil, fmt.Errorf("cdn resource cname cannot be changed after creation")
+	}
+
 	if d.HasChange("origin_group_id") {
 		groupID := d.Get("origin_group_id").(int)
 		if groupID > 0 {
