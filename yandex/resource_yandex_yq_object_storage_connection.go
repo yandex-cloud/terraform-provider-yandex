@@ -196,10 +196,6 @@ func flattenYandexYQConnectionContent(
 		return err
 	}
 
-	if err := flattenYandexYQAcl(d, content.GetAcl()); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -228,14 +224,6 @@ func flattenYandexYQAuth(d *schema.ResourceData,
 
 	d.Set(os_conn.AttributeServiceAccountID, serviceAccountID)
 
-	return nil
-}
-
-func flattenYandexYQAcl(
-	d *schema.ResourceData,
-	acl *Ydb_FederatedQuery.Acl,
-) error {
-	// todo: implement
 	return nil
 }
 
