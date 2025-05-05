@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -134,16 +135,19 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_preset_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).",
 									},
 									"disk_type_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Type of the storage of Greenplum hosts - environment default is used if missing.",
 									},
 									"disk_size": {
-										Type:     schema.TypeInt,
-										Required: true,
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Volume of the storage available to a host, in gigabytes.",
 									},
 								},
 							},
@@ -166,16 +170,19 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_preset_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).",
 									},
 									"disk_type_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Type of the storage of Greenplum hosts - environment default is used if missing.",
 									},
 									"disk_size": {
-										Type:     schema.TypeInt,
-										Required: true,
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Volume of the storage available to a host, in gigabytes.",
 									},
 								},
 							},
@@ -290,37 +297,44 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Optional:    true,
 			},
 			"logging": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Cloud Logging settings.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Flag that indicates whether log delivery to Cloud Logging is enabled.",
 						},
 						"log_group_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"logging.0.folder_id"},
+							Description:   "Cloud Logging group ID to send logs to.",
 						},
 						"folder_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"logging.0.log_group_id"},
+							Description:   "ID of folder to which deliver logs.",
 						},
 						"command_center_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Deliver Yandex Command Center's logs to Cloud Logging.",
 						},
 						"greenplum_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Deliver Greenplum's logs to Cloud Logging.",
 						},
 						"pooler_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Deliver connection pooler's logs to Cloud Logging.",
 						},
 					},
 				},
@@ -1040,6 +1054,7 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  maintenanceWindow,
 		ServiceAccountId:   d.Get("service_account_id").(string),
+		Logging:            expandGreenplumLogging(d),
 
 		Config: &greenplum.GreenplumConfig{
 			Version:           d.Get("version").(string),

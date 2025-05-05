@@ -217,12 +217,18 @@ Read-Only:
 
 Read-Only:
 
-- `command_center_enabled` (Boolean)
-- `enabled` (Boolean)
-- `folder_id` (String)
-- `greenplum_enabled` (Boolean)
-- `log_group_id` (String)
-- `pooler_enabled` (Boolean)
+- `command_center_enabled` (Boolean) Deliver Yandex Command Center's logs to Cloud Logging.
+
+- `enabled` (Boolean) Flag that indicates whether log delivery to Cloud Logging is enabled.
+
+- `folder_id` (String) ID of folder to which deliver logs.
+
+- `greenplum_enabled` (Boolean) Deliver Greenplum's logs to Cloud Logging.
+
+- `log_group_id` (String) Cloud Logging group ID to send logs to.
+
+- `pooler_enabled` (Boolean) Deliver connection pooler's logs to Cloud Logging.
+
 
 
 <a id="nestedatt--maintenance_window"></a>
@@ -260,9 +266,12 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of Greenplum hosts - environment default is used if missing.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).
+
 
 
 
@@ -287,6 +296,9 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size` (Number)
-- `disk_type_id` (String)
-- `resource_preset_id` (String)
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+
+- `disk_type_id` (String) Type of the storage of Greenplum hosts - environment default is used if missing.
+
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).
+
