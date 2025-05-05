@@ -27,7 +27,7 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
-    yqsdk "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk"
+	yqsdk "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk"
 )
 
 type iamToken struct {
@@ -41,7 +41,7 @@ func (t iamToken) IsValid() bool {
 
 type Config struct {
 	Endpoint                       string
-    YQEndpoint                     string
+	YQEndpoint                     string
 	FolderID                       string
 	CloudID                        string
 	OrganizationID                 string
@@ -74,7 +74,7 @@ type Config struct {
 
 	userAgent         string
 	sdk               *ycsdk.SDK
-    yqSdk             *yqsdk.SDK
+	yqSdk             *yqsdk.SDK
 	sharedCredentials *SharedCredentials
 	defaultS3Client   *s3.Client
 	iamToken          *iamToken
@@ -155,7 +155,7 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		return err
 	}
 
-    yqSDKConfig := &yqsdk.Config{
+	yqSDKConfig := &yqsdk.Config{
 		AuthToken: c.Token,
 		FolderID:  c.FolderID,
 		TLSConfig: &tls.Config{

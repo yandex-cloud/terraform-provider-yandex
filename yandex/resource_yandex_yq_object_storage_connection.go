@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/client"
 	os_conn "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/object_storage_connection"
 )
 
@@ -28,12 +29,7 @@ func resourceYandexYQObjectStorageConnection() *schema.Resource {
 func resourceYandexYQObjectStorageConnectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := config.yqSdk.ObjectStorageConnectionCaller(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err = executeYandexYQObjectStorageConnectionCreate(ctx, client, d, config); err != nil {
+	if err := executeYandexYQObjectStorageConnectionCreate(ctx, config.yqSdk.Client(), d, config); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -43,12 +39,7 @@ func resourceYandexYQObjectStorageConnectionCreate(ctx context.Context, d *schem
 func resourceYandexYQObjectStorageConnectionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := config.yqSdk.ObjectStorageConnectionCaller(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	err = executeYandexYQObjectStorageConnectionRead(ctx, client, d, config)
+	err := executeYandexYQObjectStorageConnectionRead(ctx, config.yqSdk.Client(), d, config)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -59,12 +50,7 @@ func resourceYandexYQObjectStorageConnectionRead(ctx context.Context, d *schema.
 func resourceYandexYQObjectStorageConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := config.yqSdk.ObjectStorageConnectionCaller(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err = executeYandexYQObjectStorageConnectionUpdate(ctx, client, d, config); err != nil {
+	if err := executeYandexYQObjectStorageConnectionUpdate(ctx, config.yqSdk.Client(), d, config); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -74,12 +60,7 @@ func resourceYandexYQObjectStorageConnectionUpdate(ctx context.Context, d *schem
 func resourceYandexYQObjectStorageConnectionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := config.yqSdk.ObjectStorageConnectionCaller(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err = executeYandexYQObjectStorageConnectionDelete(ctx, client, d, config); err != nil {
+	if err := executeYandexYQObjectStorageConnectionDelete(ctx, config.yqSdk.Client(), d, config); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -88,7 +69,7 @@ func resourceYandexYQObjectStorageConnectionDelete(ctx context.Context, d *schem
 
 func executeYandexYQObjectStorageConnectionCreate(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	d *schema.ResourceData,
 	config *Config,
 ) error {
@@ -131,11 +112,11 @@ func executeYandexYQObjectStorageConnectionCreate(
 
 func performYandexYQObjectStorageConnectionCreate(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	d *schema.ResourceData,
 	req *Ydb_FederatedQuery.CreateConnectionRequest,
 ) error {
-	res, err := client.CreateStorageConnection(ctx, req)
+	res, err := client.CreateConnection(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -147,7 +128,7 @@ func performYandexYQObjectStorageConnectionCreate(
 
 func executeYandexYQObjectStorageConnectionRead(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	d *schema.ResourceData,
 	_ *Config,
 ) error {
@@ -167,11 +148,11 @@ func executeYandexYQObjectStorageConnectionRead(
 
 func performYandexYQObjectStorageConnectionRead(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	_ *schema.ResourceData,
 	req *Ydb_FederatedQuery.DescribeConnectionRequest,
 ) (*Ydb_FederatedQuery.DescribeConnectionResult, error) {
-	res, err := client.DescribeStorageConnection(ctx, req)
+	res, err := client.DescribeConnection(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +251,7 @@ func flattenYandexYQAcl(
 
 func executeYandexYQObjectStorageConnectionUpdate(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	d *schema.ResourceData,
 	config *Config,
 ) error {
@@ -316,11 +297,11 @@ func executeYandexYQObjectStorageConnectionUpdate(
 
 func performYandexYQObjectStorageConnectionUpdate(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	_ *schema.ResourceData,
 	req *Ydb_FederatedQuery.ModifyConnectionRequest,
 ) error {
-	_, err := client.ModifyStorageConnection(ctx, req)
+	_, err := client.ModifyConnection(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -330,7 +311,7 @@ func performYandexYQObjectStorageConnectionUpdate(
 
 func executeYandexYQObjectStorageConnectionDelete(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	d *schema.ResourceData,
 	_ *Config,
 ) error {
@@ -350,11 +331,11 @@ func executeYandexYQObjectStorageConnectionDelete(
 
 func performYandexYQObjectStorageConnectionDelete(
 	ctx context.Context,
-	client os_conn.ObjectStorageClient,
+	client client.YQClient,
 	_ *schema.ResourceData,
 	req *Ydb_FederatedQuery.DeleteConnectionRequest,
 ) error {
-	_, err := client.DeleteStorageConnection(ctx, req)
+	_, err := client.DeleteConnection(ctx, req)
 	if err != nil {
 		return err
 	}

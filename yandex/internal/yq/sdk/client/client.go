@@ -7,15 +7,21 @@ import (
 	"github.com/ydb-platform/ydb-go-genproto/draft/Ydb_FederatedQuery_V1"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
+	"google.golang.org/grpc"
 )
 
-type YQClient struct {
-	conf *YQConfig
+type YQClient interface {
+	CreateConnection(context.Context, *Ydb_FederatedQuery.CreateConnectionRequest) (*Ydb_FederatedQuery.CreateConnectionResult, error)
+	DescribeConnection(context.Context, *Ydb_FederatedQuery.DescribeConnectionRequest) (*Ydb_FederatedQuery.DescribeConnectionResult, error)
+	ModifyConnection(context.Context, *Ydb_FederatedQuery.ModifyConnectionRequest) (*Ydb_FederatedQuery.ModifyConnectionResult, error)
+	DeleteConnection(context.Context, *Ydb_FederatedQuery.DeleteConnectionRequest) (*Ydb_FederatedQuery.DeleteConnectionResult, error)
+}
 
+type yqClient struct {
 	client Ydb_FederatedQuery_V1.FederatedQueryServiceClient
 }
 
-func (c YQClient) CreateStorageConnection(
+func (c yqClient) CreateConnection(
 	ctx context.Context,
 	req *Ydb_FederatedQuery.CreateConnectionRequest,
 ) (*Ydb_FederatedQuery.CreateConnectionResult, error) {
@@ -39,7 +45,7 @@ func (c YQClient) CreateStorageConnection(
 	return &result, nil
 }
 
-func (c YQClient) DescribeStorageConnection(ctx context.Context,
+func (c yqClient) DescribeConnection(ctx context.Context,
 	req *Ydb_FederatedQuery.DescribeConnectionRequest,
 ) (*Ydb_FederatedQuery.DescribeConnectionResult, error) {
 
@@ -62,7 +68,7 @@ func (c YQClient) DescribeStorageConnection(ctx context.Context,
 	return &result, nil
 }
 
-func (c YQClient) ModifyStorageConnection(
+func (c yqClient) ModifyConnection(
 	ctx context.Context,
 	req *Ydb_FederatedQuery.ModifyConnectionRequest,
 ) (*Ydb_FederatedQuery.ModifyConnectionResult, error) {
@@ -79,7 +85,7 @@ func (c YQClient) ModifyStorageConnection(
 	return nil, nil
 }
 
-func (c YQClient) DeleteStorageConnection(ctx context.Context,
+func (c yqClient) DeleteConnection(ctx context.Context,
 	req *Ydb_FederatedQuery.DeleteConnectionRequest,
 ) (*Ydb_FederatedQuery.DeleteConnectionResult, error) {
 
@@ -95,17 +101,8 @@ func (c YQClient) DeleteStorageConnection(ctx context.Context,
 	return nil, nil
 }
 
-func NewYQClient(ctx context.Context, conf *YQConfig) (*YQClient, error) {
-	// the TLS, folderId and authToken parameters were set when creating the YQSDK with interceptors
-	conn, err := conf.dialer.GetConnection(ctx, conf.grpcEndpoint)
-	if err != nil {
-		return nil, fmt.Errorf("yq dial connection: %w", err)
+func NewYQClient(ctx context.Context, clientConn *grpc.ClientConn) *yqClient {
+	return &yqClient{
+		client: Ydb_FederatedQuery_V1.NewFederatedQueryServiceClient(clientConn),
 	}
-
-	c := Ydb_FederatedQuery_V1.NewFederatedQueryServiceClient(conn)
-
-	return &YQClient{
-		conf:   conf,
-		client: c,
-	}, nil
 }

@@ -6,8 +6,6 @@ import (
 	"fmt"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/client"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/client/connection"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/object_storage_connection"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -15,8 +13,8 @@ import (
 
 // SDK is Yandex Query SDK
 type SDK struct {
-	conf       Config
-	connDialer connection.ConnectionDialer
+	conf   Config
+	client client.YQClient
 }
 
 func validateConfig(conf *Config) error {
@@ -33,6 +31,10 @@ func validateConfig(conf *Config) error {
 	}
 
 	return nil
+}
+
+func (sdk *SDK) Client() client.YQClient {
+	return sdk.client
 }
 
 func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, error) {
@@ -61,19 +63,14 @@ func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, 
 
 	dialOpts = append(dialOpts, opts...)
 
-	return &SDK{
-		conf:       conf,
-		connDialer: connection.NewSimpleConnectionDialer(dialOpts...),
-	}, nil
-}
+	grpcConn, err := grpc.NewClient(conf.Endpoint, dialOpts...)
 
-func (s *SDK) ObjectStorageConnectionCaller(ctx context.Context) (object_storage_connection.ObjectStorageClient, error) {
-	conf := client.NewYQConfig(s.conf.Endpoint, s.connDialer)
-
-	yqClient, err := client.NewYQClient(ctx, conf)
 	if err != nil {
-		return nil, fmt.Errorf("YQ SDK new client: %w", err)
+		return nil, fmt.Errorf("grpc dial: %w", err)
 	}
 
-	return yqClient, nil
+	return &SDK{
+		conf:   conf,
+		client: client.NewYQClient(ctx, grpcConn),
+	}, nil
 }
