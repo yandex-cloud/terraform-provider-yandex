@@ -24,10 +24,5 @@ func ResourceSchema() map[string]*schema.Schema {
 			Computed: true,
 			Optional: true,
 		},
-		AttributeVisibility: &schema.Schema{
-			Type:     schema.TypeString,
-			Computed: true,
-			Optional: true,
-		},
 	}
 }

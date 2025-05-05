@@ -5,5 +5,4 @@ const (
 	AttributeServiceAccountID = "service_account_id"
 	AttributeBucket           = "bucket"
 	AttributeDescription      = "description"
-	AttributeVisibility       = "visibility"
 )

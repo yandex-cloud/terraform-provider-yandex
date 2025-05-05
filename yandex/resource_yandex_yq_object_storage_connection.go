@@ -77,19 +77,14 @@ func executeYandexYQObjectStorageConnectionCreate(
 	serviceAccountID := d.Get(os_conn.AttributeServiceAccountID).(string)
 	bucket := d.Get(os_conn.AttributeBucket).(string)
 	description := d.Get(os_conn.AttributeDescription).(string)
-	visibilityString := d.Get(os_conn.AttributeVisibility).(string)
 
 	auth := parseServiceIDToIAMAuth(serviceAccountID)
-	visibility, err := parseVisibilityToAclVisibility(visibilityString)
-	if err != nil {
-		return err
-	}
 
 	req := Ydb_FederatedQuery.CreateConnectionRequest{
 		Content: &Ydb_FederatedQuery.ConnectionContent{
 			Name: connectionName,
 			Acl: &Ydb_FederatedQuery.Acl{
-				Visibility: visibility,
+				Visibility: Ydb_FederatedQuery.Acl_SCOPE,
 			},
 			Description: description,
 			Setting: &Ydb_FederatedQuery.ConnectionSetting{
@@ -240,12 +235,7 @@ func flattenYandexYQAcl(
 	d *schema.ResourceData,
 	acl *Ydb_FederatedQuery.Acl,
 ) error {
-	visibilityString, err := visibilityToString(acl.GetVisibility())
-	if err != nil {
-		return err
-	}
-
-	d.Set(os_conn.AttributeVisibility, visibilityString)
+	// todo: implement
 	return nil
 }
 
@@ -259,14 +249,8 @@ func executeYandexYQObjectStorageConnectionUpdate(
 	serviceAccountID := d.Get(os_conn.AttributeServiceAccountID).(string)
 	bucket := d.Get(os_conn.AttributeBucket).(string)
 	description := d.Get(os_conn.AttributeDescription).(string)
-	visibilityString := d.Get(os_conn.AttributeVisibility).(string)
 
 	auth := parseServiceIDToIAMAuth(serviceAccountID)
-	visibility, err := parseVisibilityToAclVisibility(visibilityString)
-	if err != nil {
-		return err
-	}
-
 	connectionID := d.Id()
 
 	req := &Ydb_FederatedQuery.ModifyConnectionRequest{
@@ -283,12 +267,12 @@ func executeYandexYQObjectStorageConnectionUpdate(
 				},
 			},
 			Acl: &Ydb_FederatedQuery.Acl{
-				Visibility: visibility,
+				Visibility: Ydb_FederatedQuery.Acl_SCOPE,
 			},
 		},
 	}
 
-	if err = performYandexYQObjectStorageConnectionUpdate(ctx, client, d, req); err != nil {
+	if err := performYandexYQObjectStorageConnectionUpdate(ctx, client, d, req); err != nil {
 		return err
 	}
 
