@@ -132,6 +132,31 @@ func dataSourceYandexServerlessEventrouterConnector() *schema.Resource {
 				},
 			},
 
+			eventrouterSourceTypeTimer: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Timer source of the connector.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cron_expression": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Required field. Cron expression with seconds. Example: 0 45 16 ? * *",
+						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Timezone in tz database format. Example: Europe/Moscow",
+						},
+						"payload": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Payload to be passed to bus",
+						},
+					},
+				},
+			},
+
 			"deletion_protection": {
 				Type:        schema.TypeBool,
 				Computed:    true,

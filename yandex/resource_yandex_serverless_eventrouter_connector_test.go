@@ -135,6 +135,41 @@ func TestAccEventrouterConnector_ymq(t *testing.T) {
 	})
 }
 
+func TestAccEventrouterConnector_timer(t *testing.T) {
+	t.Parallel()
+
+	var connector eventrouter.Connector
+	name := acctest.RandomWithPrefix("tf-connector")
+	desc := acctest.RandomWithPrefix("tf-connector-desc")
+	labelKey := acctest.RandomWithPrefix("tf-connector-label")
+	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testYandexEventrouterConnectorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterConnectorTimer(name, desc, labelKey, labelValue, "0 45 16 ? * *", "Europe/Moscow", "payload"),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexEventrouterConnectorExists(eventrouterConnectorResource, &connector),
+					resource.TestCheckResourceAttr(eventrouterConnectorResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterConnectorResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "deletion_protection"),
+					testYandexEventrouterConnectorContainsLabel(&connector, labelKey, labelValue),
+					testAccCheckCreatedAtAttr(eventrouterConnectorResource),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "timer.0.cron_expression"),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "timer.0.timezone"),
+					resource.TestCheckResourceAttrSet(eventrouterConnectorResource, "timer.0.payload"),
+				),
+			},
+			eventrouterConnectorImportTestStep(),
+		},
+	})
+}
+
 func TestAccEventrouterConnector_update(t *testing.T) {
 	t.Parallel()
 
@@ -387,7 +422,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test-account" {
 resource "yandex_ydb_database_serverless" "test-database" {
   name        = "{{.name}}-ydb-serverless"
   location_id = "ru-central1"
-  sleep_after = 60
+  sleep_after = 180
 }
 
 resource "yandex_ydb_topic" "test-topic" {
@@ -398,6 +433,7 @@ resource "yandex_ydb_topic" "test-topic" {
   consumer {
     name = "{{.name}}-consumer"
   }
+  depends_on = [yandex_ydb_database_serverless.test-database]
 }
 
 resource "yandex_serverless_eventrouter_connector" "test-connector" {
@@ -425,6 +461,43 @@ resource "yandex_serverless_eventrouter_connector" "test-connector" {
 		"description": desc,
 		"label_key":   labelKey,
 		"label_value": labelValue,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterConnectorTimer(name, desc, labelKey, labelValue, cron_expression, timezone, payload string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_serverless_eventrouter_connector" "test-connector" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  timer {
+    cron_expression    = "{{.cron_expression}}"
+	timezone		   = "{{.timezone}}"
+	payload		       = "{{.payload}}"
+  }
+  depends_on = [yandex_serverless_eventrouter_bus.test-bus]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":       getExampleFolderID(),
+		"cloud_id":        getExampleCloudID(),
+		"name":            name,
+		"description":     desc,
+		"label_key":       labelKey,
+		"label_value":     labelValue,
+		"cron_expression": cron_expression,
+		"timezone":        timezone,
+		"payload":         payload,
 	})
 	return buf.String()
 }

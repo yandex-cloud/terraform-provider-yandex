@@ -517,7 +517,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test-account" {
 resource "yandex_ydb_database_serverless" "test-database" {
   name        = "{{.name}}-ydb-serverless"
   location_id = "ru-central1"
-  sleep_after = 60
+  sleep_after = 180
 }
 
 resource "yandex_ydb_topic" "test-topic" {

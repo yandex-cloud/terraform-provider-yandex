@@ -15,13 +15,15 @@ import (
 const (
 	yandexEventrouterConnectorDefaultTimeout = 10 * time.Minute
 
-	eventrouterSourceTypeYds = "yds"
-	eventrouterSourceTypeYmq = "ymq"
+	eventrouterSourceTypeYds   = "yds"
+	eventrouterSourceTypeYmq   = "ymq"
+	eventrouterSourceTypeTimer = "timer"
 )
 
 var eventrouterSourceTypesList = []string{
 	eventrouterSourceTypeYds,
 	eventrouterSourceTypeYmq,
+	eventrouterSourceTypeTimer,
 }
 
 func resourceYandexServerlessEventrouterConnector() *schema.Resource {
@@ -155,6 +157,33 @@ func resourceYandexServerlessEventrouterConnector() *schema.Resource {
 							Computed:    true,
 							Optional:    true,
 							Description: "Queue polling timeout",
+						},
+					},
+				},
+			},
+
+			eventrouterSourceTypeTimer: {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: yandexEventrouterSourceConflictingTypes(eventrouterSourceTypeTimer),
+				Description:   "Timer source of the connector",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cron_expression": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Cron expression. Cron expression with seconds. Example: 0 45 16 ? * *",
+						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Timezone in tz database format. Example: Europe/Moscow",
+						},
+						"payload": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Payload to be passed to bus",
 						},
 					},
 				},
@@ -336,6 +365,15 @@ func flattenYandexEventrouterSource(
 				"polling_timeout":    formatDuration(ymq.PollingTimeout),
 			},
 		})
+	case *eventrouter.Source_Timer:
+		timer := s.Timer
+		d.Set(eventrouterSourceTypeTimer, [1]map[string]interface{}{
+			{
+				"cron_expression": timer.CronExpression,
+				"timezone":        timer.TimeZone,
+				"payload":         timer.Payload,
+			},
+		})
 	}
 }
 
@@ -379,6 +417,15 @@ func constructYandexEventrouterSource(d *schema.ResourceData) (*eventrouter.Sour
 			},
 		}
 		return &eventrouter.Source{Source: ymq}, nil
+	} else if _, ok := d.GetOk(eventrouterSourceTypeTimer); ok {
+		timer := &eventrouter.Source_Timer{
+			Timer: &eventrouter.Timer{
+				CronExpression: d.Get("timer.0.cron_expression").(string),
+				TimeZone:       d.Get("timer.0.timezone").(string),
+				Payload:        d.Get("timer.0.payload").(string),
+			},
+		}
+		return &eventrouter.Source{Source: timer}, nil
 	}
 
 	return nil, errors.New("Source not specified")
