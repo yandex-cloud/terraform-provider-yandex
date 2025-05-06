@@ -1163,7 +1163,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kraft.0.resources.0.resource_preset_id":                 "config_spec.kraft.resources.resource_preset_id",
 	"config.0.kraft.0.resources.0.disk_type_id":                       "config_spec.kraft.resources.disk_type_id",
 	"config.0.kraft.0.resources.0.disk_size":                          "config_spec.kraft.resources.disk_size",
-	"config.0.rest_api":                                               "config_spec.rest_api",
+	"config.0.rest_api":                                               "config_spec.rest_api_config.enabled",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {

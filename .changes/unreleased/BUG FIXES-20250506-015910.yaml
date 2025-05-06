@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'kafka: fix update of `enabled` flag in `ClusterConfig.rest_api`'
+time: 2025-05-06T01:59:10.710926551+03:00

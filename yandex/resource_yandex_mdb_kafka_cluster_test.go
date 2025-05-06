@@ -1267,7 +1267,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "false"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -1295,7 +1295,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "false"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.schema_registry", "true"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
@@ -1342,6 +1342,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
+					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -1365,6 +1366,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
+					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
@@ -1454,7 +1456,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	    data_transfer  = true
       }
       rest_api {
-	    enabled = true
+	    enabled = false
       }
 	  kafka {
 		resources {
@@ -1541,7 +1543,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	        data_transfer = false
         }
         rest_api {
-	        enabled = false
+	        enabled = true
         }
 		kafka {
 			resources {
@@ -1868,7 +1870,10 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
-	  schema_registry  = false	
+	  schema_registry  = false
+      rest_api {
+	    enabled = true
+      }
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
