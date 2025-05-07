@@ -15,6 +15,11 @@ type YQClient interface {
 	DescribeConnection(context.Context, *Ydb_FederatedQuery.DescribeConnectionRequest) (*Ydb_FederatedQuery.DescribeConnectionResult, error)
 	ModifyConnection(context.Context, *Ydb_FederatedQuery.ModifyConnectionRequest) (*Ydb_FederatedQuery.ModifyConnectionResult, error)
 	DeleteConnection(context.Context, *Ydb_FederatedQuery.DeleteConnectionRequest) (*Ydb_FederatedQuery.DeleteConnectionResult, error)
+
+	CreateBinding(context.Context, *Ydb_FederatedQuery.CreateBindingRequest) (*Ydb_FederatedQuery.CreateBindingResult, error)
+	DescribeBinding(context.Context, *Ydb_FederatedQuery.DescribeBindingRequest) (*Ydb_FederatedQuery.DescribeBindingResult, error)
+	ModifyBinding(context.Context, *Ydb_FederatedQuery.ModifyBindingRequest) (*Ydb_FederatedQuery.ModifyBindingResult, error)
+	DeleteBinding(context.Context, *Ydb_FederatedQuery.DeleteBindingRequest) (*Ydb_FederatedQuery.DeleteBindingResult, error)
 }
 
 type yqClient struct {
@@ -96,6 +101,86 @@ func (c yqClient) DeleteConnection(ctx context.Context,
 
 	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
 		return nil, fmt.Errorf("delete connection: %+v", r)
+	}
+
+	return nil, nil
+}
+
+func (c yqClient) CreateBinding(
+	ctx context.Context,
+	req *Ydb_FederatedQuery.CreateBindingRequest,
+) (*Ydb_FederatedQuery.CreateBindingResult, error) {
+
+	r, err := c.client.CreateBinding(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("create binding: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("create binding: %+v", r)
+	}
+
+	var result Ydb_FederatedQuery.CreateBindingResult
+
+	err = r.GetOperation().GetResult().UnmarshalTo(&result)
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("create binding: %+v; unmarshal: %w", r, err)
+	}
+
+	return &result, nil
+}
+
+func (c yqClient) DescribeBinding(ctx context.Context,
+	req *Ydb_FederatedQuery.DescribeBindingRequest,
+) (*Ydb_FederatedQuery.DescribeBindingResult, error) {
+
+	r, err := c.client.DescribeBinding(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("describe binding: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("describe binding: %+v", r)
+	}
+
+	var result Ydb_FederatedQuery.DescribeBindingResult
+
+	err = r.GetOperation().GetResult().UnmarshalTo(&result)
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("describe binding: %+v; unmarshal: %w", r, err)
+	}
+
+	return &result, nil
+}
+
+func (c yqClient) ModifyBinding(
+	ctx context.Context,
+	req *Ydb_FederatedQuery.ModifyBindingRequest,
+) (*Ydb_FederatedQuery.ModifyBindingResult, error) {
+
+	r, err := c.client.ModifyBinding(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("modify binding: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("modify binding: %+v", r)
+	}
+
+	return nil, nil
+}
+
+func (c yqClient) DeleteBinding(ctx context.Context,
+	req *Ydb_FederatedQuery.DeleteBindingRequest,
+) (*Ydb_FederatedQuery.DeleteBindingResult, error) {
+
+	r, err := c.client.DeleteBinding(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("delete binding: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("delete binding: %+v", r)
 	}
 
 	return nil, nil

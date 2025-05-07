@@ -1,4 +1,4 @@
-package object_storage_connection
+package object_storage_binding
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,12 +10,7 @@ func ResourceSchema() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		AttributeServiceAccountID: &schema.Schema{
-			Type:     schema.TypeString,
-			Computed: true,
-			Optional: true,
-		},
-		AttributeBucket: &schema.Schema{
+		AttributeConnectionID: &schema.Schema{
 			Type:     schema.TypeString,
 			Required: true,
 		},

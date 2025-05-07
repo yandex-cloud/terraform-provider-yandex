@@ -73,7 +73,7 @@ func executeYandexYQObjectStorageConnectionCreate(
 	d *schema.ResourceData,
 	config *Config,
 ) error {
-	connectionName := d.Get(os_conn.AttributeConnectionName).(string)
+	connectionName := d.Get(os_conn.AttributeName).(string)
 	serviceAccountID := d.Get(os_conn.AttributeServiceAccountID).(string)
 	bucket := d.Get(os_conn.AttributeBucket).(string)
 	description := d.Get(os_conn.AttributeDescription).(string)
@@ -127,10 +127,10 @@ func executeYandexYQObjectStorageConnectionRead(
 	d *schema.ResourceData,
 	_ *Config,
 ) error {
-	connectionID := d.Id()
+	id := d.Id()
 
 	req := &Ydb_FederatedQuery.DescribeConnectionRequest{
-		ConnectionId: connectionID,
+		ConnectionId: id,
 	}
 
 	connectionRes, err := performYandexYQObjectStorageConnectionRead(ctx, client, d, req)
@@ -177,29 +177,20 @@ func flattenYandexYQObjectStorageConnection(
 	return nil
 }
 
-func flattenYandexYQCommonMeta(
-	d *schema.ResourceData,
-	meta *Ydb_FederatedQuery.CommonMeta,
-) error {
-	d.SetId(meta.GetId())
-
-	return nil
-}
-
 func flattenYandexYQConnectionContent(
 	d *schema.ResourceData,
 	content *Ydb_FederatedQuery.ConnectionContent,
 ) error {
-	d.Set(os_conn.AttributeConnectionName, content.GetName())
+	d.Set(os_conn.AttributeName, content.GetName())
 	d.Set(os_conn.AttributeDescription, content.GetDescription())
-	if err := falttenYandexYQConnectionSetting(d, content.GetSetting()); err != nil {
+	if err := flattenYandexYQConnectionSetting(d, content.GetSetting()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func falttenYandexYQConnectionSetting(
+func flattenYandexYQConnectionSetting(
 	d *schema.ResourceData,
 	setting *Ydb_FederatedQuery.ConnectionSetting,
 ) error {
@@ -233,16 +224,16 @@ func executeYandexYQObjectStorageConnectionUpdate(
 	d *schema.ResourceData,
 	config *Config,
 ) error {
-	connectionName := d.Get(os_conn.AttributeConnectionName).(string)
+	connectionName := d.Get(os_conn.AttributeName).(string)
 	serviceAccountID := d.Get(os_conn.AttributeServiceAccountID).(string)
 	bucket := d.Get(os_conn.AttributeBucket).(string)
 	description := d.Get(os_conn.AttributeDescription).(string)
 
 	auth := parseServiceIDToIAMAuth(serviceAccountID)
-	connectionID := d.Id()
+	id := d.Id()
 
 	req := &Ydb_FederatedQuery.ModifyConnectionRequest{
-		ConnectionId: connectionID,
+		ConnectionId: id,
 		Content: &Ydb_FederatedQuery.ConnectionContent{
 			Name:        connectionName,
 			Description: description,
@@ -287,10 +278,10 @@ func executeYandexYQObjectStorageConnectionDelete(
 	d *schema.ResourceData,
 	_ *Config,
 ) error {
-	connectionID := d.Id()
+	id := d.Id()
 
 	req := &Ydb_FederatedQuery.DeleteConnectionRequest{
-		ConnectionId: connectionID,
+		ConnectionId: id,
 	}
 
 	err := performYandexYQObjectStorageConnectionDelete(ctx, client, d, req)
