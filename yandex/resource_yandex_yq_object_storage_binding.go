@@ -86,7 +86,7 @@ func executeYandexYQObjectStorageBindingCreate(
 				Binding: &Ydb_FederatedQuery.BindingSetting_ObjectStorage{
 					ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
 						Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
-							&Ydb_FederatedQuery.ObjectStorageBinding_Subset{
+							{
 								Format: "json_each_row",
 							},
 						},
@@ -220,7 +220,7 @@ func executeYandexYQObjectStorageBindingUpdate(
 				Binding: &Ydb_FederatedQuery.BindingSetting_ObjectStorage{
 					ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
 						Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
-							&Ydb_FederatedQuery.ObjectStorageBinding_Subset{
+							{
 								Format: "json_each_row",
 							},
 						},
