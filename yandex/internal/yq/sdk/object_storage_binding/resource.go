@@ -43,8 +43,9 @@ func ResourceSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 		AttributePathPattern: {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.NoZeroValues,
 		},
 		AttributeFormat: {
 			Type:         schema.TypeString,
@@ -89,7 +90,6 @@ func ResourceSchema() map[string]*schema.Schema {
 						Description:  "Column data type. YQL data types are used.",
 						Required:     true,
 						ValidateFunc: validation.NoZeroValues,
-						Computed:     true,
 					},
 					AttributeColumnNotNull: {
 						Type:        schema.TypeBool,
