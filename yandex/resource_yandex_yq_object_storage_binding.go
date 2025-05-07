@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
+	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/client"
 	os_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/object_storage_binding"
@@ -67,36 +68,88 @@ func resourceYandexYQObjectStorageBindingDelete(ctx context.Context, d *schema.R
 	return nil
 }
 
+func parseColumns(d *schema.ResourceData) ([]*Ydb.Column, error) {
+	columnsRaw := d.Get(os_binding.AttributeColumn)
+	if columnsRaw == nil {
+		return nil, nil
+	}
+
+	raw := columnsRaw.([]interface{})
+	columns := make([]*Ydb.Column, 0, len(raw))
+	for _, rw := range raw {
+		r := rw.(map[string]interface{})
+		name := r[os_binding.AttributeColumnName].(string)
+		//t := r[os_binding.AttributeColumnType].(string)
+		//not_null := r[os_binding.AttributeColumnNotNull].(bool)
+
+		columns = append(columns, &Ydb.Column{
+			Name: name,
+			Type: &Ydb.Type{
+				Type: &Ydb.Type_TypeId{
+					TypeId: Ydb.Type_STRING,
+				},
+			},
+		})
+	}
+
+	return columns, nil
+
+}
+
+func parseBindingContent(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingContent, error) {
+	name := d.Get(os_binding.AttributeName).(string)
+	description := d.Get(os_binding.AttributeDescription).(string)
+	connectionId := d.Get(os_binding.AttributeConnectionID).(string)
+	format := d.Get(os_binding.AttributeFormat).(string)
+	compression := d.Get(os_binding.AttributeCompression).(string)
+	pathPattern := d.Get(os_binding.AttributePathPattern).(string)
+
+	columns, err := parseColumns(d)
+	if err != nil {
+		return nil, err
+	}
+
+	schema := &Ydb_FederatedQuery.Schema{
+		Column: columns,
+	}
+
+	return &Ydb_FederatedQuery.BindingContent{
+		Name:         name,
+		ConnectionId: connectionId,
+		Description:  description,
+		Setting: &Ydb_FederatedQuery.BindingSetting{
+			Binding: &Ydb_FederatedQuery.BindingSetting_ObjectStorage{
+				ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
+					Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
+						{
+							Format:      format,
+							Compression: compression,
+							PathPattern: pathPattern,
+							Schema:      schema,
+						},
+					},
+				},
+			},
+		},
+		Acl: &Ydb_FederatedQuery.Acl{
+			Visibility: Ydb_FederatedQuery.Acl_SCOPE,
+		},
+	}, nil
+}
+
 func executeYandexYQObjectStorageBindingCreate(
 	ctx context.Context,
 	client client.YQClient,
 	d *schema.ResourceData,
 	config *Config,
 ) error {
-	name := d.Get(os_binding.AttributeName).(string)
-	description := d.Get(os_binding.AttributeDescription).(string)
-	connectionId := d.Get(os_binding.AttributeConnectionID).(string)
+	bindingContent, err := parseBindingContent(d)
+	if err != nil {
+		return err
+	}
 
 	req := Ydb_FederatedQuery.CreateBindingRequest{
-		Content: &Ydb_FederatedQuery.BindingContent{
-			Name:         name,
-			ConnectionId: connectionId,
-			Description:  description,
-			Setting: &Ydb_FederatedQuery.BindingSetting{
-				Binding: &Ydb_FederatedQuery.BindingSetting_ObjectStorage{
-					ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
-						Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
-							{
-								Format: "json_each_row",
-							},
-						},
-					},
-				},
-			},
-			Acl: &Ydb_FederatedQuery.Acl{
-				Visibility: Ydb_FederatedQuery.Acl_SCOPE,
-			},
-		},
+		Content: bindingContent,
 	}
 
 	if err := performYandexYQObjectStorageBindingCreate(ctx, client, d, &req); err != nil {
@@ -134,26 +187,12 @@ func executeYandexYQObjectStorageBindingRead(
 		BindingId: id,
 	}
 
-	connectionRes, err := performYandexYQObjectStorageBindingRead(ctx, client, d, req)
+	connectionRes, err := client.DescribeBinding(ctx, req)
 	if err != nil {
 		return err
 	}
 
 	return flattenYandexYQObjectStorageBinding(d, connectionRes)
-}
-
-func performYandexYQObjectStorageBindingRead(
-	ctx context.Context,
-	client client.YQClient,
-	_ *schema.ResourceData,
-	req *Ydb_FederatedQuery.DescribeBindingRequest,
-) (*Ydb_FederatedQuery.DescribeBindingResult, error) {
-	res, err := client.DescribeBinding(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }
 
 func flattenYandexYQObjectStorageBinding(
@@ -204,54 +243,24 @@ func executeYandexYQObjectStorageBindingUpdate(
 	d *schema.ResourceData,
 	config *Config,
 ) error {
-	name := d.Get(os_binding.AttributeName).(string)
-	description := d.Get(os_binding.AttributeDescription).(string)
-	connectionId := d.Get(os_binding.AttributeConnectionID).(string)
+	bindingContent, err := parseBindingContent(d)
+	if err != nil {
+		return err
+	}
 
 	id := d.Id()
 
 	req := &Ydb_FederatedQuery.ModifyBindingRequest{
 		BindingId: id,
-		Content: &Ydb_FederatedQuery.BindingContent{
-			Name:         name,
-			ConnectionId: connectionId,
-			Description:  description,
-			Setting: &Ydb_FederatedQuery.BindingSetting{
-				Binding: &Ydb_FederatedQuery.BindingSetting_ObjectStorage{
-					ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
-						Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
-							{
-								Format: "json_each_row",
-							},
-						},
-					},
-				},
-			},
-			Acl: &Ydb_FederatedQuery.Acl{
-				Visibility: Ydb_FederatedQuery.Acl_SCOPE,
-			},
-		},
+		Content:   bindingContent,
 	}
 
-	if err := performYandexYQObjectStorageBindingUpdate(ctx, client, d, req); err != nil {
-		return err
-	}
-
-	return executeYandexYQObjectStorageBindingRead(ctx, client, d, config)
-}
-
-func performYandexYQObjectStorageBindingUpdate(
-	ctx context.Context,
-	client client.YQClient,
-	_ *schema.ResourceData,
-	req *Ydb_FederatedQuery.ModifyBindingRequest,
-) error {
-	_, err := client.ModifyBinding(ctx, req)
+	_, err = client.ModifyBinding(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return executeYandexYQObjectStorageBindingRead(ctx, client, d, config)
 }
 
 func executeYandexYQObjectStorageBindingDelete(
@@ -266,24 +275,6 @@ func executeYandexYQObjectStorageBindingDelete(
 		BindingId: id,
 	}
 
-	err := performYandexYQObjectStorageBindingDelete(ctx, client, d, req)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func performYandexYQObjectStorageBindingDelete(
-	ctx context.Context,
-	client client.YQClient,
-	_ *schema.ResourceData,
-	req *Ydb_FederatedQuery.DeleteBindingRequest,
-) error {
 	_, err := client.DeleteBinding(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
