@@ -107,4 +107,4 @@ publish-website: generate-docs
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs-templates generate-docs install-yfm affected-lint-provider-docs
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs

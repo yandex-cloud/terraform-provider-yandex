@@ -19,16 +19,20 @@ Manages a ClickHouse user within the Yandex.Cloud. For more information, see [th
 
 - `cluster_id` (String) ID of the ClickHouse cluster. Provided by the client when the user is created.
 - `name` (String) Name of the ClickHouse user. Provided by the client when the user is created.
-- `password` (String, Sensitive) Password of the ClickHouse user. Provided by the client when the user is created.
 
 ### Optional
 
+- `generate_password` (Boolean) Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.
+
+~> **Must specify either password or generate_password**.
+- `password` (String, Sensitive) Password of the ClickHouse user. Provided by the client when the user is created.
 - `permission` (Block Set) Block represents databases that are permitted to user. (see [below for nested schema](#nestedblock--permission))
 - `quota` (Block Set) ClickHouse quota representation. Each quota associated with an user and limits it resource usage for an interval. For more information, see [the official documentation](https://clickhouse.com/docs/en/operations/quotas) (see [below for nested schema](#nestedblock--quota))
 - `settings` (Block, Optional) Block represents ClickHouse user settings. For more information, see [the official documentation](https://clickhouse.com/docs/ru/operations/settings/settings) (see [below for nested schema](#nestedblock--settings))
 
 ### Read-Only
 
+- `connection_manager` (Attributes) Connection Manager connection configuration. Filled in by the server automatically. (see [below for nested schema](#nestedatt--connection_manager))
 - `id` (String) The resource identifier.
 
 <a id="nestedblock--permission"></a>
@@ -204,3 +208,11 @@ If the parameter is set to 0 (default), no hops is allowed.
 - `use_uncompressed_cache` (Boolean) Whether to use a cache of uncompressed blocks.
 - `wait_for_async_insert` (Boolean) Enables waiting for processing of asynchronous insertion. If enabled, server returns OK only after the data is inserted.
 - `wait_for_async_insert_timeout` (Number) The timeout (in seconds) for waiting for processing of asynchronous insertion. Value must be at least 1000 (1 second).
+
+
+<a id="nestedatt--connection_manager"></a>
+### Nested Schema for `connection_manager`
+
+Read-Only:
+
+- `connection_id` (String) ID of Connection Manager connection. Filled in by the server automatically. String.

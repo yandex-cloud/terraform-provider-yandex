@@ -33,7 +33,6 @@ resource "yandex_mdb_kafka_topic" "events" {
     max_message_bytes     = 1048588
     min_insync_replicas   = 1
     segment_bytes         = 268435456
-    preallocate           = true
   }
 }
 
@@ -90,19 +89,19 @@ Optional:
 
 Optional:
 
-- `cleanup_policy` (String)
-- `compression_type` (String)
-- `delete_retention_ms` (String)
-- `file_delete_delay_ms` (String)
-- `flush_messages` (String)
-- `flush_ms` (String)
-- `max_message_bytes` (String)
-- `min_compaction_lag_ms` (String)
-- `min_insync_replicas` (String)
-- `preallocate` (Boolean)
-- `retention_bytes` (String)
-- `retention_ms` (String)
-- `segment_bytes` (String)
+- `cleanup_policy` (String) Retention policy to use on log segments.
+- `compression_type` (String) Compression type of kafka topic.
+- `delete_retention_ms` (String) The amount of time to retain delete tombstone markers for log compacted topics.
+- `file_delete_delay_ms` (String) The time to wait before deleting a file from the filesystem.
+- `flush_messages` (String) This setting allows specifying an interval at which we will force an fsync of data written to the log.
+- `flush_ms` (String) This setting allows specifying a time interval at which we will force an fsync of data written to the log.
+- `max_message_bytes` (String) The largest record batch size allowed by Kafka (after compression if compression is enabled).
+- `min_compaction_lag_ms` (String) The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
+- `min_insync_replicas` (String) When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+- `preallocate` (Boolean, Deprecated) True if we should preallocate the file on disk when creating a new log segment.
+- `retention_bytes` (String) This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the "delete" retention policy.
+- `retention_ms` (String) This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy.
+- `segment_bytes` (String) This configuration controls the segment file size for the log.
 
 ## Import
 

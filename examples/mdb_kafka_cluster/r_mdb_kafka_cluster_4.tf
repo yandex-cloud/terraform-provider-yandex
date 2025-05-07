@@ -33,7 +33,6 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
         log_retention_minutes           = 10080
         log_retention_ms                = 86400000
         log_segment_bytes               = 134217728
-        log_preallocate                 = true
         num_partitions                  = 10
         default_replication_factor      = 6
         message_max_bytes               = 1048588

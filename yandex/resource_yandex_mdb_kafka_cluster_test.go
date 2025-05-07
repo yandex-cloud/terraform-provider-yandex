@@ -1661,17 +1661,6 @@ func testAccCheckMDBKafkaClusterSaslEnabledMechanisms(r *kafka.Cluster, value []
 	}
 }
 
-/// TODO uncomment after fix bug https://issues.apache.org/jira/browse/KAFKA-13664
-//func testAccCheckMDBKafkaClusterLogPreallocate(r *kafka.Cluster, value bool) resource.TestCheckFunc {
-//	return func(s *terraform.State) error {
-//		v := r.Config.Kafka.GetKafkaConfig_2_8().LogPreallocate
-//		if v.GetValue() != value {
-//			return fmt.Errorf("incorrect log_preallocate value: expected '%v' but found '%v'", value, v.GetValue())
-//		}
-//		return nil
-//	}
-//}
-
 func testAccCheckMDBKafkaConfigKafkaHasResources(r *kafka.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := r.Config.Kafka.Resources

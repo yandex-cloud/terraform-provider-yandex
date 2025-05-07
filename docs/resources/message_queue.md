@@ -59,6 +59,7 @@ resource "yandex_message_queue" "example_fifo_queue" {
 - `redrive_policy` (String) Message redrive policy in [Dead Letter Queue](https://yandex.cloud/docs/message-queue/concepts/dlq). The source queue and DLQ must be the same type: for FIFO queues, the DLQ must also be a FIFO queue. For more information about redrive policy see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue). Also you can use example in this page.
 - `region_id` (String) ID of the region where the message queue is located at. The default is 'ru-central1'.
 - `secret_key` (String, Sensitive) The [secret key](https://yandex.cloud/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymq_secret_key` specified in provider config is used. For more information see [documentation](https://yandex.cloud/docs/message-queue/quickstart).
+- `tags` (Map of String) SQS tags
 - `visibility_timeout_seconds` (Number) [Visibility timeout](https://yandex.cloud/docs/message-queue/concepts/visibility-timeout) for messages in a queue, specified in seconds. Valid values: from 0 to 43200 seconds (12 hours). Default: 30.
 
 ### Read-Only

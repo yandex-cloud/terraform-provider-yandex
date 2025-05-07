@@ -37,8 +37,8 @@ output "network_id" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `name` (String) The resource name.
 - `subnet_ids` (List of String) The list of VPC subnets identifiers which resource is attached.
-- `topic` (Block List) (see [below for nested schema](#nestedblock--topic))
-- `user` (Block Set) (see [below for nested schema](#nestedblock--user))
+- `topic` (Block List, Deprecated) List of kafka topics. (see [below for nested schema](#nestedblock--topic))
+- `user` (Block Set, Deprecated) List of kafka users. (see [below for nested schema](#nestedblock--user))
 
 ### Read-Only
 
@@ -50,7 +50,7 @@ output "network_id" {
 - `host_group_ids` (Set of String) A list of IDs of the host groups to place VMs of the cluster on.
 - `id` (String) The ID of this resource.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `maintenance_window` (List of Object) (see [below for nested schema](#nestedatt--maintenance_window))
+- `maintenance_window` (List of Object) Maintenance policy of the Kafka cluster. (see [below for nested schema](#nestedatt--maintenance_window))
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `status` (String) Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-kafka/api-ref/Cluster/).
@@ -118,26 +118,46 @@ Required:
 
 Optional:
 
-- `auto_create_topics_enable` (Boolean)
-- `compression_type` (String)
-- `default_replication_factor` (String)
-- `log_flush_interval_messages` (String)
-- `log_flush_interval_ms` (String)
-- `log_flush_scheduler_interval_ms` (String)
-- `log_preallocate` (Boolean)
-- `log_retention_bytes` (String)
-- `log_retention_hours` (String)
-- `log_retention_minutes` (String)
-- `log_retention_ms` (String)
-- `log_segment_bytes` (String)
-- `message_max_bytes` (String)
-- `num_partitions` (String)
-- `offsets_retention_minutes` (String)
-- `replica_fetch_max_bytes` (String)
-- `sasl_enabled_mechanisms` (Set of String)
-- `socket_receive_buffer_bytes` (String)
-- `socket_send_buffer_bytes` (String)
-- `ssl_cipher_suites` (Set of String)
+- `auto_create_topics_enable` (Boolean) Enable auto creation of topic on the server. Enable auto creation of topic on the server.
+
+- `compression_type` (String) Compression type of kafka topics. Compression type of kafka topics.
+
+- `default_replication_factor` (String) The replication factor for automatically created topics, and for topics created with -1 as the replication factor. The replication factor for automatically created topics, and for topics created with -1 as the replication factor.
+
+- `log_flush_interval_messages` (String) The number of messages accumulated on a log partition before messages are flushed to disk. The number of messages accumulated on a log partition before messages are flushed to disk.
+
+- `log_flush_interval_ms` (String) The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used. The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used.
+
+- `log_flush_scheduler_interval_ms` (String) The frequency in ms that the log flusher checks whether any log needs to be flushed to disk. The frequency in ms that the log flusher checks whether any log needs to be flushed to disk.
+
+- `log_preallocate` (Boolean, Deprecated) Should pre allocate file when create new segment? Should pre allocate file when create new segment?
+
+- `log_retention_bytes` (String) The maximum size of the log before deleting it. The maximum size of the log before deleting it.
+
+- `log_retention_hours` (String) The number of hours to keep a log file before deleting it (in hours), tertiary to log.retention.ms property. The number of hours to keep a log file before deleting it (in hours), tertiary to log.retention.ms property.
+
+- `log_retention_minutes` (String) The number of minutes to keep a log file before deleting it (in minutes), secondary to log.retention.ms property. If not set, the value in log.retention.hours is used. The number of minutes to keep a log file before deleting it (in minutes), secondary to log.retention.ms property. If not set, the value in log.retention.hours is used.
+
+- `log_retention_ms` (String) The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied. The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied.
+
+- `log_segment_bytes` (String) The maximum size of a single log file. The maximum size of a single log file.
+
+- `message_max_bytes` (String) The largest record batch size allowed by Kafka (after compression if compression is enabled). The largest record batch size allowed by Kafka (after compression if compression is enabled).
+
+- `num_partitions` (String) The default number of log partitions per topic. The default number of log partitions per topic.
+
+- `offsets_retention_minutes` (String) For subscribed consumers, committed offset of a specific partition will be expired and discarded after this period of time. For subscribed consumers, committed offset of a specific partition will be expired and discarded after this period of time.
+
+- `replica_fetch_max_bytes` (String) The number of bytes of messages to attempt to fetch for each partition. The number of bytes of messages to attempt to fetch for each partition.
+
+- `sasl_enabled_mechanisms` (Set of String) The list of SASL mechanisms enabled in the Kafka server. The list of SASL mechanisms enabled in the Kafka server.
+
+- `socket_receive_buffer_bytes` (String) The SO_RCVBUF buffer of the socket server sockets. If the value is -1, the OS default will be used. The SO_RCVBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.
+
+- `socket_send_buffer_bytes` (String) The SO_SNDBUF buffer of the socket server sockets. If the value is -1, the OS default will be used. The SO_SNDBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.
+
+- `ssl_cipher_suites` (Set of String) A list of cipher suites. A list of cipher suites.
+
 
 
 
@@ -242,19 +262,32 @@ Optional:
 
 Optional:
 
-- `cleanup_policy` (String)
-- `compression_type` (String)
-- `delete_retention_ms` (String)
-- `file_delete_delay_ms` (String)
-- `flush_messages` (String)
-- `flush_ms` (String)
-- `max_message_bytes` (String)
-- `min_compaction_lag_ms` (String)
-- `min_insync_replicas` (String)
-- `preallocate` (Boolean)
-- `retention_bytes` (String)
-- `retention_ms` (String)
-- `segment_bytes` (String)
+- `cleanup_policy` (String) Retention policy to use on log segments. Retention policy to use on log segments.
+
+- `compression_type` (String) Compression type of kafka topic. Compression type of kafka topic.
+
+- `delete_retention_ms` (String) The amount of time to retain delete tombstone markers for log compacted topics. The amount of time to retain delete tombstone markers for log compacted topics.
+
+- `file_delete_delay_ms` (String) The time to wait before deleting a file from the filesystem. The time to wait before deleting a file from the filesystem.
+
+- `flush_messages` (String) This setting allows specifying an interval at which we will force an fsync of data written to the log. This setting allows specifying an interval at which we will force an fsync of data written to the log.
+
+- `flush_ms` (String) This setting allows specifying a time interval at which we will force an fsync of data written to the log. This setting allows specifying a time interval at which we will force an fsync of data written to the log.
+
+- `max_message_bytes` (String) The largest record batch size allowed by Kafka (after compression if compression is enabled). The largest record batch size allowed by Kafka (after compression if compression is enabled).
+
+- `min_compaction_lag_ms` (String) The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted. The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
+
+- `min_insync_replicas` (String) When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+
+- `preallocate` (Boolean, Deprecated) True if we should preallocate the file on disk when creating a new log segment. True if we should preallocate the file on disk when creating a new log segment.
+
+- `retention_bytes` (String) This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the "delete" retention policy. This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the "delete" retention policy.
+
+- `retention_ms` (String) This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy. This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy.
+
+- `segment_bytes` (String) This configuration controls the segment file size for the log. This configuration controls the segment file size for the log.
+
 
 
 

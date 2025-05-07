@@ -39,7 +39,7 @@ resource "yandex_iam_service_account_api_key" "sa-api-key" {
 - `expires_at` (String) The key will be no longer valid after expiration timestamp.
 - `output_to_lockbox` (Block List, Max: 1) option to create a Lockbox secret version from sensitive outputs (see [below for nested schema](#nestedblock--output_to_lockbox))
 - `pgp_key` (String) An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
-- `scope` (String, Deprecated)
+- `scope` (String, Deprecated) The scope of the key.
 - `scopes` (List of String) The list of scopes of the key.
 
 ### Read-Only

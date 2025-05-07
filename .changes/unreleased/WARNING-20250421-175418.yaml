@@ -1,0 +1,3 @@
+kind: WARNING
+body: 'kafka: deprecate `log_preallocate` attribute in `kafka_config` attribute in `kafka` entity of `yandex_mdb_kafka_cluster` resource and data source.'
+time: 2025-04-21T17:54:18.182591424+03:00

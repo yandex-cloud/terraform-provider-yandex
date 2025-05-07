@@ -19,7 +19,6 @@ resource "yandex_mdb_kafka_topic" "events" {
     max_message_bytes     = 1048588
     min_insync_replicas   = 1
     segment_bytes         = 268435456
-    preallocate           = true
   }
 }
 

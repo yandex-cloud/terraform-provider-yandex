@@ -42,8 +42,8 @@ output "my_policy_name" {
 - `cbt` (String) Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`. Default `DO_NOT_USE`.
 - `compression` (String) Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
 - `created_at` (String) The creation timestamp of the resource.
-- `enabled` (Boolean)
-- `fast_backup_enabled` (Boolean)
+- `enabled` (Boolean) If this field is true, it means that the policy is enabled.
+- `fast_backup_enabled` (Boolean) If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are compared to those stored in the backup.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `format` (String) Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`, `VERSION_11`, `VERSION_12`.
 - `id` (String) The ID of this resource.
@@ -56,7 +56,7 @@ output "my_policy_name" {
 - `scheduling` (Set of Object) (see [below for nested schema](#nestedatt--scheduling))
 - `silent_mode_enabled` (Boolean) If true, a user interaction will be avoided when possible. Default `true`.
 - `splitting_bytes` (String) Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
-- `updated_at` (String)
+- `updated_at` (String) The update timestamp of the resource.
 - `vm_snapshot_reattempts` (Set of Object) (see [below for nested schema](#nestedatt--vm_snapshot_reattempts))
 - `vss_provider` (String) Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
 
@@ -80,7 +80,8 @@ Read-Only:
 
 - `after_backup` (Boolean) Defines whether retention rule applies after creating backup or before.
 
-- `rules` (Set of Object) (see [below for nested schema](#nestedobjatt--retention--rules))
+- `rules` (Block Set) A list of retention rules. (see [below for nested schema](#nestedobjatt--retention--rules))
+
 
 <a id="nestedobjatt--retention--rules"></a>
 ### Nested Schema for `retention.rules`
@@ -91,7 +92,8 @@ Read-Only:
 
 - `max_count` (Number) Deletes backups if it's count exceeds `max_count`. Exactly one of `max_count` or `max_age` should be set.
 
-- `repeat_period` (List of String)
+- `repeat_period` (List of String) Possible types: `REPEATE_PERIOD_UNSPECIFIED`, `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`. Specifies repeat period of the backupset.
+
 
 
 
@@ -134,7 +136,8 @@ Read-Only:
 
 - `monthdays` (List of Number) List of days when schedule applies. Used in `MONTHLY` type.
 
-- `months` (List of Number)
+- `months` (List of Number) Set of values. Allowed values form 1 to 12.
+
 - `repeat_at` (List of String) List of time in format `HH:MM` (24-hours format), when the schedule applies.
 
 - `repeat_every` (String) Frequency of backup repetition. See `interval_type` for available values.

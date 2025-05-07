@@ -81,7 +81,7 @@ For every resource and data source defined in the Yandex provider, a documentati
 If your resource/datasource does not have a template, please run the following command:
 
 ```shell
-make generate-docs-templates
+make generate-docs
 ```
 
 If it is a new service, first update `templates/categories.yaml`.
@@ -119,7 +119,7 @@ You can enhance your resource documentation by adding more examples. For instanc
 If you add a new service, please update `templates/categories.yaml`. The key in this file is the service path in the templates directory, and the value is the service name. This is used for grouping services on the documentation website. Then run the following command:
 
 ```shell
-make generate-docs-templates
+make generate-docs
 ```
 
 #### Resolving Template Variables

@@ -153,7 +153,6 @@ type KafkaConfig struct {
 	LogRetentionMinutes         *wrappers.Int64Value
 	LogRetentionMs              *wrappers.Int64Value
 	LogSegmentBytes             *wrappers.Int64Value
-	LogPreallocate              *wrappers.BoolValue
 	SocketSendBufferBytes       *wrappers.Int64Value
 	SocketReceiveBufferBytes    *wrappers.Int64Value
 	AutoCreateTopicsEnable      *wrappers.BoolValue
@@ -195,9 +194,6 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 	res.ReplicaFetchMaxBytes = parseIntKafkaConfigParam(d, "replica_fetch_max_bytes", &retErr)
 	res.OffsetsRetentionMinutes = parseIntKafkaConfigParam(d, "offsets_retention_minutes", &retErr)
 
-	if v, ok := d.GetOk(kafkaConfigPath + ".log_preallocate"); ok {
-		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
-	}
 	if v, ok := d.GetOk(kafkaConfigPath + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
 	}
@@ -235,7 +231,6 @@ func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error)
 		LogRetentionMinutes:         kafkaConfig.LogRetentionMinutes,
 		LogRetentionMs:              kafkaConfig.LogRetentionMs,
 		LogSegmentBytes:             kafkaConfig.LogSegmentBytes,
-		LogPreallocate:              kafkaConfig.LogPreallocate,
 		SocketSendBufferBytes:       kafkaConfig.SocketSendBufferBytes,
 		SocketReceiveBufferBytes:    kafkaConfig.SocketReceiveBufferBytes,
 		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
@@ -264,7 +259,6 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 		LogRetentionMinutes:         kafkaConfig.LogRetentionMinutes,
 		LogRetentionMs:              kafkaConfig.LogRetentionMs,
 		LogSegmentBytes:             kafkaConfig.LogSegmentBytes,
-		LogPreallocate:              kafkaConfig.LogPreallocate,
 		SocketSendBufferBytes:       kafkaConfig.SocketSendBufferBytes,
 		SocketReceiveBufferBytes:    kafkaConfig.SocketReceiveBufferBytes,
 		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
@@ -291,7 +285,6 @@ type TopicConfig struct {
 	MaxMessageBytes    *wrappers.Int64Value
 	MinInsyncReplicas  *wrappers.Int64Value
 	SegmentBytes       *wrappers.Int64Value
-	Preallocate        *wrappers.BoolValue
 }
 
 func parseIntTopicConfigParam(d *schema.ResourceData, paramPath string, retErr *error) *wrappers.Int64Value {
@@ -347,10 +340,6 @@ func parseKafkaTopicConfig(d *schema.ResourceData, topicConfigPrefix string) (*T
 	res.MinInsyncReplicas = parseIntTopicConfigParam(d, key("min_insync_replicas"), &retErr)
 	res.SegmentBytes = parseIntTopicConfigParam(d, key("segment_bytes"), &retErr)
 
-	if preallocateRaw, ok := d.GetOk(key("preallocate")); ok {
-		res.Preallocate = &wrappers.BoolValue{Value: preallocateRaw.(bool)}
-	}
-
 	if retErr != nil {
 		return nil, retErr
 	}
@@ -376,7 +365,6 @@ func expandKafkaTopicConfig2_8(d *schema.ResourceData, topicConfigPrefix string)
 		MaxMessageBytes:    topicConfig.MaxMessageBytes,
 		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
 		SegmentBytes:       topicConfig.SegmentBytes,
-		Preallocate:        topicConfig.Preallocate,
 	}
 
 	return res, nil
@@ -400,7 +388,6 @@ func expandKafkaTopicConfig3x(d *schema.ResourceData, topicConfigPrefix string) 
 		MaxMessageBytes:    topicConfig.MaxMessageBytes,
 		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
 		SegmentBytes:       topicConfig.SegmentBytes,
-		Preallocate:        topicConfig.Preallocate,
 	}
 
 	return res, nil
@@ -662,7 +649,6 @@ type KafkaConfigSettings interface {
 	GetLogRetentionMinutes() *wrappers.Int64Value
 	GetLogRetentionMs() *wrappers.Int64Value
 	GetLogSegmentBytes() *wrappers.Int64Value
-	GetLogPreallocate() *wrappers.BoolValue
 	GetSocketSendBufferBytes() *wrappers.Int64Value
 	GetSocketReceiveBufferBytes() *wrappers.Int64Value
 	GetAutoCreateTopicsEnable() *wrappers.BoolValue
@@ -704,9 +690,6 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	}
 	if kafkaConfig.GetLogSegmentBytes() != nil {
 		res["log_segment_bytes"] = strconv.FormatInt(kafkaConfig.GetLogSegmentBytes().GetValue(), 10)
-	}
-	if kafkaConfig.GetLogPreallocate() != nil {
-		res["log_preallocate"] = kafkaConfig.GetLogPreallocate().GetValue()
 	}
 	if kafkaConfig.GetSocketSendBufferBytes() != nil {
 		res["socket_send_buffer_bytes"] = strconv.FormatInt(kafkaConfig.GetSocketSendBufferBytes().GetValue(), 10)
@@ -890,7 +873,6 @@ type TopicConfigSpec interface {
 	GetMaxMessageBytes() *wrappers.Int64Value
 	GetMinInsyncReplicas() *wrappers.Int64Value
 	GetSegmentBytes() *wrappers.Int64Value
-	GetPreallocate() *wrappers.BoolValue
 }
 
 func flattenKafkaTopicConfig(topicConfig TopicConfigSpec) map[string]interface{} {
@@ -928,9 +910,6 @@ func flattenKafkaTopicConfig(topicConfig TopicConfigSpec) map[string]interface{}
 	}
 	if topicConfig.GetSegmentBytes() != nil {
 		result["segment_bytes"] = strconv.FormatInt(topicConfig.GetSegmentBytes().GetValue(), 10)
-	}
-	if topicConfig.GetPreallocate() != nil {
-		result["preallocate"] = topicConfig.GetPreallocate().GetValue()
 	}
 	return result
 }

@@ -47,6 +47,7 @@ resource "yandex_iot_core_device" "my_device" {
 - `aliases` (Map of String) A set of key/value aliases pairs to assign to the IoT Core Device.
 - `certificates` (Set of String) A set of certificate's fingerprints for the IoT Core Device.
 - `description` (String) The resource description.
+- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `passwords` (Set of String, Sensitive) A set of passwords's id for the IoT Core Device.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 

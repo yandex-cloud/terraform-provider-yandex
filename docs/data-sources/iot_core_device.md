@@ -38,5 +38,6 @@ data "yandex_iot_core_device" "my_device" {
 - `created_at` (String) The creation timestamp of the resource.
 - `description` (String) The resource name.
 - `id` (String) The ID of this resource.
+- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `passwords` (Set of String) A set of passwords's id for the IoT Core Device.
 - `registry_id` (String) IoT Core Registry ID for the IoT Core Device.

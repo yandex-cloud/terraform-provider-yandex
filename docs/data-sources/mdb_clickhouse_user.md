@@ -27,8 +27,9 @@ Manages a ClickHouse user within the Yandex.Cloud. For more information, see [th
 
 ### Read-Only
 
+- `connection_manager` (Attributes) Connection Manager connection configuration. Filled in by the server automatically. (see [below for nested schema](#nestedatt--connection_manager))
 - `id` (String) The resource identifier.
-- `password` (String, Sensitive)
+- `password` (String, Sensitive) Password of the ClickHouse user. Provided by the client when the user is created.
 - `permission` (Block Set) (see [below for nested schema](#nestedblock--permission))
 
 <a id="nestedblock--quota"></a>
@@ -192,6 +193,14 @@ Optional:
 - `use_uncompressed_cache` (Boolean)
 - `wait_for_async_insert` (Boolean)
 - `wait_for_async_insert_timeout` (Number)
+
+
+<a id="nestedatt--connection_manager"></a>
+### Nested Schema for `connection_manager`
+
+Read-Only:
+
+- `connection_id` (String) ID of Connection Manager connection. Filled in by the server automatically. String.
 
 
 <a id="nestedblock--permission"></a>

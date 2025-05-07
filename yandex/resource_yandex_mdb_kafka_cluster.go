@@ -550,6 +550,7 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Should pre allocate file when create new segment?",
 				Optional:    true,
+				Deprecated:  "The 'log_preallocate' field has been deprecated, because feature not useful for Yandex Cloud.",
 			},
 			"socket_send_buffer_bytes": {
 				Type:         schema.TypeString,
@@ -698,6 +699,7 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "True if we should preallocate the file on disk when creating a new log segment.",
 				Optional:    true,
+				Deprecated:  "The 'preallocate' field has been deprecated, because feature not useful for Yandex Cloud.",
 			},
 		},
 	}
@@ -1146,7 +1148,6 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.log_retention_minutes":           "config_spec.kafka.kafka_config_{version}.log_retention_minutes",
 	"config.0.kafka.0.kafka_config.0.log_retention_ms":                "config_spec.kafka.kafka_config_{version}.log_retention_ms",
 	"config.0.kafka.0.kafka_config.0.log_segment_bytes":               "config_spec.kafka.kafka_config_{version}.log_segment_bytes",
-	"config.0.kafka.0.kafka_config.0.log_preallocate":                 "config_spec.kafka.kafka_config_{version}.log_preallocate",
 	"config.0.kafka.0.kafka_config.0.socket_send_buffer_bytes":        "config_spec.kafka.kafka_config_{version}.socket_send_buffer_bytes",
 	"config.0.kafka.0.kafka_config.0.socket_receive_buffer_bytes":     "config_spec.kafka.kafka_config_{version}.socket_receive_buffer_bytes",
 	"config.0.kafka.0.kafka_config.0.auto_create_topics_enable":       "config_spec.kafka.kafka_config_{version}.auto_create_topics_enable",

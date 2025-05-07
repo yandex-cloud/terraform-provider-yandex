@@ -77,7 +77,7 @@ resource "yandex_vpc_subnet" "foo" {
 
 ### Required
 
-- `cluster_id` (String)
+- `cluster_id` (String) The ID of the MySQL cluster.
 - `name` (String) The name of the user.
 
 ### Optional
