@@ -79,16 +79,16 @@ func parseColumns(d *schema.ResourceData) ([]*Ydb.Column, error) {
 	for _, rw := range raw {
 		r := rw.(map[string]interface{})
 		name := r[os_binding.AttributeColumnName].(string)
-		//t := r[os_binding.AttributeColumnType].(string)
-		//not_null := r[os_binding.AttributeColumnNotNull].(bool)
+		t := r[os_binding.AttributeColumnType].(string)
+		notNull := r[os_binding.AttributeColumnNotNull].(bool)
+		t2, err := ParseColumnType(t, notNull)
+		if err != nil {
+			return nil, err
+		}
 
 		columns = append(columns, &Ydb.Column{
 			Name: name,
-			Type: &Ydb.Type{
-				Type: &Ydb.Type_TypeId{
-					TypeId: Ydb.Type_STRING,
-				},
-			},
+			Type: t2,
 		})
 	}
 
