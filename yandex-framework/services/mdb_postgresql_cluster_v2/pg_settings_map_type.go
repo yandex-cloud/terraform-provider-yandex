@@ -2,6 +2,7 @@ package mdb_postgresql_cluster_v2
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -27,8 +28,23 @@ var pgSettingsEnumNames = map[string]map[int32]string{
 	"plan_cache_mode":                  config.PostgresqlConfig13_PlanCacheMode_name,
 	"pg_hint_plan_debug_print":         config.PostgresqlConfig13_PgHintPlanDebugPrint_name,
 	"pg_hint_plan_message_level":       config.PostgresqlConfig13_LogLevel_name,
-	"shared_preload_libraries.element": config.PostgresqlConfig13_SharedPreloadLibraries_name,
+	"shared_preload_libraries.element": pgSharedPreloadLibrariesEnumNames(),
 	"password_encryption":              config.PostgresqlConfig13_PasswordEncryption_name,
+}
+
+func pgSharedPreloadLibrariesEnumNames() map[int32]string {
+	namesMap := make(map[int32]string)
+	maps.Copy(namesMap, config.PostgresqlConfig13_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig13_1C_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig14_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig14_1C_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig15_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig15_1C_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig16_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig16_1C_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig17_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig17_1C_SharedPreloadLibraries_name)
+	return namesMap
 }
 
 var pgSettingsEnumValues = map[string]map[string]int32{
@@ -49,8 +65,34 @@ var pgSettingsEnumValues = map[string]map[string]int32{
 	"plan_cache_mode":                  config.PostgresqlConfig13_PlanCacheMode_value,
 	"pg_hint_plan_debug_print":         config.PostgresqlConfig13_PgHintPlanDebugPrint_value,
 	"pg_hint_plan_message_level":       config.PostgresqlConfig13_LogLevel_value,
-	"shared_preload_libraries.element": config.PostgresqlConfig13_SharedPreloadLibraries_value,
+	"shared_preload_libraries.element": pgSharedPreloadLibrariesEnumValues(),
 	"password_encryption":              config.PostgresqlConfig13_PasswordEncryption_value,
+}
+
+func pgSharedPreloadLibrariesEnumValues() map[string]int32 {
+	kek := MergeMaps(
+		config.PostgresqlConfig13_SharedPreloadLibraries_value,
+		config.PostgresqlConfig13_1C_SharedPreloadLibraries_value,
+		config.PostgresqlConfig14_SharedPreloadLibraries_value,
+		config.PostgresqlConfig14_1C_SharedPreloadLibraries_value,
+		config.PostgresqlConfig15_SharedPreloadLibraries_value,
+		config.PostgresqlConfig15_1C_SharedPreloadLibraries_value,
+		config.PostgresqlConfig16_SharedPreloadLibraries_value,
+		config.PostgresqlConfig16_1C_SharedPreloadLibraries_value,
+		config.PostgresqlConfig17_SharedPreloadLibraries_value,
+		config.PostgresqlConfig17_1C_SharedPreloadLibraries_value,
+	)
+	return kek
+}
+
+func MergeMaps[M ~map[K]V, K comparable, V any](src ...M) M {
+	merged := make(M)
+	for _, m := range src {
+		for k, v := range m {
+			merged[k] = v
+		}
+	}
+	return merged
 }
 
 var listAttributes = map[string]struct{}{

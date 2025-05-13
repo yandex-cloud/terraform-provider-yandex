@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fixing validation error when trying to add an shared preload library that is not present in older versions of postgres'
+time: 2025-05-13T12:32:35.291779+03:00

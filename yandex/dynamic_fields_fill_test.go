@@ -416,6 +416,7 @@ func TestFieldsDynamicGenerateMapSchemaValidateFuncCorrect(t *testing.T) {
 		"enable_parallel_hash":              "true",
 		"max_connections":                   "395",
 		"vacuum_cleanup_index_scale_factor": "0.2",
+		"shared_preload_libraries":          "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,SHARED_PRELOAD_LIBRARIES_ANON",
 	}
 
 	_, errors := validateFunc(value, "")
