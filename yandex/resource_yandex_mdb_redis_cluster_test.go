@@ -1419,7 +1419,6 @@ resource "yandex_mdb_redis_cluster" "bar" {
 	lfu_log_factor = 10
 	turn_before_switchover = true
 	allow_data_loss = true
-	zset_max_listpack_entries = 256
 	version  = "%s"
   }
 

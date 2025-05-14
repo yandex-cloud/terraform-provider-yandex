@@ -370,7 +370,7 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 	}
 
 	var zsetMaxListpackEntries *wrappers.Int64Value
-	if v := d.Get("config.0.zset_max_listpack_entries"); v != nil {
+	if v, ok := d.GetOk("config.0.zset_max_listpack_entries"); ok {
 		zsetMaxListpackEntries = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 

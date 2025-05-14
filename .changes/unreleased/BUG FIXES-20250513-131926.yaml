@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: "redis: fix bug with non supported empty zset_max_listpack_entries"
+time: 2025-05-13T13:19:26.110032+03:00
