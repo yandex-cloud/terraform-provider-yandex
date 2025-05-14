@@ -1161,6 +1161,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  spark_cluster:
+    Category: "Managed Service for Apache Spark"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   storage_bucket:
     Category: "Object Storage (S3)"
     Type: sdk

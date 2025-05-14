@@ -1,0 +1,834 @@
+{
+  "datasources": [
+    {
+      "name": "cluster",
+      "schema": {
+        "description": "Managed Spark cluster.",
+        "attributes": [
+          {
+            "name": "id",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "Unique ID of the cluster."
+            }
+          },
+          {
+            "name": "folder_id",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "ID of the cloud folder that the cluster belongs to."
+            }
+          },
+          {
+            "name": "created_at",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The timestamp when the cluster was created."
+            }
+          },
+          {
+            "name": "name",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "Name of the cluster. The name is unique within the folder."
+            }
+          },
+          {
+            "name": "description",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Description of the cluster. 0-256 characters long."
+            }
+          },
+          {
+            "name": "labels",
+            "map": {
+              "computed_optional_required": "computed",
+              "description": "Cluster labels as key/value pairs.",
+              "element_type": {"string": {}}
+            }
+          },
+          {
+            "name": "config",
+            "single_nested": {
+              "computed_optional_required": "computed",
+              "description": "Configuration of the Spark cluster.",
+              "attributes": [
+                {
+                  "name": "resource_pools",
+                  "single_nested": {
+                    "computed_optional_required": "computed",
+                    "description": "Computational resources.",
+                    "attributes": [
+                      {
+                        "name": "driver",
+                        "single_nested": {
+                          "computed_optional_required": "computed",
+                          "description": "Computational resources for the driver pool.",
+                          "attributes": [
+                            {
+                              "name": "resource_preset_id",
+                              "string": {
+                                "computed_optional_required": "computed",
+                                "description": "Resource preset ID for the driver pool."
+                              }
+                            },
+                            {
+                              "name": "size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Node count for the driver pool with fixed size."
+                              }
+                            },
+                            {
+                              "name": "min_size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Minimum node count for the driver pool with autoscaling."
+                              }
+                            },
+                            {
+                              "name": "max_size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Maximum node count for the driver pool with autoscaling."
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "name": "executor",
+                        "single_nested": {
+                          "computed_optional_required": "computed",
+                          "description": "Computational resources for the executor pool.",
+                          "attributes": [
+                            {
+                              "name": "resource_preset_id",
+                              "string": {
+                                "computed_optional_required": "computed",
+                                "description": "Resource preset ID for the executor pool."
+                              }
+                            },
+                            {
+                              "name": "size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Node count for the executor pool with fixed size."
+                              }
+                            },
+                            {
+                              "name": "min_size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Minimum node count for the executor pool with autoscaling."
+                              }
+                            },
+                            {
+                              "name": "max_size",
+                              "int64": {
+                                "computed_optional_required": "computed",
+                                "description": "Maximum node count for the executor pool with autoscaling."
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "history_server",
+                  "single_nested": {
+                    "computed_optional_required": "computed",
+                    "description": "History Server configuration.",
+                    "attributes": [
+                      {
+                        "name": "enabled",
+                        "bool": {
+                          "computed_optional_required": "computed",
+                          "description": "Enable Spark History Server."
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "dependencies",
+                  "single_nested": {
+                    "computed_optional_required": "computed",
+                    "description": "Environment dependencies.",
+                    "attributes": [
+                      {
+                        "name": "pip_packages",
+                        "set": {
+                          "computed_optional_required": "computed",
+                          "description": "Python packages that need to be installed using pip (in pip requirement format).",
+                          "element_type": {
+                            "string": {}
+                          }
+                        }
+                      },
+                      {
+                        "name": "deb_packages",
+                        "set": {
+                          "computed_optional_required": "computed",
+                          "description": "Deb-packages that need to be installed using system package manager.",
+                          "element_type": {
+                            "string": {}
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "metastore",
+                  "single_nested": {
+                      "computed_optional_required": "computed",
+                      "description": "Metastore configuration.",
+                      "attributes": [
+                        {
+                          "name": "cluster_id",
+                          "string": {
+                            "computed_optional_required": "computed",
+                            "description": "Metastore cluster ID for default spark configuration."
+                          }
+                        }
+                      ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Status of the cluster."
+            }
+          },
+          {
+            "name": "network",
+            "single_nested": {
+              "computed_optional_required": "computed",
+              "description": "Network configuration.",
+              "attributes": [
+                {
+                  "name": "subnet_ids",
+                  "set": {
+                    "computed_optional_required": "computed",
+                    "description": "Network subnets.",
+                    "element_type": {
+                      "string": {}
+                    }
+                  }
+                },
+                {
+                  "name": "security_group_ids",
+                  "set": {
+                    "computed_optional_required": "computed",
+                    "description": "Network security groups.",
+                    "element_type": {
+                      "string": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "deletion_protection",
+            "bool": {
+              "computed_optional_required": "computed",
+              "description": "The `true` value means that resource is protected from accidental deletion."
+            }
+          },
+          {
+            "name": "service_account_id",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The service account used by the cluster to access cloud resources."
+            }
+          },
+          {
+            "name": "logging",
+            "single_nested": {
+              "computed_optional_required": "computed",
+              "description": "Cloud Logging configuration.",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "computed",
+                    "description": "Enable log delivery to Cloud Logging."
+                  }
+                },
+                {
+                  "name": "folder_id",
+                  "string": {
+                    "computed_optional_required": "computed",
+                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                },
+                {
+                  "name": "log_group_id",
+                  "string": {
+                    "computed_optional_required": "computed",
+                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "health",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Aggregated health of the cluster."
+            }
+          },
+          {
+            "name": "maintenance_window",
+            "single_nested": {
+              "computed_optional_required": "computed",
+              "description": "Configuration of the window for maintenance operations.",
+              "validators": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "schema_definition": "mwValidator()"
+                  }
+                }
+              ],
+              "attributes": [
+                {
+                  "name": "type",
+                  "string": {
+                    "computed_optional_required": "computed",
+                    "description": "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwTypeValidator()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "day",
+                  "string": {
+                    "computed_optional_required": "computed",
+                    "description": "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwDayValidator()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "hour",
+                  "int64": {
+                    "computed_optional_required": "computed",
+                    "description": "Hour of day in UTC time zone (1-24) for maintenance window.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwHourValidator()"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "blocks": [
+          {
+            "name": "timeouts",
+            "single_nested": {
+              "attributes": [],
+              "custom_type": {
+                "import": {
+                  "path": "github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+                },
+                "type": "timeouts.Type{}",
+                "value_type": "timeouts.Value"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "provider": {
+    "name": "yandex"
+  },
+  "resources": [
+    {
+      "name": "cluster",
+      "schema": {
+        "description": "Managed Spark cluster.",
+        "attributes": [
+          {
+            "name": "id",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Unique ID of the cluster.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "folder_id",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "ID of the cloud folder that the cluster belongs to.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                },
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.RequiresReplace()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "created_at",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The timestamp when the cluster was created.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "Name of the cluster. The name is unique within the folder."
+            }
+          },
+          {
+            "name": "description",
+            "string": {
+              "computed_optional_required": "optional",
+              "description": "Description of the cluster. 0-256 characters long."
+            }
+          },
+          {
+            "name": "labels",
+            "map": {
+              "computed_optional_required": "optional",
+              "description": "Cluster labels as key/value pairs.",
+              "element_type": {"string": {}}
+            }
+          },
+          {
+            "name": "config",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "description": "Configuration of the Spark cluster.",
+              "attributes": [
+                {
+                  "name": "resource_pools",
+                  "single_nested": {
+                    "computed_optional_required": "required",
+                    "description": "Computational resources.",
+                    "attributes": [
+                      {
+                        "name": "driver",
+                        "single_nested": {
+                          "computed_optional_required": "required",
+                          "description": "Computational resources for the driver pool.",
+                          "attributes": [
+                            {
+                              "name": "resource_preset_id",
+                              "string": {
+                                "computed_optional_required": "required",
+                                "description": "Resource preset ID for the driver pool."
+                              }
+                            },
+                            {
+                              "name": "size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Node count for the driver pool with fixed size."
+                              }
+                            },
+                            {
+                              "name": "min_size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Minimum node count for the driver pool with autoscaling."
+                              }
+                            },
+                            {
+                              "name": "max_size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Maximum node count for the driver pool with autoscaling."
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "name": "executor",
+                        "single_nested": {
+                          "computed_optional_required": "required",
+                          "description": "Computational resources for the executor pool.",
+                          "attributes": [
+                            {
+                              "name": "resource_preset_id",
+                              "string": {
+                                "computed_optional_required": "required",
+                                "description": "Resource preset ID for the executor pool."
+                              }
+                            },
+                            {
+                              "name": "size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Node count for the executor pool with fixed size."
+                              }
+                            },
+                            {
+                              "name": "min_size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Minimum node count for the executor pool with autoscaling."
+                              }
+                            },
+                            {
+                              "name": "max_size",
+                              "int64": {
+                                "computed_optional_required": "optional",
+                                "description": "Maximum node count for the executor pool with autoscaling."
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "history_server",
+                  "single_nested": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "History Server configuration.",
+                    "default": {
+                      "custom": {
+                        "schema_definition": "historyServerDefault()"
+                      }
+                    },
+                    "attributes": [
+                      {
+                        "name": "enabled",
+                        "bool": {
+                          "computed_optional_required": "computed_optional",
+                          "description": "Enable Spark History Server. Default: true.",
+                          "default": {"static": true}
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "dependencies",
+                  "single_nested": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Environment dependencies.",
+                    "default": {
+                      "custom": {
+                        "schema_definition": "dependenciesDefault()"
+                      }
+                    },
+                    "attributes": [
+                      {
+                        "name": "pip_packages",
+                        "set": {
+                          "computed_optional_required": "computed_optional",
+                          "description": "Python packages that need to be installed using pip (in pip requirement format).",
+                          "default": {
+                            "custom": {
+                              "schema_definition": "stringSetDefault()"
+                            }
+                          },
+                          "element_type": {
+                            "string": {}
+                          }
+                        }
+                      },
+                      {
+                        "name": "deb_packages",
+                        "set": {
+                          "computed_optional_required": "computed_optional",
+                          "description": "Deb-packages that need to be installed using system package manager.",
+                          "default": {
+                            "custom": {
+                              "schema_definition": "stringSetDefault()"
+                            }
+                          },
+                          "element_type": {
+                            "string": {}
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "metastore",
+                  "single_nested": {
+                      "computed_optional_required": "computed_optional",
+                      "description": "Metastore configuration.",
+                      "default": {
+                        "custom": {
+                          "schema_definition": "metastoreDefault()"
+                        }
+                      },
+                      "attributes": [
+                        {
+                          "name": "cluster_id",
+                          "string": {
+                            "computed_optional_required": "optional",
+                            "description": "Metastore cluster ID for default spark configuration."
+                          }
+                        }
+                      ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Status of the cluster.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "network",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "description": "Network configuration.",
+              "attributes": [
+                {
+                  "name": "subnet_ids",
+                  "set": {
+                    "computed_optional_required": "required",
+                    "description": "Network subnets.",
+                    "element_type": {
+                      "string": {}
+                    },
+                    "plan_modifiers": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"}],
+                          "schema_definition": "setplanmodifier.RequiresReplace()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "security_group_ids",
+                  "set": {
+                    "computed_optional_required": "optional",
+                    "description": "Network security groups.",
+                    "element_type": {
+                      "string": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "deletion_protection",
+            "bool": {
+              "computed_optional_required": "computed_optional",
+              "description": "The `true` value means that resource is protected from accidental deletion.",
+              "default": {"static": false}
+            }
+          },
+          {
+            "name": "service_account_id",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "The service account used by the cluster to access cloud resources."
+            }
+          },
+          {
+            "name": "logging",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "description": "Cloud Logging configuration.",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Enable log delivery to Cloud Logging. Default: true.",
+                    "default": {"static": true}
+                  }
+                },
+                {
+                  "name": "folder_id",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                },
+                {
+                  "name": "log_group_id",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "health",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Aggregated health of the cluster.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "maintenance_window",
+            "single_nested": {
+              "computed_optional_required": "computed_optional",
+              "description": "Configuration of the window for maintenance operations.",
+              "validators": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "schema_definition": "mwValidator()"
+                  }
+                }
+              ],
+              "default": {
+                "custom": {
+                  "schema_definition": "maintenanceWindowDefault()"
+                }
+              },
+              "attributes": [
+                {
+                  "name": "type",
+                  "string": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwTypeValidator()"
+                        }
+                      }
+                    ],
+                    "default": {"static": "ANYTIME"}
+                  }
+                },
+                {
+                  "name": "day",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "description": "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwDayValidator()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "hour",
+                  "int64": {
+                    "computed_optional_required": "optional",
+                    "description": "Hour of day in UTC time zone (1-24) for maintenance window.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwHourValidator()"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "blocks": [
+          {
+            "name": "timeouts",
+            "single_nested": {
+              "attributes": [],
+              "custom_type": {
+                "import": {
+                  "path": "github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+                },
+                "type": "timeouts.Type{}",
+                "value_type": "timeouts.Value"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "version": "0.1"
+}
