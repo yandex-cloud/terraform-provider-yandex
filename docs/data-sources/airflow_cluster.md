@@ -7,7 +7,7 @@ description: |-
 
 # yandex_airflow_cluster (Data Source)
 
-
+Managed Airflow cluster.
 
 ## Example usage
 

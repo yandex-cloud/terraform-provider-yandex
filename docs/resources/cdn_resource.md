@@ -47,13 +47,13 @@ resource "yandex_cdn_resource" "my_resource" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `options` (Block List, Max: 1) CDN Resource settings and options to tune CDN edge behavior. (see [below for nested schema](#nestedblock--options))
-- `origin_group_id` (Number)
-- `origin_group_name` (String)
-- `origin_protocol` (String)
+- `origin_group_id` (Number) The ID of a specific origin group.
+- `origin_group_name` (String) The name of a specific origin group.
+- `origin_protocol` (String) Protocol of origin resource. `http` or `https`.
 - `secondary_hostnames` (Set of String) List of secondary hostname strings.
 - `ssl_certificate` (Block Set, Max: 1) SSL certificate of CDN resource. (see [below for nested schema](#nestedblock--ssl_certificate))
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `updated_at` (String)
+- `updated_at` (String) Last update timestamp. Computed value for read and update operations.
 
 ### Read-Only
 
@@ -81,7 +81,7 @@ Optional:
 - `gzip_on` (Boolean) GZip compression at CDN servers reduces file size by 70% and can be as high as 90%.
 - `ignore_cookie` (Boolean) Set for ignoring cookie.
 - `ignore_query_params` (Boolean) Files with different query parameters are cached as objects with the same key regardless of the parameter value. selected by default.
-- `ip_address_acl` (Block List, Max: 1) (see [below for nested schema](#nestedblock--options--ip_address_acl))
+- `ip_address_acl` (Block List, Max: 1) IP address access control list. The list of specified IP addresses to be allowed or denied depending on acl policy type. (see [below for nested schema](#nestedblock--options--ip_address_acl))
 - `proxy_cache_methods_set` (Boolean) Allows caching for GET, HEAD and POST requests.
 - `query_params_blacklist` (List of String) Files with the specified query parameters are cached as objects with the same key, files with other parameters are cached as objects with different keys.
 - `query_params_whitelist` (List of String) Files with the specified query parameters are cached as objects with different keys, files with other parameters are cached as objects with the same key.
@@ -90,7 +90,7 @@ Optional:
 - `secure_key` (String) Set secure key for url encoding to protect contect and limit access by IP addresses and time limits.
 - `slice` (Boolean) Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.
 - `static_request_headers` (Map of String) Set up custom headers that CDN servers will send in requests to origins.
-- `static_response_headers` (Map of String)
+- `static_response_headers` (Map of String) Set up a static response header. The header name must be lowercase.
 
 <a id="nestedblock--options--ip_address_acl"></a>
 ### Nested Schema for `options.ip_address_acl`
@@ -107,15 +107,15 @@ Optional:
 
 Required:
 
-- `type` (String)
+- `type` (String) SSL certificate type.
 
 Optional:
 
-- `certificate_manager_id` (String)
+- `certificate_manager_id` (String) Certificate Manager ID.
 
 Read-Only:
 
-- `status` (String)
+- `status` (String) SSL certificate status.
 
 
 <a id="nestedblock--timeouts"></a>

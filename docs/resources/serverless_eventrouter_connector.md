@@ -33,6 +33,7 @@ Allows management of a Yandex Cloud Serverless Event Router Connector.
 - `description` (String) Description of the connector
 - `labels` (Map of String) Connector labels
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `timer` (Block List) Timer source of the connector (see [below for nested schema](#nestedblock--timer))
 - `yds` (Block List) Data Stream source of the connector (see [below for nested schema](#nestedblock--yds))
 - `ymq` (Block List) Message Queue source of the connector (see [below for nested schema](#nestedblock--ymq))
 
@@ -52,6 +53,19 @@ Optional:
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 - `read` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
 - `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+
+
+<a id="nestedblock--timer"></a>
+### Nested Schema for `timer`
+
+Required:
+
+- `cron_expression` (String) Cron expression. Cron expression with seconds. Example: 0 45 16 ? * *
+
+Optional:
+
+- `payload` (String) Payload to be passed to bus
+- `timezone` (String) Timezone in tz database format. Example: Europe/Moscow
 
 
 <a id="nestedblock--yds"></a>

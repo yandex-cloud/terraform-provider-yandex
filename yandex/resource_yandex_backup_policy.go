@@ -81,9 +81,10 @@ func resourceYandexBackupPolicy() *schema.Resource {
 
 			"preserve_file_security_settings": {
 				Type:        schema.TypeBool,
-				Description: "Preserves file security settings. It's better to set this option to true. Default `true`.",
+				Description: "If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.",
 				Optional:    true,
 				Default:     true,
+				Deprecated:  "This setting is depricated and will be removed in future versions. You can safely delete it.",
 			},
 
 			"reattempts": {
@@ -190,7 +191,29 @@ func resourceYandexBackupPolicy() *schema.Resource {
 
 			"quiesce_snapshotting_enabled": {
 				Type:        schema.TypeBool,
-				Description: "If true, a quiesced snapshot of the virtual machine will be taken. Default `false`.",
+				Description: "If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.",
+				Optional:    true,
+				Default:     true,
+				Deprecated:  "This setting is depricated and will be removed in future versions. You can safely delete it.",
+			},
+
+			"sector_by_sector": {
+				Type:        schema.TypeBool,
+				Description: "A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk or volume. ",
+				Optional:    true,
+				Default:     false,
+			},
+
+			"validation_enabled": {
+				Type:        schema.TypeBool,
+				Description: "Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is because not only the data physically contained in the backup copy is verified, but all data restored when it is selected. This option requires access to previously created backup copies. ",
+				Optional:    true,
+				Default:     false,
+			},
+
+			"lvm_snapshotting_enabled": {
+				Type:        schema.TypeBool,
+				Description: "LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not enough free space), the software will create the snapshot itself. ",
 				Optional:    true,
 				Default:     false,
 			},
@@ -344,7 +367,7 @@ func resourceYandexBackupPolicySchedulingResource() *schema.Resource {
 				Type:        schema.TypeSet,
 				Description: "Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
 				Optional:    true,
-				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type", "run_later"),
 				Elem:        resourceYandexBackupPolicySchedulingRuleTimeResource(),
 				Deprecated:  fieldDeprecatedForAnother("execute_by_time", "backup_sets"),
 			},
@@ -413,7 +436,7 @@ func resourceYandexBackupPolicySchedulingBackupSetResource() *schema.Resource {
 				Type:        schema.TypeSet,
 				Description: "Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.",
 				Optional:    true,
-				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Set:         storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type", "run_later"),
 				Elem:        resourceYandexBackupPolicySchedulingRuleTimeResource(),
 			},
 
@@ -471,7 +494,7 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 
 			"include_last_day_of_month": {
 				Type:        schema.TypeBool,
-				Description: "If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.",
+				Description: "If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `false`.",
 				Optional:    true,
 				Default:     false,
 			},
@@ -491,6 +514,13 @@ func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 				Description:  "Type of the scheduling. Available values are: `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`.",
 				ValidateFunc: validation.StringInSlice(resourceYandexBackupRepeatPeriodValues, false),
 				Required:     true,
+			},
+
+			"run_later": {
+				Type:        schema.TypeBool,
+				Description: "If true and if the machine is off, launch missed tasks on boot up. Default `false`.",
+				Optional:    true,
+				Default:     false,
 			},
 		},
 	}

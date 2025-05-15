@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'backup: add run_later, sector_by_sector, validation_enabled, lvm_snapshotting_enabled boolean settings to backup policy resource'
+time: 2025-05-13T13:14:43.860696+03:00

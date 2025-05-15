@@ -142,13 +142,16 @@ resource "yandex_backup_policy" "my_policy" {
 - `file_filters` (Block List, Max: 1) File filters to specify masks of files to backup or to exclude of backuping. (see [below for nested schema](#nestedblock--file_filters))
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `format` (String) Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`, `VERSION_11`, `VERSION_12`.
+- `lvm_snapshotting_enabled` (Boolean) LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not enough free space), the software will create the snapshot itself.
 - `multi_volume_snapshotting_enabled` (Boolean) If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
 - `performance_window_enabled` (Boolean) Time windows for performance limitations of backup. Default `false`.
-- `preserve_file_security_settings` (Boolean) Preserves file security settings. It's better to set this option to true. Default `true`.
-- `quiesce_snapshotting_enabled` (Boolean) If true, a quiesced snapshot of the virtual machine will be taken. Default `false`.
+- `preserve_file_security_settings` (Boolean, Deprecated) If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+- `quiesce_snapshotting_enabled` (Boolean, Deprecated) If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+- `sector_by_sector` (Boolean) A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk or volume.
 - `silent_mode_enabled` (Boolean) If true, a user interaction will be avoided when possible. Default `true`.
 - `splitting_bytes` (String) Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `validation_enabled` (Boolean) Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is because not only the data physically contained in the backup copy is verified, but all data restored when it is selected. This option requires access to previously created backup copies.
 - `vss_provider` (String) Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
 
 ### Read-Only
@@ -219,11 +222,12 @@ Required:
 
 Optional:
 
-- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.
+- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `false`.
 - `monthdays` (List of Number) List of days when schedule applies. Used in `MONTHLY` type.
 - `months` (List of Number) Set of values. Allowed values form 1 to 12.
 - `repeat_at` (List of String) List of time in format `HH:MM` (24-hours format), when the schedule applies.
 - `repeat_every` (String) Frequency of backup repetition. See `interval_type` for available values.
+- `run_later` (Boolean) If true and if the machine is off, launch missed tasks on boot up. Default `false`.
 - `weekdays` (List of String) List of weekdays when the backup will be applied. Used in `WEEKLY` type.
 
 
@@ -237,11 +241,12 @@ Required:
 
 Optional:
 
-- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.
+- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `false`.
 - `monthdays` (List of Number) List of days when schedule applies. Used in `MONTHLY` type.
 - `months` (List of Number) Set of values. Allowed values form 1 to 12.
 - `repeat_at` (List of String) List of time in format `HH:MM` (24-hours format), when the schedule applies.
 - `repeat_every` (String) Frequency of backup repetition. See `interval_type` for available values.
+- `run_later` (Boolean) If true and if the machine is off, launch missed tasks on boot up. Default `false`.
 - `weekdays` (List of String) List of weekdays when the backup will be applied. Used in `WEEKLY` type.
 
 

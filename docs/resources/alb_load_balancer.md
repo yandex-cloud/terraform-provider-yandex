@@ -63,6 +63,7 @@ resource "yandex_alb_load_balancer" "my_alb" {
 
 ### Optional
 
+- `allow_zonal_shift` (Boolean) Specifies whether application load balancer is available to zonal shift
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
@@ -112,8 +113,8 @@ Optional:
 
 - `endpoint` (Block List) Network endpoint (addresses and ports) of the listener. (see [below for nested schema](#nestedblock--listener--endpoint))
 - `http` (Block List, Max: 1) HTTP handler that sets plain text HTTP router. (see [below for nested schema](#nestedblock--listener--http))
-- `stream` (Block List, Max: 1) (see [below for nested schema](#nestedblock--listener--stream))
-- `tls` (Block List, Max: 1) (see [below for nested schema](#nestedblock--listener--tls))
+- `stream` (Block List, Max: 1) Stream configuration (see [below for nested schema](#nestedblock--listener--stream))
+- `tls` (Block List, Max: 1) TLS configuration (see [below for nested schema](#nestedblock--listener--tls))
 
 <a id="nestedblock--listener--endpoint"></a>
 ### Nested Schema for `listener.endpoint`
@@ -154,7 +155,7 @@ Optional:
 Optional:
 
 - `address` (String) Provided by the client or computed automatically.
-- `subnet_id` (String) Provided by the client or computed automatically.
+- `subnet_id` (String) ID of the subnet that the address belongs to.
 
 
 
@@ -164,7 +165,7 @@ Optional:
 
 Optional:
 
-- `handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedblock--listener--http--handler))
+- `handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedblock--listener--http--handler))
 - `redirects` (Block List, Max: 1) Shortcut for adding http -> https redirects. (see [below for nested schema](#nestedblock--listener--http--redirects))
 
 <a id="nestedblock--listener--http--handler"></a>
@@ -224,7 +225,7 @@ Required:
 
 Optional:
 
-- `sni_handler` (Block List) (see [below for nested schema](#nestedblock--listener--tls--sni_handler))
+- `sni_handler` (Block List) Settings for handling requests with Server Name Indication (SNI) (see [below for nested schema](#nestedblock--listener--tls--sni_handler))
 
 <a id="nestedblock--listener--tls--default_handler"></a>
 ### Nested Schema for `listener.tls.default_handler`
@@ -235,7 +236,7 @@ Required:
 
 Optional:
 
-- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedblock--listener--tls--default_handler--http_handler))
+- `http_handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedblock--listener--tls--default_handler--http_handler))
 - `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedblock--listener--tls--default_handler--stream_handler))
 
 <a id="nestedblock--listener--tls--default_handler--http_handler"></a>
@@ -276,8 +277,8 @@ Read-Only:
 Required:
 
 - `handler` (Block List, Min: 1, Max: 1) TLS handler resource. (see [below for nested schema](#nestedblock--listener--tls--sni_handler--handler))
-- `name` (String)
-- `server_names` (Set of String)
+- `name` (String) Name of the SNI handler
+- `server_names` (Set of String) Server names that are matched by the SNI handler
 
 <a id="nestedblock--listener--tls--sni_handler--handler"></a>
 ### Nested Schema for `listener.tls.sni_handler.handler`
@@ -288,7 +289,7 @@ Required:
 
 Optional:
 
-- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedblock--listener--tls--sni_handler--handler--http_handler))
+- `http_handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedblock--listener--tls--sni_handler--handler--http_handler))
 - `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedblock--listener--tls--sni_handler--handler--stream_handler))
 
 <a id="nestedblock--listener--tls--sni_handler--handler--http_handler"></a>

@@ -49,8 +49,8 @@ output "my_policy_name" {
 - `id` (String) The ID of this resource.
 - `multi_volume_snapshotting_enabled` (Boolean) If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
 - `performance_window_enabled` (Boolean) Time windows for performance limitations of backup. Default `false`.
-- `preserve_file_security_settings` (Boolean) Preserves file security settings. It's better to set this option to true. Default `true`.
-- `quiesce_snapshotting_enabled` (Boolean) If true, a quiesced snapshot of the virtual machine will be taken. Default `false`.
+- `preserve_file_security_settings` (Boolean) If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+- `quiesce_snapshotting_enabled` (Boolean) If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
 - `reattempts` (Set of Object) (see [below for nested schema](#nestedatt--reattempts))
 - `retention` (Set of Object) (see [below for nested schema](#nestedatt--retention))
 - `scheduling` (Set of Object) (see [below for nested schema](#nestedatt--scheduling))
@@ -132,7 +132,7 @@ Read-Only:
 
 Read-Only:
 
-- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `true`.
+- `include_last_day_of_month` (Boolean) If true, schedule will be applied on the last day of month. See `day_type` for available values. Default `false`.
 
 - `monthdays` (List of Number) List of days when schedule applies. Used in `MONTHLY` type.
 

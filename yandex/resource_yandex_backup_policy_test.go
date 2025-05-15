@@ -64,7 +64,9 @@ func TestAccResourceBackupPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "format", "AUTO"),
 					resource.TestCheckResourceAttr(resourceName, "multi_volume_snapshotting_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_window_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "preserve_file_security_settings", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sector_by_sector", "true"),
+					resource.TestCheckResourceAttr(resourceName, "validation_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lvm_snapshotting_enabled", "true"),
 				),
 			},
 			{
@@ -127,7 +129,6 @@ func TestAccResourceBackupPolicyMultipleBackupSets(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "format", "AUTO"),
 					resource.TestCheckResourceAttr(resourceName, "multi_volume_snapshotting_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_window_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "preserve_file_security_settings", "true"),
 				),
 			},
 			{
@@ -181,10 +182,16 @@ func testAccBackupPolicyBasicConfig(policyName string) (config, outResourceName 
       max_attempts = 5
     }
 
+
+
 	file_filters {
 	  exclusion_masks = ["test.log"]
       inclusion_masks = ["lll.test1", "lll.test2"]
     }
+
+	sector_by_sector = true
+	validation_enabled = true
+	lvm_snapshotting_enabled = true
   }`
 	)
 

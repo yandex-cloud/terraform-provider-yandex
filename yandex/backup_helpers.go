@@ -238,6 +238,7 @@ func expandBackupPolicySettingsSchedulingBackupSetTime(v any) (*backuppb.PolicyS
 	out.IncludeLastDayOfMonth = value["include_last_day_of_month"].(bool)
 	out.Months = expandInt64(value["months"])
 	out.Type = expandBackupPolicySettingsRepeatPeriod(value["type"])
+	out.RunLater = value["run_later"].(bool)
 
 	return &backuppb.PolicySettings_Scheduling_BackupSet_Time_{
 		Time: out,
@@ -460,13 +461,15 @@ func expandYandexBackupCBT(v any) backuppb.PolicySettings_ChangedBlockTracking {
 }
 
 func expandYandexBackupFileFilters(v any) *backuppb.PolicySettings_FileFilters {
-	valueSet := v.(*schema.Set)
-	if valueSet.Len() == 0 {
+	if v == nil {
+		return nil
+	}
+	valueRaw := v.([]any)
+	if len(valueRaw) == 0 || valueRaw[0] == nil {
 		return nil
 	}
 
-	value := valueSet.List()[0].(map[string]any)
-
+	value := valueRaw[0].(map[string]any)
 	out := new(backuppb.PolicySettings_FileFilters)
 	out.ExclusionMasks = expandString(value["exclusion_masks"])
 	out.InclusionMasks = expandString(value["inclusion_masks"])
@@ -542,10 +545,11 @@ func expandYandexBackupPolicySettingsFromResource(d *schema.ResourceData) (setti
 		Vss:               vss,
 
 		MultiVolumeSnapshottingEnabled: d.Get("multi_volume_snapshotting_enabled").(bool),
-		PreserveFileSecuritySettings:   d.Get("preserve_file_security_settings").(bool),
 		SilentModeEnabled:              d.Get("silent_mode_enabled").(bool),
 		FastBackupEnabled:              d.Get("fast_backup_enabled").(bool),
-		QuiesceSnapshottingEnabled:     d.Get("quiesce_snapshotting_enabled").(bool),
+		SectorBySector:                 d.Get("sector_by_sector").(bool),
+		ValidationEnabled:              d.Get("validation_enabled").(bool),
+		LvmSnapshottingEnabled:         d.Get("lvm_snapshotting_enabled").(bool),
 
 		Compression:          expandYandexBackupCompression(d.Get("compression")),
 		Format:               expandYandexBackupFormat(d.Get("format")),
@@ -664,7 +668,7 @@ func flattenYandexBackupPolicySchedulingBackupSet(bss []*backuppb.PolicySettings
 				repeatAt = append(repeatAt, flattenBackupPolicySettingsTimeOfDay(repeatAtValue))
 			}
 
-			schemaSetFunc := storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type")
+			schemaSetFunc := storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type", "run_later")
 			item := schema.NewSet(schemaSetFunc, []any{
 				map[string]any{
 					"repeat_at":                 repeatAt,
@@ -674,6 +678,7 @@ func flattenYandexBackupPolicySchedulingBackupSet(bss []*backuppb.PolicySettings
 					"include_last_day_of_month": timeRule.IncludeLastDayOfMonth,
 					"months":                    asAnySlice(timeRule.Months...),
 					"type":                      timeRule.Type.String(),
+					"run_later":                 timeRule.RunLater,
 				},
 			})
 
@@ -703,14 +708,15 @@ func flattenYandBackupPolicySettings(d *schema.ResourceData, settings *backuppb.
 	setF("compression", settings.Compression.String())
 	setF("format", settings.Format.String())
 	setF("multi_volume_snapshotting_enabled", settings.MultiVolumeSnapshottingEnabled)
-	setF("preserve_file_security_settings", settings.PreserveFileSecuritySettings)
 	setF("silent_mode_enabled", settings.SilentModeEnabled)
 	setF("splitting_bytes", splittingBytesStr)
 	setF("archive_name", settings.GetArchive().GetName())
 	setF("performance_window_enabled", settings.GetPerformanceWindow().GetEnabled())
 	setF("cbt", settings.Cbt.String())
 	setF("fast_backup_enabled", settings.FastBackupEnabled)
-	setF("quiesce_snapshotting_enabled", settings.QuiesceSnapshottingEnabled)
+	setF("sector_by_sector", settings.SectorBySector)
+	setF("validation_enabled", settings.ValidationEnabled)
+	setF("lvm_snapshotting_enabled", settings.LvmSnapshottingEnabled)
 
 	if err != nil {
 		return err

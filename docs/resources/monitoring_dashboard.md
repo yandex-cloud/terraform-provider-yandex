@@ -479,5 +479,5 @@ The resource can be imported by using their `resource ID`. For getting the resou
 
 ```shell
 # terraform import yandex_monitoring.<resource Name> <resource Id>
-terraform import yandex_monitoring.my-dashboard ...
+terraform import yandex_monitoring_dashboard.my-dashboard ...
 ```

@@ -36,6 +36,7 @@ data "yandex_alb_load_balancer" "tf-alb-data" {
 ### Read-Only
 
 - `allocation_policy` (List of Object) Allocation zones for the Load Balancer instance. (see [below for nested schema](#nestedatt--allocation_policy))
+- `allow_zonal_shift` (Boolean) Specifies whether application load balancer is available to zonal shift
 - `created_at` (String) The creation timestamp of the resource.
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -92,8 +93,10 @@ Read-Only:
 
 - `name` (String) Name of the listener.
 
-- `stream` (List of Object) (see [below for nested schema](#nestedobjatt--listener--stream))
-- `tls` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls))
+- `stream` (Block List, Max: 1) Stream configuration (see [below for nested schema](#nestedobjatt--listener--stream))
+
+- `tls` (Block List, Max: 1) TLS configuration (see [below for nested schema](#nestedobjatt--listener--tls))
+
 
 <a id="nestedobjatt--listener--endpoint"></a>
 ### Nested Schema for `listener.endpoint`
@@ -142,7 +145,7 @@ Read-Only:
 
 - `address` (String) Provided by the client or computed automatically.
 
-- `subnet_id` (String) Provided by the client or computed automatically.
+- `subnet_id` (String) ID of the subnet that the address belongs to.
 
 
 
@@ -153,7 +156,7 @@ Read-Only:
 
 Read-Only:
 
-- `handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--http--handler))
+- `handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedobjatt--listener--http--handler))
 
 - `redirects` (Block List, Max: 1) Shortcut for adding http -> https redirects. (see [below for nested schema](#nestedobjatt--listener--http--redirects))
 
@@ -219,7 +222,8 @@ Read-Only:
 
 - `default_handler` (Block List, Min: 1, Max: 1) TLS handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler))
 
-- `sni_handler` (List of Object) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler))
+- `sni_handler` (Block List) Settings for handling requests with Server Name Indication (SNI) (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler))
+
 
 <a id="nestedobjatt--listener--tls--default_handler"></a>
 ### Nested Schema for `listener.tls.default_handler`
@@ -228,7 +232,7 @@ Read-Only:
 
 - `certificate_ids` (Set of String) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
 
-- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--http_handler))
+- `http_handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--http_handler))
 
 - `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--default_handler--stream_handler))
 
@@ -275,8 +279,10 @@ Read-Only:
 
 - `handler` (Block List, Min: 1, Max: 1) TLS handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--handler))
 
-- `name` (String)
-- `server_names` (Set of String)
+- `name` (String) Name of the SNI handler
+
+- `server_names` (Set of String) Server names that are matched by the SNI handler
+
 
 <a id="nestedobjatt--listener--tls--sni_handler--handler"></a>
 ### Nested Schema for `listener.tls.sni_handler.handler`
@@ -285,7 +291,7 @@ Read-Only:
 
 - `certificate_ids` (Set of String) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
 
-- `http_handler` (Block List, Max: 1) Stream handler that sets plaintext Stream backend group. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--http_handler))
+- `http_handler` (Block List, Max: 1) HTTP handler. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--http_handler))
 
 - `stream_handler` (Block List, Max: 1) Stream handler resource. (see [below for nested schema](#nestedobjatt--listener--tls--sni_handler--server_names--stream_handler))
 

@@ -7,7 +7,7 @@ description: |-
 
 # yandex_airflow_cluster (Resource)
 
-
+Managed Airflow cluster.
 
 ## Example usage
 

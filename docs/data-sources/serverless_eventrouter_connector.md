@@ -37,8 +37,22 @@ Get information about Serverless Event Router Connector.
 - `folder_id` (String) ID of the folder that the connector resides in
 - `id` (String) The ID of this resource.
 - `labels` (Map of String) Connector labels
+- `timer` (List of Object) Timer source of the connector. (see [below for nested schema](#nestedatt--timer))
 - `yds` (List of Object) Data Stream source of the connector. (see [below for nested schema](#nestedatt--yds))
 - `ymq` (List of Object) Message Queue source of the connector. (see [below for nested schema](#nestedatt--ymq))
+
+<a id="nestedatt--timer"></a>
+### Nested Schema for `timer`
+
+Read-Only:
+
+- `cron_expression` (String) Cron expression. Cron expression with seconds. Example: 0 45 16 ? * *
+
+- `payload` (String) Payload to be passed to bus
+
+- `timezone` (String) Timezone in tz database format. Example: Europe/Moscow
+
+
 
 <a id="nestedatt--yds"></a>
 ### Nested Schema for `yds`
