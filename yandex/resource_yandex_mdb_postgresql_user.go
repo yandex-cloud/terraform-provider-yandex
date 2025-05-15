@@ -102,11 +102,10 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Computed:    true,
 			},
 			"settings": {
-				Type:             schema.TypeMap,
-				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 0: `unspecified`\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 0: `unspecified`\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 1: `session`\n  - 2: `transaction`\n  - 3: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer\n\n",
-				Optional:         true,
-				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
-				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				Type:         schema.TypeMap,
+				Description:  "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 0: `unspecified`\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 0: `unspecified`\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 1: `session`\n  - 2: `transaction`\n  - 3: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer\n\n",
+				Optional:     true,
+				ValidateFunc: generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -297,12 +296,24 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 
 	updatePath := []string{}
 	changeMask := map[string]string{
-		"password":   "password",
-		"permission": "permissions",
-		"login":      "login",
-		"grants":     "grants",
-		"conn_limit": "conn_limit",
-		"settings":   "settings",
+		"password":                                     "password",
+		"permission":                                   "permissions",
+		"login":                                        "login",
+		"grants":                                       "grants",
+		"conn_limit":                                   "conn_limit",
+		"settings.default_transaction_isolation":       "settings.default_transaction_isolation",
+		"settings.lock_timeout":                        "settings.lock_timeout",
+		"settings.log_min_duration_statement":          "settings.log_min_duration_statement",
+		"settings.synchronous_commit":                  "settings.synchronous_commit",
+		"settings.temp_file_limit":                     "settings.temp_file_limit",
+		"settings.log_statement":                       "settings.log_statement",
+		"settings.pool_mode":                           "settings.pool_mode",
+		"settings.prepared_statements_pooling":         "settings.prepared_statements_pooling",
+		"settings.catchup_timeout":                     "settings.catchup_timeout",
+		"settings.wal_sender_timeout":                  "settings.wal_sender_timeout",
+		"settings.idle_in_transaction_session_timeout": "settings.idle_in_transaction_session_timeout",
+		"settings.statement_timeout":                   "settings.statement_timeout",
+		"settings.pgaudit":                             "settings.pgaudit",
 	}
 
 	for field, mask := range changeMask {

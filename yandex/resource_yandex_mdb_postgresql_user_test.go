@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -38,7 +39,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
-					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": 350}),
+					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": int64(350)}),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -74,7 +75,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "alice", []string{"testdb"}),
-					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
+					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION, "statement_timeout": int64(0)}),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -90,6 +91,18 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			{
 				Config: testAccMDBPostgreSQLUserConfigStep5(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
+					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
+					testAccCheckMDBPostgreSQLUserHasNoSettings(t, "alice", []string{"statement_timeout"}),
+				),
+			},
+			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep6(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "name", "charlie"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "login", "false"),
@@ -193,8 +206,136 @@ func testAccCheckMDBPostgreSQLUserHasSettings(t *testing.T, username string, exp
 			return err
 		}
 
-		assert.Equal(t, user.Settings.DefaultTransactionIsolation, expected["default_transaction_isolation"])
-		assert.Equal(t, user.Settings.LogMinDurationStatement.GetValue(), expected["log_min_duration_statement"])
+		val, ok := expected["default_transaction_isolation"]
+		if ok {
+			assert.Equal(t, val, user.Settings.DefaultTransactionIsolation, "setting name: default_transaction_isolation")
+		}
+		val, ok = expected["pool_mode"]
+		if ok {
+			assert.Equal(t, val, user.Settings.PoolMode, "setting name: pool_mode")
+		}
+		val, ok = expected["log_min_duration_statement"]
+		if ok {
+			assert.Equal(t, val, user.Settings.LogMinDurationStatement.GetValue(), "setting name: log_min_duration_statement")
+		}
+		val, ok = expected["catchup_timeout"]
+		if ok {
+			assert.Equal(t, val, user.Settings.CatchupTimeout.GetValue(), "setting name: catchup_timeout")
+		}
+		val, ok = expected["statement_timeout"]
+		if ok {
+			assert.Equal(t, val, user.Settings.StatementTimeout.GetValue(), "setting name: statement_timeout")
+		}
+		val, ok = expected["lock_timeout"]
+		if ok {
+			assert.Equal(t, val, user.Settings.LockTimeout.GetValue(), "setting name: lock_timeout")
+		}
+		val, ok = expected["synchronous_commit"]
+		if ok {
+			assert.Equal(t, val, user.Settings.SynchronousCommit, "setting name: synchronous_commit")
+		}
+		val, ok = expected["temp_file_limit"]
+		if ok {
+			assert.Equal(t, val, user.Settings.TempFileLimit.GetValue(), "setting name: temp_file_limit")
+		}
+		val, ok = expected["log_statement"]
+		if ok {
+			assert.Equal(t, val, user.Settings.LogStatement, "setting name: log_statement")
+		}
+		val, ok = expected["prepared_statements_pooling"]
+		if ok {
+			assert.Equal(t, val, user.Settings.PreparedStatementsPooling.GetValue(), "setting name: prepared_statements_pooling")
+		}
+		val, ok = expected["wal_sender_timeout"]
+		if ok {
+			assert.Equal(t, val, user.Settings.WalSenderTimeout.GetValue(), "setting name: wal_sender_timeout")
+		}
+		val, ok = expected["idle_in_transaction_session_timeout"]
+		if ok {
+			assert.Equal(t, val, user.Settings.IdleInTransactionSessionTimeout.GetValue(), "setting name: idle_in_transaction_session_timeout")
+		}
+		val, ok = expected["pgaudit"]
+		if ok {
+			assert.Equal(t, val, user.Settings.Pgaudit, "setting name: pgaudit")
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBPostgreSQLUserHasNoSettings(t *testing.T, username string, notExpected []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[pgClusterResourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", pgClusterResourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		user, err := config.sdk.MDB().PostgreSQL().User().Get(context.Background(), &postgresql.GetUserRequest{
+			ClusterId: rs.Primary.ID,
+			UserName:  username,
+		})
+
+		if err != nil {
+			return err
+		}
+		isContains := slices.Contains(notExpected, "default_transaction_isolation")
+		if isContains {
+			assert.Nil(t, user.Settings.DefaultTransactionIsolation)
+		}
+		isContains = slices.Contains(notExpected, "pool_mode")
+		if isContains {
+			assert.Nil(t, user.Settings.PoolMode)
+		}
+		isContains = slices.Contains(notExpected, "log_min_duration_statement")
+		if isContains {
+			assert.Nil(t, user.Settings.LogMinDurationStatement)
+		}
+		isContains = slices.Contains(notExpected, "catchup_timeout")
+		if isContains {
+			assert.Nil(t, user.Settings.CatchupTimeout)
+		}
+		isContains = slices.Contains(notExpected, "statement_timeout")
+		if isContains {
+			assert.Nil(t, user.Settings.StatementTimeout)
+		}
+		isContains = slices.Contains(notExpected, "lock_timeout")
+		if isContains {
+			assert.Nil(t, user.Settings.LockTimeout)
+		}
+		isContains = slices.Contains(notExpected, "synchronous_commit")
+		if isContains {
+			assert.Nil(t, user.Settings.SynchronousCommit)
+		}
+		isContains = slices.Contains(notExpected, "temp_file_limit")
+		if isContains {
+			assert.Nil(t, user.Settings.TempFileLimit)
+		}
+		isContains = slices.Contains(notExpected, "log_statement")
+		if isContains {
+			assert.Nil(t, user.Settings.LogStatement)
+		}
+		isContains = slices.Contains(notExpected, "prepared_statements_pooling")
+		if isContains {
+			assert.Nil(t, user.Settings.PreparedStatementsPooling)
+		}
+		isContains = slices.Contains(notExpected, "wal_sender_timeout")
+		if isContains {
+			assert.Nil(t, user.Settings.WalSenderTimeout)
+		}
+		isContains = slices.Contains(notExpected, "idle_in_transaction_session_timeout")
+		if isContains {
+			assert.Nil(t, user.Settings.IdleInTransactionSessionTimeout)
+		}
+		isContains = slices.Contains(notExpected, "pgaudit")
+		if isContains {
+			assert.Nil(t, user.Settings.Pgaudit)
+		}
 
 		return nil
 	}
@@ -265,6 +406,7 @@ resource "yandex_mdb_postgresql_user" "alice" {
 		default_transaction_isolation = "read committed"
 		log_min_duration_statement    = 5000
 		pool_mode                     = "transaction"
+		catchup_timeout				  = 350	
 	}
 }`
 }
@@ -279,7 +421,7 @@ resource "yandex_mdb_postgresql_user" "bob" {
     permission {
 		database_name = "testdb"
 	}
-	deletion_protection = "false"
+	deletion_protection = false
 }`
 }
 
@@ -290,7 +432,7 @@ resource "yandex_mdb_postgresql_user" "bob" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "bob"
 	password   = "mysecureP@ssw0rd"
-	deletion_protection = "false"
+	deletion_protection = false
 }`
 }
 
@@ -307,18 +449,37 @@ resource "yandex_mdb_postgresql_user" "alice" {
 		default_transaction_isolation = "read uncommitted"
 		log_min_duration_statement    = 1234
 		pool_mode                     = "session"
+		statement_timeout 			  = 0
 	}
 	deletion_protection = "%v"
 }`, deletionProtection)
 }
 
-// Check login and conn_limit. Bug report: https://github.com/KazanExpress/yc-tf-bugreports/tree/master/bugs/postgres-3
+// Change Alice's settings and conn_limit
 func testAccMDBPostgreSQLUserConfigStep5(name string) string {
-	return testAccMDBPostgreSQLUserConfigStep4(name, false) + `
+	return testAccMDBPostgreSQLUserConfigStep0(name) + `
+resource "yandex_mdb_postgresql_user" "alice" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "alice"
+	password   = "mysecureP@ssw0rd"
+    
+	conn_limit = 42
+	settings = {
+		default_transaction_isolation = "read uncommitted"
+		log_min_duration_statement    = 1234
+		pool_mode                     = "session"
+	}
+	deletion_protection = false
+}`
+}
+
+// Check login and conn_limit. Bug report: https://github.com/KazanExpress/yc-tf-bugreports/tree/master/bugs/postgres-3
+func testAccMDBPostgreSQLUserConfigStep6(name string) string {
+	return testAccMDBPostgreSQLUserConfigStep5(name) + `
 resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
-	generate_password = "true"
+	generate_password = true
     
 	login      = false
 	conn_limit = 0

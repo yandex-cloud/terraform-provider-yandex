@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fix removing fields from user settings'
+time: 2025-05-15T14:14:31.394925+03:00
