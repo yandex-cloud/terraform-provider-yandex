@@ -251,25 +251,11 @@ func executeYandexYQObjectStorageConnectionUpdate(
 		},
 	}
 
-	if err := performYandexYQObjectStorageConnectionUpdate(ctx, client, d, req); err != nil {
+	if _, err := client.ModifyConnection(ctx, req); err != nil {
 		return err
 	}
 
 	return executeYandexYQObjectStorageConnectionRead(ctx, client, d, config)
-}
-
-func performYandexYQObjectStorageConnectionUpdate(
-	ctx context.Context,
-	client client.YQClient,
-	_ *schema.ResourceData,
-	req *Ydb_FederatedQuery.ModifyConnectionRequest,
-) error {
-	_, err := client.ModifyConnection(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func executeYandexYQObjectStorageConnectionDelete(
@@ -284,24 +270,6 @@ func executeYandexYQObjectStorageConnectionDelete(
 		ConnectionId: id,
 	}
 
-	err := performYandexYQObjectStorageConnectionDelete(ctx, client, d, req)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func performYandexYQObjectStorageConnectionDelete(
-	ctx context.Context,
-	client client.YQClient,
-	_ *schema.ResourceData,
-	req *Ydb_FederatedQuery.DeleteConnectionRequest,
-) error {
 	_, err := client.DeleteConnection(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

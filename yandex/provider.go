@@ -373,6 +373,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_table_index":                                   resourceYandexYDBTableIndex(),
 			"yandex_yq_object_storage_connection":                      resourceYandexYQObjectStorageConnection(),
 			"yandex_yq_object_storage_binding":                         resourceYandexYQObjectStorageBinding(),
+			"yandex_yq_yds_connection":                                 resourceYandexYQYDSConnection(),
 			"yandex_sws_security_profile":                              resourceYandexSmartwebsecuritySecurityProfile(),
 			"yandex_sws_advanced_rate_limiter_profile":                 resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
 			"yandex_sws_waf_profile":                                   resourceYandexSmartwebsecurityWafWafProfile(),
