@@ -6,22 +6,20 @@ import (
 
 func ResourceSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		AttributeName: &schema.Schema{
+		AttributeName: {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		AttributeServiceAccountID: &schema.Schema{
+		AttributeServiceAccountID: {
 			Type:     schema.TypeString,
-			Computed: true,
 			Optional: true,
 		},
-		AttributeDatabaseID: &schema.Schema{
+		AttributeDatabaseID: {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		AttributeDescription: &schema.Schema{
+		AttributeDescription: {
 			Type:     schema.TypeString,
-			Computed: true,
 			Optional: true,
 		},
 	}
