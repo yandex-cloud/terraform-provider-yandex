@@ -252,7 +252,12 @@ func flattenYandexYQBindingContent(
 func flattenColumn(column *Ydb.Column) (map[string]any, error) {
 	result := make(map[string]interface{})
 	result[os_binding.AttributeColumnName] = column.Name
-	result[os_binding.AttributeColumnNotNull] = column.Type.GetOptionalType() != nil
+	result[os_binding.AttributeColumnNotNull] = column.Type.GetOptionalType() == nil
+	columnType, err := FormatTypeString(unwrapOptional(column.Type))
+	if err != nil {
+		return nil, err
+	}
+	result[os_binding.AttributeColumnType] = columnType
 	return result, nil
 }
 
