@@ -2,6 +2,7 @@
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -96,6 +97,15 @@ func parseColumns(d *schema.ResourceData) ([]*Ydb.Column, error) {
 
 }
 
+func parseStringList(v any) []string {
+	av := v.([]any)
+	result := make([]string, 0, len(av))
+	for _, value := range av {
+		result = append(result, value.(string))
+	}
+	return result
+}
+
 func parseBindingContent(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingContent, error) {
 	name := d.Get(os_binding.AttributeName).(string)
 	description := d.Get(os_binding.AttributeDescription).(string)
@@ -103,7 +113,17 @@ func parseBindingContent(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingCon
 	format := d.Get(os_binding.AttributeFormat).(string)
 	compression := d.Get(os_binding.AttributeCompression).(string)
 	pathPattern := d.Get(os_binding.AttributePathPattern).(string)
+	formatSetting, err := expandLabels(d.Get(os_binding.AttributeFormatSetting))
+	if err != nil {
+		return nil, err
+	}
 
+	projection, err := expandLabels(d.Get(os_binding.AttributeProjection))
+	if err != nil {
+		return nil, err
+	}
+
+	partitionedBy := parseStringList(d.Get(os_binding.AttributePartitionedBy))
 	columns, err := parseColumns(d)
 	if err != nil {
 		return nil, err
@@ -122,10 +142,13 @@ func parseBindingContent(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingCon
 				ObjectStorage: &Ydb_FederatedQuery.ObjectStorageBinding{
 					Subset: []*Ydb_FederatedQuery.ObjectStorageBinding_Subset{
 						{
-							Format:      format,
-							Compression: compression,
-							PathPattern: pathPattern,
-							Schema:      schema,
+							Format:        format,
+							Compression:   compression,
+							PathPattern:   pathPattern,
+							Schema:        schema,
+							FormatSetting: formatSetting,
+							Projection:    projection,
+							PartitionedBy: partitionedBy,
 						},
 					},
 				},
@@ -223,17 +246,50 @@ func flattenYandexYQBindingContent(
 ) error {
 	d.Set(os_binding.AttributeName, content.GetName())
 	d.Set(os_binding.AttributeDescription, content.GetDescription())
-	if err := flattenYandexYQBindingSetting(d, content.GetSetting()); err != nil {
-		return err
-	}
+	return flattenYandexYQBindingSetting(d, content.GetSetting().GetObjectStorage())
+}
 
-	return nil
+func flattenColumn(column *Ydb.Column) (map[string]any, error) {
+	result := make(map[string]interface{})
+	result[os_binding.AttributeColumnName] = column.Name
+	result[os_binding.AttributeColumnNotNull] = column.Type.GetOptionalType() != nil
+	return result, nil
+}
+
+func flattenSchema(schema *Ydb_FederatedQuery.Schema) ([]any, error) {
+	result := make([]any, 0, len(schema.Column))
+	for _, column := range schema.Column {
+		c, err := flattenColumn(column)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, c)
+	}
+	return result, nil
 }
 
 func flattenYandexYQBindingSetting(
 	d *schema.ResourceData,
-	setting *Ydb_FederatedQuery.BindingSetting,
+	setting *Ydb_FederatedQuery.ObjectStorageBinding,
 ) error {
+	if len(setting.Subset) != 1 {
+		return fmt.Errorf("unexpected empty subsets")
+	}
+
+	subset := setting.Subset[0]
+	d.Set(os_binding.AttributePathPattern, subset.GetPathPattern())
+	d.Set(os_binding.AttributeFormat, subset.GetFormat())
+	d.Set(os_binding.AttributeCompression, subset.GetCompression())
+	d.Set(os_binding.AttributeFormatSetting, subset.GetFormatSetting())
+	d.Set(os_binding.AttributePartitionedBy, subset.GetPartitionedBy())
+	d.Set(os_binding.AttributeProjection, subset.GetProjection())
+
+	schema, err := flattenSchema(subset.GetSchema())
+	if err != nil {
+		return err
+	}
+
+	d.Set(os_binding.AttributeColumn, schema)
 	return nil
 }
 

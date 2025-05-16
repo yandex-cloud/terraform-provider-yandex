@@ -1,6 +1,7 @@
 ﻿package yandex
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,6 +41,8 @@ func baseParseColumnType(t string) (*Ydb.Type, error) {
 		return makePrimitiveType(Ydb.Type_STRING), nil
 	case "bool":
 		return makePrimitiveType(Ydb.Type_BOOL), nil
+	case "int":
+		fallthrough
 	case "int32":
 		return makePrimitiveType(Ydb.Type_INT32), nil
 	case "uint32":
@@ -93,7 +96,7 @@ func baseParseColumnType(t string) (*Ydb.Type, error) {
 	case "interval64":
 		return makePrimitiveType(Ydb.Type_INTERVAL64), nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("unsupported type %v", t)
 }
 
 func wrapWithOptional(t *Ydb.Type) *Ydb.Type {
@@ -111,9 +114,7 @@ func wrapWithOptional(t *Ydb.Type) *Ydb.Type {
 }
 
 func wrapWithOptionalIfNeeded(t *Ydb.Type) *Ydb.Type {
-	_, ok := t.GetType().(*Ydb.Type_OptionalType)
-
-	if ok {
+	if t.GetOptionalType() != nil {
 		return t
 	}
 

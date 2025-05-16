@@ -8,7 +8,6 @@ import (
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/client"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/yds_connection"
 	yds_conn "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/yds_connection"
 )
 
@@ -168,8 +167,8 @@ func flattenYandexYQYDSConnectionContent(
 	d *schema.ResourceData,
 	content *Ydb_FederatedQuery.ConnectionContent,
 ) error {
-	d.Set(yds_connection.AttributeName, content.GetName())
-	d.Set(yds_connection.AttributeDescription, content.GetDescription())
+	d.Set(yds_conn.AttributeName, content.GetName())
+	d.Set(yds_conn.AttributeDescription, content.GetDescription())
 	if err := flattenYandexYQYDSConnectionSetting(d, content.GetSetting()); err != nil {
 		return err
 	}
@@ -183,7 +182,7 @@ func flattenYandexYQYDSConnectionSetting(
 ) error {
 	dataStreamsSetting := setting.GetDataStreams()
 
-	d.Set(yds_connection.AttributeDatabaseID, dataStreamsSetting.GetDatabaseId())
+	d.Set(yds_conn.AttributeDatabaseID, dataStreamsSetting.GetDatabaseId())
 
 	if err := flattenYandexYQAuth2(d, dataStreamsSetting.GetAuth()); err != nil {
 		return err
