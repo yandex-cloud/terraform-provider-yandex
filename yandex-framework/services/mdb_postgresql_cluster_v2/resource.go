@@ -421,9 +421,9 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						PlanModifiers: []planmodifier.Map{
 							mapplanmodifier.UseStateForUnknown(),
 						},
-						Description: "PostgreSQL cluster config.",
-						Optional:    true,
-						Computed:    true,
+						MarkdownDescription: "PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).",
+						Optional:            true,
+						Computed:            true,
 					},
 				},
 				Blocks: map[string]schema.Block{
