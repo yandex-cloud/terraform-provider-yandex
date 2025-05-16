@@ -1,6 +1,9 @@
 package object_storage_binding
 
 import (
+	"slices"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -25,6 +28,25 @@ var (
 		"zstd",
 	}
 )
+
+func shouldSuppressDiffForColumnType(k, old, new string, d *schema.ResourceData) bool {
+	oldLower := strings.ToLower(old)
+	newLower := strings.ToLower(new)
+	if oldLower == newLower {
+		return true
+	}
+
+	textTypes := []string{"utf8", "text"}
+	if slices.Contains(textTypes, oldLower) && slices.Contains(textTypes, newLower) {
+		return true
+	}
+
+	blobTypes := []string{"string", "bytes"}
+	if slices.Contains(blobTypes, oldLower) && slices.Contains(blobTypes, newLower) {
+		return true
+	}
+	return false
+}
 
 func ResourceSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
@@ -86,10 +108,11 @@ func ResourceSchema() map[string]*schema.Schema {
 						ValidateFunc: validation.NoZeroValues,
 					},
 					AttributeColumnType: {
-						Type:         schema.TypeString,
-						Description:  "Column data type. YQL data types are used.",
-						Required:     true,
-						ValidateFunc: validation.NoZeroValues,
+						Type:             schema.TypeString,
+						Description:      "Column data type. YQL data types are used.",
+						Required:         true,
+						ValidateFunc:     validation.NoZeroValues,
+						DiffSuppressFunc: shouldSuppressDiffForColumnType,
 					},
 					AttributeColumnNotNull: {
 						Type:        schema.TypeBool,
