@@ -48,6 +48,18 @@ type ReducedDiskServiceClient interface {
 	Get(ctx context.Context, in *compute.GetDiskRequest, opts ...grpc.CallOption) (*compute.Disk, error)
 }
 
+func expandStringList(v interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	av := v.([]interface{})
+	result := make([]string, 0, len(av))
+	for _, value := range av {
+		result = append(result, value.(string))
+	}
+	return result
+}
+
 func expandStringSet(v interface{}) []string {
 	if v == nil {
 		return nil

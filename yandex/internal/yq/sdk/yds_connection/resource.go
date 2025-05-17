@@ -22,5 +22,9 @@ func ResourceSchema() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Optional: true,
 		},
+		AttributeSharedReading: {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
 	}
 }

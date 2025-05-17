@@ -9,13 +9,90 @@ import (
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 )
 
+const (
+	AttributeName             = "name"
+	AttributeServiceAccountID = "service_account_id"
+	AttributeDescription      = "description"
+	AttributeConnectionID     = "connection_id"
+
+	// the same names as for ydb table
+	AttributeColumn        = "column"
+	AttributeColumnName    = "name"
+	AttributeColumnType    = "type"
+	AttributeColumnNotNull = "not_null"
+)
+
+func flattenYandexYQAuth(d *schema.ResourceData,
+	auth *Ydb_FederatedQuery.IamAuth,
+) error {
+	serviceAccountID, err := iAMAuthToString(auth)
+	if err != nil {
+		return err
+	}
+
+	d.Set(AttributeServiceAccountID, serviceAccountID)
+
+	return nil
+}
+
 func flattenYandexYQCommonMeta(
 	d *schema.ResourceData,
 	meta *Ydb_FederatedQuery.CommonMeta,
 ) error {
 	d.SetId(meta.GetId())
-
 	return nil
+}
+
+func flattenColumn(column *Ydb.Column) (map[string]any, error) {
+	result := make(map[string]interface{})
+	result[AttributeColumnName] = column.Name
+	result[AttributeColumnNotNull] = column.Type.GetOptionalType() == nil
+	columnType, err := formatTypeString(unwrapOptional(column.Type))
+	if err != nil {
+		return nil, err
+	}
+	result[AttributeColumnType] = columnType
+	return result, nil
+}
+
+func flattenSchema(schema *Ydb_FederatedQuery.Schema) ([]any, error) {
+	result := make([]any, 0, len(schema.Column))
+	for _, column := range schema.Column {
+		c, err := flattenColumn(column)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, c)
+	}
+	return result, nil
+}
+
+func parseColumns(d *schema.ResourceData) ([]*Ydb.Column, error) {
+	columnsRaw := d.Get(AttributeColumn)
+	if columnsRaw == nil {
+		return nil, nil
+	}
+
+	raw := columnsRaw.([]any)
+	columns := make([]*Ydb.Column, 0, len(raw))
+	for _, rw := range raw {
+		r := rw.(map[string]interface{})
+		name := r[AttributeColumnName].(string)
+		t := r[AttributeColumnType].(string)
+		notNull := r[AttributeColumnNotNull].(bool)
+		t2, err := parseColumnType(t, notNull)
+		if err != nil {
+			return nil, err
+		}
+
+		columns = append(columns, &Ydb.Column{
+			Name: name,
+			Type: t2,
+		})
+	}
+
+	return columns, nil
+
 }
 
 func makePrimitiveType(typeId Ydb.Type_PrimitiveTypeId) *Ydb.Type {
@@ -128,7 +205,7 @@ func wrapWithOptionalIfNeeded(t *Ydb.Type) *Ydb.Type {
 	return wrapWithOptional(t)
 }
 
-func ParseColumnType(t string, notNull bool) (*Ydb.Type, error) {
+func parseColumnType(t string, notNull bool) (*Ydb.Type, error) {
 	c, err := baseParseColumnType(strings.ToLower(t))
 	if err != nil {
 		return nil, err
@@ -140,7 +217,7 @@ func ParseColumnType(t string, notNull bool) (*Ydb.Type, error) {
 	return wrapWithOptionalIfNeeded(c), nil
 }
 
-func FormatTypeString(t *Ydb.Type) (string, error) {
+func formatTypeString(t *Ydb.Type) (string, error) {
 	typeId := t.GetTypeId()
 	switch typeId {
 	case Ydb.Type_STRING:

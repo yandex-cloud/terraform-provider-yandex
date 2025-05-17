@@ -5,4 +5,5 @@ const (
 	AttributeServiceAccountID = "service_account_id"
 	AttributeDatabaseID       = "database_id"
 	AttributeDescription      = "description"
+	AttributeSharedReading    = "shared_reading"
 )
