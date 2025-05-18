@@ -4,13 +4,22 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+)
+
+const (
+	yandexMDBClickhouseUserCreateTimeout = 15 * time.Minute
+	yandexMDBClickhouseUserDeleteTimeout = 10 * time.Minute
+	yandexMDBClickhouseUserUpdateTimeout = 30 * time.Minute
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -47,8 +56,8 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *bindingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = UserSchema()
+func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = UserSchema(ctx)
 }
 
 func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -89,6 +98,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBClickhouseUserCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
 	userName := plan.Name.ValueString()
@@ -150,6 +167,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	updateTimeout, diags := state.Timeouts.Update(ctx, yandexMDBClickhouseUserUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	userPlan, diags := userFromState(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -192,6 +217,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBClickhouseUserDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
 	deleteUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
@@ -212,6 +245,13 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	}
 	var state ResourceUser
 	resp.Diagnostics.Append(userToState(ctx, user, &state)...)
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

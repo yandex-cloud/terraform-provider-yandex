@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -27,15 +28,16 @@ type User interface {
 }
 
 type ResourceUser struct {
-	Id                types.String `tfsdk:"id"`
-	ClusterID         types.String `tfsdk:"cluster_id"`
-	Name              types.String `tfsdk:"name"`
-	Password          types.String `tfsdk:"password"`
-	GeneratePassword  types.Bool   `tfsdk:"generate_password"`
-	Permissions       types.Set    `tfsdk:"permission"`
-	Settings          types.Object `tfsdk:"settings"`
-	Quotas            types.Set    `tfsdk:"quota"`
-	ConnectionManager types.Object `tfsdk:"connection_manager"`
+	Id                types.String   `tfsdk:"id"`
+	ClusterID         types.String   `tfsdk:"cluster_id"`
+	Name              types.String   `tfsdk:"name"`
+	Password          types.String   `tfsdk:"password"`
+	GeneratePassword  types.Bool     `tfsdk:"generate_password"`
+	Permissions       types.Set      `tfsdk:"permission"`
+	Settings          types.Object   `tfsdk:"settings"`
+	Quotas            types.Set      `tfsdk:"quota"`
+	ConnectionManager types.Object   `tfsdk:"connection_manager"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (ru *ResourceUser) SetId(id types.String) {

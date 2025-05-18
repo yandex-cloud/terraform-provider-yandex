@@ -1,6 +1,9 @@
 package mdb_clickhouse_user
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -11,7 +14,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
-func UserSchema() schema.Schema {
+func UserSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		MarkdownDescription: "Manages a ClickHouse user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).",
 		Attributes: map[string]schema.Attribute{
@@ -53,6 +56,11 @@ func UserSchema() schema.Schema {
 			"permission": PermissionSchema(),
 			"quota":      QuotasSchema(),
 			"settings":   SettingsSchema(),
+			"timeouts": timeouts.Block(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 		},
 	}
 }
