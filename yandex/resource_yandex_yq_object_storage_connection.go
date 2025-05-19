@@ -29,10 +29,10 @@ func (_ *objectStorageConnectionStrategy) ExpandSetting(d *schema.ResourceData) 
 	}, nil
 }
 
-func NewObjectStorageConnectionStrategy() ConnectionStrategy {
+func newObjectStorageConnectionStrategy() ConnectionStrategy {
 	return &objectStorageConnectionStrategy{}
 }
 
 func resourceYandexYQObjectStorageConnection() *schema.Resource {
-	return resourceYandexYQBaseConnection(NewObjectStorageConnectionStrategy(), os_conn.ResourceSchema())
+	return resourceYandexYQBaseConnection(newObjectStorageConnectionStrategy(), os_conn.ResourceSchema())
 }
