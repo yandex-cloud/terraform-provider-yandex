@@ -2,24 +2,44 @@
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 )
 
+// connections
 const (
-	AttributeName             = "name"
-	AttributeServiceAccountID = "service_account_id"
+	AttributeBucket           = "bucket"
+	AttributeCluster          = "cluster"
+	AttributeDatabaseID       = "database_id"
 	AttributeDescription      = "description"
-	AttributeConnectionID     = "connection_id"
+	AttributeName             = "name"
+	AttributeProject          = "project"
+	AttributeServiceAccountID = "service_account_id"
+	AttributeSharedReading    = "shared_reading"
+)
+
+// bindings
+const (
+	AttributeCompression   = "compression"
+	AttributeConnectionID  = "connection_id"
+	AttributeFormat        = "format"
+	AttributeFormatSetting = "format_setting"
+	AttributePartitionedBy = "partitioned_by"
+	AttributePathPattern   = "path_pattern"
+	AttributeProjection    = "projection"
+	AttributeStream        = "stream"
 
 	// the same names as for ydb table
 	AttributeColumn        = "column"
 	AttributeColumnName    = "name"
-	AttributeColumnType    = "type"
 	AttributeColumnNotNull = "not_null"
+	AttributeColumnType    = "type"
 )
 
 func flattenYandexYQAuth(d *schema.ResourceData,
@@ -281,4 +301,242 @@ func formatTypeString(t *Ydb.Type) (string, error) {
 	}
 
 	return "", fmt.Errorf("unsupported type")
+}
+
+var (
+	availableFormats = []string{
+		"csv_with_names",
+		"json_as_string",
+		"json_each_row",
+		"json_list",
+		"parquet",
+		"raw",
+		"tsv_with_names",
+	}
+
+	availableCompressions = []string{
+		"brotli",
+		"bzip2",
+		"gzip",
+		"lz4",
+		"xz",
+		"zstd",
+	}
+)
+
+func shouldSuppressDiffForColumnType(k, old, new string, d *schema.ResourceData) bool {
+	oldLower := strings.ToLower(old)
+	newLower := strings.ToLower(new)
+	if oldLower == newLower {
+		return true
+	}
+
+	textTypes := []string{"utf8", "text"}
+	if slices.Contains(textTypes, oldLower) && slices.Contains(textTypes, newLower) {
+		return true
+	}
+
+	blobTypes := []string{"string", "bytes"}
+	if slices.Contains(blobTypes, oldLower) && slices.Contains(blobTypes, newLower) {
+		return true
+	}
+	return false
+}
+
+var (
+	availableBindingAttributes = map[string]*schema.Schema{
+		AttributeStream: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.NoZeroValues,
+		},
+		AttributeFormat: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice(availableFormats, true),
+		},
+		AttributeCompression: {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice(availableCompressions, true),
+		},
+		AttributePathPattern: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.NoZeroValues,
+		},
+		AttributeProjection: {
+			Type:     schema.TypeMap,
+			Optional: true,
+			Elem:     &schema.Schema{Type: schema.TypeString},
+		},
+		AttributePartitionedBy: {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		AttributeColumn: {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					AttributeColumnName: {
+						Type:         schema.TypeString,
+						Description:  "Column name.",
+						Required:     true,
+						ValidateFunc: validation.NoZeroValues,
+					},
+					AttributeColumnType: {
+						Type:             schema.TypeString,
+						Description:      "Column data type. YQL data types are used.",
+						Required:         true,
+						ValidateFunc:     validation.NoZeroValues,
+						DiffSuppressFunc: shouldSuppressDiffForColumnType,
+					},
+					AttributeColumnNotNull: {
+						Type:        schema.TypeBool,
+						Description: "A column cannot have the NULL data type. Default: `false`.",
+						Optional:    true,
+						Computed:    true,
+					},
+				},
+			},
+		},
+	}
+)
+
+func newBindingResourceSchema(additionalAttributes ...string) map[string]*schema.Schema {
+	result := map[string]*schema.Schema{
+		AttributeName: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.NoZeroValues,
+		},
+		AttributeConnectionID: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.NoZeroValues,
+		},
+		AttributeDescription: {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		AttributeFormat: {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice(availableFormats, true),
+		},
+		AttributeCompression: {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice(availableCompressions, true),
+		},
+		AttributeColumn: {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					AttributeColumnName: {
+						Type:         schema.TypeString,
+						Description:  "Column name.",
+						Required:     true,
+						ValidateFunc: validation.NoZeroValues,
+					},
+					AttributeColumnType: {
+						Type:             schema.TypeString,
+						Description:      "Column data type. YQL data types are used.",
+						Required:         true,
+						ValidateFunc:     validation.NoZeroValues,
+						DiffSuppressFunc: shouldSuppressDiffForColumnType,
+					},
+					AttributeColumnNotNull: {
+						Type:        schema.TypeBool,
+						Description: "A column cannot have the NULL data type. Default: `false`.",
+						Optional:    true,
+						Computed:    true,
+					},
+				},
+			},
+		},
+	}
+
+	for _, a := range additionalAttributes {
+		result[a] = availableBindingAttributes[a]
+	}
+
+	return result
+}
+
+func newObjectStorageBindingResourceSchema() map[string]*schema.Schema {
+	return newBindingResourceSchema(AttributePathPattern, AttributeProjection, AttributePartitionedBy)
+}
+
+func newYDSBindingResourceSchema() map[string]*schema.Schema {
+	return newBindingResourceSchema(AttributeStream)
+}
+
+var (
+	availableConnectionAttributes = map[string]*schema.Schema{
+		AttributeBucket: {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		AttributeProject: {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		AttributeCluster: {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		AttributeDatabaseID: {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		AttributeSharedReading: {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+	}
+)
+
+func newConnectionResourceSchema(additionalAttributes ...string) map[string]*schema.Schema {
+	result := map[string]*schema.Schema{
+		AttributeName: {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		AttributeServiceAccountID: {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		AttributeDescription: {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+	}
+
+	for _, a := range additionalAttributes {
+		result[a] = availableConnectionAttributes[a]
+	}
+
+	return result
+}
+
+func newObjectStorageConnectionResourceSchema() map[string]*schema.Schema {
+	return newConnectionResourceSchema(AttributeBucket)
+}
+
+func newYDSConnectionResourceSchema() map[string]*schema.Schema {
+	return newConnectionResourceSchema(AttributeDatabaseID)
+}
+
+func newMonitoringConnectionResourceSchema() map[string]*schema.Schema {
+	return newConnectionResourceSchema(AttributeProject, AttributeCluster)
+}
+
+func newYDBConnectionResourceSchema() map[string]*schema.Schema {
+	return newConnectionResourceSchema(AttributeDatabaseID)
 }

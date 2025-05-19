@@ -2,22 +2,21 @@
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	os_conn "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/object_storage_connection"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 
 type objectStorageConnectionStrategy struct {
 }
 
-func (_ *objectStorageConnectionStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.ConnectionSetting) error {
+func (*objectStorageConnectionStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.ConnectionSetting) error {
 	objectStorageSetting := setting.GetObjectStorage()
-	d.Set(os_conn.AttributeBucket, objectStorageSetting.GetBucket())
+	d.Set(AttributeBucket, objectStorageSetting.GetBucket())
 	return flattenYandexYQAuth(d, objectStorageSetting.GetAuth())
 }
 
-func (_ *objectStorageConnectionStrategy) ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.ConnectionSetting, error) {
-	serviceAccountID := d.Get(os_conn.AttributeServiceAccountID).(string)
-	bucket := d.Get(os_conn.AttributeBucket).(string)
+func (*objectStorageConnectionStrategy) ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.ConnectionSetting, error) {
+	serviceAccountID := d.Get(AttributeServiceAccountID).(string)
+	bucket := d.Get(AttributeBucket).(string)
 	auth := parseServiceIDToIAMAuth(serviceAccountID)
 	return &Ydb_FederatedQuery.ConnectionSetting{
 		Connection: &Ydb_FederatedQuery.ConnectionSetting_ObjectStorage{
@@ -34,5 +33,5 @@ func newObjectStorageConnectionStrategy() ConnectionStrategy {
 }
 
 func resourceYandexYQObjectStorageConnection() *schema.Resource {
-	return resourceYandexYQBaseConnection(newObjectStorageConnectionStrategy(), os_conn.ResourceSchema())
+	return resourceYandexYQBaseConnection(newObjectStorageConnectionStrategy(), newObjectStorageConnectionResourceSchema())
 }

@@ -4,51 +4,50 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	os_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/yq/sdk/object_storage_binding"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 
 type objectStorageBindingStrategy struct {
 }
 
-func (_ *objectStorageBindingStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.BindingSetting) error {
+func (*objectStorageBindingStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.BindingSetting) error {
 	objectStorageSetting := setting.GetObjectStorage()
 	if len(objectStorageSetting.Subset) != 1 {
 		return fmt.Errorf("unexpected empty subsets")
 	}
 
 	subset := objectStorageSetting.Subset[0]
-	d.Set(os_binding.AttributePathPattern, subset.GetPathPattern())
-	d.Set(os_binding.AttributeFormat, subset.GetFormat())
-	d.Set(os_binding.AttributeCompression, subset.GetCompression())
-	d.Set(os_binding.AttributeFormatSetting, subset.GetFormatSetting())
-	d.Set(os_binding.AttributePartitionedBy, subset.GetPartitionedBy())
-	d.Set(os_binding.AttributeProjection, subset.GetProjection())
+	d.Set(AttributePathPattern, subset.GetPathPattern())
+	d.Set(AttributeFormat, subset.GetFormat())
+	d.Set(AttributeCompression, subset.GetCompression())
+	d.Set(AttributeFormatSetting, subset.GetFormatSetting())
+	d.Set(AttributePartitionedBy, subset.GetPartitionedBy())
+	d.Set(AttributeProjection, subset.GetProjection())
 
 	schema, err := flattenSchema(subset.GetSchema())
 	if err != nil {
 		return err
 	}
 
-	d.Set(os_binding.AttributeColumn, schema)
+	d.Set(AttributeColumn, schema)
 	return nil
 }
 
-func (_ *objectStorageBindingStrategy) ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingSetting, error) {
-	format := d.Get(os_binding.AttributeFormat).(string)
-	compression := d.Get(os_binding.AttributeCompression).(string)
-	pathPattern := d.Get(os_binding.AttributePathPattern).(string)
-	formatSetting, err := expandLabels(d.Get(os_binding.AttributeFormatSetting))
+func (*objectStorageBindingStrategy) ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingSetting, error) {
+	format := d.Get(AttributeFormat).(string)
+	compression := d.Get(AttributeCompression).(string)
+	pathPattern := d.Get(AttributePathPattern).(string)
+	formatSetting, err := expandLabels(d.Get(AttributeFormatSetting))
 	if err != nil {
 		return nil, err
 	}
 
-	projection, err := expandLabels(d.Get(os_binding.AttributeProjection))
+	projection, err := expandLabels(d.Get(AttributeProjection))
 	if err != nil {
 		return nil, err
 	}
 
-	partitionedBy := expandStringList(d.Get(os_binding.AttributePartitionedBy))
+	partitionedBy := expandStringList(d.Get(AttributePartitionedBy))
 	columns, err := parseColumns(d)
 	if err != nil {
 		return nil, err
@@ -82,5 +81,5 @@ func newObjectStorageBindingStrategy() BindingStrategy {
 }
 
 func resourceYandexYQObjectStorageBinding() *schema.Resource {
-	return resourceYandexYQBaseBinding(newObjectStorageBindingStrategy(), os_binding.ResourceSchema())
+	return resourceYandexYQBaseBinding(newObjectStorageBindingStrategy(), newObjectStorageBindingResourceSchema())
 }
