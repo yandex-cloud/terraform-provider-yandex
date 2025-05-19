@@ -22,10 +22,6 @@ func validateConfig(conf *Config) error {
 		return fmt.Errorf("\"folder_id\" is required to YQ SDK")
 	}
 
-	if conf.AuthToken == "" {
-		return fmt.Errorf("\"token\" is required to YQ SDK")
-	}
-
 	if conf.Endpoint == "" {
 		return fmt.Errorf("\"yq_endpoint\" is required to YQ SDK")
 	}
@@ -42,7 +38,7 @@ func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, 
 		return nil, err
 	}
 
-	mdMiddleware := newYQMDMiddleware(conf.AuthToken, conf.FolderID)
+	mdMiddleware := newYQMDMiddleware(conf.AuthTokenProvider, conf.FolderID)
 
 	dialOpts := make([]grpc.DialOption, 0, len(opts)+3) // 2 for interceptors, 1 for tls
 	dialOpts = append(dialOpts,

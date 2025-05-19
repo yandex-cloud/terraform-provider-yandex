@@ -156,8 +156,8 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 	}
 
 	yqSDKConfig := &yqsdk.Config{
-		AuthToken: c.Token,
-		FolderID:  c.FolderID,
+		AuthTokenProvider: func(ctx context.Context) (string, error) { return c.getIAMToken(ctx) },
+		FolderID:          c.FolderID,
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: c.Insecure,
 		},
