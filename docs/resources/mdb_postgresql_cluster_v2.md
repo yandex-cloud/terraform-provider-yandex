@@ -1,5 +1,5 @@
 ---
-subcategory: "V2 Resources"
+subcategory: "Managed Service for PostgreSQL"
 page_title: "Yandex: yandex_mdb_postgresql_cluster_v2"
 description: |-
   Manages a PostgreSQL cluster within Yandex Cloud.

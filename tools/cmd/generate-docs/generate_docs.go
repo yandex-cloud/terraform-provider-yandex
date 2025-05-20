@@ -106,6 +106,8 @@ var SDKv2ResourcesList = []string{
 	"mdb_postgresql_user",
 	"mdb_redis_cluster",
 	"mdb_sqlserver_cluster",
+	"mdb_clickhouse_database",
+	"mdb_clickhouse_user",
 	"message_queue",
 	"monitoring_dashboard",
 	"organizationmanager_group",
