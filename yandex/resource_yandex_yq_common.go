@@ -529,7 +529,7 @@ func newObjectStorageConnectionResourceSchema() map[string]*schema.Schema {
 }
 
 func newYDSConnectionResourceSchema() map[string]*schema.Schema {
-	return newConnectionResourceSchema(AttributeDatabaseID)
+	return newConnectionResourceSchema(AttributeDatabaseID, AttributeSharedReading)
 }
 
 func newMonitoringConnectionResourceSchema() map[string]*schema.Schema {
