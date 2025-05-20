@@ -81,6 +81,8 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"description": schema.StringAttribute{
 				Description: "Description of the PostgreSQL cluster.",
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Optional:    true,
 			},
 			"folder_id": schema.StringAttribute{
