@@ -455,7 +455,6 @@ func newBindingResourceSchema(additionalAttributes ...string) map[string]*schema
 						Type:        schema.TypeBool,
 						Description: "A column cannot have the NULL data type. Default: `false`.",
 						Optional:    true,
-						Computed:    true,
 					},
 				},
 			},
