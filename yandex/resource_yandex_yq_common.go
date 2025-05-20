@@ -360,6 +360,11 @@ var (
 			Optional:     true,
 			ValidateFunc: validation.StringInSlice(availableCompressions, true),
 		},
+		AttributeFormatSetting: {
+			Type:     schema.TypeMap,
+			Optional: true,
+			Elem:     &schema.Schema{Type: schema.TypeString},
+		},
 		AttributePathPattern: {
 			Type:         schema.TypeString,
 			Required:     true,
@@ -375,33 +380,6 @@ var (
 			Optional: true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
-			},
-		},
-		AttributeColumn: {
-			Type:     schema.TypeList,
-			Required: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					AttributeColumnName: {
-						Type:         schema.TypeString,
-						Description:  "Column name.",
-						Required:     true,
-						ValidateFunc: validation.NoZeroValues,
-					},
-					AttributeColumnType: {
-						Type:             schema.TypeString,
-						Description:      "Column data type. YQL data types are used.",
-						Required:         true,
-						ValidateFunc:     validation.NoZeroValues,
-						DiffSuppressFunc: shouldSuppressDiffForColumnType,
-					},
-					AttributeColumnNotNull: {
-						Type:        schema.TypeBool,
-						Description: "A column cannot have the NULL data type. Default: `false`.",
-						Optional:    true,
-						Computed:    true,
-					},
-				},
 			},
 		},
 	}
@@ -469,7 +447,7 @@ func newBindingResourceSchema(additionalAttributes ...string) map[string]*schema
 }
 
 func newObjectStorageBindingResourceSchema() map[string]*schema.Schema {
-	return newBindingResourceSchema(AttributePathPattern, AttributeProjection, AttributePartitionedBy)
+	return newBindingResourceSchema(AttributePathPattern, AttributeFormatSetting, AttributeProjection, AttributePartitionedBy)
 }
 
 func newYDSBindingResourceSchema() map[string]*schema.Schema {
