@@ -2,7 +2,7 @@
 subcategory: "Managed Service for ClickHouse"
 page_title: "Yandex: yandex_mdb_clickhouse_database"
 description: |-
-  Get information about Database at Yandex Managed ClickHouse cluster.
+   Get information about Database at Yandex Managed ClickHouse cluster.
 ---
 
 # yandex_mdb_clickhouse_database (Data Source)
@@ -33,3 +33,12 @@ output "dbname" {
 ### Read-Only
 
 - `id` (String) The resource identifier.
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_mdb_clickhouse_database.<resource Name> <resource Id>
+terraform import yandex_mdb_clickhouse_database.my_db1 cluster_id:my_dbname
+```

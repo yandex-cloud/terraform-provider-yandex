@@ -395,6 +395,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Description: "A user of the ClickHouse cluster.",
 				Optional:    true,
 				Set:         clickHouseUserHash,
+				Deprecated:  useResourceInstead("user", "yandex_mdb_clickhouse_user"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -651,6 +652,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			"database": {
 				Type:        schema.TypeSet,
 				Description: "A database of the ClickHouse cluster.",
+				Deprecated:  useResourceInstead("database", "yandex_mdb_clickhouse_database"),
 				Optional:    true,
 				Set:         clickHouseDatabaseHash,
 				Elem: &schema.Resource{

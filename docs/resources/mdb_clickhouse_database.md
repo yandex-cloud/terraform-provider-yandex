@@ -80,5 +80,5 @@ The resource can be imported by using their `resource ID`. For getting the resou
 
 ```shell
 # terraform import yandex_mdb_clickhouse_database.<resource Name> <resource Id>
-terraform import yandex_mdb_clickhouse_database.my_db1 ...
+terraform import yandex_mdb_clickhouse_database.my_db1 cluster_id:my_dbname
 ```

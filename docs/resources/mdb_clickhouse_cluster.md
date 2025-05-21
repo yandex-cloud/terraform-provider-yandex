@@ -455,7 +455,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `cloud_storage` (Block List, Max: 1) Cloud Storage settings. (see [below for nested schema](#nestedblock--cloud_storage))
 - `cluster_id` (String) The cluster identifier.
 - `copy_schema_on_new_hosts` (Boolean) Whether to copy schema on new ClickHouse hosts.
-- `database` (Block Set) A database of the ClickHouse cluster. (see [below for nested schema](#nestedblock--database))
+- `database` (Block Set, Deprecated) A database of the ClickHouse cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
 - `embedded_keeper` (Boolean) Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
@@ -471,7 +471,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `sql_database_management` (Boolean) Grants `admin` user database management permission.
 - `sql_user_management` (Boolean) Enables `admin` user with user management permission.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `user` (Block Set) A user of the ClickHouse cluster. (see [below for nested schema](#nestedblock--user))
+- `user` (Block Set, Deprecated) A user of the ClickHouse cluster. (see [below for nested schema](#nestedblock--user))
 - `version` (String) Version of the ClickHouse server software.
 - `zookeeper` (Block List, Max: 1) Configuration of the ZooKeeper subcluster. (see [below for nested schema](#nestedblock--zookeeper))
 

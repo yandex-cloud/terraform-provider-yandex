@@ -361,14 +361,6 @@ Read-Only:
 
 
 
-<a id="nestedatt--connection_manager"></a>
-### Nested Schema for `connection_manager`
-
-Read-Only:
-
-- `connection_id` (String) ID of Connection Manager connection. Filled in by the server automatically. String.
-
-
 <a id="nestedblock--permission"></a>
 ### Nested Schema for `permission`
 
@@ -376,3 +368,12 @@ Read-Only:
 
 - `database_name` (String) Name of the database that the permission grants access to.
 
+
+## Import
+
+The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_mdb_clickhouse_user.<resource Name> <cluster_id>:<user_name>
+terraform import yandex_mdb_clickhouse_user.my_user cluster_id:my_username
+```
