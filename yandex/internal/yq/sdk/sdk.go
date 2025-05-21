@@ -17,16 +17,8 @@ type SDK struct {
 	client client.YQClient
 }
 
-func validateConfig(conf *Config) error {
-	if conf.FolderID == "" {
-		return fmt.Errorf("\"folder_id\" is required to YQ SDK")
-	}
-
-	if conf.Endpoint == "" {
-		return fmt.Errorf("\"yq_endpoint\" is required to YQ SDK")
-	}
-
-	return nil
+func validateConfig(conf *Config) bool {
+	return conf.FolderID != "" && conf.Endpoint != ""
 }
 
 func (sdk *SDK) Client() client.YQClient {
@@ -34,8 +26,9 @@ func (sdk *SDK) Client() client.YQClient {
 }
 
 func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, error) {
-	if err := validateConfig(&conf); err != nil {
-		return nil, err
+	if !validateConfig(&conf) {
+		// no error here, YQ is optional
+		return nil, nil
 	}
 
 	mdMiddleware := newYQMDMiddleware(conf.AuthTokenProvider, conf.FolderID)

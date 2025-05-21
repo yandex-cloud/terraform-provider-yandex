@@ -444,7 +444,7 @@ func setToDefaultBoolIfNeeded(osEnvName string, defaultVal bool) bool {
 	}
 }
 
-// testConfig is used to avoid using StopContext duo to tests are run in parallel and context is cancelled randomly in tests
+// testConfig is used to avoid using StopContext due to tests are run in parallel and context is cancelled randomly in tests
 // there is same following issue https://github.com/hashicorp/terraform-plugin-sdk/issues/966
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool, testConfig bool) (interface{}, diag.Diagnostics) {
 	config := Config{
