@@ -2,6 +2,7 @@ package mdb_clickhouse_user
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -76,10 +77,12 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 	})
 
 	if err != nil {
-		diag.AddError(
-			"Failed to Update resource",
-			"Error while requesting API to update ClickHouse user:"+err.Error(),
-		)
+		if !strings.EqualFold(errorMessage(err), "no changes detected") {
+			diag.AddError(
+				"Failed to Update resource",
+				"Error while requesting API to update ClickHouse user:"+err.Error(),
+			)
+		}
 		return
 	}
 

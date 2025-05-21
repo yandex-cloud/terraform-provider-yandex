@@ -5,6 +5,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
@@ -350,4 +352,24 @@ func makeEnumNamesValidator(m map[int32]string) []validator.String {
 		res = append(res, val)
 	}
 	return []validator.String{stringvalidator.OneOf(res...)}
+}
+
+func isProtoMessageEmpty(m protoreflect.Message) bool {
+	if m == nil {
+		return true
+	}
+
+	empty := true
+
+	m.Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		empty = false
+		return false
+	})
+
+	return empty
+}
+
+func errorMessage(err error) string {
+	grpcStatus, _ := status.FromError(err)
+	return grpcStatus.Message()
 }

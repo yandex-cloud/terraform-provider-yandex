@@ -430,8 +430,6 @@ func testAccMDBClickHouseUserConfig_basic_create(name string, description string
 		permission {
 	      database_name = %s.name
 	  	}
-		settings {
-		}
 	}
 	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1, makeCHDBResource(chDBResourceName1))
 }
@@ -482,8 +480,6 @@ func testAccMDBClickHouseUserConfig_basic_several(name, description string, user
 		permission {
 	      database_name = %s.name
 	  	}
-		settings {
-		}
 	}
 	`, userName, chClusterResourceIDLink, userName, makeCHDBResource(chDBResourceName1))
 	}

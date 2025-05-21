@@ -203,6 +203,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	log.Printf("[TRACE] mdb_clickhouse_user: refresh state settings: %+v\n", state.GetSettings())
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
 	plan.Id = types.StringValue(resourceid.Construct(cid, userName))
 	diags = resp.State.Set(ctx, plan)
@@ -243,7 +244,11 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	var state ResourceUser
+	// default settings object for correct import unchanged settings
+	state.SetSettings(types.ObjectNull(settingsType))
+
 	resp.Diagnostics.Append(userToState(ctx, user, &state)...)
 	state.Timeouts = timeouts.Value{
 		Object: types.ObjectNull(map[string]attr.Type{

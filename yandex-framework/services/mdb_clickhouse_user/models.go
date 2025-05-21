@@ -482,7 +482,12 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened permissions: %+v\n", state.GetPermissions())
 	state.SetQuotas(flattenQuotas(ctx, user.Quotas, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened quotas: %+v\n", state.GetQuotas())
-	state.SetSettings(flattenSettings(ctx, user.Settings, &diags))
+	settingsObj := flattenSettings(ctx, user.Settings, &diags)
+	// handle both empty and missing setting block with "empty" UserSetting response from API to prevent inconsistent result after apply
+	if !state.GetSettings().Equal(settingsObj) && state.GetSettings().IsNull() && isProtoMessageEmpty(user.Settings.ProtoReflect()) {
+		settingsObj = state.GetSettings()
+	}
+	state.SetSettings(settingsObj)
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened settings: %+v\n", state.GetSettings())
 	state.SetConnectionManager(flattenConnectionManager(ctx, user.ConnectionManager, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened connection_manager: %+v\n", state.GetConnectionManager())
