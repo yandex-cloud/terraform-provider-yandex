@@ -1,4 +1,0 @@
-kind: BUG FIXES
-body: 'clickhouse: fix inconsistent result after apply in yandex_mdb_clickhouse_user
-  without settings block'
-time: 2025-05-12T11:48:18.060535724+03:00

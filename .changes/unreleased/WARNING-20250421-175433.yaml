@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'kafka: deprecate `preallocate` attribute in `topic_config` entity of `yandex_mdb_kafka_topic` resource and data source.'
-time: 2025-04-21T17:54:33.548168085+03:00

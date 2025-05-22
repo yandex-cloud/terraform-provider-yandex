@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'backup: deprecate preserve_file_security_settings and quiesce_snapshotting_enabled in backup policy resource'
-time: 2025-05-13T13:15:29.561545+03:00
