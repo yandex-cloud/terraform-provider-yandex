@@ -39,6 +39,7 @@ func testAccYQObjectStorageConnectionConfig(connectionName string, connectionRes
 	return fmt.Sprintf(`
 	resource "yandex_yq_object_storage_connection" "%s" {
         name = "%s"
+		description = "my_desc"
         bucket = "my_bucket"
     }`,
 		connectionResourceName,

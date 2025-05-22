@@ -9,19 +9,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func TestAccYandexYQMonitoringConnectionBasic(t *testing.T) {
+func TestAccYandexYQYDSConnectionBasic(t *testing.T) {
 	connectionName := fmt.Sprintf("my-conn-%s", acctest.RandString(5))
 	connectionResourceName := "my-connection"
-	existingConnectionResourceName := fmt.Sprintf("yandex_yq_monitoring_connection.%s", connectionResourceName)
+	existingConnectionResourceName := fmt.Sprintf("yandex_yq_yds_connection.%s", connectionResourceName)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(s *terraform.State) error {
-			return testYandexYQAllConnectionsDestroyed(s, "yandex_yq_monitoring_connection")
+			return testYandexYQAllConnectionsDestroyed(s, "yandex_yq_yds_connection")
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccYQMonitoringConnectionConfig(connectionName, connectionResourceName),
+				Config: testAccYQYDSConnectionConfig(connectionName, connectionResourceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccYQConnectionExists(connectionName, existingConnectionResourceName),
 				),
@@ -35,13 +35,13 @@ func TestAccYandexYQMonitoringConnectionBasic(t *testing.T) {
 	})
 }
 
-func testAccYQMonitoringConnectionConfig(connectionName string, connectionResourceName string) string {
+func testAccYQYDSConnectionConfig(connectionName string, connectionResourceName string) string {
 	return fmt.Sprintf(`
-	resource "yandex_yq_monitoring_connection" "%s" {
+	resource "yandex_yq_yds_connection" "%s" {
         name = "%s"
 		description = "my_desc"
-        project = "my_project"
-		cluster = "my_cluster"
+        database_id = "abc123"
+		shared_reading = true
     }`,
 		connectionResourceName,
 		connectionName,
