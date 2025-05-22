@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'clickhouse: deprecated user and database blocks in yandex_mdb_clickhouse_cluster in favor of new separated resources'
-time: 2025-05-06T17:09:58.401340684+03:00
