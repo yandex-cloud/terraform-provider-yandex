@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
@@ -40,6 +41,13 @@ const (
 	AttributeColumnName    = "name"
 	AttributeColumnNotNull = "not_null"
 	AttributeColumnType    = "type"
+)
+
+// descriptions
+const (
+	AttributeFormatDescription        = "The data format, e.g. csv_with_names, json_as_string, json_each_row, json_list, parquet, raw, tsv_with_names."
+	AttributeCompressionDescription   = "The data compression algorithm, e.g. brotli, bzip2, gzip, lz4, xz, zstd."
+	AttributeFormatSettingDescription = "Special format setting."
 )
 
 func flattenYandexYQAuth(d *schema.ResourceData,
@@ -349,38 +357,45 @@ func shouldSuppressDiffForColumnType(k, old, new string, d *schema.ResourceData)
 var (
 	availableBindingAttributes = map[string]*schema.Schema{
 		AttributeStream: {
+			Description:  "The stream name.",
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.NoZeroValues,
 		},
 		AttributeFormat: {
+			Description:  AttributeFormatDescription,
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.StringInSlice(availableFormats, true),
 		},
 		AttributeCompression: {
+			Description:  AttributeCompressionDescription,
 			Type:         schema.TypeString,
 			Optional:     true,
 			ValidateFunc: validation.StringInSlice(availableCompressions, true),
 		},
 		AttributeFormatSetting: {
-			Type:     schema.TypeMap,
-			Optional: true,
-			Elem:     &schema.Schema{Type: schema.TypeString},
+			Description: AttributeFormatSettingDescription,
+			Type:        schema.TypeMap,
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
 		},
 		AttributePathPattern: {
+			Description:  "The path pattern within Object Storage's bucket.",
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.NoZeroValues,
 		},
 		AttributeProjection: {
-			Type:     schema.TypeMap,
-			Optional: true,
-			Elem:     &schema.Schema{Type: schema.TypeString},
+			Description: "Projection rules.",
+			Type:        schema.TypeMap,
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
 		},
 		AttributePartitionedBy: {
-			Type:     schema.TypeList,
-			Optional: true,
+			Description: "The list of partitioning column names.",
+			Type:        schema.TypeList,
+			Optional:    true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
 			},
@@ -391,25 +406,30 @@ var (
 func newBindingResourceSchema(additionalAttributes ...string) map[string]*schema.Schema {
 	result := map[string]*schema.Schema{
 		AttributeName: {
+			Description:  common.ResourceDescriptions["name"],
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.NoZeroValues,
 		},
 		AttributeConnectionID: {
+			Description:  "The connection identifier.",
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.NoZeroValues,
 		},
 		AttributeDescription: {
-			Type:     schema.TypeString,
-			Optional: true,
+			Description: common.ResourceDescriptions["description"],
+			Type:        schema.TypeString,
+			Optional:    true,
 		},
 		AttributeFormat: {
+			Description:  AttributeFormatDescription,
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.StringInSlice(availableFormats, true),
 		},
 		AttributeCompression: {
+			Description:  AttributeCompressionDescription,
 			Type:         schema.TypeString,
 			Optional:     true,
 			ValidateFunc: validation.StringInSlice(availableCompressions, true),
@@ -460,24 +480,29 @@ func newYDSBindingResourceSchema() map[string]*schema.Schema {
 var (
 	availableConnectionAttributes = map[string]*schema.Schema{
 		AttributeBucket: {
-			Type:     schema.TypeString,
-			Required: true,
+			Description: "The bucket name from ObjectStorage",
+			Type:        schema.TypeString,
+			Required:    true,
 		},
 		AttributeProject: {
-			Type:     schema.TypeString,
-			Required: true,
+			Description: "The project name.",
+			Type:        schema.TypeString,
+			Required:    true,
 		},
 		AttributeCluster: {
-			Type:     schema.TypeString,
-			Required: true,
+			Description: "The cluster name.",
+			Type:        schema.TypeString,
+			Required:    true,
 		},
 		AttributeDatabaseID: {
-			Type:     schema.TypeString,
-			Required: true,
+			Description: "The database identifier.",
+			Type:        schema.TypeString,
+			Required:    true,
 		},
 		AttributeSharedReading: {
-			Type:     schema.TypeBool,
-			Optional: true,
+			Description: "Whether to enable shared reading by different queries from the same connection.",
+			Type:        schema.TypeBool,
+			Optional:    true,
 		},
 	}
 )
@@ -485,16 +510,19 @@ var (
 func newConnectionResourceSchema(additionalAttributes ...string) map[string]*schema.Schema {
 	result := map[string]*schema.Schema{
 		AttributeName: {
-			Type:     schema.TypeString,
-			Required: true,
+			Description: common.Descriptions["name"],
+			Type:        schema.TypeString,
+			Required:    true,
 		},
 		AttributeServiceAccountID: {
-			Type:     schema.TypeString,
-			Optional: true,
+			Description: "The service account ID to access resources on behalf of.",
+			Type:        schema.TypeString,
+			Optional:    true,
 		},
 		AttributeDescription: {
-			Type:     schema.TypeString,
-			Optional: true,
+			Description: common.Descriptions["description"],
+			Type:        schema.TypeString,
+			Optional:    true,
 		},
 	}
 
