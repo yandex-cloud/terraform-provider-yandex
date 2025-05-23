@@ -454,7 +454,7 @@ func newObjectStorageBindingResourceSchema() map[string]*schema.Schema {
 }
 
 func newYDSBindingResourceSchema() map[string]*schema.Schema {
-	return newBindingResourceSchema(AttributeStream)
+	return newBindingResourceSchema(AttributeStream, AttributeFormatSetting)
 }
 
 var (
