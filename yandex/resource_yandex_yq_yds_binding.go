@@ -1,4 +1,4 @@
-package yandex
+﻿package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,18 +10,26 @@ type ydsBindingStrategy struct {
 
 func (*ydsBindingStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.BindingSetting) error {
 	ydsSetting := setting.GetDataStreams()
+	if ydsSetting == nil {
+		return nil
+	}
 
 	d.Set(AttributeStream, ydsSetting.GetStreamName())
 	d.Set(AttributeFormat, ydsSetting.GetFormat())
 	d.Set(AttributeCompression, ydsSetting.GetCompression())
-	d.Set(AttributeFormatSetting, ydsSetting.GetFormatSetting())
+	formatSetting := ydsSetting.GetFormatSetting()
+	if formatSetting != nil {
+		d.Set(AttributeFormatSetting, formatSetting)
+	}
 
 	schema, err := flattenSchema(ydsSetting.GetSchema())
 	if err != nil {
 		return err
 	}
 
-	d.Set(AttributeColumn, schema)
+	if schema != nil {
+		d.Set(AttributeColumn, schema)
+	}
 	return nil
 }
 

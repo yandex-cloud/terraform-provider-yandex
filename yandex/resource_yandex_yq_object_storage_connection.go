@@ -1,4 +1,4 @@
-package yandex
+﻿package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,6 +10,10 @@ type objectStorageConnectionStrategy struct {
 
 func (*objectStorageConnectionStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.ConnectionSetting) error {
 	objectStorageSetting := setting.GetObjectStorage()
+	if objectStorageSetting == nil {
+		return nil
+	}
+
 	d.Set(AttributeBucket, objectStorageSetting.GetBucket())
 	return flattenYandexYQAuth(d, objectStorageSetting.GetAuth())
 }

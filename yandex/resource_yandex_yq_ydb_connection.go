@@ -10,6 +10,10 @@ type ydbConnectionStrategy struct {
 
 func (*ydbConnectionStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.ConnectionSetting) error {
 	ydbSetting := setting.GetYdbDatabase()
+	if ydbSetting == nil {
+		return nil
+	}
+
 	d.Set(AttributeDatabaseID, ydbSetting.GetDatabaseId())
 
 	return flattenYandexYQAuth(d, ydbSetting.GetAuth())

@@ -76,6 +76,9 @@ func flattenColumn(column *Ydb.Column) (map[string]any, error) {
 }
 
 func flattenSchema(schema *Ydb_FederatedQuery.Schema) ([]any, error) {
+	if schema == nil {
+		return nil, nil
+	}
 	result := make([]any, 0, len(schema.Column))
 	for _, column := range schema.Column {
 		c, err := flattenColumn(column)

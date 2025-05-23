@@ -1,4 +1,4 @@
-package yandex
+﻿package yandex
 
 import (
 	"fmt"
@@ -12,6 +12,14 @@ type objectStorageBindingStrategy struct {
 
 func (*objectStorageBindingStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.BindingSetting) error {
 	objectStorageSetting := setting.GetObjectStorage()
+	if objectStorageSetting == nil {
+		return nil
+	}
+
+	if objectStorageSetting.Subset == nil {
+		return nil
+	}
+
 	if len(objectStorageSetting.Subset) != 1 {
 		return fmt.Errorf("unexpected empty subsets")
 	}
@@ -20,16 +28,27 @@ func (*objectStorageBindingStrategy) FlattenSetting(d *schema.ResourceData, sett
 	d.Set(AttributePathPattern, subset.GetPathPattern())
 	d.Set(AttributeFormat, subset.GetFormat())
 	d.Set(AttributeCompression, subset.GetCompression())
-	d.Set(AttributeFormatSetting, subset.GetFormatSetting())
-	d.Set(AttributePartitionedBy, subset.GetPartitionedBy())
-	d.Set(AttributeProjection, subset.GetProjection())
+	formatSetting := subset.GetFormatSetting()
+	if formatSetting != nil {
+		d.Set(AttributeFormatSetting, formatSetting)
+	}
+	partitionedBy := subset.GetPartitionedBy()
+	if partitionedBy != nil {
+		d.Set(AttributePartitionedBy, partitionedBy)
+	}
+	projection := subset.GetProjection()
+	if projection != nil {
+		d.Set(AttributeProjection, projection)
+	}
 
 	schema, err := flattenSchema(subset.GetSchema())
 	if err != nil {
 		return err
 	}
 
-	d.Set(AttributeColumn, schema)
+	if schema != nil {
+		d.Set(AttributeColumn, schema)
+	}
 	return nil
 }
 

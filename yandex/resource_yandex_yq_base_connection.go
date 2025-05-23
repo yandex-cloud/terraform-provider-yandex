@@ -1,7 +1,8 @@
-package yandex
+﻿package yandex
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -140,6 +141,9 @@ func flattenYandexYQBaseConnection(
 	}
 
 	connection := connectionRes.GetConnection()
+	if connection == nil {
+		return fmt.Errorf("unexpected null connection from server")
+	}
 
 	if err := flattenYandexYQConnectionContent(d, connection.GetContent(), strategy); err != nil {
 		return err
@@ -159,7 +163,12 @@ func flattenYandexYQConnectionContent(
 ) error {
 	d.Set(AttributeName, content.GetName())
 	d.Set(AttributeDescription, content.GetDescription())
-	if err := strategy.FlattenSetting(d, content.GetSetting()); err != nil {
+	setting := content.GetSetting()
+	if setting == nil {
+		return fmt.Errorf("unexpected null connection setting")
+	}
+
+	if err := strategy.FlattenSetting(d, setting); err != nil {
 		return err
 	}
 

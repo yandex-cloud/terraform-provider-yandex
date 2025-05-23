@@ -10,6 +10,10 @@ type monitoringConnectionStrategy struct {
 
 func (*monitoringConnectionStrategy) FlattenSetting(d *schema.ResourceData, setting *Ydb_FederatedQuery.ConnectionSetting) error {
 	monitoringSetting := setting.GetMonitoring()
+	if monitoringSetting == nil {
+		return nil
+	}
+
 	d.Set(AttributeProject, monitoringSetting.GetProject())
 	d.Set(AttributeCluster, monitoringSetting.GetCluster())
 	return flattenYandexYQAuth(d, monitoringSetting.GetAuth())
