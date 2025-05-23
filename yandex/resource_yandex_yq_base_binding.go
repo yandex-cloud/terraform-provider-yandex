@@ -167,6 +167,7 @@ func flattenYandexYQBaseBindingContent(
 	content *Ydb_FederatedQuery.BindingContent,
 	strategy BindingStrategy,
 ) error {
+	d.Set(AttributeConnectionID, content.GetConnectionId())
 	d.Set(AttributeName, content.GetName())
 	d.Set(AttributeDescription, content.GetDescription())
 	return strategy.FlattenSetting(d, content.GetSetting())
