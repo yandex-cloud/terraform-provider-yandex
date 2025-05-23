@@ -52,21 +52,31 @@ func testAccYQObjectStorageBindingConfig(connectionName string, connectionResour
     	format = "csv_with_names"
     	path_pattern = "x/"
 		format_setting = {
-		"file_pattern" = "abc/*.csv"
+			"file_pattern" = "abc/*.csv"
+		}
+
+		column {
+			name="zzzz"
+			type="string"
 		}
 		column {
-		name="zzzz"
-		type="string"
-	}
-	//partitioned_by = ["zzzz"]
-	column {
-			name = "z"
-			type = "int8"
-			//not_null = true
+			name = "year"
+			type = "int32"
+			not_null = true
 		}
 		column {
 			name = "z2"
 			type = "UTF8"
+		}
+
+		partitioned_by = ["year"]
+		projection = {
+			"projection.enabled" : "true",
+			"projection.year.type" : "integer",
+			"projection.year.min" : "2020",
+			"projection.year.max" : "2027",
+			"projection.year.interval" : "1",
+			"storage.location.template" : "/$${year}",
 		}
 	}`, map[string]interface{}{
 		"ConnectionName":         connectionName,
