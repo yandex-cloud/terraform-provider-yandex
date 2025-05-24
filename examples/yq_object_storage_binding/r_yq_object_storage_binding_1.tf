@@ -13,17 +13,17 @@ resource "yandex_yq_object_storage_binding" "my_os_binding" {
     }
     column {
       name="year"
-      type="int32"
+      type="Int32"
       not_null = true
    }
     column {
       name="month"
-      type="int32"
+      type="Int32"
       not_null = true
    }
     column {
       name="day"
-      type="int32"
+      type="Int32"
       not_null = true
    }
 
@@ -34,6 +34,6 @@ resource "yandex_yq_object_storage_binding" "my_os_binding" {
     }
     column {
         name = "message"
-        type = "utf8"
+        type = "Utf8"
     }
 }

@@ -17,6 +17,6 @@ resource "yandex_yq_yds_binding" "my_yds_binding" {
     }
     column {
         name = "message"
-        type = "utf8"
+        type = "Utf8"
     }
 }
