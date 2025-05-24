@@ -510,7 +510,7 @@ var (
 func newConnectionResourceSchema(additionalAttributes ...string) map[string]*schema.Schema {
 	result := map[string]*schema.Schema{
 		AttributeName: {
-			Description: common.Descriptions["name"],
+			Description: common.ResourceDescriptions["name"],
 			Type:        schema.TypeString,
 			Required:    true,
 		},
@@ -520,7 +520,7 @@ func newConnectionResourceSchema(additionalAttributes ...string) map[string]*sch
 			Optional:    true,
 		},
 		AttributeDescription: {
-			Description: common.Descriptions["description"],
+			Description: common.ResourceDescriptions["description"],
 			Type:        schema.TypeString,
 			Optional:    true,
 		},
