@@ -1345,3 +1345,51 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  yq_object_storage_connection:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  yq_ydb_connection:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  yq_yds_connection:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  yq_monitoring_connection:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  yq_object_storage_binding:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  yq_yds_binding:
+    Category: "Yandex Query"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
