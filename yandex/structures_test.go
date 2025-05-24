@@ -74,6 +74,39 @@ func TestExpandLabels(t *testing.T) {
 	}
 }
 
+func TestExpandStringList(t *testing.T) {
+	cases := []struct {
+		name     string
+		input    interface{}
+		expected []string
+	}{
+		{
+			name:     "two values",
+			input:    interface{}([]interface{}{"my_value", "my_other_value"}),
+			expected: []string{"my_value", "my_other_value"},
+		},
+		{
+			name:     "empty list",
+			input:    interface{}([]interface{}{}),
+			expected: []string{},
+		},
+		{
+			name:     "input is nil",
+			input:    nil,
+			expected: nil,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := expandStringList(tc.input)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
 func TestExpandProductIds(t *testing.T) {
 	cases := []struct {
 		name       string

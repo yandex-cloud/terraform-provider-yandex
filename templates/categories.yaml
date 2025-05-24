@@ -36,6 +36,7 @@ DocsCategories:
   - "Data Processing"
   - "Data Transfer"
   - "Message Queue"
+  - "Yandex Query"
 
   # Serverless services
   - "Yandex API Gateway"

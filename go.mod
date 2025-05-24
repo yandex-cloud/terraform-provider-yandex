@@ -261,7 +261,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
-	github.com/ydb-platform/ydb-go-genproto v0.0.0-20241112172322-ea1f63298f77 // indirect
+	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f // indirect
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.99.12 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect

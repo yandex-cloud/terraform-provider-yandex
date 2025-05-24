@@ -104,6 +104,10 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 				Optional:    true,
 				Description: common.Descriptions["endpoint"],
 			},
+    		"yq_endpoint": schema.StringAttribute{
+				Optional:    true,
+				Description: common.Descriptions["yq_endpoint"],
+			},
 			"folder_id": schema.StringAttribute{
 				Optional:    true,
 				Description: common.Descriptions["folder_id"],
