@@ -69,5 +69,6 @@ func newYDSBindingStrategy() BindingStrategy {
 }
 
 func resourceYandexYQYDSBinding() *schema.Resource {
-	return resourceYandexYQBaseBinding(newYDSBindingStrategy(), newYDSBindingResourceSchema())
+	description := "Yandex DataStreams binding. For more information, see [the official documentation](https://yandex.cloud/docs/query/concepts/glossary#binding)."
+	return resourceYandexYQBaseBinding(newYDSBindingStrategy(), description, newYDSBindingResourceSchema())
 }

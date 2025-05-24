@@ -37,5 +37,6 @@ func newObjectStorageConnectionStrategy() ConnectionStrategy {
 }
 
 func resourceYandexYQObjectStorageConnection() *schema.Resource {
-	return resourceYandexYQBaseConnection(newObjectStorageConnectionStrategy(), newObjectStorageConnectionResourceSchema())
+	description := "Object Storage connection. For more information, see [the official documentation](https://yandex.cloud/docs/query/concepts/glossary#connection)."
+	return resourceYandexYQBaseConnection(newObjectStorageConnectionStrategy(), description, newObjectStorageConnectionResourceSchema())
 }

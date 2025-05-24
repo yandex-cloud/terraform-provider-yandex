@@ -14,8 +14,9 @@ type BindingStrategy interface {
 	ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.BindingSetting, error)
 }
 
-func resourceYandexYQBaseBinding(strategy BindingStrategy, s map[string]*schema.Schema) *schema.Resource {
+func resourceYandexYQBaseBinding(strategy BindingStrategy, description string, s map[string]*schema.Schema) *schema.Resource {
 	return &schema.Resource{
+		Description:   description,
 		Schema:        s,
 		SchemaVersion: 0,
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

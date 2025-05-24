@@ -38,5 +38,6 @@ func newYDSConnectionStrategy() ConnectionStrategy {
 }
 
 func resourceYandexYQYDSConnection() *schema.Resource {
-	return resourceYandexYQBaseConnection(newYDSConnectionStrategy(), newYDSConnectionResourceSchema())
+	description := "Yandex DataStreams connection. For more information, see [the official documentation](https://yandex.cloud/docs/query/concepts/glossary#connection)."
+	return resourceYandexYQBaseConnection(newYDSConnectionStrategy(), description, newYDSConnectionResourceSchema())
 }

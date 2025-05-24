@@ -100,5 +100,6 @@ func newObjectStorageBindingStrategy() BindingStrategy {
 }
 
 func resourceYandexYQObjectStorageBinding() *schema.Resource {
-	return resourceYandexYQBaseBinding(newObjectStorageBindingStrategy(), newObjectStorageBindingResourceSchema())
+	description := "Object Storage binding. For more information, see [the official documentation](https://yandex.cloud/docs/query/concepts/glossary#binding)."
+	return resourceYandexYQBaseBinding(newObjectStorageBindingStrategy(), description, newObjectStorageBindingResourceSchema())
 }

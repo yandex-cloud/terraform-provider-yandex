@@ -15,8 +15,9 @@ type ConnectionStrategy interface {
 	ExpandSetting(d *schema.ResourceData) (*Ydb_FederatedQuery.ConnectionSetting, error)
 }
 
-func resourceYandexYQBaseConnection(strategy ConnectionStrategy, s map[string]*schema.Schema) *schema.Resource {
+func resourceYandexYQBaseConnection(strategy ConnectionStrategy, description string, s map[string]*schema.Schema) *schema.Resource {
 	return &schema.Resource{
+		Description:   description,
 		Schema:        s,
 		SchemaVersion: 0,
 		CreateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
