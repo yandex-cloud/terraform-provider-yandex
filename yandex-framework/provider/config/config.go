@@ -34,7 +34,7 @@ const (
 
 type State struct {
 	Endpoint                       types.String `tfsdk:"endpoint"`
-    YQEndpoint                     types.String `tfsdk:"yq_endpoint"`
+	YQEndpoint                     types.String `tfsdk:"yq_endpoint"`
 	FolderID                       types.String `tfsdk:"folder_id"`
 	CloudID                        types.String `tfsdk:"cloud_id"`
 	OrganizationID                 types.String `tfsdk:"organization_id"`
