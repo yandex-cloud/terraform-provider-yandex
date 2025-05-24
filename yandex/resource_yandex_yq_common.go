@@ -480,7 +480,7 @@ func newYDSBindingResourceSchema() map[string]*schema.Schema {
 var (
 	availableConnectionAttributes = map[string]*schema.Schema{
 		AttributeBucket: {
-			Description: "The bucket name from ObjectStorage",
+			Description: "The bucket name from ObjectStorage.",
 			Type:        schema.TypeString,
 			Required:    true,
 		},
