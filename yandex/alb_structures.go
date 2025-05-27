@@ -2193,7 +2193,7 @@ func flattenALBStreamHandler(streamHandler *apploadbalancer.StreamHandler) []int
 	if streamHandler != nil {
 		flHTTPHandler := map[string]interface{}{
 			"backend_group_id": streamHandler.GetBackendGroupId(),
-			"idle_timeout":     streamHandler.IdleTimeout,
+			"idle_timeout":     formatDuration(streamHandler.IdleTimeout),
 		}
 
 		return []interface{}{flHTTPHandler}

@@ -678,7 +678,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       handler {
         backend_group_id = yandex_alb_backend_group.test-bg.id
         {{if .IsIdleTimeout}}
-        idle_timeout = {{.IdleTimeout}}
+        idle_timeout = "{{.IdleTimeout}}"
         {{end}}
       }
       {{end}}
@@ -707,7 +707,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         stream_handler {
           backend_group_id = yandex_alb_backend_group.test-bg.id
           {{if .IsIdleTimeout}}
-          idle_timeout = {{.IdleTimeout}}
+          idle_timeout = "{{.IdleTimeout}}"
           {{end}}
         }
         {{end}}

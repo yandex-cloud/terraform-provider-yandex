@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"testing"
+	"time"
 
 	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const albLoadBalancerResource = "yandex_alb_load_balancer.test-balancer"
@@ -111,6 +113,8 @@ func TestAccALBLoadBalancer_streamListener(t *testing.T) {
 	albResource := albLoadBalancerInfo()
 	albResource.IsStreamListener = true
 	albResource.IsStreamHandler = true
+	albResource.IsIdleTimeout = true
+	albResource.IdleTimeout = "60s"
 
 	var alb apploadbalancer.LoadBalancer
 	listenerPath := ""
@@ -667,6 +671,109 @@ func testMakeAllocations(zones ...string) interface{} {
 			"location": locs,
 		},
 	}
+}
+
+func TestUnitALBLoadBalancerStreamHandlerIdleTimeout(t *testing.T) {
+	t.Parallel()
+
+	t.Run("no-value", func(t *testing.T) {
+		streamHandler := flattenALBStreamHandler(&apploadbalancer.StreamHandler{
+			BackendGroupId: "bg1",
+		})
+
+		expected := map[string]interface{}{
+			"backend_group_id": "bg1",
+			"idle_timeout":     "",
+		}
+		assert.EqualValues(t, streamHandler, []interface{}{expected})
+	})
+
+	t.Run("60s-value", func(t *testing.T) {
+		streamHandler := flattenALBStreamHandler(&apploadbalancer.StreamHandler{
+			BackendGroupId: "bg1",
+			IdleTimeout:    durationpb.New(60 * time.Second),
+		})
+
+		expected := map[string]interface{}{
+			"backend_group_id": "bg1",
+			"idle_timeout":     "1m0s",
+		}
+		assert.EqualValues(t, streamHandler, []interface{}{expected})
+	})
+}
+
+func TestUnitALBLoadBalancerCreateStreamHandlerFromResource(t *testing.T) {
+	t.Parallel()
+
+	lbResource := resourceYandexALBLoadBalancer()
+
+	t.Run("idle-timeout", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "lbid",
+			"name": "lb-name",
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+		resourceData.SetId("lbid")
+
+		alb := &apploadbalancer.LoadBalancer{
+			Id:   "lbid",
+			Name: "lb-name",
+			Listeners: []*apploadbalancer.Listener{
+				{
+					Name: "http4",
+					Endpoints: []*apploadbalancer.Endpoint{{
+						Addresses: []*apploadbalancer.Address{{Address: &apploadbalancer.Address_ExternalIpv4Address{
+							ExternalIpv4Address: &apploadbalancer.ExternalIpv4Address{},
+						}}},
+						Ports: []int64{80},
+					}},
+					Listener: &apploadbalancer.Listener_Stream{
+						Stream: &apploadbalancer.StreamListener{
+							Handler: &apploadbalancer.StreamHandler{
+								BackendGroupId: "bg1",
+								IdleTimeout:    durationpb.New(10 * time.Second),
+							},
+						},
+					},
+				},
+			},
+			AllocationPolicy: &apploadbalancer.AllocationPolicy{
+				Locations: []*apploadbalancer.Location{{
+					ZoneId: "ru-central-1-a",
+				}},
+			},
+		}
+		allocationPolicy, err := flattenALBAllocationPolicy(alb)
+		assert.NoError(t, err)
+
+		err = resourceData.Set("allocation_policy", allocationPolicy)
+		assert.NoError(t, err)
+
+		listeners, err := flattenALBListeners(alb)
+		assert.NoError(t, err)
+
+		err = resourceData.Set("listener", listeners)
+		assert.NoError(t, err)
+
+		v, ok := resourceData.GetOk("listener.0.stream.0.handler.0.backend_group_id")
+		require.True(t, ok)
+		assert.EqualValues(t, v, "bg1")
+
+		v, ok = resourceData.GetOk("listener.0.stream.0.handler.0.idle_timeout")
+		require.True(t, ok)
+		assert.EqualValues(t, v, "10s")
+
+		streamHandler, err := expandALBStreamHandler(resourceData, "listener.0.stream.0.handler.0.")
+		assert.NoError(t, err)
+		assert.NotNil(t, streamHandler)
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+		assert.EqualValues(t, req.GetListenerSpecs()[0].GetStream().GetHandler().GetIdleTimeout(), durationpb.New(10*time.Second))
+	})
 }
 
 func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
