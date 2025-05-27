@@ -127,7 +127,7 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "1"),
@@ -149,7 +149,7 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
@@ -200,7 +200,7 @@ func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "5"),
@@ -243,7 +243,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
@@ -273,7 +273,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
@@ -308,7 +308,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
@@ -362,7 +362,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
-					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "dummy_P@ssw0rd"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
@@ -686,7 +686,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -749,7 +749,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -846,7 +846,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -943,7 +943,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -1045,7 +1045,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -1132,7 +1132,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password"
+    admin_password = "dummy_P@ssw0rd"
 
     opensearch {
       node_groups {
@@ -1221,7 +1221,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password_updated"
+    admin_password = "dummy_P@ssw0rd_updated"
 
     opensearch {
       node_groups {
@@ -1306,7 +1306,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password_updated"
+    admin_password = "dummy_P@ssw0rd_updated"
 
     opensearch {
       node_groups {
@@ -1442,7 +1442,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   config {
 
-    admin_password = "password_updated"
+    admin_password = "dummy_P@ssw0rd_updated"
 
     opensearch {
       node_groups {
