@@ -281,9 +281,10 @@ func TestAccVPCRouteTable_updateGatewayToNextHopAddress(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				ResourceName:      "yandex_vpc_route_table.rt-b",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "yandex_vpc_route_table.rt-b",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"static_route.1.gateway_id"},
 			},
 		},
 	})

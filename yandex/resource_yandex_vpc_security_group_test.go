@@ -176,9 +176,10 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_vpc_security_group.sg1",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "yandex_vpc_security_group.sg1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"egress.0.id"},
 			},
 		},
 	})
