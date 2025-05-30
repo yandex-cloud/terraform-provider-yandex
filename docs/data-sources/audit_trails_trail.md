@@ -29,18 +29,18 @@ data "yandex_audit_trails_trail" "basic-trail" {
 
 ### Read-Only
 
-- `data_stream_destination` (List of Object) (see [below for nested schema](#nestedatt--data_stream_destination))
+- `data_stream_destination` (List of Object) Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`. (see [below for nested schema](#nestedatt--data_stream_destination))
 - `description` (String) The resource description.
-- `filter` (Set of Object, Deprecated) (see [below for nested schema](#nestedatt--filter))
-- `filtering_policy` (List of Object) (see [below for nested schema](#nestedatt--filtering_policy))
+- `filter` (Set of Object, Deprecated) Structure is deprecated. Use `filtering_policy` instead.
+- `filtering_policy` (List of Object) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled. (see [below for nested schema](#nestedatt--filtering_policy))
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `id` (String) The ID of this resource.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `logging_destination` (List of Object) (see [below for nested schema](#nestedatt--logging_destination))
+- `logging_destination` (List of Object) Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`. (see [below for nested schema](#nestedatt--logging_destination))
 - `name` (String) The resource name.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
 - `status` (String) Status of this trail.
-- `storage_destination` (List of Object) (see [below for nested schema](#nestedatt--storage_destination))
+- `storage_destination` (List of Object) Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`. (see [below for nested schema](#nestedatt--storage_destination))
 
 <a id="nestedatt--data_stream_destination"></a>
 ### Nested Schema for `data_stream_destination`
@@ -50,128 +50,6 @@ Read-Only:
 - `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 
 - `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
-
-
-
-<a id="nestedatt--filter"></a>
-### Nested Schema for `filter`
-
-Read-Only:
-
-- `event_filters` (Block List) Structure describing filtering process for the service-specific data plane events. (see [below for nested schema](#nestedobjatt--filter--event_filters))
-
-- `path_filter` (Block List, Max: 1) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category. (see [below for nested schema](#nestedobjatt--filter--path_filter))
-
-
-<a id="nestedobjatt--filter--event_filters"></a>
-### Nested Schema for `filter.event_filters`
-
-Read-Only:
-
-- `categories` (Block List, Min: 1) List of structures describing categories of gathered data plane events. (see [below for nested schema](#nestedobjatt--filter--event_filters--categories))
-
-- `path_filter` (Block List, Min: 1, Max: 1) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter))
-
-- `service` (String) ID of the service which events will be gathered.
-
-
-<a id="nestedobjatt--filter--event_filters--categories"></a>
-### Nested Schema for `filter.event_filters.categories`
-
-Read-Only:
-
-- `plane` (String) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
-
-- `type` (String) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
-
-
-
-<a id="nestedobjatt--filter--event_filters--path_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter`
-
-Read-Only:
-
-- `any_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--any_filter))
-- `some_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--some_filter))
-
-<a id="nestedobjatt--filter--event_filters--path_filter--any_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter.any_filter`
-
-Read-Only:
-
-- `resource_id` (String) ID of the child resource.
-
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-<a id="nestedobjatt--filter--event_filters--path_filter--some_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter.some_filter`
-
-Read-Only:
-
-- `any_filters` (List of Object) (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--some_filter--any_filters))
-- `resource_id` (String)
-- `resource_type` (String)
-
-<a id="nestedobjatt--filter--event_filters--path_filter--some_filter--any_filters"></a>
-### Nested Schema for `filter.event_filters.path_filter.some_filter.any_filters`
-
-Read-Only:
-
-- `resource_id` (String) ID of the child resource.
-
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-
-
-
-<a id="nestedobjatt--filter--path_filter"></a>
-### Nested Schema for `filter.path_filter`
-
-Read-Only:
-
-- `any_filter` (Block List, Max: 1) Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`. (see [below for nested schema](#nestedobjatt--filter--path_filter--any_filter))
-
-- `some_filter` (List of Object) (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter))
-
-<a id="nestedobjatt--filter--path_filter--any_filter"></a>
-### Nested Schema for `filter.path_filter.any_filter`
-
-Read-Only:
-
-- `resource_id` (String) ID of the child resource.
-
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-<a id="nestedobjatt--filter--path_filter--some_filter"></a>
-### Nested Schema for `filter.path_filter.some_filter`
-
-Read-Only:
-
-- `any_filters` (Block List, Min: 1) List of child resources from which events will be gathered. (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter--any_filters))
-
-- `resource_id` (String) ID of the parent resource.
-
-- `resource_type` (String) Resource type of the parent resource.
-
-
-<a id="nestedobjatt--filter--path_filter--some_filter--any_filters"></a>
-### Nested Schema for `filter.path_filter.some_filter.any_filters`
-
-Read-Only:
-
-- `resource_id` (String) ID of the child resource.
-
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-
 
 
 <a id="nestedatt--filtering_policy"></a>
@@ -189,12 +67,24 @@ Read-Only:
 
 Read-Only:
 
+- `dns_filter` (Block List, Max: 1) Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`. (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter--dns_filter))
+
 - `excluded_events` (List of String) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
 
 - `included_events` (List of String) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
 
-- `resource_scope` (List of Object) (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter--resource_scope))
+- `resource_scope` (Block List, Min: 1) Structure describing that events will be gathered from the specified resource. (see [below for nested schema](#nestedobjatt--filtering_policy--data_events_filter--resource_scope))
+
 - `service` (String) ID of the service which events will be gathered.
+
+
+<a id="nestedobjatt--filtering_policy--data_events_filter--dns_filter"></a>
+### Nested Schema for `filtering_policy.data_events_filter.dns_filter`
+
+Read-Only:
+
+- `only_recursive_queries` (Boolean) Only recursive queries will be delivered.
+
 
 
 <a id="nestedobjatt--filtering_policy--data_events_filter--resource_scope"></a>
@@ -202,9 +92,9 @@ Read-Only:
 
 Read-Only:
 
-- `resource_id` (String) ID of the child resource.
+- `resource_id` (String) Resource ID.
 
-- `resource_type` (String) Resource type of the child resource.
+- `resource_type` (String) Resource type.
 
 
 
@@ -222,9 +112,9 @@ Read-Only:
 
 Read-Only:
 
-- `resource_id` (String) ID of the child resource.
+- `resource_id` (String) Resource ID.
 
-- `resource_type` (String) Resource type of the child resource.
+- `resource_type` (String) Resource type.
 
 
 

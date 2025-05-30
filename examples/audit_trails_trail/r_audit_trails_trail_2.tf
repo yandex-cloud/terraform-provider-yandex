@@ -1,7 +1,7 @@
 //
 // Create Trail for delivering events to YDS and gathering such events:
 // * Management events from the 'some-organization' organization.
-// * DNS data events from the 'some-organization' organization.
+// * DNS data events with only recursive queries from the 'some-organization' organization.
 // * Object Storage data events from the 'some-organization' organization.
 //
 resource "yandex_audit_trails_trail" "basic_trail" {
@@ -39,6 +39,9 @@ resource "yandex_audit_trails_trail" "basic_trail" {
       resource_scope {
         resource_id   = "some-organization"
         resource_type = "organization-manager.organization"
+      }
+      dns_filter {
+        only_recursive_queries = true
       }
     }
   }

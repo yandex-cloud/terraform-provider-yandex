@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"testing"
 	"text/template"
 	"time"
@@ -79,6 +80,7 @@ func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 		BucketName:   updatedBucketTestName,
 		ObjectPrefix: "some-prefix",
 	}
+	updatedTrail.FilteringPolicy.DataEventFilters[1].DnsFilter.OnlyRecursiveQueries = false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -140,6 +142,7 @@ func TestAccResourceAuditTrailsTrail_logging(t *testing.T) {
 	updatedTrail.LoggingDestination = trailLoggingDestination{
 		LogGroupName: updatedLoggingTestName,
 	}
+	updatedTrail.FilteringPolicy.DataEventFilters[2].DnsFilter.OnlyRecursiveQueries = true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -292,6 +295,20 @@ func checkDataEventFilter(resourceName string, statePrefix string, dataEventFilt
 	for i, excludedEvent := range dataEventFilter.ExcludedEvents {
 		statePath := fmt.Sprintf("%sexcluded_events.%d", statePrefix, i)
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePath, excludedEvent))
+	}
+
+	if dataEventFilter.Service == "dns" {
+		checks = append(checks, resource.TestCheckResourceAttr(
+			resourceName,
+			statePrefix+"dns_filter.0.only_recursive_queries",
+			strconv.FormatBool(dataEventFilter.DnsFilter.OnlyRecursiveQueries),
+		))
+	} else {
+		checks = append(checks, resource.TestCheckResourceAttr(
+			resourceName,
+			statePrefix+"dns_filter.#",
+			"0",
+		))
 	}
 
 	return checks
@@ -462,6 +479,18 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 						"yandex.cloud.audit.iam.oslogin.CheckSshPolicy",
 					},
 				},
+				{
+					Service: "dns",
+					ResourceScope: []trailResourceEntry{
+						{
+							ResourceId:   getExampleFolderID(),
+							ResourceType: "resource-manager.folder",
+						},
+					},
+					DnsFilter: trailDnsFilter{
+						OnlyRecursiveQueries: false,
+					},
+				},
 			},
 		},
 	}
@@ -494,6 +523,18 @@ func auditTrailsStorageConfig(trailResourceName, bucketName, saName string) yand
 							ResourceId:   bucketName,
 							ResourceType: "storage.bucket",
 						},
+					},
+				},
+				{
+					Service: "dns",
+					ResourceScope: []trailResourceEntry{
+						{
+							ResourceId:   getExampleFolderID(),
+							ResourceType: "resource-manager.folder",
+						},
+					},
+					DnsFilter: trailDnsFilter{
+						OnlyRecursiveQueries: true,
 					},
 				},
 			},
@@ -707,6 +748,12 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
 	  {{end}}
 	  ]
 	  {{end}}
+
+	  {{if eq .Service "dns"}}
+	  dns_filter {
+	 	only_recursive_queries = {{.DnsFilter.OnlyRecursiveQueries}} 
+	  }
+	  {{end}}
 	}
 	{{end}}
  }
@@ -736,6 +783,11 @@ type trailDataEventFilter struct {
 	ResourceScope  []trailResourceEntry
 	IncludedEvents []string
 	ExcludedEvents []string
+	DnsFilter      trailDnsFilter
+}
+
+type trailDnsFilter struct {
+	OnlyRecursiveQueries bool
 }
 
 type trailResourceEntry struct {
@@ -766,5 +818,6 @@ func (t yandexAuditTrailsTrail) toTerraformResource() string {
 	if err := tmpl.Execute(&buf, t); err != nil {
 		panic(err)
 	}
+	fmt.Println(buf.String())
 	return buf.String()
 }

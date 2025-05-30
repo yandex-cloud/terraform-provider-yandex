@@ -15,17 +15,20 @@ import (
 
 func dataSourceAuditTrailsTrailResourceListSchema() *schema.Schema {
 	return &schema.Schema{
-		Computed: true,
-		Type:     schema.TypeList,
+		Computed:    true,
+		Type:        schema.TypeList,
+		Description: "Structure describing that events will be gathered from the specified resource.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"resource_id": {
-					Type:     schema.TypeString,
-					Computed: true,
+					Type:        schema.TypeString,
+					Description: "Resource ID.",
+					Computed:    true,
 				},
 				"resource_type": {
-					Type:     schema.TypeString,
-					Computed: true,
+					Type:        schema.TypeString,
+					Description: "Resource type.",
+					Computed:    true,
 				},
 			},
 		},
@@ -34,51 +37,61 @@ func dataSourceAuditTrailsTrailResourceListSchema() *schema.Schema {
 
 func dataSourceAuditTrailsTrailResourcePathSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		Computed: true,
+		Type:        schema.TypeList,
+		Description: "Deprecated.",
+		Computed:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"any_filter": {
-					Computed: true,
-					Type:     schema.TypeList,
+					Computed:    true,
+					Type:        schema.TypeList,
+					Description: "Deprecated.",
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"resource_id": {
-								Type:     schema.TypeString,
-								Computed: true,
+								Type:        schema.TypeString,
+								Description: "Deprecated.",
+								Computed:    true,
 							},
 							"resource_type": {
-								Type:     schema.TypeString,
-								Computed: true,
+								Type:        schema.TypeString,
+								Description: "Deprecated.",
+								Computed:    true,
 							},
 						},
 					},
 				},
 				"some_filter": {
-					Computed: true,
-					Type:     schema.TypeList,
+					Computed:    true,
+					Type:        schema.TypeList,
+					Description: "Deprecated.",
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"resource_id": {
-								Type:     schema.TypeString,
-								Computed: true,
+								Type:        schema.TypeString,
+								Description: "Deprecated.",
+								Computed:    true,
 							},
 							"resource_type": {
-								Type:     schema.TypeString,
-								Computed: true,
+								Type:        schema.TypeString,
+								Description: "Deprecated.",
+								Computed:    true,
 							},
 							"any_filters": {
-								Type:     schema.TypeList,
-								Computed: true,
+								Type:        schema.TypeList,
+								Description: "Deprecated.",
+								Computed:    true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"resource_id": {
-											Type:     schema.TypeString,
-											Computed: true,
+											Type:        schema.TypeString,
+											Description: "Deprecated.",
+											Computed:    true,
 										},
 										"resource_type": {
-											Type:     schema.TypeString,
-											Computed: true,
+											Type:        schema.TypeString,
+											Description: "Deprecated.",
+											Computed:    true,
 										},
 									},
 								},
@@ -141,57 +154,67 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 				Computed:    true,
 			},
 			"storage_destination": {
-				Computed: true,
-				Type:     schema.TypeList,
+				Computed:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).",
+							Computed:    true,
 						},
 						"object_prefix": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.",
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"logging_destination": {
-				Computed: true,
-				Type:     schema.TypeList,
+				Computed:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).",
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"data_stream_destination": {
-				Computed: true,
-				Type:     schema.TypeList,
+				Computed:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"database_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.",
+							Computed:    true,
 						},
 						"stream_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.",
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"filtering_policy": {
-				Computed: true,
-				Type:     schema.TypeList,
+				Computed:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"management_events_filter": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for management events.",
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
@@ -199,29 +222,47 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 							},
 						},
 						"data_events_filter": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Structure describing filtering process for the service-specific data events.",
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "ID of the service which events will be gathered.",
+										Computed:    true,
 									},
 									"included_events": {
-										Type:     schema.TypeList,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.",
+										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"excluded_events": {
-										Type:     schema.TypeList,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.",
+										Computed:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
+									"dns_filter": {
+										Type:        schema.TypeList,
+										Description: "Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"only_recursive_queries": {
+													Type:        schema.TypeBool,
+													Description: "Only recursive queries will be delivered.",
+													Computed:    true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -229,33 +270,39 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 				},
 			},
 			"filter": {
-				Computed:   true,
-				Type:       schema.TypeSet,
-				Deprecated: "Use filtering_policy instead. This attribute will be removed",
+				Computed:    true,
+				Type:        schema.TypeSet,
+				Description: "Structure is deprecated. Use `filtering_policy` instead.",
+				Deprecated:  "Use filtering_policy instead. This attribute will be removed",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path_filter": dataSourceAuditTrailsTrailResourcePathSchema(),
 						"event_filters": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: "Deprecated.",
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "Deprecated.",
+										Computed:    true,
 									},
 									"categories": {
-										Type:     schema.TypeList,
-										Computed: true,
+										Type:        schema.TypeList,
+										Description: "Deprecated.",
+										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"plane": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: "Deprecated.",
+													Computed:    true,
 												},
 												"type": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: "Deprecated.",
+													Computed:    true,
 												},
 											},
 										},
@@ -374,7 +421,14 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 		if includedEvents := dataEventFilter.GetIncludedEvents(); includedEvents != nil {
 			flatDataEventFilter["included_events"] = unpackEventTypesIntoResourceData(includedEvents)
 		}
-
+		if dnsFilter := dataEventFilter.GetDnsFilter(); dnsFilter != nil {
+			dns_filter := []interface{}{
+				map[string]bool{
+					"only_recursive_queries": dnsFilter.GetOnlyRecursiveQueries(),
+				},
+			}
+			flatDataEventFilter["dns_filter"] = dns_filter
+		}
 		flatDataEventFilters = append(flatDataEventFilters, flatDataEventFilter)
 	}
 	if len(flatDataEventFilters) > 0 {

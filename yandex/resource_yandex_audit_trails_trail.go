@@ -19,12 +19,12 @@ func resourceAuditTrailsTrailResourceSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"resource_id": {
 				Type:        schema.TypeString,
-				Description: "ID of the child resource.",
+				Description: "Resource ID.",
 				Required:    true,
 			},
 			"resource_type": {
 				Type:        schema.TypeString,
-				Description: "Resource type of the child resource.",
+				Description: "Resource type.",
 				Required:    true,
 			},
 		},
@@ -219,10 +219,26 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
 									"resource_scope": {
-										Required: true,
-										Type:     schema.TypeList,
-										MinItems: 1,
-										Elem:     resourceAuditTrailsTrailResourceSchema(),
+										Required:    true,
+										Type:        schema.TypeList,
+										Description: "Structure describing that events will be gathered from the specified resource.",
+										MinItems:    1,
+										Elem:        resourceAuditTrailsTrailResourceSchema(),
+									},
+									"dns_filter": {
+										Optional:    true,
+										Type:        schema.TypeList,
+										Description: "Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`.",
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"only_recursive_queries": {
+													Required:    true,
+													Type:        schema.TypeBool,
+													Description: "Only recursive queries will be delivered.",
+												},
+											},
+										},
 									},
 								},
 							},
@@ -237,14 +253,14 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 				},
 				Optional:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing event filtering process for the trail.",
+				Description: "Structure is deprecated. Use `filtering_policy` instead.",
 				MaxItems:    1,
 				Deprecated:  "Configure filtering_policy instead. This attribute will be removed",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path_filter": {
 							Type:        schema.TypeList,
-							Description: "Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category.",
+							Description: "Deprecated.",
 							Optional:    true,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -256,7 +272,7 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 										},
 										Optional:    true,
 										Type:        schema.TypeList,
-										Description: "Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`.",
+										Description: "Deprecated.",
 										MaxItems:    1,
 										Elem:        resourceAuditTrailsTrailResourceSchema(),
 									},
@@ -265,24 +281,25 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 											"filter.0.path_filter.0.any_filter",
 											"filter.0.path_filter.0.some_filter",
 										},
-										Optional: true,
-										Type:     schema.TypeList,
-										MaxItems: 1,
+										Optional:    true,
+										Type:        schema.TypeList,
+										Description: "Deprecated.",
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"resource_id": {
 													Type:        schema.TypeString,
-													Description: "ID of the parent resource.",
+													Description: "Deprecated.",
 													Required:    true,
 												},
 												"resource_type": {
 													Type:        schema.TypeString,
-													Description: "Resource type of the parent resource.",
+													Description: "Deprecated.",
 													Required:    true,
 												},
 												"any_filters": {
 													Type:        schema.TypeList,
-													Description: "List of child resources from which events will be gathered.",
+													Description: "Deprecated.",
 													Required:    true,
 													Elem:        resourceAuditTrailsTrailResourceSchema(),
 												},
@@ -294,30 +311,30 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 						},
 						"event_filters": {
 							Type:        schema.TypeList,
-							Description: "Structure describing filtering process for the service-specific data plane events.",
+							Description: "Deprecated.",
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service": {
 										Type:        schema.TypeString,
-										Description: "ID of the service which events will be gathered.",
+										Description: "Deprecated.",
 										Required:    true,
 									},
 									"categories": {
 										Type:        schema.TypeList,
-										Description: "List of structures describing categories of gathered data plane events.",
+										Description: "Deprecated.",
 										Required:    true,
 										MinItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"plane": {
 													Type:        schema.TypeString,
-													Description: "Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.",
+													Description: "Deprecated.",
 													Required:    true,
 												},
 												"type": {
 													Type:        schema.TypeString,
-													Description: "Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.",
+													Description: "Deprecated.",
 													Required:    true,
 												},
 											},
@@ -325,35 +342,40 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 									},
 									"path_filter": {
 										Type:        schema.TypeList,
-										Description: "Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`.",
+										Description: "Deprecated.",
 										Required:    true,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"any_filter": {
-													Type:     schema.TypeList,
-													Optional: true,
-													MaxItems: 1,
-													Elem:     resourceAuditTrailsTrailResourceSchema(),
+													Type:        schema.TypeList,
+													Description: "Deprecated.",
+													Optional:    true,
+													MaxItems:    1,
+													Elem:        resourceAuditTrailsTrailResourceSchema(),
 												},
 												"some_filter": {
-													Type:     schema.TypeList,
-													Optional: true,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "Deprecated.",
+													Optional:    true,
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"resource_id": {
-																Type:     schema.TypeString,
-																Required: true,
+																Type:        schema.TypeString,
+																Description: "Deprecated.",
+																Required:    true,
 															},
 															"resource_type": {
-																Type:     schema.TypeString,
-																Required: true,
+																Type:        schema.TypeString,
+																Description: "Deprecated.",
+																Required:    true,
 															},
 															"any_filters": {
-																Type:     schema.TypeList,
-																Required: true,
-																Elem:     resourceAuditTrailsTrailResourceSchema(),
+																Type:        schema.TypeList,
+																Description: "Deprecated.",
+																Required:    true,
+																Elem:        resourceAuditTrailsTrailResourceSchema(),
 															},
 														},
 													},
@@ -414,6 +436,11 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
+	filteringPolicy, err := packResourceDataIntoFilteringPolicy(data)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &audittrails.UpdateTrailRequest{
 		TrailId:          data.Id(),
 		Name:             data.Get("name").(string),
@@ -421,7 +448,7 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
 		Destination:      packResourceDataIntoDestination(data),
-		FilteringPolicy:  packResourceDataIntoFilteringPolicy(data),
+		FilteringPolicy:  filteringPolicy,
 		UpdateMask: &fieldmaskpb.FieldMask{
 			Paths: []string{"name", "description", "labels", "service_account_id", "destination", "filtering_policy", "filter"},
 		},
@@ -480,6 +507,11 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
+	filteringPolicy, err := packResourceDataIntoFilteringPolicy(data)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &audittrails.CreateTrailRequest{
 		FolderId:         folderID,
 		Name:             data.Get("name").(string),
@@ -487,7 +519,7 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
 		Destination:      packResourceDataIntoDestination(data),
-		FilteringPolicy:  packResourceDataIntoFilteringPolicy(data),
+		FilteringPolicy:  filteringPolicy,
 	}
 
 	err = retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
@@ -526,7 +558,7 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 	return readTrailResource(ctx, data, meta)
 }
 
-func packResourceDataIntoFilteringPolicy(data *schema.ResourceData) *audittrails.Trail_FilteringPolicy {
+func packResourceDataIntoFilteringPolicy(data *schema.ResourceData) (*audittrails.Trail_FilteringPolicy, error) {
 	res := &audittrails.Trail_FilteringPolicy{}
 
 	if _, newFilterUsed := data.GetOk("filtering_policy"); newFilterUsed {
@@ -539,19 +571,22 @@ func packResourceDataIntoFilteringPolicy(data *schema.ResourceData) *audittrails
 
 		_, filteringPolicyExists = data.GetOk("filtering_policy.0.data_events_filter")
 		if filteringPolicyExists {
-			dataEventsFilters := packResourceDataIntoDataEventsFilters(data, "filtering_policy.0.data_events_filter.")
+			dataEventsFilters, err := packResourceDataIntoDataEventsFilters(data, "filtering_policy.0.data_events_filter.")
+			if err != nil {
+				return nil, err
+			}
 			res.SetDataEventsFilters(dataEventsFilters)
 		}
 	}
 
 	if _, oldFilterUsed := data.GetOk("filter"); oldFilterUsed {
-		return packResourceDataIntoFilter(data)
+		return packResourceDataIntoFilter(data), nil
 	}
 
-	return res
+	return res, nil
 }
 
-func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace string) []*audittrails.Trail_DataEventsFiltering {
+func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace string) ([]*audittrails.Trail_DataEventsFiltering, error) {
 	res := []*audittrails.Trail_DataEventsFiltering{}
 
 	numberOfFilters := data.Get(namespace + "#").(int)
@@ -575,10 +610,21 @@ func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace 
 			filter.SetExcludedEvents(excludedEvents)
 		}
 
+		_, exists = data.GetOk(filterNamespace + "dns_filter")
+		if exists {
+			if filter.GetService() != "dns" {
+				return nil, fmt.Errorf("service %s does not support dns_filter", filter.GetService())
+			}
+			dnsFilter := &audittrails.Trail_DnsDataEventsFilter{
+				OnlyRecursiveQueries: data.Get(filterNamespace + "dns_filter.0.only_recursive_queries").(bool),
+			}
+			filter.SetDnsFilter(dnsFilter)
+		}
+
 		res = append(res, filter)
 	}
 
-	return res
+	return res, nil
 }
 
 func packResourceDataIntoEventTypes(data *schema.ResourceData, namespace string) *audittrails.Trail_EventTypes {

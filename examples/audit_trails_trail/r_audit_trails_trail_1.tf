@@ -40,6 +40,9 @@ resource "yandex_audit_trails_trail" "basic-trail" {
         resource_id   = "vpc-net-id-2"
         resource_type = "vpc.network"
       }
+      dns_filter {
+        only_recursive_queries = true
+      }
     }
   }
 }

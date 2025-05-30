@@ -62,6 +62,9 @@ resource "yandex_audit_trails_trail" "basic-trail" {
         resource_id   = "vpc-net-id-2"
         resource_type = "vpc.network"
       }
+      dns_filter {
+        only_recursive_queries = true
+      }
     }
   }
 }
@@ -71,7 +74,7 @@ resource "yandex_audit_trails_trail" "basic-trail" {
 //
 // Create Trail for delivering events to YDS and gathering such events:
 // * Management events from the 'some-organization' organization.
-// * DNS data events from the 'some-organization' organization.
+// * DNS data events with only recursive queries from the 'some-organization' organization.
 // * Object Storage data events from the 'some-organization' organization.
 //
 resource "yandex_audit_trails_trail" "basic_trail" {
@@ -109,6 +112,9 @@ resource "yandex_audit_trails_trail" "basic_trail" {
       resource_scope {
         resource_id   = "some-organization"
         resource_type = "organization-manager.organization"
+      }
+      dns_filter {
+        only_recursive_queries = true
       }
     }
   }
@@ -191,7 +197,7 @@ filtering_policy {
 
 - `data_stream_destination` (Block List, Max: 1) Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`. (see [below for nested schema](#nestedblock--data_stream_destination))
 - `description` (String) The resource description.
-- `filter` (Block List, Max: 1, Deprecated) Structure describing event filtering process for the trail. (see [below for nested schema](#nestedblock--filter))
+- `filter` (Block List, Max: 1, Deprecated) Structure is deprecated. Use `filtering_policy` instead.
 - `filtering_policy` (Block List, Max: 1) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled. (see [below for nested schema](#nestedblock--filtering_policy))
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `logging_destination` (Block List, Max: 1) Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`. (see [below for nested schema](#nestedblock--logging_destination))
@@ -212,109 +218,6 @@ Required:
 - `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 - `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
 
-
-<a id="nestedblock--filter"></a>
-### Nested Schema for `filter`
-
-Optional:
-
-- `event_filters` (Block List) Structure describing filtering process for the service-specific data plane events. (see [below for nested schema](#nestedblock--filter--event_filters))
-- `path_filter` (Block List, Max: 1) Structure describing filtering process for default control plane events. If omitted, the trail will not deliver this category. (see [below for nested schema](#nestedblock--filter--path_filter))
-
-<a id="nestedblock--filter--event_filters"></a>
-### Nested Schema for `filter.event_filters`
-
-Required:
-
-- `categories` (Block List, Min: 1) List of structures describing categories of gathered data plane events. (see [below for nested schema](#nestedblock--filter--event_filters--categories))
-- `path_filter` (Block List, Min: 1, Max: 1) Structure describing filtering process based on cloud resources for the described event set. Structurally equal to the `filter.path_filter`. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter))
-- `service` (String) ID of the service which events will be gathered.
-
-<a id="nestedblock--filter--event_filters--categories"></a>
-### Nested Schema for `filter.event_filters.categories`
-
-Required:
-
-- `plane` (String) Type of the event by its relation to the cloud resource model. Possible values: `CONTROL_PLANE`/`DATA_PLANE`.
-- `type` (String) Type of the event by its operation effect on the resource. Possible values: `READ`/`WRITE`.
-
-
-<a id="nestedblock--filter--event_filters--path_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter`
-
-Optional:
-
-- `any_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--any_filter))
-- `some_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter))
-
-<a id="nestedblock--filter--event_filters--path_filter--any_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter.any_filter`
-
-Required:
-
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
-
-
-<a id="nestedblock--filter--event_filters--path_filter--some_filter"></a>
-### Nested Schema for `filter.event_filters.path_filter.some_filter`
-
-Required:
-
-- `any_filters` (Block List, Min: 1) (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter--any_filters))
-- `resource_id` (String)
-- `resource_type` (String)
-
-<a id="nestedblock--filter--event_filters--path_filter--some_filter--any_filters"></a>
-### Nested Schema for `filter.event_filters.path_filter.some_filter.any_filters`
-
-Required:
-
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-
-
-<a id="nestedblock--filter--path_filter"></a>
-### Nested Schema for `filter.path_filter`
-
-Optional:
-
-- `any_filter` (Block List, Max: 1) Structure describing that events will be gathered from all cloud resources that belong to the parent resource. Mutually exclusive with `some_filter`. (see [below for nested schema](#nestedblock--filter--path_filter--any_filter))
-- `some_filter` (Block List, Max: 1) (see [below for nested schema](#nestedblock--filter--path_filter--some_filter))
-
-<a id="nestedblock--filter--path_filter--any_filter"></a>
-### Nested Schema for `filter.path_filter.any_filter`
-
-Required:
-
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
-
-
-<a id="nestedblock--filter--path_filter--some_filter"></a>
-### Nested Schema for `filter.path_filter.some_filter`
-
-Required:
-
-- `any_filters` (Block List, Min: 1) List of child resources from which events will be gathered. (see [below for nested schema](#nestedblock--filter--path_filter--some_filter--any_filters))
-- `resource_id` (String) ID of the parent resource.
-- `resource_type` (String) Resource type of the parent resource.
-
-<a id="nestedblock--filter--path_filter--some_filter--any_filters"></a>
-### Nested Schema for `filter.path_filter.some_filter.any_filters`
-
-Required:
-
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
-
-
-
-
-
 <a id="nestedblock--filtering_policy"></a>
 ### Nested Schema for `filtering_policy`
 
@@ -328,11 +231,12 @@ Optional:
 
 Required:
 
-- `resource_scope` (Block List, Min: 1) (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--resource_scope))
+- `resource_scope` (Block List, Min: 1) Structure describing that events will be gathered from the specified resource. (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--resource_scope))
 - `service` (String) ID of the service which events will be gathered.
 
 Optional:
 
+- `dns_filter` (Block List, Max: 1) Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`. (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--dns_filter))
 - `excluded_events` (List of String) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
 - `included_events` (List of String) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
 
@@ -341,8 +245,16 @@ Optional:
 
 Required:
 
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
+
+
+<a id="nestedblock--filtering_policy--data_events_filter--dns_filter"></a>
+### Nested Schema for `filtering_policy.data_events_filter.dns_filter`
+
+Required:
+
+- `only_recursive_queries` (Boolean) Only recursive queries will be delivered.
 
 
 
@@ -358,8 +270,8 @@ Required:
 
 Required:
 
-- `resource_id` (String) ID of the child resource.
-- `resource_type` (String) Resource type of the child resource.
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
 
 
 
