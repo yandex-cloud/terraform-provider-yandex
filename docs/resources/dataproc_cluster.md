@@ -250,6 +250,7 @@ Optional:
 Optional:
 
 - `initialization_action` (Block List) List of initialization scripts. (see [below for nested schema](#nestedblock--cluster_config--hadoop--initialization_action))
+- `oslogin` (Boolean) Whether to enable authorization via OS Login.
 - `properties` (Map of String) A set of key/value pairs that are used to configure cluster services.
 - `services` (Set of String) List of services to run on Yandex Data Processing cluster.
 - `ssh_public_keys` (Set of String) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://yandex.cloud/docs/data-proc/operations/connect).

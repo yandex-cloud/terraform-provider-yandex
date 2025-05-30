@@ -125,6 +125,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 								"uri": "s3a://initact2.sh",
 							},
 						},
+						"oslogin": "true",
 					},
 				},
 				"subcluster_spec": []interface{}{
@@ -234,6 +235,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 						Args: []string{},
 					},
 				},
+				OsloginEnabled: true,
 			},
 			SubclustersSpec: []*dataproc.CreateSubclusterConfigSpec{
 				{
@@ -323,6 +325,7 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 						Args: []string{},
 					},
 				},
+				OsloginEnabled: true,
 			},
 		},
 	}
@@ -414,6 +417,7 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 							"args":    []string{},
 						},
 					},
+					"oslogin": true,
 				},
 			},
 			"subcluster_spec": []interface{}{
@@ -620,6 +624,7 @@ func TestAccDataprocCluster(t *testing.T) {
 						"Dataproc Cluster created by Terraform"),
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket1),
 					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "2.0"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.hadoop.0.oslogin", "true"),
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
@@ -972,6 +977,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
       properties = {{.Properties}}
       ssh_public_keys = ["{{.SSHKey}}"]
       {{.InitActions}}
+	  oslogin = true
     }
 
 	{{.Subcluster1}}

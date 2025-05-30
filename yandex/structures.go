@@ -1531,6 +1531,7 @@ func expandDataprocHadoopConfig(d *schema.ResourceData) (*dataproc.HadoopConfig,
 		Properties:            expandDataprocProperties(d),
 		SshPublicKeys:         expandDataprocSSHPublicKeys(d),
 		InitializationActions: initActions,
+		OsloginEnabled:        d.Get("cluster_config.0.hadoop.0.oslogin").(bool),
 	}, nil
 }
 
@@ -1741,6 +1742,7 @@ func flattenDataprocHadoopConfig(config *dataproc.HadoopConfig) []map[string]int
 			"properties":            config.Properties,
 			"ssh_public_keys":       config.SshPublicKeys,
 			"initialization_action": flattenInitActions(config.InitializationActions),
+			"oslogin":               config.OsloginEnabled,
 		},
 	}
 }

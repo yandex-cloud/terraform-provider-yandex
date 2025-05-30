@@ -69,6 +69,8 @@ Read-Only:
 
 - `initialization_action` (Block List) List of initialization scripts. (see [below for nested schema](#nestedobjatt--cluster_config--hadoop--initialization_action))
 
+- `oslogin` (Boolean) Whether to enable authorization via OS Login.
+
 - `properties` (Map of String) A set of key/value pairs that are used to configure cluster services.
 
 - `services` (Set of String) List of services to run on Yandex Data Processing cluster.

@@ -279,6 +279,11 @@ func resourceYandexDataprocCluster() *schema.Resource {
 											},
 										},
 									},
+									"oslogin": {
+										Type:        schema.TypeBool,
+										Description: "Whether to enable authorization via OS Login.",
+										Optional:    true,
+									},
 								},
 							},
 						},
