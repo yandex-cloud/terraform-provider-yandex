@@ -77,6 +77,8 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"description": schema.StringAttribute{
 				Description: "Description of the MySQL cluster.",
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Optional:    true,
 			},
 			"folder_id": schema.StringAttribute{
