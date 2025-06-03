@@ -1,3 +1,12 @@
+## 0.143.0 (June 3, 2025)
+
+FEATURES:
+* YandexDataProcessing: added oslogin field
+* audit_trails: yandex_audit_trails_trail added new field dns_filter
+
+BUG FIXES:
+* mysql: exception on cluster_v2 creation without description
+
 ## 0.142.0 (May 22, 2025)
 
 FEATURES:
