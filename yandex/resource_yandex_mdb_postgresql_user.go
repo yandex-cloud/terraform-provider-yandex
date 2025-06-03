@@ -422,7 +422,7 @@ func removePgUserOwnerPermissions(meta interface{}, clusterID string, username s
 
 	newPerms := []*postgresql.Permission{}
 	for _, p := range userPermissions {
-		if dbMap[p.DatabaseName].Owner != username {
+		if db, ok := dbMap[p.DatabaseName]; ok && db.Owner != username {
 			newPerms = append(newPerms, p)
 		}
 	}
