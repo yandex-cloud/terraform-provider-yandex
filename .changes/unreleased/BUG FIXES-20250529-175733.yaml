@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mysql: exception on cluster_v2 creation without description'
-time: 2025-05-29T17:57:33.300043+03:00
