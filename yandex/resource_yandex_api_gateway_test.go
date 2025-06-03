@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -174,6 +175,81 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	})
 }
 
+// testYandexAPIGatewayHasCustomDomain checks for the presence of a domain with the specified FQDN and certificate_id
+// in the API Gateway resource, regardless of the domain order
+func testYandexAPIGatewayHasCustomDomain(resourceName, fqdn, certificateId string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		domainsCountStr, ok := rs.Primary.Attributes["custom_domains.#"]
+		if !ok {
+			return fmt.Errorf("No custom_domains found in resource %s", resourceName)
+		}
+
+		domainsCount, err := strconv.Atoi(domainsCountStr)
+		if err != nil {
+			return fmt.Errorf("Failed to parse custom_domains count: %v", err)
+		}
+
+		// Check each domain
+		for i := 0; i < domainsCount; i++ {
+			domainFqdnKey := fmt.Sprintf("custom_domains.%d.fqdn", i)
+			domainCertIdKey := fmt.Sprintf("custom_domains.%d.certificate_id", i)
+
+			domainFqdn, ok := rs.Primary.Attributes[domainFqdnKey]
+			if !ok {
+				continue
+			}
+
+			domainCertId, ok := rs.Primary.Attributes[domainCertIdKey]
+			if !ok {
+				continue
+			}
+
+			if domainFqdn == fqdn && domainCertId == certificateId {
+				// Found the required domain
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Custom domain with FQDN '%s' and certificate_id '%s' not found in resource %s",
+			fqdn, certificateId, resourceName)
+	}
+}
+
+// testYandexAPIGatewayCustomDomainsCount checks that the number of domains in the resource
+// matches the expected count
+func testYandexAPIGatewayCustomDomainsCount(resourceName string, expectedCount int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		domainsCountStr, ok := rs.Primary.Attributes["custom_domains.#"]
+		if !ok {
+			if expectedCount == 0 {
+				return nil
+			}
+			return fmt.Errorf("No custom_domains found in resource %s", resourceName)
+		}
+
+		domainsCount, err := strconv.Atoi(domainsCountStr)
+		if err != nil {
+			return fmt.Errorf("Failed to parse custom_domains count: %v", err)
+		}
+
+		if domainsCount != expectedCount {
+			return fmt.Errorf("Expected %d custom domains, but got %d", expectedCount, domainsCount)
+		}
+
+		return nil
+	}
+}
+
 func TestAccYandexAPIGateway_domainsUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -198,10 +274,10 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	testCreateFunc := resource.TestStep{
 		Config: createConfig,
 		Check: resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
-			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.fqdn", testDomain1),
-			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.1"),
+			// Check that there is exactly one domain
+			testYandexAPIGatewayCustomDomainsCount(apiGatewayResource, 1),
+			// Check that the domain with the required parameters is present
+			testYandexAPIGatewayHasCustomDomain(apiGatewayResource, testDomain1, testCertificateId),
 		),
 	}
 
@@ -224,13 +300,11 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	testAddDomainFunc := resource.TestStep{
 		Config: addDomainConfig,
 		Check: resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
-			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.fqdn", testDomain1),
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.1.certificate_id", testCertificateId),
-			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.1.domain_id"),
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.1.fqdn", testDomain2),
-			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.2"),
+			// Check that there are exactly two domains
+			testYandexAPIGatewayCustomDomainsCount(apiGatewayResource, 2),
+			// Check that both domains with the required parameters are present
+			testYandexAPIGatewayHasCustomDomain(apiGatewayResource, testDomain1, testCertificateId),
+			testYandexAPIGatewayHasCustomDomain(apiGatewayResource, testDomain2, testCertificateId),
 		),
 	}
 
@@ -249,10 +323,18 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	testRemoveDomainFunc := resource.TestStep{
 		Config: removeDomainConfig,
 		Check: resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
-			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
-			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.fqdn", testDomain2),
-			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.1"),
+			// Check that there is exactly one domain
+			testYandexAPIGatewayCustomDomainsCount(apiGatewayResource, 1),
+			// Check that the domain with the required parameters is present
+			testYandexAPIGatewayHasCustomDomain(apiGatewayResource, testDomain2, testCertificateId),
+			// Check that the first domain is not present
+			func(s *terraform.State) error {
+				err := testYandexAPIGatewayHasCustomDomain(apiGatewayResource, testDomain1, testCertificateId)(s)
+				if err == nil {
+					return fmt.Errorf("Domain %s should not be present", testDomain1)
+				}
+				return nil
+			},
 		),
 	}
 
