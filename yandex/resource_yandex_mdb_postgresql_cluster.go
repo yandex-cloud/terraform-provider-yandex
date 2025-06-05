@@ -790,10 +790,6 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
 	}
 
-	if err := updatePGClusterAfterCreate(d, meta); err != nil {
-		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
-	}
-
 	if err := startPGFailoverIfNeed(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
 	}
@@ -838,6 +834,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		SecurityGroupIds:   createClusterRequest.SecurityGroupIds,
 		HostGroupIds:       createClusterRequest.HostGroupIds,
 		DeletionProtection: createClusterRequest.DeletionProtection,
+		MaintenanceWindow:  createClusterRequest.MaintenanceWindow,
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
@@ -878,10 +875,6 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
 	}
 
-	if err := updatePGClusterAfterCreate(d, meta); err != nil {
-		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
-	}
-
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
 }
 
@@ -912,8 +905,6 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding cluster config on PostgreSQL Cluster create: %s", err)
 	}
 
-	confSpec.DiskSizeAutoscaling = nil
-
 	userSpecs, err := expandPGUserSpecs(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding user specs on PostgreSQL Cluster create: %s", err)
@@ -938,6 +929,11 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding network id on PostgreSQL Cluster create: %s", err)
 	}
 
+	maintenanceWindow, err := expandPGMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding maintenance window id on PostgreSQL Cluster create: %s", err)
+	}
+
 	return &postgresql.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -952,57 +948,8 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		HostGroupIds:       hostGroupIds,
+		MaintenanceWindow:  maintenanceWindow,
 	}, nil
-}
-
-func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
-	maintenanceWindow, err := expandPGMaintenanceWindow(d)
-	if err != nil {
-		return fmt.Errorf("error expanding maintenance_window while updating PostgreSQL after creation: %s", err)
-	}
-
-	paths := make([]string, 0)
-	if maintenanceWindow != nil {
-		paths = append(paths, "maintenance_window")
-	}
-
-	configSpec := &postgresql.ConfigSpec{}
-	diskSizeAutoscaling := expandPGDiskSizeAutoscaling(d)
-	if diskSizeAutoscaling != nil {
-		paths = append(paths, "config_spec.disk_size_autoscaling")
-		configSpec.DiskSizeAutoscaling = diskSizeAutoscaling
-	}
-
-	if len(paths) < 1 {
-		return nil
-	}
-
-	request := &postgresql.UpdateClusterRequest{
-		ClusterId:         d.Id(),
-		MaintenanceWindow: maintenanceWindow,
-		ConfigSpec:        configSpec,
-		UpdateMask:        &field_mask.FieldMask{Paths: paths},
-	}
-
-	config := meta.(*Config)
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
-
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Sending PostgreSQL cluster update request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, request)
-	})
-
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster after creation %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while waiting for operation to update PostgreSQL Cluster after creation %q: %s", d.Id(), err)
-	}
-
-	return nil
 }
 
 func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {

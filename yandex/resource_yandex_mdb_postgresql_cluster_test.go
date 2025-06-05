@@ -350,6 +350,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.type", "ANYTIME"),
 					testAccCheckCreatedAtAttr(clusterResource),
 					testAccPGGetHostNames(clusterResource, hostNames),
 				),
@@ -362,6 +363,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.type", "ANYTIME"),
 					testAccPGCompareHostNames(clusterResource, hostNames),
 				),
 			},
@@ -1542,6 +1544,10 @@ func testAccMDBPGClusterConfigHA(name, version string) string {
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 		assign_public_ip = true
 	}
+
+	maintenance_window {
+		type = "ANYTIME"
+  	}
 `, version)
 }
 
@@ -1560,6 +1566,10 @@ func testAccMDBPGClusterConfigHAChangePublicIP(name, version string) string {
 		zone             = "ru-central1-d"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 	}
+
+	maintenance_window {
+		type = "ANYTIME"
+  	}
 `, version)
 }
 
