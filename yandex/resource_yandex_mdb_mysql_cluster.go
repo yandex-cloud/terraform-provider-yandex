@@ -394,10 +394,11 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"allow_regeneration_host": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Default:    false,
-				Deprecated: "You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Deprecated field. You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.\nRegenerate hosts after changing the assign_public_ip parameter.",
+				Deprecated:  "You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.",
 			},
 			"maintenance_window": {
 				Type:        schema.TypeList,
@@ -421,7 +422,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 						},
 						"hour": {
 							Type:         schema.TypeInt,
-							Description:  "Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.",
+							Description:  "Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.",
 							ValidateFunc: validation.IntBetween(1, 24),
 							Optional:     true,
 						},
@@ -520,11 +521,6 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("MySQL Cluster %v update params failed: %s", d.Id(), err)
 	}
 
-	log.Printf("[INFO] Updating cluster after creation (if needed)...")
-	if err := updateMySQLClusterAfterCreate(d, meta); err != nil {
-		return fmt.Errorf("MySQL Cluster %v update params failed: %s", d.Id(), err)
-	}
-
 	return resourceYandexMDBMySQLClusterRead(d, meta)
 }
 
@@ -553,16 +549,17 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 		Time: &timestamp.Timestamp{
 			Seconds: timeBackup.Unix(),
 		},
-		Name:             req.Name,
-		Description:      req.Description,
-		Labels:           req.Labels,
-		Environment:      req.Environment,
-		ConfigSpec:       req.ConfigSpec,
-		HostSpecs:        req.HostSpecs,
-		NetworkId:        req.NetworkId,
-		FolderId:         req.FolderId,
-		SecurityGroupIds: req.SecurityGroupIds,
-		HostGroupIds:     req.HostGroupIds,
+		Name:              req.Name,
+		Description:       req.Description,
+		Labels:            req.Labels,
+		Environment:       req.Environment,
+		ConfigSpec:        req.ConfigSpec,
+		HostSpecs:         req.HostSpecs,
+		NetworkId:         req.NetworkId,
+		FolderId:          req.FolderId,
+		SecurityGroupIds:  req.SecurityGroupIds,
+		HostGroupIds:      req.HostGroupIds,
+		MaintenanceWindow: req.MaintenanceWindow,
 	}))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
@@ -640,6 +637,11 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("Error while expanding network id on MySQL Cluster create: %s", err)
 	}
 
+	maintenanceWindow, err := expandMySQLMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding maintenance_window on MySQL Cluster create: %s", err)
+	}
+
 	return &mysql.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -654,6 +656,7 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		HostGroupIds:       expandHostGroupIds(d.Get("host_group_ids")),
+		MaintenanceWindow:  maintenanceWindow,
 	}, nil
 }
 
@@ -894,40 +897,6 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating MySQL Cluster %q: %s", d.Id(), err)
-	}
-
-	return nil
-}
-
-func updateMySQLClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
-
-	maintenanceWindow, err := expandMySQLMaintenanceWindow(d)
-	if err != nil {
-		return fmt.Errorf("error expanding maintenance_window while updating MySQL after creation: %s", err)
-	}
-
-	if maintenanceWindow == nil {
-		return nil
-	}
-	updatePath := []string{"maintenance_window"}
-	req := &mysql.UpdateClusterRequest{
-		ClusterId:         d.Id(),
-		MaintenanceWindow: maintenanceWindow,
-		UpdateMask:        &field_mask.FieldMask{Paths: updatePath},
-	}
-
-	config := meta.(*Config)
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
-
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Update(ctx, req))
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update MySQL Cluster after creation %q: %s", d.Id(), err)
-	}
-
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while waiting for operation to update MySQL Cluster after creation %q: %s", d.Id(), err)
 	}
 
 	return nil

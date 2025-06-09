@@ -265,6 +265,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -284,6 +285,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
 				),
 			},
@@ -298,6 +300,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.replication_source_name", "nb"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.replication_source"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "na"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -311,6 +314,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
 				),
 			},
@@ -323,6 +327,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.backup_priority", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.backup_priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -334,6 +339,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.priority", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -1000,6 +1006,10 @@ func testAccMDBMysqlClusterHA(name string) string {
     zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
+
+  maintenance_window {
+	type = "ANYTIME"
+  }
 `)
 }
 
@@ -1024,6 +1034,10 @@ func testAccMDBMysqlClusterHA2(name string) string {
   host {
     zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
+  }
+
+  maintenance_window {
+	type = "ANYTIME"
   }
 `)
 }
@@ -1058,6 +1072,10 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
     subnet_id   = yandex_vpc_subnet.foo_c.id
     name        = "nb"
   }
+
+  maintenance_window {
+	type = "ANYTIME"
+  }
 `)
 }
 
@@ -1088,6 +1106,10 @@ func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
 	zone 		= "ru-central1-d"
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
+  }
+
+  maintenance_window {
+	type = "ANYTIME"
   }
 `)
 }
@@ -1122,6 +1144,10 @@ func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
   }
+
+  maintenance_window {
+	type = "ANYTIME"
+  }
 `)
 }
 
@@ -1154,6 +1180,10 @@ func testAccMDBMysqlClusterWithPriorities(name string) string {
 	zone 		= "ru-central1-d"
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
+  }
+
+  maintenance_window {
+	type = "ANYTIME"
   }
 `)
 }
