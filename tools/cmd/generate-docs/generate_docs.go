@@ -475,6 +475,7 @@ func main() {
 		"--provider-name", "yandex",
 		"--website-source-dir", tmpDir,
 	)
+	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

@@ -43,7 +43,9 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
+
 	// "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
 )
 
 type saKeyValidator struct{}
@@ -287,6 +289,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_mysql_cluster_v2.NewMySQLClusterResourceV2,
 		kubernetes_marketplace_helm_release.NewResource,
 		spark_cluster.NewResource,
+		gitlab_instance.NewResource,
 	}
 }
 
@@ -308,6 +311,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		mdb_opensearch_cluster.NewDataSource,
 		vpc_security_group_rule.NewDataSource,
 		spark_cluster.NewDatasource,
+		gitlab_instance.NewDataSource,
 	}
 }
 

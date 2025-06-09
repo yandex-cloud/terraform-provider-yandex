@@ -122,6 +122,12 @@ If you add a new service, please update `templates/categories.yaml`. The key in 
 make generate-docs
 ```
 
+On Mac M1 run the following command:
+
+```shell
+GOOS=linux GOARCH=amd64 make generate-docs
+```
+
 #### Resolving Template Variables
 
 Here are some examples of how template variables resolve:

@@ -505,6 +505,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  gitlab_instance:
+    Category: "Managed Service for GitLab"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   iam_policy:
     Category: "Identity and Access Management (IAM)"
     Type: sdk
