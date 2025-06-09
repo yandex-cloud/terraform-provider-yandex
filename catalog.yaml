@@ -993,6 +993,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_redis_user:
+    Category: "Managed Service for Redis"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   mdb_sqlserver_cluster:
     Category: "Managed Service for SQLServer"
     Type: sdk
