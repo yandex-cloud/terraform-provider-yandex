@@ -301,6 +301,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_kms_asymmetric_signature_key_iam_binding":          resourceYandexKMSAsymmetricSignatureKeyIAMBinding(),
 			"yandex_kms_asymmetric_signature_key_iam_member":           resourceYandexKMSAsymmetricSignatureKeyIAMMember(),
 			"yandex_kubernetes_cluster":                                resourceYandexKubernetesCluster(),
+			"yandex_kubernetes_cluster_iam_binding":                    resourceYandexKubernetesClusterIAMBinding(),
+			"yandex_kubernetes_cluster_iam_member":                     resourceYandexKubernetesClusterIAMMember(),
 			"yandex_kubernetes_node_group":                             resourceYandexKubernetesNodeGroup(),
 			"yandex_lb_network_load_balancer":                          resourceYandexLBNetworkLoadBalancer(),
 			"yandex_lb_target_group":                                   resourceYandexLBTargetGroup(),
