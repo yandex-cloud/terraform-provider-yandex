@@ -42,6 +42,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/metastore_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
 
@@ -284,6 +285,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		compute_snapshot_iam_binding.NewIamBinding,
 		compute_snapshot_schedule_iam_binding.NewIamBinding,
 		airflow_cluster.NewResource,
+		metastore_cluster.NewResource,
 		vpc_security_group_rule.NewResource,
 		mdb_postgresql_cluster_v2.NewPostgreSQLClusterResourceV2,
 		mdb_redis_cluster_v2.NewResource,
@@ -303,6 +305,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
 		airflow_cluster.NewDatasource,
+		metastore_cluster.NewDatasource,
 		datasphere_project.NewDataSource,
 		datasphere_community.NewDataSource,
 		mdb_clickhouse_database.NewDataSource,

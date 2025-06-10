@@ -26,6 +26,7 @@ DocsCategories:
   - "Managed Service for OpenSearch"
   - "Managed Service for MySQL"
   - "Managed Service for Apache Airflow"
+  - "Managed Service for Hive Metastore"
   - "Managed Service for Apache Kafka"
   - "Managed Service for Apache Spark"
   - "Managed Service for MongoDB"

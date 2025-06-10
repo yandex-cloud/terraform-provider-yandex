@@ -1,0 +1,322 @@
+{
+  "datasources": [],
+  "provider": {
+    "name": "yandex"
+  },
+  "resources": [
+    {
+      "name": "cluster",
+      "schema": {
+        "description": "Managed Metastore cluster.",
+        "attributes": [
+          {
+            "name": "id",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The resource identifier.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "folder_id",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                },
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.RequiresReplace()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "created_at",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "The creation timestamp of the resource.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "The resource name."
+            }
+          },
+          {
+            "name": "description",
+            "string": {
+              "computed_optional_required": "optional",
+              "description": "The resource description."
+            }
+          },
+          {
+            "name": "labels",
+            "map": {
+              "computed_optional_required": "optional",
+              "description": "A set of key/value label pairs which assigned to resource.",
+              "element_type": {"string": {}}
+            }
+          },
+          {
+            "name": "health",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "subnet_ids",
+            "set": {
+              "computed_optional_required": "required",
+              "description": "The list of VPC subnets identifiers which resource is attached.",
+              "element_type": {
+                "string": {}
+              },
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"}],
+                    "schema_definition": "setplanmodifier.RequiresReplace()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "security_group_ids",
+            "set": {
+              "computed_optional_required": "optional",
+              "description": "The list of security groups applied to resource or their components.",
+              "element_type": {
+                "string": {}
+              }
+            }
+          },
+          {
+            "name": "deletion_protection",
+            "bool": {
+              "computed_optional_required": "computed_optional",
+              "description": "The `true` value means that resource is protected from accidental deletion. By default is set to `false`.",
+              "default": {"static": false}
+            }
+          },
+          {
+            "name": "network_id",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "VPC network identifier which resource is attached."
+            }
+          },
+          {
+            "name": "endpoint_ip",
+            "string": {
+              "computed_optional_required": "computed",
+              "description": "IP address of Metastore server balancer endpoint."
+            }
+          },
+          {
+            "name": "cluster_config",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "description": "Hive Metastore cluster configuration.",
+              "attributes": [
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "service_account_id",
+            "string": {
+              "computed_optional_required": "required",
+              "description": "[Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) with role `managed-metastore.integrationProvider`. For more information, see [documentation](https://yandex.cloud/docs/metadata-hub/concepts/metastore-impersonation)."
+            }
+          },
+          {
+            "name": "logging",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "description": "Cloud Logging configuration.",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "required",
+                    "description": "Enables delivery of logs generated by Metastore to [Cloud Logging](https://yandex.cloud/docs/logging/)."
+                  }
+                },
+                {
+                  "name": "folder_id",
+                  "string": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                },
+                {
+                  "name": "log_group_id",
+                  "string": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                  }
+                },
+                {
+                  "name": "min_level",
+                  "string": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "logLevelValidator()"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "maintenance_window",
+            "single_nested": {
+              "computed_optional_required": "computed_optional",
+              "description": "Configuration of window for maintenance operations.",
+              "validators": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "schema_definition": "mwValidator()"
+                  }
+                }
+              ],
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "schema_definition": "mwPlanModifier()"
+                  }
+                }
+              ],
+              "attributes": [
+                {
+                  "name": "type",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "description": "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. If `WEEKLY`, day and hour must be specified.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwTypeValidator()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "hour",
+                  "int64": {
+                    "computed_optional_required": "optional",
+                    "description": "Hour of day in UTC time zone (1-24) for maintenance window.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwHourValidator()"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "day",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "description": "Day of week for maintenance window. One of `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "mwDayValidator()"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "blocks": [
+          {
+            "name": "timeouts",
+            "single_nested": {
+              "attributes": [],
+              "custom_type": {
+                "import": {
+                  "path": "github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+                },
+                "type": "timeouts.Type{}",
+                "value_type": "timeouts.Value"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "version": "0.1"
+}
