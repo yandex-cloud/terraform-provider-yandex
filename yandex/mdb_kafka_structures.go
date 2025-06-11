@@ -559,8 +559,8 @@ func expandKafkaPermissions(ps *schema.Set) ([]*kafka.Permission, error) {
 	return result, nil
 }
 
-func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error) {
-	kafkaResources, err := flattenKafkaResources(cluster.Config.Kafka.Resources)
+func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[string]interface{}, error) {
+	kafkaResources, err := flattenKafkaResources(d, cluster.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -593,7 +593,7 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 		},
 	}
 	if cluster.Config.Zookeeper != nil {
-		zkResources, err := flattenKafkaResources(cluster.Config.Zookeeper.Resources)
+		zkResources, err := flattenControllerResources(cluster.Config.Zookeeper.Resources)
 		if err != nil {
 			return nil, err
 		}
@@ -604,7 +604,7 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 		}
 	}
 	if cluster.Config.Kraft != nil {
-		kRaftResources, err := flattenKafkaResources(cluster.Config.Kraft.Resources)
+		kRaftResources, err := flattenControllerResources(cluster.Config.Kraft.Resources)
 		if err != nil {
 			return nil, err
 		}
@@ -740,13 +740,35 @@ func flattenKafkaConfig3Settings(r *kafka.KafkaConfig3) (map[string]interface{},
 	return flattenKafkaConfigSettings(r)
 }
 
-func flattenKafkaResources(r *kafka.Resources) (map[string]interface{}, error) {
-	res := map[string]interface{}{}
+func flattenKafkaResources(d *schema.ResourceData, r *kafka.ConfigSpec) (map[string]interface{}, error) {
+	newKafkaDiskSizeSchemeValue, ok := d.GetOk("config.0.kafka.0.resources.0.disk_size")
+	var newKafkaDiskSize int
+	if ok {
+		newKafkaDiskSize = newKafkaDiskSizeSchemeValue.(int)
+	}
+	oldKafkaDiskSizeValue := toGigabytes(r.Kafka.Resources.DiskSize)
+	var invertDiskSize bool
+	if ok && r.DiskSizeAutoscaling != nil && newKafkaDiskSize < oldKafkaDiskSizeValue {
+		invertDiskSize = true
+	}
 
+	res := map[string]interface{}{}
+	res["resource_preset_id"] = r.Kafka.Resources.ResourcePresetId
+	res["disk_type_id"] = r.Kafka.Resources.DiskTypeId
+	if !invertDiskSize {
+		res["disk_size"] = oldKafkaDiskSizeValue
+	} else {
+		res["disk_size"] = newKafkaDiskSize
+	}
+
+	return res, nil
+}
+
+func flattenControllerResources(r *kafka.Resources) (map[string]interface{}, error) {
+	res := map[string]interface{}{}
 	res["resource_preset_id"] = r.ResourcePresetId
 	res["disk_type_id"] = r.DiskTypeId
 	res["disk_size"] = toGigabytes(r.DiskSize)
-
 	return res, nil
 }
 

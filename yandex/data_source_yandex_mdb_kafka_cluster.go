@@ -195,7 +195,7 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
 
-	cfg, err := flattenKafkaConfig(cluster)
+	cfg, err := flattenKafkaConfig(d, cluster)
 	if err != nil {
 		return err
 	}
