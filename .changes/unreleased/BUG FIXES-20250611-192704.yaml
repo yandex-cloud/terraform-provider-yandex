@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fix postgresql settings loss on versions 16-1c and 17-1c'
+time: 2025-06-11T19:27:04.144511+03:00

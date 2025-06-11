@@ -76,7 +76,7 @@ resource "yandex_vpc_security_group" "sgroup2" {
 
 var (
 	pgVersions   = [...]string{"13", "14", "15", "16", "17"}
-	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c"} //nolint:unused
+	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c", "16-1c", "17-1c"} //nolint:unused
 )
 
 func init() {
@@ -1459,8 +1459,12 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 			cmpObj = r.GetConfig().GetPostgresqlConfig_15_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig16:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_16().GetUserConfig()
+		case *pconfig.PostgresqlConfig16_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_16_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig17:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_17().GetUserConfig()
+		case *pconfig.PostgresqlConfig17_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_17_1C().GetUserConfig()
 		default:
 			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
 		}

@@ -211,7 +211,9 @@ var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
 	"15":    &postgresql.ConfigSpec_PostgresqlConfig_15{},
 	"15-1c": &postgresql.ConfigSpec_PostgresqlConfig_15_1C{},
 	"16":    &postgresql.ConfigSpec_PostgresqlConfig_16{},
+	"16-1c": &postgresql.ConfigSpec_PostgresqlConfig_16_1C{},
 	"17":    &postgresql.ConfigSpec_PostgresqlConfig_17{},
+	"17-1c": &postgresql.ConfigSpec_PostgresqlConfig_17_1C{},
 }
 
 func expandPostgresqlConfig(
