@@ -34,6 +34,7 @@ DocsCategories:
   - "Managed Service for Elasticsearch"
   - "Managed Service for Greenplum"
   - "Managed Service for SQLServer"
+  - "Managed Service for Trino"
   - "Data Processing"
   - "Data Transfer"
   - "Message Queue"

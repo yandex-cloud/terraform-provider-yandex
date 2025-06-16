@@ -1257,6 +1257,22 @@ Resources:
     HasI: false
     #HasF: false
     #HasE: false
+  trino_cluster:
+    Category: "Managed Service for Trino"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  trino_catalog:
+    Category: "Managed Service for Trino"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   vpc_address:
     Category: "Virtual Private Cloud (VPC)"
     Type: sdk
