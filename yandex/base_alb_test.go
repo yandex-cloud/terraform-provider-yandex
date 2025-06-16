@@ -89,6 +89,7 @@ type resourceALBLoadBalancerInfo struct {
 	CertificateID        string
 	IdleTimeout          string
 	AllowZonalShift      bool
+	AutoScalePolicy      bool
 }
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
@@ -119,6 +120,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		CertificateID:        os.Getenv("ALB_TEST_CERTIFICATE_ID"),
 		IdleTimeout:          albDefaultIdleTimeout,
 		AllowZonalShift:      false,
+		AutoScalePolicy:      false,
 	}
 
 	return res
@@ -636,6 +638,14 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     }
   }
   {{ end }}
+
+  {{ if .AutoScalePolicy }}
+  auto_scale_policy {
+  	min_zone_size = 2
+    max_size = 2
+  }
+  {{ end }}
+
   {{ if or .IsHTTPListener .IsTLSListener .IsStreamListener}}
   listener {
     name = "{{.ListenerName}}"

@@ -2,12 +2,10 @@ package yandex
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
-	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func Test_flattenALBRateLimit(t *testing.T) {
@@ -257,110 +255,50 @@ func Test_flattenALBStreamBackends(t *testing.T) {
 
 func Test_flattenALBHealthChecks(t *testing.T) {
 	t.Parallel()
+}
+
+func Test_flattenALBAutoscalePolicy(t *testing.T) {
+	t.Parallel()
 
 	testsTable := []struct {
 		name           string
-		healthchecks   []*apploadbalancer.HealthCheck
-		expectedResult []interface{}
+		autoscale      *apploadbalancer.AutoScalePolicy
+		expectedResult []map[string]interface{}
 		expectErr      bool
 	}{
 		{
-			name: "http backend: use nil expected statuses slice",
-			healthchecks: []*apploadbalancer.HealthCheck{
-				{
-					Timeout:  durationpb.New(time.Second),
-					Interval: durationpb.New(time.Second),
-					Healthcheck: &apploadbalancer.HealthCheck_Http{
-						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
-							Path: "/",
-						},
-					},
-				},
-			},
-			expectedResult: []interface{}{
-				map[string]interface{}{
-					"timeout":                 formatDuration(durationpb.New(time.Second)),
-					"interval":                formatDuration(durationpb.New(time.Second)),
-					"interval_jitter_percent": float64(0),
-					"healthy_threshold":       int64(0),
-					"unhealthy_threshold":     int64(0),
-					"healthcheck_port":        0,
-					"http_healthcheck": []map[string]interface{}{
-						{
-							"host":                    "",
-							"path":                    "/",
-							"http2":                   false,
-							expectedStatusesSchemaKey: []int64(nil),
-						},
-					},
-				},
-			},
+			name:           "nil value",
+			autoscale:      nil,
+			expectedResult: nil,
 		},
 		{
-			name: "http backend: use empty expected statuses slice",
-			healthchecks: []*apploadbalancer.HealthCheck{
-				{
-					Timeout:  durationpb.New(time.Second),
-					Interval: durationpb.New(time.Second),
-					Healthcheck: &apploadbalancer.HealthCheck_Http{
-						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
-							Path:             "/",
-							ExpectedStatuses: []int64{},
-						},
-					},
-				},
+			name: "some sane values",
+			autoscale: &apploadbalancer.AutoScalePolicy{
+				MinZoneSize: 10,
+				MaxSize:     3,
 			},
-			expectedResult: []interface{}{
-				map[string]interface{}{
-					"timeout":                 formatDuration(durationpb.New(time.Second)),
-					"interval":                formatDuration(durationpb.New(time.Second)),
-					"interval_jitter_percent": float64(0),
-					"healthy_threshold":       int64(0),
-					"unhealthy_threshold":     int64(0),
-					"healthcheck_port":        0,
-					"http_healthcheck": []map[string]interface{}{
-						{
-							"host":                    "",
-							"path":                    "/",
-							"http2":                   false,
-							expectedStatusesSchemaKey: []int64{},
-						},
-					},
-				},
-			},
+			expectedResult: []map[string]interface{}{{
+				"min_zone_size": interface{}(10),
+				"max_size":      interface{}(3),
+			}},
 		},
 		{
-			name: "http backend: use expected statuses",
-			healthchecks: []*apploadbalancer.HealthCheck{
-				{
-					Timeout:  durationpb.New(time.Second),
-					Interval: durationpb.New(time.Second),
-					Healthcheck: &apploadbalancer.HealthCheck_Http{
-						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
-							Path:             "/",
-							ExpectedStatuses: []int64{200, 201, 300, 302},
-						},
-					},
-				},
+			name: "only min_zone_size specified",
+			autoscale: &apploadbalancer.AutoScalePolicy{
+				MinZoneSize: 10,
 			},
-			expectedResult: []interface{}{
-				map[string]interface{}{
-					"timeout":                 formatDuration(durationpb.New(time.Second)),
-					"interval":                formatDuration(durationpb.New(time.Second)),
-					"interval_jitter_percent": float64(0),
-					"healthy_threshold":       int64(0),
-					"unhealthy_threshold":     int64(0),
-					"healthcheck_port":        0,
-					"http_healthcheck": []map[string]interface{}{
-						{
-							"host":                    "",
-							"path":                    "/",
-							"http2":                   false,
-							expectedStatusesSchemaKey: []int64{200, 201, 300, 302},
-						},
-					},
-				},
+			expectedResult: []map[string]interface{}{{
+				"min_zone_size": interface{}(10),
+			}},
+		},
+		{
+			name: "only max_size specified",
+			autoscale: &apploadbalancer.AutoScalePolicy{
+				MaxSize: 10,
 			},
+			expectedResult: []map[string]interface{}{{
+				"max_size": interface{}(10),
+			}},
 		},
 	}
 
@@ -370,8 +308,12 @@ func Test_flattenALBHealthChecks(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			actualResult := flattenALBHealthChecks(testCase.healthchecks)
+			actualResult, err := flattenALBAutoscalePolicy(&apploadbalancer.LoadBalancer{
+				Id:              "1",
+				AutoScalePolicy: testCase.autoscale,
+			})
 
+			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedResult, actualResult)
 		})
 	}

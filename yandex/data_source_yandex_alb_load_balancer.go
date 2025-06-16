@@ -203,6 +203,26 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 				},
 			},
 
+			"auto_scale_policy": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: resourceYandexALBLoadBalancer().Schema["auto_scale_policy"].Description,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_size": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Upper limit for total instance count (across all zones)",
+						},
+						"min_zone_size": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Lower limit for instance count in each zone.",
+						},
+					},
+				},
+			},
+
 			"listener": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -502,6 +522,14 @@ func dataSourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err = d.Set("log_options", logOptions); err != nil {
+		return err
+	}
+
+	autoscalePolicy, err := flattenALBAutoscalePolicy(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("auto_scale_policy", autoscalePolicy); err != nil {
 		return err
 	}
 

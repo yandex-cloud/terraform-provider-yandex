@@ -639,6 +639,7 @@ func TestAccDataSourceALBLoadBalancer_logOptions(t *testing.T) {
 	albResource := albLoadBalancerInfo()
 	albResource.IsLogOptions = true
 	albResource.IsDataSource = true
+	albResource.AutoScalePolicy = true
 
 	var alb apploadbalancer.LoadBalancer
 	var rulesPath string
@@ -751,11 +752,11 @@ resource "yandex_alb_load_balancer" "test-alb" {
     tf-label    = "tf-label-value"
     empty-label = ""
   }
-  
+
   allocation_policy {
     location {
       zone_id   = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.test-subnet.id 
+      subnet_id = yandex_vpc_subnet.test-subnet.id
     }
   }
 }
@@ -799,12 +800,17 @@ resource "yandex_alb_load_balancer" "test-alb" {
     tf-label    = "tf-label-value"
     empty-label = ""
   }
-  
+
   allocation_policy {
     location {
       zone_id   = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.test-subnet.id 
+      subnet_id = yandex_vpc_subnet.test-subnet.id
     }
+  }
+
+  auto_scale_policy {
+  	min_zone_size = 2
+    max_size = 2
   }
 }
 

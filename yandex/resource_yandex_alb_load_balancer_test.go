@@ -516,6 +516,7 @@ func TestAccALBLoadBalancer_logOptions(t *testing.T) {
 	t.Parallel()
 	albResource := albLoadBalancerInfo()
 	albResource.IsLogOptions = true
+	albResource.AutoScalePolicy = true
 
 	var alb apploadbalancer.LoadBalancer
 	var rulesPath string
@@ -633,6 +634,11 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       zone_id   = "ru-central1-a"
       subnet_id = yandex_vpc_subnet.test-subnet.id
     }
+  }
+
+  auto_scale_policy {
+  	min_zone_size = 2
+    max_size = 2
   }
 }
 
@@ -841,6 +847,36 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 		assert.Equal(t, req.GetFolderId(), "folder1")
 		assert.Equal(t, req.GetName(), "lb-name")
 		assert.NotNil(t, req.GetLogOptions())
+	})
+
+	t.Run("autoscale-policy", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "lbid",
+			"name": "lb-name",
+			"auto_scale_policy": []interface{}{
+				map[string]interface{}{
+					"max_size":      10,
+					"min_zone_size": 3,
+				},
+			},
+			"allocation_policy": testMakeAllocations("1"),
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "folder1")
+		assert.Equal(t, req.GetName(), "lb-name")
+		assert.NotNil(t, req.GetAutoScalePolicy())
+
+		assert.EqualValues(t, req.GetAutoScalePolicy().GetMaxSize(), 10)
+		assert.EqualValues(t, req.GetAutoScalePolicy().GetMinZoneSize(), 3)
 	})
 
 	t.Run("allow-zonal-shift", func(t *testing.T) {

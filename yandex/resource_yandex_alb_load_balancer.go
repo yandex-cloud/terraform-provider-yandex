@@ -222,6 +222,29 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 				},
 			},
 
+			"auto_scale_policy": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: "Scaling settings of the application load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 1000),
+							Description:  "Upper limit for total instance count (across all zones)",
+						},
+						"min_zone_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 1000),
+							Description:  "Lower limit for instance count in each zone.",
+						},
+					},
+				},
+			},
+
 			"listener": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -518,6 +541,12 @@ func buildALBLoadBalancerCreateRequest(d *schema.ResourceData, config *Config) (
 	}
 	req.SetLogOptions(logOptions)
 
+	autoscalePolicy, err := expandALBAutoscalePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding autoscale policy while creating ALB Load Balancer: %w", err)
+	}
+	req.SetAutoScalePolicy(autoscalePolicy)
+
 	listeners, err := expandALBListeners(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
@@ -621,6 +650,14 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	autoscalePolicy, err := flattenALBAutoscalePolicy(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("auto_scale_policy", autoscalePolicy); err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] Finished reading ALB Load Balancer %q", d.Id())
 	return d.Set("labels", alb.Labels)
 }
@@ -645,13 +682,13 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding allocation policy while creating ALB Load Balancer: %w", err)
+		return fmt.Errorf("Error expanding allocation policy while updating ALB Load Balancer: %w", err)
 	}
 	req.SetAllocationPolicy(allocationPolicy)
 
 	listeners, err := expandALBListeners(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
+		return fmt.Errorf("Error expanding listeners while updating ALB Load Balancer: %w", err)
 	}
 	req.SetListenerSpecs(listeners)
 
@@ -660,6 +697,12 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 	req.SetLogOptions(logOptions)
+
+	autoscalePolicy, err := expandALBAutoscalePolicy(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding autoscale policy while updating ALB Load Balancer: %w", err)
+	}
+	req.SetAutoScalePolicy(autoscalePolicy)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()

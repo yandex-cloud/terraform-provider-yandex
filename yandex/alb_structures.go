@@ -711,6 +711,24 @@ func expandALBLocation(config map[string]interface{}) (*apploadbalancer.Location
 	return location, nil
 }
 
+func expandALBAutoscalePolicy(d *schema.ResourceData) (*apploadbalancer.AutoScalePolicy, error) {
+	v, ok := d.GetOk("auto_scale_policy")
+	if !ok || len(v.([]interface{})) == 0 {
+		return nil, nil
+	}
+
+	var ap apploadbalancer.AutoScalePolicy
+	if v, ok := d.GetOk("auto_scale_policy.0.max_size"); ok {
+		ap.MaxSize = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("auto_scale_policy.0.min_zone_size"); ok {
+		ap.MinZoneSize = int64(v.(int))
+	}
+
+	return &ap, nil
+}
+
 func expandALBLogOptions(d *schema.ResourceData) (*apploadbalancer.LogOptions, error) {
 	v, ok := d.GetOk("log_options")
 	if !ok || len(v.([]interface{})) == 0 {
@@ -2520,6 +2538,24 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {
 	}
 
 	return result
+}
+
+func flattenALBAutoscalePolicy(alb *apploadbalancer.LoadBalancer) ([]map[string]interface{}, error) {
+	v := alb.GetAutoScalePolicy()
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	if s := v.GetMaxSize(); s != 0 {
+		m["max_size"] = int(s)
+	}
+
+	if s := v.GetMinZoneSize(); s != 0 {
+		m["min_zone_size"] = int(s)
+	}
+	return []map[string]interface{}{m}, nil
 }
 
 func flattenALBLogOptions(alb *apploadbalancer.LoadBalancer) ([]map[string]interface{}, error) {
