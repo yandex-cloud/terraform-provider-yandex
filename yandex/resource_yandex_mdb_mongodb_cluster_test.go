@@ -1252,6 +1252,29 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 				),
 			},
 			mdbMongoDBClusterImportStep(),
+			// Decrease disk size with autoscaling
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongod": &mongodb.Resources{
+						DiskSize:         25,
+						ResourcePresetId: "s2.medium",
+						DiskTypeId:       s2Small26hdd.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &mongodb.Resources{
+							ResourcePresetId: "s2.medium",
+							DiskSize:         toBytes(27),
+							DiskTypeId:       s2Small26hdd.DiskTypeId,
+						},
+						"ResourcesMongos":   &newResourcesMongosV1,
+						"ResourcesMongoCfg": &newResourcesMongoCfgV1,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
 		},
 	})
 }
@@ -2255,493 +2278,66 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 	}
 
 	return func(s *terraform.State) error {
-		switch r.Config.Version {
-		case "6.0-enterprise":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-					if expectedValue, ok := expected["AuditLogFilter"]; ok {
-						actual := d.Config.UserConfig.AuditLog.Filter
-						expected := expectedValue.(string)
-						if actual != expected {
-							return fmt.Errorf("Expected audit log filter '%s', got '%s'", expected, actual)
-						}
-					}
-					if expectedValue, ok := expected["AuditAuthorizationSuccess"]; ok {
-						expected := expectedValue.(bool)
-						actual := d.Config.UserConfig.SetParameter.AuditAuthorizationSuccess.Value
-						if actual != expected {
-							return fmt.Errorf("Expected audit_authorization_success '%t', got '%t'", expected, actual)
-						}
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
+		mongo := r.GetConfig().GetMongodbConfig()
+		d := mongo.GetMongod()
+		if d != nil {
+			err := supportTestResources(d.Resources, expectedResourcesMongod)
+			if err != nil {
+				return err
+			}
+			err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
+			if err != nil {
+				return err
+			}
+			if expectedValue, ok := expected["AuditLogFilter"]; ok {
+				actual := d.Config.UserConfig.AuditLog.Filter
+				expected := expectedValue.(string)
+				if actual != expected {
+					return fmt.Errorf("Expected audit log filter '%s', got '%s'", expected, actual)
 				}
 			}
-		case "5.0-enterprise":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-					if expectedValue, ok := expected["AuditLogFilter"]; ok {
-						actual := d.Config.UserConfig.AuditLog.Filter
-						expected := expectedValue.(string)
-						if actual != expected {
-							return fmt.Errorf("Expected audit log filter '%s', got '%s'", expected, actual)
-						}
-					}
-					if expectedValue, ok := expected["AuditAuthorizationSuccess"]; ok {
-						expected := expectedValue.(bool)
-						actual := d.Config.UserConfig.SetParameter.AuditAuthorizationSuccess.Value
-						if actual != expected {
-							return fmt.Errorf("Expected audit_authorization_success '%t', got '%t'", expected, actual)
-						}
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
+			if expectedValue, ok := expected["AuditAuthorizationSuccess"]; ok {
+				expected := expectedValue.(bool)
+				actual := d.Config.UserConfig.SetParameter.AuditAuthorizationSuccess.Value
+				if actual != expected {
+					return fmt.Errorf("Expected audit_authorization_success '%t', got '%t'", expected, actual)
 				}
 			}
-		case "4.4-enterprise":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
+		}
 
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+		mongos := mongo.GetMongos()
+		if mongos != nil {
+			err := supportTestResources(mongos.Resources, expectedResourcesMongos)
+			if err != nil {
+				return err
 			}
-		case "6.0":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+			err = supportTestDiskSizeAutoscaling(mongos.DiskSizeAutoscaling, expectedDsaMongos)
+			if err != nil {
+				return err
 			}
-		case "5.0":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
+		}
 
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+		cfg := mongo.GetMongocfg()
+		if cfg != nil {
+			err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+			if err != nil {
+				return err
 			}
-		case "4.4":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+			err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
+			if err != nil {
+				return err
 			}
-		case "4.2":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
+		}
 
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+		infra := mongo.GetMongoinfra()
+		if infra != nil {
+			err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
+			if err != nil {
+				return err
 			}
-		case "4.0":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
-			}
-		case "3.6":
-			{
-				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
-				d := mongo.Mongod
-				if d != nil {
-					err := supportTestResources(d.Resources, expectedResourcesMongod)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
-					if err != nil {
-						return err
-					}
-				}
-
-				s := mongo.Mongos
-				if s != nil {
-					err := supportTestResources(s.Resources, expectedResourcesMongos)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
-					if err != nil {
-						return err
-					}
-				}
-
-				cfg := mongo.Mongocfg
-				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
-					if err != nil {
-						return err
-					}
-				}
-
-				infra := mongo.Mongoinfra
-				if infra != nil {
-					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-					if err != nil {
-						return err
-					}
-					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
-					if err != nil {
-						return err
-					}
-				}
+			err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
+			if err != nil {
+				return err
 			}
 		}
 		return nil

@@ -3,12 +3,11 @@ package mdb_redis_cluster_v2
 import (
 	"context"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	redisproto "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 )
 

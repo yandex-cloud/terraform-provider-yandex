@@ -266,9 +266,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("disk_size_autoscaling_mongod.0.disk_size_limit"),
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,
@@ -292,9 +293,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("disk_size_autoscaling_mongoinfra.0.disk_size_limit"),
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,
@@ -318,9 +320,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("disk_size_autoscaling_mongocfg.0.disk_size_limit"),
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,
@@ -344,9 +347,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a MongoDB host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a MongoDB host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("disk_size_autoscaling_mongos.0.disk_size_limit"),
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,
@@ -357,10 +361,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"disk_size_autoscaling_mongod": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Disk size autoscaling settings for mongod.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
@@ -382,10 +387,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"disk_size_autoscaling_mongoinfra": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Disk size autoscaling settings for mongoinfra.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
@@ -407,10 +413,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"disk_size_autoscaling_mongocfg": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Disk size autoscaling settings for mongocfg.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
@@ -432,10 +439,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				},
 			},
 			"disk_size_autoscaling_mongos": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: "Disk size autoscaling settings for mongos.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
@@ -781,13 +789,15 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
+													Description:  "Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation.",
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: validation.StringInSlice([]string{"OFF", "SLOW_OP", "ALL"}, true),
 												},
 												"slow_op_threshold": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: "The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.",
 												},
 											},
 										},
@@ -800,8 +810,9 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_incoming_connections": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.",
+													Optional:    true,
 												},
 											},
 										},
@@ -814,14 +825,16 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"wired_tiger": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
-													Optional: true,
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "The WiredTiger engine settings. (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option).",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"cache_size_gb": {
-																Type:     schema.TypeFloat,
-																Optional: true,
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.",
 															},
 														},
 													},
@@ -848,13 +861,15 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max_incoming_connections": {
-													Type:     schema.TypeInt,
-													Optional: true,
+													Type:        schema.TypeInt,
+													Description: "The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.",
+													Optional:    true,
 												},
 												"compressors": {
-													Type:     schema.TypeList,
-													MaxItems: 3,
-													Optional: true,
+													Type:        schema.TypeList,
+													MaxItems:    3,
+													Optional:    true,
+													Description: "Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation.",
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
 														StateFunc:    stateToUpper,

@@ -23,6 +23,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"golang.org/x/exp/maps"
 )
@@ -542,6 +543,24 @@ func (r *redisClusterResource) Read(ctx context.Context, req resource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+}
+
+func (r *redisClusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+		return
+	}
+	var plan Cluster
+	var state Cluster
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	autoscalingOn := utils.IsPresent(state.DiskSizeAutoscaling)
+	// remove changes on disk_size from plan if enabled autoscaling
+	plan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, plan.Resources, state.Resources, autoscalingOn, &resp.Diagnostics)
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, plan)...)
 }
 
 func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

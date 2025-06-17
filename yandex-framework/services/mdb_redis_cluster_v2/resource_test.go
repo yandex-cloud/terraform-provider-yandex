@@ -3,6 +3,7 @@ package mdb_redis_cluster_v2_test
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -523,6 +524,29 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "config.backup_retain_period_days", "31"),
 					resource.TestCheckResourceAttr(redisResource, "config.backup_window_start.hours", "20"),
 					resource.TestCheckResourceAttr(redisResource, "config.backup_window_start.minutes", "15"),
+					testAccCheckMDBRedisOperations(redisResource, ops),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// Decrease disk size (nothing changes)
+			{
+				Config: makeConfig(t, testAccBaseConfig(redisNameUp, redisDescUp), &redisConfigTest{
+					Config: &config{
+						Version:  &version,
+						Password: newPtr("12345678PQ"),
+					},
+					Hosts: nonShardedHosts,
+
+					Resources: &hostResource{
+						ResourcePresetId: newPtr(baseFlavor),
+						DiskSize:         newPtr(baseDiskSize - 3),
+						DiskTypeId:       newPtr(diskTypeId),
+					},
+				}),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, false, false, "ON"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					resource.TestCheckResourceAttr(redisResource, "resources.disk_size", strconv.Itoa(baseDiskSize)),
 					testAccCheckMDBRedisOperations(redisResource, ops),
 				),
 			},

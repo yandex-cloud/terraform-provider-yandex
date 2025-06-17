@@ -184,3 +184,24 @@ func GetAttrNamesSetFromMap(o types.Map, diags *diag.Diagnostics) map[string]str
 
 	return attrs
 }
+
+func FixDiskSizeOnAutoscalingChanges(ctx context.Context, plan, state types.Object, autoscalingEnabled bool, diags *diag.Diagnostics) types.Object {
+	if state.IsNull() {
+		return plan
+	}
+	planR := &Resource{}
+	stateR := &Resource{}
+	diags.Append(plan.As(ctx, planR, baseOptions)...)
+	diags.Append(state.As(ctx, stateR, baseOptions)...)
+	if diags.HasError() {
+		return plan
+	}
+
+	if (stateR.DiskSize.ValueInt64() > planR.DiskSize.ValueInt64()) && autoscalingEnabled {
+		planR.DiskSize = stateR.DiskSize
+		obj, d := types.ObjectValueFrom(ctx, ResourceType.AttrTypes, planR)
+		diags.Append(d...)
+		return obj
+	}
+	return plan
+}

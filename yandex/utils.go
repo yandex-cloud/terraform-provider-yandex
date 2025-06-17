@@ -10,6 +10,7 @@ import (
 	"net"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -77,6 +78,30 @@ func getZone(d *schema.ResourceData, config *Config) (string, error) {
 		return "", fmt.Errorf("cannot determine zone: please set 'zone' key in this resource or at provider level")
 	}
 	return res.(string), nil
+}
+
+// doesn't show change disk_size on decreasing if enabled autoscaling disk limit
+// Example for `autoscalingPath` = disk_size_autoscaling.0.disk_size_limit
+func suppressDiskSizeChangeOnAutoscaling(autoscalingPath string) schema.SchemaDiffSuppressFunc {
+	return func(_, old, new string, d *schema.ResourceData) bool {
+		autoscaling := d.Get(autoscalingPath).(int)
+
+		newInt, err := strconv.Atoi(new)
+		if err != nil {
+			return false
+		}
+
+		oldInt, err := strconv.Atoi(old)
+		if err != nil {
+			return false
+		}
+
+		if oldInt > newInt && autoscaling > 0 {
+			return true
+		}
+
+		return false
+	}
 }
 
 func getCloudID(d *schema.ResourceData, config *Config) (string, error) {
