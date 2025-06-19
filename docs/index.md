@@ -65,7 +65,7 @@ Check [documentation](https://yandex.cloud/docs/iam/operations/iam-token/create)
 - `ymq_secret_key` (String, Sensitive) Yandex Cloud Message Queue service secret key, which is used when a YMQ queue resource doesn't have a secret key explicitly specified.
 This can also be specified using environment variable `YC_MESSAGE_QUEUE_SECRET_KEY`.
 - `yq_endpoint` (String) The Yandex Query API endpoint, default value is **grpc.yandex-query.cloud.yandex.net:2135**.
-This can also be defined by environment variable `YQ_ENDPOINT`.
+This can also be defined by environment variable `YC_YQ_ENDPOINT`.
 - `zone` (String) The default [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) to operate under, if not specified by a given resource.
 This can also be specified using environment variable `YC_ZONE`.
 

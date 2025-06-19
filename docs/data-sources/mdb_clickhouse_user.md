@@ -14,8 +14,8 @@ Manages a ClickHouse user within the Yandex.Cloud. For more information, see [th
 ```terraform
 data "yandex_mdb_clickhouse_user" "foo" {
   cluster_id = "some_cluster_id"
-  name     = "username"
-  password = "your_password"
+  name       = "username"
+  password   = "your_password"
 }
 
 output "permissions" {

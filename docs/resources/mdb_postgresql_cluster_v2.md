@@ -116,7 +116,7 @@ Optional:
 - `disk_size_autoscaling` (Attributes) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedatt--config--disk_size_autoscaling))
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--config--performance_diagnostics))
 - `pooler_config` (Attributes) Configuration of the connection pooler. (see [below for nested schema](#nestedatt--config--pooler_config))
-- `postgresql_config` (Map of String) PostgreSQL cluster config.
+- `postgresql_config` (Map of String) PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
 - `resources` (Block, Optional) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--resources))
 
 <a id="nestedatt--config--access"></a>

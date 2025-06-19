@@ -21,7 +21,7 @@ resource "yandex_metastore_cluster" "my_metastore_cluster" {
   }
 
   description = "My awesome Metastore"
-  
+
   logging = {
     enabled   = true
     folder_id = var.folder_id

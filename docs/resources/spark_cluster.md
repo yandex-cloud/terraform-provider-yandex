@@ -17,8 +17,8 @@ Managed Spark cluster.
 //
 resource "yandex_spark_cluster" "my_spark_cluster" {
 
-  name = "spark-cluster-1"
-  description = "created by terraform"
+  name               = "spark-cluster-1"
+  description        = "created by terraform"
   service_account_id = yandex_iam_service_account.for-spark.id
 
   labels = {

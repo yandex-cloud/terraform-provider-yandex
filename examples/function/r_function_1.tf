@@ -27,7 +27,7 @@ resource "yandex_function" "test-function" {
     }
   }
   async_invocation {
-    retries_count       = "3"
+    retries_count      = "3"
     service_account_id = "ajeih**********838kk"
     ymq_failure_target {
       service_account_id = "ajeqr**********qb76m"

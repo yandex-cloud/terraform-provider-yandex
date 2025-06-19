@@ -37,10 +37,10 @@ output "network_id" {
 - `database` (Block Set, Deprecated) A database of the MongoDB cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
-- `disk_size_autoscaling_mongocfg` (Block List, Max: 1) (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongocfg))
-- `disk_size_autoscaling_mongod` (Block List, Max: 1) (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongod))
-- `disk_size_autoscaling_mongoinfra` (Block List, Max: 1) (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongoinfra))
-- `disk_size_autoscaling_mongos` (Block List, Max: 1) (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongos))
+- `disk_size_autoscaling_mongocfg` (Block List, Max: 1) Disk size autoscaling settings for mongocfg. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongocfg))
+- `disk_size_autoscaling_mongod` (Block List, Max: 1) Disk size autoscaling settings for mongod. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongod))
+- `disk_size_autoscaling_mongoinfra` (Block List, Max: 1) Disk size autoscaling settings for mongoinfra. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongoinfra))
+- `disk_size_autoscaling_mongos` (Block List, Max: 1) Disk size autoscaling settings for mongos. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongos))
 - `environment` (String) Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `health` (String) Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
@@ -129,7 +129,8 @@ Optional:
 
 Optional:
 
-- `max_incoming_connections` (Number)
+- `max_incoming_connections` (Number) The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation. The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.
+
 
 
 <a id="nestedblock--cluster_config--mongocfg--operation_profiling"></a>
@@ -137,8 +138,10 @@ Optional:
 
 Optional:
 
-- `mode` (String)
-- `slow_op_threshold` (Number)
+- `mode` (String) Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation. Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation.
+
+- `slow_op_threshold` (Number) The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation. The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.
+
 
 
 <a id="nestedblock--cluster_config--mongocfg--storage"></a>
@@ -146,14 +149,16 @@ Optional:
 
 Optional:
 
-- `wired_tiger` (Block List, Max: 1) (see [below for nested schema](#nestedblock--cluster_config--mongocfg--storage--wired_tiger))
+- `wired_tiger` (Block List, Max: 1) The WiredTiger engine settings. (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option). (see [below for nested schema](#nestedblock--cluster_config--mongocfg--storage--wired_tiger))
+
 
 <a id="nestedblock--cluster_config--mongocfg--storage--wired_tiger"></a>
 ### Nested Schema for `cluster_config.mongocfg.storage.wired_tiger`
 
 Optional:
 
-- `cache_size_gb` (Number)
+- `cache_size_gb` (Number) Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation. Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.
+
 
 
 
@@ -299,8 +304,10 @@ Optional:
 
 Optional:
 
-- `compressors` (List of String)
-- `max_incoming_connections` (Number)
+- `compressors` (List of String) Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation. Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation.
+
+- `max_incoming_connections` (Number) The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation. The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.
+
 
 
 

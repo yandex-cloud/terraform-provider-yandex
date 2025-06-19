@@ -28,10 +28,10 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
   }
 
   hosts = {
-      "aaa" = {
-        zone      = "ru-central1-a"
-        subnet_id = yandex_vpc_subnet.foo.id
-      }
+    "aaa" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.foo.id
+    }
   }
 
   maintenance_window = {
@@ -69,23 +69,23 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
 
 
   hosts = {
-      "host_sh1" = {
-        zone       = "ru-central1-a"
-        subnet_id  = yandex_vpc_subnet.foo.id
-        shard_name = "first"
-      }
+    "host_sh1" = {
+      zone       = "ru-central1-a"
+      subnet_id  = yandex_vpc_subnet.foo.id
+      shard_name = "first"
+    }
 
-      "host_sh2" = {
-        zone       = "ru-central1-b"
-        subnet_id  = yandex_vpc_subnet.bar.id
-        shard_name = "second"
-      }
+    "host_sh2" = {
+      zone       = "ru-central1-b"
+      subnet_id  = yandex_vpc_subnet.bar.id
+      shard_name = "second"
+    }
 
-      "host_sh3" = {
-        zone       = "ru-central1-c"
-        subnet_id  = yandex_vpc_subnet.baz.id
-        shard_name = "third"
-      }
+    "host_sh3" = {
+      zone       = "ru-central1-c"
+      subnet_id  = yandex_vpc_subnet.baz.id
+      shard_name = "third"
+    }
   }
 }
 

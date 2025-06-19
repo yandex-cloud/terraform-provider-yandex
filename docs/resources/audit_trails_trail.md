@@ -197,7 +197,7 @@ filtering_policy {
 
 - `data_stream_destination` (Block List, Max: 1) Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`. (see [below for nested schema](#nestedblock--data_stream_destination))
 - `description` (String) The resource description.
-- `filter` (Block List, Max: 1, Deprecated) Structure is deprecated. Use `filtering_policy` instead.
+- `filter` (Block List, Max: 1, Deprecated) Structure is deprecated. Use `filtering_policy` instead. (see [below for nested schema](#nestedblock--filter))
 - `filtering_policy` (Block List, Max: 1) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled. (see [below for nested schema](#nestedblock--filtering_policy))
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `logging_destination` (Block List, Max: 1) Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`. (see [below for nested schema](#nestedblock--logging_destination))
@@ -217,6 +217,109 @@ Required:
 
 - `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 - `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `event_filters` (Block List) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters))
+- `path_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--path_filter))
+
+<a id="nestedblock--filter--event_filters"></a>
+### Nested Schema for `filter.event_filters`
+
+Required:
+
+- `categories` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters--categories))
+- `path_filter` (Block List, Min: 1, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter))
+- `service` (String) Deprecated.
+
+<a id="nestedblock--filter--event_filters--categories"></a>
+### Nested Schema for `filter.event_filters.categories`
+
+Required:
+
+- `plane` (String) Deprecated.
+- `type` (String) Deprecated.
+
+
+<a id="nestedblock--filter--event_filters--path_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter`
+
+Optional:
+
+- `any_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--any_filter))
+- `some_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter))
+
+<a id="nestedblock--filter--event_filters--path_filter--any_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.any_filter`
+
+Required:
+
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
+
+
+<a id="nestedblock--filter--event_filters--path_filter--some_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter`
+
+Required:
+
+- `any_filters` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--event_filters--path_filter--some_filter--any_filters))
+- `resource_id` (String) Deprecated.
+- `resource_type` (String) Deprecated.
+
+<a id="nestedblock--filter--event_filters--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter.any_filters`
+
+Required:
+
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
+
+
+
+
+
+<a id="nestedblock--filter--path_filter"></a>
+### Nested Schema for `filter.path_filter`
+
+Optional:
+
+- `any_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--path_filter--any_filter))
+- `some_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--path_filter--some_filter))
+
+<a id="nestedblock--filter--path_filter--any_filter"></a>
+### Nested Schema for `filter.path_filter.any_filter`
+
+Required:
+
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
+
+
+<a id="nestedblock--filter--path_filter--some_filter"></a>
+### Nested Schema for `filter.path_filter.some_filter`
+
+Required:
+
+- `any_filters` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedblock--filter--path_filter--some_filter--any_filters))
+- `resource_id` (String) Deprecated.
+- `resource_type` (String) Deprecated.
+
+<a id="nestedblock--filter--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.path_filter.some_filter.any_filters`
+
+Required:
+
+- `resource_id` (String) Resource ID.
+- `resource_type` (String) Resource type.
+
+
+
+
 
 <a id="nestedblock--filtering_policy"></a>
 ### Nested Schema for `filtering_policy`

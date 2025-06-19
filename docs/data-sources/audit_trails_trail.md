@@ -31,7 +31,7 @@ data "yandex_audit_trails_trail" "basic-trail" {
 
 - `data_stream_destination` (List of Object) Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`. (see [below for nested schema](#nestedatt--data_stream_destination))
 - `description` (String) The resource description.
-- `filter` (Set of Object, Deprecated) Structure is deprecated. Use `filtering_policy` instead.
+- `filter` (Set of Object, Deprecated) Structure is deprecated. Use `filtering_policy` instead. (see [below for nested schema](#nestedatt--filter))
 - `filtering_policy` (List of Object) Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `management_events_filter` or `data_events_filter` fields will be filled. (see [below for nested schema](#nestedatt--filtering_policy))
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `id` (String) The ID of this resource.
@@ -50,6 +50,134 @@ Read-Only:
 - `database_id` (String) ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
 
 - `stream_name` (String) Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+
+
+
+<a id="nestedatt--filter"></a>
+### Nested Schema for `filter`
+
+Read-Only:
+
+- `event_filters` (Block List) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters))
+
+- `path_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--path_filter))
+
+
+<a id="nestedobjatt--filter--event_filters"></a>
+### Nested Schema for `filter.event_filters`
+
+Read-Only:
+
+- `categories` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters--categories))
+
+- `path_filter` (Block List, Min: 1, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter))
+
+- `service` (String) Deprecated.
+
+
+<a id="nestedobjatt--filter--event_filters--categories"></a>
+### Nested Schema for `filter.event_filters.categories`
+
+Read-Only:
+
+- `plane` (String) Deprecated.
+
+- `type` (String) Deprecated.
+
+
+
+<a id="nestedobjatt--filter--event_filters--path_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter`
+
+Read-Only:
+
+- `any_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--any_filter))
+
+- `some_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--some_filter))
+
+
+<a id="nestedobjatt--filter--event_filters--path_filter--any_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.any_filter`
+
+Read-Only:
+
+- `resource_id` (String) Resource ID.
+
+- `resource_type` (String) Resource type.
+
+
+
+<a id="nestedobjatt--filter--event_filters--path_filter--some_filter"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter`
+
+Read-Only:
+
+- `any_filters` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--event_filters--path_filter--some_filter--any_filters))
+
+- `resource_id` (String) Deprecated.
+
+- `resource_type` (String) Deprecated.
+
+
+<a id="nestedobjatt--filter--event_filters--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.event_filters.path_filter.some_filter.any_filters`
+
+Read-Only:
+
+- `resource_id` (String) Resource ID.
+
+- `resource_type` (String) Resource type.
+
+
+
+
+
+
+<a id="nestedobjatt--filter--path_filter"></a>
+### Nested Schema for `filter.path_filter`
+
+Read-Only:
+
+- `any_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--path_filter--any_filter))
+
+- `some_filter` (Block List, Max: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter))
+
+
+<a id="nestedobjatt--filter--path_filter--any_filter"></a>
+### Nested Schema for `filter.path_filter.any_filter`
+
+Read-Only:
+
+- `resource_id` (String) Resource ID.
+
+- `resource_type` (String) Resource type.
+
+
+
+<a id="nestedobjatt--filter--path_filter--some_filter"></a>
+### Nested Schema for `filter.path_filter.some_filter`
+
+Read-Only:
+
+- `any_filters` (Block List, Min: 1) Deprecated. (see [below for nested schema](#nestedobjatt--filter--path_filter--some_filter--any_filters))
+
+- `resource_id` (String) Deprecated.
+
+- `resource_type` (String) Deprecated.
+
+
+<a id="nestedobjatt--filter--path_filter--some_filter--any_filters"></a>
+### Nested Schema for `filter.path_filter.some_filter.any_filters`
+
+Read-Only:
+
+- `resource_id` (String) Resource ID.
+
+- `resource_type` (String) Resource type.
+
+
+
+
 
 
 <a id="nestedatt--filtering_policy"></a>

@@ -16,8 +16,8 @@ resource "yandex_mdb_mysql_cluster_v2" "cluster" {
 
   hosts = {
     "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone             = "ru-central1-a"
+      subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
       assign_public_ip = false
     }
   }
@@ -29,30 +29,30 @@ resource "yandex_mdb_mysql_cluster_v2" "cluster" {
     disk_size          = 10
   }
 
-  performance_diagnostics  = {
-    sessions_sampling_interval = 60
+  performance_diagnostics = {
+    sessions_sampling_interval   = 60
     statements_sampling_interval = 600
   }
 
   access = {
-    web_sql = true
+    web_sql       = true
     data_transfer = true
-    data_lens = true
+    data_lens     = true
   }
 
   maintenance_window = {
     type = "WEEKLY"
-    day = "MON"
+    day  = "MON"
     hour = 3
   }
 
   backup_window_start = {
-    hours = 5
+    hours   = 5
     minutes = 5
   }
 
   backup_retain_period_days = 8
-  deletion_protection = true
+  deletion_protection       = true
 }
 
 // Auxiliary resources

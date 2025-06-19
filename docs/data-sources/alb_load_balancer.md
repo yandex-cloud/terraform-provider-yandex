@@ -37,6 +37,7 @@ data "yandex_alb_load_balancer" "tf-alb-data" {
 
 - `allocation_policy` (List of Object) Allocation zones for the Load Balancer instance. (see [below for nested schema](#nestedatt--allocation_policy))
 - `allow_zonal_shift` (Boolean) Specifies whether application load balancer is available to zonal shift
+- `auto_scale_policy` (List of Object) Scaling settings of the application load balancer. (see [below for nested schema](#nestedatt--auto_scale_policy))
 - `created_at` (String) The creation timestamp of the resource.
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -79,6 +80,17 @@ Read-Only:
 
 - `zone_id` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 
+
+
+
+<a id="nestedatt--auto_scale_policy"></a>
+### Nested Schema for `auto_scale_policy`
+
+Read-Only:
+
+- `max_size` (Number) Upper limit for total instance count (across all zones)
+
+- `min_zone_size` (Number) Lower limit for instance count in each zone.
 
 
 

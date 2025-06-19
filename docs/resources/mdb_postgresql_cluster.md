@@ -240,7 +240,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `host_group_ids` (Set of String) Host Group IDs.
-- `host_master_name` (String, Deprecated)
+- `host_master_name` (String, Deprecated) Deprecated field. Will be removed in future versions.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Block List, Max: 1) Maintenance policy of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--maintenance_window))
 - `restore` (Block List, Max: 1) The cluster will be created from the specified backup. (see [below for nested schema](#nestedblock--restore))
@@ -272,7 +272,7 @@ Optional:
 - `disk_size_autoscaling` (Block List, Max: 1) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedblock--config--disk_size_autoscaling))
 - `performance_diagnostics` (Block List, Max: 1) Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics). (see [below for nested schema](#nestedblock--config--performance_diagnostics))
 - `pooler_config` (Block List, Max: 1) Configuration of the connection pooler. (see [below for nested schema](#nestedblock--config--pooler_config))
-- `postgresql_config` (Map of String) PostgreSQL cluster config. Detail info in `postresql config` section.
+- `postgresql_config` (Map of String) PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
 
 <a id="nestedblock--config--resources"></a>
 ### Nested Schema for `config.resources`
@@ -362,7 +362,7 @@ Read-Only:
 
 - `fqdn` (String) The fully qualified domain name of the host.
 - `replication_source` (String) Host replication source (fqdn), when replication_source is empty then host is in HA group.
-- `role` (String)
+- `role` (String) Host's role (replica|primary), computed by server.
 
 
 <a id="nestedblock--database"></a>
@@ -370,26 +370,26 @@ Read-Only:
 
 Required:
 
-- `name` (String)
-- `owner` (String)
+- `name` (String) The resource name.
+- `owner` (String) Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
 
 Optional:
 
-- `extension` (Block Set) (see [below for nested schema](#nestedblock--database--extension))
-- `lc_collate` (String)
-- `lc_type` (String)
-- `template_db` (String)
+- `extension` (Block Set) Set of database extensions. (see [below for nested schema](#nestedblock--database--extension))
+- `lc_collate` (String) POSIX locale for string sorting order. Forbidden to change in an existing database.
+- `lc_type` (String) POSIX locale for character classification. Forbidden to change in an existing database.
+- `template_db` (String) Name of the template database.
 
 <a id="nestedblock--database--extension"></a>
 ### Nested Schema for `database.extension`
 
 Required:
 
-- `name` (String)
+- `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
 
 Optional:
 
-- `version` (String)
+- `version` (String) Version of the extension.
 
 
 
@@ -436,23 +436,65 @@ Optional:
 
 Required:
 
-- `name` (String)
-- `password` (String, Sensitive)
+- `name` (String) The name of the user.
+- `password` (String, Sensitive) The password of the user.
 
 Optional:
 
-- `conn_limit` (Number)
-- `grants` (List of String)
-- `login` (Boolean)
-- `permission` (Block Set) (see [below for nested schema](#nestedblock--user--permission))
-- `settings` (Map of String)
+- `conn_limit` (Number) The maximum number of connections per user. (Default 50).
+- `grants` (List of String) List of the user's grants.
+- `login` (Boolean) User's ability to login.
+- `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedblock--user--permission))
+- `settings` (Map of String) Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+
+* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`
+  - 1: `read uncommitted`
+  - 2: `read committed`
+  - 3: `repeatable read`
+  - 4: `serializable`
+
+* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)
+
+* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)
+
+* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:
+  - 0: `unspecified`
+  - 1: `on`
+  - 2: `off`
+  - 3: `local`
+  - 4: `remote write`
+  - 5: `remote apply`
+
+* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
+
+* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:
+  - 0: `unspecified`
+  - 1: `none`
+  - 2: `ddl`
+  - 3: `mod`
+  - 4: `all`
+
+* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:
+  - 1: `session`
+  - 2: `transaction`
+  - 3: `statement`
+
+* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
+
+* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.
+
+* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.
+
+* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.
+
+* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer
 
 <a id="nestedblock--user--permission"></a>
 ### Nested Schema for `user.permission`
 
 Required:
 
-- `database_name` (String)
+- `database_name` (String) The name of the database that the permission grants access to.
 
 ## Import
 

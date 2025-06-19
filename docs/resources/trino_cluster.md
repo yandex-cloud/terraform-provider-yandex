@@ -76,9 +76,7 @@ resource "yandex_trino_cluster" "trino" {
 ### Read-Only
 
 - `created_at` (String) The creation timestamp of the resource.
-- `health` (String) Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-trino/api-ref/Cluster/).
 - `id` (String) The resource identifier.
-- `status` (String) Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-trino/api-ref/Cluster/).
 
 <a id="nestedatt--coordinator"></a>
 ### Nested Schema for `coordinator`

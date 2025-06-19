@@ -73,7 +73,7 @@ Read-Only:
 
 - `pooler_config` (Block List, Max: 1) Configuration of the connection pooler. (see [below for nested schema](#nestedobjatt--config--pooler_config))
 
-- `postgresql_config` (Map of String) PostgreSQL cluster config. Detail info in `postresql config` section.
+- `postgresql_config` (Map of String) PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
 
 - `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedobjatt--config--resources))
 
@@ -162,20 +162,28 @@ Read-Only:
 
 Read-Only:
 
-- `extension` (Set of Object) (see [below for nested schema](#nestedobjatt--database--extension))
-- `lc_collate` (String)
-- `lc_type` (String)
-- `name` (String)
-- `owner` (String)
-- `template_db` (String)
+- `extension` (Block Set) Set of database extensions. (see [below for nested schema](#nestedobjatt--database--extension))
+
+- `lc_collate` (String) POSIX locale for string sorting order. Forbidden to change in an existing database.
+
+- `lc_type` (String) POSIX locale for character classification. Forbidden to change in an existing database.
+
+- `name` (String) The resource name.
+
+- `owner` (String) Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+
+- `template_db` (String) Name of the template database.
+
 
 <a id="nestedobjatt--database--extension"></a>
 ### Nested Schema for `database.extension`
 
 Read-Only:
 
-- `name` (String)
-- `version` (String)
+- `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
+
+- `version` (String) Version of the extension.
+
 
 
 
@@ -192,7 +200,8 @@ Read-Only:
 
 - `replication_source` (String) Host replication source (fqdn), when replication_source is empty then host is in HA group.
 
-- `role` (String)
+- `role` (String) Host's role (replica|primary), computed by server.
+
 - `subnet_id` (String) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
 - `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
@@ -217,16 +226,23 @@ Read-Only:
 
 Read-Only:
 
-- `conn_limit` (Number)
-- `grants` (List of String)
-- `login` (Boolean)
-- `name` (String)
-- `permission` (Set of Object) (see [below for nested schema](#nestedobjatt--user--permission))
-- `settings` (Map of String)
+- `conn_limit` (Number) The maximum number of connections per user. (Default 50).
+
+- `grants` (List of String) List of the user's grants.
+
+- `login` (Boolean) User's ability to login.
+
+- `name` (String) The name of the user.
+
+- `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedobjatt--user--permission))
+
+- `settings` (Map of String) Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+
 
 <a id="nestedobjatt--user--permission"></a>
 ### Nested Schema for `user.permission`
 
 Read-Only:
 
-- `database_name` (String)
+- `database_name` (String) The name of the database that the permission grants access to.
+

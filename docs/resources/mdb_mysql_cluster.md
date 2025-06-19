@@ -328,7 +328,8 @@ resource "yandex_vpc_subnet" "foo" {
 ### Optional
 
 - `access` (Block List, Max: 1) Access policy to the MySQL cluster. (see [below for nested schema](#nestedblock--access))
-- `allow_regeneration_host` (Boolean, Deprecated)
+- `allow_regeneration_host` (Boolean, Deprecated) Deprecated field. You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.
+Regenerate hosts after changing the assign_public_ip parameter.
 - `backup_retain_period_days` (Number) The period in days during which backups are stored.
 - `backup_window_start` (Block List, Max: 1) Time to start the daily backup, in the UTC. (see [below for nested schema](#nestedblock--backup_window_start))
 - `database` (Block Set, Deprecated) To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`. (see [below for nested schema](#nestedblock--database))
@@ -421,7 +422,7 @@ Required:
 Optional:
 
 - `day` (String) Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`
-- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
+- `hour` (Number) Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
 
 
 <a id="nestedblock--performance_diagnostics"></a>

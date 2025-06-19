@@ -43,14 +43,12 @@ data "yandex_trino_cluster" "tirno_cluster_by_id" {
 - `created_at` (String) The creation timestamp of the resource.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
-- `health` (String) Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-trino/api-ref/Cluster/).
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `logging` (Attributes) Cloud Logging configuration. (see [below for nested schema](#nestedatt--logging))
 - `maintenance_window` (Attributes) Configuration of window for maintenance operations. (see [below for nested schema](#nestedatt--maintenance_window))
 - `retry_policy` (Attributes) Configuration for retry policy, specifying the spooling storage destination and other settings. (see [below for nested schema](#nestedatt--retry_policy))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource. For more information, see [documentation](https://yandex.cloud/docs/managed-trino/concepts/impersonation).
-- `status` (String) Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-trino/api-ref/Cluster/).
 - `subnet_ids` (Set of String) The list of VPC subnets identifiers which resource is attached.
 - `worker` (Attributes) Configuration of worker instances. (see [below for nested schema](#nestedatt--worker))
 

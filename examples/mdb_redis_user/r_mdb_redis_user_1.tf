@@ -4,7 +4,7 @@
 resource "yandex_mdb_redis_user" "my_user" {
   cluster_id = yandex_mdb_redis_cluster_v2.my_cluster.id
   name       = "alice"
-  passwords   = ["password"]
+  passwords  = ["password"]
 }
 
 resource "yandex_mdb_redis_cluster_v2" "my_cluster" {
@@ -23,10 +23,10 @@ resource "yandex_mdb_redis_cluster_v2" "my_cluster" {
   }
 
   hosts = {
-      "aaa" = {
-        zone      = "ru-central1-a"
-        subnet_id = yandex_vpc_subnet.foo.id
-      }
+    "aaa" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.foo.id
+    }
   }
 
   maintenance_window = {

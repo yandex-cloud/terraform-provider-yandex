@@ -12,9 +12,9 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   network_id  = yandex_vpc_network.foo.id
 
   resources {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 32
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 32
   }
 
   config {
@@ -33,19 +33,19 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   lifecycle {
-    ignore_changes = [database, user,]
+    ignore_changes = [database, user, ]
   }
 }
 
 resource "yandex_mdb_clickhouse_database" "foo" {
   cluster_id = yandex_mdb_clickhouse_cluster.foo.id
-  name = "database1"
+  name       = "database1"
 }
 
 resource "yandex_mdb_clickhouse_user" "foo" {
   cluster_id = yandex_mdb_clickhouse_cluster.foo.id
-  name     = "user"
-  password = "your_password"
+  name       = "user"
+  password   = "your_password"
 
   permission {
     database_name = yandex_mdb_clickhouse_database.foo.name

@@ -64,6 +64,7 @@ resource "yandex_alb_load_balancer" "my_alb" {
 ### Optional
 
 - `allow_zonal_shift` (Boolean) Specifies whether application load balancer is available to zonal shift
+- `auto_scale_policy` (Block List, Max: 1) Scaling settings of the application load balancer. (see [below for nested schema](#nestedblock--auto_scale_policy))
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
@@ -100,6 +101,15 @@ Optional:
 
 - `disable_traffic` (Boolean) If set, will disable all L7 instances in the zone for request handling.
 
+
+
+<a id="nestedblock--auto_scale_policy"></a>
+### Nested Schema for `auto_scale_policy`
+
+Optional:
+
+- `max_size` (Number) Upper limit for total instance count (across all zones)
+- `min_zone_size` (Number) Lower limit for instance count in each zone.
 
 
 <a id="nestedblock--listener"></a>
@@ -209,9 +219,6 @@ Optional:
 Optional:
 
 - `backend_group_id` (String) Backend Group ID.
-
-Read-Only:
-
 - `idle_timeout` (String) The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
 
 
@@ -264,9 +271,6 @@ Optional:
 Optional:
 
 - `backend_group_id` (String) Backend Group ID.
-
-Read-Only:
-
 - `idle_timeout` (String) The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
 
 
@@ -317,9 +321,6 @@ Optional:
 Optional:
 
 - `backend_group_id` (String) Backend Group ID.
-
-Read-Only:
-
 - `idle_timeout` (String) The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
 
 
