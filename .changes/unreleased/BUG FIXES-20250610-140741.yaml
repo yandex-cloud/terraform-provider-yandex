@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix bug leading to panic when user has permissions to non-existent database'
-time: 2025-06-10T14:07:41.8547292+03:00

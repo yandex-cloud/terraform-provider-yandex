@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'redis: add `yandex_mdb_redis_user` resource and data-source'
-time: 2025-04-15T23:15:32.32453+05:00

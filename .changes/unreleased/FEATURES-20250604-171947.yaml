@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'kubernetes: added resources `yandex_kubernetes_cluster_iam_binding` and `yandex_kubernetes_cluster_iam_member`'
-time: 2025-06-04T17:19:47.723139+02:00

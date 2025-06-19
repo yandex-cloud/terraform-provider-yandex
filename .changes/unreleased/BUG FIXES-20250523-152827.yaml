@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mysql: no changes detected on mysql cluster creation when maintenance_window = ANYTIME'
-time: 2025-05-23T15:28:27.159558+03:00

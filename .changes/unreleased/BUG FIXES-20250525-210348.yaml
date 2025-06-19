@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: no changes detected on postgresql cluster creation when maintenance_window = ANYTIME'
-time: 2025-05-25T21:03:48.277538+03:00
