@@ -26,7 +26,7 @@ import (
 
 const chVersion = "24.8"
 const chUpdatedVersion = "25.3"
-const chDowngradeVersion = "25.2"
+const chDowngradeVersion = "25.5"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -1927,7 +1927,7 @@ resource "yandex_vpc_security_group" "mdb-ch-test-sg-y" {
 `
 
 func clickhouseObjectStorageDependencies(bucket string, randInt int) string {
-	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf(`
+	return testAccCommonIamDependenciesStorageAdminConfig(randInt) + fmt.Sprintf(`
 resource "yandex_storage_bucket" "tmp_bucket" {
   bucket = "%s"
   acl    = "public-read"

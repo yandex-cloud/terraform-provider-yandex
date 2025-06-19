@@ -515,6 +515,10 @@ func testAccCommonIamDependenciesEditorConfig(randInt int) string {
 	return testAccCommonIamDependenciesConfigImpl(randInt, "editor")
 }
 
+func testAccCommonIamDependenciesStorageAdminConfig(randInt int) string {
+	return testAccCommonIamDependenciesConfigImpl(randInt, "storage.admin")
+}
+
 func testAccCommonIamDependenciesConfigImpl(randInt int, role string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "sa" {
