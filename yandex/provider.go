@@ -37,6 +37,11 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 				Optional:    true,
 				Description: common.Descriptions["endpoint"],
 			},
+			"yq_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: common.Descriptions["yq_endpoint"],
+			},
 			"folder_id": {
 				Type:        schema.TypeString,
 				Optional:    true,

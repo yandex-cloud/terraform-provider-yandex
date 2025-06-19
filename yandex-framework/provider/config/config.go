@@ -26,6 +26,7 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/yqsdk"
 )
 
 const (
@@ -34,6 +35,7 @@ const (
 
 type State struct {
 	Endpoint                       types.String `tfsdk:"endpoint"`
+	YQEndpoint                     types.String `tfsdk:"yq_endpoint"`
 	FolderID                       types.String `tfsdk:"folder_id"`
 	CloudID                        types.String `tfsdk:"cloud_id"`
 	OrganizationID                 types.String `tfsdk:"organization_id"`
@@ -65,11 +67,22 @@ type State struct {
 }
 
 // TODO: remove yandex.Config when it is not used
+type iamToken struct {
+	Token     string
+	expiresAt time.Time
+}
+
+func (t iamToken) IsValid() bool {
+	return t.Token != "" && t.expiresAt.After(time.Now())
+}
+
 type Config struct {
 	ProviderState State
 
 	UserAgent types.String
 	SDK       *ycsdk.SDK
+	YqSdk     *yqsdk.SDK
+	iamToken  *iamToken
 }
 
 // Client configures and returns a fully initialized Yandex Cloud SDK
@@ -126,6 +139,25 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		grpc.WithUnaryInterceptor(interceptorChain),
 		retryOptions)
 
+	if err != nil {
+		return err
+	}
+
+	yqSDKConfig := &yqsdk.Config{
+		AuthTokenProvider: func(ctx context.Context) (string, error) { return c.getIAMToken(ctx) },
+		FolderID:          c.ProviderState.FolderID.ValueString(),
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: c.ProviderState.Insecure.ValueBool(),
+		},
+		Endpoint:  c.ProviderState.YQEndpoint.ValueString(),
+		Plaintext: c.ProviderState.Plaintext.ValueBool(),
+	}
+
+	c.YqSdk, err = yqsdk.NewYQSDK(ctx, *yqSDKConfig)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -161,6 +193,26 @@ func (c *Config) Credentials(ctx context.Context) (ycsdk.Credentials, error) {
 	return nil, fmt.Errorf("one of 'token' or 'service_account_key_file' should be specified;" +
 		" if you are inside compute instance, you can attach service account to it in order to " +
 		"authenticate via instance service account")
+}
+
+func (c *Config) getIAMToken(ctx context.Context) (string, error) {
+	if c.iamToken != nil && c.iamToken.IsValid() {
+		return c.iamToken.Token, nil
+	}
+
+	resp, err := c.SDK.CreateIAMToken(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get IAM token: %w", err)
+	}
+
+	c.iamToken = &iamToken{
+		Token: resp.IamToken,
+	}
+	if resp.ExpiresAt != nil && resp.ExpiresAt.IsValid() {
+		c.iamToken.expiresAt = resp.ExpiresAt.AsTime()
+	}
+
+	return c.iamToken.Token, nil
 }
 
 func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {

@@ -32,6 +32,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
@@ -47,9 +48,13 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
-
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_monitoring_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_object_storage_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_object_storage_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_ydb_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_yds_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/yq_yds_connection"
 	// "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
 )
 
 type saKeyValidator struct{}
@@ -109,6 +114,10 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 			"endpoint": schema.StringAttribute{
 				Optional:    true,
 				Description: common.Descriptions["endpoint"],
+			},
+			"yq_endpoint": schema.StringAttribute{
+				Optional:    true,
+				Description: common.Descriptions["yq_endpoint"],
 			},
 			"folder_id": schema.StringAttribute{
 				Optional:    true,
@@ -217,6 +226,7 @@ func setToDefaultBoolIfNeeded(field types.Bool, osEnvName string, defaultVal boo
 
 func setDefaults(config provider_config.State) provider_config.State {
 	config.Endpoint = setToDefaultIfNeeded(config.Endpoint, "YC_ENDPOINT", common.DefaultEndpoint)
+	config.YQEndpoint = setToDefaultIfNeeded(config.YQEndpoint, "YC_YQ_ENDPOINT", common.DefaultYQEndpoint)
 	config.FolderID = setToDefaultIfNeeded(config.FolderID, "YC_FOLDER_ID", "")
 	config.CloudID = setToDefaultIfNeeded(config.CloudID, "YC_CLOUD_ID", "")
 	config.OrganizationID = setToDefaultIfNeeded(config.OrganizationID, "YC_ORGANIZATION_ID", "")
@@ -298,6 +308,12 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		gitlab_instance.NewResource,
 		trino_cluster.NewResource,
 		trino_catalog.NewResource,
+		yq_object_storage_connection.NewResource,
+		yq_object_storage_binding.NewResource,
+		yq_monitoring_connection.NewResource,
+		yq_ydb_connection.NewResource,
+		yq_yds_connection.NewResource,
+		yq_yds_binding.NewResource,
 	}
 }
 

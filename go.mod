@@ -44,6 +44,7 @@ require (
 	github.com/yandex-cloud/go-genproto v0.9.0
 	github.com/yandex-cloud/go-sdk v0.8.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.24
+	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.33.0
@@ -261,7 +262,6 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
-	github.com/ydb-platform/ydb-go-genproto v0.0.0-20241112172322-ea1f63298f77 // indirect
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.99.12 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect

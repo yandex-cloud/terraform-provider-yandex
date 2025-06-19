@@ -1,8 +1,10 @@
 package testhelpers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"text/template"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -71,4 +73,19 @@ func AccCheckResourceAttrWithValueFactory(name, key string, valueFactory func() 
 func ErrorMessage(err error) string {
 	grpcStatus, _ := status.FromError(err)
 	return grpcStatus.Message()
+}
+
+func TemplateConfig(tmpl string, ctx ...map[string]interface{}) string {
+	p := make(map[string]interface{})
+	for _, c := range ctx {
+		for k, v := range c {
+			p[k] = v
+		}
+	}
+	b := &bytes.Buffer{}
+	err := template.Must(template.New("").Parse(tmpl)).Execute(b, p)
+	if err != nil {
+		panic(fmt.Errorf("failed to execute config template: %v", err))
+	}
+	return b.String()
 }
