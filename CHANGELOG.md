@@ -1,3 +1,23 @@
+## 0.144.0 (June 19, 2025)
+
+FEATURES:
+* redis: add `yandex_mdb_redis_user` resource and data-source
+* managed_metastore: added resource, datasource, acc-tests, docs
+* trino: added 'yandex_trino_cluster' resources
+* gitlab: Added instance resource and datasource
+* kubernetes: added resources `yandex_kubernetes_cluster_iam_binding` and `yandex_kubernetes_cluster_iam_member`
+* trino: added 'yandex_trino_catalog' resource and data-source
+* redis: ignore decreasing disk size on autoscaling
+* mongodb: ignore decreasing disk size on autoscaling
+* alb: added auto_scale_policy field to resourse 'yandex_alb_load_balancer'
+
+BUG FIXES:
+* mysql: no changes detected on mysql cluster creation when maintenance_window = ANYTIME
+* postgresql: no changes detected on postgresql cluster creation when maintenance_window = ANYTIME
+* kafka: fix bug with downgrade disk after its autoscale
+* postgresql: fix bug leading to panic when user has permissions to non-existent database
+* postgresql: fix postgresql settings loss on versions 16-1c and 17-1c
+
 ## 0.143.0 (June 3, 2025)
 
 FEATURES:
