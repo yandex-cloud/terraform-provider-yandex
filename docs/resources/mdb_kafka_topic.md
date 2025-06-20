@@ -108,6 +108,6 @@ Optional:
 The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-# terraform import yandex_mdb_kafka_topic.<resource Name> <resource Id>
-terraform import yandex_mdb_kafka_topic.events ...
+# terraform import yandex_mdb_kafka_topic.<resource_name> <cluster_id>:<topic_name>
+terraform import yandex_mdb_kafka_topic.events <cluster_id>:events
 ```
