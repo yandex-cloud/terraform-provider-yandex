@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'yq: initial support for Yandex Query service: monitoring, object storage, yds, ydb support'
+time: 2025-06-20T14:26:15.1590176+03:00
