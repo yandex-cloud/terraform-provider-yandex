@@ -92,11 +92,6 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 							Description: "Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).",
 							Required:    true,
 						},
-						"version": {
-							Type:        schema.TypeString,
-							Description: "Version of the extension.",
-							Optional:    true,
-						},
 					},
 				},
 			},

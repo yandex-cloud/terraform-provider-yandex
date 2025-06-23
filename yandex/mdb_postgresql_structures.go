@@ -942,7 +942,6 @@ func flattenPGExtensions(es []*postgresql.Extension) *schema.Set {
 	for _, e := range es {
 		m := make(map[string]interface{})
 		m["name"] = e.Name
-		m["version"] = e.Version
 
 		out.Add(m)
 	}
@@ -955,9 +954,6 @@ func pgExtensionHash(v interface{}) int {
 
 	m := v.(map[string]interface{})
 	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-	if v, ok := m["version"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
@@ -1322,10 +1318,6 @@ func expandPGExtensions(es []interface{}) []*postgresql.Extension {
 
 		if v, ok := m["name"]; ok {
 			extension.Name = v.(string)
-		}
-
-		if v, ok := m["version"]; ok {
-			extension.Version = v.(string)
 		}
 
 		out = append(out, extension)

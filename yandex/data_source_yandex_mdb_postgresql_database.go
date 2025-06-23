@@ -13,8 +13,9 @@ func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 		Read: dataSourceYandexMDBPostgreSQLDatabaseRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLDatabase().Schema["cluster_id"].Description,
+				Required:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -46,18 +47,16 @@ func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 				Optional:    true,
 			},
 			"extension": {
-				Type:     schema.TypeSet,
-				Set:      pgExtensionHash,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBPostgreSQLDatabase().Schema["extension"].Description,
+				Set:         pgExtensionHash,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"version": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Description: "Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).",
+							Required:    true,
 						},
 					},
 				},
