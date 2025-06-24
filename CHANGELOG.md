@@ -1,3 +1,11 @@
+## 0.145.0 (June 24, 2025)
+
+FEATURES:
+* yq: initial support for Yandex Query service: monitoring, object storage, yds, ydb support
+
+ENHANCEMENTS:
+* postgresql: remove deprecated field "extension.version" from database resource
+
 ## 0.144.0 (June 19, 2025)
 
 FEATURES:
