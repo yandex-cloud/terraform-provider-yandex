@@ -78,13 +78,12 @@ func resourceYandexMDBKafkaUserCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	clusterID := d.Get("cluster_id").(string)
-	// Need to set resource id to value of cluster id, cause this value used in createKafkaUser func
-	d.SetId(clusterID)
+	userID := constructResourceId(clusterID, userSpec.Name)
+	d.SetId(userID)
+
 	if err = createKafkaUser(ctx, config, d, userSpec); err != nil {
 		return err
 	}
-	userID := constructResourceId(clusterID, userSpec.Name)
-	d.SetId(userID)
 	return resourceYandexMDBKafkaUserRead(d, meta)
 }
 
@@ -187,7 +186,8 @@ func resourceYandexMDBKafkaUserDelete(d *schema.ResourceData, meta interface{}) 
 
 	clusterID := d.Get("cluster_id").(string)
 	userName := d.Get("name").(string)
-	// Need to set resource id to value of cluster id, cause this value used in deleteKafkaUser func
-	d.SetId(clusterID)
+	userID := constructResourceId(clusterID, userName)
+	d.SetId(userID)
+
 	return deleteKafkaUser(ctx, config, d, userName)
 }
