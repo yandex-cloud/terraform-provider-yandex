@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'kafka: fix user resource state corruption on creation failure by removing temporary ID assignment'
+time: 2025-06-25T18:02:51.54974+05:00

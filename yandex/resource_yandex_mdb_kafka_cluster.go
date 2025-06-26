@@ -1384,7 +1384,8 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	currUsers, err := listKafkaUsers(ctx, config, d.Id())
+	clusterID := d.Id()
+	currUsers, err := listKafkaUsers(ctx, config, clusterID)
 	if err != nil {
 		return err
 	}
@@ -1396,13 +1397,13 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	toDelete, toAdd := kafkaUsersDiff(currUsers, targetUsers)
 
 	for _, user := range toDelete {
-		err := deleteKafkaUser(ctx, config, d, user)
+		err := deleteKafkaUser(ctx, config, clusterID, user)
 		if err != nil {
 			return err
 		}
 	}
 	for _, user := range toAdd {
-		err := createKafkaUser(ctx, config, d, user)
+		err := createKafkaUser(ctx, config, clusterID, user)
 		if err != nil {
 			return err
 		}
@@ -1417,31 +1418,31 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func deleteKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
+func deleteKafkaUser(ctx context.Context, config *Config, clusterID string, userName string) error {
 	req := &kafka.DeleteUserRequest{
-		ClusterId: d.Id(),
+		ClusterId: clusterID,
 		UserName:  userName,
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, d.Id())
+		log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, clusterID)
 		return config.sdk.MDB().Kafka().User().Delete(ctx, req)
 	})
 	if err != nil {
-		return fmt.Errorf("error while requesting API to delete user from Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to delete user from Kafka Cluster %q: %s", clusterID, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while deleting user from Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while deleting user from Kafka Cluster %q: %s", clusterID, err)
 	}
 	log.Printf("[DEBUG] Finished deleting Kafka user %q", userName)
 	return nil
 }
 
-func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, userSpec *kafka.UserSpec) error {
+func createKafkaUser(ctx context.Context, config *Config, clusterID string, userSpec *kafka.UserSpec) error {
 	req := &kafka.CreateUserRequest{
-		ClusterId: d.Id(),
+		ClusterId: clusterID,
 		UserSpec:  userSpec,
 	}
 
@@ -1450,15 +1451,15 @@ func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 		return config.sdk.MDB().Kafka().User().Create(ctx, req)
 	})
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create user %q in Kafka Cluster %q: %s", userSpec.Name, d.Id(), err)
+		return fmt.Errorf("error while requesting API to create user %q in Kafka Cluster %q: %s", userSpec.Name, clusterID, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while waiting for Kafka user %q in cluster %q create operation: %s", userSpec.Name, d.Id(), err)
+		return fmt.Errorf("error while waiting for Kafka user %q in cluster %q create operation: %s", userSpec.Name, clusterID, err)
 	}
 	if _, err = op.Response(); err != nil {
-		return fmt.Errorf("kafka user %q creation failed in cluster %q: %s", userSpec.Name, d.Id(), err)
+		return fmt.Errorf("kafka user %q creation failed in cluster %q: %s", userSpec.Name, clusterID, err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka user %q", userSpec.Name)
 	return nil
