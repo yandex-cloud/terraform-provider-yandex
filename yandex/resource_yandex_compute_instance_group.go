@@ -73,9 +73,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 
 									"gpus": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Description: "If provided, specifies the number of GPU devices for the instance.",
+										Optional:    true,
+										ForceNew:    true,
 									},
 
 									"core_fraction": {
@@ -145,6 +146,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 
 									"disk_id": {
 										Type:          schema.TypeString,
+										Description:   "The ID of the existing disk (such as those managed by yandex_compute_disk) to attach as a boot disk.",
 										Optional:      true,
 										ConflictsWith: []string{"instance_template.boot_disk.initialize_params"},
 									},
@@ -195,9 +197,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 
 									"ipv4": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  true,
+										Type:        schema.TypeBool,
+										Description: "Allocate an IPv4 address for the interface. The default value is `true`.",
+										Optional:    true,
+										Default:     true,
 									},
 
 									"nat": {
@@ -214,9 +217,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 
 									"ipv6": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: "If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.",
+										Optional:    true,
+										Computed:    true,
 									},
 
 									"ip_address": {
@@ -264,7 +268,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 												"ptr": {
 													Type:        schema.TypeBool,
-													Description: "When set to true, also create PTR DNS record.",
+													Description: "When set to `true`, also create PTR DNS record.",
 													Optional:    true,
 													Computed:    true,
 												},
@@ -295,7 +299,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 												"ptr": {
 													Type:        schema.TypeBool,
-													Description: "When set to true, also create PTR DNS record.",
+													Description: "When set to `true`, also create PTR DNS record.",
 													Optional:    true,
 													Computed:    true,
 												},
@@ -326,7 +330,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 												"ptr": {
 													Type:        schema.TypeBool,
-													Description: "When set to true, also create PTR DNS record.",
+													Description: "When set to `true`, also create PTR DNS record.",
 													Optional:    true,
 													Computed:    true,
 												},
@@ -552,24 +556,28 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"gce_http_endpoint": {
 										Type:         schema.TypeInt,
+										Description:  "Enables access to GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.",
 										ValidateFunc: validation.IntBetween(0, 2),
 										Optional:     true,
 										Computed:     true,
 									},
 									"aws_v1_http_endpoint": {
 										Type:         schema.TypeInt,
+										Description:  "Enables access to AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.",
 										ValidateFunc: validation.IntBetween(0, 2),
 										Optional:     true,
 										Computed:     true,
 									},
 									"gce_http_token": {
 										Type:         schema.TypeInt,
+										Description:  "Enables access to IAM credentials with GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.",
 										ValidateFunc: validation.IntBetween(0, 2),
 										Optional:     true,
 										Computed:     true,
 									},
 									"aws_v1_http_token": {
 										Type:         schema.TypeInt,
+										Description:  "Enables access to IAM credentials with AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.",
 										ValidateFunc: validation.IntBetween(0, 2),
 										Optional:     true,
 										Computed:     true,
@@ -674,34 +682,41 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"rule_type": {
 													Type:         schema.TypeString,
+													Description:  "The metric rule type (UTILIZATION, WORKLOAD). UTILIZATION for metrics describing resource utilization per VM instance. WORKLOAD for metrics describing total workload on all VM instances.",
 													Required:     true,
 													ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "WORKLOAD"}, false),
 												},
 												"metric_type": {
 													Type:         schema.TypeString,
+													Description:  "Type of metric, can be `GAUGE` or `COUNTER`. `GAUGE` metric reflects the value at particular time point. `COUNTER` metric exhibits a monotonous growth over time.",
 													Required:     true,
 													ValidateFunc: validation.StringInSlice([]string{"GAUGE", "COUNTER"}, false),
 												},
 												"metric_name": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Description: "Name of the metric in Monitoring.",
+													Required:    true,
 												},
 												"target": {
-													Type:     schema.TypeFloat,
-													Required: true,
+													Type:        schema.TypeFloat,
+													Description: "Target metric value by which Instance Groups calculates the number of required VM instances.",
+													Required:    true,
 												},
 												"labels": {
-													Type:     schema.TypeMap,
-													Optional: true,
-													Elem:     &schema.Schema{Type: schema.TypeString},
+													Type:        schema.TypeMap,
+													Description: "Metrics [labels](https://yandex.cloud/en/docs/monitoring/concepts/data-model#label) from Monitoring.",
+													Optional:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 												},
 												"folder_id": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "If specified, sets the folder id to fetch metrics from. By default, it is the ID of the folder the group belongs to.",
+													Optional:    true,
 												},
 												"service": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:        schema.TypeString,
+													Description: "If specified, sets the service name to fetch metrics. The default value is `custom`. You can use a label to specify service metrics, e.g., `service` with the `compute` value for Compute Cloud.",
+													Optional:    true,
 												},
 											},
 										},
@@ -1093,12 +1108,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Set:         schema.HashString,
 						},
 						"target_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The ID of the target group.",
+							Computed:    true,
 						},
 						"status_message": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The status message of the instance.",
+							Computed:    true,
 						},
 						"max_opening_traffic_duration": {
 							Type:        schema.TypeInt,
@@ -1128,12 +1145,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Status of the managed instance.",
+							Computed:    true,
 						},
 						"status_changed_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "The timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format when the status of the managed instance was last changed.",
+							Computed:    true,
 						},
 						"instance_id": {
 							Type:        schema.TypeString,
@@ -1187,12 +1206,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										Computed:    true,
 									},
 									"ipv6": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: "If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.",
+										Computed:    true,
 									},
 									"ipv6_address": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "The private IPv6 address to assign to the instance.",
+										Computed:    true,
 									},
 									"subnet_id": {
 										Type:        schema.TypeString,
@@ -1218,8 +1239,9 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							},
 						},
 						"instance_tag": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Managed instance tag.",
+							Computed:    true,
 						},
 					},
 				},
@@ -1562,7 +1584,7 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 	var instanceGroupTemplateFieldsMap = map[string]string{
 		"instance_template.0.secondary_disk":    "instance_template.secondary_disk_specs",
 		"instance_template.0.network_interface": "instance_template.network_interface_specs",
-		"instance_template.0.filesystem":        "instance_template.filesystem",
+		"instance_template.0.filesystem":        "instance_template.filesystem_specs",
 	}
 
 	for field, path := range instanceGroupTemplateFieldsMap {

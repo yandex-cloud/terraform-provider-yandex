@@ -228,6 +228,7 @@ resource "yandex_compute_instance" "foo" {
       size       = 4
       block_size = 8192
       image_id   = "${data.yandex_compute_image.ubuntu.id}"
+	  kms_key_id = "${yandex_kms_symmetric_key.disk-encrypt.id}"
     }
   }
 
@@ -257,6 +258,8 @@ resource "yandex_compute_instance" "foo" {
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_kms_symmetric_key" "disk-encrypt" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-b"

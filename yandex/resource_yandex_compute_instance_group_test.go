@@ -12,6 +12,7 @@ import (
 	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/protobuf/field_mask"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 )
 
@@ -466,6 +467,42 @@ func TestAccComputeInstanceGroup_update2(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_updateFilesystem(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+	var fs1 compute.Filesystem
+	var fs2 compute.Filesystem
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigMain(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupNoFilesystemSpecs(&ig),
+				),
+			},
+			{
+				Config: testAccComputeInstanceGroupConfigWithFilesystemSpecs(name, saName, "fs1", "fs2"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.inst-group-test-fs", &fs1),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.inst-group-test-fs2", &fs2),
+					testAccCheckComputeInstanceGroupHasFilesystemSpecs(&ig, &fs1, &fs2),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
 func TestAccComputeInstanceGroup_DeletionProtection(t *testing.T) {
 	t.Parallel()
 
@@ -752,6 +789,117 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
+}
+
+func testAccComputeInstanceGroupConfigWithFilesystemSpecs(igName string, saName string, fs1Name string, fs2Name string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_filesystem" "inst-group-test-fs" {
+  name     = "%[4]s"
+  size     = 10
+  type     = "network-hdd"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+
+resource "yandex_compute_filesystem" "inst-group-test-fs2" {
+  name     = "%[5]s"
+  size     = 15
+  type     = "network-ssd"
+
+  labels = {
+    my-label = "my-label-value-2"
+  }
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    filesystem {
+      filesystem_id = "${yandex_compute_filesystem.inst-group-test-fs.id}"
+      mode = "READ_WRITE"
+    }
+
+    filesystem {
+      device_name = "fs2"
+      filesystem_id = "${yandex_compute_filesystem.inst-group-test-fs2.id}"
+      mode = "READ_WRITE"
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName, fs1Name, fs2Name)
 }
 
 func testAccComputeInstanceGroupConfigDeletionProtection(igName string, saName string, deletionProtection bool) string {
@@ -2590,6 +2738,39 @@ func testAccCheckComputeInstanceGroupTemplateMeta(ig *instancegroup.InstanceGrou
 			return fmt.Errorf("no label found with key %s on instance group %s template labels", key, ig.Name)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupNoFilesystemSpecs(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(ig.InstanceTemplate.FilesystemSpecs) != 0 {
+			return fmt.Errorf("invalid number of filesystem specs in instance group %s", ig.Name)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupHasFilesystemSpecs(ig *instancegroup.InstanceGroup, fs1 *compute.Filesystem, fs2 *compute.Filesystem) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(ig.InstanceTemplate.FilesystemSpecs) != 2 {
+			return fmt.Errorf("invalid number of filesystem specs in instance group %s", ig.Name)
+		}
+		attachedFs1 := &Filesystem{Mode: "READ_WRITE"}
+		attachedFs2 := &Filesystem{DeviceName: "fs2", Mode: "READ_WRITE"}
+		for _, spec := range ig.InstanceTemplate.FilesystemSpecs {
+			var err error
+			if spec.FilesystemId == fs1.Id {
+				err = checkFs(fs1.Name, spec, attachedFs1)
+			} else if spec.FilesystemId == fs2.Id {
+				err = checkFs(fs2.Name, spec, attachedFs2)
+			} else {
+				err = fmt.Errorf("unknown filesystem spec with id %s in instance group %s", spec.FilesystemId, ig.Name)
+			}
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 }
