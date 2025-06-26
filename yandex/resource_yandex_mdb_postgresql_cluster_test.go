@@ -130,7 +130,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// 1. Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, true),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, 10, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -159,7 +159,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 3. uncheck 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, false),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, 10, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
@@ -168,7 +168,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 5. check 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, true),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, 10, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
@@ -177,12 +177,12 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 7. trigger deletion by changing environment
 			{
-				Config:      testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRODUCTION", version, true),
+				Config:      testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRODUCTION", version, 10, true),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			// 8. uncheck 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, false),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, 10, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
@@ -191,7 +191,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 10. Change some options
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version, 18),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -225,7 +225,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 12. remove pooler_config section
 			{
-				Config: testAccMDBPGClusterConfigUpdated_removePoolerConfig(clusterName, pgDesc2, version),
+				Config: testAccMDBPGClusterConfigUpdated_removePoolerConfig(clusterName, pgDesc2, version, 18),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					testAccCheckMDBPGClusterHasNoPoolerConfig(&cluster),
@@ -234,7 +234,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 14. Check it is possible to drop users and dbs
 			{
-				Config: testAccMDBPGClusterConfigCheckUsersAndDBsDropping(clusterName, pgDesc2, version),
+				Config: testAccMDBPGClusterConfigCheckUsersAndDBsDropping(clusterName, pgDesc2, version, 18),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -247,12 +247,22 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 16. Check if description can be set to null
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "description", ""),
 				),
 			},
+			mdbPGClusterImportStep(clusterResource),
+			// 18. Decrease disk size (nothing changes)
+			{
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
 		},
 	})
 }
@@ -1135,7 +1145,7 @@ resource "yandex_vpc_security_group" "mdb-pg-test-sg-y" {
 }
 `
 
-func testAccMDBPGClusterConfigMain(name, desc, environment, version string, deletionProtection bool) string {
+func testAccMDBPGClusterConfigMain(name, desc, environment, version string, diskSize int32, deletionProtection bool) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "%s"
@@ -1158,7 +1168,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     resources {
       resource_preset_id = "s2.micro"
-      disk_size          = 10
+      disk_size          = %d
       disk_type_id       = "network-ssd"
     }
     access {
@@ -1193,10 +1203,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
   deletion_protection = %t
 }
-`, name, desc, environment, version, deletionProtection)
+`, name, desc, environment, version, diskSize, deletionProtection)
 }
 
-func testAccMDBPGClusterConfigUpdated(name, desc, version string) string {
+func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32) string {
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1220,7 +1230,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     resources {
       resource_preset_id = "s2.micro"
-      disk_size          = 18
+      disk_size          = %d
       disk_type_id       = "network-ssd"
     }
     access {
@@ -1318,10 +1328,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc, version)
+`, name, desc, version, diskSize)
 }
 
-func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string) string {
+func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string, diskSize int32) string {
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1345,7 +1355,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     resources {
       resource_preset_id = "s2.micro"
-      disk_size          = 18
+      disk_size          = %d
       disk_type_id       = "network-ssd"
     }
     access {
@@ -1438,10 +1448,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc, version)
+`, name, desc, version, diskSize)
 }
 
-func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version string) string {
+func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version string, diskSize int32) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 	resource "yandex_mdb_postgresql_cluster" "foo" {
 		name        = "%s"
@@ -1460,39 +1470,40 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 		}
 	  
 		config {
-		  version = "%s"
+			version = "%s"
 	  
-		  resources {
-			resource_preset_id = "s2.micro"
-			disk_size          = 18
-			disk_type_id       = "network-ssd"
-		  }
-		  access {
-			web_sql       = true
-			serverless    = false
-			data_lens     = false
-			data_transfer = false
-		  }
-		  performance_diagnostics {
-			sessions_sampling_interval   = 9
-			statements_sampling_interval = 60
-		  }
+			resources {
+				resource_preset_id = "s2.micro"
+				disk_size          = %d
+				disk_type_id       = "network-ssd"
+			}
 
-		  disk_size_autoscaling {
-			disk_size_limit		        = 40
-			planned_usage_threshold 	= 70
-			emergency_usage_threshold	= 90
-		  }
-		  
-		  backup_retain_period_days = 12
-	  
-		  postgresql_config = {
-			max_connections                   = 395
-			enable_parallel_hash              = true
-			autovacuum_vacuum_scale_factor    = 0.34
-			default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-			shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-		  }
+			access {
+				web_sql       = true
+				serverless    = false
+				data_lens     = false
+				data_transfer = false
+			}
+			performance_diagnostics {
+				sessions_sampling_interval   = 9
+				statements_sampling_interval = 60
+			}
+
+			disk_size_autoscaling {
+				disk_size_limit		        = 40
+				planned_usage_threshold 	= 70
+				emergency_usage_threshold	= 90
+			}
+			
+			backup_retain_period_days = 12
+		
+			postgresql_config = {
+				max_connections                   = 395
+				enable_parallel_hash              = true
+				autovacuum_vacuum_scale_factor    = 0.34
+				default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+				shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+			}
 		}
 	  
 		user {
@@ -1524,7 +1535,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 	  
 		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 	  }
-`, name, desc, version)
+`, name, desc, version, diskSize)
 }
 
 func testAccMDBPGClusterConfigHABasicConfig(name, hosts, version string) string {

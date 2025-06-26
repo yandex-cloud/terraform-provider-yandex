@@ -193,9 +193,10 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a PostgreSQL host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a PostgreSQL host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("config.0.disk_size_autoscaling.0.disk_size_limit"),
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,

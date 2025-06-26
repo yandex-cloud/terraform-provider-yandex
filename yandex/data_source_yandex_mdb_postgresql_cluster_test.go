@@ -310,8 +310,8 @@ data "yandex_mdb_postgresql_cluster" "bar" {
 
 func testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, false) + mdbPGClusterByIDConfig
+		return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, 10, false) + mdbPGClusterByIDConfig
 	}
 
-	return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, false) + mdbPGClusterByNameConfig
+	return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, 10, false) + mdbPGClusterByNameConfig
 }

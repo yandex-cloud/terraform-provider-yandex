@@ -29,6 +29,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"golang.org/x/exp/maps"
 )
@@ -468,6 +469,41 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	d := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(d...)
+}
+
+func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+		return
+	}
+	var plan Cluster
+	var state Cluster
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Debug(ctx, "Modifying plan for cluster", map[string]interface{}{"id": plan.Id.ValueString()})
+
+	var cfgState Config
+	var cfgPlan Config
+	resp.Diagnostics.Append(state.Config.As(ctx, &cfgState, datasize.DefaultOpts)...)
+	resp.Diagnostics.Append(plan.Config.As(ctx, &cfgPlan, datasize.DefaultOpts)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	autoscalingOn := utils.IsPresent(attr.Value(cfgState.DiskSizeAutoscaling))
+
+	// remove changes on disk_size from plan if enabled autoscaling
+	cfgPlan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, cfgPlan.Resources, cfgState.Resources, autoscalingOn, &resp.Diagnostics)
+	cfgPlanObj, d := types.ObjectValueFrom(ctx, ConfigAttrTypes, cfgPlan)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	plan.Config = cfgPlanObj
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, plan)...)
 }
 
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

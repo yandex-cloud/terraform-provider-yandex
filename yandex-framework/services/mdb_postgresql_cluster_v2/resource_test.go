@@ -378,6 +378,12 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
       disk_type_id       = "network-ssd"
 	`
 
+	resources_decrease_disk := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 8
+      disk_type_id       = "network-ssd"
+	`
+
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
@@ -775,6 +781,46 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"yandex_vpc_security_group.sgroup2",
 						},
 					),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// Decrease disk size (nothing changes)
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources_decrease_disk, accessUpdated,
+					performanceDiagnosticsUpdated,
+					backupWindowStartUpdated,
+					poolerCfgUpdated,
+					dsaUpdate,
+					postgresqlConfigUpdated,
+					maintenanceWindowUpdated,
+					backupRetainPeriodDaysUpdated, false, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(20),
+						"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						"planned_usage_threshold":   knownvalue.Int64Exact(10),
+					})),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(20),
+						EmergencyUsageThreshold: 15,
+						PlannedUsageThreshold:   10,
+					}),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
