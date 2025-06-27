@@ -45,6 +45,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/metastore_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_grant"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
@@ -314,6 +315,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		yq_ydb_connection.NewResource,
 		yq_yds_connection.NewResource,
 		yq_yds_binding.NewResource,
+		storage_bucket_grant.NewResource,
 	}
 }
 
