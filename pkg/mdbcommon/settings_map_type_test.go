@@ -14,13 +14,15 @@ import (
 type MockAttrInfoProvider struct{}
 
 var settingsEnumNames = map[string]map[int32]string{
-	"default_transaction_isolation":    config.PostgresqlConfig13_TransactionIsolation_name,
-	"shared_preload_libraries.element": config.PostgresqlConfig13_SharedPreloadLibraries_name,
+	"default_transaction_isolation":    config.PostgresqlConfig14_TransactionIsolation_name,
+	"auto_explain_log_format":          config.PostgresqlConfig14_AutoExplainLogFormat_name,
+	"shared_preload_libraries.element": config.PostgresqlConfig14_SharedPreloadLibraries_name,
 }
 
 var settingsEnumValues = map[string]map[string]int32{
-	"default_transaction_isolation":    config.PostgresqlConfig13_TransactionIsolation_value,
-	"shared_preload_libraries.element": config.PostgresqlConfig13_SharedPreloadLibraries_value,
+	"default_transaction_isolation":    config.PostgresqlConfig14_TransactionIsolation_value,
+	"auto_explain_log_format":          config.PostgresqlConfig14_AutoExplainLogFormat_value,
+	"shared_preload_libraries.element": config.PostgresqlConfig14_SharedPreloadLibraries_value,
 }
 
 var listAttributes = map[string]struct{}{
@@ -59,6 +61,7 @@ func TestYandexProvider_MDBSettingsMapCreate(t *testing.T) {
 				"bgwriter_lru_multiplier":       types.Float64Value(1.1),
 				"shared_preload_libraries":      types.TupleValueMust([]attr.Type{types.Int64Type}, []attr.Value{types.Int64Value(1)}),
 				"default_transaction_isolation": types.Int64Value(1),
+				"auto_explain_log_format":       types.Int64Value(2),
 			},
 			expectedVal: SettingsMapValue{
 				MapValue: types.MapValueMust(
@@ -70,6 +73,7 @@ func TestYandexProvider_MDBSettingsMapCreate(t *testing.T) {
 						"bgwriter_lru_multiplier":       types.StringValue("1.10"),
 						"shared_preload_libraries":      types.StringValue("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"),
 						"default_transaction_isolation": types.StringValue("TRANSACTION_ISOLATION_READ_UNCOMMITTED"),
+						"auto_explain_log_format":       types.StringValue("AUTO_EXPLAIN_LOG_FORMAT_XML"),
 					},
 				),
 			},

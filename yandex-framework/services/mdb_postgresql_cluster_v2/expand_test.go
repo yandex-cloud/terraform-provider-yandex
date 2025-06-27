@@ -721,6 +721,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
 				"autovacuum_vacuum_scale_factor": types.StringValue("0.34"),
 				"default_transaction_isolation":  types.StringValue("TRANSACTION_ISOLATION_READ_COMMITTED"),
 				"shared_preload_libraries":       types.StringValue("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+				"auto_explain_log_format":        types.StringValue("AUTO_EXPLAIN_LOG_FORMAT_XML"),
 			},
 		),
 	)
@@ -762,6 +763,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPgConfigExpand(t *testing.T) {
 					SharedPreloadLibraries: []config.PostgresqlConfig15_SharedPreloadLibraries{
 						config.PostgresqlConfig15_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN, config.PostgresqlConfig15_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
 					},
+					AutoExplainLogFormat: config.PostgresqlConfig15_AUTO_EXPLAIN_LOG_FORMAT_XML,
 				},
 			},
 		},

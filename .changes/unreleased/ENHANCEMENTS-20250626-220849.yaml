@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'postgresql: human readable auto_explain_log_format instead of integers'
+time: 2025-06-26T22:08:49.741044+03:00

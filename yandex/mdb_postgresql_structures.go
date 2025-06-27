@@ -1860,4 +1860,5 @@ var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare).
 	addEnumGeneratedNames("pg_hint_plan_debug_print", config.PostgresqlConfig14_PgHintPlanDebugPrint_name).
-	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig14_LogLevel_name)
+	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig14_LogLevel_name).
+	addEnumGeneratedNames("auto_explain_log_format", config.PostgresqlConfig14_AutoExplainLogFormat_name)

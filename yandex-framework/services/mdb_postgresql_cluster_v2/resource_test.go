@@ -75,7 +75,7 @@ resource "yandex_vpc_security_group" "sgroup2" {
 `
 
 var (
-	pgVersions   = [...]string{"13", "14", "15", "16", "17"}
+	pgVersions   = [...]string{"14", "15", "16", "17"}
 	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c", "16-1c", "17-1c"} //nolint:unused
 )
 
@@ -450,6 +450,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		autovacuum_vacuum_scale_factor = 0.34
 		default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
 		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+		auto_explain_log_format        = "AUTO_EXPLAIN_LOG_FORMAT_XML"
 	`
 
 	postgresqlConfigUpdated := `
@@ -458,6 +459,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		autovacuum_vacuum_scale_factor = 0.35
 		default_transaction_isolation  = "TRANSACTION_ISOLATION_REPEATABLE_READ"
 		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
+		auto_explain_log_format        = "AUTO_EXPLAIN_LOG_FORMAT_XML"
 	`
 
 	poolerCfg := `
@@ -559,6 +561,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.34"),
 						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_READ_COMMITTED"),
 						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+						"auto_explain_log_format":        knownvalue.StringExact("AUTO_EXPLAIN_LOG_FORMAT_XML"),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
@@ -619,6 +622,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
 							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
 						},
+						AutoExplainLogFormat: pconfig.PostgresqlConfig14_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
 					}, []string{
 						"MaxConnections",
 						"EnableParallelHash",
@@ -701,6 +705,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.35"),
 						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_REPEATABLE_READ"),
 						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"),
+						"auto_explain_log_format":        knownvalue.StringExact("AUTO_EXPLAIN_LOG_FORMAT_XML"),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
@@ -747,6 +752,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						SharedPreloadLibraries: []pconfig.PostgresqlConfig15_1C_SharedPreloadLibraries{
 							pconfig.PostgresqlConfig15_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
 						},
+						AutoExplainLogFormat: pconfig.PostgresqlConfig15_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
 					}, []string{
 						"MaxConnections",
 						"EnableParallelHash",
