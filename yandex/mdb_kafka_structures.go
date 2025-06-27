@@ -1233,13 +1233,13 @@ func flattenKafkaExternalClusterConnection(ecc *kafka.ExternalClusterConnection)
 	}
 }
 
-func flattenKafkaConnectorS3Sink(s3Sink *kafka.ConnectorConfigS3Sink) ([]map[string]interface{}, error) {
+func flattenKafkaConnectorS3Sink(s3Sink *kafka.ConnectorConfigS3Sink, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	config := map[string]interface{}{
 		"topics":                s3Sink.Topics,
 		"file_compression_type": s3Sink.FileCompressionType,
 		"file_max_records":      s3Sink.FileMaxRecords.GetValue(),
 	}
-	s3Connection, err := flattenS3Connection(s3Sink.GetS3Connection())
+	s3Connection, err := flattenS3Connection(s3Sink.GetS3Connection(), d)
 	if err != nil {
 		return nil, err
 	}
@@ -1247,23 +1247,29 @@ func flattenKafkaConnectorS3Sink(s3Sink *kafka.ConnectorConfigS3Sink) ([]map[str
 	return []map[string]interface{}{config}, nil
 }
 
-func flattenS3Connection(s3Conn *kafka.S3Connection) (map[string]interface{}, error) {
+func flattenS3Connection(s3Conn *kafka.S3Connection, d *schema.ResourceData) (map[string]interface{}, error) {
 	config := map[string]interface{}{
 		"bucket_name": s3Conn.BucketName,
 	}
 	switch s3Conn.GetStorage().(type) {
 	case *kafka.S3Connection_ExternalS3:
-		config["external_s3"] = []map[string]interface{}{flattenExternalS3Storage(s3Conn.GetExternalS3())}
+		config["external_s3"] = []map[string]interface{}{flattenExternalS3Storage(s3Conn.GetExternalS3(), d)}
 	default:
 		return nil, fmt.Errorf("this s3 connection type of s3-sink connector is not supported by current version of terraform provider")
 	}
 	return config, nil
 }
 
-func flattenExternalS3Storage(externalS3 *kafka.ExternalS3Storage) map[string]interface{} {
-	return map[string]interface{}{
+func flattenExternalS3Storage(externalS3 *kafka.ExternalS3Storage, d *schema.ResourceData) map[string]interface{} {
+	result := map[string]interface{}{
 		"access_key_id": externalS3.AccessKeyId,
 		"endpoint":      externalS3.Endpoint,
 		"region":        externalS3.Region,
 	}
+	// Preserve secret_access_key from state since API doesn't return it
+	if v, ok := d.GetOk("connector_config_s3_sink.0.s3_connection.0.external_s3.0.secret_access_key"); ok {
+		result["secret_access_key"] = v.(string)
+	}
+
+	return result
 }

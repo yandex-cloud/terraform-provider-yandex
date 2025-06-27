@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'kafka: resolve secret_access_key terraform drift in S3 sink connector'
+time: 2025-06-26T14:12:19.08253+05:00

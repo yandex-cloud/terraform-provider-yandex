@@ -301,7 +301,7 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 			return err
 		}
 	case *kafka.Connector_ConnectorConfigS3Sink:
-		cfg, err := flattenKafkaConnectorS3Sink(conn.GetConnectorConfigS3Sink())
+		cfg, err := flattenKafkaConnectorS3Sink(conn.GetConnectorConfigS3Sink(), d)
 		if err != nil {
 			return err
 		}
