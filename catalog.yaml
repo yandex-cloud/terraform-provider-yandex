@@ -1225,6 +1225,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  storage_bucket_iam_binding:
+    Category: "Object Storage (S3)"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
   storage_object:
     Category: "Object Storage (S3)"
     Type: sdk
