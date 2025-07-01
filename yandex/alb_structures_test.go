@@ -2,10 +2,12 @@ package yandex
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func Test_flattenALBRateLimit(t *testing.T) {
@@ -321,6 +323,124 @@ func Test_flattenALBStreamBackends(t *testing.T) {
 
 func Test_flattenALBHealthChecks(t *testing.T) {
 	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		healthchecks   []*apploadbalancer.HealthCheck
+		expectedResult []interface{}
+		expectErr      bool
+	}{
+		{
+			name: "http backend: use nil expected statuses slice",
+			healthchecks: []*apploadbalancer.HealthCheck{
+				{
+					Timeout:  durationpb.New(time.Second),
+					Interval: durationpb.New(time.Second),
+					Healthcheck: &apploadbalancer.HealthCheck_Http{
+						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+							Path: "/",
+						},
+					},
+				},
+			},
+			expectedResult: []interface{}{
+				map[string]interface{}{
+					"timeout":                 formatDuration(durationpb.New(time.Second)),
+					"interval":                formatDuration(durationpb.New(time.Second)),
+					"interval_jitter_percent": float64(0),
+					"healthy_threshold":       int64(0),
+					"unhealthy_threshold":     int64(0),
+					"healthcheck_port":        0,
+					"http_healthcheck": []map[string]interface{}{
+						{
+							"host":                    "",
+							"path":                    "/",
+							"http2":                   false,
+							expectedStatusesSchemaKey: []int64(nil),
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http backend: use empty expected statuses slice",
+			healthchecks: []*apploadbalancer.HealthCheck{
+				{
+					Timeout:  durationpb.New(time.Second),
+					Interval: durationpb.New(time.Second),
+					Healthcheck: &apploadbalancer.HealthCheck_Http{
+						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+							Path:             "/",
+							ExpectedStatuses: []int64{},
+						},
+					},
+				},
+			},
+			expectedResult: []interface{}{
+				map[string]interface{}{
+					"timeout":                 formatDuration(durationpb.New(time.Second)),
+					"interval":                formatDuration(durationpb.New(time.Second)),
+					"interval_jitter_percent": float64(0),
+					"healthy_threshold":       int64(0),
+					"unhealthy_threshold":     int64(0),
+					"healthcheck_port":        0,
+					"http_healthcheck": []map[string]interface{}{
+						{
+							"host":                    "",
+							"path":                    "/",
+							"http2":                   false,
+							expectedStatusesSchemaKey: []int64{},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http backend: use expected statuses",
+			healthchecks: []*apploadbalancer.HealthCheck{
+				{
+					Timeout:  durationpb.New(time.Second),
+					Interval: durationpb.New(time.Second),
+					Healthcheck: &apploadbalancer.HealthCheck_Http{
+						Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+							Path:             "/",
+							ExpectedStatuses: []int64{200, 201, 300, 302},
+						},
+					},
+				},
+			},
+			expectedResult: []interface{}{
+				map[string]interface{}{
+					"timeout":                 formatDuration(durationpb.New(time.Second)),
+					"interval":                formatDuration(durationpb.New(time.Second)),
+					"interval_jitter_percent": float64(0),
+					"healthy_threshold":       int64(0),
+					"unhealthy_threshold":     int64(0),
+					"healthcheck_port":        0,
+					"http_healthcheck": []map[string]interface{}{
+						{
+							"host":                    "",
+							"path":                    "/",
+							"http2":                   false,
+							expectedStatusesSchemaKey: []int64{200, 201, 300, 302},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			actualResult := flattenALBHealthChecks(testCase.healthchecks)
+
+			assert.Equal(t, testCase.expectedResult, actualResult)
+		})
+	}
 }
 
 func Test_flattenALBAutoscalePolicy(t *testing.T) {
