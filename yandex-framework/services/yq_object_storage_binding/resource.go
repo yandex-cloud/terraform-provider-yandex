@@ -103,14 +103,12 @@ func (r *objectStorageBindingStrategy) PackToState(ctx context.Context, setting 
 	model.Projection = projection
 
 	partitionedBy := subset.GetPartitionedBy()
-	if partitionedBy != nil {
-		pBy, diag := types.ListValueFrom(ctx, types.StringType, partitionedBy)
-		if diag.HasError() {
-			diagnostics.Append(diag...)
-			return
-		}
-		model.PartitionedBy = pBy
+	pBy, diag := types.ListValueFrom(ctx, types.StringType, partitionedBy)
+	if diag.HasError() {
+		diagnostics.Append(diag...)
+		return
 	}
+	model.PartitionedBy = pBy
 
 	schema := subset.GetSchema()
 	model.Column = yqcommon.FlattenSchema(ctx, schema, diagnostics)

@@ -852,6 +852,8 @@
   "examples/yq_monitoring_connection/r_yq_monitoring_connection_1.tf":"opensource/terraform-provider-yandex-mirror/examples/yq_monitoring_connection/r_yq_monitoring_connection_1.tf",
   "examples/yq_object_storage_binding/import.sh":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_binding/import.sh",
   "examples/yq_object_storage_binding/r_yq_object_storage_binding_1.tf":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_binding/r_yq_object_storage_binding_1.tf",
+  "examples/yq_object_storage_binding/r_yq_object_storage_binding_2.tf":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_binding/r_yq_object_storage_binding_2.tf",
+  "examples/yq_object_storage_binding/r_yq_object_storage_binding_3.tf":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_binding/r_yq_object_storage_binding_3.tf",
   "examples/yq_object_storage_connection/import.sh":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_connection/import.sh",
   "examples/yq_object_storage_connection/r_yq_object_storage_connection_1.tf":"opensource/terraform-provider-yandex-mirror/examples/yq_object_storage_connection/r_yq_object_storage_connection_1.tf",
   "examples/yq_ydb_connection/import.sh":"opensource/terraform-provider-yandex-mirror/examples/yq_ydb_connection/import.sh",

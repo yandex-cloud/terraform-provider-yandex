@@ -13,6 +13,10 @@ description: |-
 
 {{ tffile "examples/yq_object_storage_binding/r_yq_object_storage_binding_1.tf" }}
 
+{{ tffile "examples/yq_object_storage_binding/r_yq_object_storage_binding_2.tf" }}
+
+{{ tffile "examples/yq_object_storage_binding/r_yq_object_storage_binding_3.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
 
 ## Import

@@ -8,15 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 
 type objectStorageConnectionStrategy struct {
 }
 
-func (r *objectStorageConnectionStrategy) ExpandSetting(ctx context.Context, sdk *ycsdk.SDK, plan *tfsdk.Plan, diagnostics *diag.Diagnostics) *Ydb_FederatedQuery.ConnectionSetting {
+func (r *objectStorageConnectionStrategy) ExpandSetting(ctx context.Context, config *provider_config.Config, plan *tfsdk.Plan, diagnostics *diag.Diagnostics) *Ydb_FederatedQuery.ConnectionSetting {
 	var model objectStorageConnectionModel
 	diagnostics.Append(plan.Get(ctx, &model)...)
 	if diagnostics.HasError() {

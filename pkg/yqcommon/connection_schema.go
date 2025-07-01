@@ -35,7 +35,8 @@ var (
 		},
 		AttributeFolderID: schema.StringAttribute{
 			MarkdownDescription: "The folder identifier.",
-			Required:            true,
+			Optional:            true,
+			Computed:            true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},

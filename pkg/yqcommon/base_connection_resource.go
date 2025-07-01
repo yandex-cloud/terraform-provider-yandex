@@ -82,7 +82,7 @@ func (r *baseConnectionResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	setting := r.strategy.ExpandSetting(ctx, r.providerConfig.SDK, &req.Plan, &resp.Diagnostics)
+	setting := r.strategy.ExpandSetting(ctx, r.providerConfig, &req.Plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -166,7 +166,7 @@ func (r *baseConnectionResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	setting := r.strategy.ExpandSetting(ctx, r.providerConfig.SDK, &req.Plan, &resp.Diagnostics)
+	setting := r.strategy.ExpandSetting(ctx, r.providerConfig, &req.Plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() || setting == nil {
 		return
 	}

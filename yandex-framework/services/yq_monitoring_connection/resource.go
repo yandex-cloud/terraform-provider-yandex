@@ -9,15 +9,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 
 type monitoringConnectionStrategy struct {
 }
 
-func (r *monitoringConnectionStrategy) ExpandSetting(ctx context.Context, sdk *ycsdk.SDK, plan *tfsdk.Plan, diagnostics *diag.Diagnostics) *Ydb_FederatedQuery.ConnectionSetting {
+func (r *monitoringConnectionStrategy) ExpandSetting(ctx context.Context, config *provider_config.Config, plan *tfsdk.Plan, diagnostics *diag.Diagnostics) *Ydb_FederatedQuery.ConnectionSetting {
 	var model monitoringConnectionModel
 	diagnostics.Append(plan.Get(ctx, &model)...)
 	if diagnostics.HasError() {
@@ -25,11 +26,15 @@ func (r *monitoringConnectionStrategy) ExpandSetting(ctx context.Context, sdk *y
 	}
 
 	serviceAccountID := model.ServiceAccountID.ValueString()
-	folderID := model.FolderID.ValueString()
+	folderID, d := validate.FolderID(model.FolderID, &config.ProviderState)
+	diagnostics.Append(d)
+	if diagnostics.HasError() {
+		return nil
+	}
 
 	cloudID := model.CloudID.ValueString()
 	if len(cloudID) == 0 {
-		folder, err := sdk.ResourceManager().Folder().Get(ctx, &resourcemanager.GetFolderRequest{
+		folder, err := config.SDK.ResourceManager().Folder().Get(ctx, &resourcemanager.GetFolderRequest{
 			FolderId: folderID,
 		})
 		if err != nil {

@@ -30,13 +30,13 @@ output "owner" {
 
 ### Required
 
-- `cluster_id` (String)
+- `cluster_id` (String) The ID of the PostgreSQL cluster.
 - `name` (String) The resource name.
 
 ### Optional
 
 - `deletion_protection` (String) The `true` value means that resource is protected from accidental deletion.
-- `extension` (Block Set) (see [below for nested schema](#nestedblock--extension))
+- `extension` (Block Set) Set of database extensions. (see [below for nested schema](#nestedblock--extension))
 - `lc_collate` (String) POSIX locale for string sorting order. Forbidden to change in an existing database.
 - `lc_type` (String) POSIX locale for character classification. Forbidden to change in an existing database.
 - `owner` (String) Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
@@ -51,10 +51,5 @@ output "owner" {
 
 Required:
 
-- `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
-
-
-Optional:
-
-- `version` (String) Version of the extension.
+- `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions). Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
 

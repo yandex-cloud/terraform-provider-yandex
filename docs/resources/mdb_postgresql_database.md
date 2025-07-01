@@ -94,10 +94,6 @@ Required:
 
 - `name` (String) Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
 
-Optional:
-
-- `version` (String) Version of the extension.
-
 
 <a id="nestedblock--timeouts"></a>
 ### Nested Schema for `timeouts`

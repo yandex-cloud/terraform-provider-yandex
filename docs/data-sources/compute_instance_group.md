@@ -95,10 +95,12 @@ Read-Only:
 
 - `max_opening_traffic_duration` (Number) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
-- `status_message` (String)
+- `status_message` (String) The status message of the instance.
+
 - `target_group_description` (String) A description of the target group.
 
-- `target_group_id` (String)
+- `target_group_id` (String) The ID of the target group.
+
 - `target_group_labels` (Map of String) A set of key/value label pairs.
 
 - `target_group_name` (String) The name of the target group.
@@ -208,7 +210,8 @@ Read-Only:
 
 - `device_name` (String) This value can be used to reference the device under `/dev/disk/by-id/`.
 
-- `disk_id` (String)
+- `disk_id` (String) The ID of the existing disk (such as those managed by yandex_compute_disk) to attach as a boot disk.
+
 - `initialize_params` (Block List, Max: 1) Parameters for creating a disk alongside the instance. (see [below for nested schema](#nestedobjatt--instance_template--boot_disk--initialize_params))
 
 - `mode` (String) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
@@ -252,10 +255,14 @@ Read-Only:
 
 Read-Only:
 
-- `aws_v1_http_endpoint` (Number)
-- `aws_v1_http_token` (Number)
-- `gce_http_endpoint` (Number)
-- `gce_http_token` (Number)
+- `aws_v1_http_endpoint` (Number) Enables access to AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+
+- `aws_v1_http_token` (Number) Enables access to IAM credentials with AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+
+- `gce_http_endpoint` (Number) Enables access to GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+
+- `gce_http_token` (Number) Enables access to IAM credentials with GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+
 
 
 <a id="nestedobjatt--instance_template--network_interface"></a>
@@ -267,8 +274,10 @@ Read-Only:
 
 - `ip_address` (String) Manual set static IP address.
 
-- `ipv4` (Boolean)
-- `ipv6` (Boolean)
+- `ipv4` (Boolean) Allocate an IPv4 address for the interface. The default value is `true`.
+
+- `ipv6` (Boolean) If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+
 - `ipv6_address` (String) Manual set static IPv6 address.
 
 - `ipv6_dns_record` (Block List) List of IPv6 DNS records. (see [below for nested schema](#nestedobjatt--instance_template--network_interface--ipv6_dns_record))
@@ -295,7 +304,7 @@ Read-Only:
 
 - `fqdn` (String) DNS record FQDN (must have dot at the end).
 
-- `ptr` (Boolean) When set to true, also create PTR DNS record.
+- `ptr` (Boolean) When set to `true`, also create PTR DNS record.
 
 - `ttl` (Number) DNS record TTL.
 
@@ -310,7 +319,7 @@ Read-Only:
 
 - `fqdn` (String) DNS record FQDN (must have dot at the end).
 
-- `ptr` (Boolean) When set to true, also create PTR DNS record.
+- `ptr` (Boolean) When set to `true`, also create PTR DNS record.
 
 - `ttl` (Number) DNS record TTL.
 
@@ -325,7 +334,7 @@ Read-Only:
 
 - `fqdn` (String) DNS record FQDN (must have dot at the end).
 
-- `ptr` (Boolean) When set to true, also create PTR DNS record.
+- `ptr` (Boolean) When set to `true`, also create PTR DNS record.
 
 - `ttl` (Number) DNS record TTL.
 
@@ -359,7 +368,8 @@ Read-Only:
 
 - `cores` (Number) The number of CPU cores for the instance.
 
-- `gpus` (Number)
+- `gpus` (Number) If provided, specifies the number of GPU devices for the instance.
+
 - `memory` (Number) The memory size in GB.
 
 
@@ -513,13 +523,20 @@ Read-Only:
 
 Read-Only:
 
-- `folder_id` (String)
-- `labels` (Map of String)
-- `metric_name` (String)
-- `metric_type` (String)
-- `rule_type` (String)
-- `service` (String)
-- `target` (Number)
+- `folder_id` (String) If specified, sets the folder id to fetch metrics from. By default, it is the ID of the folder the group belongs to.
+
+- `labels` (Map of String) Metrics [labels](https://yandex.cloud/en/docs/monitoring/concepts/data-model#label) from Monitoring.
+
+- `metric_name` (String) Name of the metric in Monitoring.
+
+- `metric_type` (String) Type of metric, can be `GAUGE` or `COUNTER`. `GAUGE` metric reflects the value at particular time point. `COUNTER` metric exhibits a monotonous growth over time.
+
+- `rule_type` (String) The metric rule type (UTILIZATION, WORKLOAD). UTILIZATION for metrics describing resource utilization per VM instance. WORKLOAD for metrics describing total workload on all VM instances.
+
+- `service` (String) If specified, sets the service name to fetch metrics. The default value is `custom`. You can use a label to specify service metrics, e.g., `service` with the `compute` value for Compute Cloud.
+
+- `target` (Number) Target metric value by which Instance Groups calculates the number of required VM instances.
+
 
 
 
