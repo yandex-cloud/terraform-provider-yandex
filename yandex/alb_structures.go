@@ -100,6 +100,38 @@ func expandALBModification(d *schema.ResourceData, path string) (*apploadbalance
 	return modification, nil
 }
 
+func expandALBRegexMatchAndSubstitute(pathPrefix string, d *schema.ResourceData) (*apploadbalancer.RegexMatchAndSubstitute, error) {
+	var result *apploadbalancer.RegexMatchAndSubstitute
+
+	sizeValue, ok := d.GetOk(fmt.Sprintf("%v%v.#", pathPrefix, regexRewriteSchemaKey))
+	if !ok {
+		return result, nil
+	}
+
+	size := sizeValue.(int)
+	if size == 0 {
+		return result, nil
+	}
+
+	if size > 1 {
+		return nil, fmt.Errorf("too many regex rewrite objects, expected at most 1 got %v instead", size)
+	}
+
+	result = &apploadbalancer.RegexMatchAndSubstitute{}
+
+	regex, ok := d.GetOk(fmt.Sprintf("%v%v.0.%v", pathPrefix, regexRewriteSchemaKey, regexSchemaKey))
+	if ok {
+		result.Regex = regex.(string)
+	}
+
+	substitute, ok := d.GetOk(fmt.Sprintf("%v%v.0.%v", pathPrefix, regexRewriteSchemaKey, substituteSchemaKey))
+	if ok {
+		result.Substitute = substitute.(string)
+	}
+
+	return result, nil
+}
+
 func expandALBRateLimit(pathPrefix string, d *schema.ResourceData) (*apploadbalancer.RateLimit, error) {
 	var result *apploadbalancer.RateLimit
 
@@ -483,6 +515,13 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 	if val, ok := readStr("prefix_rewrite"); ok {
 		routeAction.PrefixRewrite = val
 	}
+
+	regexRewrite, err := expandALBRegexMatchAndSubstitute(path, d)
+	if err != nil {
+		return nil, err
+	}
+
+	routeAction.RegexRewrite = regexRewrite
 
 	if val, ok := d.GetOk(path + "upgrade_types"); ok {
 		upgradeTypes, err := expandALBStringListFromSchemaSet(val)
@@ -1813,6 +1852,24 @@ func flattenALBRateLimit(rateLimit *apploadbalancer.RateLimit) []map[string]inte
 	return []map[string]interface{}{result}
 }
 
+func flattenALBRegexMatchAndSubstitute(regexRewrite *apploadbalancer.RegexMatchAndSubstitute) []map[string]interface{} {
+	if regexRewrite == nil {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+
+	if regexRewrite.GetRegex() != "" {
+		result[regexSchemaKey] = regexRewrite.GetRegex()
+	}
+
+	if regexRewrite.GetSubstitute() != "" {
+		result[substituteSchemaKey] = regexRewrite.GetSubstitute()
+	}
+
+	return []map[string]interface{}{result}
+}
+
 func flattenALBLimit(limit *apploadbalancer.RateLimit_Limit) map[string]interface{} {
 	if limit == nil {
 		return nil
@@ -2031,12 +2088,13 @@ func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interfac
 		routeAction := route.GetRoute()
 		flRouteAction := []map[string]interface{}{
 			{
-				"backend_group_id": routeAction.BackendGroupId,
-				"timeout":          formatDuration(routeAction.Timeout),
-				"idle_timeout":     formatDuration(routeAction.IdleTimeout),
-				"prefix_rewrite":   routeAction.PrefixRewrite,
-				"upgrade_types":    routeAction.GetUpgradeTypes(),
-				rateLimitSchemaKey: flattenALBRateLimit(routeAction.RateLimit),
+				"backend_group_id":    routeAction.BackendGroupId,
+				"timeout":             formatDuration(routeAction.Timeout),
+				"idle_timeout":        formatDuration(routeAction.IdleTimeout),
+				"prefix_rewrite":      routeAction.PrefixRewrite,
+				regexRewriteSchemaKey: flattenALBRegexMatchAndSubstitute(routeAction.RegexRewrite),
+				"upgrade_types":       routeAction.GetUpgradeTypes(),
+				rateLimitSchemaKey:    flattenALBRateLimit(routeAction.RateLimit),
 			},
 		}
 

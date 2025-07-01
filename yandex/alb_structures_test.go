@@ -166,6 +166,72 @@ func Test_flattenALBRateLimit(t *testing.T) {
 	}
 }
 
+func Test_flattenALBRegexMatchAndSubstitute(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		regexRewrite   *apploadbalancer.RegexMatchAndSubstitute
+		expectedResult []map[string]interface{}
+	}{
+		{
+			name: "nil regex rewrite",
+		},
+		{
+			name:           "empty regex rewrite",
+			regexRewrite:   &apploadbalancer.RegexMatchAndSubstitute{},
+			expectedResult: []map[string]interface{}{{}},
+		},
+		{
+			name: "regex rewrite",
+			regexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+				Regex:      "regex",
+				Substitute: "substitute",
+			},
+			expectedResult: []map[string]interface{}{
+				{
+					regexSchemaKey:      "regex",
+					substituteSchemaKey: "substitute",
+				},
+			},
+		},
+		{
+			name: "regex rewrite: empty regex",
+			regexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+				Substitute: "substitute",
+			},
+			expectedResult: []map[string]interface{}{
+				{
+					substituteSchemaKey: "substitute",
+				},
+			},
+		},
+		{
+			name: "regex rewrite: empty substitute",
+			regexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+				Regex: "regex",
+			},
+			expectedResult: []map[string]interface{}{
+				{
+					regexSchemaKey: "regex",
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			actualResult := flattenALBRegexMatchAndSubstitute(testCase.regexRewrite)
+
+			assert.Equal(t, testCase.expectedResult, actualResult)
+		})
+	}
+}
+
 func Test_flattenALBStreamBackends(t *testing.T) {
 	t.Parallel()
 

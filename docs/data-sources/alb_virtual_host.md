@@ -38,10 +38,16 @@ data "yandex_alb_virtual_host" "my-vhost" {
 
 - `authority` (Set of String) A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
 - `id` (String) The ID of this resource.
-- `modify_request_headers` (List of Object) (see [below for nested schema](#nestedatt--modify_request_headers))
-- `modify_response_headers` (List of Object) (see [below for nested schema](#nestedatt--modify_response_headers))
+- `modify_request_headers` (List of Object) Apply the following modifications to the Request/Response header.
+
+~> Only one type of actions `append` or `replace` or `remove` should be specified. (see [below for nested schema](#nestedatt--modify_request_headers))
+- `modify_response_headers` (List of Object) Apply the following modifications to the Request/Response header.
+
+~> Only one type of actions `append` or `replace` or `remove` should be specified. (see [below for nested schema](#nestedatt--modify_response_headers))
 - `rate_limit` (List of Object) Rate limit configuration applied for a whole virtual host (see [below for nested schema](#nestedatt--rate_limit))
-- `route` (List of Object) (see [below for nested schema](#nestedatt--route))
+- `route` (List of Object) A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.
+
+~> Exactly one type of routes `http_route` or `grpc_route` should be specified. (see [below for nested schema](#nestedatt--route))
 - `route_options` (List of Object) (see [below for nested schema](#nestedatt--route_options))
 
 <a id="nestedatt--modify_request_headers"></a>
@@ -283,6 +289,8 @@ Read-Only:
 
 - `rate_limit` (Block List, Max: 1) Rate limit configuration applied for a whole virtual host (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--rate_limit))
 
+- `regex_rewrite` (Block List, Max: 1) Replacement for path substrings that match the pattern (see [below for nested schema](#nestedobjatt--route--http_route--http_route_action--regex_rewrite))
+
 - `timeout` (String) Specifies the request timeout (overall time request processing is allowed to take) for the route. If not set, default is 60 seconds.
 
 - `upgrade_types` (Set of String) List of upgrade types. Only specified upgrade types will be allowed. For example, `websocket`.
@@ -314,6 +322,17 @@ Read-Only:
 
 - `per_minute` (Number)
 - `per_second` (Number)
+
+
+
+<a id="nestedobjatt--route--http_route--http_route_action--regex_rewrite"></a>
+### Nested Schema for `route.http_route.http_route_action.regex_rewrite`
+
+Read-Only:
+
+- `regex` (String) RE2 regular expression
+
+- `substitute` (String) The string which should be used to substitute matched substrings
 
 
 

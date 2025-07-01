@@ -56,68 +56,69 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 			rateLimitSchemaKey:        rateLimit(),
 			"route": {
 				Type:        schema.TypeList,
-				Description: "A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.\n\n~> Exactly one type of routes `http_route` or `grpc_route` should be specified.\n",
+				Description: routeSchemaDescription,
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "Name of the route.",
+							Description: routeNameSchemaDescription,
 							Optional:    true,
 						},
 						"http_route": {
 							Type:        schema.TypeList,
-							Description: "HTTP route resource.\n\n~> Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.\n",
+							Description: routeHTTPRouteSchemaDescription,
 							MaxItems:    1,
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"http_route_action": {
 										Type:        schema.TypeList,
-										Description: "HTTP route action resource.\n\n~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.\n",
+										Description: routeHTTPRouteActionSchemaDescription,
 										MaxItems:    1,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
 													Type:        schema.TypeString,
-													Description: "Backend group to route requests.",
+													Description: routeHTTPRouteActionBackendGroupIDSchemaDescription,
 													Required:    true,
 												},
 												"timeout": {
 													Type:             schema.TypeString,
-													Description:      "Specifies the request timeout (overall time request processing is allowed to take) for the route. If not set, default is 60 seconds.",
+													Description:      routeHTTPRouteActionTimeoutSchemaDescription,
 													Optional:         true,
 													ValidateFunc:     validateParsableValue(parseDuration),
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 												},
 												"idle_timeout": {
 													Type:             schema.TypeString,
-													Description:      "Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios (i.e. long-polling, server-sent events) - one should set idle_timeout to something meaningful and timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.",
+													Description:      routeHTTPRouteActionIdleTimeoutSchemaDescription,
 													Optional:         true,
 													ValidateFunc:     validateParsableValue(parseDuration),
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 												},
 												"prefix_rewrite": {
 													Type:        schema.TypeString,
-													Description: "If not empty, matched path prefix will be replaced by this value.",
+													Description: routeHTTPRouteActionPrefixRewriteSchemaDescription,
 													Optional:    true,
 												},
+												regexRewriteSchemaKey: regexRewrite(),
 												"upgrade_types": {
 													Type:        schema.TypeSet,
-													Description: "List of upgrade types. Only specified upgrade types will be allowed. For example, `websocket`.",
+													Description: routeHTTPRouteActionUpgradeTypesSchemaDescription,
 													Optional:    true,
 													Elem:        &schema.Schema{Type: schema.TypeString},
 													Set:         schema.HashString,
 												},
 												"host_rewrite": {
 													Type:        schema.TypeString,
-													Description: "Host rewrite specifier.",
+													Description: routeHTTPRouteActionHostRewriteSchemaDescription,
 													Optional:    true,
 												},
 												"auto_host_rewrite": {
 													Type:        schema.TypeBool,
-													Description: "If set, will automatically rewrite host.",
+													Description: routeHTTPRouteActionAutoHostRewriteSchemaDescription,
 													Optional:    true,
 												},
 												rateLimitSchemaKey: rateLimit(),
@@ -126,46 +127,46 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 									},
 									"redirect_action": {
 										Type:        schema.TypeList,
-										Description: "Redirect action resource.\n\n~> Only one type of paths `replace_path` or `replace_prefix` should be specified.\n",
+										Description: routeHTTPRedirectActionSchemaDescription,
 										MaxItems:    1,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"replace_scheme": {
 													Type:        schema.TypeString,
-													Description: "Replaces scheme. If the original scheme is `http` or `https`, will also remove the 80 or 443 port, if present.",
+													Description: routeHTTPRedirectActionReplaceSchemeSchemaDescription,
 													Optional:    true,
 												},
 												"replace_host": {
 													Type:        schema.TypeString,
-													Description: "Replaces hostname.",
+													Description: routeHTTPRedirectActionReplaceHostSchemaDescription,
 													Optional:    true,
 												},
 												"replace_port": {
 													Type:        schema.TypeInt,
-													Description: "Replaces port.",
+													Description: routeHTTPRedirectActionReplacePortSchemaDescription,
 													Optional:    true,
 												},
 												"remove_query": {
 													Type:        schema.TypeBool,
-													Description: "If set, remove query part.",
+													Description: routeHTTPRedirectActionRemoveQuerySchemaDescription,
 													Optional:    true,
 												},
 												"response_code": {
 													Type:             schema.TypeString,
-													Description:      "The HTTP status code to use in the redirect response. Supported values are: `moved_permanently`, `found`, `see_other`, `temporary_redirect`, `permanent_redirect`.",
+													Description:      routeHTTPRedirectActionResponseCodeSchemaDescription,
 													Default:          "moved_permanently",
 													Optional:         true,
 													DiffSuppressFunc: CaseInsensitive,
 												},
 												"replace_path": {
 													Type:        schema.TypeString,
-													Description: "Replace path.",
+													Description: routeHTTPRedirectActionReplacePathSchemaDescription,
 													Optional:    true,
 												},
 												"replace_prefix": {
 													Type:        schema.TypeString,
-													Description: "Replace only matched prefix. Example:<br/> match:{ prefix_match: `/some` } <br/> redirect: { replace_prefix: `/other` } <br/> will redirect `/something` to `/otherthing`.",
+													Description: routeHTTPRedirectActionReplacePrefixSchemaDescription,
 													Optional:    true,
 												},
 											},
@@ -173,20 +174,20 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 									},
 									"direct_response_action": {
 										Type:        schema.TypeList,
-										Description: "Direct response action resource.",
+										Description: routeHTTPDirectResponseActionSchemaDescription,
 										MaxItems:    1,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
 													Type:         schema.TypeInt,
-													Description:  "HTTP response status. Should be between `100` and `599`.",
+													Description:  routeHTTPDirectResponseActionStatusSchemaDescription,
 													ValidateFunc: validation.IntBetween(100, 599),
 													Optional:     true,
 												},
 												"body": {
 													Type:        schema.TypeString,
-													Description: "Response body text.",
+													Description: routeHTTPDirectResponseActionBodySchemaDescription,
 													Optional:    true,
 												},
 											},
@@ -194,13 +195,13 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 									},
 									"http_match": {
 										Type:        schema.TypeList,
-										Description: "Checks `/` prefix by default.",
+										Description: routeHTTPMatchSchemaDescription,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"http_method": {
 													Type:        schema.TypeSet,
-													Description: "List of methods (strings).",
+													Description: routeHTTPMatchMethodSchemaDescription,
 													Optional:    true,
 													Elem:        &schema.Schema{Type: schema.TypeString},
 													Set:         schema.HashString,
@@ -214,14 +215,14 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 						},
 						"grpc_route": {
 							Type:        schema.TypeList,
-							Description: "gRPC route resource.\n\n~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.\n",
+							Description: routeGRPCRouteSchemaDescription,
 							MaxItems:    1,
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"grpc_match": {
 										Type:        schema.TypeList,
-										Description: "Checks `/` prefix by default.",
+										Description: routeGRPCRouteMatchSchemaDescription,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -231,38 +232,38 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 									},
 									"grpc_route_action": {
 										Type:        schema.TypeList,
-										Description: "gRPC route action resource.\n\n~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.\n",
+										Description: routeGRPCRouteActionSchemaDescription,
 										MaxItems:    1,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
 													Type:        schema.TypeString,
-													Description: "Backend group to route requests.",
+													Description: routeGRPCRouteActionBackendGroupIDSchemaDescription,
 													Required:    true,
 												},
 												"max_timeout": {
 													Type:             schema.TypeString,
-													Description:      "Lower timeout may be specified by the client (using grpc-timeout header). If not set, default is 60 seconds.",
+													Description:      routeGRPCRouteActionMaxTimeoutSchemaDescription,
 													Optional:         true,
 													ValidateFunc:     validateParsableValue(parseDuration),
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 												},
 												"idle_timeout": {
 													Type:             schema.TypeString,
-													Description:      "Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios - one should set idle_timeout to something meaningful and max_timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.",
+													Description:      routeGRPCRouteActionIdleTimeoutSchemaDescription,
 													Optional:         true,
 													ValidateFunc:     validateParsableValue(parseDuration),
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 												},
 												"host_rewrite": {
 													Type:        schema.TypeString,
-													Description: "Host rewrite specifier.",
+													Description: routeGRPCRouteActionHostRewriteSchemaDescription,
 													Optional:    true,
 												},
 												"auto_host_rewrite": {
 													Type:        schema.TypeBool,
-													Description: "If set, will automatically rewrite host.",
+													Description: routeGRPCRouteActionAutoHostRewriteSchemaDescription,
 													Optional:    true,
 												},
 												rateLimitSchemaKey: rateLimit(),
@@ -271,14 +272,14 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 									},
 									"grpc_status_response_action": {
 										Type:        schema.TypeList,
-										Description: "gRPC status response action resource.",
+										Description: routeGRPCStatusResponseActionSchemaDescription,
 										MaxItems:    1,
 										Optional:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
 													Type:             schema.TypeString,
-													Description:      "The status of the response. Supported values are: ok, invalid_argumet, not_found, permission_denied, unauthenticated, unimplemented, internal, unavailable.",
+													Description:      routeGRPCStatusResponseActionStatusSchemaDescription,
 													Optional:         true,
 													DiffSuppressFunc: CaseInsensitive,
 												},
@@ -300,14 +301,14 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 func stringMatch() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
-		Description: "The `path` and `fqmn` blocks.\n\n~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.\n",
+		Description: stringMatchSchemaDescription,
 		MaxItems:    1,
 		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"exact": {
 					Type:        schema.TypeString,
-					Description: "Match exactly.",
+					Description: stringMatchExactSchemaDescription,
 					Optional:    true,
 				},
 				"prefix": {
@@ -317,7 +318,7 @@ func stringMatch() *schema.Schema {
 				},
 				"regex": {
 					Type:        schema.TypeString,
-					Description: "Match regex.",
+					Description: stringMatchRegexSchemaDescription,
 					Optional:    true,
 				},
 			},
@@ -328,28 +329,51 @@ func stringMatch() *schema.Schema {
 func headerModification() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
-		Description: "Apply the following modifications to the Request/Response header.\n\n~> Only one type of actions `append` or `replace` or `remove` should be specified.\n",
+		Description: headerModificationSchemaDescription,
 		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"name": {
 					Type:        schema.TypeString,
-					Description: "Name of the header to modify.",
+					Description: headerModificationNameSchemaDescription,
 					Required:    true,
 				},
 				"append": {
 					Type:        schema.TypeString,
-					Description: "Append string to the header value.",
+					Description: headerModificationAppendSchemaDescription,
 					Optional:    true,
 				},
 				"replace": {
 					Type:        schema.TypeString,
-					Description: "New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).",
+					Description: headerModificationReplaceSchemaDescription,
 					Optional:    true,
 				},
 				"remove": {
 					Type:        schema.TypeBool,
-					Description: "If set, remove the header.",
+					Description: headerModificationRemoveSchemaDescription,
+					Optional:    true,
+				},
+			},
+		},
+	}
+}
+
+func regexRewrite() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Description: regexRewriteSchemaDescription,
+		MaxItems:    1,
+		Optional:    true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				regexSchemaKey: {
+					Type:        schema.TypeString,
+					Description: regexSchemaDescription,
+					Optional:    true,
+				},
+				substituteSchemaKey: {
+					Type:        schema.TypeString,
+					Description: substituteSchemaDescription,
 					Optional:    true,
 				},
 			},

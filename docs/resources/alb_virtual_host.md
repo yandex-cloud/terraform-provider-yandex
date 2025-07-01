@@ -268,6 +268,7 @@ Optional:
 - `idle_timeout` (String) Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios (i.e. long-polling, server-sent events) - one should set idle_timeout to something meaningful and timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.
 - `prefix_rewrite` (String) If not empty, matched path prefix will be replaced by this value.
 - `rate_limit` (Block List, Max: 1) Rate limit configuration applied for a whole virtual host (see [below for nested schema](#nestedblock--route--http_route--http_route_action--rate_limit))
+- `regex_rewrite` (Block List, Max: 1) Replacement for path substrings that match the pattern (see [below for nested schema](#nestedblock--route--http_route--http_route_action--regex_rewrite))
 - `timeout` (String) Specifies the request timeout (overall time request processing is allowed to take) for the route. If not set, default is 60 seconds.
 - `upgrade_types` (Set of String) List of upgrade types. Only specified upgrade types will be allowed. For example, `websocket`.
 
@@ -296,6 +297,15 @@ Optional:
 - `per_minute` (Number) Limit value specified with per minute time unit
 - `per_second` (Number) Limit value specified with per second time unit
 
+
+
+<a id="nestedblock--route--http_route--http_route_action--regex_rewrite"></a>
+### Nested Schema for `route.http_route.http_route_action.regex_rewrite`
+
+Optional:
+
+- `regex` (String) RE2 regular expression
+- `substitute` (String) The string which should be used to substitute matched substrings
 
 
 

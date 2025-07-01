@@ -938,6 +938,100 @@ func TestAcceptanceALBVirtualHost_RateLimit(t *testing.T) {
 	}
 }
 
+func TestAcceptanceALBVirtualHost_RegexRewrite(t *testing.T) {
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "use regex rewrite",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRoutePathRegexRewrite = true
+							result.HTTPRouteRegexRewriteRegex = "test_regex"
+							result.HTTPRouteRegexRewriteSubstitute = "test_substitute"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "regex_rewrite", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "regex", "test_regex", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "substitute", "test_substitute", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "use regex rewrite: empty substitute",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRoutePathRegexRewrite = true
+							result.HTTPRouteRegexRewriteRegex = "test_regex"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "regex_rewrite", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "regex", "test_regex", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "substitute", "", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
 func testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1230,6 +1324,314 @@ func Test_buildALBVirtualHostCreateRequest(t *testing.T) {
 		expectedResult *apploadbalancer.CreateVirtualHostRequest
 		expectErr      bool
 	}{
+		{
+			name: "http route regex rewrite: empty regex rewrite object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite:   &apploadbalancer.RegexMatchAndSubstitute{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: too many regex rewrite objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route regex rewrite: regex rewrite",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "regex",
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex:      "regex",
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: regex not set",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty regex",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "",
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: substitute not set",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey: "regex",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty substitute",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "regex",
+												substituteSchemaKey: "",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		{
 			name: "virtual host rate limit: no rate limit field",
 			config: map[string]interface{}{
@@ -3891,6 +4293,314 @@ func Test_buildALBVirtualHostUpdateRequest(t *testing.T) {
 		expectedResult *apploadbalancer.UpdateVirtualHostRequest
 		expectErr      bool
 	}{
+		{
+			name: "http route regex rewrite: empty regex rewrite object",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite:   &apploadbalancer.RegexMatchAndSubstitute{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: too many regex rewrite objects",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route regex rewrite: regex rewrite",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "regex",
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex:      "regex",
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: regex not set",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty regex",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "",
+												substituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: substitute not set",
+			config: map[string]interface{}{
+				"name":           "vh-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey: "regex",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty substitute",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										regexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												regexSchemaKey:      "regex",
+												substituteSchemaKey: "",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		{
 			name: "virtual host rate limit: no rate limit field",
 			config: map[string]interface{}{

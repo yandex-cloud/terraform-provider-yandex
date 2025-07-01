@@ -149,6 +149,7 @@ type resourceALBVirtualHostInfo struct {
 	IsGRPCRouteRateLimit              bool
 	IsGRPCRouteRateLimitAllRequests   bool
 	IsGRPCRouteRateLimitRequestsPerIP bool
+	IsHTTPRoutePathRegexRewrite       bool
 
 	BaseTemplate string
 
@@ -157,27 +158,29 @@ type resourceALBVirtualHostInfo struct {
 	RouterName string
 	BGName     string
 
-	RouterDescription              string
-	ModificationAppend             string
-	RouteName                      string
-	DirectResponseStatus           string
-	DirectResponseBody             string
-	RedirectResponseCode           string
-	HTTPRouteActionTimeout         string
-	GRPCRouteActionTimeout         string
-	GRPCStatusResponseActionStatus string
-	GRPCRouteActionAutoHostRewrite string
-	HTTPRouteActionHostRewrite     string
-	HTTPRouteActionAutoHostRewrite bool
-	AnyPrincipals                  string
-	RemoteIP                       string
-	RBACAction                     string
-	RateLimitRPS                   string
-	RateLimitRPM                   string
-	HTTPRouteRateLimitRPS          string
-	HTTPRouteRateLimitRPM          string
-	GRPCRouteRateLimitRPS          string
-	GRPCRouteRateLimitRPM          string
+	RouterDescription               string
+	ModificationAppend              string
+	RouteName                       string
+	DirectResponseStatus            string
+	DirectResponseBody              string
+	RedirectResponseCode            string
+	HTTPRouteActionTimeout          string
+	GRPCRouteActionTimeout          string
+	GRPCStatusResponseActionStatus  string
+	GRPCRouteActionAutoHostRewrite  string
+	HTTPRouteActionHostRewrite      string
+	HTTPRouteActionAutoHostRewrite  bool
+	AnyPrincipals                   string
+	RemoteIP                        string
+	RBACAction                      string
+	RateLimitRPS                    string
+	RateLimitRPM                    string
+	HTTPRouteRateLimitRPS           string
+	HTTPRouteRateLimitRPM           string
+	GRPCRouteRateLimitRPS           string
+	GRPCRouteRateLimitRPM           string
+	HTTPRouteRegexRewriteRegex      string
+	HTTPRouteRegexRewriteSubstitute string
 }
 
 func albVirtualHostInfo() resourceALBVirtualHostInfo {
@@ -400,6 +403,13 @@ resource "yandex_alb_virtual_host" "test-vh" {
         {{if .IsHTTPRouteActionHostRewrite}}
         host_rewrite = "{{.HTTPRouteActionHostRewrite}}"
         {{end}}
+
+        {{ if .IsHTTPRoutePathRegexRewrite }}
+        regex_rewrite {
+          regex       = "{{ .HTTPRouteRegexRewriteRegex }}"
+          substitute  = "{{ .HTTPRouteRegexRewriteSubstitute }}"
+        }
+        {{ end }}
 
         {{if .IsHTTPRouteRateLimit}}
           rate_limit {
