@@ -7,9 +7,6 @@ resource "yandex_metastore_cluster" "my_metastore_cluster" {
   security_group_ids = [yandex_vpc_security_group.metastore-sg.id]
   service_account_id = yandex_iam_service_account.for-metastore.id
 
-  max_servers_per_zone = 1
-  min_servers_per_zone = 1
-
   cluster_config = {
     resource_preset_id = "c2-m8"
   }

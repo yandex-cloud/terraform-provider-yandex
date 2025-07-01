@@ -25,8 +25,6 @@ func BuildCreateClusterRequest(ctx context.Context, plan *ClusterModel, provider
 		Name:               plan.Name.ValueString(),
 		Description:        plan.Description.ValueString(),
 		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, diags),
-		MinServersPerZone:  1,
-		MaxServersPerZone:  1,
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		ConfigSpec: &metastore.ConfigSpec{
 			Resources: &metastore.Resources{
