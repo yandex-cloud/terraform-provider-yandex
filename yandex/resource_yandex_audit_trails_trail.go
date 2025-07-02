@@ -228,14 +228,14 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 									"dns_filter": {
 										Optional:    true,
 										Type:        schema.TypeList,
-										Description: "Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`.",
+										Description: "Specific filter for DNS service.",
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"only_recursive_queries": {
+												"include_nonrecursive_queries": {
 													Required:    true,
 													Type:        schema.TypeBool,
-													Description: "Only recursive queries will be delivered.",
+													Description: "All types of queries will be delivered.",
 												},
 											},
 										},
@@ -616,7 +616,7 @@ func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace 
 				return nil, fmt.Errorf("service %s does not support dns_filter", filter.GetService())
 			}
 			dnsFilter := &audittrails.Trail_DnsDataEventsFilter{
-				OnlyRecursiveQueries: data.Get(filterNamespace + "dns_filter.0.only_recursive_queries").(bool),
+				IncludeNonrecursiveQueries: data.Get(filterNamespace + "dns_filter.0.include_nonrecursive_queries").(bool),
 			}
 			filter.SetDnsFilter(dnsFilter)
 		}

@@ -80,7 +80,7 @@ func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 		BucketName:   updatedBucketTestName,
 		ObjectPrefix: "some-prefix",
 	}
-	updatedTrail.FilteringPolicy.DataEventFilters[1].DnsFilter.OnlyRecursiveQueries = false
+	updatedTrail.FilteringPolicy.DataEventFilters[1].DnsFilter.IncludeNonrecursiveQueries = false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -142,7 +142,7 @@ func TestAccResourceAuditTrailsTrail_logging(t *testing.T) {
 	updatedTrail.LoggingDestination = trailLoggingDestination{
 		LogGroupName: updatedLoggingTestName,
 	}
-	updatedTrail.FilteringPolicy.DataEventFilters[2].DnsFilter.OnlyRecursiveQueries = true
+	updatedTrail.FilteringPolicy.DataEventFilters[2].DnsFilter.IncludeNonrecursiveQueries = true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -300,8 +300,8 @@ func checkDataEventFilter(resourceName string, statePrefix string, dataEventFilt
 	if dataEventFilter.Service == "dns" {
 		checks = append(checks, resource.TestCheckResourceAttr(
 			resourceName,
-			statePrefix+"dns_filter.0.only_recursive_queries",
-			strconv.FormatBool(dataEventFilter.DnsFilter.OnlyRecursiveQueries),
+			statePrefix+"dns_filter.0.include_nonrecursive_queries",
+			strconv.FormatBool(dataEventFilter.DnsFilter.IncludeNonrecursiveQueries),
 		))
 	} else {
 		checks = append(checks, resource.TestCheckResourceAttr(
@@ -488,7 +488,7 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 						},
 					},
 					DnsFilter: trailDnsFilter{
-						OnlyRecursiveQueries: false,
+						IncludeNonrecursiveQueries: false,
 					},
 				},
 			},
@@ -534,7 +534,7 @@ func auditTrailsStorageConfig(trailResourceName, bucketName, saName string) yand
 						},
 					},
 					DnsFilter: trailDnsFilter{
-						OnlyRecursiveQueries: true,
+						IncludeNonrecursiveQueries: true,
 					},
 				},
 			},
@@ -751,7 +751,7 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
 
 	  {{if eq .Service "dns"}}
 	  dns_filter {
-	 	only_recursive_queries = {{.DnsFilter.OnlyRecursiveQueries}} 
+	 	include_nonrecursive_queries = {{.DnsFilter.IncludeNonrecursiveQueries}}
 	  }
 	  {{end}}
 	}
@@ -787,7 +787,7 @@ type trailDataEventFilter struct {
 }
 
 type trailDnsFilter struct {
-	OnlyRecursiveQueries bool
+	IncludeNonrecursiveQueries bool
 }
 
 type trailResourceEntry struct {

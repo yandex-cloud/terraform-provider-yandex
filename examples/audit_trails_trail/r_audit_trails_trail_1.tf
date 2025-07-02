@@ -41,7 +41,7 @@ resource "yandex_audit_trails_trail" "basic-trail" {
         resource_type = "vpc.network"
       }
       dns_filter {
-        only_recursive_queries = true
+        include_nonrecursive_queries = true
       }
     }
   }

@@ -41,7 +41,7 @@ resource "yandex_audit_trails_trail" "basic_trail" {
         resource_type = "organization-manager.organization"
       }
       dns_filter {
-        only_recursive_queries = true
+        include_nonrecursive_queries = true
       }
     }
   }

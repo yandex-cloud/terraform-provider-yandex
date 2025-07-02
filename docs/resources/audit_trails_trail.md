@@ -63,7 +63,7 @@ resource "yandex_audit_trails_trail" "basic-trail" {
         resource_type = "vpc.network"
       }
       dns_filter {
-        only_recursive_queries = true
+        include_nonrecursive_queries = true
       }
     }
   }
@@ -114,7 +114,7 @@ resource "yandex_audit_trails_trail" "basic_trail" {
         resource_type = "organization-manager.organization"
       }
       dns_filter {
-        only_recursive_queries = true
+        include_nonrecursive_queries = true
       }
     }
   }
@@ -339,7 +339,7 @@ Required:
 
 Optional:
 
-- `dns_filter` (Block List, Max: 1) Specific filter for DNS service. If not set, the default value is `only_recursive_queries = true`. (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--dns_filter))
+- `dns_filter` (Block List, Max: 1) Specific filter for DNS service. (see [below for nested schema](#nestedblock--filtering_policy--data_events_filter--dns_filter))
 - `excluded_events` (List of String) A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `included_events`.
 - `included_events` (List of String) A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excluded_events`.
 
@@ -357,7 +357,7 @@ Required:
 
 Required:
 
-- `only_recursive_queries` (Boolean) Only recursive queries will be delivered.
+- `include_nonrecursive_queries` (Boolean) All types of queries will be delivered.
 
 
 
