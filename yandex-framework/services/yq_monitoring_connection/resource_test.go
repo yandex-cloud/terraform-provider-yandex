@@ -11,12 +11,6 @@ import (
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
-// TestMain - add sweepers flag to the go test command
-// important for sweepers run.
-func TestMain(m *testing.M) {
-	resource.TestMain(m)
-}
-
 func TestAccYQMonitoringConnectionBasic(t *testing.T) {
 	connectionName := fmt.Sprintf("my-conn-%s", acctest.RandString(5))
 	connectionResourceName := "my-connection"

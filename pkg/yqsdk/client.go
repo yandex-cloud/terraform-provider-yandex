@@ -15,11 +15,13 @@ type YQClient interface {
 	DescribeConnection(context.Context, *Ydb_FederatedQuery.DescribeConnectionRequest) (*Ydb_FederatedQuery.DescribeConnectionResult, error)
 	ModifyConnection(context.Context, *Ydb_FederatedQuery.ModifyConnectionRequest) error
 	DeleteConnection(context.Context, *Ydb_FederatedQuery.DeleteConnectionRequest) error
+	ListConnections(context.Context, *Ydb_FederatedQuery.ListConnectionsRequest) (*Ydb_FederatedQuery.ListConnectionsResult, error)
 
 	CreateBinding(context.Context, *Ydb_FederatedQuery.CreateBindingRequest) (*Ydb_FederatedQuery.CreateBindingResult, error)
 	DescribeBinding(context.Context, *Ydb_FederatedQuery.DescribeBindingRequest) (*Ydb_FederatedQuery.DescribeBindingResult, error)
 	ModifyBinding(context.Context, *Ydb_FederatedQuery.ModifyBindingRequest) error
 	DeleteBinding(context.Context, *Ydb_FederatedQuery.DeleteBindingRequest) error
+	ListBindings(context.Context, *Ydb_FederatedQuery.ListBindingsRequest) (*Ydb_FederatedQuery.ListBindingsResult, error)
 }
 
 type yqClient struct {
@@ -106,6 +108,29 @@ func (c yqClient) DeleteConnection(ctx context.Context,
 	return nil
 }
 
+func (c yqClient) ListConnections(ctx context.Context,
+	req *Ydb_FederatedQuery.ListConnectionsRequest,
+) (*Ydb_FederatedQuery.ListConnectionsResult, error) {
+
+	r, err := c.client.ListConnections(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("list connections: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("list connections: %+v", r)
+	}
+
+	var result Ydb_FederatedQuery.ListConnectionsResult
+
+	err = r.GetOperation().GetResult().UnmarshalTo(&result)
+	if err != nil {
+		return nil, fmt.Errorf("list connections: %+v; unmarshal: %w", r, err)
+	}
+
+	return &result, nil
+}
+
 func (c yqClient) CreateBinding(
 	ctx context.Context,
 	req *Ydb_FederatedQuery.CreateBindingRequest,
@@ -184,6 +209,29 @@ func (c yqClient) DeleteBinding(ctx context.Context,
 	}
 
 	return nil
+}
+
+func (c yqClient) ListBindings(ctx context.Context,
+	req *Ydb_FederatedQuery.ListBindingsRequest,
+) (*Ydb_FederatedQuery.ListBindingsResult, error) {
+
+	r, err := c.client.ListBindings(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("list bindings: %w", err)
+	}
+
+	if r.GetOperation().GetStatus() != Ydb.StatusIds_SUCCESS {
+		return nil, fmt.Errorf("list bindings: %+v", r)
+	}
+
+	var result Ydb_FederatedQuery.ListBindingsResult
+
+	err = r.GetOperation().GetResult().UnmarshalTo(&result)
+	if err != nil {
+		return nil, fmt.Errorf("list bindings: %+v; unmarshal: %w", r, err)
+	}
+
+	return &result, nil
 }
 
 func NewYQClient(ctx context.Context, clientConn *grpc.ClientConn) *yqClient {

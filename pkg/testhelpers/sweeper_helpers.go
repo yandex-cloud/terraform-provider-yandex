@@ -63,6 +63,7 @@ func ConfigForSweepers() (*provider_config.Config, error) {
 			CloudID:                        types.StringValue(cloudID),
 			FolderID:                       types.StringValue(folderID),
 			Endpoint:                       types.StringValue(os.Getenv("YC_ENDPOINT")),
+			YQEndpoint:                     types.StringValue(common.DefaultYQEndpoint),
 			StorageEndpoint:                types.StringValue(os.Getenv("YC_STORAGE_ENDPOINT_URL")),
 		},
 	}

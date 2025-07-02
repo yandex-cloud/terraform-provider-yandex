@@ -26,7 +26,7 @@ func TestAccYQConnectionExists(connectionName string, connectionResourceName str
 			return fmt.Errorf("not found: %s, r: %v", connectionResourceName, s.RootModule().Resources)
 		}
 		if prs.Primary.ID == "" {
-			return fmt.Errorf("%s", "no ID for connection is set")
+			return fmt.Errorf("no ID for connection is set")
 		}
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
@@ -54,7 +54,7 @@ func TestYandexYQAllConnectionsDestroyed(s *terraform.State, resourceType string
 
 		response, err := testGetYQConnectionByID(&config, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Connection with id %s still exists, resource type %s, , details: %v", rs.Primary.ID, resourceType, response)
+			return fmt.Errorf("connection with id %s still exists, resource type %s, details: %v", rs.Primary.ID, resourceType, response)
 		}
 	}
 
@@ -76,7 +76,7 @@ func TestAccYQBindingExists(bindingName string, bindingResourceName string) reso
 			return fmt.Errorf("not found: %s, r: %v", bindingResourceName, s.RootModule().Resources)
 		}
 		if prs.Primary.ID == "" {
-			return fmt.Errorf("%s", "no ID for binding is set")
+			return fmt.Errorf("no ID for binding is set")
 		}
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
@@ -103,8 +103,99 @@ func TestYandexYQAllBindingsDestroyed(s *terraform.State, resourceType string) e
 
 		response, err := testGetYQBindingByID(&config, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Binding with id %s still exists, resource type %s, , details: %v", rs.Primary.ID, resourceType, response)
+			return fmt.Errorf("binding with id %s still exists, resource type %s, details: %v", rs.Primary.ID, resourceType, response)
 		}
+	}
+
+	return nil
+}
+
+func SweepAllConnections(t Ydb_FederatedQuery.ConnectionSetting_ConnectionType) error {
+	conf, err := ConfigForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %w", err)
+	}
+
+	if conf.YqSdk == nil {
+		return fmt.Errorf("YQ SDK is not initialized")
+	}
+
+	protoReq := &Ydb_FederatedQuery.ListConnectionsRequest{
+		Filter: &Ydb_FederatedQuery.ListConnectionsRequest_Filter{
+			ConnectionType: t,
+		},
+		Limit: 100,
+	}
+
+	ctx := context.Background()
+
+	for {
+		resp, err := conf.YqSdk.Client().ListConnections(ctx, protoReq)
+		if err != nil {
+			return fmt.Errorf("error getting connections: %w", err)
+		}
+
+		for _, c := range resp.Connection {
+			id := c.Meta.Id
+			err := conf.YqSdk.Client().DeleteConnection(ctx, &Ydb_FederatedQuery.DeleteConnectionRequest{
+				ConnectionId: id,
+			})
+
+			if err != nil {
+				return err
+			}
+		}
+		if len(resp.NextPageToken) == 0 {
+			break
+		}
+
+		protoReq.PageToken = resp.NextPageToken
+	}
+
+	return nil
+}
+
+func SweepAllBindings(t Ydb_FederatedQuery.BindingSetting_BindingType) error {
+	conf, err := ConfigForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %w", err)
+	}
+
+	if conf.YqSdk == nil {
+		return fmt.Errorf("YQ SDK is not initialized")
+	}
+
+	protoReq := &Ydb_FederatedQuery.ListBindingsRequest{
+		Limit: 100,
+	}
+
+	ctx := context.Background()
+
+	for {
+		resp, err := conf.YqSdk.Client().ListBindings(ctx, protoReq)
+		if err != nil {
+			return fmt.Errorf("error getting bindings: %w", err)
+		}
+
+		for _, c := range resp.Binding {
+			if c.Type != t {
+				continue
+			}
+
+			id := c.Meta.Id
+			err := conf.YqSdk.Client().DeleteBinding(ctx, &Ydb_FederatedQuery.DeleteBindingRequest{
+				BindingId: id,
+			})
+
+			if err != nil {
+				return err
+			}
+		}
+		if len(resp.NextPageToken) == 0 {
+			break
+		}
+
+		protoReq.PageToken = resp.NextPageToken
 	}
 
 	return nil
