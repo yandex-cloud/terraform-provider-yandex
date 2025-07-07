@@ -10,6 +10,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 func BuildCreateInstanceRequest(ctx context.Context, instanceModel *InstanceModel, providerConfig *config.State) (*gitlab.CreateInstanceRequest, diag.Diagnostics) {
@@ -58,6 +59,39 @@ func BuildCreateInstanceRequest(ctx context.Context, instanceModel *InstanceMode
 	return instanceCreateRequest, diags
 }
 
+func BuildUpdateInstanceRequest(ctx context.Context, state *InstanceModel, plan *InstanceModel) (*gitlab.UpdateInstanceRequest, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	dd := validateUpdateInstanceRequest(ctx, plan, state)
+	diags.Append(dd...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	common, updateMaskPaths, dd := buildBaseInstanceProperties(ctx, plan, state)
+	diags.Append(dd...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	updateClusterRequest := &gitlab.UpdateInstanceRequest{
+		InstanceId:                state.Id.ValueString(),
+		UpdateMask:                &field_mask.FieldMask{Paths: updateMaskPaths},
+		Name:                      common.Name,
+		Description:               common.Description,
+		Labels:                    common.Labels,
+		BackupRetainPeriodDays:    common.BackupRetainPeriodDays,
+		ResourcePresetId:          common.ResourcePresetId,
+		MaintenanceDeleteUntagged: common.MaintenanceDeleteUntagged,
+		DeletionProtection:        common.DeletionProtection,
+		ApprovalRulesId:           common.ApprovalRulesId,
+		ApprovalRulesToken:        common.ApprovalRulesToken,
+		DiskSize:                  common.DiskSize,
+	}
+
+	return updateClusterRequest, diags
+}
+
 type BaseInstanceProperties struct {
 	Name                      string
 	Description               string
@@ -68,11 +102,13 @@ type BaseInstanceProperties struct {
 	MaintenanceDeleteUntagged bool
 	DeletionProtection        bool
 	ApprovalRulesId           string
+	ApprovalRulesToken        string
 }
 
 func buildBaseInstanceProperties(ctx context.Context, plan, state *InstanceModel) (*BaseInstanceProperties, []string, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 	updateMaskPaths := make([]string, 0)
+	var approvalRulesToken string
 
 	if state != nil {
 		if !plan.Name.Equal(state.Name) {
@@ -99,6 +135,13 @@ func buildBaseInstanceProperties(ctx context.Context, plan, state *InstanceModel
 		if !stringsAreEqual(plan.ApprovalRulesId, state.ApprovalRulesId) {
 			updateMaskPaths = append(updateMaskPaths, "approval_rules_id")
 		}
+		if !plan.ApprovalRulesToken.IsNull() && !plan.ApprovalRulesToken.IsUnknown() {
+			approvalRulesToken = plan.ApprovalRulesToken.ValueString()
+
+			if !stringsAreEqual(plan.ApprovalRulesToken, state.ApprovalRulesToken) {
+				updateMaskPaths = append(updateMaskPaths, "approval_rules_token")
+			}
+		}
 	}
 
 	labels := make(map[string]string, len(plan.Labels.Elements()))
@@ -122,5 +165,25 @@ func buildBaseInstanceProperties(ctx context.Context, plan, state *InstanceModel
 		MaintenanceDeleteUntagged: plan.MaintenanceDeleteUntagged.ValueBool(),
 		DeletionProtection:        plan.DeletionProtection.ValueBool(),
 		ApprovalRulesId:           plan.ApprovalRulesId.ValueString(),
+		ApprovalRulesToken:        approvalRulesToken,
 	}, updateMaskPaths, diags
+}
+
+func validateUpdateInstanceRequest(ctx context.Context, state *InstanceModel, plan *InstanceModel) diag.Diagnostics {
+	diags := diag.Diagnostics{}
+
+	if !plan.AdminEmail.Equal(state.AdminEmail) {
+		diags.Append(diag.NewErrorDiagnostic("Attribute admin_email can't be changed.", "Attribute admin_email can't be changed."))
+	}
+	if !plan.AdminLogin.Equal(state.AdminLogin) {
+		diags.Append(diag.NewErrorDiagnostic("Attribute admin_login can't be changed.", "Attribute admin_login can't be changed."))
+	}
+	if !plan.Domain.Equal(state.Domain) {
+		diags.Append(diag.NewErrorDiagnostic("Attribute domain can't be changed.", "Attribute domain can't be changed."))
+	}
+	if !plan.SubnetId.Equal(state.SubnetId) {
+		diags.Append(diag.NewErrorDiagnostic("Attribute subnet_id can't be changed.", "Attribute subnet_id can't be changed."))
+	}
+
+	return diags
 }

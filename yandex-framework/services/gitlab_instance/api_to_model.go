@@ -23,7 +23,7 @@ func InstanceToState(ctx context.Context, instance *gitlab.Instance, state *Inst
 	state.Name = types.StringValue(instance.GetName())
 
 	newDescription := types.StringValue(instance.GetDescription())
-	if !newDescription.Equal(state.Description) {
+	if !stringsAreEqual(state.Description, newDescription) {
 		state.Description = newDescription
 	}
 

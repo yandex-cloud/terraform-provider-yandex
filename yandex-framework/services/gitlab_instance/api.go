@@ -78,6 +78,16 @@ func DeleteInstance(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagno
 	})
 }
 
+func UpdateInstance(ctx context.Context, sdk *ycsdk.SDK, req *gitlab.UpdateInstanceRequest) diag.Diagnostic {
+	if req == nil || req.UpdateMask == nil || len(req.UpdateMask.Paths) == 0 {
+		return nil
+	}
+
+	return waitOperation(ctx, sdk, "update Gitlab instance", func() (*operation.Operation, error) {
+		return sdk.Gitlab().Instance().Update(ctx, req)
+	})
+}
+
 func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
 	op, err := retry.ConflictingOperation(ctx, sdk, callback)
 

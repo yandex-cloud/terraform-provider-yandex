@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -188,7 +189,6 @@ func TestAccGitlabInstance1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGitlabInstanceExists("yandex_gitlab_instance.gitlab_instance", &instance),
 					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "name", fmt.Sprintf("gitlab-%s", randSuffix)),
-					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "description", ""),
 					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "resource_preset_id", "s2.micro"),
 					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "disk_size", fmt.Sprintf("%d", 30)),
 					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "admin_login", "robot-gitlab-ci"),
@@ -259,6 +259,108 @@ func TestAccGitlabInstance2_basic(t *testing.T) {
 				ResourceName:      "yandex_gitlab_instance.gitlab_instance",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: gitlabInstanceConfig(t, gitlabInstanceConfigParams{
+					RandSuffix:       randSuffix,
+					ResourcePresetID: "s2.micro",
+					DiskSize:         30,
+					AdminLogin:       "robot-gitlab-ci-updated",
+					AdminEmail:       "robot-gitlab-ci@yandex-team.ru",
+					Description:      "description",
+					Labels: map[string]string{
+						"key": "value",
+					},
+					IncludeBlockLabels:        true,
+					BackupRetainPeriodDays:    14,
+					MaintenanceDeleteUntagged: true,
+					ApprovalRulesId:           "BASIC",
+				}),
+				ExpectError: regexp.MustCompile(".*Attribute admin_login can't be changed.*"),
+			},
+			{
+				ResourceName:      "yandex_gitlab_instance.gitlab_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: gitlabInstanceConfig(t, gitlabInstanceConfigParams{
+					RandSuffix:       randSuffix,
+					ResourcePresetID: "s2.micro",
+					DiskSize:         30,
+					AdminLogin:       "robot-gitlab-ci",
+					AdminEmail:       "robot-gitlab-ci-updated@yandex-team.ru",
+					Description:      "description",
+					Labels: map[string]string{
+						"key": "value",
+					},
+					IncludeBlockLabels:        true,
+					BackupRetainPeriodDays:    14,
+					MaintenanceDeleteUntagged: true,
+					ApprovalRulesId:           "BASIC",
+				}),
+				ExpectError: regexp.MustCompile(".*Attribute admin_email can't be changed.*"),
+			},
+			{
+				ResourceName:      "yandex_gitlab_instance.gitlab_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: gitlabInstanceConfig(t, gitlabInstanceConfigParams{
+					RandSuffix:       randSuffix + "-updated",
+					ResourcePresetID: "s2.micro",
+					DiskSize:         30,
+					AdminLogin:       "robot-gitlab-ci",
+					AdminEmail:       "robot-gitlab-ci-updated@yandex-team.ru",
+					Description:      "description",
+					Labels: map[string]string{
+						"key": "value",
+					},
+					IncludeBlockLabels:        true,
+					BackupRetainPeriodDays:    14,
+					MaintenanceDeleteUntagged: true,
+					ApprovalRulesId:           "BASIC",
+				}),
+				ExpectError: regexp.MustCompile(".*Attribute domain can't be changed.*"),
+			},
+			{
+				ResourceName:      "yandex_gitlab_instance.gitlab_instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: gitlabInstanceConfig(t, gitlabInstanceConfigParams{
+					RandSuffix:       randSuffix,
+					ResourcePresetID: "s2.micro",
+					DiskSize:         32,
+					AdminLogin:       "robot-gitlab-ci",
+					AdminEmail:       "robot-gitlab-ci@yandex-team.ru",
+					Description:      "description",
+					Labels: map[string]string{
+						"key": "value",
+					},
+					IncludeBlockLabels:        true,
+					BackupRetainPeriodDays:    7,
+					MaintenanceDeleteUntagged: false,
+					ApprovalRulesId:           "NONE",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGitlabInstanceExists("yandex_gitlab_instance.gitlab_instance", &instance),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "name", fmt.Sprintf("gitlab-%s", randSuffix)),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "description", "description"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "labels.key", "value"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "disk_size", fmt.Sprintf("%d", 32)),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "admin_login", "robot-gitlab-ci"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "admin_email", "robot-gitlab-ci@yandex-team.ru"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "domain", fmt.Sprintf("gitlab-%s.gitlab.yandexcloud.net", randSuffix)),
+					resource.TestCheckResourceAttrSet("yandex_gitlab_instance.gitlab_instance", "subnet_id"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "backup_retain_period_days", "7"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "maintenance_delete_untagged", "false"),
+					resource.TestCheckResourceAttr("yandex_gitlab_instance.gitlab_instance", "approval_rules_id", "NONE"),
+					resource.TestCheckResourceAttrSet("yandex_gitlab_instance.gitlab_instance", "gitlab_version"),
+				),
 			},
 		},
 	})

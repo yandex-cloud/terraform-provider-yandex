@@ -64,6 +64,12 @@ func (d *gitlabInstanceDatasource) Schema(ctx context.Context, _ datasource.Sche
 				Description:         "Approval rules configuration. One of: NONE, BASIC, STANDARD, ADVANCED.",
 				MarkdownDescription: "Approval rules configuration. One of: NONE, BASIC, STANDARD, ADVANCED.",
 			},
+			"approval_rules_token": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Approval rules token.",
+				MarkdownDescription: "Approval rules token.",
+			},
 			"backup_retain_period_days": schema.Int64Attribute{
 				Computed:            true,
 				Description:         "Auto backups retain period in days.",

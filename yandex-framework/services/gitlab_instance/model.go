@@ -9,6 +9,7 @@ type InstanceModel struct {
 	AdminEmail                types.String   `tfsdk:"admin_email"`
 	AdminLogin                types.String   `tfsdk:"admin_login"`
 	ApprovalRulesId           types.String   `tfsdk:"approval_rules_id"`
+	ApprovalRulesToken        types.String   `tfsdk:"approval_rules_token"`
 	BackupRetainPeriodDays    types.Int64    `tfsdk:"backup_retain_period_days"`
 	CreatedAt                 types.String   `tfsdk:"created_at"`
 	DeletionProtection        types.Bool     `tfsdk:"deletion_protection"`

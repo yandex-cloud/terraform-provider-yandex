@@ -4,6 +4,7 @@ package gitlab_instance
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -35,6 +36,12 @@ func InstanceResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.String{
 					arValidator(),
 				},
+			},
+			"approval_rules_token": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Approval rules token.",
+				MarkdownDescription: "Approval rules token.",
 			},
 			"backup_retain_period_days": schema.Int64Attribute{
 				Required:            true,
@@ -88,9 +95,6 @@ func InstanceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Version of Gitlab on instance.",
 				MarkdownDescription: "Version of Gitlab on instance.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -150,9 +154,6 @@ func InstanceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "The timestamp when the instance was updated.",
 				MarkdownDescription: "The timestamp when the instance was updated.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 		Blocks: map[string]schema.Block{

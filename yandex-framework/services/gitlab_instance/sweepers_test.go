@@ -3,6 +3,7 @@ package gitlab_instance_test
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/gitlab/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
@@ -61,25 +63,23 @@ func sweepGitlabInstance(conf *config.Config, id string) bool {
 }
 
 func sweepGitlabInstanceOnce(conf *config.Config, id string) error {
-	// TODO: uncomment when update is implemented
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
 
-	// mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-
-	// ctxUpd, cancelUpd := context.WithTimeout(context.Background(), updateTimeout)
-	// defer cancelUpd()
-	// op, err := conf.SDK.Airflow().Cluster().Update(ctxUpd, &gitlab.UpdateInstanceRequest{
-	// 	InstanceId:         id,
-	// 	DeletionProtection: false,
-	// 	UpdateMask:         &mask,
-	// })
-	// err = testhelpers.HandleSweepOperation(ctxUpd, conf, op, err)
-	// if err != nil && !strings.EqualFold(testhelpers.ErrorMessage(err), "no changes detected") {
-	// 	return err
-	// }
+	ctxUpd, cancelUpd := context.WithTimeout(context.Background(), updateTimeout)
+	defer cancelUpd()
+	op, err := conf.SDK.Gitlab().Instance().Update(ctxUpd, &gitlab.UpdateInstanceRequest{
+		InstanceId:         id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = testhelpers.HandleSweepOperation(ctxUpd, conf, op, err)
+	if err != nil && !strings.EqualFold(testhelpers.ErrorMessage(err), "no changes detected") {
+		return err
+	}
 
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), deleteTimeout)
 	defer cancelDel()
-	op, err := conf.SDK.Gitlab().Instance().Delete(ctxDel, &gitlab.DeleteInstanceRequest{
+	op, err = conf.SDK.Gitlab().Instance().Delete(ctxDel, &gitlab.DeleteInstanceRequest{
 		InstanceId: id,
 	})
 	return testhelpers.HandleSweepOperation(ctxDel, conf, op, err)

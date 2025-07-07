@@ -165,7 +165,27 @@ func (r *gitlabInstanceResource) Update(ctx context.Context, req resource.Update
 	tflog.Debug(ctx, fmt.Sprintf("Update Gitlab instance state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("Update Gitlab instance plan: %+v", plan))
 
-	tflog.Error(ctx, "Update operation is not implemented")
+	updateReq, diags := BuildUpdateInstanceRequest(ctx, &state, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("Update Gitlab instance request: %+v", updateReq))
+
+	d := UpdateInstance(ctx, r.providerConfig.SDK, updateReq)
+	resp.Diagnostics.Append(d)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = updateState(ctx, r.providerConfig.SDK, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	tflog.Debug(ctx, "Finished updating Gitlab instance", instanceIDLogField(state.Id.ValueString()))
 }
 
 func (r *gitlabInstanceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
