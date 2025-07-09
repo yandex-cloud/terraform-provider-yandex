@@ -66,6 +66,15 @@ func testAccYDBTopicConfig(
 		partition_write_speed_kbps = 128
 		metering_mode = "reserved_capacity"
 		partitions_count = 4
+
+		auto_partitioning_settings {
+			auto_partitioning_strategy = "SCALE_UP"
+			auto_partitioning_write_speed_strategy {
+				down_utilization_percent = 30
+				stabilization_window     = 50
+				up_utilization_percent   = 80
+			}
+		}
 	}
 	`,
 		subnetsConfig,

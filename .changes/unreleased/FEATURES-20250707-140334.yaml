@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'ydb_topic: add autopartitioning for topics'
+time: 2025-07-07T14:03:34.095226+03:00

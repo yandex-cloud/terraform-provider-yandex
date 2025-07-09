@@ -1,8 +1,8 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.22.0
+go 1.22.5
 
-toolchain go1.22.12
+toolchain go1.23.10
 
 require (
 	github.com/aws/aws-sdk-go v1.42.11
@@ -40,19 +40,19 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/objx v0.5.2
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/yandex-cloud/go-genproto v0.13.0
 	github.com/yandex-cloud/go-sdk v0.11.0
-	github.com/ydb-platform/terraform-provider-ydb v0.0.24
+	github.com/ydb-platform/terraform-provider-ydb v0.0.26
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.33.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
-	golang.org/x/net v0.33.0
-	golang.org/x/text v0.21.0
+	golang.org/x/net v0.35.0
+	golang.org/x/text v0.22.0
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d
 	google.golang.org/genproto v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.69.4
 	google.golang.org/protobuf v1.35.1
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -167,7 +167,7 @@ require (
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/jonboulle/clockwork v0.3.0 // indirect
+	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kisielk/errcheck v1.6.3 // indirect
@@ -262,7 +262,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.99.12 // indirect
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.111.3 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect
 	github.com/yuin/goldmark v1.7.1 // indirect
@@ -271,14 +271,13 @@ require (
 	gitlab.com/bosi/decorder v0.2.3 // indirect
 	go.abhg.dev/goldmark/frontmatter v0.2.0 // indirect
 	go.tmz.dev/musttag v0.7.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
 	golang.org/x/mod v0.19.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
