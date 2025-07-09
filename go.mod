@@ -1,6 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.22.5
+go 1.23.0
 
 toolchain go1.23.10
 
@@ -45,7 +45,7 @@ require (
 	github.com/yandex-cloud/go-sdk v0.11.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.26
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.35.0
 	golang.org/x/text v0.22.0
