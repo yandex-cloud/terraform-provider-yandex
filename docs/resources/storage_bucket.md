@@ -427,7 +427,7 @@ resource "yandex_storage_bucket" "all_settings" {
 - `logging` (Block Set) A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs). (see [below for nested schema](#nestedblock--logging))
 - `max_size` (Number) The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume) for more information.
 - `object_lock_configuration` (Block List, Max: 1) A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock). (see [below for nested schema](#nestedblock--object_lock_configuration))
-- `policy` (String) The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
+- `policy` (String, Deprecated) The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 - `secret_key` (String, Sensitive) The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
 - `server_side_encryption_configuration` (Block List, Max: 1) A configuration of server-side encryption for the bucket. (see [below for nested schema](#nestedblock--server_side_encryption_configuration))
 - `tags` (Map of String) The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags) for more information.
@@ -448,7 +448,7 @@ resource "yandex_storage_bucket" "all_settings" {
 
 Optional:
 
-- `config_read` (Boolean)
+- `config_read` (Boolean) Allows to read bucket configuration anonymously.
 - `list` (Boolean) Allows to list object in bucket anonymously.
 - `read` (Boolean) Allows to read objects in bucket anonymously.
 
@@ -547,8 +547,8 @@ Optional:
 
 Required:
 
-- `key` (String)
-- `value` (String)
+- `key` (String) A key.
+- `value` (String) A value.
 
 
 

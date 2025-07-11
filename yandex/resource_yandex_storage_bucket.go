@@ -149,6 +149,8 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Optional:         true,
 				ValidateFunc:     validateStringIsJSON,
 				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
+				Deprecated:       "Use `yandex_storage_bucket_policy` resource instead.",
+				Computed:         true,
 			},
 
 			"cors_rule": {
@@ -436,12 +438,14 @@ func resourceYandexStorageBucket() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"key": {
-													Type:     schema.TypeString,
-													Required: true,
+													Description: "A key.",
+													Type:        schema.TypeString,
+													Required:    true,
 												},
 												"value": {
-													Type:     schema.TypeString,
-													Required: true,
+													Description: "A value.",
+													Type:        schema.TypeString,
+													Required:    true,
 												},
 											},
 										},
@@ -650,8 +654,9 @@ func resourceYandexStorageBucket() *schema.Resource {
 							Optional:    true,
 						},
 						"config_read": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: "Allows to read bucket configuration anonymously.",
+							Optional:    true,
 						},
 					},
 				},
@@ -683,7 +688,10 @@ func tagsSchema() *schema.Schema {
 		Type:        schema.TypeMap,
 		Description: "The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags) for more information.",
 		Optional:    true,
-		Elem:        &schema.Schema{Type: schema.TypeString},
+		Elem: &schema.Schema{
+			Type:        schema.TypeString,
+			Description: "A tag.",
+		},
 	}
 }
 
