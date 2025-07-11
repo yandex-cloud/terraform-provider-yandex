@@ -16,6 +16,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     rest_api {
       enabled = true
     }
+    kafka_ui {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.micro"

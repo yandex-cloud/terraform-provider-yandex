@@ -190,6 +190,16 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						"emergency_usage_threshold": 70,
 					},
 				},
+				"rest_api": []interface{}{
+					map[string]interface{}{
+						"enabled": true,
+					},
+				},
+				"kafka_ui": []interface{}{
+					map[string]interface{}{
+						"enabled": true,
+					},
+				},
 			},
 		},
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -320,6 +330,12 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 				DiskSizeLimit:           200 * 1024 * 1024 * 1024,
 				PlannedUsageThreshold:   50,
 				EmergencyUsageThreshold: 70,
+			},
+			RestApiConfig: &kafka.ConfigSpec_RestAPIConfig{
+				Enabled: true,
+			},
+			KafkaUiConfig: &kafka.ConfigSpec_KafkaUIConfig{
+				Enabled: true,
 			},
 		},
 		SubnetId: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -752,6 +768,16 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 						"emergency_usage_threshold": 70,
 					},
 				},
+				"rest_api": []interface{}{
+					map[string]interface{}{
+						"enabled": true,
+					},
+				},
+				"kafka_ui": []interface{}{
+					map[string]interface{}{
+						"enabled": true,
+					},
+				},
 			},
 		},
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -823,6 +849,12 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 				PlannedUsageThreshold:   50,
 				EmergencyUsageThreshold: 70,
 			},
+			RestApiConfig: &kafka.ConfigSpec_RestAPIConfig{
+				Enabled: true,
+			},
+			KafkaUiConfig: &kafka.ConfigSpec_KafkaUIConfig{
+				Enabled: true,
+			},
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
 		MaintenanceWindow: &kafka.MaintenanceWindow{
@@ -858,6 +890,8 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"config_spec.kafka.resources.disk_size",
 			"config_spec.kafka.resources.disk_type_id",
 			"config_spec.kafka.resources.resource_preset_id",
+			"config_spec.kafka_ui_config.enabled",
+			"config_spec.rest_api_config.enabled",
 			"config_spec.version",
 			"config_spec.zone_id",
 			"config_spec.zookeeper.resources.disk_size",
@@ -1268,6 +1302,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "false"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "false"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -1296,6 +1331,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.schema_registry", "true"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
@@ -1343,6 +1379,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -1367,6 +1404,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
@@ -1458,6 +1496,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
       rest_api {
 	    enabled = false
       }
+      kafka_ui {
+	    enabled = false
+      }
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -1543,6 +1584,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	        data_transfer = false
         }
         rest_api {
+	        enabled = true
+        }
+        kafka_ui {
 	        enabled = true
         }
 		kafka {
@@ -1861,6 +1905,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  assign_public_ip = false
 	  schema_registry  = false
       rest_api {
+	    enabled = true
+      }
+      kafka_ui {
 	    enabled = true
       }
 	  kafka {

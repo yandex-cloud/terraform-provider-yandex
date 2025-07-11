@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'kafka: `enabled` flag in `ClusterConfig.kafka_ui_config`'
+time: 2025-06-26T00:37:18.590319703+03:00

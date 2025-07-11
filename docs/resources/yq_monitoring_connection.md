@@ -29,12 +29,12 @@ resource "yandex_yq_monitoring_connection" "my_mon_connection" {
 
 ### Required
 
-- `folder_id` (String) The folder identifier.
 - `name` (String) The resource name.
 
 ### Optional
 
 - `description` (String) The resource description.
+- `folder_id` (String) The folder identifier.
 - `service_account_id` (String) The service account ID to access resources on behalf of.
 
 ### Read-Only

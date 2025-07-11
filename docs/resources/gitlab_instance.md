@@ -44,6 +44,7 @@ resource "yandex_gitlab_instance" "my_gitlab_instance" {
 
 ### Optional
 
+- `approval_rules_token` (String, Sensitive) Approval rules token.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.

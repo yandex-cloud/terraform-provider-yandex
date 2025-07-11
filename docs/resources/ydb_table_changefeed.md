@@ -32,19 +32,19 @@ resource "yandex_ydb_table_changefeed" "ydb_changefeed" {
 
 ### Required
 
-- `format` (String)
-- `mode` (String)
-- `name` (String)
+- `format` (String) Changefeed format.
+- `mode` (String) [Changefeed mode](https://ydb.tech/en/docs/yql/reference/syntax/alter_table#changefeed-options).
+- `name` (String) Changefeed name.
 
 ### Optional
 
-- `connection_string` (String)
-- `consumer` (Block List) (see [below for nested schema](#nestedblock--consumer))
-- `retention_period` (String)
-- `table_id` (String)
-- `table_path` (String)
+- `connection_string` (String) Connection string, conflicts with `table_id`.
+- `consumer` (Block List) Changefeed [consumers](https://ydb.tech/en/docs/concepts/topic#consumer) - named entities for reading data from the topic. (see [below for nested schema](#nestedblock--consumer))
+- `retention_period` (String) Time of data retention in the topic, [ISO 8601](https://ru.wikipedia.org/wiki/ISO_8601) format.
+- `table_id` (String) Terraform resource ID of the table.
+- `table_path` (String) Table path.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `virtual_timestamps` (Boolean)
+- `virtual_timestamps` (Boolean) Use [virtual timestamps](https://ydb.tech/en/docs/concepts/cdc#virtual-timestamps).
 
 ### Read-Only
 
@@ -55,13 +55,13 @@ resource "yandex_ydb_table_changefeed" "ydb_changefeed" {
 
 Required:
 
-- `name` (String)
+- `name` (String) Consumer name. It is used in the SDK or CLI to [read data](https://ydb.tech/en/docs/best_practices/cdc#read) from the topic.
 
 Optional:
 
 - `important` (Boolean)
-- `starting_message_timestamp_ms` (Number)
-- `supported_codecs` (List of String)
+- `starting_message_timestamp_ms` (Number) Timestamp in the UNIX timestamp format, from which the consumer will start reading data.
+- `supported_codecs` (List of String) Supported data encodings.
 
 
 <a id="nestedblock--timeouts"></a>

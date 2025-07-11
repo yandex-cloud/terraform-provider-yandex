@@ -453,6 +453,7 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 
 	result.SetAccess(expandKafkaAccess(d))
 	result.SetRestApiConfig(expandKafkaRestAPI(d))
+	result.SetKafkaUiConfig(expandKafkaUI(d))
 	result.DiskSizeAutoscaling = expandKafkaDiskSizeAutoscaling(d)
 
 	return result, nil
@@ -619,6 +620,9 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 	}
 	if cluster.Config.GetRestApiConfig() != nil {
 		config["rest_api"] = flattenKafkaRestAPI(cluster.Config)
+	}
+	if cluster.Config.GetKafkaUiConfig() != nil {
+		config["kafka_ui"] = flattenKafkaUI(cluster.Config)
 	}
 	config["disk_size_autoscaling"] = flattenKafkaDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
 
@@ -1187,6 +1191,26 @@ func flattenKafkaRestAPI(c *kafka.ConfigSpec) []map[string]interface{} {
 	out := map[string]interface{}{}
 	if c != nil && c.GetRestApiConfig() != nil {
 		out["enabled"] = c.GetRestApiConfig().GetEnabled()
+	}
+	return []map[string]interface{}{out}
+}
+
+func expandKafkaUI(d *schema.ResourceData) *kafka.ConfigSpec_KafkaUIConfig {
+	if _, ok := d.GetOkExists("config.0.kafka_ui"); !ok {
+		return nil
+	}
+	out := &kafka.ConfigSpec_KafkaUIConfig{}
+
+	if v, ok := d.GetOk("config.0.kafka_ui.0.enabled"); ok {
+		out.Enabled = v.(bool)
+	}
+	return out
+}
+
+func flattenKafkaUI(c *kafka.ConfigSpec) []map[string]interface{} {
+	out := map[string]interface{}{}
+	if c != nil && c.GetKafkaUiConfig() != nil {
+		out["enabled"] = c.GetKafkaUiConfig().GetEnabled()
 	}
 	return []map[string]interface{}{out}
 }

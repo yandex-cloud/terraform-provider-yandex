@@ -40,37 +40,58 @@ resource "yandex_ydb_database_serverless" "database_name" {
 
 ### Required
 
-- `database_endpoint` (String)
-- `name` (String)
+- `database_endpoint` (String) YDB database endpoint.
+- `name` (String) Topic name.
 
 ### Optional
 
-- `consumer` (Block Set) (see [below for nested schema](#nestedblock--consumer))
-- `description` (String)
-- `metering_mode` (String)
-- `partition_write_speed_kbps` (Number)
-- `partitions_count` (Number)
-- `retention_period_hours` (Number)
+- `auto_partitioning_settings` (Block List, Max: 1) (see [below for nested schema](#nestedblock--auto_partitioning_settings))
+- `consumer` (Block Set) Topic Readers. (see [below for nested schema](#nestedblock--consumer))
+- `description` (String) Topic description.
+- `max_partitions_count` (Number) Number of max active partitions. Default value `1`.
+- `metering_mode` (String) Resource metering mode (`reserved_capacity` - based on the allocated resources or `request_units` - based on actual usage). This option applies to topics in serverless databases.
+- `partition_write_speed_kbps` (Number) Maximum allowed write speed per partition. If a write speed for a given partition exceeds this value, the write speed will be capped. Default value: `1024 (1MB)`.
+- `partitions_count` (Number) Number of min partitions. Default value `1`.
+- `retention_period_hours` (Number) Data retention time. Default value `86400000`.
 - `retention_storage_mb` (Number)
-- `supported_codecs` (Set of String)
+- `supported_codecs` (Set of String) Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 
+<a id="nestedblock--auto_partitioning_settings"></a>
+### Nested Schema for `auto_partitioning_settings`
+
+Optional:
+
+- `auto_partitioning_strategy` (String) The auto partitioning strategy to use
+- `auto_partitioning_write_speed_strategy` (Block List, Max: 1) (see [below for nested schema](#nestedblock--auto_partitioning_settings--auto_partitioning_write_speed_strategy))
+
+<a id="nestedblock--auto_partitioning_settings--auto_partitioning_write_speed_strategy"></a>
+### Nested Schema for `auto_partitioning_settings.auto_partitioning_write_speed_strategy`
+
+Optional:
+
+- `down_utilization_percent` (Number) The down utilization percentage threshold
+- `stabilization_window` (Number) The stabilization window in seconds
+- `up_utilization_percent` (Number) The up utilization percentage threshold
+
+
+
 <a id="nestedblock--consumer"></a>
 ### Nested Schema for `consumer`
 
 Required:
 
-- `name` (String)
+- `name` (String) Reader's name.
 
 Optional:
 
-- `important` (Boolean)
-- `starting_message_timestamp_ms` (Number)
-- `supported_codecs` (Set of String)
+- `important` (Boolean) Defines an important consumer. No data will be deleted from the topic until all the important consumers read them. Default value `false`.
+- `starting_message_timestamp_ms` (Number) Timestamp in UNIX timestamp format from which the reader will start reading data. Default value `0`.
+- `supported_codecs` (Set of String) Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
 
 
 <a id="nestedblock--timeouts"></a>

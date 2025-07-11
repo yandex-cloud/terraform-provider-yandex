@@ -17,6 +17,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
     rest_api {
       enabled = true
     }
+    kafka_ui {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"

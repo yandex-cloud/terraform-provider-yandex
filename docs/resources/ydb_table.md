@@ -48,20 +48,20 @@ resource "yandex_ydb_table" "test_table" {
 
 ### Required
 
-- `column` (Block Set, Min: 1) (see [below for nested schema](#nestedblock--column))
-- `connection_string` (String)
-- `path` (String)
-- `primary_key` (List of String)
+- `column` (Block Set, Min: 1) A list of column configuration options. (see [below for nested schema](#nestedblock--column))
+- `connection_string` (String) Connection string for database.
+- `path` (String) Table path.
+- `primary_key` (List of String) A list of table columns to be used as primary key.
 
 ### Optional
 
-- `attributes` (Map of String)
-- `family` (Block List) (see [below for nested schema](#nestedblock--family))
-- `key_bloom_filter` (Boolean)
-- `partitioning_settings` (Block List, Max: 1) (see [below for nested schema](#nestedblock--partitioning_settings))
-- `read_replicas_settings` (String)
+- `attributes` (Map of String) A map of table attributes.
+- `family` (Block List) A list of column group configuration options. The `family` block may be used to group columns into [families](https://ydb.tech/en/docs/yql/reference/syntax/create_table#column-family) to set shared parameters for them. (see [below for nested schema](#nestedblock--family))
+- `key_bloom_filter` (Boolean) Use the Bloom filter for the primary key.
+- `partitioning_settings` (Block List, Max: 1) Table partitioning settings. (see [below for nested schema](#nestedblock--partitioning_settings))
+- `read_replicas_settings` (String) Read replication settings.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `ttl` (Block Set, Max: 1) (see [below for nested schema](#nestedblock--ttl))
+- `ttl` (Block Set, Max: 1) The `TTL` block supports allow you to create a special column type, [TTL column](https://ydb.tech/en/docs/concepts/ttl), whose values determine the time-to-live for rows. (see [below for nested schema](#nestedblock--ttl))
 
 ### Read-Only
 
@@ -72,13 +72,13 @@ resource "yandex_ydb_table" "test_table" {
 
 Required:
 
-- `name` (String)
-- `type` (String)
+- `name` (String) Column name.
+- `type` (String) Column data type. YQL data types are used.
 
 Optional:
 
-- `family` (String)
-- `not_null` (Boolean)
+- `family` (String) Column group.
+- `not_null` (Boolean) A column cannot have the NULL data type. Default: `false`.
 
 
 <a id="nestedblock--family"></a>
@@ -86,9 +86,9 @@ Optional:
 
 Required:
 
-- `compression` (String)
-- `data` (String)
-- `name` (String)
+- `compression` (String) Data codec (acceptable values: off, lz4).
+- `data` (String) Type of storage device for column data in this group (acceptable values: ssd, rot (from HDD spindle rotation)).
+- `name` (String) Column family name.
 
 
 <a id="nestedblock--partitioning_settings"></a>
@@ -130,8 +130,8 @@ Optional:
 
 Required:
 
-- `column_name` (String)
-- `expire_interval` (String)
+- `column_name` (String) Column name for TTL.
+- `expire_interval` (String) Interval in the ISO 8601 format.
 
 Optional:
 

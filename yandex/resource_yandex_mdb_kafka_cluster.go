@@ -312,6 +312,23 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 					},
 				},
 			},
+			"kafka_ui": {
+				Type:        schema.TypeList,
+				Description: "KAFKA UI settings of the Kafka cluster.",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "Enables KAFKA UI on cluster. The default is `false`.",
+							Optional:    true,
+							Default:     false,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1165,6 +1182,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kraft.0.resources.0.disk_type_id":                       "config_spec.kraft.resources.disk_type_id",
 	"config.0.kraft.0.resources.0.disk_size":                          "config_spec.kraft.resources.disk_size",
 	"config.0.rest_api":                                               "config_spec.rest_api_config.enabled",
+	"config.0.kafka_ui":                                               "config_spec.kafka_ui_config.enabled",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData, config *Config) (*kafka.UpdateClusterRequest, error) {

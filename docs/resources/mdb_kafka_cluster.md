@@ -32,6 +32,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     rest_api {
       enabled = true
     }
+    kafka_ui {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.micro"
@@ -111,6 +114,9 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
     assign_public_ip = true
     schema_registry  = false
     rest_api {
+      enabled = true
+    }
+    kafka_ui {
       enabled = true
     }
     kafka {
@@ -213,6 +219,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
     rest_api {
       enabled = true
     }
+    kafka_ui {
+      enabled = true
+    }
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -288,6 +297,9 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
     assign_public_ip = true
     schema_registry  = false
     rest_api {
+      enabled = true
+    }
+    kafka_ui {
       enabled = true
     }
     kafka {
@@ -387,6 +399,7 @@ Optional:
 - `assign_public_ip` (Boolean) Determines whether each broker will be assigned a public IP address. The default is `false`.
 - `brokers_count` (Number) Count of brokers per availability zone. The default is `1`.
 - `disk_size_autoscaling` (Block List, Max: 1) Disk autoscaling settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--disk_size_autoscaling))
+- `kafka_ui` (Block List, Max: 1) KAFKA UI settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--kafka_ui))
 - `kraft` (Block List, Max: 1) Configuration of the KRaft-controller subcluster. (see [below for nested schema](#nestedblock--config--kraft))
 - `rest_api` (Block List, Max: 1) REST API settings of the Kafka cluster. (see [below for nested schema](#nestedblock--config--rest_api))
 - `schema_registry` (Boolean) Enables managed schema registry on cluster. The default is `false`.
@@ -461,6 +474,14 @@ Optional:
 
 - `emergency_usage_threshold` (Number) Percent of disk utilization. Disk will autoscale immediately, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled). Must be not less then 'planned_usage_threshold' value.
 - `planned_usage_threshold` (Number) Percent of disk utilization. During maintenance disk will autoscale, if this threshold reached. Value is between 0 and 100. Default value is 0 (autoscaling disabled).
+
+
+<a id="nestedblock--config--kafka_ui"></a>
+### Nested Schema for `config.kafka_ui`
+
+Optional:
+
+- `enabled` (Boolean) Enables KAFKA UI on cluster. The default is `false`.
 
 
 <a id="nestedblock--config--kraft"></a>
