@@ -407,7 +407,7 @@ resource "yandex_storage_bucket" "all_settings" {
 ### Optional
 
 - `access_key` (String) The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
-- `acl` (String) The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
+- `acl` (String, Deprecated) The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
 ~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 - `anonymous_access_flags` (Block Set, Max: 1) Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information. (see [below for nested schema](#nestedblock--anonymous_access_flags))
@@ -419,7 +419,7 @@ resource "yandex_storage_bucket" "all_settings" {
 
 ~> It will try to create bucket using `IAM-token`, not using `access keys`.
 - `force_destroy` (Boolean) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable. Default is `false`.
-- `grant` (Block Set) An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+- `grant` (Block Set, Deprecated) An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
 ~> To manage `grant` argument, service account with `storage.admin` role should be used. (see [below for nested schema](#nestedblock--grant))
 - `https` (Block Set, Max: 1) Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information. (see [below for nested schema](#nestedblock--https))

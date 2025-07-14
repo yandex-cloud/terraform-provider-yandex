@@ -36,7 +36,7 @@ func (u *BucketIAMUpdater) GetNameSuffix() string {
 func (u *BucketIAMUpdater) GetSchemaAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		u.GetIdAlias(): schema.StringAttribute{
-			MarkdownDescription: "The name of the Object Storage (S3) bucket to attach the policy to. This resource should be used for managing [Service roles](https://yandex.cloud/en-ru/docs/storage/security/#service-roles) only.",
+			MarkdownDescription: "The name of the Object Storage (S3) bucket to attach the policy to. This resource should be used for managing [Service roles](https://yandex.cloud/docs/storage/security/#service-roles) only.",
 			Required:            true,
 		},
 	}

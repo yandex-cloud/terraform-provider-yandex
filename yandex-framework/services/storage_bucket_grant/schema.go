@@ -24,7 +24,7 @@ var bucketACLAllowedValues = []string{
 
 func ResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		MarkdownDescription: "Allows management of grants of an existing [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).\n\n~> By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.\n\n~> Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.\n\nThis resource *must not* be used in conjunction with `yandex_storage_bucket` or they will conflict over what your policy should be.\n\nThis resource should be used for managing [Primitive roles](https://yandex.cloud/en-ru/docs/storage/security/#primitive-roles) only.\n",
+		MarkdownDescription: "Allows management of grants on an existing [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).\n\n~> By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.\n\n~> Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.\n\nThis resource should be used for managing [Primitive roles](https://yandex.cloud/docs/storage/security/#primitive-roles) only.",
 		Attributes: map[string]schema.Attribute{
 			"bucket": schema.StringAttribute{
 				MarkdownDescription: "The name of the bucket.",

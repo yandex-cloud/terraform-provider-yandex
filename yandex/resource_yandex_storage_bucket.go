@@ -93,6 +93,8 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Type:          schema.TypeString,
 				Description:   "The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.\n\n~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.\n",
 				Optional:      true,
+				Deprecated:    "Use `yandex_storage_bucket_grant` instead.",
+				Computed:      true,
 				ConflictsWith: []string{"grant"},
 				ValidateFunc:  validation.StringInSlice(bucketACLAllowedValues, false),
 			},
@@ -101,6 +103,8 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Type:          schema.TypeSet,
 				Description:   "An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.\n\n~> To manage `grant` argument, service account with `storage.admin` role should be used.\n",
 				Optional:      true,
+				Deprecated:    "Use `yandex_storage_bucket_grant` instead.",
+				Computed:      true,
 				Set:           grantHash,
 				ConflictsWith: []string{"acl"},
 				Elem: &schema.Resource{

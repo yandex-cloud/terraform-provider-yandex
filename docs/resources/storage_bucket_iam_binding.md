@@ -30,7 +30,7 @@ resource "yandex_storage_bucket_iam_binding" "bucket-iam" {
 
 ### Required
 
-- `bucket` (String) The name of the Object Storage (S3) bucket to attach the policy to. This resource should be used for managing [Service roles](https://yandex.cloud/en-ru/docs/storage/security/#service-roles) only.
+- `bucket` (String) The name of the Object Storage (S3) bucket to attach the policy to. This resource should be used for managing [Service roles](https://yandex.cloud/docs/storage/security/#service-roles) only.
 - `members` (Set of String) An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
  * **serviceAccount:{service_account_id}**: A unique service account ID.

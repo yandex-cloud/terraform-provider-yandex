@@ -7,15 +7,13 @@ description: |-
 
 # yandex_storage_bucket_grant (Resource)
 
-Allows management of grants of an existing [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).
+Allows management of grants on an existing [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).
 
 ~> By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.
 
 ~> Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.
 
-This resource *must not* be used in conjunction with `yandex_storage_bucket` or they will conflict over what your policy should be.
-
-This resource should be used for managing [Primitive roles](https://yandex.cloud/en-ru/docs/storage/security/#primitive-roles) only.
+This resource should be used for managing [Primitive roles](https://yandex.cloud/docs/storage/security/#primitive-roles) only.
 
 ## Example usage
 

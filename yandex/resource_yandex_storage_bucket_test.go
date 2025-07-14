@@ -237,7 +237,8 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDelay(time.Second*3),
 					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "acl", ""),
+					// this attribute is Computed now, so it doesn't change when it's empty
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 				),
 			},
 		},
