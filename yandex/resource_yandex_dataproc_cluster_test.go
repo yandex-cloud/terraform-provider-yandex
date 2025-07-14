@@ -196,13 +196,14 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 				},
 			},
 		},
-		"zone_id":             "ru-central1-b",
-		"service_account_id":  "sa-777",
-		"bucket":              "bucket-777",
-		"ui_proxy":            "true",
-		"security_group_ids":  []interface{}{"security_group_id1"},
-		"host_group_ids":      []interface{}{"hg1", "hg2"},
-		"deletion_protection": "false",
+		"zone_id":                        "ru-central1-b",
+		"service_account_id":             "sa-777",
+		"autoscaling_service_account_id": "sa-888",
+		"bucket":                         "bucket-777",
+		"ui_proxy":                       "true",
+		"security_group_ids":             []interface{}{"security_group_id1"},
+		"host_group_ids":                 []interface{}{"hg1", "hg2"},
+		"deletion_protection":            "false",
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexDataprocCluster().Schema, raw)
 
@@ -294,13 +295,14 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 				},
 			},
 		},
-		ZoneId:             "ru-central1-b",
-		ServiceAccountId:   "sa-777",
-		Bucket:             "bucket-777",
-		UiProxy:            true,
-		SecurityGroupIds:   []string{"security_group_id1"},
-		HostGroupIds:       []string{"hg2", "hg1"},
-		DeletionProtection: false,
+		ZoneId:                      "ru-central1-b",
+		ServiceAccountId:            "sa-777",
+		AutoscalingServiceAccountId: "sa-888",
+		Bucket:                      "bucket-777",
+		UiProxy:                     true,
+		SecurityGroupIds:            []string{"security_group_id1"},
+		HostGroupIds:                []string{"hg2", "hg1"},
+		DeletionProtection:          false,
 	}
 
 	assert.Equal(t, expected, req)
@@ -522,6 +524,7 @@ type dataprocTFConfigParams struct {
 	SubnetName         string
 	Zone               string
 	DeletionProtection bool
+	AutoscalingSAId    string
 }
 
 func (cfg *dataprocTFConfigParams) update(updater func(*dataprocTFConfigParams)) dataprocTFConfigParams {
@@ -591,6 +594,7 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 			    "yarn:yarn.resourcemanager.am.max-attempts" = 5
 			}`,
 		DeletionProtection: false,
+		AutoscalingSAId:    "yandex_iam_service_account.tf-autoscaling-sa.id",
 	}
 }
 
@@ -628,6 +632,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "autoscaling_service_account_id", "yandex_iam_service_account.tf-autoscaling-sa", "id"),
 					testAccCheckDataprocClusterServices(&cluster, services),
 					testAccCheckDataprocClusterProperties(&cluster, properties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
@@ -662,6 +667,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					cfg.CurrentBucket = "yandex_storage_bucket.tf-dataproc-2.bucket"
 					cfg.InitActions = ""
 					cfg.SAId = "yandex_iam_service_account.tf-dataproc-sa-2.id"
+					cfg.AutoscalingSAId = "yandex_iam_service_account.tf-autoscaling-sa-2.id"
 					cfg.Labels = `{
 							created_by = "terraform"
 							updated_by = "terraform"
@@ -708,6 +714,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket2),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "labels.updated_by", "terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "autoscaling_service_account_id", "yandex_iam_service_account.tf-autoscaling-sa-2", "id"),
 					testAccCheckDataprocClusterProperties(&cluster, updatedProperties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
 						"main": {
@@ -754,6 +761,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket2),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "labels.updated_by", "terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "autoscaling_service_account_id", "yandex_iam_service_account.tf-autoscaling-sa-2", "id"),
 					testAccCheckDataprocClusterProperties(&cluster, updatedProperties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
 						"main": {
@@ -865,6 +873,16 @@ resource "yandex_iam_service_account" "tf-dataproc-sa-2" {
   description = "service account to manage Dataproc Cluster created by Terraform"
 }
 
+resource "yandex_iam_service_account" "tf-autoscaling-sa" {
+  name        = "{{.SA1Name}}-autoscaling"
+  description = "autoscaling service account for Dataproc Cluster created by Terraform"
+}
+
+resource "yandex_iam_service_account" "tf-autoscaling-sa-2" {
+  name        = "{{.SA2Name}}-autoscaling"
+  description = "autoscaling service account for Dataproc Cluster created by Terraform"
+}
+
 resource "yandex_resourcemanager_folder_iam_member" "dataproc-manager" {
 	folder_id   = "{{.FolderID}}"
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
@@ -921,6 +939,22 @@ resource "yandex_resourcemanager_folder_iam_member" "bucket-creator" {
 	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-2]
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "autoscaling-sa-1" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-autoscaling-sa.id}"
+	role        = "editor"
+	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.bucket-creator]
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "autoscaling-sa-2" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-autoscaling-sa-2.id}"
+	role        = "editor"
+	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.autoscaling-sa-1]
+}
+
 resource "yandex_iam_service_account_static_access_key" "tf-dataproc-sa-static-key" {
   service_account_id = yandex_iam_service_account.tf-dataproc-sa.id
   description        = "static access key for object storage"
@@ -953,19 +987,22 @@ resource "yandex_storage_bucket" "tf-dataproc-2" {
 resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
 
   depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-manager,
-				yandex_resourcemanager_folder_iam_member.dataproc-manager-2,
-				yandex_resourcemanager_folder_iam_member.dataproc-provisioner-1,
-				yandex_resourcemanager_folder_iam_member.dataproc-provisioner-2,
-				yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-1,
-				yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-2,
-				yandex_resourcemanager_folder_iam_member.bucket-creator,
-				]
+  		yandex_resourcemanager_folder_iam_member.dataproc-manager-2,
+  		yandex_resourcemanager_folder_iam_member.dataproc-provisioner-1,
+  		yandex_resourcemanager_folder_iam_member.dataproc-provisioner-2,
+  		yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-1,
+  		yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-2,
+  		yandex_resourcemanager_folder_iam_member.bucket-creator,
+  		yandex_resourcemanager_folder_iam_member.autoscaling-sa-1,
+  		yandex_resourcemanager_folder_iam_member.autoscaling-sa-2,
+  		]
 
   bucket             = {{.CurrentBucket}}
   description        = "{{.Description}}"
   labels             = {{.Labels}}
   name               = "{{.Name}}"
   service_account_id = {{.SAId}}
+  autoscaling_service_account_id = {{.AutoscalingSAId}}
   zone_id            = "{{.Zone}}"
   deletion_protection = {{.DeletionProtection}}
 
