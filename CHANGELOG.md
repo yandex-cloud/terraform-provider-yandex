@@ -1,3 +1,18 @@
+## 0.146.0 (July 15, 2025)
+
+FEATURES:
+* kafka: `enabled` flag in `ClusterConfig.kafka_ui_config`
+* audit_trails: yandex_audit_trails_trail renamed field only_recursive_queries to include_nonrecursive_queries
+* ydb_topic: add autopartitioning for topics
+* storage: add `yandex_storage_bucket_policy` resource.
+* YandexDataProcessing: add autoscaling_service_account_id field
+
+ENHANCEMENTS:
+* yq: add sweeper tests
+* gitlab: add update instance resource support
+* storage: deprecate `yandex_storage_bucket.policy`
+* storage: deprecate `grant` and `acl` attributes of `yandex_storage_bucket` resource
+
 ## 0.145.0 (July 1, 2025)
 
 FEATURES:
