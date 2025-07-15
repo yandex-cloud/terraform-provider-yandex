@@ -290,10 +290,10 @@ func TestAccKubernetesClusterRegional_externalIPv6Address(t *testing.T) {
 	// All external IPv6 tests share the same subnets. Disallow concurrent execution.
 	mutexKV.Lock(clusterResource.SubnetResourceNameA)
 	mutexKV.Lock(clusterResource.SubnetResourceNameB)
-	mutexKV.Lock(clusterResource.SubnetResourceNameC)
+	mutexKV.Lock(clusterResource.SubnetResourceNameD)
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameB)
-	defer mutexKV.Unlock(clusterResource.SubnetResourceNameC)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameD)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -649,8 +649,8 @@ func fillSharedEmptyResourceClusterInfoParams(ci resourceClusterInfo) resourceCl
 	if ci.SubnetResourceNameB == "" {
 		ci.SubnetResourceNameB = "SubnetResourceNameB"
 	}
-	if ci.SubnetResourceNameC == "" {
-		ci.SubnetResourceNameC = "SubnetResourceNameC"
+	if ci.SubnetResourceNameD == "" {
+		ci.SubnetResourceNameD = "SubnetResourceNameD"
 	}
 	return ci
 }
@@ -663,13 +663,13 @@ func clusterInfoDualStack(testDesc string, zonal bool) resourceClusterInfo {
 	// K8S_SUBNET_NETWORK_ID - network with dual-stack subnets without external ivp6 for k8s cluster and node-groups.
 	// K8S_SUBNET_A_ID - dual-stack subnet without external ivp6 in location "a" for k8s cluster and node-groups.
 	// K8S_SUBNET_B_ID - dual-stack subnet without external ivp6 in location "b" for k8s cluster and node-groups.
-	// K8S_SUBNET_C_ID - dual-stack subnet without external ivp6 in location "c" for k8s cluster and node-groups.
+	// K8S_SUBNET_D_ID - dual-stack subnet without external ivp6 in location "d" for k8s cluster and node-groups.
 	// K8S_SECURITY_GROUP_ID - security-group of K8S_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
 	// K8S_NETWORK_FOLDER_ID - folder with dual-stack resources to add folder iam member to use those resources.
 	ci.NetworkResourceName = os.Getenv("K8S_SUBNET_NETWORK_ID")
 	ci.SubnetResourceNameA = os.Getenv("K8S_SUBNET_A_ID")
 	ci.SubnetResourceNameB = os.Getenv("K8S_SUBNET_B_ID")
-	ci.SubnetResourceNameC = os.Getenv("K8S_SUBNET_C_ID")
+	ci.SubnetResourceNameD = os.Getenv("K8S_SUBNET_D_ID")
 	ci.SecurityGroupName = os.Getenv("K8S_SECURITY_GROUP_ID")
 	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
 	ci.ClusterIPv6Range = "fc00::/96"
@@ -689,14 +689,14 @@ func clusterInfoExternalIPv6Address(testDesc string) resourceClusterInfo {
 	// K8S_E2E_IPV6_SUBNET_NETWORK_ID - network with dual-stack external ivp6 subnets for k8s cluster and node-groups.
 	// K8S_E2E_IPV6_SUBNET_A_ID - dual-stack subnet with external ivp6 in location "a" for k8s cluster and node-groups.
 	// K8S_E2E_IPV6_SUBNET_B_ID - dual-stack subnet with external ivp6 in location "b" for k8s cluster and node-groups.
-	// K8S_E2E_IPV6_SUBNET_C_ID - dual-stack subnet with external ivp6 in location "c" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_D_ID - dual-stack subnet with external ivp6 in location "d" for k8s cluster and node-groups.
 	// K8S_E2E_IPV6_SECURITY_GROUP_ID - security-group of K8S_E2E_IPV6_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
 	// K8S_E2E_IPV6_ADDRESS - IPv6 address that can be used as K8S cluster endpoint.
 	// K8S_NETWORK_FOLDER_ID - folder with dual-stack external ivp6 resources to add folder iam member to use those resources.
 	ci.NetworkResourceName = os.Getenv("K8S_E2E_IPV6_SUBNET_NETWORK_ID")
 	ci.SubnetResourceNameA = os.Getenv("K8S_E2E_IPV6_SUBNET_A_ID")
 	ci.SubnetResourceNameB = os.Getenv("K8S_E2E_IPV6_SUBNET_B_ID")
-	ci.SubnetResourceNameC = os.Getenv("K8S_E2E_IPV6_SUBNET_C_ID")
+	ci.SubnetResourceNameD = os.Getenv("K8S_E2E_IPV6_SUBNET_D_ID")
 	ci.SecurityGroupName = os.Getenv("K8S_E2E_IPV6_SECURITY_GROUP_ID")
 	ci.ExternalIPv6Address = os.Getenv("K8S_E2E_IPV6_ADDRESS")
 	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
@@ -719,7 +719,7 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		NetworkResourceName:            randomResourceName("network"),
 		SubnetResourceNameA:            randomResourceName("subnet"),
 		SubnetResourceNameB:            randomResourceName("subnet"),
-		SubnetResourceNameC:            randomResourceName("subnet"),
+		SubnetResourceNameD:            randomResourceName("subnet"),
 		SecurityGroupName:              randomResourceName("sg"),
 		ServiceAccountResourceName:     safeResourceName("serviceaccount"),
 		NodeServiceAccountResourceName: safeResourceName("nodeserviceaccount"),
@@ -1094,7 +1094,7 @@ type resourceClusterInfo struct {
 
 	SubnetResourceNameA string
 	SubnetResourceNameB string
-	SubnetResourceNameC string
+	SubnetResourceNameD string
 
 	ServiceAccountResourceName     string
 	NodeServiceAccountResourceName string
@@ -1200,7 +1200,7 @@ func (i *resourceClusterInfo) subnetBResourceName() string {
 }
 
 func (i *resourceClusterInfo) subnetCResourceName() string {
-	return "yandex_vpc_subnet." + i.SubnetResourceNameC
+	return "yandex_vpc_subnet." + i.SubnetResourceNameD
 }
 
 func (i *resourceClusterInfo) securityGroupName() string {
@@ -1396,7 +1396,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
       }
       location {
         zone = "ru-central1-d"
-        subnet_id = "{{.SubnetResourceNameC}}"
+        subnet_id = "{{.SubnetResourceNameD}}"
       }
 {{else}}
       location {
@@ -1408,8 +1408,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
         subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.id}"
 	  }
       location {
-        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.zone}"
-        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.id}"
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameD}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameD}}.id}"
 	  }
 {{end}}
     }
@@ -1466,7 +1466,7 @@ resource "yandex_vpc_subnet" "{{.SubnetResourceNameB}}" {
   v4_cidr_blocks = ["192.168.1.0/24"]
 }
 
-resource "yandex_vpc_subnet" "{{.SubnetResourceNameC}}" {
+resource "yandex_vpc_subnet" "{{.SubnetResourceNameD}}" {
   description = "{{.TestDescription}}"
   zone = "ru-central1-d"
   network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"

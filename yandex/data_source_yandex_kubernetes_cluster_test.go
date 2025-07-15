@@ -71,10 +71,10 @@ func TestAccDataSourceKubernetesClusterRegional_externalIPv6Address(t *testing.T
 	// All external IPv6 tests share the same subnets. Disallow concurrent execution.
 	mutexKV.Lock(clusterResource.SubnetResourceNameA)
 	mutexKV.Lock(clusterResource.SubnetResourceNameB)
-	mutexKV.Lock(clusterResource.SubnetResourceNameC)
+	mutexKV.Lock(clusterResource.SubnetResourceNameD)
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameB)
-	defer mutexKV.Unlock(clusterResource.SubnetResourceNameC)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameD)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

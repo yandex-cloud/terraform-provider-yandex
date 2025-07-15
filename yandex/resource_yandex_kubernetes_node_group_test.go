@@ -758,8 +758,8 @@ const ngDailyMaintenancePolicyTemplate = `
         auto_repair  = {{.AutoRepair}}
 
         maintenance_window {
-			start_time = "15:00"
-			duration   = "3h"
+			start_time = "15:00:00.000000000"
+			duration   = "3h0m0s"
 		}
     }
 `
@@ -771,14 +771,14 @@ const ngWeeklyMaintenancePolicyTemplate = `
 
         maintenance_window {
             day		   = "monday"
-			start_time = "15:00"
-			duration   = "3h"
+			start_time = "15:00:00.000000000"
+			duration   = "3h0m0s"
 		}
 
         maintenance_window {
             day		   = "friday"
-			start_time = "10:00"
-			duration   = "4h"
+			start_time = "10:00:00.000000000"
+			duration   = "4h0m0s"
 		}
     }
 `
@@ -790,14 +790,14 @@ const ngWeeklyMaintenancePolicyTemplateSecond = `
 
         maintenance_window {
             day		   = "monday"
-			start_time = "15:00"
-			duration   = "5h"
+			start_time = "15:00:00.000000000"
+			duration   = "5h0m0s"
 		}
 
         maintenance_window {
             day		   = "friday"
-			start_time = "12:00"
-			duration   = "4h"
+			start_time = "12:00:00.000000000"
+			duration   = "4h0m0s"
 		}
     }
 `
