@@ -105,6 +105,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"day": {
 													Type:             schema.TypeString,
+													Description:      "The day of the week which you want to update.",
 													Optional:         true,
 													Computed:         true,
 													ValidateFunc:     validateParsableValue(parseDayOfWeek),
@@ -112,12 +113,14 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 												},
 												"start_time": {
 													Type:             schema.TypeString,
+													Description:      "The start time of the day of week you want to update.",
 													Required:         true,
 													ValidateFunc:     validateParsableValue(parseDayTime),
 													DiffSuppressFunc: shouldSuppressDiffForTimeOfDay,
 												},
 												"duration": {
 													Type:             schema.TypeString,
+													Description:      "The duration of the day of week you want to update.",
 													Required:         true,
 													ValidateFunc:     validateParsableValue(parseDuration),
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
@@ -130,6 +133,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 						},
 						"etcd_cluster_size": {
 							Type:          schema.TypeInt,
+							Description:   "Number of etcd clusters that will be used for the Kubernetes master.",
 							Optional:      true,
 							Computed:      true,
 							ForceNew:      true,
@@ -245,6 +249,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 						},
 						"external_v6_address": {
 							Type:         schema.TypeString,
+							Description:  "An IPv6 external network address that is assigned to the master.",
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.IsIPv6Address,
@@ -260,8 +265,9 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Computed:    true,
 						},
 						"external_v6_endpoint": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "External IPv6 endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).",
+							Computed:    true,
 						},
 						"cluster_ca_certificate": {
 							Type:        schema.TypeString,
@@ -345,6 +351,32 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 										Description: "Boolean flag that specifies if kube-apiserver audit logs should be sent to Yandex Cloud Logging.",
 										Optional:    true,
 										Default:     false,
+									},
+								},
+							},
+						},
+						"scale_policy": {
+							Type:        schema.TypeList,
+							Description: "Scale policy of the master.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auto_scale": {
+										Type:        schema.TypeList,
+										Description: "Autoscaled master instance resources.",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_resource_preset_id": {
+													Type:        schema.TypeString,
+													Description: "Minimal resource preset ID.",
+													Required:    true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -563,6 +595,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"master.0.security_group_ids": "master_spec.security_group_ids",
 	"master.0.master_logging":     "master_spec.master_logging",
 	"master.0.master_location":    "master_spec.locations",
+	"master.0.scale_policy":       "master_spec.scale_policy",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -623,6 +656,11 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 		return nil, fmt.Errorf("failed to get cluster master logging: %s", err)
 	}
 
+	sp, err := getKubernetesClusterMasterScalePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cluster master scale policy: %s", err)
+	}
+
 	req := &k8s.UpdateClusterRequest{
 		ClusterId:            d.Id(),
 		Name:                 d.Get("name").(string),
@@ -639,6 +677,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 			SecurityGroupIds:  expandSecurityGroupIds(d.Get("master.0.security_group_ids")),
 			MaintenancePolicy: mp,
 			MasterLogging:     ml,
+			ScalePolicy:       sp,
 			Locations:         getKubernetesClusterLocations(d),
 		},
 	}
@@ -818,6 +857,10 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 		return nil, err
 	}
 
+	if spec.ScalePolicy, err = getKubernetesClusterMasterScalePolicy(d); err != nil {
+		return nil, err
+	}
+
 	if _, ok := d.GetOk("master.0.zonal"); ok {
 		spec.MasterType = getKubernetesClusterZonalMaster(d, meta)
 		return spec, nil
@@ -929,6 +972,27 @@ func getKubernetesClusterMasterLogging(d *schema.ResourceData) (*k8s.MasterLoggi
 	}
 
 	return ml, nil
+}
+
+func getKubernetesClusterMasterScalePolicy(d *schema.ResourceData) (*k8s.MasterScalePolicySpec, error) {
+	if _, ok := d.GetOk("master.0.scale_policy"); !ok {
+		return nil, nil
+	}
+
+	_, autoScaleOk := d.GetOk("master.0.scale_policy.0.auto_scale")
+
+	if autoScaleOk {
+		scalePolicy := &k8s.MasterScalePolicySpec{}
+		if minResourcePresetId, ok := d.GetOk("master.0.scale_policy.0.auto_scale.0.min_resource_preset_id"); ok {
+			scalePolicy.ScaleType = &k8s.MasterScalePolicySpec_AutoScale_{
+				AutoScale: &k8s.MasterScalePolicySpec_AutoScale{MinResourcePresetId: minResourcePresetId.(string)},
+			}
+			return scalePolicy, nil
+		}
+		return nil, fmt.Errorf("no \"min_resource_preset_id\" has been specified for \"auto_scale\" policy type")
+	}
+
+	return nil, nil
 }
 
 func getKubernetesClusterZonalMaster(d *schema.ResourceData, meta *Config) *k8s.MasterSpec_ZonalMasterSpec {
@@ -1182,6 +1246,27 @@ func (h *masterSchemaHelper) flattenMasterLogging(m *k8s.Master) {
 	}
 }
 
+func (h *masterSchemaHelper) flattenMasterScalePolicy(sp *k8s.MasterScalePolicy) error {
+	if sp == nil {
+		return nil
+	}
+	switch sp.GetScaleType().(type) {
+	case *k8s.MasterScalePolicy_AutoScale_:
+		h.master["scale_policy"] = []map[string]interface{}{
+			{
+				"auto_scale": []map[string]interface{}{
+					{
+						"min_resource_preset_id": sp.GetAutoScale().GetMinResourcePresetId(),
+					},
+				},
+			},
+		}
+		return nil
+	default:
+		return fmt.Errorf("unsupported kubernetes master scale policy type (currently only auto_scale and fixed_scale types are supported)")
+	}
+}
+
 func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster) {
 	h.master["internal_v4_address"] = m.ZonalMaster.GetInternalV4Address()
 	h.master["external_v4_address"] = m.ZonalMaster.GetExternalV4Address()
@@ -1224,6 +1309,10 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	}
 
 	h.flattenMasterLogging(clusterMaster)
+
+	if err := h.flattenMasterScalePolicy(clusterMaster.GetScalePolicy()); err != nil {
+		return nil, err
+	}
 
 	switch m := clusterMaster.GetMasterType().(type) {
 	case *k8s.Master_ZonalMaster:

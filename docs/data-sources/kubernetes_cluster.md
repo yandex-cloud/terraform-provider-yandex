@@ -43,12 +43,12 @@ output "cluster_external_v4_endpoint" {
 - `description` (String) The resource description.
 - `health` (String) Health of the Kubernetes cluster.
 - `id` (String) The ID of this resource.
-- `kms_provider` (List of Object) (see [below for nested schema](#nestedatt--kms_provider))
+- `kms_provider` (List of Object) Cluster KMS provider parameters. (see [below for nested schema](#nestedatt--kms_provider))
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `log_group_id` (String) Log group where cluster stores cluster system logs, like audit, events, or control plane logs.
-- `master` (List of Object) (see [below for nested schema](#nestedatt--master))
+- `master` (List of Object) Kubernetes master configuration options. (see [below for nested schema](#nestedatt--master))
 - `network_id` (String) The ID of the cluster network.
-- `network_implementation` (List of Object) (see [below for nested schema](#nestedatt--network_implementation))
+- `network_implementation` (List of Object) Network Implementation options. (see [below for nested schema](#nestedatt--network_implementation))
 - `network_policy_provider` (String) Network policy provider for the cluster. Possible values: `CALICO`.
 - `node_ipv4_cidr_mask_size` (Number) Size of the masks that are assigned to each node in the cluster. Effectively limits maximum number of pods for each node.
 - `node_service_account_id` (String) Service account to be used by the worker nodes of the Kubernetes cluster to access Container Registry or to push node logs and metrics.
@@ -74,13 +74,16 @@ Read-Only:
 
 - `cluster_ca_certificate` (String) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.
 
-- `etcd_cluster_size` (Number)
+- `etcd_cluster_size` (Number) Number of etcd clusters that will be used for the Kubernetes master.
+
 - `external_v4_address` (String) An IPv4 external network address that is assigned to the master.
 
 - `external_v4_endpoint` (String) External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
 
-- `external_v6_address` (String)
-- `external_v6_endpoint` (String)
+- `external_v6_address` (String) An IPv6 external network address that is assigned to the master.
+
+- `external_v6_endpoint` (String) External IPv6 endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
+
 - `internal_v4_address` (String) An IPv4 internal network address that is assigned to the master.
 
 - `internal_v4_endpoint` (String) Internal endpoint that can be used to connect to the master from cloud networks.
@@ -94,6 +97,8 @@ Read-Only:
 - `public_ip` (Boolean) When `true`, Kubernetes master will have visible ipv4 address.
 
 - `regional` (Block List, Max: 1) Initialize parameters for Regional Master (highly available master). (see [below for nested schema](#nestedobjatt--master--regional))
+
+- `scale_policy` (Block List, Max: 1) Scale policy of the master. (see [below for nested schema](#nestedobjatt--master--scale_policy))
 
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 
@@ -119,9 +124,12 @@ Read-Only:
 
 Read-Only:
 
-- `day` (String)
-- `duration` (String)
-- `start_time` (String)
+- `day` (String) The day of the week which you want to update.
+
+- `duration` (String) The duration of the day of week you want to update.
+
+- `start_time` (String) The start time of the day of week you want to update.
+
 
 
 
@@ -163,6 +171,24 @@ Read-Only:
 Read-Only:
 
 - `region` (String) Name of availability region (e.g. `ru-central1`), where master instances will be allocated.
+
+
+
+<a id="nestedobjatt--master--scale_policy"></a>
+### Nested Schema for `master.scale_policy`
+
+Read-Only:
+
+- `auto_scale` (Block List, Max: 1) Autoscaled master instance resources. (see [below for nested schema](#nestedobjatt--master--scale_policy--auto_scale))
+
+
+<a id="nestedobjatt--master--scale_policy--auto_scale"></a>
+### Nested Schema for `master.scale_policy.auto_scale`
+
+Read-Only:
+
+- `min_resource_preset_id` (String) Minimal resource preset ID.
+
 
 
 

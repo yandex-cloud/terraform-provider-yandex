@@ -147,6 +147,30 @@ func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonalScalePolicy_autoScale(t *testing.T) {
+	clusterResourceAutoScaled := clusterInfoAutoscaled("TestAccKubernetesClusterZonal_basic", true)
+	clusterResourceFullName := clusterResourceAutoScaled.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResourceAutoScaled),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResourceAutoScaled, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
 func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
 	clusterResource.MasterVersion = ""
@@ -351,6 +375,9 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResource7 := clusterUpdatedResource6
 	clusterUpdatedResource7.constructMaintenancePolicyField(true, emptyMaintenancePolicy)
 
+	clusterUpdatedResourceWithMasterAutoScale := clusterUpdatedResource7
+	clusterUpdatedResourceWithMasterAutoScale.constructScalePolicyField(AutoScalePolicy)
+
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
@@ -422,6 +449,14 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithMasterAutoScale),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithMasterAutoScale, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
 		},
 	})
 }
@@ -441,6 +476,9 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterRegionalConfig_update"
 	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
+
+	clusterUpdatedResourceAutoScaled := clusterUpdatedResource
+	clusterUpdatedResourceAutoScaled.constructScalePolicyField(AutoScalePolicy)
 
 	var cluster k8s.Cluster
 
@@ -462,6 +500,14 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
 					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceAutoScaled),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceAutoScaled, true),
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
@@ -752,6 +798,12 @@ func clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies(testDesc string,
 	return res
 }
 
+func clusterInfoAutoscaled(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructScalePolicyField(AutoScalePolicy)
+	return res
+}
+
 type clusterResourceIDs struct {
 	networkResourceID            string
 	subnetAResourceID            string
@@ -1014,6 +1066,15 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			)
 		}
 
+		switch info.ScalePolicyType {
+		case AutoScalePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.scale_policy.0.auto_scale.0.min_resource_preset_id", master.GetScalePolicy().GetAutoScale().GetMinResourcePresetId()),
+			)
+		default:
+			//nothing to check
+		}
+
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
 	}
 }
@@ -1068,6 +1129,13 @@ func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPre
 	}
 	return resource.TestMatchTypeSetElemNestedAttrs(resourceFullName, maintenanceWindowPrefix+"*", m)
 }
+
+type scalePolicyType int
+
+const (
+	UndefinedScalePolicy scalePolicyType = iota
+	AutoScalePolicy
+)
 
 type maintenancePolicyType int
 
@@ -1130,6 +1198,9 @@ type resourceClusterInfo struct {
 	// folder_id is not tested here since folder deletion takes too long
 	MasterLogging                     string
 	MasterLoggingLogGroupResourceName string
+
+	ScalePolicyType scalePolicyType
+	ScalePolicy     string
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1169,6 +1240,16 @@ func (i *resourceClusterInfo) constructMasterLoggingField(params masterLoggingPa
 		ctx["MasterLoggingLogGroupResourceName"] = logGroupName
 	}
 	i.MasterLogging = templateConfig(masterLoggingTemplate, ctx)
+}
+
+func (i *resourceClusterInfo) constructScalePolicyField(policy scalePolicyType) {
+	switch policy {
+	case AutoScalePolicy:
+		i.ScalePolicyType = policy
+		i.ScalePolicy = autoMasterScalePolicy
+	default:
+		//nothing
+	}
 }
 
 func (i *resourceClusterInfo) constructSecurityGroupsField() {
@@ -1218,6 +1299,14 @@ func (i *resourceClusterInfo) nodeServiceAccountResourceName() string {
 func (i *resourceClusterInfo) kmsKeyResourceName() string {
 	return "yandex_kms_symmetric_key." + i.KMSKeyResourceName
 }
+
+const autoMasterScalePolicy = `
+	scale_policy {
+		auto_scale {
+			min_resource_preset_id = "s-c4-m16"
+		}
+	}
+`
 
 const anyMaintenancePolicyTemplate = `
 	maintenance_policy {
@@ -1325,6 +1414,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     {{.SecurityGroups}}
 
 	{{.MasterLogging}}
+
+	{{.ScalePolicy}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
@@ -1421,6 +1512,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     {{.MaintenancePolicy}}
 
     {{.MasterLogging}}
+
+	{{.ScalePolicy}}
 
 {{if .ExternalIPv6Address}}
     external_v6_address = "{{.ExternalIPv6Address}}"

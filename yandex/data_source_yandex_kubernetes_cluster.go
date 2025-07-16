@@ -91,44 +91,53 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"master": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["master"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version"].Description,
+							Computed:    true,
 						},
 						"public_ip": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["public_ip"].Description,
+							Computed:    true,
 						},
 						"maintenance_policy": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"auto_upgrade": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Elem.(*schema.Resource).Schema["auto_upgrade"].Description,
+										Computed:    true,
 									},
 									"maintenance_window": {
-										Type:     schema.TypeSet,
-										Computed: true,
-										Set:      dayOfWeekHash,
+										Type:        schema.TypeSet,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Elem.(*schema.Resource).Schema["maintenance_window"].Description,
+										Computed:    true,
+										Set:         dayOfWeekHash,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"day": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Elem.(*schema.Resource).Schema["maintenance_window"].Elem.(*schema.Resource).Schema["day"].Description,
+													Computed:    true,
 												},
 												"start_time": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Elem.(*schema.Resource).Schema["maintenance_window"].Elem.(*schema.Resource).Schema["start_time"].Description,
+													Computed:    true,
 												},
 												"duration": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["maintenance_policy"].Elem.(*schema.Resource).Schema["maintenance_window"].Elem.(*schema.Resource).Schema["duration"].Description,
+													Computed:    true,
 												},
 											},
 										},
@@ -137,140 +146,191 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 							},
 						},
 						"etcd_cluster_size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["etcd_cluster_size"].Description,
+							Computed:    true,
 						},
 						"master_location": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_location"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_location"].Elem.(*schema.Resource).Schema["zone"].Description,
+										Computed:    true,
 									},
 									"subnet_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_location"].Elem.(*schema.Resource).Schema["subnet_id"].Description,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"zonal": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["zonal"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["zonal"].Elem.(*schema.Resource).Schema["zone"].Description,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"regional": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["regional"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"region": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["regional"].Elem.(*schema.Resource).Schema["region"].Description,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"security_group_ids": {
-							Type:     schema.TypeSet,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							Computed: true,
+							Type:        schema.TypeSet,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["security_group_ids"].Description,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Computed:    true,
 						},
 						"internal_v4_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["internal_v4_address"].Description,
+							Computed:    true,
 						},
 						"external_v4_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["external_v4_address"].Description,
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"external_v6_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["external_v6_address"].Description,
+							Computed:    true,
 						},
 						"internal_v4_endpoint": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["internal_v4_endpoint"].Description,
+							Computed:    true,
 						},
 						"external_v4_endpoint": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["external_v4_endpoint"].Description,
+							Computed:    true,
 						},
 						"external_v6_endpoint": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["external_v6_endpoint"].Description,
+							Computed:    true,
 						},
 						"cluster_ca_certificate": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["cluster_ca_certificate"].Description,
+							Computed:    true,
 						},
 						"version_info": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version_info"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"current_version": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version_info"].Elem.(*schema.Resource).Schema["current_version"].Description,
+										Computed:    true,
 									},
 									"new_revision_available": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version_info"].Elem.(*schema.Resource).Schema["new_revision_available"].Description,
+										Computed:    true,
 									},
 									"new_revision_summary": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version_info"].Elem.(*schema.Resource).Schema["new_revision_summary"].Description,
+										Computed:    true,
 									},
 									"version_deprecated": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["version_info"].Elem.(*schema.Resource).Schema["version_deprecated"].Description,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"master_logging": {
-							Type:     schema.TypeList,
-							Computed: true,
-
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["enabled"].Description,
+										Computed:    true,
 									},
 									"log_group_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["log_group_id"].Description,
+										Computed:    true,
 									},
 									"folder_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["folder_id"].Description,
+										Computed:    true,
 									},
 									"kube_apiserver_enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["kube_apiserver_enabled"].Description,
+										Computed:    true,
 									},
 									"cluster_autoscaler_enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["cluster_autoscaler_enabled"].Description,
+										Computed:    true,
 									},
 									"events_enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["events_enabled"].Description,
+										Computed:    true,
 									},
 									"audit_enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["audit_enabled"].Description,
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"scale_policy": {
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["scale_policy"].Description,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auto_scale": {
+										Type:        schema.TypeList,
+										Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["scale_policy"].Elem.(*schema.Resource).Schema["auto_scale"].Description,
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_resource_preset_id": {
+													Type:        schema.TypeString,
+													Description: resourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["scale_policy"].Elem.(*schema.Resource).Schema["auto_scale"].Elem.(*schema.Resource).Schema["min_resource_preset_id"].Description,
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -299,13 +359,15 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"kms_provider": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["kms_provider"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["kms_provider"].Elem.(*schema.Resource).Schema["key_id"].Description,
+							Computed:    true,
 						},
 					},
 				},
@@ -316,18 +378,21 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"network_implementation": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["network_implementation"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cilium": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: resourceYandexKubernetesCluster().Schema["network_implementation"].Elem.(*schema.Resource).Schema["cilium"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"routing_mode": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "The routing mode of the network interface.",
+										Computed:    true,
 									},
 								},
 							},

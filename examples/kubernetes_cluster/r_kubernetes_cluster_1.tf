@@ -35,6 +35,12 @@ resource "yandex_kubernetes_cluster" "zonal_cluster" {
       events_enabled             = true
       audit_enabled              = true
     }
+
+    scale_policy {
+      auto_scale {
+        min_resource_preset_id = "s-c4-m16"
+      }
+    }
   }
 
   service_account_id      = yandex_iam_service_account.service_account_resource_name.id

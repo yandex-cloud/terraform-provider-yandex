@@ -53,6 +53,12 @@ resource "yandex_kubernetes_cluster" "zonal_cluster" {
       events_enabled             = true
       audit_enabled              = true
     }
+
+    scale_policy {
+      auto_scale {
+        min_resource_preset_id = "s-c4-m16"
+      }
+    }
   }
 
   service_account_id      = yandex_iam_service_account.service_account_resource_name.id
@@ -129,6 +135,12 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
       events_enabled             = true
       audit_enabled              = true
     }
+
+    scale_policy {
+      auto_scale {
+        min_resource_preset_id = "s-c4-m16"
+      }
+    }
   }
 
   service_account_id      = yandex_iam_service_account.service_account_resource_name.id
@@ -190,13 +202,14 @@ depends_on = [
 
 Optional:
 
-- `etcd_cluster_size` (Number)
-- `external_v6_address` (String)
+- `etcd_cluster_size` (Number) Number of etcd clusters that will be used for the Kubernetes master.
+- `external_v6_address` (String) An IPv6 external network address that is assigned to the master.
 - `maintenance_policy` (Block List, Max: 1) Maintenance policy for Kubernetes master. If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. 1.29. Minor version upgrades (e.g. 1.29->1.30) should be performed manually. (see [below for nested schema](#nestedblock--master--maintenance_policy))
 - `master_location` (Block List) Cluster master's instances locations array (zone and subnet). Cannot be used together with `zonal` or `regional`. Currently, supports either one, for zonal master, or three instances of `master_location`. Can be updated in place. When creating regional cluster (three master instances), its `region` will be evaluated automatically by backend. (see [below for nested schema](#nestedblock--master--master_location))
 - `master_logging` (Block List, Max: 1) Master Logging options. (see [below for nested schema](#nestedblock--master--master_logging))
 - `public_ip` (Boolean) When `true`, Kubernetes master will have visible ipv4 address.
 - `regional` (Block List, Max: 1) Initialize parameters for Regional Master (highly available master). (see [below for nested schema](#nestedblock--master--regional))
+- `scale_policy` (Block List, Max: 1) Scale policy of the master. (see [below for nested schema](#nestedblock--master--scale_policy))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `version` (String) Version of Kubernetes that will be used for master.
 - `zonal` (Block List, Max: 1) Initialize parameters for Zonal Master (single node master). (see [below for nested schema](#nestedblock--master--zonal))
@@ -206,7 +219,7 @@ Read-Only:
 - `cluster_ca_certificate` (String) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.
 - `external_v4_address` (String) An IPv4 external network address that is assigned to the master.
 - `external_v4_endpoint` (String) External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
-- `external_v6_endpoint` (String)
+- `external_v6_endpoint` (String) External IPv6 endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
 - `internal_v4_address` (String) An IPv4 internal network address that is assigned to the master.
 - `internal_v4_endpoint` (String) Internal endpoint that can be used to connect to the master from cloud networks.
 - `version_info` (List of Object) Information about cluster version. (see [below for nested schema](#nestedatt--master--version_info))
@@ -229,12 +242,12 @@ To allow maintenance only on specific days of week, please provide list of eleme
 
 Required:
 
-- `duration` (String)
-- `start_time` (String)
+- `duration` (String) The duration of the day of week you want to update.
+- `start_time` (String) The start time of the day of week you want to update.
 
 Optional:
 
-- `day` (String)
+- `day` (String) The day of the week which you want to update.
 
 
 
@@ -281,6 +294,22 @@ Optional:
 
 - `subnet_id` (String) ID of the subnet.
 - `zone` (String) ID of the availability zone.
+
+
+
+<a id="nestedblock--master--scale_policy"></a>
+### Nested Schema for `master.scale_policy`
+
+Optional:
+
+- `auto_scale` (Block List, Max: 1) Autoscaled master instance resources. (see [below for nested schema](#nestedblock--master--scale_policy--auto_scale))
+
+<a id="nestedblock--master--scale_policy--auto_scale"></a>
+### Nested Schema for `master.scale_policy.auto_scale`
+
+Required:
+
+- `min_resource_preset_id` (String) Minimal resource preset ID.
 
 
 
