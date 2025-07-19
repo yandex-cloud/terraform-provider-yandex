@@ -191,7 +191,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 10. Change some options
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version, 18),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version, 18, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -208,7 +208,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(clusterResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckClusterSettingsAccessWebSQL(clusterResource),
-					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource),
+					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, true),
 					testAccCheckConnLimitUpdateUserSettings(clusterResource),
 					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckSettingsUpdateUserSettings(clusterResource),
@@ -247,7 +247,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 16. Check if description can be set to null
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "description", ""),
@@ -256,10 +256,18 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 18. Decrease disk size (nothing changes)
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// 20. Disable performanse diagnostic
+			{
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, false),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -718,7 +726,7 @@ func testAccCheckClusterSettingsAccessWebSQL(r string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckClusterSettingsPerformanceDiagnostics(r string) resource.TestCheckFunc {
+func testAccCheckClusterSettingsPerformanceDiagnostics(r string, enabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -736,6 +744,11 @@ func testAccCheckClusterSettingsPerformanceDiagnostics(r string) resource.TestCh
 		})
 		if err != nil {
 			return err
+		}
+
+		if enabled && !found.Config.PerformanceDiagnostics.Enabled {
+			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.Enabled must be true, current %v",
+				found.Config.PerformanceDiagnostics.Enabled)
 		}
 
 		if found.Config.PerformanceDiagnostics.SessionsSamplingInterval != 9 {
@@ -1219,7 +1232,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 `, name, desc, environment, version, diskSize, deletionProtection)
 }
 
-func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32) string {
+func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32, isPerfdiagEnable bool) string {
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1253,6 +1266,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	  data_transfer = false
     }
     performance_diagnostics {
+	  enabled                      = %t
       sessions_sampling_interval   = 9
       statements_sampling_interval = 60
     }
@@ -1342,7 +1356,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc, version, diskSize)
+`, name, desc, version, diskSize, isPerfdiagEnable)
 }
 
 func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string, diskSize int32) string {
@@ -1379,6 +1393,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	  data_transfer = false
     }
     performance_diagnostics {
+	  enabled                      = true
       sessions_sampling_interval   = 9
       statements_sampling_interval = 60
     }
@@ -1500,6 +1515,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 				data_transfer = false
 			}
 			performance_diagnostics {
+			    enabled                      = true
 				sessions_sampling_interval   = 9
 				statements_sampling_interval = 60
 			}
