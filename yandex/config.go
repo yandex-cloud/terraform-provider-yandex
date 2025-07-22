@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 	"io/ioutil"
 	"log"
 	"net"
@@ -21,7 +22,6 @@ import (
 	"github.com/yandex-cloud/go-sdk/iamkey"
 	"github.com/yandex-cloud/go-sdk/pkg/idempotency"
 	"github.com/yandex-cloud/go-sdk/pkg/requestid"
-	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 

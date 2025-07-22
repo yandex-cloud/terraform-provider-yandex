@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	yandex_gen "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
@@ -275,7 +276,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 }
 
 func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
+	return append([]func() resource.Resource{
 		func() resource.Resource {
 			return billing_cloud_binding.NewResource(
 				billing_cloud_binding.BindingServiceInstanceCloudType,
@@ -320,11 +321,11 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		storage_bucket_grant.NewResource,
 		storage_bucket_iam_binding.NewIamBinding,
 		storage_bucket_policy.NewResource,
-	}
+	}, yandex_gen.GetProviderResources()...)
 }
 
 func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
+	return append([]func() datasource.DataSource{
 		func() datasource.DataSource {
 			return billing_cloud_binding.NewDataSource(
 				billing_cloud_binding.BindingServiceInstanceCloudType,
@@ -346,7 +347,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		gitlab_instance.NewDataSource,
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
-	}
+	}, yandex_gen.GetProviderDataSources()...)
 }
 
 func (p *Provider) GetConfig() provider_config.Config {
