@@ -124,6 +124,9 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 				Description: "",
 				Optional:    true,
 				Default:     0,
+				DiffSuppressFunc: func(_, _, _ string, d *schema.ResourceData) bool {
+					return d.Id() != "" // suppress for updates
+				},
 			},
 			"serverless_database": {
 				Type:        schema.TypeSet,
