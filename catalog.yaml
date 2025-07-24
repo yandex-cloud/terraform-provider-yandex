@@ -857,6 +857,22 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_greenplum_resource_group:
+    Category: "Managed Service for Greenplum"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_greenplum_user:
+    Category: "Managed Service for Greenplum"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   mdb_kafka_cluster:
     Category: "Managed Service for Apache Kafka"
     Type: sdk
