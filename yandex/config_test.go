@@ -78,13 +78,14 @@ func TestConfigUserAgent(t *testing.T) {
 
 	// instance of sdk
 	config := Config{
-		Endpoint:  l.Addr().String(),
-		FolderID:  testConfigFolder,
-		CloudID:   testConfigCloudID,
-		Zone:      testConfigZone,
-		Token:     testConfigToken,
-		Insecure:  true,
-		Plaintext: true,
+		Endpoint:   l.Addr().String(),
+		FolderID:   testConfigFolder,
+		CloudID:    testConfigCloudID,
+		Zone:       testConfigZone,
+		Token:      testConfigToken,
+		Insecure:   true,
+		Plaintext:  true,
+		MaxRetries: 4,
 	}
 
 	err := config.initAndValidate(context.Background(), testTerraformVersion, false)

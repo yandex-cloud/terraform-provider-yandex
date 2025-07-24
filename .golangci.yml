@@ -1,69 +1,74 @@
+version: 2
 run:
-  deadline: 5m
   modules-download-mode: vendor
   allow-parallel-runners: true
-  skip_dirs: 
-    - scripts
-    - vendor
-    - version
-    - examples
-    - docs
-    - templates
-    - yandex/mocks
-    - yandex/test-fixtures
 
 output:
-  format: colored-line-number
+  formats:
+    text:
+      path: stdout
+      colors: true
 
 severity:
-  default-severity: WARNING
+  default: WARNING
 
 linters:
-  disable-all: true
+  settings:
+    errcheck:
+      exclude-functions:
+        - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/yandex-cloud/terraform-provider-yandex/yandex:Set
+    govet:
+      disable:
+        - copylocks
+  exclusions:
+    rules:
+      - linters:
+          - gosimple
+        text: "S1009:" # should omit nil check; len() for nil slices is defined as zero
+      - linters:
+          - staticcheck
+        text: "SA1006:" # printf-style function with dynamic format string and no further arguments should use print-style function instead
+      - linters:
+          - staticcheck
+        text: "SA1019:" # Using a deprecated function, variable, constant or field
+      - linters:
+          - staticcheck
+        text: "SA4010:" # The result of append will never be observed anywhere
+      - linters:
+          - staticcheck
+        text: "SA4030:" # Ineffective attempt at generating random number
+      - linters:
+          - staticcheck
+        text: "SA1024:" # A string cutset contains duplicate characters
+      - linters:
+          - staticcheck
+        text: "SA4004:" # The loop exits unconditionally after one iteration
+      - linters:
+          - staticcheck
+        text: "SA4009" # A function argument is overwritten before its first use
+    paths:
+      - scripts
+      - vendor
+      - version
+      - examples
+      - docs
+      - templates
+      - yandex/mocks
+      - yandex/test-fixtures
+  default: none
   enable:
     - errcheck
-    - gofmt
-    - gosimple
     - ineffassign
     - misspell
     - staticcheck
     - unconvert
     - unused
-    - vet
     - govet
 
-linters-settings:
-  errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/yandex-cloud/terraform-provider-yandex/yandex:Set
-  govet:
-    disable:
-      - copylocks
+formatters:
+  enable:
+    - gofmt
 
 issues:
-  # new-from-rev: master # Analyse only differense between master->${git branch git branch --show-current}
+#  new-from-rev: trunk # Analyse only differense between master->${git branch git branch --show-current}
   max-same-issues: 0
-  exclude-rules:
-    - linters:
-        - gosimple
-      text: "S1009:" # should omit nil check; len() for nil slices is defined as zero
-    - linters:
-        - staticcheck
-      text: "SA1006:" # printf-style function with dynamic format string and no further arguments should use print-style function instead
-    - linters:
-        - staticcheck
-      text: "SA1019:" # Using a deprecated function, variable, constant or field
-    - linters:
-        - staticcheck
-      text: "SA4010:" # The result of append will never be observed anywhere
-    - linters:
-        - staticcheck
-      text: "SA4030:" # Ineffective attempt at generating random number
-    - linters:
-        - staticcheck
-      text: "SA1024:" # A string cutset contains duplicate characters
-    - linters:
-        - staticcheck
-      text: "SA4004:" # The loop exits unconditionally after one iteration
-    - linters:
-        - staticcheck
-      text: "SA4009" # A function argument is overwritten before its first use

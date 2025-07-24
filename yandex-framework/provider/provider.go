@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	yandex_gen "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
@@ -36,6 +37,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_resource_group"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mysql_cluster_v2"
@@ -275,7 +278,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 }
 
 func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
+	return append([]func() resource.Resource{
 		func() resource.Resource {
 			return billing_cloud_binding.NewResource(
 				billing_cloud_binding.BindingServiceInstanceCloudType,
@@ -287,6 +290,8 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		datasphere_community_iam_binding.NewIamBinding,
 		mdb_clickhouse_database.NewResource,
 		mdb_clickhouse_user.NewResource,
+		mdb_greenplum_resource_group.NewResource,
+		mdb_greenplum_user.NewResource,
 		mdb_mongodb_database.NewResource,
 		mdb_mongodb_user.NewResource,
 		mdb_opensearch_cluster.NewResource,
@@ -320,11 +325,11 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		storage_bucket_grant.NewResource,
 		storage_bucket_iam_binding.NewIamBinding,
 		storage_bucket_policy.NewResource,
-	}
+	}, yandex_gen.GetProviderResources()...)
 }
 
 func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
+	return append([]func() datasource.DataSource{
 		func() datasource.DataSource {
 			return billing_cloud_binding.NewDataSource(
 				billing_cloud_binding.BindingServiceInstanceCloudType,
@@ -336,6 +341,8 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		datasphere_community.NewDataSource,
 		mdb_clickhouse_database.NewDataSource,
 		mdb_clickhouse_user.NewDataSource,
+		mdb_greenplum_resource_group.NewDataSource,
+		mdb_greenplum_user.NewDataSource,
 		mdb_mongodb_database.NewDataSource,
 		mdb_mongodb_user.NewDataSource,
 		mdb_redis_cluster_v2.NewDataSource,
@@ -346,7 +353,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		gitlab_instance.NewDataSource,
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
-	}
+	}, yandex_gen.GetProviderDataSources()...)
 }
 
 func (p *Provider) GetConfig() provider_config.Config {

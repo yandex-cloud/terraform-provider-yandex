@@ -28,6 +28,16 @@ current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")
 LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${version_tag}-${current_time}+dev.${commit_hash}"
 
 
+TFGEN_MK := ./tools/tfgen/gen1.mk
+-include $(TFGEN_MK)
+
+# Define fallback targets if the file doesn't exist
+ifeq ($(wildcard $(TFGEN_MK)),)
+    # Define dummy targets or alternative behavior
+    generate-public:
+	    @echo "tfgen.mk not found, skipping tfgen operations"
+endif
+
 default: build
 
 ##build and local-build generate the same user-agent
@@ -71,7 +81,7 @@ lint:
 tools:
 	@echo "==> installing required tooling..."
 	go install github.com/client9/misspell/cmd/misspell
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2
 	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 test-compile:
@@ -107,4 +117,6 @@ publish-website: generate-docs
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs
+generate: generate-public generate-docs
+
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs generate

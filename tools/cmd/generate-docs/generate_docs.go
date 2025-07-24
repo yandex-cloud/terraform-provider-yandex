@@ -93,6 +93,8 @@ var SDKv2ResourcesList = []string{
 	"mdb_clickhouse_cluster",
 	"mdb_elasticsearch_cluster",
 	"mdb_greenplum_cluster",
+	"mdb_greenplum_user",
+	"mdb_greenplum_resource_group",
 	"mdb_kafka_cluster",
 	"mdb_kafka_connector",
 	"mdb_kafka_topic",
