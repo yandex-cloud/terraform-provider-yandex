@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'kubernetes: add "scale_policy" attribute to k8s cluster resource and data-source'
-time: 2025-07-10T15:48:37.962056+03:00
