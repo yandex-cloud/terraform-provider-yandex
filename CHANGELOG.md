@@ -1,3 +1,12 @@
+## 0.147.0 (July 28, 2025)
+
+FEATURES:
+* kubernetes: add "scale_policy" attribute to k8s cluster resource and data-source
+* greenplum: add user and resource group
+
+BUG FIXES:
+* postgresql: disabling performance diagnostics fix
+
 ## 0.146.0 (July 15, 2025)
 
 FEATURES:
