@@ -308,8 +308,14 @@ func (r *securityGroupRuleResource) Create(ctx context.Context, req resource.Cre
 	}
 	plan.ID = types.StringValue(meta.AddedRuleIds[0])
 
-	updateRuleState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	if readRuleToState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics) {
+		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	} else {
+		resp.Diagnostics.AddError(
+			"Error adding rule",
+			"Rule was not read",
+		)
+	}
 }
 
 func (r *securityGroupRuleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -319,9 +325,11 @@ func (r *securityGroupRuleResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	updateRuleState(ctx, r.providerConfig.SDK, &state, &resp.Diagnostics)
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	if readRuleToState(ctx, r.providerConfig.SDK, &state, &resp.Diagnostics) {
+		resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	} else {
+		resp.State.RemoveResource(ctx)
+	}
 }
 
 func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -400,8 +408,14 @@ func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.Upd
 		}
 	}
 
-	updateRuleState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	if readRuleToState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics) {
+		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	} else {
+		resp.Diagnostics.AddError(
+			"Error updating rule",
+			"Rule was not read",
+		)
+	}
 }
 
 func (r *securityGroupRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -474,19 +488,16 @@ func (r *securityGroupRuleResource) Configure(ctx context.Context, req resource.
 	r.providerConfig = providerConfig
 }
 
-func updateRuleState(ctx context.Context, sdk *ycsdk.SDK, state *securityGroupRuleModel, diag *diag.Diagnostics) {
+func readRuleToState(ctx context.Context, sdk *ycsdk.SDK, state *securityGroupRuleModel, diag *diag.Diagnostics) bool {
 	sgID := state.SecurityGroupBinding.ValueString()
 	ruleID := state.ID.ValueString()
 	rule := sg_api.FindSecurityGroupRule(ctx, sdk, diag, sgID, ruleID)
 	if diag.HasError() {
-		return
+		return false
 	}
 
 	if rule == nil {
-		diag.AddError(
-			"Failed to get SecurityGroupRule data",
-			fmt.Sprintf("SecurityGroupRule with id %s not found", ruleID))
-		return
+		return false
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("updateRuleState: VPC SecurityGroupRule state: %+v", state))
@@ -494,4 +505,5 @@ func updateRuleState(ctx context.Context, sdk *ycsdk.SDK, state *securityGroupRu
 
 	diags := securityGroupRuleToState(ctx, rule, state)
 	diag.Append(diags...)
+	return true
 }
