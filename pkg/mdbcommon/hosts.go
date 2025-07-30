@@ -98,8 +98,8 @@ func CreateClusterHosts[T Host, H any, HS any, U any](ctx context.Context,
 }
 
 // UpdateClusterHostsWithShards Method to update hosts and shards within a cluster
-// 1) Substitute labels using modifyStateDependsPlan
-//   - Utilize modifyStateDependsPlan to adjust labels in the state to match those intended in the plan.
+// 1) Substitute labels using ModifyStateDependsPlan
+//   - Utilize ModifyStateDependsPlan to adjust labels in the state to match those intended in the plan.
 //   - This aims to prevent redundant host creation/deletion by better aligning the current state with the plan.
 //
 // 2) Calculate changes for Hosts
@@ -135,14 +135,14 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 	if diagnostics.HasError() {
 		return
 	}
-	entityIdToApiHosts = modifyStateDependsPlan(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
+	entityIdToApiHosts = ModifyStateDependsPlan(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
 
 	toCreateShards, toDeleteShards, diags := shardsDiff(entityIdToPlanHost, entityIdToApiHosts)
 	if diagnostics.Append(diags...); diagnostics.HasError() {
 		return
 	}
 
-	toCreate, toUpdate, toDelete, diags := hostsDiff(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
+	toCreate, toUpdate, toDelete, diags := HostsDiff(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
 	if diagnostics.Append(diags...); diagnostics.HasError() {
 		return
 	}
@@ -192,8 +192,8 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 }
 
 // UpdateClusterHosts Method to update hosts within a cluster
-// 1) Substitute labels using modifyStateDependsPlan
-//   - Utilize modifyStateDependsPlan to adjust labels in the state to match those intended in the plan.
+// 1) Substitute labels using ModifyStateDependsPlan
+//   - Utilize ModifyStateDependsPlan to adjust labels in the state to match those intended in the plan.
 //   - This aims to prevent redundant host creation/deletion by better aligning the current state with the plan.
 //
 // 2) Calculate changes for Hosts
@@ -221,9 +221,9 @@ func UpdateClusterHosts[T Host, H any, HS any, U any](
 	if diagnostics.HasError() {
 		return
 	}
-	entityIdToApiHosts = modifyStateDependsPlan(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
+	entityIdToApiHosts = ModifyStateDependsPlan(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
 
-	toCreate, toUpdate, toDelete, diags := hostsDiff(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
+	toCreate, toUpdate, toDelete, diags := HostsDiff(utilsHostService, entityIdToPlanHost, entityIdToApiHosts)
 	if diagnostics.Append(diags...); diagnostics.HasError() {
 		return
 	}
@@ -330,7 +330,7 @@ func shardsDiff[T HostWithShard](planHosts, stateHosts map[string]T) (map[string
 	return toCreateShards, toDeleteShards, nil
 }
 
-// The hostsDiff function categorizes hosts into further actions:
+// The HostsDiff function categorizes hosts into further actions:
 // create (a new host needs to be created),
 // skip (the host has not changed and is skipped),
 // update (the host has modifiable parameters that have changed),
@@ -340,7 +340,7 @@ func shardsDiff[T HostWithShard](planHosts, stateHosts map[string]T) (map[string
 // 2) If a label is in the plan but not in the state, a new host will be added.
 // 3) If a label is not in the plan but is in the state, the host will be deleted.
 // Returns slices for actions: create, update, delete, and diagnostics capturing potential errors or warnings.
-func hostsDiff[T Host, H any, HS any, U any](
+func HostsDiff[T Host, H any, HS any, U any](
 	hostService CmpHostService[T, H, HS, U], // A service utility to help with determining host state changes using comparison methods.
 	planHosts map[string]T, // A map representing the planned host state, containing labels and their corresponding host objects.
 	stateHosts map[string]T, // A map representing the current host state, with labels associated with their respective host objects.
@@ -371,13 +371,13 @@ func hostsDiff[T Host, H any, HS any, U any](
 	return toCreate, toUpdate, toDelete, nil
 }
 
-// The modifyStateDependsPlan method collapses hosts with different labels in the `plan` and `state`
+// The ModifyStateDependsPlan method collapses hosts with different labels in the `plan` and `state`
 // to avoid unnecessary create/delete operations. The logic for forming `newState` involves the following actions:
 //   - skip (the host has not changed and remains as is),
 //   - update (the host has modifiable parameters that changed),
 //   - delete (the host is to be removed).
 //
-// Sorting these actions will be handled in another method, `hostsDiff`; the current method only makes assumptions.
+// Sorting these actions will be handled in another method, `HostsDiff`; the current method only makes assumptions.
 //
 //  1. If a label exists in both the `plan` and `state`, it is left unchanged and copied to `newState`.
 //     For such hosts, subsequent actions can be: skip, update.
@@ -390,7 +390,7 @@ func hostsDiff[T Host, H any, HS any, U any](
 //
 // 4. The remaining hosts from the `state` are moved to `newState` with their labels. For such hosts, the action will be: delete.
 // Returns `newState`
-func modifyStateDependsPlan[T Host, H any, HS any, U any](
+func ModifyStateDependsPlan[T Host, H any, HS any, U any](
 	hostService CmpHostService[T, H, HS, U],
 	plan map[string]T,
 	state map[string]T,
