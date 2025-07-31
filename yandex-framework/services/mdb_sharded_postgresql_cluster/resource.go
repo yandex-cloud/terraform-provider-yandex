@@ -449,7 +449,6 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, fmt.Sprintf("create cluster host specs: %#v", hostSpecsSlice[0]))
 
 	// Prepare Create Request
 	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState)

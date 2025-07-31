@@ -1227,10 +1227,18 @@ Resources:
     #HasE: false
   mdb_sharded_postgresql_cluster:
     Category: "Managed Service for Sharded PostgreSQL"
-    Type: sdk
+    Type: fw
     HasR: true
     HasD: false
-    HasI: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  mdb_sharded_postgresql_user:
+    Category: "Managed Service for Sharded PostgreSQL"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
     #HasF: false
     #HasE: false
   storage_bucket:
