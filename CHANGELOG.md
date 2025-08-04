@@ -1,3 +1,15 @@
+## 0.148.0 (August 4, 2025)
+
+FEATURES:
+* sharded_postgresql: add user resource
+* sharded_postgresql: add cluster resource
+* sharded_postgresql: add database resource
+
+BUG FIXES:
+* ydb_database_serverless: fix updating with sleep_after
+* postgresql: avoid "changes detected" when user is database owner and also has permissions in tf declaration to the same database
+* yandex_vpc_security_group_rule: properly handle extenal resource deletions
+
 ## 0.147.0 (July 28, 2025)
 
 FEATURES:

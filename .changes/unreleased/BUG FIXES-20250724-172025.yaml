@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'ydb_database_serverless: fix updating with sleep_after'
-time: 2025-07-24T17:20:25.970099+03:00
