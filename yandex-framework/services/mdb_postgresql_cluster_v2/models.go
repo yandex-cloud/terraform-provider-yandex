@@ -62,18 +62,6 @@ var PoolerConfigAttrTypes = map[string]attr.Type{
 	"pool_discard": types.BoolType,
 }
 
-type MaintenanceWindow struct {
-	Type types.String `tfsdk:"type"`
-	Day  types.String `tfsdk:"day"`
-	Hour types.Int64  `tfsdk:"hour"`
-}
-
-var MaintenanceWindowAttrTypes = map[string]attr.Type{
-	"type": types.StringType,
-	"day":  types.StringType,
-	"hour": types.Int64Type,
-}
-
 var ConfigAttrTypes = map[string]attr.Type{
 	"version":                   types.StringType,
 	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},

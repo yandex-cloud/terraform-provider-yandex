@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -65,9 +64,6 @@ func FindSecurityGroupRule(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagn
 	}
 
 	if sg == nil {
-		diag.AddError(
-			"Failed to get SecurityGroup data",
-			fmt.Sprintf("SecurityGroup with id %s not found", sgID))
 		return nil
 	}
 

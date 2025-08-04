@@ -19,20 +19,15 @@ import (
 var (
 	expectedConfigAttrs = map[string]attr.Type{
 		"version":                   types.StringType,
-		"resources":                 types.ObjectType{AttrTypes: expectedResourcesAttrs},
+		"resources":                 types.ObjectType{AttrTypes: mdbcommon.ResourceType.AttrTypes},
 		"autofailover":              types.BoolType,
 		"access":                    types.ObjectType{AttrTypes: expectedAccessAttrTypes},
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
-		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
+		"backup_window_start":       types.ObjectType{AttrTypes: mdbcommon.BackupWindowType.AttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 		"pooler_config":             types.ObjectType{AttrTypes: expectedPCAttrTypes},
 		"disk_size_autoscaling":     types.ObjectType{AttrTypes: expectedDiskSizeAutoscalingAttrs},
-	}
-	expectedResourcesAttrs = map[string]attr.Type{
-		"resource_preset_id": types.StringType,
-		"disk_type_id":       types.StringType,
-		"disk_size":          types.Int64Type,
 	}
 	expectedBWSAttrs = map[string]attr.Type{
 		"hours":   types.Int64Type,
@@ -43,18 +38,13 @@ var (
 		"sessions_sampling_interval":   types.Int64Type,
 		"statements_sampling_interval": types.Int64Type,
 	}
-	expectedMWAttrs = map[string]attr.Type{
-		"type": types.StringType,
-		"day":  types.StringType,
-		"hour": types.Int64Type,
-	}
 	expectedClusterAttrs = map[string]attr.Type{
 		"name":                types.StringType,
 		"description":         types.StringType,
 		"labels":              types.MapType{ElemType: types.StringType},
 		"environment":         types.StringType,
 		"network_id":          types.StringType,
-		"maintenance_window":  types.ObjectType{AttrTypes: expectedMWAttrs},
+		"maintenance_window":  types.ObjectType{AttrTypes: mdbcommon.MaintenanceWindowType.AttrTypes},
 		"security_group_ids":  types.SetType{ElemType: types.StringType},
 		"config":              types.ObjectType{AttrTypes: expectedConfigAttrs},
 		"deletion_protection": types.BoolType,
@@ -76,7 +66,7 @@ var (
 		map[string]attr.Value{
 			"version": types.StringValue("15"),
 			"resources": types.ObjectValueMust(
-				expectedResourcesAttrs,
+				mdbcommon.ResourceType.AttrTypes,
 				map[string]attr.Value{
 					"resource_preset_id": types.StringValue("s1.micro"),
 					"disk_type_id":       types.StringValue("network-ssd"),
@@ -137,7 +127,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 					"environment": types.StringValue("PRESTABLE"),
 					"network_id":  types.StringValue("test-network"),
 					"maintenance_window": types.ObjectValueMust(
-						expectedMWAttrs,
+						mdbcommon.MaintenanceWindowType.AttrTypes,
 						map[string]attr.Value{
 							"type": types.StringValue("ANYTIME"),
 							"day":  types.StringValue("MON"),
@@ -210,7 +200,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 					"environment":         types.StringValue("PRODUCTION"),
 					"network_id":          types.StringValue("test-network"),
 					"config":              baseConfig,
-					"maintenance_window":  types.ObjectNull(expectedMWAttrs),
+					"maintenance_window":  types.ObjectNull(mdbcommon.MaintenanceWindowType.AttrTypes),
 					"deletion_protection": types.BoolNull(),
 					"security_group_ids":  types.SetNull(types.StringType),
 				},

@@ -644,6 +644,11 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Config = flattenConfig(ctx, cfgState.PostgtgreSQLConfig, cluster.GetConfig(), respDiagnostics)
 
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
-	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
+	state.MaintenanceWindow = mdbcommon.FlattenMaintenanceWindow[
+		postgresql.MaintenanceWindow,
+		postgresql.WeeklyMaintenanceWindow,
+		postgresql.AnytimeMaintenanceWindow,
+		postgresql.WeeklyMaintenanceWindow_WeekDay,
+	](ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 }

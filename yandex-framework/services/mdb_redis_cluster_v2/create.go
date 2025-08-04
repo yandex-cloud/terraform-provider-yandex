@@ -71,8 +71,12 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 		)
 	}
 
-	maintenanceWindow, diags := expandMaintenanceWindow(ctx, plan.MaintenanceWindow)
-	diagnostics.Append(diags...)
+	maintenanceWindow := mdbcommon.ExpandClusterMaintenanceWindow[
+		redis.MaintenanceWindow,
+		redis.WeeklyMaintenanceWindow,
+		redis.AnytimeMaintenanceWindow,
+		redis.WeeklyMaintenanceWindow_WeekDay,
+	](ctx, plan.MaintenanceWindow, diagnostics)
 
 	req := redis.CreateClusterRequest{
 		FolderId:           folderID,

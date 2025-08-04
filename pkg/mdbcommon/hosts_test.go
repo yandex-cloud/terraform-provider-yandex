@@ -174,7 +174,7 @@ func TestModifyStateDependsPlan(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			fixedState := modifyStateDependsPlan[MockHost, MockHost, MockProtoHostSpec, MockUpdateSpec](
+			fixedState := ModifyStateDependsPlan[MockHost, MockHost, MockProtoHostSpec, MockUpdateSpec](
 				hostService, tc.plan, tc.state,
 			)
 			assert.Equal(t, tc.expectedResult, fixedState)
@@ -223,7 +223,7 @@ func TestHostsDiff(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			toCreate, toUpdate, toDelete, diags := hostsDiff[MockHost, MockHost, MockProtoHostSpec, MockUpdateSpec](
+			toCreate, toUpdate, toDelete, diags := HostsDiff[MockHost, MockHost, MockProtoHostSpec, MockUpdateSpec](
 				hostService, tc.planHosts, tc.stateHosts,
 			)
 

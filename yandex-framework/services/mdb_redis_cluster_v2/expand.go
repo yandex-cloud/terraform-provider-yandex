@@ -15,66 +15,6 @@ import (
 	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 )
 
-func expandMaintenanceWindow(ctx context.Context, mwO types.Object) (*redis.MaintenanceWindow, diag.Diagnostics) {
-	if !utils.IsPresent(mwO) {
-		return nil, nil
-	}
-	mw := &MaintenanceWindow{}
-	diags := mwO.As(ctx, mw, baseOptions)
-	if diags.HasError() {
-		return nil, diags
-	}
-	var result *redis.MaintenanceWindow
-
-	switch mw.Type.ValueString() {
-	case "ANYTIME":
-		timeSet := false
-		if mw.Day.ValueStringPointer() != nil {
-			timeSet = true
-		}
-		if mw.Hour.ValueInt64Pointer() != nil {
-			timeSet = true
-		}
-		if timeSet {
-			diags.AddError(
-				"Wrong attribute value",
-				"ANYTIME type of maintenance_window both DAY and HOUR should be omitted",
-			)
-			return nil, diags
-		}
-		result = &redis.MaintenanceWindow{}
-		result.SetAnytime(&redis.AnytimeMaintenanceWindow{})
-
-	case "WEEKLY":
-		weekly := &redis.WeeklyMaintenanceWindow{}
-		if mw.Day.ValueStringPointer() != nil {
-			var err error
-			weekly.Day, err = parseRedisWeekDay(mw.Day.ValueString())
-			if err != nil {
-				diags.AddError(
-					"Wrong attribute value",
-					err.Error(),
-				)
-				return nil, diags
-			}
-		}
-
-		if mw.Hour.ValueInt64Pointer() != nil {
-			weekly.Hour = mw.Hour.ValueInt64()
-		}
-		result = &redis.MaintenanceWindow{}
-		result.SetWeeklyMaintenanceWindow(weekly)
-	default:
-		diags.AddError(
-			"Wrong attribute value",
-			fmt.Sprintf("while parsing value for 'maintenance_window'. Unknown type '%s'", mw.Type.ValueString()),
-		)
-		return nil, diags
-	}
-
-	return result, diags
-}
-
 func expandAutoscaling(ctx context.Context, o types.Object) (*redis.DiskSizeAutoscaling, diag.Diagnostics) {
 
 	if !utils.IsPresent(o) {

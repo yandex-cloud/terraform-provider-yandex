@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -24,7 +25,7 @@ var baseCluster = Cluster{
 		"key": types.StringValue("value"),
 	}),
 	MaintenanceWindow: types.ObjectValueMust(
-		expectedMWAttrs,
+		mdbcommon.MaintenanceWindowType.AttrTypes,
 		map[string]attr.Value{
 			"type": types.StringValue("WEEKLY"),
 			"day":  types.StringValue("MON"),
@@ -53,7 +54,7 @@ func TestYandexProvider_MDBPostgresClusterPrepateUpdateRequestBasic(t *testing.T
 	cluster.SecurityGroupIds = types.SetValueMust(types.StringType, []attr.Value{
 		types.StringValue("test-sg-new"),
 	})
-	cluster.MaintenanceWindow = types.ObjectNull(expectedMWAttrs)
+	cluster.MaintenanceWindow = types.ObjectNull(mdbcommon.MaintenanceWindowType.AttrTypes)
 
 	req, diags := prepareUpdateRequest(ctx, &baseCluster, &cluster)
 	if diags.HasError() {

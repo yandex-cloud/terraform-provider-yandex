@@ -256,7 +256,6 @@ func (p *PostgresqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 }
 
 func (p *PostgresqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *postgresql.UpdateClusterRequest) {
-
 	if req == nil || len(req.UpdateMask.Paths) == 0 {
 		return
 	}

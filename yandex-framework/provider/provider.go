@@ -46,6 +46,9 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_postgresql_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_sharded_postgresql_cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_sharded_postgresql_database"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_sharded_postgresql_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/metastore_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_grant"
@@ -325,6 +328,9 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		storage_bucket_grant.NewResource,
 		storage_bucket_iam_binding.NewIamBinding,
 		storage_bucket_policy.NewResource,
+		mdb_sharded_postgresql_cluster.NewShardedPostgreSQLClusterResource,
+		mdb_sharded_postgresql_user.NewShardedPostgreSQLUserResource,
+		mdb_sharded_postgresql_database.NewShardedPostgreSQLDatabaseResource,
 	}, yandex_gen.GetProviderResources()...)
 }
 

@@ -131,67 +131,6 @@ func buildMWTestBlockObj(mwType, mwDay *string, mwHour *int64) types.Object {
 	return testBlock
 }
 
-func TestYandexProvider_MDBPostgresClusterMaintenanceWindowExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	anytimeType := "ANYTIME"
-	weeklyType := "WEEKLY"
-
-	day := "MON"
-	var hour int64 = 1
-
-	cases := []struct {
-		testname       string
-		reqVal         types.Object
-		expectedPolicy postgresql.MaintenanceWindow_Policy
-		expectedError  bool
-	}{
-		{
-			testname:       "CheckNullObject",
-			reqVal:         types.ObjectNull(mwAttrsTestExpand),
-			expectedPolicy: nil,
-		},
-		{
-			testname: "CheckAnytimeMaintenanceWindow",
-			reqVal:   buildMWTestBlockObj(&anytimeType, nil, nil),
-			expectedPolicy: &postgresql.MaintenanceWindow_Anytime{
-				Anytime: &postgresql.AnytimeMaintenanceWindow{},
-			},
-		},
-		{
-			testname: "CheckWeeklyMaintenanceWindow",
-			reqVal:   buildMWTestBlockObj(&weeklyType, &day, &hour),
-			expectedPolicy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
-				WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
-					Hour: hour,
-					Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(1),
-				},
-			},
-		},
-		{
-			testname:      "CheckBlockWithRandomAttributes",
-			reqVal:        types.ObjectValueMust(map[string]attr.Type{"random": types.StringType}, map[string]attr.Value{"random": types.StringValue("s1")}),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		var diags diag.Diagnostics
-		res := expandClusterMaintenanceWindow(ctx, c.reqVal, &diags)
-		if c.expectedError {
-			if !diags.HasError() {
-				t.Errorf("Unexpected expancion error status: expected %v, actual %v", c.expectedError, diags.HasError())
-			}
-			continue
-		}
-
-		if c.expectedPolicy != nil && !reflect.DeepEqual(res.Policy, c.expectedPolicy) {
-			t.Errorf("Unexpected expancion result policy: expected %v, actual %v", c.expectedPolicy, res.Policy)
-		}
-	}
-}
-
 var pdTestExpand = map[string]attr.Type{
 	"enabled":                      types.BoolType,
 	"sessions_sampling_interval":   types.Int64Type,
@@ -320,170 +259,6 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupRetainPeriodDaysExpand(t *
 				c.testname,
 				c.expectedVal,
 				pgBrpd,
-			)
-		}
-	}
-}
-
-var expectedBwsAttrTypes = map[string]attr.Type{
-	"hours":   types.Int64Type,
-	"minutes": types.Int64Type,
-}
-
-func buildTestBwsObj(h, m *int64) types.Object {
-	return types.ObjectValueMust(
-		expectedBwsAttrTypes, map[string]attr.Value{
-			"hours":   types.Int64PointerValue(h),
-			"minutes": types.Int64PointerValue(m),
-		},
-	)
-}
-
-func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	testInt64 := int64(30)
-
-	cases := []struct {
-		testname      string
-		reqVal        types.Object
-		expectedVal   *timeofday.TimeOfDay
-		expectedError bool
-	}{
-		{
-			testname: "CheckAllExplicitAttributes",
-			reqVal:   buildTestBwsObj(&testInt64, &testInt64),
-			expectedVal: &timeofday.TimeOfDay{
-				Hours:   30,
-				Minutes: 30,
-			},
-		},
-		{
-			testname: "CheckPartlyAttributesWithHours",
-			reqVal:   buildTestBwsObj(&testInt64, nil),
-			expectedVal: &timeofday.TimeOfDay{
-				Hours: 30,
-			},
-		},
-		{
-			testname: "CheckPartlyAttributesWithMinutes",
-			reqVal:   buildTestBwsObj(nil, &testInt64),
-			expectedVal: &timeofday.TimeOfDay{
-				Minutes: 30,
-			},
-		},
-		{
-			testname:    "CheckWithoutAttributes",
-			reqVal:      buildTestBwsObj(nil, nil),
-			expectedVal: &timeofday.TimeOfDay{},
-		},
-		{
-			testname:    "CheckNullObj",
-			reqVal:      types.ObjectNull(expectedBwsAttrTypes),
-			expectedVal: &timeofday.TimeOfDay{},
-		},
-		{
-			testname: "CheckWithRandomAttributes",
-			reqVal: types.ObjectValueMust(
-				map[string]attr.Type{"random": types.StringType},
-				map[string]attr.Value{"random": types.StringValue("s1")},
-			),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		pgBws := expandBackupWindowStart(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			t.Errorf(
-				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
-				c.testname,
-				c.expectedError,
-				diags.HasError(),
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(pgBws, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expand result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				pgBws,
-			)
-		}
-	}
-}
-
-func TestYandexProvider_MDBPostgresClusterLabelsExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname      string
-		reqVal        types.Map
-		expectedVal   map[string]string
-		expectedError bool
-	}{
-		{
-			testname: "CheckSeveralAttributes",
-			reqVal: types.MapValueMust(
-				types.StringType,
-				map[string]attr.Value{"key1": types.StringValue("value1"), "key2": types.StringValue("value2")},
-			),
-			expectedVal: map[string]string{"key1": "value1", "key2": "value2"},
-		},
-		{
-			testname: "CheckOneAttribute",
-			reqVal: types.MapValueMust(
-				types.StringType,
-				map[string]attr.Value{"key3": types.StringValue("value3")},
-			),
-			expectedVal: map[string]string{"key3": "value3"},
-		},
-		{
-			testname: "CheckEmpty",
-			reqVal: types.MapValueMust(
-				types.StringType,
-				map[string]attr.Value{},
-			),
-			expectedVal: map[string]string{},
-		},
-		{
-			testname:    "CheckNull",
-			reqVal:      types.MapNull(types.StringType),
-			expectedVal: nil,
-		},
-		{
-			testname:      "CheckNonExpectedStructure",
-			reqVal:        types.MapValueMust(types.Int64Type, map[string]attr.Value{"key": types.Int64Value(1)}),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		lbls := expandLabels(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			t.Errorf(
-				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
-				c.testname,
-				c.expectedError,
-				diags.HasError(),
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(lbls, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expand result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				lbls,
 			)
 		}
 	}
@@ -642,66 +417,6 @@ func TestYandexProvider_MDBPostgresClusterSecurityGroupIdsExpand(t *testing.T) {
 				c.testname,
 				c.expectedVal,
 				sg,
-			)
-		}
-	}
-}
-
-func TestYandexProvider_MDBPostgresClusterResourcesExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname      string
-		reqVal        types.Object
-		expectedVal   *postgresql.Resources
-		expectedError bool
-	}{
-		{
-			testname: "CheckFullAttribute",
-			reqVal: types.ObjectValueMust(
-				expectedResourcesAttrs,
-				map[string]attr.Value{
-					"resource_preset_id": types.StringValue("s1.micro"),
-					"disk_type_id":       types.StringValue("network-hdd"),
-					"disk_size":          types.Int64Value(13),
-				},
-			),
-			expectedVal: &postgresql.Resources{
-				ResourcePresetId: "s1.micro",
-				DiskTypeId:       "network-hdd",
-				DiskSize:         datasize.ToBytes(13),
-			},
-		},
-		{
-			testname: "CheckNullAttribute",
-			reqVal: types.ObjectNull(
-				expectedResourcesAttrs,
-			),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		r := expandResources(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			t.Errorf(
-				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
-				c.testname,
-				c.expectedError,
-				diags.HasError(),
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(r, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expand result value %s test:\nexpected %s\nactual %s",
-				c.testname,
-				c.expectedVal,
-				r,
 			)
 		}
 	}
@@ -1026,14 +741,14 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				map[string]attr.Value{
 					"version": types.StringValue("15"),
 					"resources": types.ObjectValueMust(
-						expectedResourcesAttrs,
+						mdbcommon.ResourceType.AttrTypes,
 						map[string]attr.Value{
 							"resource_preset_id": types.StringValue("s1.micro"),
 							"disk_type_id":       types.StringValue("network-ssd"),
 							"disk_size":          types.Int64Value(10),
 						},
 					),
-					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
+					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
 					"autofailover":              types.BoolNull(),
 					"access":                    types.ObjectNull(expectedAccessAttrTypes),
@@ -1068,7 +783,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				map[string]attr.Value{
 					"version": types.StringValue("15"),
 					"resources": types.ObjectValueMust(
-						expectedResourcesAttrs,
+						mdbcommon.ResourceType.AttrTypes,
 						map[string]attr.Value{
 							"resource_preset_id": types.StringValue("s1.micro"),
 							"disk_type_id":       types.StringValue("network-ssd"),
@@ -1076,7 +791,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 						},
 					),
 					"backup_window_start": types.ObjectValueMust(
-						expectedBwsAttrTypes,
+						mdbcommon.BackupWindowType.AttrTypes,
 						map[string]attr.Value{
 							"hours":   types.Int64Value(23),
 							"minutes": types.Int64Value(0),

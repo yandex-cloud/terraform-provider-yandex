@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_vpc_security_group_rule: properly handle extenal resource deletions'
+time: 2025-07-30T15:41:46.746229782+02:00

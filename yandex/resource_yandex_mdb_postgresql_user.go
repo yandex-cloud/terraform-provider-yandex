@@ -245,7 +245,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	user, err := config.sdk.MDB().PostgreSQL().User().Get(ctx, &postgresql.GetUserRequest{
+	apiUser, err := config.sdk.MDB().PostgreSQL().User().Get(ctx, &postgresql.GetUserRequest{
 		ClusterId: clusterID,
 		UserName:  username,
 	})
@@ -253,28 +253,33 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("User %q", username))
 	}
 
-	userPermissions, err := removePgUserOwnerPermissions(meta, clusterID, user.Name, user.Permissions)
+	stateUser, err := expandPgUserSpec(d)
+	if err != nil {
+		return err
+	}
+
+	userPermissions, err := removePgUserOwnerPermissions(meta, clusterID, apiUser.Name, apiUser.Permissions, stateUser.Permissions)
 	if err != nil {
 		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
 	d.Set("cluster_id", clusterID)
-	d.Set("name", user.Name)
-	d.Set("login", user.Login.GetValue())
-	d.Set("grants", user.Grants)
+	d.Set("name", apiUser.Name)
+	d.Set("login", apiUser.Login.GetValue())
+	d.Set("grants", apiUser.Grants)
 	d.Set("permission", flattenPGUserPermissions(userPermissions))
-	d.Set("conn_limit", user.ConnLimit)
+	d.Set("conn_limit", apiUser.ConnLimit)
 	knownDefault := map[string]struct{}{
 		"log_min_duration_statement": {},
 	}
-	settings, err := flattenResourceGenerateMapS(user.Settings, false, mdbPGUserSettingsFieldsInfo, false, true, knownDefault)
+	settings, err := flattenResourceGenerateMapS(apiUser.Settings, false, mdbPGUserSettingsFieldsInfo, false, true, knownDefault)
 	if err != nil {
 		return err
 	}
 
 	d.Set("settings", settings)
-	d.Set("deletion_protection", mdbPGResolveTristateBoolean(user.DeletionProtection))
-	d.Set("connection_manager", flattenPGUserConnectionManager(user.ConnectionManager))
+	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
+	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.ConnectionManager))
 
 	return nil
 }
@@ -405,10 +410,17 @@ func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-// Remove permissions of owners from databases not listed in the manifest
-// Problem: The database owner should always have permission to their database.
-// Idea: Let's just ignore permissions for databases where the user is the owner.
-func removePgUserOwnerPermissions(meta interface{}, clusterID string, username string, userPermissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
+// If the user is the database owner, it is assumed that they have permissions on that database (and the API reflects this as well).
+// Therefore, it is redundant to declare explicit permissions for a user on a database they already own.
+// However, if the user specifies both fields - owner and permissions - we simply ignore those permissions in the Read
+// function to avoid constant changes in the Terraform plan.
+func removePgUserOwnerPermissions(
+	meta interface{},
+	clusterID string,
+	username string,
+	apiUserPermissions []*postgresql.Permission,
+	stateUserPermissions []*postgresql.Permission,
+) ([]*postgresql.Permission, error) {
 	config := meta.(*Config)
 
 	resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
@@ -420,14 +432,23 @@ func removePgUserOwnerPermissions(meta interface{}, clusterID string, username s
 		dbMap[db.Name] = db
 	}
 
+	statePermissionsMap := make(map[string]*postgresql.Permission)
+	for _, permission := range stateUserPermissions {
+		statePermissionsMap[permission.DatabaseName] = permission
+	}
+
 	newPerms := []*postgresql.Permission{}
-	for _, p := range userPermissions {
-		if db, ok := dbMap[p.DatabaseName]; ok && db.Owner != username {
+	for _, p := range apiUserPermissions {
+		if db, ok := dbMap[p.DatabaseName]; ok && !isOwnerWithoutPermissions(db, statePermissionsMap, username) {
 			newPerms = append(newPerms, p)
 		}
 	}
 
 	return newPerms, nil
+}
+
+func isOwnerWithoutPermissions(db *postgresql.Database, statePermissionsMap map[string]*postgresql.Permission, username string) bool {
+	return db.Owner == username && statePermissionsMap[db.Name] == nil
 }
 
 // Add permissions for databases where user is owner

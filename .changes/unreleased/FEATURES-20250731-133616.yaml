@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'sharded_postgresql: add cluster resource'
+time: 2025-07-31T13:36:16.392001+03:00

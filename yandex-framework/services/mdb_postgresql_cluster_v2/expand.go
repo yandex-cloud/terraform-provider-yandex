@@ -15,7 +15,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -41,44 +40,6 @@ const (
 	anytimeType = "ANYTIME"
 	weeklyType  = "WEEKLY"
 )
-
-func expandClusterMaintenanceWindow(ctx context.Context, mw types.Object, diags *diag.Diagnostics) *postgresql.MaintenanceWindow {
-	if mw.IsNull() || mw.IsUnknown() {
-		return nil
-	}
-
-	out := &postgresql.MaintenanceWindow{}
-	var mwConf MaintenanceWindow
-
-	diags.Append(mw.As(ctx, &mwConf, datasize.DefaultOpts)...)
-	if diags.HasError() {
-		return nil
-	}
-
-	if mwType := mwConf.Type.ValueString(); mwType == anytimeType {
-		out.Policy = &postgresql.MaintenanceWindow_Anytime{
-			Anytime: &postgresql.AnytimeMaintenanceWindow{},
-		}
-	} else if mwType == weeklyType {
-		mwDay, mwHour := mwConf.Day.ValueString(), mwConf.Hour.ValueInt64()
-		day := postgresql.WeeklyMaintenanceWindow_WeekDay_value[mwDay]
-
-		out.Policy = &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
-			WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
-				Hour: mwHour,
-				Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(day),
-			},
-		}
-	} else {
-		diags.AddError(
-			"Failed to expand maintenance window.",
-			fmt.Sprintf("maintenance_window.type should be %s or %s", anytimeType, weeklyType),
-		)
-		return nil
-	}
-
-	return out
-}
 
 func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *diag.Diagnostics) *postgresql.PerformanceDiagnostics {
 	if pd.IsNull() || pd.IsUnknown() {
@@ -107,33 +68,6 @@ func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags
 	}
 
 	return pgBws
-}
-
-func expandBackupWindowStart(ctx context.Context, cfgBws types.Object, diags *diag.Diagnostics) *timeofday.TimeOfDay {
-	var backupWindowStart BackupWindowStart
-	diags.Append(cfgBws.As(ctx, &backupWindowStart, basetypes.ObjectAsOptions{
-		UnhandledNullAsEmpty:    true,
-		UnhandledUnknownAsEmpty: true,
-	})...)
-	if diags.HasError() {
-		return nil
-	}
-
-	return &timeofday.TimeOfDay{
-		Hours:   int32(backupWindowStart.Hours.ValueInt64()),
-		Minutes: int32(backupWindowStart.Minutes.ValueInt64()),
-	}
-}
-
-func expandLabels(ctx context.Context, labels types.Map, diags *diag.Diagnostics) map[string]string {
-	var lMap map[string]string
-	if !(labels.IsUnknown() || labels.IsNull()) {
-		diags.Append(labels.ElementsAs(ctx, &lMap, false)...)
-		if diags.HasError() {
-			return nil
-		}
-	}
-	return lMap
 }
 
 func expandEnvironment(_ context.Context, e types.String, diags *diag.Diagnostics) postgresql.Cluster_Environment {
@@ -181,20 +115,6 @@ func expandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagn
 	}
 
 	return securityGroupIds
-}
-
-func expandResources(ctx context.Context, r types.Object, diags *diag.Diagnostics) *postgresql.Resources {
-	var resources Resources
-	diags.Append(r.As(ctx, &resources, datasize.DefaultOpts)...)
-	if diags.HasError() {
-		return nil
-	}
-
-	return &postgresql.Resources{
-		ResourcePresetId: resources.ResourcePresetID.ValueString(),
-		DiskTypeId:       resources.DiskTypeID.ValueString(),
-		DiskSize:         datasize.ToBytes(resources.DiskSize.ValueInt64()),
-	}
 }
 
 var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
@@ -296,12 +216,12 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 
 	return &postgresql.ConfigSpec{
 		Version:                configSpec.Version.ValueString(),
-		Resources:              expandResources(ctx, configSpec.Resources, diags),
+		Resources:              mdbcommon.ExpandResources[postgresql.Resources](ctx, configSpec.Resources, diags),
 		Autofailover:           expandBoolWrapper(ctx, configSpec.Autofailover, diags),
 		Access:                 expandAccess(ctx, configSpec.Access, diags),
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
-		BackupWindowStart:      expandBackupWindowStart(ctx, configSpec.BackupWindowStart, diags),
+		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		PostgresqlConfig:       expandPostgresqlConfig(ctx, configSpec.Version.ValueString(), configSpec.PostgtgreSQLConfig, diags),
 		PoolerConfig:           expandPoolerConfig(ctx, configSpec.PoolerConfig, diags),
 		DiskSizeAutoscaling:    expandDiskSizeAutoscaling(ctx, configSpec.DiskSizeAutoscaling, diags),
