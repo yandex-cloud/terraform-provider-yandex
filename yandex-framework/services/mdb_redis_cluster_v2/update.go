@@ -119,9 +119,12 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 	}
 
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
-
-		req.MaintenanceWindow, diags = expandMaintenanceWindow(ctx, plan.MaintenanceWindow)
-		diagnostics.Append(diags...)
+		req.MaintenanceWindow = mdbcommon.ExpandClusterMaintenanceWindow[
+			redis.MaintenanceWindow,
+			redis.WeeklyMaintenanceWindow,
+			redis.AnytimeMaintenanceWindow,
+			redis.WeeklyMaintenanceWindow_WeekDay,
+		](ctx, plan.MaintenanceWindow, diagnostics)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
 	}
@@ -129,7 +132,13 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 	if !plan.Access.Equal(state.Access) {
 		req.ConfigSpec.Access, diags = expandAccess(ctx, plan.Access)
 		diagnostics.Append(diags...)
-		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.access")
+		req.UpdateMask.Paths = append(
+			req.UpdateMask.Paths,
+			"config_spec.access.web_sql",
+			"config_spec.access.data_lens",
+			"config_spec.access.data_transfer",
+			"config_spec.access.serverless",
+		)
 	}
 
 	if diagnostics.HasError() {

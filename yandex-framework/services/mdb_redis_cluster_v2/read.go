@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	redisproto "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -55,8 +56,12 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.DiskSizeAutoscaling, diags = flattenAutoscaling(ctx, cluster.GetConfig().GetDiskSizeAutoscaling())
 	diagnostics.Append(diags...)
 
-	state.MaintenanceWindow, diags = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow)
-	diagnostics.Append(diags...)
+	state.MaintenanceWindow = mdbcommon.FlattenMaintenanceWindow[
+		redis.MaintenanceWindow,
+		redis.WeeklyMaintenanceWindow,
+		redis.AnytimeMaintenanceWindow,
+		redis.WeeklyMaintenanceWindow_WeekDay,
+	](ctx, cluster.MaintenanceWindow, diagnostics)
 
 	state.Access, diags = flattenAccess(ctx, cluster.GetConfig().GetAccess())
 	diagnostics.Append(diags...)

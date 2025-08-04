@@ -78,83 +78,6 @@ func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
 	}
 }
 
-func TestYandexProvider_MDBPostgresClusterMaintenanceWindowFlatten(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname    string
-		reqVal      *postgresql.MaintenanceWindow
-		expectedVal types.Object
-		hasErr      bool
-	}{
-		{
-			testname: "CheckWeeklyMaintenanceWindow",
-			reqVal: &postgresql.MaintenanceWindow{
-				Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
-					WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
-						Hour: 10,
-						Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(1),
-					},
-				},
-			},
-			expectedVal: types.ObjectValueMust(expectedMWAttrs, map[string]attr.Value{
-				"type": types.StringValue("WEEKLY"),
-				"day":  types.StringValue("MON"),
-				"hour": types.Int64Value(10),
-			}),
-		},
-		{
-			testname: "CheckAnytimeMaintenanceWindow",
-			reqVal: &postgresql.MaintenanceWindow{
-				Policy: &postgresql.MaintenanceWindow_Anytime{
-					Anytime: &postgresql.AnytimeMaintenanceWindow{},
-				},
-			},
-			expectedVal: types.ObjectValueMust(expectedMWAttrs, map[string]attr.Value{
-				"type": types.StringValue("ANYTIME"),
-				"day":  types.StringNull(),
-				"hour": types.Int64Null(),
-			}),
-		},
-		{
-			testname:    "CheckNullMaintenanceWindow",
-			reqVal:      nil,
-			expectedVal: types.ObjectNull(expectedMWAttrs),
-			hasErr:      true,
-		},
-		{
-			testname:    "CheckEmptyMaintenanceWindow",
-			reqVal:      &postgresql.MaintenanceWindow{},
-			expectedVal: types.ObjectNull(expectedMWAttrs),
-			hasErr:      true,
-		},
-		{
-			testname: "CheckPolicyNilMaintenanceWindow",
-			reqVal: &postgresql.MaintenanceWindow{
-				Policy: nil,
-			},
-			expectedVal: types.ObjectNull(expectedMWAttrs),
-			hasErr:      true,
-		},
-	}
-
-	for _, c := range cases {
-		var diags diag.Diagnostics
-		res := flattenMaintenanceWindow(ctx, c.reqVal, &diags)
-		if c.hasErr {
-			if !diags.HasError() {
-				t.Errorf("Unexpected flatten error status: expected %v, actual %v", c.hasErr, diags.HasError())
-			}
-			continue
-		}
-
-		if !c.expectedVal.Equal(res) {
-			t.Errorf("Unexpected flatten object result: expected %v, actual %v", c.expectedVal, res)
-		}
-	}
-}
-
 func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -262,92 +185,6 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupRetainPeriodDaysFlattener(
 				c.testname,
 				c.expectedVal,
 				brPd,
-			)
-		}
-	}
-}
-
-func TestYandexProvider_MDBPostgresClusterConfigBackupWindowStartFlattener(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname    string
-		reqVal      *timeofday.TimeOfDay
-		expectedVal types.Object
-	}{
-		{
-			testname: "CheckAllAttributes",
-			reqVal: &timeofday.TimeOfDay{
-				Hours:   30,
-				Minutes: 30,
-			},
-			expectedVal: types.ObjectValueMust(
-				expectedBWSAttrs, map[string]attr.Value{
-					"hours":   types.Int64Value(30),
-					"minutes": types.Int64Value(30),
-				},
-			),
-		},
-		{
-			testname: "CheckAllAttributesWithDefaultValues",
-			reqVal:   &timeofday.TimeOfDay{},
-			expectedVal: types.ObjectValueMust(
-				expectedBWSAttrs, map[string]attr.Value{
-					"hours":   types.Int64Value(0),
-					"minutes": types.Int64Value(0),
-				},
-			),
-		},
-		{
-			testname: "CheckPartlyAttributesWithHours",
-			reqVal: &timeofday.TimeOfDay{
-				Hours: 30,
-			},
-			expectedVal: types.ObjectValueMust(
-				expectedBWSAttrs, map[string]attr.Value{
-					"hours":   types.Int64Value(30),
-					"minutes": types.Int64Value(0),
-				},
-			),
-		},
-		{
-			testname: "CheckPartlyAttributesWithMinutes",
-			reqVal: &timeofday.TimeOfDay{
-				Minutes: 30,
-			},
-			expectedVal: types.ObjectValueMust(
-				expectedBWSAttrs, map[string]attr.Value{
-					"hours":   types.Int64Value(0),
-					"minutes": types.Int64Value(30),
-				},
-			),
-		},
-		{
-			testname:    "CheckNullObject",
-			reqVal:      nil,
-			expectedVal: types.ObjectNull(expectedBWSAttrs),
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		bws := flattenBackupWindowStart(ctx, c.reqVal, &diags)
-		if diags.HasError() {
-			t.Errorf(
-				"Unexpected flatten diagnostics status %s test: errors: %v",
-				c.testname,
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !c.expectedVal.Equal(bws) {
-			t.Errorf(
-				"Unexpected flatten result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				bws,
 			)
 		}
 	}
@@ -530,69 +367,6 @@ func TestYandexProvider_MDBPostgresClusterBoolWrapperFlatten(t *testing.T) {
 				c.testname,
 				c.expectedVal,
 				m,
-			)
-		}
-	}
-}
-
-func TestYandexProvider_MDBPostgresClusterResourcesFlatten(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname      string
-		reqVal        *postgresql.Resources
-		expectedVal   types.Object
-		expectedError bool
-	}{
-		{
-			testname: "CheckAllAttributes",
-			reqVal: &postgresql.Resources{
-				ResourcePresetId: "s1.micro",
-				DiskTypeId:       "network-ssd",
-				DiskSize:         datasize.ToBytes(10),
-			},
-			expectedVal: types.ObjectValueMust(
-				expectedResourcesAttrs, map[string]attr.Value{
-					"resource_preset_id": types.StringValue("s1.micro"),
-					"disk_type_id":       types.StringValue("network-ssd"),
-					"disk_size":          types.Int64Value(10),
-				},
-			),
-		},
-		{
-			testname:      "CheckNullAttributes",
-			reqVal:        nil,
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		r := flattenResources(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			if !c.expectedError {
-				t.Errorf(
-					"Unexpected flatten diagnostics status %s test: errors: %v",
-					c.testname,
-					diags.Errors(),
-				)
-			} else {
-				t.Errorf(
-					"Unexpected flatten diagnostics status %s test: expected error, actual not",
-					c.testname,
-				)
-			}
-
-			continue
-		}
-
-		if !c.expectedVal.Equal(r) {
-			t.Errorf(
-				"Unexpected flatten result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				r,
 			)
 		}
 	}
@@ -960,7 +734,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
 					"version": types.StringValue("9.6"),
-					"resources": types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
+					"resources": types.ObjectValueMust(mdbcommon.ResourceType.AttrTypes, map[string]attr.Value{
 						"resource_preset_id": types.StringValue("s1.micro"),
 						"disk_type_id":       types.StringValue("network-ssd"),
 						"disk_size":          types.Int64Value(10),
@@ -977,7 +751,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"sessions_sampling_interval":   types.Int64Value(60),
 						"statements_sampling_interval": types.Int64Value(600),
 					}),
-					"backup_window_start": types.ObjectValueMust(expectedBwsAttrTypes, map[string]attr.Value{
+					"backup_window_start": types.ObjectValueMust(mdbcommon.BackupWindowType.AttrTypes, map[string]attr.Value{
 						"hours":   types.Int64Value(10),
 						"minutes": types.Int64Value(0),
 					}),
@@ -1011,7 +785,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 			expectedVal: types.ObjectValueMust(
 				expectedConfigAttrs, map[string]attr.Value{
 					"version": types.StringValue("15"),
-					"resources": types.ObjectValueMust(expectedResourcesAttrs, map[string]attr.Value{
+					"resources": types.ObjectValueMust(mdbcommon.ResourceType.AttrTypes, map[string]attr.Value{
 						"resource_preset_id": types.StringValue("s2.nano"),
 						"disk_type_id":       types.StringValue("network-hdd"),
 						"disk_size":          types.Int64Value(15),
@@ -1019,7 +793,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					"autofailover":              types.BoolNull(),
 					"access":                    types.ObjectNull(expectedAccessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
-					"backup_window_start":       types.ObjectNull(expectedBwsAttrTypes),
+					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
 					"postgresql_config":         NewPgSettingsMapValueMust(map[string]attr.Value{}),
 					"pooler_config": types.ObjectValueMust(expectedPCAttrTypes, map[string]attr.Value{

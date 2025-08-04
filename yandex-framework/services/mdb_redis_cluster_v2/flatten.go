@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 )
@@ -32,33 +31,6 @@ func flattenAccess(ctx context.Context, r *redis.Access) (types.Object, diag.Dia
 		DataLens: types.BoolValue(r.DataLens),
 	}
 	return types.ObjectValueFrom(ctx, AccessType.AttributeTypes(), a)
-}
-
-func flattenMaintenanceWindow(ctx context.Context, mw *redis.MaintenanceWindow) (types.Object, diag.Diagnostics) {
-	if mw == nil {
-		return types.ObjectNull(MaintenanceWindowType.AttributeTypes()), nil
-	}
-	var res basetypes.ObjectValue
-	var diags diag.Diagnostics
-	if val := mw.GetAnytime(); val != nil {
-		res, diags = types.ObjectValueFrom(ctx, MaintenanceWindowType.AttributeTypes(), MaintenanceWindow{
-			Type: types.StringValue("ANYTIME"),
-		})
-	}
-
-	if val := mw.GetWeeklyMaintenanceWindow(); val != nil {
-		res, diags = types.ObjectValueFrom(ctx, MaintenanceWindowType.AttributeTypes(), MaintenanceWindow{
-			Type: types.StringValue("WEEKLY"),
-			Day:  types.StringValue(val.GetDay().Enum().String()),
-			Hour: types.Int64Value(val.GetHour()),
-		})
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(MaintenanceWindowType.AttributeTypes()), diags
-	}
-
-	return res, diags
 }
 
 func FlattenConfig(cc *redis.ClusterConfig) Config {

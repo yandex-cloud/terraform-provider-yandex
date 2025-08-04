@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -62,7 +63,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 	}
 
 	if !plan.Labels.Equal(state.Labels) {
-		request.SetLabels(expandLabels(ctx, plan.Labels, &diags))
+		request.SetLabels(mdbcommon.ExpandLabels(ctx, plan.Labels, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "labels")
 	}
 
@@ -98,7 +99,12 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 	}
 
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
-		request.SetMaintenanceWindow(expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
+		request.SetMaintenanceWindow(mdbcommon.ExpandClusterMaintenanceWindow[
+			postgresql.MaintenanceWindow,
+			postgresql.WeeklyMaintenanceWindow,
+			postgresql.AnytimeMaintenanceWindow,
+			postgresql.WeeklyMaintenanceWindow_WeekDay,
+		](ctx, plan.MaintenanceWindow, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_window")
 	}
 
@@ -129,7 +135,7 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	diags := diag.Diagnostics{}
 
 	if !plan.Resources.Equal(state.Resources) {
-		config.SetResources(expandResources(ctx, plan.Resources, &diags))
+		config.SetResources(mdbcommon.ExpandResources[postgresql.Resources](ctx, plan.Resources, &diags))
 		updateMaskPaths = append(updateMaskPaths, "config_spec.resources")
 	}
 
@@ -169,7 +175,7 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	}
 
 	if !plan.BackupWindowStart.Equal(state.BackupWindowStart) {
-		config.SetBackupWindowStart(expandBackupWindowStart(ctx, plan.BackupWindowStart, &diags))
+		config.SetBackupWindowStart(mdbcommon.ExpandBackupWindow(ctx, plan.BackupWindowStart, &diags))
 		updateMaskPaths = append(updateMaskPaths, "config_spec.backup_window_start")
 	}
 

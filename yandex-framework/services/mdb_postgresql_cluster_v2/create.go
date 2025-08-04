@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -16,11 +17,16 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		FolderId:           expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
 		NetworkId:          plan.NetworkId.ValueString(),
 		Environment:        expandEnvironment(ctx, plan.Environment, &diags),
-		Labels:             expandLabels(ctx, plan.Labels, &diags),
+		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
 		ConfigSpec:         expandConfig(ctx, plan.Config, &diags),
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
-		MaintenanceWindow:  expandClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags),
+		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
+			postgresql.MaintenanceWindow,
+			postgresql.WeeklyMaintenanceWindow,
+			postgresql.AnytimeMaintenanceWindow,
+			postgresql.WeeklyMaintenanceWindow_WeekDay,
+		](ctx, plan.MaintenanceWindow, &diags),
 	}
 	return request, diags
 }
