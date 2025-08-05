@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
@@ -185,16 +186,16 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			}
 
 			updDriverPoolPreset = !stringsAreEqual(planDriverPool.ResourcePresetId, stateDriverPool.ResourcePresetId)
-			updDriverPoolSize = (planDriverPool.Size.ValueInt64() != stateDriverPool.Size.ValueInt64() ||
-				planDriverPool.MinSize.ValueInt64() != stateDriverPool.MinSize.ValueInt64() ||
-				planDriverPool.MaxSize.ValueInt64() != stateDriverPool.MaxSize.ValueInt64())
+			updDriverPoolSize = !planDriverPool.Size.Equal(stateDriverPool.Size) ||
+				!planDriverPool.MinSize.Equal(stateDriverPool.MinSize) ||
+				!planDriverPool.MaxSize.Equal(stateDriverPool.MaxSize)
 			updDriver = updDriverPoolPreset && updDriverPoolSize
 
 			updExecutorPoolPreset = !stringsAreEqual(planExecutorPool.ResourcePresetId, stateExecutorPool.ResourcePresetId)
-			updExecutorPoolSize = (planExecutorPool.Size.ValueInt64() != stateExecutorPool.Size.ValueInt64() ||
-				planExecutorPool.MinSize.ValueInt64() != stateExecutorPool.MinSize.ValueInt64() ||
-				planExecutorPool.MaxSize.ValueInt64() != stateExecutorPool.MaxSize.ValueInt64())
-			updExecutorPoolSize = updExecutorPoolPreset && updExecutorPoolSize
+			updExecutorPoolSize = !planExecutorPool.Size.Equal(stateExecutorPool.Size) ||
+				!planExecutorPool.MinSize.Equal(stateExecutorPool.MinSize) ||
+				!planExecutorPool.MaxSize.Equal(stateExecutorPool.MaxSize)
+			updExecutor = updExecutorPoolPreset && updExecutorPoolSize
 
 			var stateDependencies Dependencies
 			diags.Append(state.Config.Dependencies.As(ctx, &stateDependencies, datasize.DefaultOpts)...)
@@ -245,47 +246,47 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 	}
 	if state != nil && !clusterConfigsAreEqual(ctx, plan.Config, state.Config, &diags) {
 		if updDriver && updExecutor && updDependencies && updHistoryServer && updMetastore {
-			updateMaskPaths = append(updateMaskPaths, "config")
+			updateMaskPaths = append(updateMaskPaths, "config_spec")
 		} else {
 			if updDriver && updExecutor {
-				updateMaskPaths = append(updateMaskPaths, "config.resource_pools")
+				updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools")
 			} else {
 				if updDriver {
-					updateMaskPaths = append(updateMaskPaths, "config.resource_pool.driver")
+					updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.driver")
 				} else {
 					if updDriverPoolPreset {
-						updateMaskPaths = append(updateMaskPaths, "config.resource_pool.driver.resource_preset_id")
+						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.driver.resource_preset_id")
 					}
 					if updDriverPoolSize {
-						updateMaskPaths = append(updateMaskPaths, "config.resource_pool.driver.scale_policy")
+						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.driver.scale_policy")
 					}
 				}
 				if updExecutor {
-					updateMaskPaths = append(updateMaskPaths, "config.resource_pool.executor")
+					updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.executor")
 				} else {
 					if updExecutorPoolPreset {
-						updateMaskPaths = append(updateMaskPaths, "config.resource_pool.executor.resource_preset_id")
+						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.executor.resource_preset_id")
 					}
 					if updExecutorPoolSize {
-						updateMaskPaths = append(updateMaskPaths, "config.resource_pool.executor.scale_policy")
+						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.executor.scale_policy")
 					}
 				}
 			}
 			if updDependencies {
-				updateMaskPaths = append(updateMaskPaths, "config.dependencies")
+				updateMaskPaths = append(updateMaskPaths, "config_spec.dependencies")
 			} else {
 				if updPip {
-					updateMaskPaths = append(updateMaskPaths, "config.dependencies.pip_packages")
+					updateMaskPaths = append(updateMaskPaths, "config_spec.dependencies.pip_packages")
 				}
 				if updDeb {
-					updateMaskPaths = append(updateMaskPaths, "config.dependencies.deb_packages")
+					updateMaskPaths = append(updateMaskPaths, "config_spec.dependencies.deb_packages")
 				}
 			}
 			if updHistoryServer {
-				updateMaskPaths = append(updateMaskPaths, "config.history_server")
+				updateMaskPaths = append(updateMaskPaths, "config_spec.history_server")
 			}
 			if updMetastore {
-				updateMaskPaths = append(updateMaskPaths, "config.metastore")
+				updateMaskPaths = append(updateMaskPaths, "config_spec.metastore")
 			}
 		}
 	}
@@ -296,7 +297,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		return nil, nil, diags
 	}
 	if state != nil && !setsAreEqual(plan.Network.SecurityGroupIds, state.Network.SecurityGroupIds) {
-		updateMaskPaths = append(updateMaskPaths, "network.security_group_ids")
+		updateMaskPaths = append(updateMaskPaths, "network_spec.security_group_ids")
 	}
 
 	var loggingConfig *spark.LoggingConfig
@@ -393,4 +394,37 @@ func extractPools(ctx context.Context, model *ClusterModel, diags *diag.Diagnost
 	}
 
 	return driverPool, executorPool
+}
+
+func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *ClusterModel) (*spark.UpdateClusterRequest, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	common, updateMaskPaths, dd := buildCommonForCreateAndUpdate(ctx, plan, state)
+	diags.Append(dd...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	updateClusterRequest := &spark.UpdateClusterRequest{
+		ClusterId:   state.Id.ValueString(),
+		UpdateMask:  &field_mask.FieldMask{Paths: updateMaskPaths},
+		Name:        common.Name,
+		Description: common.Description,
+		Labels:      common.Labels,
+		ConfigSpec: &spark.UpdateClusterConfigSpec{
+			ResourcePools: common.Config.ResourcePools,
+			HistoryServer: common.Config.HistoryServer,
+			Dependencies:  common.Config.Dependencies,
+			Metastore:     common.Config.Metastore,
+		},
+		NetworkSpec: &spark.UpdateNetworkConfigSpec{
+			SecurityGroupIds: common.SecurityGroupIds,
+		},
+		DeletionProtection: common.DeletionProtection,
+		ServiceAccountId:   common.ServiceAccountId,
+		Logging:            common.Logging,
+		MaintenanceWindow:  common.MaintenanceWindow,
+	}
+
+	return updateClusterRequest, diags
 }

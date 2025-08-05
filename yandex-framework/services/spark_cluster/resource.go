@@ -185,7 +185,27 @@ func (a *sparkClusterResource) Update(ctx context.Context, req resource.UpdateRe
 	tflog.Debug(ctx, fmt.Sprintf("Update Spark cluster state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("Update Spark cluster plan: %+v", plan))
 
-	tflog.Error(ctx, "Update operation is not implemented")
+	updateReq, diags := BuildUpdateClusterRequest(ctx, &state, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("Update Spark cluster request: %+v", updateReq))
+
+	d := UpdateCluster(ctx, a.providerConfig.SDK, updateReq)
+	resp.Diagnostics.Append(d)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = updateState(ctx, a.providerConfig.SDK, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	tflog.Debug(ctx, "Finished updating Spark cluster", clusterIDLogField(state.Id.ValueString()))
 }
 
 // Schema implements resource.Resource.

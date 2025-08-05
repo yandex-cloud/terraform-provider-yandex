@@ -68,6 +68,16 @@ func GetClusterByID(ctx context.Context, sdk *ycsdk.SDK, cid string) (*spark.Clu
 	return cluster, nil
 }
 
+func UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, req *spark.UpdateClusterRequest) diag.Diagnostic {
+	if req == nil || req.UpdateMask == nil || len(req.UpdateMask.Paths) == 0 {
+		return nil
+	}
+
+	return waitOperation(ctx, sdk, "update Spark cluster", func() (*operation.Operation, error) {
+		return sdk.Spark().Cluster().Update(ctx, req)
+	})
+}
+
 func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagnostic {
 	req := &spark.DeleteClusterRequest{
 		ClusterId: cid,

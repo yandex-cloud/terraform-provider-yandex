@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
-	afv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
+	sparkv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -144,7 +144,7 @@ resource "yandex_spark_cluster" "spark_cluster" {
       enabled = {{ .HistoryServerEnabled }}
     }
     {{ end }}
-      
+
     {{ if .IncludeBlockMetastore }}
     metastore = {
       cluster_id = "{{ .MetastoreClusterID }}"
@@ -216,7 +216,7 @@ func testAccCheckSparkClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := sdk.Spark().Cluster().Get(context.Background(), &afv1.GetClusterRequest{
+		_, err := sdk.Spark().Cluster().Get(context.Background(), &sparkv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -236,7 +236,7 @@ func sparkClusterImportStep(name string) resource.TestStep {
 	}
 }
 
-func testAccCheckSparkExists(name string, cluster *afv1.Cluster) resource.TestCheckFunc {
+func testAccCheckSparkExists(name string, cluster *sparkv1.Cluster) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -248,7 +248,7 @@ func testAccCheckSparkExists(name string, cluster *afv1.Cluster) resource.TestCh
 		}
 
 		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Spark().Cluster().Get(context.Background(), &afv1.GetClusterRequest{
+		found, err := sdk.Spark().Cluster().Get(context.Background(), &sparkv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -267,12 +267,13 @@ func testAccCheckSparkExists(name string, cluster *afv1.Cluster) resource.TestCh
 	}
 }
 
-func TestAccSparkCluster1_basic(t *testing.T) {
+func TestAccSparkCluster_basic(t *testing.T) {
 	t.Parallel()
 
 	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
 	folderID := os.Getenv("YC_FOLDER_ID")
-	var cluster afv1.Cluster
+	metastoreClusterID := os.Getenv("YC_METASTORE_ID")
+	var cluster sparkv1.Cluster
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testhelpers.AccPreCheck(t) },
@@ -282,6 +283,7 @@ func TestAccSparkCluster1_basic(t *testing.T) {
 			{
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
 					RandSuffix:               randSuffix,
+					Description:              "acc-basic-step-01 [created with terraform]",
 					DriverResourcePresetID:   "c2-m8",
 					DriverSize:               1,
 					ExecutorResourcePresetID: "c4-m16",
@@ -308,36 +310,19 @@ func TestAccSparkCluster1_basic(t *testing.T) {
 				),
 			},
 			sparkClusterImportStep("yandex_spark_cluster.spark_cluster"),
-		},
-	})
-}
-
-func TestAccSparkCluster2_basic(t *testing.T) {
-	t.Parallel()
-
-	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
-	folderID := os.Getenv("YC_FOLDER_ID")
-	metastoreClusterID := os.Getenv("YC_METASTORE_ID")
-	var cluster afv1.Cluster
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testhelpers.AccPreCheck(t) },
-		ProtoV6ProviderFactories: testhelpers.AccProviderFactories,
-		CheckDestroy:             testAccCheckSparkClusterDestroy,
-		Steps: []resource.TestStep{
 			{
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
 					RandSuffix:         randSuffix,
-					Description:        "created with terraform",
+					Description:        "acc-step-02 [created with terraform]",
 					IncludeBlockLabels: true,
 					Labels: map[string]string{
 						"my_label": "my_value",
 					},
-					DriverResourcePresetID:    "c2-m8",
-					DriverSize:                1,
-					ExecutorResourcePresetID:  "c4-m16",
-					ExecutorMinSize:           1,
-					ExecutorMaxSize:           2,
+					DriverResourcePresetID:    "c2-m16",
+					DriverSize:                2,
+					ExecutorResourcePresetID:  "c8-m32",
+					ExecutorMinSize:           2,
+					ExecutorMaxSize:           4,
 					IncludeBlockDependencies:  true,
 					PipPackage:                "numpy==2.2.2",
 					IncludeBlockHistoryServer: true,
@@ -359,14 +344,14 @@ func TestAccSparkCluster2_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.subnet_ids.0"),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.security_group_ids.0"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "name", fmt.Sprintf("spark-%s", randSuffix)),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "description", "created with terraform"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "description", "acc-step-02 [created with terraform]"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "labels.my_label", "my_value"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "1"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "1"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m16"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c8-m32"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "4"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.dependencies.pip_packages.0", "numpy==2.2.2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", metastoreClusterID),
@@ -380,26 +365,10 @@ func TestAccSparkCluster2_basic(t *testing.T) {
 				),
 			},
 			sparkClusterImportStep("yandex_spark_cluster.spark_cluster"),
-		},
-	})
-}
-
-func TestAccSparkCluster3_basic(t *testing.T) {
-	t.Parallel()
-
-	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
-	folderID := os.Getenv("YC_FOLDER_ID")
-	var cluster afv1.Cluster
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testhelpers.AccPreCheck(t) },
-		ProtoV6ProviderFactories: testhelpers.AccProviderFactories,
-		CheckDestroy:             testAccCheckSparkClusterDestroy,
-		Steps: []resource.TestStep{
 			{
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
 					RandSuffix:         randSuffix,
-					Description:        "created with terraform",
+					Description:        "acc-basic-step-03 [created with terraform]",
 					IncludeBlockLabels: true,
 					Labels: map[string]string{
 						"my_label_1": "my_value_1",
@@ -407,39 +376,35 @@ func TestAccSparkCluster3_basic(t *testing.T) {
 					DriverResourcePresetID:    "c2-m8",
 					DriverSize:                1,
 					ExecutorResourcePresetID:  "c4-m16",
-					ExecutorSize:              1,
-					IncludeBlockDependencies:  true,
+					ExecutorMinSize:           1,
+					ExecutorMaxSize:           2,
+					IncludeBlockDependencies:  false,
 					IncludeBlockHistoryServer: true,
-					HistoryServerEnabled:      false,
-					IncludeBlockMetastore:     true,
-					SecurityGroup:             true,
+					HistoryServerEnabled:      true,
+					IncludeBlockMetastore:     false,
+					SecurityGroup:             false,
 					DeletionProtection:        false,
 					LoggingFolderID:           folderID,
 					IncludeBlockMaintenance:   true,
 					MaintenanceWindowWeekly:   false,
-					IncludeBlockTimeouts:      true,
+					IncludeBlockTimeouts:      false,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSparkExists("yandex_spark_cluster.spark_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.security_group_ids.0"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "name", fmt.Sprintf("spark-%s", randSuffix)),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "description", "created with terraform"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "labels.my_label_1", "my_value_1"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "1"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.size", "1"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "false"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "1"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "ANYTIME"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.create", "50m"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.update", "50m"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.delete", "50m"),
 				),
 			},
 			sparkClusterImportStep("yandex_spark_cluster.spark_cluster"),

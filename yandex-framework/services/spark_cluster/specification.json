@@ -45,7 +45,9 @@
             "map": {
               "computed_optional_required": "computed",
               "description": "Cluster labels as key/value pairs.",
-              "element_type": {"string": {}}
+              "element_type": {
+                "string": {}
+              }
             }
           },
           {
@@ -185,17 +187,17 @@
                 {
                   "name": "metastore",
                   "single_nested": {
-                      "computed_optional_required": "computed",
-                      "description": "Metastore configuration.",
-                      "attributes": [
-                        {
-                          "name": "cluster_id",
-                          "string": {
-                            "computed_optional_required": "computed",
-                            "description": "Metastore cluster ID for default spark configuration."
-                          }
+                    "computed_optional_required": "computed",
+                    "description": "Metastore configuration.",
+                    "attributes": [
+                      {
+                        "name": "cluster_id",
+                        "string": {
+                          "computed_optional_required": "computed",
+                          "description": "Metastore cluster ID for default spark configuration."
                         }
-                      ]
+                      }
+                    ]
                   }
                 }
               ]
@@ -282,13 +284,6 @@
             }
           },
           {
-            "name": "health",
-            "string": {
-              "computed_optional_required": "computed",
-              "description": "Aggregated health of the cluster."
-            }
-          },
-          {
             "name": "maintenance_window",
             "single_nested": {
               "computed_optional_required": "computed",
@@ -296,7 +291,11 @@
               "validators": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                      }
+                    ],
                     "schema_definition": "mwValidator()"
                   }
                 }
@@ -310,7 +309,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwTypeValidator()"
                         }
                       }
@@ -325,7 +328,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwDayValidator()"
                         }
                       }
@@ -340,7 +347,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwHourValidator()"
                         }
                       }
@@ -386,7 +397,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -401,13 +416,21 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 },
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.RequiresReplace()"
                   }
                 }
@@ -422,7 +445,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -448,7 +475,9 @@
             "map": {
               "computed_optional_required": "optional",
               "description": "Cluster labels as key/value pairs.",
-              "element_type": {"string": {}}
+              "element_type": {
+                "string": {}
+              }
             }
           },
           {
@@ -556,7 +585,9 @@
                         "bool": {
                           "computed_optional_required": "computed_optional",
                           "description": "Enable Spark History Server. Default: true.",
-                          "default": {"static": true}
+                          "default": {
+                            "static": true
+                          }
                         }
                       }
                     ]
@@ -609,22 +640,22 @@
                 {
                   "name": "metastore",
                   "single_nested": {
-                      "computed_optional_required": "computed_optional",
-                      "description": "Metastore configuration.",
-                      "default": {
-                        "custom": {
-                          "schema_definition": "metastoreDefault()"
+                    "computed_optional_required": "computed_optional",
+                    "description": "Metastore configuration.",
+                    "default": {
+                      "custom": {
+                        "schema_definition": "metastoreDefault()"
+                      }
+                    },
+                    "attributes": [
+                      {
+                        "name": "cluster_id",
+                        "string": {
+                          "computed_optional_required": "optional",
+                          "description": "Metastore cluster ID for default spark configuration."
                         }
-                      },
-                      "attributes": [
-                        {
-                          "name": "cluster_id",
-                          "string": {
-                            "computed_optional_required": "optional",
-                            "description": "Metastore cluster ID for default spark configuration."
-                          }
-                        }
-                      ]
+                      }
+                    ]
                   }
                 }
               ]
@@ -638,7 +669,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -662,7 +697,11 @@
                     "plan_modifiers": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+                            }
+                          ],
                           "schema_definition": "setplanmodifier.RequiresReplace()"
                         }
                       }
@@ -687,7 +726,9 @@
             "bool": {
               "computed_optional_required": "computed_optional",
               "description": "The `true` value means that resource is protected from accidental deletion.",
-              "default": {"static": false}
+              "default": {
+                "static": false
+              }
             }
           },
           {
@@ -708,7 +749,9 @@
                   "bool": {
                     "computed_optional_required": "computed_optional",
                     "description": "Enable log delivery to Cloud Logging. Default: true.",
-                    "default": {"static": true}
+                    "default": {
+                      "static": true
+                    }
                   }
                 },
                 {
@@ -729,21 +772,6 @@
             }
           },
           {
-            "name": "health",
-            "string": {
-              "computed_optional_required": "computed",
-              "description": "Aggregated health of the cluster.",
-              "plan_modifiers": [
-                {
-                  "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
-                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
-                  }
-                }
-              ]
-            }
-          },
-          {
             "name": "maintenance_window",
             "single_nested": {
               "computed_optional_required": "computed_optional",
@@ -751,7 +779,11 @@
               "validators": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                      }
+                    ],
                     "schema_definition": "mwValidator()"
                   }
                 }
@@ -770,12 +802,18 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwTypeValidator()"
                         }
                       }
                     ],
-                    "default": {"static": "ANYTIME"}
+                    "default": {
+                      "static": "ANYTIME"
+                    }
                   }
                 },
                 {
@@ -786,7 +824,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwDayValidator()"
                         }
                       }
@@ -801,7 +843,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwHourValidator()"
                         }
                       }

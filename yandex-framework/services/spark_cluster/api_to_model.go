@@ -63,8 +63,6 @@ func ClusterToState(ctx context.Context, cluster *spark.Cluster, state *ClusterM
 		state.Logging = loggingConfig
 	}
 
-	state.Health = types.StringValue(cluster.GetHealth().String())
-
 	maintenanceWindow, diags := maintenanceWindowFromAPI(cluster.GetMaintenanceWindow())
 	if !maintenanceWindowsAreEqual(state.MaintenanceWindow, maintenanceWindow) {
 		state.MaintenanceWindow = maintenanceWindow

@@ -34,7 +34,7 @@ func TestAccDataSourceSparkCluster_basic(t *testing.T) {
 func sparkDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) string {
 	resource := sparkClusterConfig(t, sparkClusterConfigParams{
 		RandSuffix:         randSuffix,
-		Description:        "created with terraform",
+		Description:        "datasource-step-01 [created with terraform]",
 		IncludeBlockLabels: true,
 		Labels: map[string]string{
 			"my_label": "my_value",
@@ -86,7 +86,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttrSet("data.yandex_spark_cluster.spark_cluster", "network.subnet_ids.0"),
 		resource.TestCheckResourceAttrSet("data.yandex_spark_cluster.spark_cluster", "network.security_group_ids.0"),
 		resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "name", fmt.Sprintf("spark-%s", randSuffix)),
-		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "description", "created with terraform"),
+		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "description", "datasource-step-01 [created with terraform]"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "labels.my_label", "my_value"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),

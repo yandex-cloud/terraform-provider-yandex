@@ -213,14 +213,6 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Aggregated health of the cluster.",
-				MarkdownDescription: "Aggregated health of the cluster.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Unique ID of the cluster.",
@@ -368,7 +360,6 @@ type ClusterModel struct {
 	DeletionProtection types.Bool             `tfsdk:"deletion_protection"`
 	Description        types.String           `tfsdk:"description"`
 	FolderId           types.String           `tfsdk:"folder_id"`
-	Health             types.String           `tfsdk:"health"`
 	Id                 types.String           `tfsdk:"id"`
 	Labels             types.Map              `tfsdk:"labels"`
 	Logging            LoggingValue           `tfsdk:"logging"`

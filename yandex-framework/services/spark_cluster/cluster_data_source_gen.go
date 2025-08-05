@@ -179,11 +179,6 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "ID of the cloud folder that the cluster belongs to.",
 				MarkdownDescription: "ID of the cloud folder that the cluster belongs to.",
 			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Aggregated health of the cluster.",
-				MarkdownDescription: "Aggregated health of the cluster.",
-			},
 			"id": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
