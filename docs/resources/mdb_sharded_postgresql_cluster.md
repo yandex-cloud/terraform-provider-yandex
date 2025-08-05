@@ -3,12 +3,12 @@
 page_title: "yandex_mdb_sharded_postgresql_cluster Resource - yandex"
 subcategory: ""
 description: |-
-  Manages a ShardedPostgresql cluste within the Yandex Cloud.
+  Manages a ShardedPostgresql cluster within the Yandex Cloud.
 ---
 
 # yandex_mdb_sharded_postgresql_cluster (Resource)
 
-Manages a ShardedPostgresql cluste within the Yandex Cloud.
+Manages a ShardedPostgresql cluster within the Yandex Cloud.
 
 
 
