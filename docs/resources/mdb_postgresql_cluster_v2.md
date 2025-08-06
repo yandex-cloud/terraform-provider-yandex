@@ -42,9 +42,11 @@ resource "yandex_mdb_postgresql_cluster_v2" "my_v2_cluster" {
     hour = 12
   }
 
-  host {
-    zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo.id
+  hosts = {
+    "host1d" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.foo.id
+    }
   }
 }
 
