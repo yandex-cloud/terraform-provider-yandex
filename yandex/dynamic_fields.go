@@ -385,6 +385,26 @@ func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNames(field string, values m
 }
 
 // default value is 0
+func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNamesWithCompareAndValidFuncs(
+	field string,
+	values map[int32]string,
+) *objectFieldsInfo {
+	def := 0
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{
+		defaultIntValue:  &def,
+		isDefaultSet:     true,
+		intToString:      makeIntToString(convIValuesToI32(values), def),
+		stringToInt:      makeStringToInt(convIValuesToI32(values), &def),
+		isStringable:     true,
+		isNotNullable:    true,
+		checkValueFunc:   defaultStringOfEnumsCheck(field),
+		compareValueFunc: defaultStringCompare,
+	}
+
+	return fieldsInfo
+}
+
+// default value is 0
 func (fieldsInfo *objectFieldsInfo) addEnumHumanNames(field string, values map[int]string, values2 map[int32]string) *objectFieldsInfo {
 
 	def := 0

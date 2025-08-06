@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -28,10 +29,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a PostgreSQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.\n\n~> Historically, `user` and `database` blocks of the `yandex_mdb_postgresql_cluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the recommended way to manage databases and users is using `yandex_mdb_postgresql_user` and `yandex_mdb_postgresql_database` resources.\n",
 
-		Create: resourceYandexMDBPostgreSQLClusterCreate,
-		Read:   resourceYandexMDBPostgreSQLClusterRead,
-		Update: resourceYandexMDBPostgreSQLClusterUpdate,
-		Delete: resourceYandexMDBPostgreSQLClusterDelete,
+		Create:        resourceYandexMDBPostgreSQLClusterCreate,
+		Read:          resourceYandexMDBPostgreSQLClusterRead,
+		Update:        resourceYandexMDBPostgreSQLClusterUpdate,
+		Delete:        resourceYandexMDBPostgreSQLClusterDelete,
+		CustomizeDiff: resourceYandexMDBPostgreSQLClusterCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -177,7 +179,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
+				Description: "Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
 				Required:    true,
 			},
 			"resources": {
@@ -356,8 +358,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 				Description:      "PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).",
 				Optional:         true,
 				Computed:         true,
-				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
-				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
+				DiffSuppressFunc: postgresqlConfigDiffFunc,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -1360,6 +1361,25 @@ func resourceYandexMDBPostgreSQLClusterDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
+func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	postgresqlConfig, ok := d.GetOkExists("config.0.postgresql_config")
+	if !ok {
+		return nil
+	}
+	version, ok := d.GetOkExists("config.0.version")
+	if !ok {
+		return nil
+	}
+
+	validateFunc := generateMapSchemaValidateFunc(getMdbPGSettingsFieldsInfo(version.(string)))
+
+	_, b := validateFunc(postgresqlConfig, "")
+	if len(b) > 0 {
+		return errors.Join(b...)
+	}
+	return nil
+}
+
 func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, user *postgresql.UserSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().User().Create(ctx, &postgresql.CreateUserRequest{
@@ -1827,4 +1847,14 @@ func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func postgresqlConfigDiffFunc(k, old, new string, d *schema.ResourceData) bool {
+	version, ok := d.GetOkExists("config.0.version")
+	if !ok {
+		return false
+	}
+
+	suppressDiffFunc := generateMapSchemaDiffSuppressFunc(getMdbPGSettingsFieldsInfo(version.(string)))
+	return suppressDiffFunc(k, old, new, d)
 }

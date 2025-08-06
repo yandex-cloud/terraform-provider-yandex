@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: some improvements of postgresql_conf for yandex_mdb_postgresql_cluster resource'
+time: 2025-08-04T17:47:18.003764+03:00

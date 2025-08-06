@@ -408,16 +408,15 @@ func TestExpandResourceGenerateOneFieldString(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaValidateFuncCorrect(t *testing.T) {
 	t.Parallel()
 
-	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo)
+	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo17)
 
 	value := map[string]interface{}{
-		"autovacuum_vacuum_scale_factor":    "0.32",
-		"default_transaction_isolation":     "TRANSACTION_ISOLATION_READ_UNCOMMITTED",
-		"enable_parallel_hash":              "true",
-		"max_connections":                   "395",
-		"vacuum_cleanup_index_scale_factor": "0.2",
-		"shared_preload_libraries":          "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,SHARED_PRELOAD_LIBRARIES_ANON",
-		"auto_explain_log_format":           "AUTO_EXPLAIN_LOG_FORMAT_XML",
+		"autovacuum_vacuum_scale_factor": "0.32",
+		"default_transaction_isolation":  "TRANSACTION_ISOLATION_READ_UNCOMMITTED",
+		"enable_parallel_hash":           "true",
+		"max_connections":                "395",
+		"shared_preload_libraries":       "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,SHARED_PRELOAD_LIBRARIES_ANON",
+		"auto_explain_log_format":        "AUTO_EXPLAIN_LOG_FORMAT_XML",
 	}
 
 	_, errors := validateFunc(value, "")
@@ -433,7 +432,7 @@ func TestFieldsDynamicGenerateMapSchemaValidateFuncCorrect(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaValidateFuncFail(t *testing.T) {
 	t.Parallel()
 
-	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo)
+	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo13)
 
 	value := map[string]interface{}{
 		// type is not correct string but should be int
@@ -462,7 +461,7 @@ func TestFieldsDynamicGenerateMapSchemaValidateFuncFail(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaDiffSuppressFuncFloat(t *testing.T) {
 	t.Parallel()
 
-	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo)
+	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo17)
 
 	if suppressFunc("ttt.autovacuum_vacuum_scale_factor", "0.32", "0.33", nil) {
 		t.Errorf("generateMapSchemaDiffSuppressFunc: float values should be not equal (0.32 != 0.33)")
@@ -480,7 +479,7 @@ func TestFieldsDynamicGenerateMapSchemaDiffSuppressFuncFloat(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaDiffSuppressFuncInt(t *testing.T) {
 	t.Parallel()
 
-	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo)
+	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo17)
 
 	if suppressFunc("ttt.max_connections", "32", "33", nil) {
 		t.Errorf("generateMapSchemaDiffSuppressFunc: int values should be not equal (32 != 33)")
@@ -498,7 +497,7 @@ func TestFieldsDynamicGenerateMapSchemaDiffSuppressFuncInt(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaDiffSuppressFuncBool(t *testing.T) {
 	t.Parallel()
 
-	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo)
+	suppressFunc := generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo17)
 
 	if suppressFunc("ttt.enable_parallel_hash", "true", "false", nil) {
 		t.Errorf("generateMapSchemaDiffSuppressFunc: int values should be not equal (true != false)")

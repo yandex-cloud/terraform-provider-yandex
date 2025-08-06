@@ -894,13 +894,15 @@ func testAccCheckPostgresqlConfigUpdate(r, version string) resource.TestCheckFun
 			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v", userConfig.defaultTransactionIsolation)
 		}
 
+		mdbPGSettingsFieldsInfo := getMdbPGSettingsFieldsInfo(version)
+
 		splNames, _ := mdbPGSettingsFieldsInfo.intSliceToString("shared_preload_libraries", userConfig.sharedPreloadLibraries)
 		if splNames != "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN" {
 			return fmt.Errorf("Field 'config.postgresql_config.shared_preload_libraries' wasn`t changed for with value [SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN, SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN]. Current value is %v", splNames)
 		}
 
-		if version != "13" && version != "13-1c" && userConfig.autoExplainLogFormat != 2 {
-			return fmt.Errorf("Field 'config.postgresql_config.auto_explain_log_format' wasn`t changed for with value 2. Current value is %v", userConfig.autoExplainLogFormat)
+		if userConfig.synchronousCommit != 5 {
+			return fmt.Errorf("Field 'config.postgresql_config.synchronous_commit' wasn`t changed for with value 5. Current value is %v", userConfig.synchronousCommit)
 		}
 
 		return nil
@@ -913,7 +915,7 @@ type clusterSettingsResult struct {
 	autovacuumVacuumScaleFactor float64
 	defaultTransactionIsolation int32
 	sharedPreloadLibraries      []int32
-	autoExplainLogFormat        int32
+	synchronousCommit           int32
 }
 
 func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSettingsResult, error) {
@@ -930,6 +932,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "13-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_13_1C().UserConfig
@@ -943,6 +946,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "14":
 		userConfig := cluster.Config.GetPostgresqlConfig_14().UserConfig
@@ -956,7 +960,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "14-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_14_1C().UserConfig
@@ -970,7 +974,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "15":
 		userConfig := cluster.Config.GetPostgresqlConfig_15().UserConfig
@@ -984,7 +988,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "15-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_15_1C().UserConfig
@@ -998,7 +1002,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "16":
 		userConfig := cluster.Config.GetPostgresqlConfig_16().UserConfig
@@ -1012,7 +1016,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "16-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_16_1C().UserConfig
@@ -1026,7 +1030,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "17":
 		userConfig := cluster.Config.GetPostgresqlConfig_17().UserConfig
@@ -1040,7 +1044,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	case "17-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_17_1C().UserConfig
@@ -1054,7 +1058,7 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
 			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
 			sharedPreloadLibraries:      sharedPreloadLibraries,
-			autoExplainLogFormat:        int32(userConfig.AutoExplainLogFormat.Number()),
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
 	}
 	return nil, fmt.Errorf("Add PostgreSQL %s settings to tests", version)
@@ -1290,7 +1294,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       autovacuum_vacuum_scale_factor    = 0.34
       default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
 	  shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-	  auto_explain_log_format        	= "AUTO_EXPLAIN_LOG_FORMAT_XML"
+	  synchronous_commit        		= "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
     }
   }
 
@@ -1412,7 +1416,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       autovacuum_vacuum_scale_factor    = 0.34
       default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
 	  shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-	  auto_explain_log_format        	= "AUTO_EXPLAIN_LOG_FORMAT_XML"
+	  synchronous_commit        		= "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
     }
   }
 
@@ -1534,7 +1538,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 				autovacuum_vacuum_scale_factor    = 0.34
 				default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
 				shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-				auto_explain_log_format        	  = "AUTO_EXPLAIN_LOG_FORMAT_XML"
+				synchronous_commit        		  = "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
 			}
 		}
 	  
