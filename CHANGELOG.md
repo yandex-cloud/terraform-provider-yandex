@@ -1,3 +1,12 @@
+## 0.149.0 (August 7, 2025)
+
+FEATURES:
+* postgresql: add disk encryption
+* spark: `cluster_update` feature added
+
+BUG FIXES:
+* postgresql: some improvements of postgresql_conf for yandex_mdb_postgresql_cluster resource
+
 ## 0.148.0 (August 4, 2025)
 
 FEATURES:
