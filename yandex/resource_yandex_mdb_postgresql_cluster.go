@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -169,6 +170,13 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Set:         schema.HashString,
 				Optional:    true,
 				Computed:    true,
+			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
 			},
 		},
 	}
@@ -709,6 +717,12 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
+	}
+
 	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
@@ -822,21 +836,28 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 	request := &postgresql.RestoreClusterRequest{
-		BackupId:           backupID,
-		Time:               timeBackup,
-		TimeInclusive:      timeInclusive,
-		Name:               createClusterRequest.Name,
-		Description:        createClusterRequest.Description,
-		Labels:             createClusterRequest.Labels,
-		Environment:        createClusterRequest.Environment,
-		ConfigSpec:         createClusterRequest.ConfigSpec,
-		HostSpecs:          createClusterRequest.HostSpecs,
-		NetworkId:          createClusterRequest.NetworkId,
-		FolderId:           createClusterRequest.FolderId,
-		SecurityGroupIds:   createClusterRequest.SecurityGroupIds,
-		HostGroupIds:       createClusterRequest.HostGroupIds,
-		DeletionProtection: createClusterRequest.DeletionProtection,
-		MaintenanceWindow:  createClusterRequest.MaintenanceWindow,
+		BackupId:            backupID,
+		Time:                timeBackup,
+		TimeInclusive:       timeInclusive,
+		Name:                createClusterRequest.Name,
+		Description:         createClusterRequest.Description,
+		Labels:              createClusterRequest.Labels,
+		Environment:         createClusterRequest.Environment,
+		ConfigSpec:          createClusterRequest.ConfigSpec,
+		HostSpecs:           createClusterRequest.HostSpecs,
+		NetworkId:           createClusterRequest.NetworkId,
+		FolderId:            createClusterRequest.FolderId,
+		SecurityGroupIds:    createClusterRequest.SecurityGroupIds,
+		HostGroupIds:        createClusterRequest.HostGroupIds,
+		DeletionProtection:  createClusterRequest.DeletionProtection,
+		MaintenanceWindow:   createClusterRequest.MaintenanceWindow,
+		DiskEncryptionKeyId: createClusterRequest.DiskEncryptionKeyId,
+	}
+
+	// Empty string will remove encryption when restoring
+	if request.DiskEncryptionKeyId == nil {
+		log.Printf("[WARN] Disk encryption key ID is not set. Encryption will be disabled if present in source cluster.")
+		request.DiskEncryptionKeyId = wrapperspb.String("")
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
@@ -936,21 +957,29 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding maintenance window id on PostgreSQL Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	return &postgresql.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Labels:             labels,
-		Environment:        env,
-		ConfigSpec:         confSpec,
-		UserSpecs:          userSpecs,
-		DatabaseSpecs:      databaseSpecs,
-		HostSpecs:          hostSpecs,
-		SecurityGroupIds:   securityGroupIds,
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		HostGroupIds:       hostGroupIds,
-		MaintenanceWindow:  maintenanceWindow,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Labels:              labels,
+		Environment:         env,
+		ConfigSpec:          confSpec,
+		UserSpecs:           userSpecs,
+		DatabaseSpecs:       databaseSpecs,
+		HostSpecs:           hostSpecs,
+		SecurityGroupIds:    securityGroupIds,
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		HostGroupIds:        hostGroupIds,
+		MaintenanceWindow:   maintenanceWindow,
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}, nil
 }
 

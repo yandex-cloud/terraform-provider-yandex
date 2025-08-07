@@ -27,6 +27,7 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 			postgresql.AnytimeMaintenanceWindow,
 			postgresql.WeeklyMaintenanceWindow_WeekDay,
 		](ctx, plan.MaintenanceWindow, &diags),
+		DiskEncryptionKeyId: expandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 	return request, diags
 }

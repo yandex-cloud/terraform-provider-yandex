@@ -79,6 +79,13 @@ func flattenBoolWrapper(ctx context.Context, wb *wrapperspb.BoolValue, diags *di
 	return types.BoolValue(wb.GetValue())
 }
 
+func flattenStringWrapper(ctx context.Context, ws *wrapperspb.StringValue, diags *diag.Diagnostics) types.String {
+	if ws == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(ws.GetValue())
+}
+
 func flattenPoolerConfig(ctx context.Context, c *postgresql.ConnectionPoolerConfig, diags *diag.Diagnostics) types.Object {
 
 	pc := PoolerConfig{

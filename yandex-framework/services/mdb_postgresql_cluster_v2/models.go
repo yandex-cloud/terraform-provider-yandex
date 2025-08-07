@@ -7,18 +7,19 @@ import (
 )
 
 type Cluster struct {
-	Id                 types.String `tfsdk:"id"`
-	FolderId           types.String `tfsdk:"folder_id"`
-	NetworkId          types.String `tfsdk:"network_id"`
-	Name               types.String `tfsdk:"name"`
-	Description        types.String `tfsdk:"description"`
-	Environment        types.String `tfsdk:"environment"`
-	Labels             types.Map    `tfsdk:"labels"`
-	Config             types.Object `tfsdk:"config"`
-	HostSpecs          types.Map    `tfsdk:"hosts"`
-	MaintenanceWindow  types.Object `tfsdk:"maintenance_window"`
-	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
-	SecurityGroupIds   types.Set    `tfsdk:"security_group_ids"`
+	Id                  types.String `tfsdk:"id"`
+	FolderId            types.String `tfsdk:"folder_id"`
+	NetworkId           types.String `tfsdk:"network_id"`
+	Name                types.String `tfsdk:"name"`
+	Description         types.String `tfsdk:"description"`
+	Environment         types.String `tfsdk:"environment"`
+	Labels              types.Map    `tfsdk:"labels"`
+	Config              types.Object `tfsdk:"config"`
+	HostSpecs           types.Map    `tfsdk:"hosts"`
+	MaintenanceWindow   types.Object `tfsdk:"maintenance_window"`
+	DeletionProtection  types.Bool   `tfsdk:"deletion_protection"`
+	SecurityGroupIds    types.Set    `tfsdk:"security_group_ids"`
+	DiskEncryptionKeyId types.String `tfsdk:"disk_encryption_key_id"`
 }
 
 type Host struct {

@@ -3,6 +3,7 @@ package mdb_postgresql_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"log"
 	"math/rand"
 	"reflect"
@@ -71,6 +72,11 @@ resource "yandex_vpc_security_group" "sgroup2" {
   description = "Test security group 2"
   network_id  = yandex_vpc_network.mdb-pg-test-net.id
 }
+
+`
+
+const diskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 
 `
 
@@ -579,6 +585,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						"yandex_vpc_security_group.sgroup1",
 						tfjsonpath.New("id"), compare.ValuesSame(),
 					),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.Null()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -641,6 +648,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"yandex_vpc_security_group.sgroup1",
 						},
 					),
+					resource.TestCheckNoResourceAttr(clusterResource, `disk_encryption_key_id`),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -1321,6 +1329,35 @@ func TestAccMDBPostgreSQLCluster_HostSpecialCaseTests(t *testing.T) {
 	})
 }
 
+// Test that encrypted PostgreSQL Cluster can be created, updated and destroyed
+func TestAccMDBPostgreSQLCluster_EncryptionTests(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_EncryptionTests: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-encryption-test")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.encryption_tests"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterEncryptedStep0(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.NotNull()),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*provider.Provider).GetConfig()
 
@@ -1338,6 +1375,29 @@ func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 		}
 	}
 
+	return nil
+}
+
+func testAccCheckYandexKmsSymmetricKeyAllDestroyed(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_kms_symmetric_key" {
+			continue
+		}
+		if err := testAccCheckYandexKmsSymmetricKeyDestroyed(rs.Primary.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func testAccCheckYandexKmsSymmetricKeyDestroyed(id string) error {
+	cfg := test.AccProvider.(*provider.Provider).GetConfig()
+	_, err := cfg.SDK.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+		KeyId: id,
+	})
+	if err == nil {
+		return fmt.Errorf("LockboxSecret %s still exists", id)
+	}
 	return nil
 }
 
@@ -1838,6 +1898,35 @@ func testAccMDBPGClusterHostsSpecialCaseStep2(name, version string) string {
     }
   }
 `)
+}
+
+func testAccMDBPGClusterEncryptedStep0(name, version string) string {
+	return fmt.Sprintf(pgVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_postgresql_cluster_v2" "encryption_tests" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Hosts Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+	
+  hosts = {
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    }
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, version)
 }
 
 // func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string

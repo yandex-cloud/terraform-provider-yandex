@@ -159,6 +159,14 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"disk_encryption_key_id": schema.StringAttribute{
+				Description: "ID of the KMS key for cluster disk encryption.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"security_group_ids": schema.SetAttribute{
 				Description: "A set of ids of security groups assigned to hosts of the cluster.",
 				Optional:    true,
@@ -651,4 +659,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		postgresql.WeeklyMaintenanceWindow_WeekDay,
 	](ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
+	state.DiskEncryptionKeyId = flattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
 }

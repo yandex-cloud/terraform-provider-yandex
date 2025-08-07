@@ -110,128 +110,80 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Set:         schema.HashString,
 				Computed:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLCluster().Schema["disk_encryption_key_id"].Description,
+				Computed:    true,
+				Optional:    true,
+			},
 			"database": {
 				Type:        schema.TypeSet,
-				Description: "~> Deprecated! To manage databases, please switch to using a separate resource type `yandex_mdb_postgresql_database`.",
+				Description: resourceYandexMDBPostgreSQLCluster().Schema["database"].Description,
 				Computed:    true,
 				Set:         mysqlDatabaseHash,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Description: common.ResourceDescriptions["name"],
-							Type:        schema.TypeString,
-							Required:    true,
-						},
-						"owner": {
-							Type:        schema.TypeString,
-							Description: "Name of the user assigned as the owner of the database. Forbidden to change in an existing database.",
-							ForceNew:    true,
-							Required:    true,
-						},
-						"lc_collate": {
-							Type:        schema.TypeString,
-							Description: "POSIX locale for string sorting order. Forbidden to change in an existing database.",
-							Optional:    true,
-							ForceNew:    true,
-							Default:     "C",
-						},
-						"lc_type": {
-							Type:        schema.TypeString,
-							Description: "POSIX locale for character classification. Forbidden to change in an existing database.",
-							ForceNew:    true,
-							Optional:    true,
-							Default:     "C",
-						},
-						"template_db": {
-							Type:        schema.TypeString,
-							Description: "Name of the template database.",
-							ForceNew:    true,
-							Optional:    true,
-						},
-						"extension": {
-							Type:        schema.TypeSet,
-							Description: "Set of database extensions.",
-
-							Set:      pgExtensionHash,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:        schema.TypeString,
-										Description: "Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).",
-										Required:    true,
-									},
-									"version": {
-										Type:        schema.TypeString,
-										Description: "Version of the extension.",
-										Optional:    true,
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem:        dataSourceYandexMDBPostgreSQLClusterDatabaseBlock(),
 			},
 			"user": {
 				Type:        schema.TypeList,
-				Description: "~> Deprecated! To manage users, please switch to using a separate resource type `yandex_mdb_postgresql_user`.",
+				Description: resourceYandexMDBPostgreSQLCluster().Schema["user"].Description,
 				Computed:    true,
+				Elem:        dataSourceYandexMDBPostgreSQLClusterUserBlock(),
+			},
+		},
+	}
+}
+
+func dataSourceYandexMDBPostgreSQLClusterDatabaseBlock() *schema.Resource {
+	extensionElem := (resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["extension"].Elem).(*schema.Resource)
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["name"].Description,
+				Required:    true,
+			},
+			"owner": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["owner"].Description,
+				ForceNew:    true,
+				Required:    true,
+			},
+			"lc_collate": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["lc_collate"].Description,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "C",
+			},
+			"lc_type": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["lc_type"].Description,
+				ForceNew:    true,
+				Optional:    true,
+				Default:     "C",
+			},
+			"template_db": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["template_db"].Description,
+				ForceNew:    true,
+				Optional:    true,
+			},
+			"extension": {
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBPostgreSQLClusterDatabaseBlock().Schema["extension"].Description,
+				Set:         pgExtensionHash,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "The name of the user.",
+							Description: extensionElem.Schema["name"].Description,
 							Required:    true,
 						},
-						"login": {
-							Type:        schema.TypeBool,
-							Description: "User's ability to login.",
+						"version": {
+							Type:        schema.TypeString,
+							Description: extensionElem.Schema["version"].Description,
 							Optional:    true,
-							Default:     true,
-						},
-						"grants": {
-							Type:        schema.TypeList,
-							Description: "List of the user's grants.",
-							Optional:    true,
-							Computed:    true,
-							Elem: &schema.Schema{
-								Type:         schema.TypeString,
-								ValidateFunc: validation.StringIsNotEmpty,
-							},
-						},
-						// TODO change to permissions
-						"permission": {
-							Type:        schema.TypeSet,
-							Description: "Set of permissions granted to the user.",
-							Optional:    true,
-							Computed:    true,
-							Set:         pgUserPermissionHash,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"database_name": {
-										Type:        schema.TypeString,
-										Description: "The name of the database that the permission grants access to.",
-										Required:    true,
-									},
-								},
-							},
-						},
-						"conn_limit": {
-							Type:        schema.TypeInt,
-							Description: "The maximum number of connections per user. (Default 50).",
-							Optional:    true,
-							Computed:    true,
-						},
-						"settings": {
-							Type:             schema.TypeMap,
-							Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 0: `unspecified`\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 0: `unspecified`\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 1: `session`\n  - 2: `transaction`\n  - 3: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer\n\n",
-							Optional:         true,
-							Computed:         true,
-							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
-							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
 						},
 					},
 				},
@@ -240,33 +192,103 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 	}
 }
 
+func dataSourceYandexMDBPostgreSQLClusterUserBlock() *schema.Resource {
+	permissionElem := (resourceYandexMDBPostgreSQLClusterUserBlock().Schema["permission"].Elem).(*schema.Resource)
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLClusterUserBlock().Schema["name"].Description,
+				Required:    true,
+			},
+			"login": {
+				Type:        schema.TypeBool,
+				Description: resourceYandexMDBPostgreSQLClusterUserBlock().Schema["login"].Description,
+				Optional:    true,
+				Default:     true,
+			},
+			"grants": {
+				Type:        schema.TypeList,
+				Description: resourceYandexMDBPostgreSQLClusterUserBlock().Schema["grants"].Description,
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringIsNotEmpty,
+				},
+			},
+			// TODO change to permissions
+			"permission": {
+				Type:        schema.TypeSet,
+				Description: resourceYandexMDBPostgreSQLClusterUserBlock().Schema["permission"].Description,
+				Optional:    true,
+				Computed:    true,
+				Set:         pgUserPermissionHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database_name": {
+							Type:        schema.TypeString,
+							Description: permissionElem.Schema["database_name"].Description,
+							Required:    true,
+						},
+					},
+				},
+			},
+			"conn_limit": {
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBPostgreSQLClusterUserBlock().Schema["conn_limit"].Description,
+				Optional:    true,
+				Computed:    true,
+			},
+			"settings": {
+				Type:             schema.TypeMap,
+				Description:      resourceYandexMDBPostgreSQLClusterUserBlock().Schema["settings"].Description,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
 func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
+	accessElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["access"].Elem).(*schema.Resource)
+	performanceDiagnosticsElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["performance_diagnostics"].Elem).(*schema.Resource)
+	backupWindowStart := (resourceYandexMDBPostgreSQLClusterConfig().Schema["backup_window_start"].Elem).(*schema.Resource)
+	diskSizeAutoscalingElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["disk_size_autoscaling"].Elem).(*schema.Resource)
+	poolerConfigElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["pooler_config"].Elem).(*schema.Resource)
+	resourcesElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["resources"].Elem).(*schema.Resource)
+
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"access": {
 				Type:        schema.TypeList,
-				Description: "Access policy to the PostgreSQL cluster.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["access"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data_lens": {
 							Type:        schema.TypeBool,
-							Description: "Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).",
+							Description: accessElem.Schema["data_lens"].Description,
 							Computed:    true,
 						},
 						"web_sql": {
 							Type:        schema.TypeBool,
-							Description: "Allow access for [SQL queries in the management console](https://yandex.cloud/docs/managed-postgresql/operations/web-sql-query).",
+							Description: accessElem.Schema["web_sql"].Description,
 							Computed:    true,
 						},
 						"serverless": {
 							Type:        schema.TypeBool,
-							Description: "Allow access for [connection to managed databases from functions](https://yandex.cloud/docs/functions/operations/database-connection).",
+							Description: accessElem.Schema["serverless"].Description,
 							Computed:    true,
 						},
 						"data_transfer": {
 							Type:        schema.TypeBool,
-							Description: "Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).",
+							Description: accessElem.Schema["data_transfer"].Description,
 							Computed:    true,
 						},
 					},
@@ -274,23 +296,23 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"autofailover": {
 				Type:        schema.TypeBool,
-				Description: "Configuration setting which enables/disables autofailover in cluster.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["autofailover"].Description,
 				Computed:    true,
 			},
 			"backup_window_start": {
 				Type:        schema.TypeList,
-				Description: "Time to start the daily backup, in the UTC timezone.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["backup_window_start"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hours": {
 							Type:        schema.TypeInt,
-							Description: "The hour at which backup will be started (UTC).",
+							Description: backupWindowStart.Schema["hours"].Description,
 							Computed:    true,
 						},
 						"minutes": {
 							Type:        schema.TypeInt,
-							Description: "The hour at which backup will be started (UTC).",
+							Description: backupWindowStart.Schema["minutes"].Description,
 							Computed:    true,
 						},
 					},
@@ -298,28 +320,28 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"backup_retain_period_days": {
 				Type:        schema.TypeInt,
-				Description: "The period in days during which backups are stored.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["backup_retain_period_days"].Description,
 				Computed:    true,
 			},
 			"performance_diagnostics": {
 				Type:        schema.TypeList,
-				Description: "Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics).",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["performance_diagnostics"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:        schema.TypeBool,
-							Description: "Enable performance diagnostics.",
+							Description: performanceDiagnosticsElem.Schema["enabled"].Description,
 							Computed:    true,
 						},
 						"sessions_sampling_interval": {
 							Type:        schema.TypeInt,
-							Description: "Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.",
+							Description: performanceDiagnosticsElem.Schema["sessions_sampling_interval"].Description,
 							Computed:    true,
 						},
 						"statements_sampling_interval": {
 							Type:        schema.TypeInt,
-							Description: "Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.",
+							Description: performanceDiagnosticsElem.Schema["statements_sampling_interval"].Description,
 							Computed:    true,
 						},
 					},
@@ -327,23 +349,23 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"disk_size_autoscaling": {
 				Type:        schema.TypeList,
-				Description: "Cluster disk size autoscaling settings.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["disk_size_autoscaling"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: diskSizeAutoscalingElem.Schema["disk_size_limit"].Description,
 							Computed:    true,
 						},
 						"planned_usage_threshold": {
 							Type:        schema.TypeInt,
-							Description: "Maintenance window autoscaling disk usage (percent).",
+							Description: diskSizeAutoscalingElem.Schema["planned_usage_threshold"].Description,
 							Computed:    true,
 						},
 						"emergency_usage_threshold": {
 							Type:        schema.TypeInt,
-							Description: "Immediate autoscaling disk usage (percent).",
+							Description: diskSizeAutoscalingElem.Schema["emergency_usage_threshold"].Description,
 							Computed:    true,
 						},
 					},
@@ -351,18 +373,18 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"pooler_config": {
 				Type:        schema.TypeList,
-				Description: "Configuration of the connection pooler.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["pooler_config"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pool_discard": {
 							Type:        schema.TypeBool,
-							Description: "Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_discard-yesno).",
+							Description: poolerConfigElem.Schema["pool_discard"].Description,
 							Computed:    true,
 						},
 						"pooling_mode": {
 							Type:        schema.TypeString,
-							Description: "Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.",
+							Description: poolerConfigElem.Schema["pooling_mode"].Description,
 							Computed:    true,
 						},
 					},
@@ -370,23 +392,23 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"resources": {
 				Type:        schema.TypeList,
-				Description: "Resources allocated to hosts of the PostgreSQL cluster.",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["resources"].Description,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size": {
 							Type:        schema.TypeInt,
-							Description: "The ID of the preset for computational resources available to a PostgreSQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/concepts/instance-types).",
+							Description: resourcesElem.Schema["disk_size"].Description,
 							Computed:    true,
 						},
 						"disk_type_id": {
 							Type:        schema.TypeString,
-							Description: "Volume of the storage available to a PostgreSQL host, in gigabytes.",
+							Description: resourcesElem.Schema["disk_type_id"].Description,
 							Computed:    true,
 						},
 						"resource_preset_id": {
 							Type:        schema.TypeString,
-							Description: "Type of the storage of PostgreSQL hosts.",
+							Description: resourcesElem.Schema["resource_preset_id"].Description,
 							Computed:    true,
 						},
 					},
@@ -394,14 +416,16 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 			},
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["version"].Description,
 				Computed:    true,
 			},
 			"postgresql_config": {
-				Type:        schema.TypeMap,
-				Description: "PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).",
-				Optional:    true,
-				Computed:    true,
+				Type:             schema.TypeMap,
+				Description:      resourceYandexMDBPostgreSQLClusterConfig().Schema["postgresql_config"].Description,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -415,37 +439,37 @@ func dataSourceYandexMDBPostgreSQLClusterHostBlock() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"assign_public_ip": {
 				Type:        schema.TypeBool,
-				Description: "Sets whether the host should get a public IP address on creation. It can be changed on the fly only when `name` is set.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["assign_public_ip"].Description,
 				Computed:    true,
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
-				Description: "The fully qualified domain name of the host.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["fqdn"].Description,
 				Computed:    true,
 			},
 			"subnet_id": {
 				Type:        schema.TypeString,
-				Description: "The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["subnet_id"].Description,
 				Computed:    true,
 			},
 			"zone": {
 				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["zone"],
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["zone"].Description,
 				Computed:    true,
 			},
 			"role": {
 				Type:        schema.TypeString,
-				Description: "Host's role (replica|primary), computed by server.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["role"].Description,
 				Computed:    true,
 			},
 			"replication_source": {
 				Type:        schema.TypeString,
-				Description: "Host replication source (fqdn), when replication_source is empty then host is in HA group.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["replication_source"].Description,
 				Computed:    true,
 			},
 			"priority": {
 				Type:        schema.TypeInt,
-				Description: "Host priority in HA group. It works only when `name` is set.",
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["priority"].Description,
 				Computed:    true,
 				Deprecated:  "The field has not affected anything. You can safely delete it.",
 			},
@@ -458,17 +482,17 @@ func dataSourceYandexMDBPostgreSQLClusterMaintenanceWindowBlock() *schema.Resour
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:        schema.TypeString,
-				Description: "Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.",
+				Description: resourceYandexMDBPostgreSQLClusterMaintenanceWindow().Schema["type"].Description,
 				Computed:    true,
 			},
 			"day": {
 				Type:        schema.TypeString,
-				Description: "Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`",
+				Description: resourceYandexMDBPostgreSQLClusterMaintenanceWindow().Schema["day"].Description,
 				Computed:    true,
 			},
 			"hour": {
 				Type:        schema.TypeInt,
-				Description: "Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.",
+				Description: resourceYandexMDBPostgreSQLClusterMaintenanceWindow().Schema["hour"].Description,
 				Computed:    true,
 			},
 		},
@@ -564,6 +588,12 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 
 	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
+	}
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.String()); err != nil {
+			return err
+		}
 	}
 
 	d.Set("created_at", getTimestamp(cluster.CreatedAt))

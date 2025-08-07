@@ -62,6 +62,33 @@ func TestAccDataSourceMDBPostgreSQLCluster_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBPostgreSQLCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccDataSourceMDBPostgreSQLCluster_diskEncryption: version %s", version)
+
+	pgName := acctest.RandomWithPrefix("ds-postgresql-disk-encryption")
+	pgDesc := "PostgreSQL Cluster With Disk Encryption Terraform Datasource Test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterDiskEncrypted(pgName, pgDesc, "PRESTABLE", version, 10) + mdbPGClusterByIDConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceMDBPGClusterCheck("data.yandex_mdb_postgresql_cluster.bar",
+						"yandex_mdb_postgresql_cluster.foo", pgName, pgDesc),
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_postgresql_cluster.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
