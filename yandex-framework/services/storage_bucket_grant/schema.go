@@ -3,8 +3,9 @@ package storage_bucket_grant
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -21,6 +22,17 @@ var bucketACLAllowedValues = []string{
 	storage.BucketCannedACLAuthenticatedRead,
 	storage.BucketCannedACLPrivate,
 }
+
+var (
+	grantObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"id":          types.StringType,
+			"type":        types.StringType,
+			"uri":         types.StringType,
+			"permissions": types.SetType{ElemType: types.StringType},
+		},
+	}
+)
 
 func ResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
@@ -52,7 +64,7 @@ func ResourceSchema(ctx context.Context) schema.Schema {
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"grant": schema.ListNestedBlock{
+			"grant": schema.SetNestedBlock{
 				MarkdownDescription: "An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.\nAll permissions for a single grantee must be specified in a single `grant` block.\n\n~> To manage `grant` argument, service account with `storage.admin` role should be used.\n",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -71,12 +83,12 @@ func ResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "URI address to grant for. Used only when type is Group.",
 							Optional:            true,
 						},
-						"permissions": schema.ListAttribute{
+						"permissions": schema.SetAttribute{
 							ElementType:         types.StringType,
 							MarkdownDescription: "List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.",
 							Required:            true,
-							Validators: []validator.List{
-								listvalidator.ValueStringsAre(
+							Validators: []validator.Set{
+								setvalidator.ValueStringsAre(
 									stringvalidator.OneOf(
 										storage.PermissionFullControl,
 										storage.PermissionRead,
@@ -87,8 +99,8 @@ func ResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Validators: []validator.List{
-					listvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("acl")),
+				Validators: []validator.Set{
+					setvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("acl")),
 				},
 			},
 		},

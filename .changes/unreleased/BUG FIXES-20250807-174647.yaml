@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_storage_bucket_grant: fixed possible grant list inconsistency'
+time: 2025-08-07T17:46:47.434377+03:00
