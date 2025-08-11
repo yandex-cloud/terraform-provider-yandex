@@ -46,6 +46,29 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 				Optional:    true,
 			},
 
+			"analyze_request_body": {
+				Type:        schema.TypeList,
+				Description: "Analyze request body.",
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size_limit": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+						},
+
+						"size_limit_action": {
+							Type:         schema.TypeString,
+							Description:  "",
+							Optional:     true,
+							ValidateFunc: validateParsableValue(parseSmartwebsecuritySecurityProfileXAnalyzeRequestBodyXAction),
+						},
+					},
+				},
+				Optional: true,
+			},
+
 			"captcha_id": {
 				Type:        schema.TypeString,
 				Description: "Captcha ID to use with this security profile. Set empty to use default.",
@@ -157,46 +180,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"authorities": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -210,52 +241,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"headers": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"name": {
 																Type:         schema.TypeString,
+																Description:  "",
 																Optional:     true,
 																ValidateFunc: validation.StringLenBetween(1, 255),
 															},
 
 															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -269,46 +309,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"http_methods": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -322,47 +370,55 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -372,52 +428,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"queries": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"key": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Required:     true,
 																			ValidateFunc: validation.StringLenBetween(1, 255),
 																		},
 
 																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
+																			Type:        schema.TypeList,
+																			Description: "",
+																			MaxItems:    1,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"exact_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"exact_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
@@ -435,17 +500,20 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -457,12 +525,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -474,12 +544,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -491,12 +563,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -532,46 +606,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"authorities": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -585,52 +667,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"headers": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"name": {
 																Type:         schema.TypeString,
+																Description:  "",
 																Optional:     true,
 																ValidateFunc: validation.StringLenBetween(1, 255),
 															},
 
 															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -644,46 +735,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"http_methods": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -697,47 +796,55 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -747,52 +854,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"queries": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"key": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Required:     true,
 																			ValidateFunc: validation.StringLenBetween(1, 255),
 																		},
 
 																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
+																			Type:        schema.TypeList,
+																			Description: "",
+																			MaxItems:    1,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"exact_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"exact_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
@@ -810,17 +926,20 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -832,12 +951,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -849,12 +970,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -866,12 +989,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -914,46 +1039,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authority": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"authorities": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -967,52 +1100,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"headers": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"name": {
 																Type:         schema.TypeString,
+																Description:  "",
 																Optional:     true,
 																ValidateFunc: validation.StringLenBetween(1, 255),
 															},
 
 															"value": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -1026,46 +1168,54 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"http_method": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"http_methods": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -1079,47 +1229,55 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"request_uri": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"path": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"exact_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"pire_regex_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
 
 																		"prefix_not_match": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Optional:     true,
 																			ValidateFunc: validation.StringLenBetween(0, 255),
 																		},
@@ -1129,52 +1287,61 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"queries": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"key": {
 																			Type:         schema.TypeString,
+																			Description:  "",
 																			Required:     true,
 																			ValidateFunc: validation.StringLenBetween(1, 255),
 																		},
 
 																		"value": {
-																			Type:     schema.TypeList,
-																			MaxItems: 1,
+																			Type:        schema.TypeList,
+																			Description: "",
+																			MaxItems:    1,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"exact_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"exact_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"pire_regex_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
 
 																					"prefix_not_match": {
 																						Type:         schema.TypeString,
+																						Description:  "",
 																						Optional:     true,
 																						ValidateFunc: validation.StringLenBetween(0, 255),
 																					},
@@ -1192,17 +1359,20 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 												},
 
 												"source_ip": {
-													Type:     schema.TypeList,
-													MaxItems: 1,
+													Type:        schema.TypeList,
+													Description: "",
+													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"geo_ip_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -1214,12 +1384,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"geo_ip_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"locations": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -1231,12 +1403,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -1248,12 +1422,14 @@ func resourceYandexSmartwebsecuritySecurityProfile() *schema.Resource {
 															},
 
 															"ip_ranges_not_match": {
-																Type:     schema.TypeList,
-																MaxItems: 1,
+																Type:        schema.TypeList,
+																Description: "",
+																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"ip_ranges": {
-																			Type: schema.TypeList,
+																			Type:        schema.TypeList,
+																			Description: "",
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -1315,6 +1491,11 @@ func resourceYandexSmartwebsecuritySecurityProfileCreate(ctx context.Context, d 
 		return diag.FromErr(err)
 	}
 
+	analyzeRequestBody, err := expandSecurityProfileAnalyzeRequestBody(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &smartwebsecurity.CreateSecurityProfileRequest{
 		FolderId:                     folderId,
 		Labels:                       labels,
@@ -1324,6 +1505,7 @@ func resourceYandexSmartwebsecuritySecurityProfileCreate(ctx context.Context, d 
 		SecurityRules:                securityRules,
 		CaptchaId:                    d.Get("captcha_id").(string),
 		AdvancedRateLimiterProfileId: d.Get("advanced_rate_limiter_profile_id").(string),
+		AnalyzeRequestBody:           analyzeRequestBody,
 	}
 
 	log.Printf("[DEBUG] Create SecurityProfile request: %s", protoDump(req))
@@ -1383,6 +1565,12 @@ func resourceYandexSmartwebsecuritySecurityProfileRead(ctx context.Context, d *s
 
 	log.Printf("[DEBUG] Read SecurityProfile response: %s", protoDump(resp))
 
+	analyzeRequestBody, err := flatten_yandex_cloud_smartwebsecurity_v1_SecurityProfile_AnalyzeRequestBody(resp.GetAnalyzeRequestBody())
+	if err != nil {
+		// B // isElem: false, ret: 1
+		return diag.FromErr(err)
+	}
+
 	createdAt := getTimestamp(resp.GetCreatedAt())
 
 	securityRule, err := flattenSmartwebsecuritySecurityRuleSlice(resp.GetSecurityRules())
@@ -1392,6 +1580,10 @@ func resourceYandexSmartwebsecuritySecurityProfileRead(ctx context.Context, d *s
 
 	if err := d.Set("advanced_rate_limiter_profile_id", resp.GetAdvancedRateLimiterProfileId()); err != nil {
 		log.Printf("[ERROR] failed set field advanced_rate_limiter_profile_id: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("analyze_request_body", analyzeRequestBody); err != nil {
+		log.Printf("[ERROR] failed set field analyze_request_body: %s", err)
 		return diag.FromErr(err)
 	}
 	if err := d.Set("captcha_id", resp.GetCaptchaId()); err != nil {
@@ -1448,6 +1640,11 @@ func resourceYandexSmartwebsecuritySecurityProfileUpdate(ctx context.Context, d 
 		return diag.FromErr(err)
 	}
 
+	analyzeRequestBody, err := expandSecurityProfileAnalyzeRequestBody_(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &smartwebsecurity.UpdateSecurityProfileRequest{
 		SecurityProfileId:            d.Id(),
 		Labels:                       labels,
@@ -1457,6 +1654,7 @@ func resourceYandexSmartwebsecuritySecurityProfileUpdate(ctx context.Context, d 
 		SecurityRules:                securityRules,
 		CaptchaId:                    d.Get("captcha_id").(string),
 		AdvancedRateLimiterProfileId: d.Get("advanced_rate_limiter_profile_id").(string),
+		AnalyzeRequestBody:           analyzeRequestBody,
 	}
 
 	updatePath := generateFieldMasks(d, resourceYandexSmartwebsecuritySecurityProfileUpdateFieldsMap)
@@ -1514,11 +1712,13 @@ func resourceYandexSmartwebsecuritySecurityProfileDelete(ctx context.Context, d 
 }
 
 var resourceYandexSmartwebsecuritySecurityProfileUpdateFieldsMap = map[string]string{
-	"labels":                           "labels",
-	"name":                             "name",
-	"description":                      "description",
-	"default_action":                   "default_action",
-	"security_rule":                    "security_rules",
-	"captcha_id":                       "captcha_id",
-	"advanced_rate_limiter_profile_id": "advanced_rate_limiter_profile_id",
+	"labels":                            "labels",
+	"name":                              "name",
+	"description":                       "description",
+	"default_action":                    "default_action",
+	"security_rule":                     "security_rules",
+	"captcha_id":                        "captcha_id",
+	"advanced_rate_limiter_profile_id":  "advanced_rate_limiter_profile_id",
+	"analyze_request_body.0.size_limit": "analyze_request_body.size_limit",
+	"analyze_request_body.0.size_limit_action": "analyze_request_body.size_limit_action",
 }

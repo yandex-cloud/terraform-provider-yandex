@@ -65,6 +65,7 @@ resource "yandex_sws_waf_profile" "this" {
         rule_set {
             name = "OWASP Core Ruleset"
             version = "4.0.0"
+			type = "RULE_SET_TYPE_UNSPECIFIED"
         }
     }
     dynamic "rule" {

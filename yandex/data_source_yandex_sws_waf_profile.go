@@ -26,22 +26,26 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"analyze_request_body": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "Analyze request body.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
 						},
 
 						"size_limit": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Computed:    true,
 						},
 
 						"size_limit_action": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
 						},
 					},
 				},
@@ -56,32 +60,49 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"core_rule_set": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "Core rule set.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"inbound_anomaly_score": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Computed:    true,
 						},
 
 						"paranoia_level": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "",
+							Computed:    true,
 						},
 
 						"rule_set": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+
+									"type": {
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
 									},
 
 									"version": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: "",
+										Computed:    true,
+									},
+
+									"id": {
+										Type:        schema.TypeString,
+										Description: "",
+										Optional:    true,
 									},
 								},
 							},
@@ -105,49 +126,59 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 			},
 
 			"exclusion_rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"condition": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authority": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authorities": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exact_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"exact_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 														},
 													},
@@ -159,46 +190,55 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 									},
 
 									"headers": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"name": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
 												},
 
 												"value": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exact_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"exact_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 														},
 													},
@@ -210,41 +250,49 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 									},
 
 									"http_method": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"http_methods": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exact_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"exact_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 														},
 													},
@@ -256,41 +304,49 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 									},
 
 									"request_uri": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"path": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"exact_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"exact_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"pire_regex_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"prefix_not_match": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 														},
 													},
@@ -298,46 +354,55 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 												},
 
 												"queries": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"key": {
-																Type:     schema.TypeString,
-																Computed: true,
+																Type:        schema.TypeString,
+																Description: "",
+																Computed:    true,
 															},
 
 															"value": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"exact_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 
 																		"exact_not_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 
 																		"pire_regex_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 
 																		"pire_regex_not_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 
 																		"prefix_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 
 																		"prefix_not_match": {
-																			Type:     schema.TypeString,
-																			Computed: true,
+																			Type:        schema.TypeString,
+																			Description: "",
+																			Computed:    true,
 																		},
 																	},
 																},
@@ -353,15 +418,18 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 									},
 
 									"source_ip": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"geo_ip_match": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"locations": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -373,11 +441,13 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 												},
 
 												"geo_ip_not_match": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"locations": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -389,11 +459,13 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 												},
 
 												"ip_ranges_match": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"ip_ranges": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -405,11 +477,13 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 												},
 
 												"ip_ranges_not_match": {
-													Type: schema.TypeList,
+													Type:        schema.TypeList,
+													Description: "",
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"ip_ranges": {
-																Type: schema.TypeList,
+																Type:        schema.TypeList,
+																Description: "",
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -429,21 +503,25 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 						},
 
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
 						},
 
 						"exclude_rules": {
-							Type: schema.TypeList,
+							Type:        schema.TypeList,
+							Description: "",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"exclude_all": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Description: "",
+										Computed:    true,
 									},
 
 									"rule_ids": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: "",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -455,13 +533,15 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 						},
 
 						"log_excluded": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
 						},
 
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: "Name of waf rule.",
+							Computed:    true,
 						},
 					},
 				},
@@ -486,29 +566,270 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 				Computed: true,
 			},
 
+			"match_all_rule_sets": {
+				Type:        schema.TypeBool,
+				Description: "Match all rule sets.",
+				Computed:    true,
+			},
+
 			"name": {
 				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["name"],
+				Description: "Name of waf profile.",
 				Optional:    true,
 				Computed:    true,
 			},
 
 			"rule": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: "List of rules.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_blocking": {
-							Type:     schema.TypeBool,
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+
+						"is_enabled": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+
+						"rule_id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+					},
+				},
+				Computed: true,
+			},
+
+			"rule_set": {
+				Type:        schema.TypeList,
+				Description: "",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action": {
+							Type:        schema.TypeString,
+							Description: "",
+							Computed:    true,
+						},
+
+						"core_rule_set": {
+							Type:        schema.TypeList,
+							Description: "",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"inbound_anomaly_score": {
+										Type:        schema.TypeInt,
+										Description: "",
+										Computed:    true,
+									},
+
+									"paranoia_level": {
+										Type:        schema.TypeInt,
+										Description: "",
+										Computed:    true,
+									},
+
+									"rule_set": {
+										Type:        schema.TypeList,
+										Description: "",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"type": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"version": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"waf_profile_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+										Computed: true,
+									},
+								},
+							},
 							Computed: true,
 						},
 
 						"is_enabled": {
-							Type:     schema.TypeBool,
+							Type:        schema.TypeBool,
+							Description: "",
+							Computed:    true,
+						},
+
+						"ml_rule_set": {
+							Type:        schema.TypeList,
+							Description: "",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rule_group": {
+										Type:        schema.TypeList,
+										Description: "",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"action": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"inbound_anomaly_score": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
+
+												"is_enabled": {
+													Type:        schema.TypeBool,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+										Computed: true,
+									},
+
+									"rule_set": {
+										Type:        schema.TypeList,
+										Description: "",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"type": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"version": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"waf_profile_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+										Computed: true,
+									},
+								},
+							},
 							Computed: true,
 						},
 
-						"rule_id": {
-							Type:     schema.TypeString,
+						"priority": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Computed:    true,
+						},
+
+						"ya_rule_set": {
+							Type:        schema.TypeList,
+							Description: "",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rule_group": {
+										Type:        schema.TypeList,
+										Description: "",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"action": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"inbound_anomaly_score": {
+													Type:        schema.TypeInt,
+													Description: "",
+													Computed:    true,
+												},
+
+												"is_enabled": {
+													Type:        schema.TypeBool,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+										Computed: true,
+									},
+
+									"rule_set": {
+										Type:        schema.TypeList,
+										Description: "",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"type": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"version": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+
+												"waf_profile_id": {
+													Type:        schema.TypeString,
+													Description: "",
+													Computed:    true,
+												},
+											},
+										},
+										Computed: true,
+									},
+								},
+							},
 							Computed: true,
 						},
 					},
@@ -586,6 +907,11 @@ func dataSourceYandexSmartwebsecurityWafWafProfileRead(ctx context.Context, d *s
 		return diag.FromErr(err)
 	}
 
+	ruleSet, err := flattenWafRuleSetSlice(resp.GetRuleSets())
+	if err != nil { // isElem: false, ret: 1
+		return diag.FromErr(err)
+	}
+
 	if err := d.Set("analyze_request_body", analyzeRequestBody); err != nil {
 		log.Printf("[ERROR] failed set field analyze_request_body: %s", err)
 		return diag.FromErr(err)
@@ -618,12 +944,20 @@ func dataSourceYandexSmartwebsecurityWafWafProfileRead(ctx context.Context, d *s
 		log.Printf("[ERROR] failed set field labels: %s", err)
 		return diag.FromErr(err)
 	}
+	if err := d.Set("match_all_rule_sets", resp.GetMatchAllRuleSets()); err != nil {
+		log.Printf("[ERROR] failed set field match_all_rule_sets: %s", err)
+		return diag.FromErr(err)
+	}
 	if err := d.Set("name", resp.GetName()); err != nil {
 		log.Printf("[ERROR] failed set field name: %s", err)
 		return diag.FromErr(err)
 	}
 	if err := d.Set("rule", rule); err != nil {
 		log.Printf("[ERROR] failed set field rule: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("rule_set", ruleSet); err != nil {
+		log.Printf("[ERROR] failed set field rule_set: %s", err)
 		return diag.FromErr(err)
 	}
 	if err := d.Set("waf_profile_id", resp.GetId()); err != nil {

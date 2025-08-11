@@ -4093,6 +4093,30 @@ func parseWafWafProfileXAnalyzeRequestBodyXAction(str string) (waf.WafProfile_An
 	return waf.WafProfile_AnalyzeRequestBody_Action(val), nil
 }
 
+func parseWafRuleSetXRuleSetType(str string) (waf.RuleSet_RuleSetType, error) {
+	val, ok := waf.RuleSet_RuleSetType_value[str]
+	if !ok {
+		return waf.RuleSet_RuleSetType(0), invalidKeyError("rule_set_type", waf.RuleSet_RuleSetType_value, str)
+	}
+	return waf.RuleSet_RuleSetType(val), nil
+}
+
+func parseWafWafProfileXWafProfileRuleSetXRuleSetAction(str string) (waf.WafProfile_WafProfileRuleSet_RuleSetAction, error) {
+	val, ok := waf.WafProfile_WafProfileRuleSet_RuleSetAction_value[str]
+	if !ok {
+		return waf.WafProfile_WafProfileRuleSet_RuleSetAction(0), invalidKeyError("rule_set_action", waf.WafProfile_WafProfileRuleSet_RuleSetAction_value, str)
+	}
+	return waf.WafProfile_WafProfileRuleSet_RuleSetAction(val), nil
+}
+
+func parseWafWafProfileXWafProfileRuleSetXRuleGroupXAction(str string) (waf.WafProfile_WafProfileRuleSet_RuleGroup_Action, error) {
+	val, ok := waf.WafProfile_WafProfileRuleSet_RuleGroup_Action_value[str]
+	if !ok {
+		return waf.WafProfile_WafProfileRuleSet_RuleGroup_Action(0), invalidKeyError("action", waf.WafProfile_WafProfileRuleSet_RuleGroup_Action_value, str)
+	}
+	return waf.WafProfile_WafProfileRuleSet_RuleGroup_Action(val), nil
+}
+
 func expandWafProfileRulesSlice(d *schema.ResourceData) ([]*waf.WafProfileRule, error) {
 	count := d.Get("rule.#").(int)
 	slice := make([]*waf.WafProfileRule, count)
@@ -4685,6 +4709,298 @@ func expandWafProfileAnalyzeRequestBody(d *schema.ResourceData) (*waf.WafProfile
 	return val, nil
 }
 
+func expandWafProfileRuleSetsSlice(d *schema.ResourceData) ([]*waf.WafProfile_WafProfileRuleSet, error) {
+	count := d.Get("rule_set.#").(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet, count)
+
+	for i := 0; i < count; i++ {
+		ruleSets, err := expandWafProfileRuleSets(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleSets
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSets(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set", indexes...)); ok {
+		coreRuleSet, err := expandWafProfileRuleSetsCoreRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCoreRuleSet(coreRuleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set", indexes...)); ok {
+		yaRuleSet, err := expandWafProfileRuleSetsYaRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetYaRuleSet(yaRuleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set", indexes...)); ok {
+		mlRuleSet, err := expandWafProfileRuleSetsMlRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMlRuleSet(mlRuleSet)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.priority", indexes...)); ok {
+		val.SetPriority(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.action", indexes...)); ok {
+		ruleSetAction, err := parseWafWafProfileXWafProfileRuleSetXRuleSetAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(ruleSetAction)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsCoreRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsCoreRuleSetRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.paranoia_level", indexes...)); ok {
+		val.SetParanoiaLevel(int64(v.(int)))
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsCoreRuleSetRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileYaRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileYaRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsYaRuleSetRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group", indexes...)); ok {
+		ruleGroups, err := expandWafProfileRuleSetsYaRuleSetRuleGroupsSlice(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleGroups(ruleGroups)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleGroupsSlice(d *schema.ResourceData, indexes ...interface{}) ([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	count := d.Get(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.#", indexes...)).(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, count)
+
+	for i := 0; i < count; i++ {
+		ruleGroups, err := expandWafProfileRuleSetsYaRuleSetRuleGroups(d, append(indexes, i)...)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleGroups
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleGroups(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_RuleGroup)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.action", indexes...)); ok {
+		action, err := parseWafWafProfileXWafProfileRuleSetXRuleGroupXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(action)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileMlRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileMlRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsMlRuleSetRuleSet(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group", indexes...)); ok {
+		ruleGroups, err := expandWafProfileRuleSetsMlRuleSetRuleGroupsSlice(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleGroups(ruleGroups)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleSet(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleGroupsSlice(d *schema.ResourceData, indexes ...interface{}) ([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	count := d.Get(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.#", indexes...)).(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, count)
+
+	for i := 0; i < count; i++ {
+		ruleGroups, err := expandWafProfileRuleSetsMlRuleSetRuleGroups(d, append(indexes, i)...)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleGroups
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleGroups(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_RuleGroup)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.action", indexes...)); ok {
+		action, err := parseWafWafProfileXWafProfileRuleSetXRuleGroupXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(action)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	return val, nil
+}
+
 func expandWafProfileCoreRuleSet(d *schema.ResourceData) (*waf.WafProfile_CoreRuleSet, error) {
 	val := new(waf.WafProfile_CoreRuleSet)
 
@@ -4722,6 +5038,15 @@ func expandWafProfileCoreRuleSetRuleSet(d *schema.ResourceData) (*waf.RuleSet, e
 
 	if v, ok := d.GetOk("core_rule_set.0.rule_set.0.version"); ok {
 		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk("core_rule_set.0.rule_set.0.type"); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
 	}
 
 	return val, nil
@@ -4768,6 +5093,7 @@ func flatten_yandex_cloud_smartwebsecurity_v1_waf_RuleSet(v *waf.RuleSet) ([]map
 	m := make(map[string]interface{})
 
 	m["name"] = v.Name
+	m["type"] = v.Type.String()
 	m["version"] = v.Version
 
 	return []map[string]interface{}{m}, nil
@@ -4860,6 +5186,170 @@ func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfileRule(v *waf.WafProfi
 	m["rule_id"] = v.RuleId
 
 	return []map[string]interface{}{m}, nil
+}
+
+func flattenWafRuleSetSlice(vs []*waf.WafProfile_WafProfileRuleSet) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(vs))
+
+	for _, v := range vs {
+		ruleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet(v)
+		if err != nil {
+			// B // isElem: true, ret: 2
+			return nil, err
+		}
+
+		if len(ruleSet) != 0 {
+			s = append(s, ruleSet[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet(v *waf.WafProfile_WafProfileRuleSet) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["action"] = v.Action.String()
+	coreRuleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet(v.GetCoreRuleSet())
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["core_rule_set"] = coreRuleSet
+	m["is_enabled"] = v.IsEnabled
+	mlRuleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileMlRuleSet(v.GetMlRuleSet())
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["ml_rule_set"] = mlRuleSet
+	m["priority"] = v.Priority
+	yaRuleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileYaRuleSet(v.GetYaRuleSet())
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["ya_rule_set"] = yaRuleSet
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet(v *waf.WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["inbound_anomaly_score"] = v.InboundAnomalyScore
+	m["paranoia_level"] = v.ParanoiaLevel
+	ruleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_RuleSet(v.RuleSet)
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["rule_set"] = ruleSet
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileMlRuleSet(v *waf.WafProfile_WafProfileRuleSet_WafProfileMlRuleSet) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	ruleGroup, err := flattenWafRuleSetmlRuleSetruleGroupSlice(v.RuleGroups)
+	if err != nil { // isElem: false, ret: 2
+		return nil, err
+	}
+	m["rule_group"] = ruleGroup
+	ruleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_RuleSet(v.RuleSet)
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["rule_set"] = ruleSet
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenWafRuleSetmlRuleSetruleGroupSlice(vs []*waf.WafProfile_WafProfileRuleSet_RuleGroup) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(vs))
+
+	for _, v := range vs {
+		ruleGroup, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_RuleGroup(v)
+		if err != nil {
+			// B // isElem: true, ret: 2
+			return nil, err
+		}
+
+		if len(ruleGroup) != 0 {
+			s = append(s, ruleGroup[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_RuleGroup(v *waf.WafProfile_WafProfileRuleSet_RuleGroup) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["action"] = v.Action.String()
+	m["id"] = v.Id
+	m["inbound_anomaly_score"] = v.InboundAnomalyScore
+	m["is_enabled"] = v.IsEnabled
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_WafProfileYaRuleSet(v *waf.WafProfile_WafProfileRuleSet_WafProfileYaRuleSet) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	ruleGroup, err := flattenWafRuleSetyaRuleSetruleGroupSlice(v.RuleGroups)
+	if err != nil { // isElem: false, ret: 2
+		return nil, err
+	}
+	m["rule_group"] = ruleGroup
+	ruleSet, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_RuleSet(v.RuleSet)
+	if err != nil {
+		// B // isElem: false, ret: 2
+		return nil, err
+	}
+	m["rule_set"] = ruleSet
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenWafRuleSetyaRuleSetruleGroupSlice(vs []*waf.WafProfile_WafProfileRuleSet_RuleGroup) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(vs))
+
+	for _, v := range vs {
+		ruleGroup, err := flatten_yandex_cloud_smartwebsecurity_v1_waf_WafProfile_WafProfileRuleSet_RuleGroup(v)
+		if err != nil {
+			// B // isElem: true, ret: 2
+			return nil, err
+		}
+
+		if len(ruleGroup) != 0 {
+			s = append(s, ruleGroup[0])
+		}
+	}
+
+	return s, nil
 }
 
 func expandWafProfileRulesSlice_(d *schema.ResourceData) ([]*waf.WafProfileRule, error) {
@@ -5454,6 +5944,298 @@ func expandWafProfileAnalyzeRequestBody_(d *schema.ResourceData) (*waf.WafProfil
 	return val, nil
 }
 
+func expandWafProfileRuleSetsSlice_(d *schema.ResourceData) ([]*waf.WafProfile_WafProfileRuleSet, error) {
+	count := d.Get("rule_set.#").(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet, count)
+
+	for i := 0; i < count; i++ {
+		ruleSets, err := expandWafProfileRuleSets_(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleSets
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSets_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set", indexes...)); ok {
+		coreRuleSet, err := expandWafProfileRuleSetsCoreRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCoreRuleSet(coreRuleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set", indexes...)); ok {
+		yaRuleSet, err := expandWafProfileRuleSetsYaRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetYaRuleSet(yaRuleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set", indexes...)); ok {
+		mlRuleSet, err := expandWafProfileRuleSetsMlRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMlRuleSet(mlRuleSet)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.priority", indexes...)); ok {
+		val.SetPriority(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.action", indexes...)); ok {
+		ruleSetAction, err := parseWafWafProfileXWafProfileRuleSetXRuleSetAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(ruleSetAction)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsCoreRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileCoreRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsCoreRuleSetRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.paranoia_level", indexes...)); ok {
+		val.SetParanoiaLevel(int64(v.(int)))
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsCoreRuleSetRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileYaRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileYaRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsYaRuleSetRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group", indexes...)); ok {
+		ruleGroups, err := expandWafProfileRuleSetsYaRuleSetRuleGroupsSlice_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleGroups(ruleGroups)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleGroupsSlice_(d *schema.ResourceData, indexes ...interface{}) ([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	count := d.Get(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.#", indexes...)).(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, count)
+
+	for i := 0; i < count; i++ {
+		ruleGroups, err := expandWafProfileRuleSetsYaRuleSetRuleGroups_(d, append(indexes, i)...)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleGroups
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSetsYaRuleSetRuleGroups_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_RuleGroup)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.action", indexes...)); ok {
+		action, err := parseWafWafProfileXWafProfileRuleSetXRuleGroupXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(action)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_group.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_WafProfileMlRuleSet, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_WafProfileMlRuleSet)
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set", indexes...)); ok {
+		ruleSet, err := expandWafProfileRuleSetsMlRuleSetRuleSet_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleSet(ruleSet)
+	}
+
+	if _, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group", indexes...)); ok {
+		ruleGroups, err := expandWafProfileRuleSetsMlRuleSetRuleGroupsSlice_(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRuleGroups(ruleGroups)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleSet_(d *schema.ResourceData, indexes ...interface{}) (*waf.RuleSet, error) {
+	val := new(waf.RuleSet)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.version", indexes...)); ok {
+		val.SetVersion(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.type", indexes...)); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
+	return val, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleGroupsSlice_(d *schema.ResourceData, indexes ...interface{}) ([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	count := d.Get(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.#", indexes...)).(int)
+	slice := make([]*waf.WafProfile_WafProfileRuleSet_RuleGroup, count)
+
+	for i := 0; i < count; i++ {
+		ruleGroups, err := expandWafProfileRuleSetsMlRuleSetRuleGroups_(d, append(indexes, i)...)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = ruleGroups
+	}
+
+	return slice, nil
+}
+
+func expandWafProfileRuleSetsMlRuleSetRuleGroups_(d *schema.ResourceData, indexes ...interface{}) (*waf.WafProfile_WafProfileRuleSet_RuleGroup, error) {
+	val := new(waf.WafProfile_WafProfileRuleSet_RuleGroup)
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.action", indexes...)); ok {
+		action, err := parseWafWafProfileXWafProfileRuleSetXRuleGroupXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAction(action)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.inbound_anomaly_score", indexes...)); ok {
+		val.SetInboundAnomalyScore(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_group.%d.is_enabled", indexes...)); ok {
+		val.SetIsEnabled(v.(bool))
+	}
+
+	return val, nil
+}
+
 func expandWafProfileCoreRuleSet_(d *schema.ResourceData) (*waf.WafProfile_CoreRuleSet, error) {
 	val := new(waf.WafProfile_CoreRuleSet)
 
@@ -5493,7 +6275,24 @@ func expandWafProfileCoreRuleSetRuleSet_(d *schema.ResourceData) (*waf.RuleSet, 
 		val.SetVersion(v.(string))
 	}
 
+	if v, ok := d.GetOk("core_rule_set.0.rule_set.0.type"); ok {
+		ruleSetType, err := parseWafRuleSetXRuleSetType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(ruleSetType)
+	}
+
 	return val, nil
+}
+
+func parseSmartwebsecuritySecurityProfileXAnalyzeRequestBodyXAction(str string) (smartwebsecurity.SecurityProfile_AnalyzeRequestBody_Action, error) {
+	val, ok := smartwebsecurity.SecurityProfile_AnalyzeRequestBody_Action_value[str]
+	if !ok {
+		return smartwebsecurity.SecurityProfile_AnalyzeRequestBody_Action(0), invalidKeyError("action", smartwebsecurity.SecurityProfile_AnalyzeRequestBody_Action_value, str)
+	}
+	return smartwebsecurity.SecurityProfile_AnalyzeRequestBody_Action(val), nil
 }
 
 func parseSmartwebsecuritySecurityProfileXDefaultAction(str string) (smartwebsecurity.SecurityProfile_DefaultAction, error) {
@@ -7044,6 +7843,43 @@ func expandSecurityProfileSecurityRulesWafConditionSourceIpGeoIpNotMatch(d *sche
 	}
 
 	return val, nil
+}
+
+func expandSecurityProfileAnalyzeRequestBody(d *schema.ResourceData) (*smartwebsecurity.SecurityProfile_AnalyzeRequestBody, error) {
+	val := new(smartwebsecurity.SecurityProfile_AnalyzeRequestBody)
+
+	if v, ok := d.GetOk("analyze_request_body.0.size_limit"); ok {
+		val.SetSizeLimit(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk("analyze_request_body.0.size_limit_action"); ok {
+		action, err := parseSmartwebsecuritySecurityProfileXAnalyzeRequestBodyXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSizeLimitAction(action)
+	}
+
+	empty := new(smartwebsecurity.SecurityProfile_AnalyzeRequestBody)
+	if proto.Equal(val, empty) {
+		return nil, nil
+	}
+
+	return val, nil
+}
+
+func flatten_yandex_cloud_smartwebsecurity_v1_SecurityProfile_AnalyzeRequestBody(v *smartwebsecurity.SecurityProfile_AnalyzeRequestBody) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["size_limit"] = v.SizeLimit
+	m["size_limit_action"] = v.SizeLimitAction.String()
+
+	return []map[string]interface{}{m}, nil
 }
 
 func flattenSmartwebsecuritySecurityRuleSlice(vs []*smartwebsecurity.SecurityRule) ([]interface{}, error) {
@@ -8665,6 +9501,30 @@ func expandSecurityProfileSecurityRulesWafConditionSourceIpGeoIpNotMatch_(d *sch
 		}
 
 		val.SetLocations(locations)
+	}
+
+	return val, nil
+}
+
+func expandSecurityProfileAnalyzeRequestBody_(d *schema.ResourceData) (*smartwebsecurity.SecurityProfile_AnalyzeRequestBody, error) {
+	val := new(smartwebsecurity.SecurityProfile_AnalyzeRequestBody)
+
+	if v, ok := d.GetOk("analyze_request_body.0.size_limit"); ok {
+		val.SetSizeLimit(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk("analyze_request_body.0.size_limit_action"); ok {
+		action, err := parseSmartwebsecuritySecurityProfileXAnalyzeRequestBodyXAction(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSizeLimitAction(action)
+	}
+
+	empty := new(smartwebsecurity.SecurityProfile_AnalyzeRequestBody)
+	if proto.Equal(val, empty) {
+		return nil, nil
 	}
 
 	return val, nil

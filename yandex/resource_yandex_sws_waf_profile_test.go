@@ -44,7 +44,7 @@ func TestAccSmartwebsecurityWafProfile_basic(t *testing.T) {
 
 func testAccSmartwebsecurityWafProfileBasic(targetName string) string {
 	return fmt.Sprintf(`
-resource "yandex_sws_waf_profile" "this" {	
+resource "yandex_sws_waf_profile" "this" {
 	name = "%[1]v"
     core_rule_set {
         inbound_anomaly_score = 2
@@ -52,6 +52,7 @@ resource "yandex_sws_waf_profile" "this" {
         rule_set {
             name = "OWASP Core Ruleset"
             version = "4.0.0"
+			type = "RULE_SET_TYPE_UNSPECIFIED"
         }
     }
     analyze_request_body {
