@@ -1,3 +1,8 @@
+## 0.150.0 (August 11, 2025)
+
+BUG FIXES:
+* yandex_storage_bucket_grant: fixed possible grant list inconsistency
+
 ## 0.149.0 (August 7, 2025)
 
 FEATURES:
