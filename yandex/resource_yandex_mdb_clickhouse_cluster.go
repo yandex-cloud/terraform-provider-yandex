@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -1062,6 +1063,13 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key for cluster disk encryption.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
 			"backup_retain_period_days": {
 				Type:        schema.TypeInt,
 				Description: "The period in days during which backups are stored.",
@@ -1289,21 +1297,29 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		return nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	req := clickhouse.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		DatabaseSpecs:      dbSpecs,
-		ConfigSpec:         configSpec,
-		HostSpecs:          firstHosts,
-		UserSpecs:          users,
-		Labels:             labels,
-		SecurityGroupIds:   securityGroupIds,
-		ServiceAccountId:   d.Get("service_account_id").(string),
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		MaintenanceWindow:  mw,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		DatabaseSpecs:       dbSpecs,
+		ConfigSpec:          configSpec,
+		HostSpecs:           firstHosts,
+		UserSpecs:           users,
+		Labels:              labels,
+		SecurityGroupIds:    securityGroupIds,
+		ServiceAccountId:    d.Get("service_account_id").(string),
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		MaintenanceWindow:   mw,
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}
 
 	return &req, toAdd, nil
@@ -1476,6 +1492,12 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	d.Set("embedded_keeper", cluster.Config.GetEmbeddedKeeper().GetValue())
 	d.Set("service_account_id", cluster.ServiceAccountId)
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
+	}
 
 	if err := d.Set("backup_retain_period_days", cluster.Config.BackupRetainPeriodDays.Value); err != nil {
 		return err

@@ -55,6 +55,29 @@ func TestAccDataSourceMDBClickHouseCluster_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBClickHouseCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	chName := acctest.RandomWithPrefix("ds-ch-disk-encryption")
+	chDesc := "ClickHouseCluster Terraform Datasource Test Disk Encryption"
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-disk-encryption")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBClickHouseClusterDiskEncrypted(chName, bucketName, chDesc, rInt, chVersion) + mdbClickHouseClusterByIDConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_clickhouse_cluster.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBClickHouseClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]

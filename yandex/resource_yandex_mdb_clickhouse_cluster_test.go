@@ -1455,6 +1455,32 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 	})
 }
 
+func TestAccMDBClickHouseCluster_EncryptedDisk(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-disk-encryption-create")
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-disk-encryption")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create ClickHouse Cluster with disk encryption
+			{
+				Config: testAccMDBClickHouseClusterDiskEncrypted(chName, bucketName, "Encrypted cluster", rInt, chVersion),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttrSet(chResource, "disk_encryption_key_id"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+		},
+	})
+}
+
 func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -3491,6 +3517,66 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 }
 `, name, desc, version, buildClickhouseConfig(config))
+}
+
+func testAccMDBClickHouseClusterDiskEncrypted(name, bucket, desc string, randInt int, version string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+diskEncryptionKeyResource+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo"{
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+  version        = "%s"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  database {
+	name = "default_db"
+  }
+
+  clickhouse {
+	config {
+		merge_tree {
+			replicated_deduplication_window 						  = 100
+			replicated_deduplication_window_seconds 				  = 1000
+			parts_to_delay_insert 									  = 1000
+			parts_to_throw_insert 									  = 3000
+			max_replicated_merges_in_queue 							  = 1000
+			number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
+			max_bytes_to_merge_at_min_space_in_pool 			      = 1000000
+			max_bytes_to_merge_at_max_space_in_pool					  = 16106127300
+			min_bytes_for_wide_part 								  = 10485760
+			min_rows_for_wide_part 								      = 14400
+			ttl_only_drop_parts 									  = false
+			allow_remote_fs_zero_copy_replication					  = false
+			merge_with_ttl_timeout 									  = 14400
+			merge_with_recompression_ttl_timeout 					  = 14400
+			max_parts_in_total 										  = 100000
+			max_number_of_merges_with_ttl_in_pool 					  = 2
+			cleanup_delay_period 									  = 30
+			number_of_free_entries_in_pool_to_execute_mutation		  = 30
+		}
+	}
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, desc, version)
 }
 
 func buildResources(resources *clickhouse.Resources) string {
