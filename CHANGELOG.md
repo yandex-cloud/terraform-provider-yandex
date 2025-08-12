@@ -1,3 +1,12 @@
+## 0.150.0 (August 12, 2025)
+
+FEATURES:
+* smartwebsecurity: support for multiple rulesets in waf profile
+* clickhouse: add disk encryption
+
+BUG FIXES:
+* yandex_storage_bucket_grant: fixed possible grant list inconsistency
+
 ## 0.149.0 (August 7, 2025)
 
 FEATURES:
