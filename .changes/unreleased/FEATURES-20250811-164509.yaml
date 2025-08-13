@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: transition to batch operations for creating and deleting shards'
+time: 2025-08-11T16:45:09.300208+03:00

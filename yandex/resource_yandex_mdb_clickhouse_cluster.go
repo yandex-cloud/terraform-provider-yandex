@@ -2065,6 +2065,7 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	hostFqdnsToDelete := []string{}
+	shardNamesToDelete := []string{}
 	for shardName, fqdns := range toDelete {
 		deleteShard := true
 		for _, th := range targetHosts {
@@ -2073,12 +2074,16 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 		if shardName != "zk" && shardName != "" && deleteShard {
-			err = deleteClickHouseShard(ctx, config, d, shardName)
-			if err != nil {
-				return err
-			}
+			shardNamesToDelete = append(shardNamesToDelete, shardName)
 		} else {
 			hostFqdnsToDelete = append(hostFqdnsToDelete, fqdns...)
+		}
+	}
+
+	if len(shardNamesToDelete) > 0 {
+		err = deleteClickHouseShards(ctx, config, d, shardNamesToDelete)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -2400,20 +2405,19 @@ func deleteClickHouseHosts(ctx context.Context, config *Config, d *schema.Resour
 	return nil
 }
 
-func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec, shardSpec *clickhouse.ShardConfigSpec) error {
+func createClickHouseShards(ctx context.Context, config *Config, d *schema.ResourceData, hostSpecs []*clickhouse.HostSpec, shardSpecs []*clickhouse.ShardSpec) error {
 	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
 		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
+			return config.sdk.MDB().Clickhouse().Cluster().AddShards(ctx, &clickhouse.AddClusterShardsRequest{
 				ClusterId:  d.Id(),
-				ShardName:  name,
-				ConfigSpec: shardSpec,
-				HostSpecs:  specs,
+				ShardSpecs: shardSpecs,
+				HostSpecs:  hostSpecs,
 				CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
 			})
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("error while adding shard to ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while adding shards to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -2484,17 +2488,17 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 	return nil
 }
 
-func deleteClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
+func deleteClickHouseShards(ctx context.Context, config *Config, d *schema.ResourceData, names []string) error {
 	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
 		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
-				ClusterId: d.Id(),
-				ShardName: name,
+			return config.sdk.MDB().Clickhouse().Cluster().DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
+				ClusterId:  d.Id(),
+				ShardNames: names,
 			})
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("error while deleting shard from ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while deleting shards from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -2504,17 +2508,38 @@ func addClickHouseShards(ctx context.Context, config *Config, d *schema.Resource
 		return nil
 	}
 
-	shardSpecs, err := expandClickhouseShardSpecs(d)
+	shardConfigSpecsMap, err := expandClickhouseShardSpecs(d)
 	if err != nil {
 		return err
 	}
 
-	for shardName, specs := range hostSpecsByShard {
-		log.Printf("[DEBUG] Shard %s specs to add: %v shard specs to add: %v\n", shardName, specs, shardSpecs[shardName])
-		err := createClickHouseShard(ctx, config, d, shardName, specs, shardSpecs[shardName])
-		if err != nil {
-			return err
+	var shardSpecs []*clickhouse.ShardSpec
+	var hostSpecs []*clickhouse.HostSpec
+	for shardName, shardHostSpecs := range hostSpecsByShard {
+		hostSpecs = append(hostSpecs, shardHostSpecs...)
+
+		shardSpec := &clickhouse.ShardSpec{
+			Name: shardName,
 		}
+		if shardConfigSpec, ok := shardConfigSpecsMap[shardName]; ok {
+			shardSpec.ConfigSpec = shardConfigSpec
+		}
+
+		shardSpecs = append(shardSpecs, shardSpec)
+	}
+
+	for _, shardSpec := range shardSpecs {
+		if _, ok := hostSpecsByShard[shardSpec.Name]; !ok {
+			return fmt.Errorf("no hosts defined for shard %s", shardSpec.Name)
+		}
+	}
+
+	log.Printf("[DEBUG] Shard specs to add: %v\n", shardSpecs)
+	log.Printf("[DEBUG] Host specs to add: %v\n", hostSpecs)
+
+	err = createClickHouseShards(ctx, config, d, hostSpecs, shardSpecs)
+	if err != nil {
+		return err
 	}
 
 	return nil
