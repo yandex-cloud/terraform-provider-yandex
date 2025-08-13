@@ -20,6 +20,8 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_placement_group_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_filesystem_iam_binding"
@@ -331,6 +333,8 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_sharded_postgresql_cluster.NewShardedPostgreSQLClusterResource,
 		mdb_sharded_postgresql_user.NewShardedPostgreSQLUserResource,
 		mdb_sharded_postgresql_database.NewShardedPostgreSQLDatabaseResource,
+		cloudregistry_iam_binding.NewResource,
+		cloudregistry_ip_permission.NewResource,
 	}, yandex_gen.GetProviderResources()...)
 }
 
@@ -359,6 +363,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		gitlab_instance.NewDataSource,
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
+		cloudregistry_ip_permission.NewDataSource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 

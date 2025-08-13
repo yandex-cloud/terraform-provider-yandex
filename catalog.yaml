@@ -1505,3 +1505,27 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  cloud_registry:
+    Category: "Cloud Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cloud_registry_iam_binding:
+    Category: "Cloud Registry"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  cloud_registry_ip_permission:
+    Category: "Cloud Registry"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
