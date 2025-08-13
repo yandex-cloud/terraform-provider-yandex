@@ -119,19 +119,6 @@ func expandLabels(ctx context.Context, labels types.Map, diags *diag.Diagnostics
 	return lMap
 }
 
-func expandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagnostics) []string {
-	var securityGroupIds []string
-	if !(sg.IsUnknown() || sg.IsNull()) {
-		securityGroupIds = make([]string, len(sg.Elements()))
-		diags.Append(sg.ElementsAs(ctx, &securityGroupIds, false)...)
-		if diags.HasError() {
-			return nil
-		}
-	}
-
-	return securityGroupIds
-}
-
 const (
 	anytimeType = "ANYTIME"
 	weeklyType  = "WEEKLY"

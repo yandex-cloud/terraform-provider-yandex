@@ -48,16 +48,6 @@ func flattenMaintenanceWindow(ctx context.Context, mw *spqr.MaintenanceWindow, d
 	return obj
 }
 
-func flattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.Set {
-	if ss == nil {
-		return types.SetValueMust(types.StringType, []attr.Value{})
-	}
-
-	obj, d := types.SetValueFrom(ctx, types.StringType, ss)
-	diags.Append(d...)
-	return obj
-}
-
 func flattenConfig(ctx context.Context, cfgState Config, c *spqr.ClusterConfig, diags *diag.Diagnostics) types.Object {
 	if c == nil {
 		diags.AddError("Failed to flatten config.", "Config of cluster can't be nil. It's error in provider")

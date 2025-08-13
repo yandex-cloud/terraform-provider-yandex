@@ -71,7 +71,7 @@ func ExpandEnvironment[T ~int32](_ context.Context, e types.String, diags *diag.
 		}
 
 		diags.AddError(
-			"Failed to parse MySQL environment",
+			"Failed to parse environment",
 			fmt.Sprintf("Error while parsing value for 'environment'. Value must be one of `%s`, not `%s`", strings.Join(allowedEnvs, "`, `"), e),
 		)
 

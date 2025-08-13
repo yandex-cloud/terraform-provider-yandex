@@ -3,12 +3,13 @@ package mdb_postgresql_cluster_v2_test
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"log"
 	"math/rand"
 	"reflect"
 	"regexp"
 	"sort"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 
 	"strings"
 	"testing"
@@ -250,7 +251,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						"day":  knownvalue.Null(),
 						"hour": knownvalue.Null(),
 					})),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -331,7 +332,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 						"day":  knownvalue.Null(),
 						"hour": knownvalue.Null(),
 					})),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -960,7 +961,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -1059,7 +1060,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -1152,7 +1153,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -1730,13 +1731,13 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
   }
 
   deletion_protection = %t
-  security_group_ids = [%s]
+  %s
 
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, autofailover, access,
 		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig,
-		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
+		maintenanceWindow, deletionProtection, testAccMDBPostgreSQLSecurityGroupIds(confSecurityGroupIds),
 	)
 }
 
@@ -1927,6 +1928,13 @@ resource "yandex_mdb_postgresql_cluster_v2" "encryption_tests" {
   disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
 }
 `, name, version)
+}
+
+func testAccMDBPostgreSQLSecurityGroupIds(ids []string) string {
+	if len(ids) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("security_group_ids = [%s]", strings.Join(ids, ","))
 }
 
 // func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string

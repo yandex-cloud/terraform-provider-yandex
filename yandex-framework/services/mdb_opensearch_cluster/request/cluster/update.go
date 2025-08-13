@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -54,13 +55,12 @@ func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSear
 	}
 
 	if !plan.SecurityGroupIDs.Equal(state.SecurityGroupIDs) {
-		securityGroupIDs := make([]string, 0, len(plan.SecurityGroupIDs.Elements()))
-		diags := plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIDs, false)
+		var diags diag.Diagnostics
+		securityGroupIds := mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIDs, &diags)
 		if diags.HasError() {
 			return nil, diags
 		}
-
-		req.SecurityGroupIds = securityGroupIDs
+		req.SecurityGroupIds = securityGroupIds
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
 	}
 

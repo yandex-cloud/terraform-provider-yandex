@@ -2,12 +2,10 @@ package cluster
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
@@ -32,13 +30,9 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		}
 	}
 
-	var env opensearch.Cluster_Environment
-	if !(plan.Environment.IsUnknown() || plan.Environment.IsNull()) {
-		env, d = toEnvironment(plan.Environment)
-		diags.Append(d)
-		if diags.HasError() {
-			return nil, diags
-		}
+	env := mdbcommon.ExpandEnvironment[opensearch.Cluster_Environment](ctx, plan.Environment, &diags)
+	if diags.HasError() {
+		return nil, diags
 	}
 
 	config, diags := prepareConfigCreateSpec(ctx, plan)
@@ -53,12 +47,9 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		return nil, diags
 	}
 
-	var securityGroupIds []string
-	if !(plan.SecurityGroupIDs.IsUnknown() || plan.SecurityGroupIDs.IsNull()) {
-		diags.Append(plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIds, false)...)
-		if diags.HasError() {
-			return nil, diags
-		}
+	securityGroupIds := mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIDs, &diags)
+	if diags.HasError() {
+		return nil, diags
 	}
 
 	mw, diags := prepareMaintenanceWindow(ctx, plan)
@@ -81,25 +72,6 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 	}
 
 	return req, diag.Diagnostics{}
-}
-
-func toEnvironment(e basetypes.StringValue) (opensearch.Cluster_Environment, diag.Diagnostic) {
-	v, ok := opensearch.Cluster_Environment_value[e.ValueString()]
-	if !ok || v == 0 {
-		allowedEnvs := make([]string, 0, len(opensearch.Cluster_Environment_value))
-		for k, v := range opensearch.Cluster_Environment_value {
-			if v == 0 {
-				continue
-			}
-			allowedEnvs = append(allowedEnvs, k)
-		}
-
-		return 0, diag.NewErrorDiagnostic(
-			"Failed to parse OpenSearch environment",
-			fmt.Sprintf("Error while parsing value for 'environment'. Value must be one of `%s`, not `%s`", strings.Join(allowedEnvs, "`, `"), e),
-		)
-	}
-	return opensearch.Cluster_Environment(v), nil
 }
 
 func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensearch.ConfigCreateSpec, diag.Diagnostics) {

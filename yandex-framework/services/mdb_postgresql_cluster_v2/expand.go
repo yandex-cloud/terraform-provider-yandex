@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -70,32 +69,6 @@ func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags
 	return pgBws
 }
 
-func expandEnvironment(_ context.Context, e types.String, diags *diag.Diagnostics) postgresql.Cluster_Environment {
-
-	if e.IsNull() || e.IsUnknown() {
-		return 0
-	}
-
-	v, ok := postgresql.Cluster_Environment_value[e.ValueString()]
-	if !ok || v == 0 {
-		allowedEnvs := make([]string, 0, len(postgresql.Cluster_Environment_value))
-		for k, v := range postgresql.Cluster_Environment_value {
-			if v == 0 {
-				continue
-			}
-			allowedEnvs = append(allowedEnvs, k)
-		}
-
-		diags.AddError(
-			"Failed to parse PostgreSQL environment",
-			fmt.Sprintf("Error while parsing value for 'environment'. Value must be one of `%s`, not `%s`", strings.Join(allowedEnvs, "`, `"), e),
-		)
-
-		return 0
-	}
-	return postgresql.Cluster_Environment(v)
-}
-
 func expandBoolWrapper(_ context.Context, b types.Bool, _ *diag.Diagnostics) *wrapperspb.BoolValue {
 	if b.IsNull() || b.IsUnknown() {
 		return nil
@@ -110,19 +83,6 @@ func expandStringWrapper(_ context.Context, s types.String, _ *diag.Diagnostics)
 	}
 
 	return wrapperspb.String(s.ValueString())
-}
-
-func expandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagnostics) []string {
-	var securityGroupIds []string
-	if !(sg.IsUnknown() || sg.IsNull()) {
-		securityGroupIds = make([]string, len(sg.Elements()))
-		diags.Append(sg.ElementsAs(ctx, &securityGroupIds, false)...)
-		if diags.HasError() {
-			return nil
-		}
-	}
-
-	return securityGroupIds
 }
 
 var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{

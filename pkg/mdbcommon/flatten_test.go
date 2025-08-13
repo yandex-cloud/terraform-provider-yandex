@@ -346,12 +346,9 @@ func TestYandexProvider_SetStringFlatten(t *testing.T) {
 			),
 		},
 		{
-			testname: "CheckNullAttribute",
-			reqVal:   nil,
-			expectedVal: types.SetValueMust(
-				types.StringType,
-				[]attr.Value{},
-			),
+			testname:    "CheckNullAttribute",
+			reqVal:      nil,
+			expectedVal: types.SetNull(types.StringType),
 		},
 	}
 

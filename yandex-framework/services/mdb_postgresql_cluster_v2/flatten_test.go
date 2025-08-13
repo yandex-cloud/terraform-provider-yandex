@@ -265,69 +265,6 @@ func TestYandexProvider_MDBPostgresClusterMapStringFlatten(t *testing.T) {
 	}
 }
 
-func TestYandexProvider_MDBPostgresClusterSetStringFlatten(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname    string
-		reqVal      []string
-		expectedVal types.Set
-	}{
-		{
-			testname: "CheckSeveralAttributes",
-			reqVal:   []string{"key1", "key2"},
-			expectedVal: types.SetValueMust(
-				types.StringType,
-				[]attr.Value{
-					types.StringValue("key1"),
-					types.StringValue("key2"),
-				},
-			),
-		},
-		{
-			testname: "CheckOneAttribute",
-			reqVal:   []string{"key"},
-			expectedVal: types.SetValueMust(
-				types.StringType,
-				[]attr.Value{
-					types.StringValue("key"),
-				},
-			),
-		},
-		{
-			testname: "CheckNullAttribute",
-			reqVal:   nil,
-			expectedVal: types.SetValueMust(
-				types.StringType,
-				[]attr.Value{},
-			),
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		m := flattenSetString(ctx, c.reqVal, &diags)
-		if diags.HasError() {
-			t.Errorf(
-				"Unexpected flatten diagnostics status %s test: errors: %v",
-				c.testname,
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !c.expectedVal.Equal(m) {
-			t.Errorf(
-				"Unexpected flatten result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				m,
-			)
-		}
-	}
-}
-
 func TestYandexProvider_MDBPostgresClusterBoolWrapperFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

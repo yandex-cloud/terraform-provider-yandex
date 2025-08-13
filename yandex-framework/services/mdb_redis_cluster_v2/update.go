@@ -105,8 +105,7 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 	}
 
 	if !plan.SecurityGroupIDs.Equal(state.SecurityGroupIDs) {
-		var securityGroupIds []string
-		diagnostics.Append(plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIds, false)...)
+		securityGroupIds := mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIDs, diagnostics)
 
 		req.SecurityGroupIds = securityGroupIds
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")

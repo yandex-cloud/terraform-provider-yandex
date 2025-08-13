@@ -94,7 +94,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 	}
 
 	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
-		request.SetSecurityGroupIds(expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
+		request.SetSecurityGroupIds(mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 

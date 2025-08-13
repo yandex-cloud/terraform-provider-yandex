@@ -37,9 +37,7 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.Labels = labels
 	diagnostics.Append(diags...)
 
-	sgs, diags := types.SetValueFrom(ctx, types.StringType, cluster.SecurityGroupIds)
-	state.SecurityGroupIDs = sgs
-	diagnostics.Append(diags...)
+	state.SecurityGroupIDs = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, diagnostics)
 
 	state.Resources = mdbcommon.FlattenResources[redisproto.Resources](ctx, cluster.GetConfig().GetResources(), diagnostics)
 

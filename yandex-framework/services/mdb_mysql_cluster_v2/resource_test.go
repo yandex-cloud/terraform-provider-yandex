@@ -222,7 +222,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			"day":  knownvalue.Null(),
 			"hour": knownvalue.Null(),
 		})),
-		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 	}
 
 	firstBasicApiChecks := []resource.TestCheckFunc{
@@ -323,7 +323,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						"day":  knownvalue.Null(),
 						"hour": knownvalue.Null(),
 					})),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
@@ -792,7 +792,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
@@ -867,7 +867,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
@@ -938,7 +938,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"hour": knownvalue.Null(),
 					},
 				)),
-				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(0)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 			},
 			Check: resource.ComposeAggregateTestCheckFunc(
 				testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
@@ -1389,14 +1389,14 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
   }
 
   deletion_protection = %t
-  security_group_ids = [%s]
+  %s
 
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, access,
 		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
 		mySqlCfg,
-		maintenanceWindow, deletionProtection, strings.Join(confSecurityGroupIds, ", "),
+		maintenanceWindow, deletionProtection, testAccMDBMySQLSecurityGroupIds(confSecurityGroupIds),
 	)
 }
 
@@ -1557,6 +1557,13 @@ func testAccMDBMySQLClusterHostsSpecialCaseStep2(name, version string) string {
     }
   }
 `)
+}
+
+func testAccMDBMySQLSecurityGroupIds(ids []string) string {
+	if len(ids) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("security_group_ids = [%s]", strings.Join(ids, ","))
 }
 
 // func testAccMDBMySQLClusterConfigHANamedSwitchMaster(name, version string) string

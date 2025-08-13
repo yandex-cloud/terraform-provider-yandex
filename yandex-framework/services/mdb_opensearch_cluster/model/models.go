@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 )
 
@@ -80,7 +81,7 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.Health = types.StringValue(cluster.GetHealth().String())
 	state.Status = types.StringValue(cluster.GetStatus().String())
 
-	securityGroupIDs, diags := nullableStringSliceToSet(ctx, cluster.SecurityGroupIds)
+	securityGroupIDs := mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, &diags)
 	if diags.HasError() {
 		return diags
 	}

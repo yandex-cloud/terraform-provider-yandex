@@ -17,13 +17,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -152,15 +152,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"security_group_ids": schema.SetAttribute{
-				MarkdownDescription: "A set of ids of security groups assigned to hosts of the cluster.",
-				Optional:            true,
-				Computed:            true,
-				ElementType:         types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
-			},
+			"security_group_ids": defaultschema.SecurityGroupIds(),
 			"maintenance_window": schema.SingleNestedAttribute{
 				MarkdownDescription: "Maintenance policy of the PostgreSQL cluster.",
 				Optional:            true,
@@ -563,7 +555,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Labels = flattenMapString(ctx, cluster.Labels, respDiagnostics)
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
 	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
-	state.SecurityGroupIds = flattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
+	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
 	var cfgState Config
 	diags.Append(state.Config.As(ctx, &cfgState, datasize.DefaultOpts)...)
@@ -618,7 +610,7 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*spqr.Upda
 	}
 
 	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
-		request.SetSecurityGroupIds(expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
+		request.SetSecurityGroupIds(mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 

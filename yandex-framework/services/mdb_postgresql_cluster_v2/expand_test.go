@@ -264,66 +264,6 @@ func TestYandexProvider_MDBPostgresClusterConfigBackupRetainPeriodDaysExpand(t *
 	}
 }
 
-func TestYandexProvider_MDBPostgresClusterEnvironmentExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	validEnvs := []string{"PRODUCTION", "PRESTABLE"}
-	randValid := validEnvs[rand.Intn(len(validEnvs))]
-
-	cases := []struct {
-		testname      string
-		reqVal        types.String
-		expectedVal   postgresql.Cluster_Environment
-		expectedError bool
-	}{
-		{
-			testname:    "CheckValidAttribute",
-			reqVal:      types.StringValue(randValid),
-			expectedVal: postgresql.Cluster_Environment(postgresql.Cluster_Environment_value[randValid]),
-		},
-		{
-			testname:      "CheckInvalidAttribute",
-			reqVal:        types.StringValue("INVALID"),
-			expectedError: true,
-		},
-		{
-			testname:    "ChecNullAttribute",
-			reqVal:      types.StringNull(),
-			expectedVal: postgresql.Cluster_ENVIRONMENT_UNSPECIFIED,
-		},
-		{
-			testname:      "CheckExplicitUnspecifiedAttribute",
-			reqVal:        types.StringValue("ENVIRONMENT_UNSPECIFIED"),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		lbls := expandEnvironment(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			t.Errorf(
-				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
-				c.testname,
-				c.expectedError,
-				diags.HasError(),
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(lbls, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expand result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				lbls,
-			)
-		}
-	}
-}
-
 func TestYandexProvider_MDBPostgresClusterBoolWrapperExpand(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -355,68 +295,6 @@ func TestYandexProvider_MDBPostgresClusterBoolWrapperExpand(t *testing.T) {
 				c.testname,
 				c.expectedVal,
 				b,
-			)
-		}
-	}
-}
-
-func TestYandexProvider_MDBPostgresClusterSecurityGroupIdsExpand(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname      string
-		reqVal        types.Set
-		expectedVal   []string
-		expectedError bool
-	}{
-		{
-			testname:    "CheckSeveralAttributes",
-			reqVal:      types.SetValueMust(types.StringType, []attr.Value{types.StringValue("sg-1"), types.StringValue("sg-2")}),
-			expectedVal: []string{"sg-1", "sg-2"},
-		},
-		{
-			testname:    "CheckOneAttribute",
-			reqVal:      types.SetValueMust(types.StringType, []attr.Value{types.StringValue("sg")}),
-			expectedVal: []string{"sg"},
-		},
-		{
-			testname:    "CheckEmptyAttribute",
-			reqVal:      types.SetValueMust(types.StringType, []attr.Value{}),
-			expectedVal: []string{},
-		},
-		{
-			testname:    "CheckNullAttribute",
-			reqVal:      types.SetNull(types.StringType),
-			expectedVal: nil,
-		},
-		{
-			testname:      "CheckInvalidAttribute",
-			reqVal:        types.SetValueMust(types.Int64Type, []attr.Value{types.Int64Value(1)}),
-			expectedError: true,
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		sg := expandSecurityGroupIds(ctx, c.reqVal, &diags)
-		if diags.HasError() != c.expectedError {
-			t.Errorf(
-				"Unexpected expand diagnostics status %s test: expected %t, actual %t with errors: %v",
-				c.testname,
-				c.expectedError,
-				diags.HasError(),
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !reflect.DeepEqual(sg, c.expectedVal) {
-			t.Errorf(
-				"Unexpected expand result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				sg,
 			)
 		}
 	}

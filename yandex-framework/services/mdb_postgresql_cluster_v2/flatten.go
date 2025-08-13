@@ -62,16 +62,6 @@ func flattenMapString(ctx context.Context, ms map[string]string, diags *diag.Dia
 	return obj
 }
 
-func flattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.Set {
-	if ss == nil {
-		return types.SetValueMust(types.StringType, []attr.Value{})
-	}
-
-	obj, d := types.SetValueFrom(ctx, types.StringType, ss)
-	diags.Append(d...)
-	return obj
-}
-
 func flattenBoolWrapper(ctx context.Context, wb *wrapperspb.BoolValue, diags *diag.Diagnostics) types.Bool {
 	if wb == nil {
 		return types.BoolNull()

@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/legacy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/log"
@@ -724,11 +725,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: " Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).",
 				Computed:            true,
 			},
-			"security_group_ids": schema.SetAttribute{
-				MarkdownDescription: "A set of security groups IDs which assigned to hosts of the cluster.",
-				Optional:            true,
-				ElementType:         types.StringType,
-			},
+			"security_group_ids": defaultschema.SecurityGroupIds(),
 			"service_account_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the service account authorized for this cluster.",
 				Optional:            true,

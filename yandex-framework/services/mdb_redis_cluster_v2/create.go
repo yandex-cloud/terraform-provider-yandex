@@ -19,13 +19,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 	diagnostics.Append(d)
 
 	e := plan.Environment
-	env, err := parseRedisEnv(e.ValueString())
-	if err != nil {
-		diagnostics.AddError(
-			"Wrong attribute value",
-			err.Error(),
-		)
-	}
+	env := mdbcommon.ExpandEnvironment[redis.Cluster_Environment](ctx, e, diagnostics)
 
 	conf, err := expandRedisConfig(plan.Config)
 	if err != nil {
@@ -57,8 +51,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 		BackupRetainPeriodDays: utils.Int64FromTF(plan.Config.BackupRetainPeriodDays),
 	}
 
-	var securityGroupIds []string
-	diagnostics.Append(plan.SecurityGroupIDs.ElementsAs(ctx, &securityGroupIds, false)...)
+	securityGroupIds := mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIDs, &diags)
 
 	networkID, d := validate.NetworkId(plan.NetworkID, &meta.ProviderState)
 	diagnostics.Append(d)

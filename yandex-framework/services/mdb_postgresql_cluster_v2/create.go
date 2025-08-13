@@ -16,11 +16,11 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		Description:        plan.Description.ValueString(),
 		FolderId:           expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
 		NetworkId:          plan.NetworkId.ValueString(),
-		Environment:        expandEnvironment(ctx, plan.Environment, &diags),
+		Environment:        mdbcommon.ExpandEnvironment[postgresql.Cluster_Environment](ctx, plan.Environment, &diags),
 		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
 		ConfigSpec:         expandConfig(ctx, plan.Config, &diags),
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
-		SecurityGroupIds:   expandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		SecurityGroupIds:   mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
 		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
 			postgresql.MaintenanceWindow,
 			postgresql.WeeklyMaintenanceWindow,

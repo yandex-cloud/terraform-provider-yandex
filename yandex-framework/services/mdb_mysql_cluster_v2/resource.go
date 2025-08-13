@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -25,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -270,16 +270,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"security_group_ids": schema.SetAttribute{
-
-				Description: "A set of ids of security groups assigned to hosts of the cluster.",
-				Optional:    true,
-				Computed:    true,
-				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
-			},
+			"security_group_ids": defaultschema.SecurityGroupIds(),
 			// Optional nested attribute maintenance_window required all optional nested attributes
 			// But if the block is specified explicitly, then the type attribute is required
 			"maintenance_window": schema.SingleNestedAttribute{

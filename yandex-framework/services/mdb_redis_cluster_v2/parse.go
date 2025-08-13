@@ -51,15 +51,6 @@ func limitToStr(hard, soft, secs *wrappers.Int64Value) string {
 	return strings.Join(vals, " ")
 }
 
-func parseRedisEnv(e string) (redis.Cluster_Environment, error) {
-	v, ok := redis.Cluster_Environment_value[e]
-	if !ok {
-		return 0, fmt.Errorf("value for 'environment' must be one of %s, not `%s`",
-			getJoinedKeys(getEnumValueMapKeys(redis.Cluster_Environment_value)), e)
-	}
-	return redis.Cluster_Environment(v), nil
-}
-
 func parsePersistenceMode(e string) (redis.Cluster_PersistenceMode, error) {
 	if e == "" {
 		return redis.Cluster_ON, nil

@@ -3,7 +3,6 @@ package mdbcommon
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
@@ -48,10 +47,6 @@ func FlattenBoolWrapper(ctx context.Context, wb *wrapperspb.BoolValue, diags *di
 }
 
 func FlattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.Set {
-	if ss == nil {
-		return types.SetValueMust(types.StringType, []attr.Value{})
-	}
-
 	obj, d := types.SetValueFrom(ctx, types.StringType, ss)
 	diags.Append(d...)
 	return obj
