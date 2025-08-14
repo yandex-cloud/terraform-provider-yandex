@@ -35,3 +35,18 @@ func GetFolderID(stateValue string, providerConfig *config.Config, diags *diag.D
 		return ""
 	}
 }
+
+func GetOrganizationID(stateValue string, providerConfig *config.Config, diags *diag.Diagnostics) string {
+	switch {
+	case stateValue != "":
+		return stateValue
+	case !providerConfig.ProviderState.OrganizationID.IsUnknown() && !providerConfig.ProviderState.OrganizationID.IsNull():
+		return providerConfig.ProviderState.OrganizationID.ValueString()
+	default:
+		diags.AddError(
+			"Cannot determine organization_id",
+			"Please set 'organization_id' key in this resource or at provider level",
+		)
+		return ""
+	}
+}

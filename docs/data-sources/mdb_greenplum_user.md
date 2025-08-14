@@ -36,4 +36,5 @@ output "resource_group" {
 ### Read-Only
 
 - `id` (String) The resource identifier.
+- `password` (String, Sensitive) The password of the user.
 - `resource_group` (String) The resource group of the user.

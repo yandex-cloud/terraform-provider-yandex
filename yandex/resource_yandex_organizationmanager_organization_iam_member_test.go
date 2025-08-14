@@ -15,8 +15,8 @@ func TestAccOrganizationIamMember_basic(t *testing.T) {
 	userID := getExampleUserID1()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -44,8 +44,8 @@ func TestAccOrganizationIamMember_existingBinding(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Add an access binding for the first user.
 			{
@@ -88,8 +88,8 @@ func TestAccOrganizationIamMember_changeRole(t *testing.T) {
 	userID := getExampleUserID1()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -124,8 +124,8 @@ func TestAccOrganizationIamMember_changeUser(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -160,8 +160,8 @@ func TestAccOrganizationIamMember_separateMembers(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply two IAM members. Check that both records are visible.
 			{

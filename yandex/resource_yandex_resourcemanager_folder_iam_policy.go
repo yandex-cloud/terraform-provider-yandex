@@ -1,6 +1,12 @@
 package yandex
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+import (
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+const yandexResourceManagerFolderDefaultTimeout = 30 * time.Minute
 
 func resourceYandexResourceManagerFolderIAMPolicy() *schema.Resource {
 	return resourceIamPolicy(

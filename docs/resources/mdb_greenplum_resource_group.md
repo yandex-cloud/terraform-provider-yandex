@@ -50,7 +50,6 @@ resource "yandex_vpc_subnet" "foo" {
 
 - `concurrency` (Number) The maximum number of concurrent transactions, including active and idle transactions, that are permitted in the resource group.
 - `cpu_rate_limit` (Number) The percentage of CPU resources available to this resource group.
-- `is_user_defined` (Boolean) If false, the resource group is immutable and controlled by yandex
 - `memory_limit` (Number) The percentage of reserved memory resources available to this resource group.
 - `memory_shared_quota` (Number) The percentage of reserved memory to share across transactions submitted in this resource group.
 - `memory_spill_ratio` (Number) The memory usage threshold for memory-intensive transactions. When a transaction reaches this threshold, it spills to disk.
@@ -58,6 +57,7 @@ resource "yandex_vpc_subnet" "foo" {
 ### Read-Only
 
 - `id` (String) The resource identifier.
+- `is_user_defined` (Boolean) If false, the resource group is immutable and controlled by yandex
 
 ## Import
 

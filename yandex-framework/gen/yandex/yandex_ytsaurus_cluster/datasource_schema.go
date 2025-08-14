@@ -19,14 +19,13 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 
 			"cluster_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster. Generated at creation time.",
-				Description: "ID of the cluster. Generated at creation time." +
-
+				MarkdownDescription: "ID of the cluster to return.",
+				Description: "ID of the cluster to return." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.GetClusterRequest.cluster_id
 					"package: yandex.cloud.ytsaurus.v1\n" +
-					"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+					"filename: yandex/cloud/ytsaurus/v1/cluster_service.proto\n",
 				Optional: true,
 				Computed: true,
 
@@ -36,14 +35,13 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster. Generated at creation time.",
-				Description: "ID of the cluster. Generated at creation time." +
-
+				MarkdownDescription: "ID of the cluster to return.",
+				Description: "ID of the cluster to return." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.GetClusterRequest.cluster_id
 					"package: yandex.cloud.ytsaurus.v1\n" +
-					"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+					"filename: yandex/cloud/ytsaurus/v1/cluster_service.proto\n",
 				Optional: true,
 				Computed: true,
 
@@ -55,7 +53,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: "Time when the cluster was created.",
 				Description: "Time when the cluster was created." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.created_at
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -66,7 +63,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"created_by": schema.StringAttribute{
 				MarkdownDescription: "User who created the cluster.",
 				Description: "User who created the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.created_by
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -77,7 +73,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the cluster.",
 				Description: "Description of the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.description
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -92,7 +87,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 					"external_http_proxy_balancer": schema.StringAttribute{
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.external_http_proxy_balancer
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -104,7 +98,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_http_proxies
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -115,7 +108,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 					"internal_http_proxy_alias": schema.StringAttribute{
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_http_proxy_alias
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -127,7 +119,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_rpc_proxies
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -138,7 +129,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 					"internal_rpc_proxy_alias": schema.StringAttribute{
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_rpc_proxy_alias
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -149,7 +139,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 					"ui": schema.StringAttribute{
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.ui
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -159,7 +148,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 				},
 				MarkdownDescription: "Endpoints of the cluster.",
 				Description: "Endpoints of the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.endpoints
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -170,7 +158,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"folder_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the folder that the cluster belongs to.",
 				Description: "ID of the folder that the cluster belongs to." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.folder_id
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -182,7 +169,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"health": schema.StringAttribute{
 				MarkdownDescription: "Health of the cluster.",
 				Description: "Health of the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.health
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -194,7 +180,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				MarkdownDescription: "Cluster labels as `key:value` pairs.",
 				Description: "Cluster labels as `key:value` pairs." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.labels
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -205,7 +190,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the cluster.\n The name is unique within the folder.",
 				Description: "Name of the cluster.\n The name is unique within the folder." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.name
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -217,7 +201,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				MarkdownDescription: "Network interfaces security groups.",
 				Description: "Network interfaces security groups." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.security_group_ids
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -243,7 +226,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 												ElementType:         types.StringType,
 												MarkdownDescription: "ID of the availability zone where the cluster resides.",
 												Description: "ID of the availability zone where the cluster resides." +
-
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.locations
 													"package: yandex.cloud.ytsaurus.v1\n" +
@@ -254,7 +236,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 											"size_gb": schema.Int64Attribute{
 												MarkdownDescription: "ID of the folder that the cluster belongs to.",
 												Description: "ID of the folder that the cluster belongs to." +
-
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.size_gb
 													"package: yandex.cloud.ytsaurus.v1\n" +
@@ -265,7 +246,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 											"type": schema.StringAttribute{
 												MarkdownDescription: "ID of the cluster. Generated at creation time.",
 												Description: "ID of the cluster. Generated at creation time." +
-
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.type
 													"package: yandex.cloud.ytsaurus.v1\n" +
@@ -276,7 +256,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									},
 									MarkdownDescription: "",
 									Description: "" +
-
 										// proto paths: +
 										// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disks
 										"package: yandex.cloud.ytsaurus.v1\n" +
@@ -287,7 +266,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								"preset": schema.StringAttribute{
 									MarkdownDescription: "",
 									Description: "" +
-
 										// proto paths: +
 										// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.preset
 										"package: yandex.cloud.ytsaurus.v1\n" +
@@ -306,7 +284,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 												"max_size": schema.Int64Attribute{
 													MarkdownDescription: "",
 													Description: "" +
-
 														// proto paths: +
 														// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.autoyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.AutoScale.max_size
 														"package: yandex.cloud.ytsaurus.v1\n" +
@@ -317,7 +294,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 												"min_size": schema.Int64Attribute{
 													MarkdownDescription: "",
 													Description: "" +
-
 														// proto paths: +
 														// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.autoyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.AutoScale.min_size
 														"package: yandex.cloud.ytsaurus.v1\n" +
@@ -327,7 +303,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 											},
 											MarkdownDescription: "",
 											Description: "" +
-
 												// proto paths: +
 												// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.auto
 												"package: yandex.cloud.ytsaurus.v1\n" +
@@ -342,7 +317,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 												"size": schema.Int64Attribute{
 													MarkdownDescription: "ID of the cluster. Generated at creation time.",
 													Description: "ID of the cluster. Generated at creation time." +
-
 														// proto paths: +
 														// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.fixedyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.FixedScale.size
 														"package: yandex.cloud.ytsaurus.v1\n" +
@@ -352,7 +326,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 											},
 											MarkdownDescription: "",
 											Description: "" +
-
 												// proto paths: +
 												// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.fixed
 												"package: yandex.cloud.ytsaurus.v1\n" +
@@ -362,7 +335,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									},
 									MarkdownDescription: "",
 									Description: "" +
-
 										// proto paths: +
 										// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policy
 										"package: yandex.cloud.ytsaurus.v1\n" +
@@ -373,7 +345,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						},
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.compute
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -392,7 +363,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"count": schema.Int64Attribute{
 										MarkdownDescription: "",
 										Description: "" +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.httpyandex.cloud.ytsaurus.v1.HttpProxySpec.count
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -402,7 +372,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								},
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.http
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -417,7 +386,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"count": schema.Int64Attribute{
 										MarkdownDescription: "",
 										Description: "" +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpcyandex.cloud.ytsaurus.v1.RpcProxySpec.count
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -427,7 +395,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								},
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpc
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -437,7 +404,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						},
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxy
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -456,7 +422,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"count": schema.Int64Attribute{
 										MarkdownDescription: "ID of the folder that the cluster belongs to.",
 										Description: "ID of the folder that the cluster belongs to." +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.count
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -467,7 +432,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"size_gb": schema.Int64Attribute{
 										MarkdownDescription: "ID of the cluster. Generated at creation time.",
 										Description: "ID of the cluster. Generated at creation time." +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.size_gb
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -477,7 +441,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								},
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hdd
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -492,7 +455,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"count": schema.Int64Attribute{
 										MarkdownDescription: "",
 										Description: "" +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.ssdyandex.cloud.ytsaurus.v1.StorageSpec.SsdSpec.count
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -503,7 +465,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"size_gb": schema.Int64Attribute{
 										MarkdownDescription: "",
 										Description: "" +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.ssdyandex.cloud.ytsaurus.v1.StorageSpec.SsdSpec.size_gb
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -514,7 +475,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									"type": schema.StringAttribute{
 										MarkdownDescription: "",
 										Description: "" +
-
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.ssdyandex.cloud.ytsaurus.v1.StorageSpec.SsdSpec.type
 											"package: yandex.cloud.ytsaurus.v1\n" +
@@ -524,7 +484,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								},
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.ssd
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -534,7 +493,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						},
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storage
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -549,7 +507,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 							"count": schema.Int64Attribute{
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.tabletyandex.cloud.ytsaurus.v1.TabletSpec.count
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -560,7 +517,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 							"preset": schema.StringAttribute{
 								MarkdownDescription: "",
 								Description: "" +
-
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.tabletyandex.cloud.ytsaurus.v1.TabletSpec.preset
 									"package: yandex.cloud.ytsaurus.v1\n" +
@@ -570,7 +526,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						},
 						MarkdownDescription: "",
 						Description: "" +
-
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.tablet
 							"package: yandex.cloud.ytsaurus.v1\n" +
@@ -580,7 +535,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 				},
 				MarkdownDescription: "Cluster specification.",
 				Description: "Cluster specification." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.spec
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -591,7 +545,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the cluster.",
 				Description: "Status of the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.status
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -602,7 +555,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"subnet_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the subnet where the cluster resides.",
 				Description: "ID of the subnet where the cluster resides." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.subnet_id
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -613,7 +565,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"updated_at": schema.StringAttribute{
 				MarkdownDescription: "Time when the cluster was last updated.",
 				Description: "Time when the cluster was last updated." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.updated_at
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -624,7 +575,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"updated_by": schema.StringAttribute{
 				MarkdownDescription: "User who last updated the cluster.",
 				Description: "User who last updated the cluster." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.updated_by
 					"package: yandex.cloud.ytsaurus.v1\n" +
@@ -635,7 +585,6 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			"zone_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the availability zone where the cluster resides.",
 				Description: "ID of the availability zone where the cluster resides." +
-
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.zone_id
 					"package: yandex.cloud.ytsaurus.v1\n" +

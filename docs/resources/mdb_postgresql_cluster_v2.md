@@ -75,6 +75,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `config` (Block, Optional) Configuration of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config))
 - `deletion_protection` (Boolean) Inhibits deletion of the cluster. Can be either true or false.
 - `description` (String) Description of the PostgreSQL cluster.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Attributes) Maintenance policy of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))

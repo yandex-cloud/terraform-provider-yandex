@@ -44,6 +44,7 @@ require (
 	github.com/yandex-cloud/go-genproto v0.17.0
 	github.com/yandex-cloud/go-sdk v0.15.0
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.8
+	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.6
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
 	github.com/yandex-cloud/go-sdk/v2 v2.4.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.26

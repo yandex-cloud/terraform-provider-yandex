@@ -20,8 +20,8 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 	userID1 := getExampleUserID1()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -57,8 +57,8 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -112,8 +112,8 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -154,8 +154,8 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -224,8 +224,8 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{

@@ -17,9 +17,9 @@ description: |-
 
 ### Optional
 
-- `cluster_id` (String) ID of the cluster. Generated at creation time.
+- `cluster_id` (String) ID of the cluster to return.
 - `folder_id` (String) ID of the folder that the cluster belongs to.
-- `id` (String) ID of the cluster. Generated at creation time.
+- `id` (String) ID of the cluster to return.
 - `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only

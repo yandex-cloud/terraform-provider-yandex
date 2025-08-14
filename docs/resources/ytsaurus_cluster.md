@@ -22,10 +22,10 @@ description: |-
 
 ### Optional
 
-- `cluster_id` (String) ID of the cluster to delete.
+- `cluster_id` (String) ID of the cluster to return.
 - `description` (String) Description of the cluster.
 - `folder_id` (String) ID of the folder that the cluster belongs to.
-- `id` (String) ID of the cluster to delete.
+- `id` (String) ID of the cluster to return.
 - `labels` (Map of String) Cluster labels as `key:value` pairs.
 - `name` (String) Name of the cluster.
  The name is unique within the folder.

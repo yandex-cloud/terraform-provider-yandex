@@ -87,7 +87,7 @@ resource "yandex_storage_bucket_grant" "my_bucket_grant" {
 - `acl` (String) The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
 ~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
-- `grant` (Block List) An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+- `grant` (Block Set) An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 All permissions for a single grantee must be specified in a single `grant` block.
 
 ~> To manage `grant` argument, service account with `storage.admin` role should be used. (see [below for nested schema](#nestedblock--grant))
@@ -98,7 +98,7 @@ All permissions for a single grantee must be specified in a single `grant` block
 
 Required:
 
-- `permissions` (List of String) List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.
+- `permissions` (Set of String) List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.
 - `type` (String) Type of grantee to apply for. Valid values are `CanonicalUser` and `Group`.
 
 Optional:

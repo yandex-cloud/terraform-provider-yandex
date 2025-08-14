@@ -14,8 +14,8 @@ func TestAccCloudIamMember_basic(t *testing.T) {
 	userID := getExampleUserID1()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{

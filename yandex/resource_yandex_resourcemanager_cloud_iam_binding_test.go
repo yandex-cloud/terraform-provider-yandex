@@ -20,8 +20,8 @@ func TestAccCloudIamBinding_basic(t *testing.T) {
 	t.Log(testAccCloudAssociateBindingBasic(cloudID, role, userID))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -43,8 +43,8 @@ func TestAccCloudIamBinding_multiple(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -76,8 +76,8 @@ func TestAccCloudIamBinding_multipleAtOnce(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source about cloud ID
 			{
@@ -101,8 +101,8 @@ func TestAccCloudIamBinding_update(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -132,8 +132,8 @@ func TestAccCloudIamBinding_remove(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source about cloud ID
 			{

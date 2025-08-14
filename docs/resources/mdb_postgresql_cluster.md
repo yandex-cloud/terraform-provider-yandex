@@ -238,6 +238,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `database` (Block List, Deprecated) ~> Deprecated! To manage databases, please switch to using a separate resource type `yandex_mdb_postgresql_database`. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `host_group_ids` (Set of String) Host Group IDs.
 - `host_master_name` (String, Deprecated) Deprecated field. Will be removed in future versions.
@@ -261,7 +262,7 @@ resource "yandex_vpc_subnet" "foo" {
 Required:
 
 - `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedblock--config--resources))
-- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
+- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
 
 Optional:
 

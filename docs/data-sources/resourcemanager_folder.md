@@ -7,9 +7,7 @@ description: |-
 
 # yandex_resourcemanager_folder (Data Source)
 
-Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder).
-
-~> Either `folder_id` or `name` must be specified.
+A Folder resource. For more information, see [Folder](/docs/resource-manager/concepts/resources-hierarchy#folder).
 
 ## Example usage
 
@@ -41,14 +39,28 @@ output "my_folder_2_cloud_id" {
 
 ### Optional
 
-- `cloud_id` (String) Cloud that the resource belongs to. If value is omitted, the default provider cloud is used.
-- `folder_id` (String) ID of the folder.
-- `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `name` (String) The resource name.
+- `cloud_id` (String) ID of the cloud that the folder belongs to.
+- `folder_id` (String) ID of the Folder resource to return.
+ To get the folder ID, use a [FolderService.List] request.
+- `id` (String) ID of the Folder resource to return.
+ To get the folder ID, use a [FolderService.List] request.
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
-- `created_at` (String) The creation timestamp of the resource.
-- `description` (String) The resource description.
-- `id` (String) The ID of this resource.
-- `status` (String) Current status of the folder.
+- `created_at` (String) Creation timestamp.
+- `description` (String) Description of the folder. 0-256 characters long.
+- `labels` (Map of String) Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+- `name` (String) Name of the folder.
+ The name is unique within the cloud. 3-63 characters long.
+- `status` (String) Status of the folder.
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `read` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).

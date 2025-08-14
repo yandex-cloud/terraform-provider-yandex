@@ -28,7 +28,7 @@ current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")
 LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${version_tag}-${current_time}+dev.${commit_hash}"
 
 
-TFGEN_MK := ./tools/tfgen/gen1.mk
+TFGEN_MK := ./tools/tfgen/gen.mk
 -include $(TFGEN_MK)
 
 # Define fallback targets if the file doesn't exist

@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	DefaultTimeout = 1 * time.Minute
+	DefaultTimeout = 30 * time.Minute
 )
 
 type State struct {

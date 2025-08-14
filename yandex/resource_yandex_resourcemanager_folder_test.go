@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -25,7 +26,7 @@ func init() {
 }
 
 func sweepFolderOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDeleteTimeout)
+	ctx, cancel := conf.ContextWithTimeout(30 * time.Minute)
 	defer cancel()
 
 	op, err := conf.sdk.ResourceManager().Folder().Delete(ctx, &resourcemanager.DeleteFolderRequest{
@@ -76,9 +77,9 @@ func TestAccResourceManagerFolder_create(t *testing.T) {
 	t.Log(testAccResourceManagerFolder(folderInfo))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckFolderDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckFolderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceManagerFolder(folderInfo),

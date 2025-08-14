@@ -34,6 +34,7 @@ output "fqdn" {
 - `cluster_id` (String) The ID of the PostgreSQL cluster.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `name` (String) The name of the PostgreSQL cluster.
 
@@ -41,7 +42,7 @@ output "fqdn" {
 
 - `config` (List of Object) Configuration of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--config))
 - `created_at` (String) The creation timestamp of the resource.
-- `database` (Set of Object) (see [below for nested schema](#nestedatt--database))
+- `database` (Set of Object) ~> Deprecated! To manage databases, please switch to using a separate resource type `yandex_mdb_postgresql_database`. (see [below for nested schema](#nestedatt--database))
 - `environment` (String) Deployment environment of the PostgreSQL cluster.
 - `health` (String) Aggregated health of the cluster.
 - `host` (List of Object) A host of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--host))
@@ -52,7 +53,7 @@ output "fqdn" {
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `status` (String) Status of the cluster.
-- `user` (List of Object) (see [below for nested schema](#nestedatt--user))
+- `user` (List of Object) ~> Deprecated! To manage users, please switch to using a separate resource type `yandex_mdb_postgresql_user`. (see [below for nested schema](#nestedatt--user))
 
 <a id="nestedatt--config"></a>
 ### Nested Schema for `config`
@@ -77,7 +78,7 @@ Read-Only:
 
 - `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedobjatt--config--resources))
 
-- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
+- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
 
 
 <a id="nestedobjatt--config--access"></a>

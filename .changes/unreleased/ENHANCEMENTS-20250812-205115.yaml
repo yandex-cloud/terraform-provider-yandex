@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'resourcemanager: rewrite yandex_resourcemanager_cloud and yandex_resourcemanager_folder resources and datasources using tfgen'
+time: 2025-08-12T20:51:15.935107+03:00

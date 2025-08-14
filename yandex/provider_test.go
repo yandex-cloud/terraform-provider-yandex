@@ -8,18 +8,21 @@ import (
 	"strings"
 	"testing"
 
-	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	"github.com/yandex-cloud/terraform-provider-yandex/common"
-
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
 const providerDefaultValueInsecure = false
@@ -34,6 +37,9 @@ var testAccProviderFactories map[string]func() (*schema.Provider, error)
 var testAccProviderEmptyFolder map[string]*schema.Provider
 
 var testAccProvider *schema.Provider
+var testAccProviderServer tfprotov6.ProviderServer
+var accProvider provider.Provider
+var testAccProviderFactoriesV6 map[string]func() (tfprotov6.ProviderServer, error)
 
 var testAccEnvVars = []string{
 	"YC_FOLDER_ID",
@@ -61,7 +67,36 @@ var testUserID1 = "no user id"
 var testUserID2 = "no user id"
 var testStorageEndpoint = "no.storage.endpoint"
 
+func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
+	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
+		context.Background(),
+		NewSDKProvider().GRPCProvider,
+	)
+	providers := []func() tfprotov6.ProviderServer{
+		providerserver.NewProtocol6(accProvider),
+		func() tfprotov6.ProviderServer {
+			return upgradedSdkProvider
+		},
+	}
+
+	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
+	if err != nil {
+		return nil, err
+	}
+
+	return muxServer.ProviderServer, nil
+}
+
 func init() {
+	accProvider = yandex_framework.NewFrameworkProvider()
+	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
+	testAccProviderServer = testAccProviderFunc()
+	testAccProviderFactoriesV6 = map[string]func() (tfprotov6.ProviderServer, error){
+		"yandex": func() (tfprotov6.ProviderServer, error) {
+			return testAccProviderServer, nil
+		},
+	}
+
 	testAccProvider = NewSDKProvider()
 	testAccProvider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		return providerConfigure(context.Background(), d, testAccProvider, false, true)
@@ -70,6 +105,7 @@ func init() {
 	testAccProviders = map[string]*schema.Provider{
 		"yandex": testAccProvider,
 	}
+
 	testAccProviderFactories = map[string]func() (*schema.Provider, error){
 		"yandex": func() (*schema.Provider, error) {
 			return testAccProvider, nil

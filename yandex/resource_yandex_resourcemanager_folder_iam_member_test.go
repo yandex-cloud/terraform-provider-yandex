@@ -18,8 +18,8 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 	userID1 := getExampleUserID1()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -55,8 +55,8 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{
@@ -110,8 +110,8 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Use an example folder
 			{

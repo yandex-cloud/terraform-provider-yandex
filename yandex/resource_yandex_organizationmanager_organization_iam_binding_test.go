@@ -45,8 +45,8 @@ func TestAccOrganizationIamBinding_existingBinding(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Add an access binding for the first user.
 			{
@@ -76,8 +76,8 @@ func TestAccOrganizationIamBinding_multiple(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -116,8 +116,8 @@ func TestAccOrganizationIamBinding_multipleAtOnce(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -142,8 +142,8 @@ func TestAccOrganizationIamBinding_update(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
@@ -189,8 +189,8 @@ func TestAccOrganizationIamBinding_remove(t *testing.T) {
 	userID2 := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source about cloud ID
 			{

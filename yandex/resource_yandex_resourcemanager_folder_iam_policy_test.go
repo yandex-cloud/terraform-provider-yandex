@@ -38,9 +38,9 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_basic(cloudID, folderID, policy),
@@ -86,9 +86,9 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_basic(cloudID, folderID, policy1),

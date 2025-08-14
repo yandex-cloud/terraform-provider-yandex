@@ -787,6 +787,8 @@ github.com/yandex-cloud/go-sdk v0.15.0 h1:qw4DIjB9R5kFxAM41oRX6fR6Peu3+NJJ+8Hq0H
 github.com/yandex-cloud/go-sdk v0.15.0/go.mod h1:FrGFoK1NSOGjW5k/ga811r3UPACWPiDhMLL5B5GKeNA=
 github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.8 h1:qB2FgMc8urSQF0phpXV3e/4cyfue0JkbEVzKAIFa+Fk=
 github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.8/go.mod h1:cYveIEaHdG9Frx8TnV5N/UGqUVaKoqFCYe6lNJz3DVM=
+github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.6 h1:paJz1R3PCqLeyr/RVRxHe2OugtDjjTJVAedb9sgoIbI=
+github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.6/go.mod h1:/4GQcvk2moSVjJOHlrx382/A5eJFn5wpaGm2bexE6zw=
 github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2 h1:YFttcg0q4wXnirKSCRNU7SQmutw+roj43KWFN71OdA4=
 github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2/go.mod h1:+bFDGTAN2W39/sOee7ES9RldZEI/GfUu43B4mn4xefE=
 github.com/yandex-cloud/go-sdk/v2 v2.4.0 h1:AMTX70Rv3zuKY86sg5aDsDtjA7sRFNpkzQijtc90kC0=
