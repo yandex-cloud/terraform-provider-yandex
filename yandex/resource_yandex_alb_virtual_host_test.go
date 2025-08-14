@@ -345,7 +345,7 @@ func TestAccALBVirtualHost_grpcRouteWithGRPCStatusResponseAction(t *testing.T) {
 	})
 }
 
-func TestAcceptanceALBVirtualHost_RateLimit(t *testing.T) {
+func TestAccALBVirtualHost_RateLimit(t *testing.T) {
 	t.Parallel()
 
 	vhPath := ""
@@ -938,7 +938,7 @@ func TestAcceptanceALBVirtualHost_RateLimit(t *testing.T) {
 	}
 }
 
-func TestAcceptanceALBVirtualHost_RegexRewrite(t *testing.T) {
+func TestAccALBVirtualHost_RegexRewrite(t *testing.T) {
 	t.Parallel()
 
 	vhPath := ""
