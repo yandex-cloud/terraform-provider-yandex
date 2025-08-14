@@ -26,6 +26,7 @@ func BuildCreateClusterRequest(ctx context.Context, plan *ClusterModel, provider
 		Description:        plan.Description.ValueString(),
 		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, diags),
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
+		Version:            plan.Version.ValueString(),
 		ConfigSpec: &metastore.ConfigSpec{
 			Resources: &metastore.Resources{
 				ResourcePresetId: plan.ClusterConfig.ResourcePresetId.ValueString(),
@@ -100,6 +101,11 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
 		updateClusterRequest.SetMaintenanceWindow(expandMaintenanceWindow(plan.MaintenanceWindow, diags))
 		updateMaskPaths = append(updateMaskPaths, "maintenance_window")
+	}
+
+	if !stringsAreEqual(plan.Version, state.Version) {
+		updateClusterRequest.SetVersion(plan.Version.ValueString())
+		updateMaskPaths = append(updateMaskPaths, "version")
 	}
 
 	updateClusterRequest.SetUpdateMask(&fieldmaskpb.FieldMask{

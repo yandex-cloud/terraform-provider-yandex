@@ -290,6 +290,8 @@ func refreshState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel, diag
 	if !setsAreEqual(state.SubnetIds, subnetIDs) {
 		state.SubnetIds = subnetIDs
 	}
+
+	state.Version = types.StringValue(cluster.GetVersion())
 }
 
 func clusterIDLogField(cid string) map[string]interface{} {

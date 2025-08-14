@@ -298,6 +298,13 @@
                 }
               ]
             }
+          },
+          {
+            "name": "version",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "description": "Metastore server version."
+            }
           }
         ],
         "blocks": [

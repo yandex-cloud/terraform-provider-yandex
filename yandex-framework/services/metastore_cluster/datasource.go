@@ -251,6 +251,12 @@ func (d *metastoreClusterDatasource) Schema(ctx context.Context, req datasource.
 				Description:         "The list of VPC subnets identifiers which resource is attached.",
 				MarkdownDescription: "The list of VPC subnets identifiers which resource is attached.",
 			},
+			"version": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Metastore server version.",
+				MarkdownDescription: "Metastore server version.",
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{

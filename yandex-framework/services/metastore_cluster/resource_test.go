@@ -44,6 +44,21 @@ resource "yandex_vpc_subnet" "metastore-b" {
 resource "yandex_vpc_security_group" "metastore-sg1" {
   description = "Test security group 1"
   network_id  = yandex_vpc_network.metastore-net.id
+
+  ingress {
+	protocol       = "ANY"
+    from_port      = 30000
+    to_port        = 32767
+	description    = "incoming traffic"
+	v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+	protocol       = "ANY"
+	port           = 10256
+	description    = "NLB health-check"
+	v4_cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "yandex_iam_service_account" "metastore-sa-{{ .RandSuffix }}" {
@@ -75,6 +90,7 @@ type metastoreClusterConfigParams struct {
 	SGIDsSpecified     optional[bool]
 	SubnetIDVar        string
 	ResourcePreset     string
+	Version            optional[string]
 }
 
 type MaintenanceWindow struct {
@@ -154,6 +170,10 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
 	enabled = false
 	{{ end }}
   }
+  {{ end }}
+
+  {{ if .Version.Valid }}
+  version = "{{ .Version.Value }}"
   {{ end }}
 
   timeouts {
@@ -261,6 +281,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "3.1"), // default metastore version
 					// Not set
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "description"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "security_group_ids"),
@@ -287,6 +308,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					SGIDsSpecified:     newOptional(true),
 					SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset:     "c2-m8",
+					Version:            newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -304,6 +326,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.min_level", "INFO"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "3.1"),
 				),
 			},
 			metastoreClusterImportStep("yandex_metastore_cluster.metastore_cluster"),
@@ -320,6 +343,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					SGIDsSpecified:     newOptional(false),
 					SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset:     "c2-m4",
+					Version:            newOptional("4.0"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -333,6 +357,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.enabled", "false"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.folder_id", folderID), // is returned by metastore API
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "4.0"),
 					// Not set
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "security_group_ids.0"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.day"),
@@ -372,6 +397,7 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "3.1"),
 					// Not set
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "description"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "security_group_ids"),
@@ -395,6 +421,7 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "3.1"),
 					// Not set
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "description"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "security_group_ids"),

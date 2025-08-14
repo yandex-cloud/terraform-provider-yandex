@@ -217,6 +217,12 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					setplanmodifier.RequiresReplace(),
 				},
 			},
+			"version": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Metastore server version.",
+				MarkdownDescription: "Metastore server version.",
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"timeouts": schema.SingleNestedBlock{
@@ -245,6 +251,7 @@ type ClusterModel struct {
 	ServiceAccountId   types.String           `tfsdk:"service_account_id"`
 	Status             types.String           `tfsdk:"status"`
 	SubnetIds          types.Set              `tfsdk:"subnet_ids"`
+	Version            types.String           `tfsdk:"version"`
 	Timeouts           timeouts.Value         `tfsdk:"timeouts"`
 }
 
