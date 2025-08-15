@@ -420,12 +420,10 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 				Computed:    true,
 			},
 			"postgresql_config": {
-				Type:             schema.TypeMap,
-				Description:      resourceYandexMDBPostgreSQLClusterConfig().Schema["postgresql_config"].Description,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
-				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
+				Type:        schema.TypeMap,
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["postgresql_config"].Description,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

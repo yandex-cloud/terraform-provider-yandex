@@ -130,7 +130,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							},
 						},
 						"assign_public_ip": schema.BoolAttribute{
-							Description: "Assign a public IP address to the host.",
+							Description: "Whether the host should get a public IP address.",
 							Optional:    true,
 							Computed:    true,
 							Default:     booldefault.StaticBool(false),
@@ -219,9 +219,6 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Required:    true,
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"10", "10-1c",
-								"11", "11-1c",
-								"12", "12-1c",
 								"13", "13-1c",
 								"14", "14-1c",
 								"15", "15-1c",
@@ -287,14 +284,14 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								Default:     booldefault.StaticBool(false),
 							},
 							"sessions_sampling_interval": schema.Int64Attribute{
-								Description: "Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.",
+								Description: "Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.",
 								Required:    true,
 								Validators: []validator.Int64{
 									int64validator.Between(1, 86400),
 								},
 							},
 							"statements_sampling_interval": schema.Int64Attribute{
-								Description: "Interval (in seconds) for pg_stat_statements sampling Acceptable values are 60 to 86400, inclusive.",
+								Description: "Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 60 to 86400, inclusive.",
 								Required:    true,
 								Validators: []validator.Int64{
 									int64validator.Between(60, 86400),
@@ -329,7 +326,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								},
 							},
 							"minutes": schema.Int64Attribute{
-								Description: "The minute at which backup will be started (UTC).",
+								Description: "The minute at which backup will be started.",
 								Computed:    true,
 								Optional:    true,
 								Default:     int64default.StaticInt64(0),
@@ -382,14 +379,14 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 						Attributes: map[string]schema.Attribute{
 							"disk_size_limit": schema.Int64Attribute{
-								Description: "Limit of disk size after autoscaling, GiB.",
+								Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
 								Required:    true,
 								Validators: []validator.Int64{
 									Int64GreaterValidator(path.MatchRoot("config").AtName("resources").AtName("disk_size")),
 								},
 							},
 							"planned_usage_threshold": schema.Int64Attribute{
-								Description: "Threshold for planned increase, in percent.",
+								Description: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
 								Optional:    true,
 								Computed:    true,
 								Validators: []validator.Int64{
@@ -406,7 +403,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 								Default: int64default.StaticInt64(0),
 							},
 							"emergency_usage_threshold": schema.Int64Attribute{
-								Description: "Threshold for an immediate increase, in percent.",
+								Description: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
 								Validators: []validator.Int64{
 									int64validator.Any(
 										Int64GreaterValidator(path.MatchRoot("config").AtName("disk_size_autoscaling").AtName("planned_usage_threshold")),

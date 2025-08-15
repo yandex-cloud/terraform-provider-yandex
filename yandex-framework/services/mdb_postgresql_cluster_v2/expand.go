@@ -86,12 +86,6 @@ func expandStringWrapper(_ context.Context, s types.String, _ *diag.Diagnostics)
 }
 
 var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
-	"10":    &postgresql.ConfigSpec_PostgresqlConfig_10{},
-	"10-1c": &postgresql.ConfigSpec_PostgresqlConfig_10_1C{},
-	"11":    &postgresql.ConfigSpec_PostgresqlConfig_11{},
-	"11-1c": &postgresql.ConfigSpec_PostgresqlConfig_11_1C{},
-	"12":    &postgresql.ConfigSpec_PostgresqlConfig_12{},
-	"12-1c": &postgresql.ConfigSpec_PostgresqlConfig_12_1C{},
 	"13":    &postgresql.ConfigSpec_PostgresqlConfig_13{},
 	"13-1c": &postgresql.ConfigSpec_PostgresqlConfig_13_1C{},
 	"14":    &postgresql.ConfigSpec_PostgresqlConfig_14{},

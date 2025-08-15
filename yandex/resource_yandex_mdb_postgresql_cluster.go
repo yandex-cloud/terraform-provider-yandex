@@ -187,7 +187,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
+				Description: "Version of the PostgreSQL cluster. (allowed versions are: 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
 				Required:    true,
 			},
 			"resources": {
@@ -259,7 +259,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 						},
 						"minutes": {
 							Type:         schema.TypeInt,
-							Description:  "The hour at which backup will be started (UTC).",
+							Description:  "The minute at which backup will be started.",
 							Optional:     true,
 							Default:      0,
 							ValidateFunc: validation.IntBetween(0, 59),
@@ -289,12 +289,12 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 						},
 						"sessions_sampling_interval": {
 							Type:        schema.TypeInt,
-							Description: "Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.",
+							Description: "Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.",
 							Required:    true,
 						},
 						"statements_sampling_interval": {
 							Type:        schema.TypeInt,
-							Description: "Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.",
+							Description: "Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 1 to 86400, inclusive.",
 							Required:    true,
 						},
 					},
@@ -310,17 +310,17 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {
 							Type:        schema.TypeInt,
-							Description: "Maintenance window autoscaling disk usage (percent).",
+							Description: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
 							Optional:    true,
 						},
 						"emergency_usage_threshold": {
 							Type:        schema.TypeInt,
-							Description: "Immediate autoscaling disk usage (percent).",
+							Description: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
 							Optional:    true,
 						},
 					},
@@ -480,7 +480,7 @@ func resourceYandexMDBPostgreSQLClusterUserBlock() *schema.Resource {
 			},
 			"settings": {
 				Type:             schema.TypeMap,
-				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - 0: `unspecified`\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 0: `unspecified`\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 0: `unspecified`\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 1: `session`\n  - 2: `transaction`\n  - 3: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer\n\n",
+				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:\n  - 1: `read uncommitted`\n  - 2: `read committed`\n  - 3: `repeatable read`\n  - 4: `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0).\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. Default -1 disables logging of the duration of statements.\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - 1: `on`\n  - 2: `off`\n  - 3: `local`\n  - 4: `remote write`\n  - 5: `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - 1: `none`\n  - 2: `ddl`\n  - 3: `mod`\n  - 4: `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - 1: `session`\n  - 2: `transaction`\n  - 3: `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.",
 				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
@@ -508,7 +508,7 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 			},
 			"assign_public_ip": {
 				Type:        schema.TypeBool,
-				Description: "Sets whether the host should get a public IP address on creation. It can be changed on the fly only when `name` is set.",
+				Description: "Whether the host should get a public IP address.",
 				Optional:    true,
 			},
 			"fqdn": {
@@ -1086,6 +1086,11 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config 
 		return nil, fmt.Errorf("error expanding network_id while updating PostgreSQL cluster: %s", err)
 	}
 
+	updatePaths, err := expandPGParamsUpdatePath(d, settingNames)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding update paths while updating PostgreSQL cluster: %s", err)
+	}
+
 	return &postgresql.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
@@ -1096,7 +1101,7 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config 
 		MaintenanceWindow:  maintenanceWindow,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-		UpdateMask:         &field_mask.FieldMask{Paths: expandPGParamsUpdatePath(d, settingNames)},
+		UpdateMask:         &field_mask.FieldMask{Paths: updatePaths},
 	}, nil
 }
 
@@ -1400,7 +1405,12 @@ func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *sch
 		return nil
 	}
 
-	validateFunc := generateMapSchemaValidateFunc(getMdbPGSettingsFieldsInfo(version.(string)))
+	settingsFieldsInfo, err := getMdbPGSettingsFieldsInfo(version.(string))
+	if err != nil {
+		return err
+	}
+
+	validateFunc := generateMapSchemaValidateFunc(settingsFieldsInfo)
 
 	_, b := validateFunc(postgresqlConfig, "")
 	if len(b) > 0 {
@@ -1884,6 +1894,11 @@ func postgresqlConfigDiffFunc(k, old, new string, d *schema.ResourceData) bool {
 		return false
 	}
 
-	suppressDiffFunc := generateMapSchemaDiffSuppressFunc(getMdbPGSettingsFieldsInfo(version.(string)))
+	settingsFieldInfo, err := getMdbPGSettingsFieldsInfo(version.(string))
+	if err != nil {
+		log.Printf("[ERROR] failed get settings fields info for version %s: %s", version.(string), err)
+		return false
+	}
+	suppressDiffFunc := generateMapSchemaDiffSuppressFunc(settingsFieldInfo)
 	return suppressDiffFunc(k, old, new, d)
 }

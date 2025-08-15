@@ -974,7 +974,10 @@ func testAccCheckPostgresqlConfigUpdate(r, version string) resource.TestCheckFun
 			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v", userConfig.defaultTransactionIsolation)
 		}
 
-		mdbPGSettingsFieldsInfo := getMdbPGSettingsFieldsInfo(version)
+		mdbPGSettingsFieldsInfo, err := getMdbPGSettingsFieldsInfo(version)
+		if err != nil {
+			return err
+		}
 
 		splNames, _ := mdbPGSettingsFieldsInfo.intSliceToString("shared_preload_libraries", userConfig.sharedPreloadLibraries)
 		if splNames != "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN" {

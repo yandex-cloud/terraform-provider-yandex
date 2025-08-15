@@ -93,9 +93,9 @@ func flattenPGDiskSizeAutoscaling(p *postgresql.DiskSizeAutoscaling) []interface
 	return []interface{}{out}
 }
 
-func flattenPGSettingsSPL(settings map[string]string, c *postgresql.ClusterConfig) map[string]string {
+func flattenPGSettingsSPL(settings map[string]string, fieldsInfo *objectFieldsInfo, c *postgresql.ClusterConfig) map[string]string {
 	splEnums := convertPGSPLtoInts(c)
-	spl, _ := mdbPGSettingsFieldsInfo.intSliceToString("shared_preload_libraries", splEnums)
+	spl, _ := fieldsInfo.intSliceToString("shared_preload_libraries", splEnums)
 	if settings == nil {
 		settings = make(map[string]string)
 	}
@@ -155,167 +155,94 @@ func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
 			out = append(out, int32(v))
 		}
 	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
-		for _, v := range cf.PostgresqlConfig_12.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
-		for _, v := range cf.PostgresqlConfig_12_1C.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
-		for _, v := range cf.PostgresqlConfig_11.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
-		for _, v := range cf.PostgresqlConfig_11_1C.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
-		for _, v := range cf.PostgresqlConfig_10.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
-		for _, v := range cf.PostgresqlConfig_10_1C.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
 	return out
 }
 
 func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 	// TODO refactor it using generics
+	settingsFieldsInfo, err := getMdbPGSettingsFieldsInfo(c.Version)
+	if err != nil {
+		return nil, err
+	}
+
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_17.UserConfig, false, mdbPGSettingsFieldsInfo17, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_17.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_17_1C.UserConfig, false, mdbPGSettingsFieldsInfo17_1C, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_17_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_16.UserConfig, false, mdbPGSettingsFieldsInfo16, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_16.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_16_1C.UserConfig, false, mdbPGSettingsFieldsInfo16_1C, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_16_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15.UserConfig, false, mdbPGSettingsFieldsInfo15, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15_1C.UserConfig, false, mdbPGSettingsFieldsInfo15_1C, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14.UserConfig, false, mdbPGSettingsFieldsInfo14, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14_1C.UserConfig, false, mdbPGSettingsFieldsInfo14_1C, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, mdbPGSettingsFieldsInfo13, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13_1C.UserConfig, false, mdbPGSettingsFieldsInfo13_1C, false, true, nil)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, c)
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
 		return settings, nil
 	}
 
@@ -845,42 +772,30 @@ func getMasterHostname(orderedHostsInfo []*pgHostInfo) string {
 	return ""
 }
 
-func getPostgreSQLConfigFieldName(version string) string {
+func getPostgreSQLConfigFieldName(version string) (string, error) {
 	switch version {
-	case "10":
-		return "postgresql_config_10"
-	case "10-1c":
-		return "postgresql_config_10_1c"
-	case "11":
-		return "postgresql_config_11"
-	case "11-1c":
-		return "postgresql_config_11_1c"
-	case "12":
-		return "postgresql_config_12"
-	case "12-1c":
-		return "postgresql_config_12_1c"
 	case "13":
-		return "postgresql_config_13"
+		return "postgresql_config_13", nil
 	case "13-1c":
-		return "postgresql_config_13_1c"
+		return "postgresql_config_13_1c", nil
 	case "14":
-		return "postgresql_config_14"
+		return "postgresql_config_14", nil
 	case "14-1c":
-		return "postgresql_config_14_1c"
+		return "postgresql_config_14_1c", nil
 	case "15":
-		return "postgresql_config_15"
+		return "postgresql_config_15", nil
 	case "15-1c":
-		return "postgresql_config_15_1c"
+		return "postgresql_config_15_1c", nil
 	case "16":
-		return "postgresql_config_16"
+		return "postgresql_config_16", nil
 	case "16-1c":
-		return "postgresql_config_16_1c"
+		return "postgresql_config_16_1c", nil
 	case "17":
-		return "postgresql_config_17"
+		return "postgresql_config_17", nil
 	case "17-1c":
-		return "postgresql_config_17_1c"
+		return "postgresql_config_17_1c", nil
 	default:
-		return "postgresql_config_17"
+		return "", fmt.Errorf("Unsupported postgresql version: %s", version)
 	}
 }
 
@@ -960,10 +875,13 @@ func pgExtensionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []string {
+func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]string, error) {
 	log.Println("[DEBUG] expandPGParamsUpdatePath")
 	version := d.Get("config.0.version").(string)
-	pgFieldName := getPostgreSQLConfigFieldName(version)
+	pgFieldName, err := getPostgreSQLConfigFieldName(version)
+	if err != nil {
+		return []string{}, err
+	}
 	log.Print("[DEBUG] pgFieldName")
 
 	mdbPGUpdateFieldsMap := map[string]string{
@@ -1008,7 +926,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []s
 		}
 	}
 
-	return updatePath
+	return updatePath, nil
 }
 
 func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []string, error) {
@@ -1453,9 +1371,13 @@ func expandPGMaintenanceWindow(d *schema.ResourceData) (*postgresql.MaintenanceW
 	return out, nil
 }
 
-func expandPGSharedPreloadLibraries(d *schema.ResourceData) ([]int32, error) {
+func expandPGSharedPreloadLibraries(d *schema.ResourceData, version string) ([]int32, error) {
 	var sharedPreloadLibraries []int32
 	sharedPreloadLibValue, ok := d.GetOkExists("config.0.postgresql_config.shared_preload_libraries")
+	mdbPGSettingsFieldsInfo, err := getMdbPGSettingsFieldsInfo(version)
+	if err != nil {
+		return []int32{}, err
+	}
 	if ok {
 		splValue := sharedPreloadLibValue.(string)
 
@@ -1479,79 +1401,14 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 		return []string{}, nil
 	}
 	log.Println("[DEBUG] config.0.postgresql_config exists")
-	sharedPreloadLibraries, err := expandPGSharedPreloadLibraries(d)
+	version := configSpec.Version
+
+	sharedPreloadLibraries, err := expandPGSharedPreloadLibraries(d, version)
 	if err != nil {
 		return []string{}, err
 	}
 
-	version := configSpec.Version
-	if version == "10" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_10{
-			PostgresqlConfig_10: &config.PostgresqlConfig10{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_10.SharedPreloadLibraries = append(cfg.PostgresqlConfig_10.SharedPreloadLibraries, config.PostgresqlConfig10_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_10, "config.0.postgresql_config.", true)
-	} else if version == "10-1c" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_10_1C{
-			PostgresqlConfig_10_1C: &config.PostgresqlConfig10_1C{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_10_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_10_1C.SharedPreloadLibraries, config.PostgresqlConfig10_1C_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_10_1C, "config.0.postgresql_config.", true)
-	} else if version == "11" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_11{
-			PostgresqlConfig_11: &config.PostgresqlConfig11{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_11.SharedPreloadLibraries = append(cfg.PostgresqlConfig_11.SharedPreloadLibraries, config.PostgresqlConfig11_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_11, "config.0.postgresql_config.", true)
-	} else if version == "11-1c" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_11_1C{
-			PostgresqlConfig_11_1C: &config.PostgresqlConfig11_1C{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_11_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_11_1C.SharedPreloadLibraries, config.PostgresqlConfig11_1C_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_11_1C, "config.0.postgresql_config.", true)
-	} else if version == "12-1c" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_12_1C{
-			PostgresqlConfig_12_1C: &config.PostgresqlConfig12_1C{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_12_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_12_1C.SharedPreloadLibraries, config.PostgresqlConfig12_1C_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_12_1C, "config.0.postgresql_config.", true)
-	} else if version == "12" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_12{
-			PostgresqlConfig_12: &config.PostgresqlConfig12{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_12.SharedPreloadLibraries = append(cfg.PostgresqlConfig_12.SharedPreloadLibraries, config.PostgresqlConfig12_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_12, "config.0.postgresql_config.", true)
-	} else if version == "13" {
+	if version == "13" {
 		cfg := &postgresql.ConfigSpec_PostgresqlConfig_13{
 			PostgresqlConfig_13: &config.PostgresqlConfig13{},
 		}
@@ -1802,54 +1659,54 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumHumanNames("pool_mode", mdbPGUserSettingsPoolModeName,
 		postgresql.UserSettings_PoolingMode_name)
 
-func getMdbPGSettingsFieldsInfo(version string) *objectFieldsInfo {
+func getMdbPGSettingsFieldsInfo(version string) (*objectFieldsInfo, error) {
 	switch version {
 	case "13":
-		return mdbPGSettingsFieldsInfo13
+		return mdbPGSettingsFieldsInfo13, nil
 	case "13-1c":
-		return mdbPGSettingsFieldsInfo13_1C
+		return mdbPGSettingsFieldsInfo13_1C, nil
 	case "14":
-		return mdbPGSettingsFieldsInfo14
+		return mdbPGSettingsFieldsInfo14, nil
 	case "14-1c":
-		return mdbPGSettingsFieldsInfo14_1C
+		return mdbPGSettingsFieldsInfo14_1C, nil
 	case "15":
-		return mdbPGSettingsFieldsInfo15
+		return mdbPGSettingsFieldsInfo15, nil
 	case "15-1c":
-		return mdbPGSettingsFieldsInfo15_1C
+		return mdbPGSettingsFieldsInfo15_1C, nil
 	case "16":
-		return mdbPGSettingsFieldsInfo16
+		return mdbPGSettingsFieldsInfo16, nil
 	case "16-1c":
-		return mdbPGSettingsFieldsInfo16_1C
+		return mdbPGSettingsFieldsInfo16_1C, nil
 	case "17":
-		return mdbPGSettingsFieldsInfo17
+		return mdbPGSettingsFieldsInfo17, nil
 	case "17-1c":
-		return mdbPGSettingsFieldsInfo17_1C
+		return mdbPGSettingsFieldsInfo17_1C, nil
 	default:
-		return mdbPGSettingsFieldsInfo
+		return nil, fmt.Errorf("Unsupported postgresql version: %s", version)
 	}
 }
 
 var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig17{}).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_WalLevel_name).                                 // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_SynchronousCommit_name).               // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_ConstraintExclusion_name).           // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig17_LogLevel_name).                       // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig17_LogLevel_name).                          // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig17_LogLevel_name).                   // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig17_LogErrorVerbosity_name).              // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig17_LogStatement_name).                         // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig17_TransactionIsolation_name). // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig17_ByteaOutput_name).                           // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig17_XmlBinary_name).                                // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig17_XmlOption_name).                                // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig17_BackslashQuote_name).                     // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig17_PlanCacheMode_name).                      // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_PgHintPlanDebugPrint_name).      // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_LogLevel_name).                // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_AutoExplainLogFormat_name).       // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig17_PasswordEncryption_name).             // +
-	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_DebugParallelQuery_name).            // +
+	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_WalLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_SynchronousCommit_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_ConstraintExclusion_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig17_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig17_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig17_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig17_LogErrorVerbosity_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig17_LogStatement_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig17_TransactionIsolation_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig17_ByteaOutput_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig17_XmlBinary_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig17_XmlOption_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig17_BackslashQuote_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig17_PlanCacheMode_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_PgHintPlanDebugPrint_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_AutoExplainLogFormat_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig17_PasswordEncryption_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_DebugParallelQuery_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
@@ -2056,30 +1913,3 @@ var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig13_1C_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig13_1C_PasswordEncryption_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
-
-var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig12{}).
-	addType(config.PostgresqlConfig12_1C{}).
-	addType(config.PostgresqlConfig11{}).
-	addType(config.PostgresqlConfig11_1C{}).
-	addType(config.PostgresqlConfig10{}).
-	addType(config.PostgresqlConfig10_1C{}).
-	addEnumGeneratedNames("wal_level", config.PostgresqlConfig12_WalLevel_name).
-	addEnumGeneratedNames("synchronous_commit", config.PostgresqlConfig12_SynchronousCommit_name).
-	addEnumGeneratedNames("constraint_exclusion", config.PostgresqlConfig12_ConstraintExclusion_name).
-	addEnumGeneratedNames("force_parallel_mode", config.PostgresqlConfig12_ForceParallelMode_name).
-	addEnumGeneratedNames("client_min_messages", config.PostgresqlConfig12_LogLevel_name).
-	addEnumGeneratedNames("log_min_messages", config.PostgresqlConfig12_LogLevel_name).
-	addEnumGeneratedNames("log_min_error_statement", config.PostgresqlConfig12_LogLevel_name).
-	addEnumGeneratedNames("log_error_verbosity", config.PostgresqlConfig12_LogErrorVerbosity_name).
-	addEnumGeneratedNames("log_statement", config.PostgresqlConfig12_LogStatement_name).
-	addEnumGeneratedNames("default_transaction_isolation", config.PostgresqlConfig12_TransactionIsolation_name).
-	addEnumGeneratedNames("bytea_output", config.PostgresqlConfig12_ByteaOutput_name).
-	addEnumGeneratedNames("xmlbinary", config.PostgresqlConfig12_XmlBinary_name).
-	addEnumGeneratedNames("xmloption", config.PostgresqlConfig12_XmlOption_name).
-	addEnumGeneratedNames("backslash_quote", config.PostgresqlConfig12_BackslashQuote_name).
-	addEnumGeneratedNames("plan_cache_mode", config.PostgresqlConfig12_PlanCacheMode_name).
-	addEnumGeneratedNames("pg_hint_plan_debug_print", config.PostgresqlConfig12_PgHintPlanDebugPrint_name).
-	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig12_LogLevel_name).
-	addEnumGeneratedNames("password_encryption", config.PostgresqlConfig12_PasswordEncryption_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig12_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
