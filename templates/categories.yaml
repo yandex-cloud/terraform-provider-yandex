@@ -22,6 +22,7 @@ DocsCategories:
   # Data platform services
   - "Managed Service for YDB"
   - "Managed Service for PostgreSQL"
+  - "Managed Service for Sharded PostgreSQL"
   - "Managed Service for ClickHouse"
   - "Managed Service for OpenSearch"
   - "Managed Service for MySQL"

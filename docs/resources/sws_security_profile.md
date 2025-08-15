@@ -166,6 +166,7 @@ resource "yandex_sws_security_profile" "demo-profile-advanced" {
 ### Optional
 
 - `advanced_rate_limiter_profile_id` (String) Advanced rate limiter profile ID to use with this security profile. Set empty to use default.
+- `analyze_request_body` (Block List, Max: 1) Analyze request body. (see [below for nested schema](#nestedblock--analyze_request_body))
 - `captcha_id` (String) Captcha ID to use with this security profile. Set empty to use default.
 - `cloud_id` (String) The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
 - `default_action` (String) Action to perform if none of rules matched. Possible values: `ALLOW` or `DENY`.
@@ -182,6 +183,15 @@ resource "yandex_sws_security_profile" "demo-profile-advanced" {
 
 - `created_at` (String) The creation timestamp of the resource.
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--analyze_request_body"></a>
+### Nested Schema for `analyze_request_body`
+
+Optional:
+
+- `size_limit` (Number)
+- `size_limit_action` (String)
+
 
 <a id="nestedblock--security_rule"></a>
 ### Nested Schema for `security_rule`

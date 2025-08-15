@@ -43,6 +43,7 @@ output "network_id" {
 - `database` (Block Set, Deprecated) A database of the ClickHouse cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `embedded_keeper` (Boolean) Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
 - `environment` (String) Deployment environment of the ClickHouse cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.

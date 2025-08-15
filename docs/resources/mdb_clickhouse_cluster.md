@@ -458,6 +458,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `database` (Block Set, Deprecated) A database of the ClickHouse cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `embedded_keeper` (Boolean) Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `format_schema` (Block Set) A set of `protobuf` or `capnproto` format schemas. (see [below for nested schema](#nestedblock--format_schema))

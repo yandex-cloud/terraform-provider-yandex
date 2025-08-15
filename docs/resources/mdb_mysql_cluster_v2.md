@@ -108,7 +108,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `mysql_config` (Map of String) MySQL cluster config.
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--performance_diagnostics))
 - `resources` (Block, Optional) Resources allocated to hosts of the MySQL cluster. (see [below for nested schema](#nestedblock--resources))
-- `security_group_ids` (Set of String) A set of ids of security groups assigned to hosts of the cluster.
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 
 ### Read-Only
 

@@ -79,7 +79,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Attributes) Maintenance policy of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))
-- `security_group_ids` (Set of String) A set of ids of security groups assigned to hosts of the cluster.
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 
 ### Read-Only
 

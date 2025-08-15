@@ -191,7 +191,7 @@ resource "yandex_vpc_subnet" "es-subnet-d" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Block, Optional) (see [below for nested schema](#nestedblock--maintenance_window))
-- `security_group_ids` (Set of String) A set of security groups IDs which assigned to hosts of the cluster.
+- `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) ID of the service account authorized for this cluster.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
