@@ -92,7 +92,7 @@ func NewAtLeastIfConfiguredValidator(expressions ...path.Expression) *atLeastIfC
 
 func (at *atLeastIfConfiguredValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
 
-	if req.ConfigValue.IsNull() {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
 
