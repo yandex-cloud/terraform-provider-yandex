@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fixed problem with pooler_config configuration passed through a module variable'
+time: 2025-08-23T22:51:16.499003+03:00
