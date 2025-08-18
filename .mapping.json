@@ -1863,6 +1863,7 @@
   "yandex-framework/services/storage_bucket_grant/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_grant/resource.go",
   "yandex-framework/services/storage_bucket_grant/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_grant/resource_test.go",
   "yandex-framework/services/storage_bucket_grant/schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_grant/schema.go",
+  "yandex-framework/services/storage_bucket_grant/utils.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_grant/utils.go",
   "yandex-framework/services/storage_bucket_iam_binding/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_iam_binding/resource.go",
   "yandex-framework/services/storage_bucket_iam_binding/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_iam_binding/resource_test.go",
   "yandex-framework/services/storage_bucket_policy/models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/storage_bucket_policy/models.go",
