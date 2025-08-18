@@ -1,3 +1,16 @@
+## 0.151.0 (August 18, 2025)
+
+FEATURES:
+* metastore: support cluster version
+* clickhouse: transition to batch operations for creating and deleting shards
+* cloudregistry: add `yandex_cloud_registry` resource and datasource.
+* cloudregistry: add `yandex_cloud_registry_ip_permission` resource and datasource.
+* cloudregistry: add `yandex_cloud_registry_iam_binding` resource and datasource.
+
+ENHANCEMENTS:
+* postgresql: remove deprecated pg verions support (10, 10-1c, 11, 11-1c, 12, 12-1c), resource descriptions improvements
+* resourcemanager: rewrite yandex_resourcemanager_cloud and yandex_resourcemanager_folder resources and datasources using tfgen
+
 ## 0.150.0 (August 12, 2025)
 
 FEATURES:
