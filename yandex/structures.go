@@ -14,11 +14,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/genproto/googleapis/type/dayofweek"
-	"google.golang.org/genproto/googleapis/type/timeofday"
-	"google.golang.org/grpc"
-	proto "google.golang.org/protobuf/proto"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
@@ -30,8 +25,11 @@ import (
 	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"google.golang.org/genproto/googleapis/type/dayofweek"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/grpc"
+	proto "google.golang.org/protobuf/proto"
 )
 
 func IterateKeys(d *schema.ResourceData, key string) []string {
@@ -99,7 +97,7 @@ func expandLabels(v interface{}) (map[string]string, error) {
 		return m, nil
 	}
 	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+		m[k] = strings.ToLower(val.(string))
 	}
 	return m, nil
 }
