@@ -5,6 +5,8 @@ package yandex
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_disk_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
@@ -14,6 +16,8 @@ func GetProviderResources() []func() resource.Resource {
 	return []func() resource.Resource{
 		yandex_resourcemanager_cloud.NewResource,
 		yandex_resourcemanager_folder.NewResource,
+		yandex_cm_certificate_iam_member.NewResource,
+		yandex_compute_disk_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
 		yandex_cloudregistry_registry.NewResource,
 	}

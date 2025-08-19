@@ -256,7 +256,6 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_cdn_resource":                                      resourceYandexCDNResource(),
 			"yandex_cm_certificate":                                    resourceYandexCMCertificate(),
 			"yandex_cm_certificate_iam_binding":                        resourceYandexCMCertificateIAMBinding(),
-			"yandex_cm_certificate_iam_member":                         resourceYandexCMCertificateIAMMember(),
 			"yandex_compute_disk":                                      resourceYandexComputeDisk(),
 			"yandex_compute_disk_placement_group":                      resourceYandexComputeDiskPlacementGroup(),
 			"yandex_compute_filesystem":                                resourceYandexComputeFilesystem(),

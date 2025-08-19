@@ -22,7 +22,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_placement_group_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_filesystem_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_gpu_cluster_iam_binding"
@@ -300,7 +299,6 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_mongodb_database.NewResource,
 		mdb_mongodb_user.NewResource,
 		mdb_opensearch_cluster.NewResource,
-		compute_disk_iam_binding.NewIamBinding,
 		compute_disk_placement_group_iam_binding.NewIamBinding,
 		compute_filesystem_iam_binding.NewIamBinding,
 		compute_gpu_cluster_iam_binding.NewIamBinding,

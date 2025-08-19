@@ -43,10 +43,12 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/yandex-cloud/go-genproto v0.17.0
 	github.com/yandex-cloud/go-sdk v0.15.0
+	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.8
+	github.com/yandex-cloud/go-sdk/services/compute v1.0.15
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.6
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
-	github.com/yandex-cloud/go-sdk/v2 v2.4.0
+	github.com/yandex-cloud/go-sdk/v2 v2.6.1
 	github.com/ydb-platform/terraform-provider-ydb v0.0.26
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0
@@ -55,7 +57,7 @@ require (
 	golang.org/x/text v0.28.0
 	golang.org/x/tools v0.35.0
 	google.golang.org/genproto v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250811230008-5f3141c8851a
 	google.golang.org/grpc v1.74.2
 	google.golang.org/protobuf v1.36.7
 	gopkg.in/yaml.v3 v3.0.1
@@ -286,7 +288,7 @@ require (
 	golang.org/x/tools/go/expect v0.1.1-deprecated // indirect
 	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250811230008-5f3141c8851a // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	honnef.co/go/tools v0.4.3 // indirect
