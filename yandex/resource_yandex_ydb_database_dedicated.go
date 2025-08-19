@@ -75,7 +75,7 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 
 			"scale_policy": {
 				Type:        schema.TypeList,
-				Description: "Scaling policy for the Yandex Database cluster.\n\n~> Currently, only `fixed_scale` is supported.\n",
+				Description: "Scaling policy for the Yandex Database cluster.",
 				MaxItems:    1,
 				Required:    true,
 				Elem: &schema.Resource{
@@ -83,7 +83,7 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 						"fixed_scale": {
 							Type:        schema.TypeList,
 							Description: "Fixed scaling policy for the Yandex Database cluster.",
-							Required:    true,
+							Optional:    true,
 							MaxItems:    1,
 							MinItems:    1,
 							Elem: &schema.Resource{
@@ -93,6 +93,46 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 										Description:  "Number of instances for the Yandex Database cluster.",
 										Required:     true,
 										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"auto_scale": {
+							Type:        schema.TypeList,
+							Description: "Auto scaling policy for the Yandex Database cluster. This is a preview feature, and you need to enable it using the label `enable_autoscaling=1`.",
+							Optional:    true,
+							MaxItems:    1,
+							MinItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_size": {
+										Type:         schema.TypeInt,
+										Description:  "Minimum number of nodes to which autoscaling can scale the database.",
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"max_size": {
+										Type:         schema.TypeInt,
+										Description:  "Maximum number of nodes to which autoscaling can scale the database.",
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"target_tracking": {
+										Type:        schema.TypeList,
+										Description: "A target tracking scaling policy automatically scales the capacity of your Yandex Database cluster based on a target metric value.",
+										Required:    true,
+										MaxItems:    1,
+										MinItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cpu_utilization_percent": {
+													Type:         schema.TypeInt,
+													Description:  "A percentage of database nodes average CPU utilization.",
+													Required:     true,
+													ValidateFunc: validation.IntBetween(10, 90),
+												},
+											},
+										},
 									},
 								},
 							},

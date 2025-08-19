@@ -79,11 +79,31 @@ func flattenYDBScalePolicy(database *ydb.Database) ([]map[string]interface{}, er
 		res["fixed_scale"] = []map[string]interface{}{{"size": int(sp.Size)}}
 	}
 
+	if sp := database.GetScalePolicy().GetAutoScale(); sp != nil {
+		res["auto_scale"] = []map[string]any{{
+			"max_size":        int(sp.MaxSize),
+			"min_size":        int(sp.MinSize),
+			"target_tracking": flattenYDBScalePolicyAutoScaleTargetTracking(sp.GetTargetTracking()),
+		}}
+	}
+
 	if len(res) == 0 {
 		return nil, nil
 	}
 
 	return []map[string]interface{}{res}, nil
+}
+
+func flattenYDBScalePolicyAutoScaleTargetTracking(v *ydb.ScalePolicy_AutoScale_TargetTracking) []map[string]any {
+	if v == nil {
+		return nil
+	}
+
+	return []map[string]any{
+		{
+			"cpu_utilization_percent": int(v.GetCpuUtilizationPercent()),
+		},
+	}
 }
 
 func expandYDBScalePolicySpec(d *schema.ResourceData) (*ydb.ScalePolicy, error) {
@@ -97,6 +117,28 @@ func expandYDBScalePolicySpec(d *schema.ResourceData) (*ydb.ScalePolicy, error) 
 			},
 		}, nil
 	}
+
+	if _, ok := d.GetOk("scale_policy.0.auto_scale"); ok {
+		minSize := d.Get("scale_policy.0.auto_scale.0.min_size").(int)
+		maxSize := d.Get("scale_policy.0.auto_scale.0.max_size").(int)
+		targetTrackingCPUUtilizationPercent := d.Get("scale_policy.0.auto_scale.0.target_tracking.0.cpu_utilization_percent").(int)
+		return &ydb.ScalePolicy{
+			ScaleType: &ydb.ScalePolicy_AutoScale_{
+				AutoScale: &ydb.ScalePolicy_AutoScale{
+					MinSize: int64(minSize),
+					MaxSize: int64(maxSize),
+					AutoScaleType: &ydb.ScalePolicy_AutoScale_TargetTracking_{
+						TargetTracking: &ydb.ScalePolicy_AutoScale_TargetTracking{
+							Target: &ydb.ScalePolicy_AutoScale_TargetTracking_CpuUtilizationPercent{
+								CpuUtilizationPercent: int64(targetTrackingCPUUtilizationPercent),
+							},
+						},
+					},
+				},
+			},
+		}, nil
+	}
+
 	return nil, nil
 }
 

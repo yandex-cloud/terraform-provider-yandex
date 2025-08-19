@@ -177,6 +177,39 @@ func TestFlattenYDBScalePolicy(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "auto scale",
+			spec: &ydb.ScalePolicy{
+				ScaleType: &ydb.ScalePolicy_AutoScale_{
+					AutoScale: &ydb.ScalePolicy_AutoScale{
+						MinSize: 2,
+						MaxSize: 5,
+						AutoScaleType: &ydb.ScalePolicy_AutoScale_TargetTracking_{
+							TargetTracking: &ydb.ScalePolicy_AutoScale_TargetTracking{
+								Target: &ydb.ScalePolicy_AutoScale_TargetTracking_CpuUtilizationPercent{
+									CpuUtilizationPercent: 70,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: []map[string]any{
+				{
+					"auto_scale": []map[string]any{
+						{
+							"min_size": 2,
+							"max_size": 5,
+							"target_tracking": []map[string]any{
+								{
+									"cpu_utilization_percent": 70,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {

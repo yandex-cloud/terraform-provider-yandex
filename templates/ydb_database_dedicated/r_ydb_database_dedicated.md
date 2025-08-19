@@ -13,6 +13,8 @@ description: |-
 
 {{ tffile "examples/ydb_database_dedicated/r_ydb_database_dedicated_1.tf" }}
 
+{{ tffile "examples/ydb_database_dedicated/r_ydb_database_dedicated_2.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
 
 ## Import
