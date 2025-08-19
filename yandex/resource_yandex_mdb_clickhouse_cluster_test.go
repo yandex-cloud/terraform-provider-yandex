@@ -1466,7 +1466,7 @@ func TestAccMDBClickHouseCluster_EncryptedDisk(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBClickHouseClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with disk encryption
 			{

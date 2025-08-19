@@ -996,6 +996,13 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key for cluster disk encryption.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
@@ -1095,20 +1102,28 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		return nil, fmt.Errorf("Error while expanding maintenance window on MongoDB Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	req := mongodb.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		ConfigSpec:         configSpec,
-		HostSpecs:          hosts,
-		UserSpecs:          users,
-		DatabaseSpecs:      dbSpecs,
-		Labels:             labels,
-		SecurityGroupIds:   securityGroupIds,
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		MaintenanceWindow:  mw,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		ConfigSpec:          configSpec,
+		HostSpecs:           hosts,
+		UserSpecs:           users,
+		DatabaseSpecs:       dbSpecs,
+		Labels:              labels,
+		SecurityGroupIds:    securityGroupIds,
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		MaintenanceWindow:   mw,
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}
 	return &req, nil
 }
@@ -1172,18 +1187,25 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 	defer cancel()
 
 	request := &mongodb.RestoreClusterRequest{
-		BackupId:           backupID,
-		RecoveryTargetSpec: timeBackup,
-		Name:               createClusterRequest.Name,
-		Description:        createClusterRequest.Description,
-		Labels:             createClusterRequest.Labels,
-		Environment:        createClusterRequest.Environment,
-		ConfigSpec:         createClusterRequest.ConfigSpec,
-		HostSpecs:          createClusterRequest.HostSpecs,
-		NetworkId:          createClusterRequest.NetworkId,
-		FolderId:           createClusterRequest.FolderId,
-		SecurityGroupIds:   createClusterRequest.SecurityGroupIds,
-		DeletionProtection: createClusterRequest.DeletionProtection,
+		BackupId:            backupID,
+		RecoveryTargetSpec:  timeBackup,
+		Name:                createClusterRequest.Name,
+		Description:         createClusterRequest.Description,
+		Labels:              createClusterRequest.Labels,
+		Environment:         createClusterRequest.Environment,
+		ConfigSpec:          createClusterRequest.ConfigSpec,
+		HostSpecs:           createClusterRequest.HostSpecs,
+		NetworkId:           createClusterRequest.NetworkId,
+		FolderId:            createClusterRequest.FolderId,
+		SecurityGroupIds:    createClusterRequest.SecurityGroupIds,
+		DeletionProtection:  createClusterRequest.DeletionProtection,
+		DiskEncryptionKeyId: createClusterRequest.DiskEncryptionKeyId,
+	}
+
+	// Empty string will remove encryption when restoring
+	if request.DiskEncryptionKeyId == nil {
+		log.Printf("[WARN] Disk encryption key ID is not set. Encryption will be disabled if present in source cluster.")
+		request.DiskEncryptionKeyId = &wrapperspb.StringValue{Value: ""}
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
@@ -1425,6 +1447,12 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 
 	if err := d.Set("labels", cluster.Labels); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return nil

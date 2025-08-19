@@ -24,6 +24,7 @@ import (
 )
 
 const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:c9qhh0gi4hn06qkdoqke"
+const mongodbRestoreBackupIdEncrypted = "c9q1omobes6h1t4bmm5b:mdbat7o7b0mptt3btvi3"
 
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
 
@@ -2074,6 +2075,79 @@ func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 
 }
 
+func TestAccMDBMongoDBCluster_EncryptedDisk(t *testing.T) {
+	t.Parallel()
+
+	var r mongodb.Cluster
+	mongoName := acctest.RandomWithPrefix("tf-mongodb-disk-encryption")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			// Create MongoDB Cluster with disk encryption
+			{
+				Config: testAccMDBMongoDBClusterDiskEncrypted(mongoName, "Encrypted MongoDB cluster"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 1),
+					resource.TestCheckResourceAttrSet(mongodbResource, "disk_encryption_key_id"),
+				),
+			},
+			{
+				ResourceName:            mongodbResource,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"user", "database"},
+			},
+		},
+	})
+}
+
+func TestAccMDBMongoDBCluster_dropDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var r mongodb.Cluster
+	mongoName := acctest.RandomWithPrefix("tf-mongodb-drop-disk-encryption")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMongoDBClusterConfigRestoreDropEncryption(mongoName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 1),
+					resource.TestCheckNoResourceAttr(mongodbResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccMDBMongoDBCluster_addDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var r mongodb.Cluster
+	mongoName := acctest.RandomWithPrefix("tf-mongodb-add-disk-encryption")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMongoDBClusterConfigRestoreAddEncryption(mongoName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 1),
+					resource.TestCheckResourceAttrSet(mongodbResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMDBMongoDBClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2481,4 +2555,75 @@ func testAccCheckMDBMongoDBClusterHasShards(r string, shards []string) resource.
 
 		return nil
 	}
+}
+
+func testAccMDBMongoDBClusterDiskEncrypted(name, desc string) string {
+	return fmt.Sprintf(mongodbVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_mongodb_cluster" "foo" {
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.foo.id}"
+
+  cluster_config {
+    version = "6.0"
+  }
+
+  resources_mongod {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  host {
+    zone_id   = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, desc)
+}
+
+func testAccMDBMongoDBClusterConfigRestoreWithEncryption(clusterName string, backupId, diskEncryptionKeyId string) string {
+	return fmt.Sprintf(mongodbVPCDependencies+`      
+    resource "yandex_mdb_mongodb_cluster" "foo" {
+        name        = "%s"
+        description = "MongoDB Cluster Restore Test"
+        environment = "PRODUCTION"
+        network_id  = yandex_vpc_network.foo.id
+        folder_id = "%s"
+
+        restore {
+            backup_id = "%s"
+        }
+
+        cluster_config {
+            version = "6.0"
+        }
+
+        resources_mongod {
+            resource_preset_id = "s2.micro"
+            disk_type_id       = "network-ssd"
+            disk_size          = 16
+        }
+
+        host {
+            zone_id   = "ru-central1-a"
+            subnet_id = yandex_vpc_subnet.foo.id
+        }
+
+        deletion_protection = false
+        disk_encryption_key_id = "%s"
+      }
+`, clusterName, getExampleFolderID(), backupId, diskEncryptionKeyId)
+}
+
+func testAccMDBMongoDBClusterConfigRestoreDropEncryption(clusterName string) string {
+	return testAccMDBMongoDBClusterConfigRestoreWithEncryption(clusterName, mongodbRestoreBackupIdEncrypted, "")
+}
+
+func testAccMDBMongoDBClusterConfigRestoreAddEncryption(clusterName string) string {
+	return diskEncryptionKeyResource + testAccMDBMongoDBClusterConfigRestoreWithEncryption(
+		clusterName, mongodbRestoreBackupId, "${yandex_kms_symmetric_key.disk_encrypt.id}")
 }

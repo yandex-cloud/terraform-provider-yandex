@@ -112,7 +112,7 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			},
 			"disk_encryption_key_id": {
 				Type:        schema.TypeString,
-				Description: resourceYandexMDBPostgreSQLCluster().Schema["disk_encryption_key_id"].Description,
+				Description: "ID of the KMS key for cluster disk encryption.",
 				Computed:    true,
 				Optional:    true,
 			},

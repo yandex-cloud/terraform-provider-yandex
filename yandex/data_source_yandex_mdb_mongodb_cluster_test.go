@@ -101,6 +101,27 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBMongoDBCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	mongoName := acctest.RandomWithPrefix("ds-mongodb-disk-encryption")
+	mongoDesc := "MongoDB Cluster Terraform Datasource Test Disk Encryption"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMongoDBClusterDiskEncrypted(mongoName, mongoDesc) + mdbMongoDBClusterByNameConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_mongodb_cluster.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBMongoDBClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]

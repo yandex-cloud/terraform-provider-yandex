@@ -95,6 +95,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `database` (Block Set, Deprecated) A database of the MongoDB cluster. (see [below for nested schema](#nestedblock--database))
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `disk_size_autoscaling_mongocfg` (Block List, Max: 1) Disk size autoscaling settings for mongocfg. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongocfg))
 - `disk_size_autoscaling_mongod` (Block List, Max: 1) Disk size autoscaling settings for mongod. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongod))
 - `disk_size_autoscaling_mongoinfra` (Block List, Max: 1) Disk size autoscaling settings for mongoinfra. (see [below for nested schema](#nestedblock--disk_size_autoscaling_mongoinfra))
