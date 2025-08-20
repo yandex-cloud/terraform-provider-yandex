@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'certificatemanager: rewrite yandex_cm_certificate_iam_member resources using tfgen'
-time: 2025-08-19T15:29:46.600768+03:00

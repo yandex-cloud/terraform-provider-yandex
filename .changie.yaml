@@ -8,7 +8,7 @@ kindFormat: '{{.Kind}}:'
 changeFormat: '* {{.Body}}'
 kinds:
 - label: FEATURES
-  auto: major
+  auto: minor
 - label: BUG FIXES
   auto: minor
 - label: ENHANCEMENTS
