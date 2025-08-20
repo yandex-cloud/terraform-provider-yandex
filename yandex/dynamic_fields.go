@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -24,7 +25,7 @@ type fieldManualInfo struct {
 	emptySliceValue string
 
 	checkValueFunc   func(fieldsInfo *objectFieldsInfo, v interface{}) error
-	compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new string) bool
+	compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool
 }
 
 type fieldReflectInfo struct {
@@ -272,7 +273,7 @@ func (fieldsInfo *objectFieldsInfo) compareValueFunc(field string) func(old stri
 	if fieldInfo, ok := fieldsInfo.fieldsManual[field]; ok {
 		if fieldInfo.compareValueFunc != nil {
 			return func(old string, new string) bool {
-				return fieldInfo.compareValueFunc(fieldsInfo, old, new)
+				return fieldInfo.compareValueFunc(fieldsInfo, old, new, field)
 			}
 		}
 		return nil
@@ -343,7 +344,7 @@ func (fieldsInfo *objectFieldsInfo) addType(v interface{}) *objectFieldsInfo {
 }
 
 func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, values map[int32]string,
-	checkValueFunc func(fieldsInfo *objectFieldsInfo, v interface{}) error, compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new string) bool) *objectFieldsInfo {
+	checkValueFunc func(fieldsInfo *objectFieldsInfo, v interface{}) error, compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new, fieldName string) bool) *objectFieldsInfo {
 
 	def := 0
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{
@@ -384,24 +385,31 @@ func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNames(field string, values m
 	return fieldsInfo
 }
 
+func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+	field string,
+	values map[int32]string,
+	defaultValue int,
+) *objectFieldsInfo {
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{
+		defaultIntValue:  &defaultValue,
+		isDefaultSet:     true,
+		intToString:      makeIntToString(convIValuesToI32(values), defaultValue),
+		stringToInt:      makeStringToInt(convIValuesToI32(values), &defaultValue),
+		isStringable:     true,
+		isNotNullable:    true,
+		checkValueFunc:   defaultStringOfEnumsCheck(field),
+		compareValueFunc: stringOfEnumCompareWithDefault,
+	}
+
+	return fieldsInfo
+}
+
 // default value is 0
 func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNamesWithCompareAndValidFuncs(
 	field string,
 	values map[int32]string,
 ) *objectFieldsInfo {
-	def := 0
-	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		defaultIntValue:  &def,
-		isDefaultSet:     true,
-		intToString:      makeIntToString(convIValuesToI32(values), def),
-		stringToInt:      makeStringToInt(convIValuesToI32(values), &def),
-		isStringable:     true,
-		isNotNullable:    true,
-		checkValueFunc:   defaultStringOfEnumsCheck(field),
-		compareValueFunc: defaultStringCompare,
-	}
-
-	return fieldsInfo
+	return fieldsInfo.addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(field, values, 0)
 }
 
 // default value is 0
@@ -577,6 +585,18 @@ func defaultStringOfEnumsCheck(fieldname string) func(*objectFieldsInfo, interfa
 	}
 }
 
-func defaultStringCompare(fieldsInfo *objectFieldsInfo, old, new string) bool {
+func defaultStringCompare(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
+	return old == new
+}
+
+func stringOfEnumCompareWithDefault(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
+	intV, err := fieldsInfo.stringToInt(fieldname, new)
+	if err != nil {
+		log.Printf("[ERROR] Cannot convert enum value to int. Fieldname: %s, value: %s", fieldname, new)
+		return false
+	}
+	if fieldsInfo.intEqualDefault(fieldname, intV) && old == "" {
+		return true
+	}
 	return old == new
 }

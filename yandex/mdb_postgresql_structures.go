@@ -1705,7 +1705,11 @@ var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig17_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig17_PasswordEncryption_name,
+		int(config.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_DebugParallelQuery_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
@@ -1728,7 +1732,11 @@ var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_1C_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_1C_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_1C_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig17_1C_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig17_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig17_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_1C_DebugParallelQuery_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 

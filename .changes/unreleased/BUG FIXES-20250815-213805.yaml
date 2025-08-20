@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: The default enum value for password_encryption now depends on the PostgreSQL version; correct change generation for this field has been implemented'
+time: 2025-08-15T21:38:05.517491+03:00
