@@ -20,6 +20,7 @@ type Cluster struct {
 	DeletionProtection  types.Bool   `tfsdk:"deletion_protection"`
 	SecurityGroupIds    types.Set    `tfsdk:"security_group_ids"`
 	DiskEncryptionKeyId types.String `tfsdk:"disk_encryption_key_id"`
+	Restore             types.Object `tfsdk:"restore"`
 }
 
 type Host struct {
@@ -134,4 +135,10 @@ var DiskSizeAutoscalingAttrTypes = map[string]attr.Type{
 	"disk_size_limit":           types.Int64Type,
 	"planned_usage_threshold":   types.Int64Type,
 	"emergency_usage_threshold": types.Int64Type,
+}
+
+type Restore struct {
+	BackupId      types.String `tfsdk:"backup_id"`
+	TimeInclusive types.Bool   `tfsdk:"time_inclusive"`
+	Time          types.String `tfsdk:"time"`
 }

@@ -38,6 +38,7 @@ const (
 	defaultMDBPageSize                      = 1000
 	pgResource                              = "yandex_mdb_postgresql_cluster_v2.foo"
 	pgRestoreBackupId                       = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
+	pgRestoreBackupIdEncrypted              = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
 	yandexMDBPostgreSQLClusterCreateTimeout = 30 * time.Minute // TODO refactor
 	yandexMDBPostgreSQLClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBPostgreSQLClusterUpdateTimeout = 60 * time.Minute
@@ -1330,6 +1331,48 @@ func TestAccMDBPostgreSQLCluster_HostSpecialCaseTests(t *testing.T) {
 	})
 }
 
+// Test that PostgreSQL cluster can be restored
+func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_test"
+	clusterName := acctest.RandomWithPrefix("postgresql-restored-cluster")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestore(clusterName, true),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("PostgreSQL Cluster Restore Test")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
+					resource.TestCheckNoResourceAttr(clusterResource, `disk_encryption_key_id`),
+				),
+			},
+			// Uncheck deletion_protection
+			{
+				Config: testAccMDBPGClusterConfigRestore(clusterName, false),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+		},
+	})
+}
+
 // Test that encrypted PostgreSQL Cluster can be created, updated and destroyed
 func TestAccMDBPostgreSQLCluster_EncryptionTests(t *testing.T) {
 	t.Parallel()
@@ -1351,6 +1394,54 @@ func TestAccMDBPostgreSQLCluster_EncryptionTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.NotNull()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+// Test that encrypted PostgreSQL Cluster can restore and remove encryption
+func TestAccMDBPostgreSQLCluster_dropDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-drop-disk-encryption")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_with_encryption_test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestoreDropEncryption(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+// Test that encrypted PostgreSQL Cluster can be restored with encryption
+func TestAccMDBPostgreSQLCluster_addDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-add-disk-encryption")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_with_encryption_test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestoreAddEncryption(clusterName),
+				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
 				),
@@ -1935,6 +2026,102 @@ func testAccMDBPostgreSQLSecurityGroupIds(ids []string) string {
 		return ""
 	}
 	return fmt.Sprintf("security_group_ids = [%s]", strings.Join(ids, ","))
+}
+
+func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection bool) string {
+	return fmt.Sprintf(pgVPCDependencies+`	  
+	resource "yandex_mdb_postgresql_cluster_v2" "restore_test" {
+		name        = "%s"
+		description = "PostgreSQL Cluster Restore Test"
+		environment = "PRESTABLE"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+		folder_id   = "%s"
+
+		restore = {
+			backup_id = "%s"
+		}
+	  
+		config {
+		  version = "15"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 10
+			disk_type_id       = "network-ssd"
+		  }
+		}
+	  
+		hosts = {
+			"host" = {
+				zone      = "ru-central1-a"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+			}
+		}
+	  
+		deletion_protection = %t
+	  }
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, deletionProtection)
+}
+
+func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId, diskEncryption string) string {
+	return fmt.Sprintf(pgVPCDependencies+`	  
+	resource "yandex_mdb_postgresql_cluster_v2" "restore_with_encryption_test" {
+		name        = "%s"
+		description = "PostgreSQL Cluster Restore Test"
+		environment = "PRESTABLE"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+		folder_id = "%s"
+
+		restore = {
+			backup_id = "%s"
+		}
+	  
+		labels = {
+		  test_key = "test_value"
+		}
+
+		maintenance_window = {
+			type = "WEEKLY"
+			day  = "SAT"
+			hour = 12
+		}
+	  
+		config {
+		  version = "15"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 10
+			disk_type_id       = "network-ssd"
+		  }
+		  access = {
+			web_sql       = true
+			serverless    = true
+			data_lens     = true
+			data_transfer = true
+		  }
+		}
+	  
+		hosts = {
+			"host" = {
+				zone      = "ru-central1-a"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+			}
+		}
+
+		deletion_protection = false
+		%s
+	  }
+`, clusterName, test.GetExampleFolderID(), backupId, diskEncryption)
+}
+
+func testAccMDBPGClusterConfigRestoreDropEncryption(clusterName string) string {
+	return testAccMDBPGClusterConfigRestoreWithEncryption(clusterName, pgRestoreBackupIdEncrypted, "")
+}
+
+func testAccMDBPGClusterConfigRestoreAddEncryption(clusterName string) string {
+	return diskEncryptionKeyResource + testAccMDBPGClusterConfigRestoreWithEncryption(
+		clusterName, pgRestoreBackupId, "disk_encryption_key_id = \"${yandex_kms_symmetric_key.disk_encrypt.id}\"")
 }
 
 // func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string

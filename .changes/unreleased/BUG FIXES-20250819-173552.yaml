@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fix database update (new database name equals to the current one) for yandex_mdb_postgresql_database resource'
+time: 2025-08-19T17:35:52.445062+03:00

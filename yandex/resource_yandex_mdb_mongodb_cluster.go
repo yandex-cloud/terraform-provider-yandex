@@ -16,6 +16,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 
 	"golang.org/x/exp/maps"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -1174,7 +1175,7 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 
 	var timeBackup *mongodb.RestoreClusterRequest_RecoveryTargetSpec = nil
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
-		time, err := parseStringToTime(backupTime.(string))
+		time, err := mdbcommon.ParseStringToTime(backupTime.(string))
 		if err != nil {
 			return diag.Errorf("Error while parsing restore.0.time to create MongoDB Clsuter from backup %v, value: %v error: %s", backupID, backupTime, err)
 		}

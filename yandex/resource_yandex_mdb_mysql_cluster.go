@@ -14,6 +14,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -535,7 +536,7 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
 		var err error
-		timeBackup, err = parseStringToTime(backupTime.(string))
+		timeBackup, err = mdbcommon.ParseStringToTime(backupTime.(string))
 		if err != nil {
 			return fmt.Errorf("Error while parsing restore.0.time to create MySQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
 		}

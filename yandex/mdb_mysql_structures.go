@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,6 +14,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -1210,26 +1209,9 @@ func unbindGlobalPermissions(globalPermissions []mysql.GlobalPermission) []strin
 	return roles
 }
 
-// parseStringToTime parse string to time, when s is 0 or is "" then now time format (unix second or "2006-01-02T15:04:05" )
-func parseStringToTime(s string) (t time.Time, err error) {
-	if s == "" {
-		return time.Now(), nil
-	}
-	if s == "0" {
-		return time.Now(), nil
-	}
-
-	if timeInt, err := strconv.Atoi(s); err == nil {
-		return time.Unix(int64(timeInt), 0), nil
-	}
-
-	return time.Parse("2006-01-02T15:04:05", s)
-
-}
-
 func stringToTimeValidateFunc(value interface{}, key string) (fields []string, errors []error) {
 	if strTime, ok := value.(string); ok {
-		_, err := parseStringToTime(strTime)
+		_, err := mdbcommon.ParseStringToTime(strTime)
 		if err != nil {
 			errors = append(errors, err)
 		}

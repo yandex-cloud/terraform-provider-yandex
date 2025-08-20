@@ -18,6 +18,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -820,7 +821,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 	timeInclusive := false
 
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
-		time, err := parseStringToTime(backupTime.(string))
+		time, err := mdbcommon.ParseStringToTime(backupTime.(string))
 		if err != nil {
 			return fmt.Errorf("Error while parsing restore.0.time to create PostgreSQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
 		}

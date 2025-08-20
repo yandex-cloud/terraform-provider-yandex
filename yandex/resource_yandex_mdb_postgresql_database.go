@@ -237,11 +237,15 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 	request := &postgresql.UpdateDatabaseRequest{
 		ClusterId:          clusterID,
 		DatabaseName:       oldName.(string),
-		NewDatabaseName:    newName.(string),
 		Extensions:         extensions,
 		DeletionProtection: deletionProtection,
 		UpdateMask:         updateMask,
 	}
+
+	if newName != nil && oldName != newName {
+		request.NewDatabaseName = newName.(string)
+	}
+
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database update request: %+v", request)
 		return config.sdk.MDB().PostgreSQL().Database().Update(ctx, request)

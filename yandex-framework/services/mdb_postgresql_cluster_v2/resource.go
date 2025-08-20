@@ -168,6 +168,39 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"security_group_ids": defaultschema.SecurityGroupIds(),
+			"restore": schema.SingleNestedAttribute{
+				Description: "The cluster will be created from the specified backup.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplace(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"backup_id": schema.StringAttribute{
+						Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-postgresql/operations/cluster-backups).",
+						Required:    true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
+					},
+					"time_inclusive": schema.BoolAttribute{
+						Description: "Flag that indicates whether a database should be restored to the first backup point available just after the timestamp specified in the [time] field instead of just before. Possible values:\n* `false` (default) — the restore point refers to the first backup moment before [time].\n* `true` — the restore point refers to the first backup point after [time].",
+						Optional:    true,
+						PlanModifiers: []planmodifier.Bool{
+							boolplanmodifier.RequiresReplace(),
+						},
+					},
+					"time": schema.StringAttribute{
+						Description: "Timestamp of the moment to which the PostgreSQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
+						Optional:    true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
+						Validators: []validator.String{
+							mdbcommon.NewStringToTimeValidator(),
+						},
+					},
+				},
+			},
 			// Optional nested attribute maintenance_window required all optional nested attributes
 			// But if the block is specified explicitly, then the type attribute is required
 			"maintenance_window": schema.SingleNestedAttribute{
@@ -518,20 +551,53 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Prepare Create Request
-	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState)
+	if utils.IsPresent(plan.Restore) {
+		r.restoreCluster(ctx, diags, plan, hostSpecsSlice, resp)
+	} else {
+		r.createCluster(ctx, plan, hostSpecsSlice, resp)
+	}
+}
+
+func (r *clusterResource) createCluster(
+	ctx context.Context,
+	plan Cluster,
+	hostSpecsSlice []*postgresql.HostSpec,
+	resp *resource.CreateResponse,
+) {
+	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState, hostSpecsSlice)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	// Add Hosts to the request
-	request.HostSpecs = hostSpecsSlice
 
 	cid := postgresqlApi.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	plan.Id = types.StringValue(cid)
 
+	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+}
+
+func (r *clusterResource) restoreCluster(
+	ctx context.Context,
+	diags diag.Diagnostics,
+	plan Cluster,
+	hostSpecsSlice []*postgresql.HostSpec,
+	resp *resource.CreateResponse,
+) {
+	request, diags := prepareRestoreRequest(ctx, &plan, &r.providerConfig.ProviderState, hostSpecsSlice)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	cid := postgresqlApi.RestoreCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	plan.Id = types.StringValue(cid)
 
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
@@ -575,7 +641,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	mdbcommon.UpdateClusterHosts[Host, *postgresql.Host, *postgresql.HostSpec, postgresql.UpdateHostSpec](
+	mdbcommon.UpdateClusterHosts(
 		ctx,
 		r.providerConfig.SDK,
 		&resp.Diagnostics,

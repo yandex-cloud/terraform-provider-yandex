@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 
@@ -204,4 +206,20 @@ func FixDiskSizeOnAutoscalingChanges(ctx context.Context, plan, state types.Obje
 		return obj
 	}
 	return plan
+}
+
+// ParseStringToTime parse string to time, when s is 0 or is "" then now time format (unix second or "2006-01-02T15:04:05" )
+func ParseStringToTime(s string) (t time.Time, err error) {
+	if s == "" {
+		return time.Now(), nil
+	}
+	if s == "0" {
+		return time.Now(), nil
+	}
+
+	if timeInt, err := strconv.Atoi(s); err == nil {
+		return time.Unix(int64(timeInt), 0), nil
+	}
+
+	return time.Parse("2006-01-02T15:04:05", s)
 }

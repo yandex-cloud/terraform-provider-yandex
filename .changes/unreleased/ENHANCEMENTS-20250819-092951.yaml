@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'postgresql: add restore functuanality to yandex_mdb_postgresql_cluster_v2 resource'
+time: 2025-08-19T09:29:51.007486+03:00

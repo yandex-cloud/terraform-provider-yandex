@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -206,6 +207,8 @@ func (p *PostgresqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 		return
 	}
 
+	tflog.Debug(ctx, "Deleting PostgreSQL Cluster", map[string]any{"cluster_id": cid})
+
 	if err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -242,12 +245,53 @@ func (p *PostgresqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 		return ""
 	}
 
-	log.Printf("[DEBUG] Creating PostgreSQL Cluster %q", md.ClusterId)
+	tflog.Debug(ctx, "Creating PostgreSQL Cluster", map[string]any{"request_body": req})
 
 	if err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
 			fmt.Sprintf("Error while waiting for operation %q to create PostgreSQL cluster: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+
+	return md.ClusterId
+}
+
+func (p *PostgresqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *postgresql.RestoreClusterRequest) string {
+	op, err := sdk.WrapOperation(sdk.MDB().PostgreSQL().Cluster().Restore(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while requesting API to restore PostgreSQL cluster from backup: %s", err.Error()),
+		)
+		return ""
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+
+	md, ok := protoMetadata.(*postgresql.RestoreClusterMetadata)
+	if !ok {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
+		)
+		return ""
+	}
+
+	tflog.Debug(ctx, "Restoring PostgreSQL Cluster from backup", map[string]any{"request_body": req})
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while waiting for operation %q to restore PostgreSQL cluster from backup: %s", op.Id(), err.Error()),
 		)
 		return ""
 	}
@@ -269,6 +313,7 @@ func (p *PostgresqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag 
 		return
 	}
 
+	tflog.Debug(ctx, "Updating PostgreSQL Cluster", map[string]any{"request_body": req})
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to update resource",
