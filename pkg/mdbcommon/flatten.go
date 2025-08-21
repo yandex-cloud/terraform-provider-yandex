@@ -46,6 +46,13 @@ func FlattenBoolWrapper(ctx context.Context, wb *wrapperspb.BoolValue, diags *di
 	return types.BoolValue(wb.GetValue())
 }
 
+func FlattenStringWrapper(ctx context.Context, ws *wrapperspb.StringValue, diags *diag.Diagnostics) types.String {
+	if ws == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(ws.GetValue())
+}
+
 func FlattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.Set {
 	obj, d := types.SetValueFrom(ctx, types.StringType, ss)
 	diags.Append(d...)

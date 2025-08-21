@@ -149,6 +149,14 @@ func ExpandBoolWrapper(_ context.Context, b types.Bool, _ *diag.Diagnostics) *wr
 	return wrapperspb.Bool(b.ValueBool())
 }
 
+func ExpandStringWrapper(_ context.Context, s types.String, _ *diag.Diagnostics) *wrapperspb.StringValue {
+	if s.IsNull() || s.IsUnknown() {
+		return nil
+	}
+
+	return wrapperspb.String(s.ValueString())
+}
+
 func ExpandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagnostics) []string {
 	var securityGroupIds []string
 	if !(sg.IsUnknown() || sg.IsNull()) {

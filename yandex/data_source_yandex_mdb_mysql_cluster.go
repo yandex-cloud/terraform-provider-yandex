@@ -13,6 +13,18 @@ import (
 )
 
 func dataSourceYandexMDBMySQLCluster() *schema.Resource {
+	resourceSchema := resourceYandexMDBMySQLCluster().Schema
+	backupWindowStartElem := resourceSchema["backup_window_start"].Elem.(*schema.Resource)
+	resourcesElem := resourceSchema["resources"].Elem.(*schema.Resource)
+	databaseElem := resourceSchema["database"].Elem.(*schema.Resource)
+	userElem := resourceSchema["user"].Elem.(*schema.Resource)
+	userPermissionElem := userElem.Schema["permission"].Elem.(*schema.Resource)
+	userConnectionLimitsElem := userElem.Schema["connection_limits"].Elem.(*schema.Resource)
+	hostElem := resourceSchema["host"].Elem.(*schema.Resource)
+	accessElem := resourceSchema["access"].Elem.(*schema.Resource)
+	maintenanceWindowElem := resourceSchema["maintenance_window"].Elem.(*schema.Resource)
+	performanceDiagnosticsElem := resourceSchema["performance_diagnostics"].Elem.(*schema.Resource)
+
 	return &schema.Resource{
 		Description: "Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).\n\n~> Either `cluster_id` or `name` should be specified.\n",
 
@@ -58,83 +70,98 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Set:         schema.HashString,
 			},
 			"backup_window_start": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["backup_window_start"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hours": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  0,
+							Type:        schema.TypeInt,
+							Description: backupWindowStartElem.Schema["hours"].Description,
+							Optional:    true,
+							Default:     0,
 						},
 						"minutes": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  0,
+							Type:        schema.TypeInt,
+							Description: backupWindowStartElem.Schema["minutes"].Description,
+							Optional:    true,
+							Default:     0,
 						},
 					},
 				},
 			},
 			"resources": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["resources"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourcesElem.Schema["resource_preset_id"].Description,
+							Computed:    true,
 						},
 						"disk_type_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: resourcesElem.Schema["disk_type_id"].Description,
+							Computed:    true,
 						},
 						"disk_size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: resourcesElem.Schema["disk_size"].Description,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"database": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Set:      mysqlDatabaseHash,
+				Type:        schema.TypeSet,
+				Description: resourceSchema["database"].Description,
+				Computed:    true,
+				Set:         mysqlDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: databaseElem.Schema["name"].Description,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"user": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["user"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: userElem.Schema["name"].Description,
+							Computed:    true,
 						},
 						"password": {
-							Type:      schema.TypeString,
-							Computed:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Description: userElem.Schema["password"].Description,
+							Computed:    true,
+							Sensitive:   true,
 						},
 						"permission": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Set:      mysqlUserPermissionHash,
+							Type:        schema.TypeSet,
+							Description: userElem.Schema["permission"].Description,
+							Optional:    true,
+							Computed:    true,
+							Set:         mysqlUserPermissionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"database_name": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Description: userPermissionElem.Schema["database_name"].Description,
+										Computed:    true,
 									},
 									"roles": {
-										Type: schema.TypeList,
+										Type:        schema.TypeList,
+										Description: userPermissionElem.Schema["roles"].Description,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -144,77 +171,92 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 							},
 						},
 						"global_permissions": {
-							Type: schema.TypeSet,
+							Type:        schema.TypeSet,
+							Description: userElem.Schema["global_permissions"].Description,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 							Computed: true,
 						},
 						"connection_limits": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Description: userElem.Schema["connection_limits"].Description,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_questions_per_hour": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: userConnectionLimitsElem.Schema["max_questions_per_hour"].Description,
+										Computed:    true,
 									},
 									"max_updates_per_hour": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: userConnectionLimitsElem.Schema["max_updates_per_hour"].Description,
+										Computed:    true,
 									},
 									"max_connections_per_hour": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: userConnectionLimitsElem.Schema["max_connections_per_hour"].Description,
+										Computed:    true,
 									},
 									"max_user_connections": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Description: userConnectionLimitsElem.Schema["max_user_connections"].Description,
+										Computed:    true,
 									},
 								},
 							},
 						},
 						"authentication_plugin": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: userElem.Schema["authentication_plugin"].Description,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"host": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["host"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"zone": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: hostElem.Schema["zone"].Description,
+							Computed:    true,
 						},
 						"assign_public_ip": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: hostElem.Schema["assign_public_ip"].Description,
+							Optional:    true,
+							Default:     false,
 						},
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: hostElem.Schema["subnet_id"].Description,
+							Optional:    true,
+							Computed:    true,
 						},
 						"fqdn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: hostElem.Schema["fqdn"].Description,
+							Computed:    true,
 						},
 						"replication_source": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: hostElem.Schema["replication_source"].Description,
+							Computed:    true,
 						},
 						"priority": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: hostElem.Schema["priority"].Description,
+							Optional:    true,
 						},
 						"backup_priority": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Description: hostElem.Schema["backup_priority"].Description,
+							Optional:    true,
 						},
 					},
 				},
@@ -249,6 +291,7 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"mysql_config": {
 				Type:             schema.TypeMap,
+				Description:      resourceSchema["mysql_config"].Description,
 				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo),
@@ -258,46 +301,54 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"access": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["access"].Description,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data_lens": {
-							Type:     schema.TypeBool,
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: accessElem.Schema["data_lens"].Description,
+							Computed:    true,
+							Optional:    true,
 						},
 						"web_sql": {
-							Type:     schema.TypeBool,
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: accessElem.Schema["web_sql"].Description,
+							Computed:    true,
+							Optional:    true,
 						},
 						"data_transfer": {
-							Type:     schema.TypeBool,
-							Computed: true,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Description: accessElem.Schema["data_transfer"].Description,
+							Computed:    true,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"maintenance_window": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["maintenance_window"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: maintenanceWindowElem.Schema["type"].Description,
+							Computed:    true,
 						},
 						"day": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: maintenanceWindowElem.Schema["day"].Description,
+							Computed:    true,
 						},
 						"hour": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: maintenanceWindowElem.Schema["hour"].Description,
+							Computed:    true,
 						},
 					},
 				},
@@ -308,31 +359,42 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBMySQLCluster().Schema["disk_encryption_key_id"].Description,
+				Computed:    true,
+				Optional:    true,
+			},
 			"performance_diagnostics": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceSchema["performance_diagnostics"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Description: performanceDiagnosticsElem.Schema["enabled"].Description,
+							Computed:    true,
 						},
 						"sessions_sampling_interval": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: performanceDiagnosticsElem.Schema["sessions_sampling_interval"].Description,
+							Computed:    true,
 						},
 						"statements_sampling_interval": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: performanceDiagnosticsElem.Schema["statements_sampling_interval"].Description,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceSchema["host_group_ids"].Description,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Computed:    true,
 			},
 			"backup_retain_period_days": {
 				Type:        schema.TypeInt,
@@ -475,6 +537,12 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
+	}
 
 	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err

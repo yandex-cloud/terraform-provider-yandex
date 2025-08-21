@@ -56,6 +56,7 @@ var (
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
+		"disk_encryption_key_id":    types.StringType,
 	}
 	baseCluster = Cluster{
 		Id:          types.StringValue("test-id"),
@@ -170,6 +171,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 						),
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
+					"disk_encryption_key_id": types.StringValue("test-key"),
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{
@@ -208,6 +210,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 						},
 					},
 				},
+				DiskEncryptionKeyId: wrapperspb.String("test-key"),
 			},
 		},
 		{
@@ -242,11 +245,12 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					"performance_diagnostics": types.ObjectNull(
 						expectedPDAttrs,
 					),
-					"access":              types.ObjectNull(AccessAttrTypes),
-					"maintenance_window":  types.ObjectNull(expectedMWAttrs),
-					"deletion_protection": types.BoolNull(),
-					"security_group_ids":  types.SetNull(types.StringType),
-					"mysql_config":        NewMsSettingsMapNull(),
+					"access":                 types.ObjectNull(AccessAttrTypes),
+					"maintenance_window":     types.ObjectNull(expectedMWAttrs),
+					"deletion_protection":    types.BoolNull(),
+					"security_group_ids":     types.SetNull(types.StringType),
+					"mysql_config":           NewMsSettingsMapNull(),
+					"disk_encryption_key_id": types.StringNull(),
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{

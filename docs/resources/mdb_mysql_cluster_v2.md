@@ -102,6 +102,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `backup_window_start` (Attributes) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedatt--backup_window_start))
 - `deletion_protection` (Boolean) Inhibits deletion of the cluster. Can be either true or false.
 - `description` (String) Description of the MySQL cluster.
+- `disk_encryption_key_id` (String) ID of the symmetric encryption key used to encrypt the disk of the cluster.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Attributes) Maintenance policy of the MySQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))

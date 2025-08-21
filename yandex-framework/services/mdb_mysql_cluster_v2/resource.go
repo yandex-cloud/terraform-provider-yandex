@@ -270,6 +270,14 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"disk_encryption_key_id": schema.StringAttribute{
+				Description: "ID of the symmetric encryption key used to encrypt the disk of the cluster.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"security_group_ids": defaultschema.SecurityGroupIds(),
 			// Optional nested attribute maintenance_window required all optional nested attributes
 			// But if the block is specified explicitly, then the type attribute is required
@@ -504,4 +512,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.BackupRetainPeriodDays = cfg.BackupRetainPeriodDays
 	state.BackupWindowStart = cfg.BackupWindowStart
 	state.MySQLConfig = cfg.MySQLConfig
+	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
 }

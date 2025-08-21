@@ -25,6 +25,7 @@ type Cluster struct {
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
+	DiskEncryptionKeyId    types.String               `tfsdk:"disk_encryption_key_id"`
 }
 
 type Host struct {

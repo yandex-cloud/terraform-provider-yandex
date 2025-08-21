@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -436,6 +437,13 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key for cluster disk encryption.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
 			"performance_diagnostics": {
 				Type:        schema.TypeList,
 				Description: "Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).",
@@ -643,21 +651,29 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("Error while expanding maintenance_window on MySQL Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	return &mysql.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		ConfigSpec:         configSpec,
-		DatabaseSpecs:      dbSpecs,
-		UserSpecs:          users,
-		HostSpecs:          hostSpecs,
-		Labels:             labels,
-		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		HostGroupIds:       expandHostGroupIds(d.Get("host_group_ids")),
-		MaintenanceWindow:  maintenanceWindow,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		ConfigSpec:          configSpec,
+		DatabaseSpecs:       dbSpecs,
+		UserSpecs:           users,
+		HostSpecs:           hostSpecs,
+		Labels:              labels,
+		SecurityGroupIds:    expandSecurityGroupIds(d.Get("security_group_ids")),
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		HostGroupIds:        expandHostGroupIds(d.Get("host_group_ids")),
+		MaintenanceWindow:   maintenanceWindow,
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}, nil
 }
 
@@ -797,6 +813,12 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 
 	if err := d.Set("deletion_protection", cluster.DeletionProtection); err != nil {
 		return err
+	}
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
 	}
 
 	perfDiag, err := flattenMyPerformanceDiagnostics(cluster.Config.PerformanceDiagnostics)

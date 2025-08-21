@@ -348,6 +348,30 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 	)
 }
 
+func TestAccMDBMySQLCluster_EncryptedDisk(t *testing.T) {
+	t.Parallel()
+
+	var cluster mysql.Cluster
+	mysqlName := acctest.RandomWithPrefix("tf-mysql-disk-encryption")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			// Create MySQL Cluster with disk encryption
+			{
+				Config: testAccMDBMySQLClusterDiskEncrypted(mysqlName, "Encrypted MySQL cluster"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttrSet(mysqlResource, "disk_encryption_key_id"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+		},
+	})
+}
+
 func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1186,4 +1210,41 @@ func testAccMDBMysqlClusterWithPriorities(name string) string {
 	type = "ANYTIME"
   }
 `)
+}
+func testAccMDBMySQLClusterDiskEncrypted(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = yandex_vpc_network.foo.id
+  version        = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "alice"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, desc)
 }

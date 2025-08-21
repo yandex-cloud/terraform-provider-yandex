@@ -3,6 +3,7 @@ package mdb_mysql_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"log"
 	"reflect"
 	"regexp"
@@ -21,7 +22,6 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -42,6 +42,11 @@ const (
 	yandexMDBMySQLClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBMySQLClusterUpdateTimeout = 60 * time.Minute
 )
+
+const diskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
+
+`
 
 const msVPCDependencies = `
 resource "yandex_vpc_network" "mdb-ms-test-net" {}
@@ -1100,6 +1105,44 @@ func TestAccMDBMySQLCluster_HostSpecialCaseTests(t *testing.T) {
 	})
 }
 
+func TestAccMDBMySQLCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+	version := msVersions[0]
+	var cluster mysql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-mysql-cluster-disk-encryption")
+	resourceId := "cluster_disk_encryption_test"
+	clusterResource := "yandex_mdb_mysql_cluster_v2." + resourceId
+	description := "MySQL Cluster Terraform Test Disk Encryption"
+	folderID := test.GetExampleFolderID()
+
+	stateChecks := []statecheck.StateCheck{
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(version)),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.NotNull()),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMySQLClusterDestroy,
+			kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccMDBMySQLClusterDiskEncryption(resourceId, clusterName, description, version),
+				ConfigStateChecks: stateChecks,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMDBMySQLClusterDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*provider.Provider).GetConfig()
 
@@ -1564,6 +1607,33 @@ func testAccMDBMySQLSecurityGroupIds(ids []string) string {
 		return ""
 	}
 	return fmt.Sprintf("security_group_ids = [%s]", strings.Join(ids, ","))
+}
+
+func testAccMDBMySQLClusterDiskEncryption(resourceId, name, description, version string) string {
+	return fmt.Sprintf(msVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_mysql_cluster_v2" "%s" {
+  name        = "%s"
+  description = "%s"
+  network_id  = yandex_vpc_network.mdb-ms-test-net.id
+  environment = "PRESTABLE"
+
+  version = "%s"
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_size          = 10
+    disk_type_id       = "network-ssd"
+  }
+  
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+
+  hosts = {
+    "host1" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
+    }
+  }
+}
+`, resourceId, name, description, version)
 }
 
 // func testAccMDBMySQLClusterConfigHANamedSwitchMaster(name, version string) string

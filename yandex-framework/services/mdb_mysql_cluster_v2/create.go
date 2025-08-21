@@ -29,7 +29,8 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 			mysql.AnytimeMaintenanceWindow,
 			mysql.WeeklyMaintenanceWindow_WeekDay,
 		](ctx, plan.MaintenanceWindow, &diags),
-		SecurityGroupIds: mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		SecurityGroupIds:    mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 	return request, diags
 }

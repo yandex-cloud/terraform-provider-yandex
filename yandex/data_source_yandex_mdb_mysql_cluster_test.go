@@ -51,6 +51,27 @@ func TestAccDataSourceMDBMySQLCluster_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBMySQLCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	mysqlName := acctest.RandomWithPrefix("ds-mysql-disk-encryption")
+	mysqlDesc := "MySQL Cluster Terraform Datasource Test Disk Encryption"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMySQLClusterDiskEncrypted(mysqlName, mysqlDesc) + mdbMysqlClusterByNameConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_mysql_cluster.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
