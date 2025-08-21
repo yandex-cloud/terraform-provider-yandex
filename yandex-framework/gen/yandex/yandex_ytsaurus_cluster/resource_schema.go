@@ -29,8 +29,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 
 			"cluster_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster to return.",
-				Description: "ID of the cluster to return." +
+				MarkdownDescription: "ID of the cluster to delete.",
+				Description: "ID of the cluster to delete." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.DeleteClusterRequest.cluster_id
@@ -50,8 +50,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster to return.",
-				Description: "ID of the cluster to return." +
+				MarkdownDescription: "ID of the cluster to delete.",
+				Description: "ID of the cluster to delete." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.DeleteClusterRequest.cluster_id

@@ -30,7 +30,7 @@ func NewResource() resource.Resource {
 }
 
 func (r *yandexCloudregistryIPPermissionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "yandex_cloud_registry_ip_permission"
+	resp.TypeName = "yandex_cloudregistry_registry_ip_permission"
 }
 
 func (r *yandexCloudregistryIPPermissionResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

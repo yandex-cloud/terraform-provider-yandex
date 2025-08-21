@@ -14,7 +14,7 @@ func GetProviderDataSources() []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		yandex_resourcemanager_cloud.NewDataSource,
 		yandex_resourcemanager_folder.NewDataSource,
-		yandex_ytsaurus_cluster.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
+		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }

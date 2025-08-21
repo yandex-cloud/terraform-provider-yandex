@@ -27,8 +27,8 @@ func TestMain(m *testing.M) {
 }
 
 func init() {
-	resource.AddTestSweepers("yandex_cloud_registry", &resource.Sweeper{
-		Name:         "yandex_cloud_registry",
+	resource.AddTestSweepers("yandex_cloudregistry_registry", &resource.Sweeper{
+		Name:         "yandex_cloudregistry_registry",
 		F:            testSweepCloudRegistry,
 		Dependencies: []string{},
 	})
@@ -82,8 +82,8 @@ func TestAccCloudRegistry_basic(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, cloudregistry.Registry_Kind_name[3], cloudregistry.Registry_Type_name[1], "my-value-for-tag"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
-					test.AccCheckCreatedAtAttr("yandex_cloud_registry.foobar"),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
+					test.AccCheckCreatedAtAttr("yandex_cloudregistry_registry.foobar"),
 					testAccCheckCloudRegistryName(&registry, registryName),
 					testAccCheckCloudRegistryContainsLabel(&registry, "test-label", "my-value-for-tag"),
 					testAccCheckCloudRegistryStatus(&registry, "active"),
@@ -109,7 +109,7 @@ func TestAccCloudRegistry_updateNameAndLabels(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 					func(s *terraform.State) error {
 						registryID = registry.Id
 						return nil
@@ -119,15 +119,15 @@ func TestAccCloudRegistry_updateNameAndLabels(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_update("new-registry-name", folderID, "DOCKER", "LOCAL"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr("yandex_cloud_registry.foobar", "id", &registry.Id),
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar", "name", "new-registry-name"),
+					resource.TestCheckResourceAttrPtr("yandex_cloudregistry_registry.foobar", "id", &registry.Id),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar", "name", "new-registry-name"),
 					testAccCheckCloudRegistryName(&registry, "new-registry-name"),
 					testAccCheckCloudRegistryContainsLabel(&registry, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckCloudRegistryContainsLabel(&registry, "new-field", "only-shows-up-when-updated"),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar",
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar",
 						"labels.empty-label", "oh-look-theres-a-label-now"),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar",
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar",
 						"labels.new-field", "only-shows-up-when-updated"),
 					testAccCheckCloudRegistryDoesNotContainLabel(&registry, "test-label"),
 					func(s *terraform.State) error {
@@ -138,7 +138,7 @@ func TestAccCloudRegistry_updateNameAndLabels(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry.foobar",
+				ResourceName:      "yandex_cloudregistry_registry.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -162,7 +162,7 @@ func TestAccCloudRegistry_updateOnlyName(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 					testAccCheckCloudRegistryLabel(&registry, "test-label", "my-init-value"),
 					func(s *terraform.State) error {
 						registryID = registry.Id
@@ -173,9 +173,9 @@ func TestAccCloudRegistry_updateOnlyName(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic("new-registry-name", folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr("yandex_cloud_registry.foobar", "id", &registry.Id),
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar", "name", "new-registry-name"),
+					resource.TestCheckResourceAttrPtr("yandex_cloudregistry_registry.foobar", "id", &registry.Id),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar", "name", "new-registry-name"),
 					testAccCheckCloudRegistryContainsLabel(&registry, "test-label", "my-init-value"),
 					testAccCheckCloudRegistryName(&registry, "new-registry-name"),
 					func(s *terraform.State) error {
@@ -186,7 +186,7 @@ func TestAccCloudRegistry_updateOnlyName(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry.foobar",
+				ResourceName:      "yandex_cloudregistry_registry.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -208,25 +208,25 @@ func TestAccCloudRegistry_updateOnlyLabels(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 				),
 			},
 			{
 				Config: testAccCloudRegistry_update(registryName, folderID, "DOCKER", "LOCAL"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr("yandex_cloud_registry.foobar", "id", &registry.Id),
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					resource.TestCheckResourceAttrPtr("yandex_cloudregistry_registry.foobar", "id", &registry.Id),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 					testAccCheckCloudRegistryContainsLabel(&registry, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckCloudRegistryContainsLabel(&registry, "new-field", "only-shows-up-when-updated"),
 					testAccCheckCloudRegistryDoesNotContainLabel(&registry, "test-label"),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar",
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar",
 						"labels.empty-label", "oh-look-theres-a-label-now"),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar",
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar",
 						"labels.new-field", "only-shows-up-when-updated"),
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry.foobar",
+				ResourceName:      "yandex_cloudregistry_registry.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -250,22 +250,22 @@ func TestAccCloudRegistry_updateOnlyDescription(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 					testAccCheckCloudRegistryLabel(&registry, "test-label", "my-init-value"),
 				),
 			},
 			{
 				Config: testAccCloudRegistry_updateDescription(registryName, folderID, "DOCKER", "LOCAL", "new-description"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr("yandex_cloud_registry.foobar", "id", &registry.Id),
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar", "description", "new-description"),
+					resource.TestCheckResourceAttrPtr("yandex_cloudregistry_registry.foobar", "id", &registry.Id),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar", "description", "new-description"),
 					testAccCheckCloudRegistryDescription(&registry, "new-description"),
 					testAccCheckCloudRegistyIdsEqual(&registryID, &afterUpdateRegistryID),
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry.foobar",
+				ResourceName:      "yandex_cloudregistry_registry.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -286,21 +286,21 @@ func TestAccCloudRegistry_updateLabelValue(t *testing.T) {
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 				),
 			},
 			{
 				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-new-value"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr("yandex_cloud_registry.foobar", "id", &registry.Id),
-					testAccCheckCloudRegistryExists("yandex_cloud_registry.foobar", &registry),
+					resource.TestCheckResourceAttrPtr("yandex_cloudregistry_registry.foobar", "id", &registry.Id),
+					testAccCheckCloudRegistryExists("yandex_cloudregistry_registry.foobar", &registry),
 					testAccCheckCloudRegistryContainsLabel(&registry, "test-label", "my-new-value"),
-					resource.TestCheckResourceAttr("yandex_cloud_registry.foobar",
+					resource.TestCheckResourceAttr("yandex_cloudregistry_registry.foobar",
 						"labels.test-label", "my-new-value"),
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry.foobar",
+				ResourceName:      "yandex_cloudregistry_registry.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -312,7 +312,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_cloud_registry" {
+		if rs.Type != "yandex_cloudregistry_registry" {
 			continue
 		}
 
@@ -434,7 +434,7 @@ func testAccCheckCloudRegistyIdsEqual(registryID *string, afterUpdateRegistryID 
 
 func testAccCloudRegistry_update(name, folderID, kind, typeName string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "foobar" {
+resource "yandex_cloudregistry_registry" "foobar" {
   name      = "%s"
   folder_id = "%s"
   kind      = "%s"
@@ -450,7 +450,7 @@ resource "yandex_cloud_registry" "foobar" {
 
 func testAccCloudRegistry_basic(name, folderID, kind, typeName, labelValue string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "foobar" {
+resource "yandex_cloudregistry_registry" "foobar" {
   name      = "%s"
   folder_id = "%s"
   kind      = "%s"
@@ -465,7 +465,7 @@ resource "yandex_cloud_registry" "foobar" {
 
 func testAccCloudRegistry_updateDescription(name, folderID, kind, typeName, description string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "foobar" {
+resource "yandex_cloudregistry_registry" "foobar" {
   name      = "%s"
   folder_id = "%s"
   kind      = "%s"

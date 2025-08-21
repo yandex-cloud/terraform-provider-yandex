@@ -28,7 +28,7 @@ func NewDataSource() datasource.DataSource {
 }
 
 func (r *yandexCloudregistryRegistryDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = "yandex_cloud_registry"
+	resp.TypeName = "yandex_cloudregistry_registry"
 }
 
 func (r *yandexCloudregistryRegistryDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

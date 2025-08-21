@@ -22,16 +22,16 @@ func TestAccDataSourceCloudRegistry_byID(t *testing.T) {
 			{
 				Config: testAccDataSourceCloudRegistryConfig(registryName, folderID, label, true),
 				Check: resource.ComposeTestCheckFunc(
-					test.AccCheckResourceIDField("data.yandex_cloud_registry.source", "registry_id"),
-					resource.TestCheckResourceAttr("data.yandex_cloud_registry.source",
+					test.AccCheckResourceIDField("data.yandex_cloudregistry_registry.source", "registry_id"),
+					resource.TestCheckResourceAttr("data.yandex_cloudregistry_registry.source",
 						"name", registryName),
-					resource.TestCheckResourceAttrSet("data.yandex_cloud_registry.source",
+					resource.TestCheckResourceAttrSet("data.yandex_cloudregistry_registry.source",
 						"id"),
-					resource.TestCheckResourceAttr("data.yandex_cloud_registry.source",
+					resource.TestCheckResourceAttr("data.yandex_cloudregistry_registry.source",
 						"folder_id", folderID),
-					resource.TestCheckResourceAttr("data.yandex_cloud_registry.source",
+					resource.TestCheckResourceAttr("data.yandex_cloudregistry_registry.source",
 						"labels.test_label", label),
-					test.AccCheckCreatedAtAttr("data.yandex_cloud_registry.source"),
+					test.AccCheckCreatedAtAttr("data.yandex_cloudregistry_registry.source"),
 				),
 			},
 		},
@@ -48,7 +48,7 @@ func testAccDataSourceCloudRegistryConfig(name, folderID, labelValue string, use
 
 func testAccDataSourceCloudRegistryResourceConfig(name, folderID, kind, typeName, labelValue string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "foobar" {
+resource "yandex_cloudregistry_registry" "foobar" {
   name      = "%s"
   folder_id = "%s"
   kind      = "%s"
@@ -62,7 +62,7 @@ resource "yandex_cloud_registry" "foobar" {
 }
 
 const cloudRegistryDataByIDConfig = `
-data "yandex_cloud_registry" "source" {
-  registry_id = "${yandex_cloud_registry.foobar.id}"
+data "yandex_cloudregistry_registry" "source" {
+  registry_id = "${yandex_cloudregistry_registry.foobar.id}"
 }
 `

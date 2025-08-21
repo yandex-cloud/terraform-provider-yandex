@@ -33,7 +33,7 @@ func NewResource() resource.Resource {
 }
 
 func (r *yandexCloudregistryRegistryResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "yandex_cloud_registry"
+	resp.TypeName = "yandex_cloudregistry_registry"
 }
 
 func (r *yandexCloudregistryRegistryResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

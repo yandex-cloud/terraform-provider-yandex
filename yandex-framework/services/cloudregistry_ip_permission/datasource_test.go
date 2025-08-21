@@ -11,7 +11,7 @@ import (
 
 func TestAccDataSourceCloudRegistryIPPermission(t *testing.T) {
 
-	const dataCloudRegistryIPPermissionName = "data.yandex_cloud_registry_ip_permission.my_ip_permission"
+	const dataCloudRegistryIPPermissionName = "data.yandex_cloudregistry_registry_ip_permission.my_ip_permission"
 
 	var (
 		registryName = acctest.RandomWithPrefix("tf-registry")
@@ -56,30 +56,30 @@ func TestAccDataSourceCloudRegistryIPPermission(t *testing.T) {
 
 func getAccDataCloudRegistryIPPermissionConfigByName(registryName, kind, typeName string, push, pull []string) string {
 	return getAccDataCloudRegistryIPPermissionConfig(registryName, kind, typeName, push, pull) + `
-	data "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-		registry_name = yandex_cloud_registry.my_registry.name
+	data "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+		registry_name = yandex_cloudregistry_registry.my_registry.name
 		# registry_name adds dependency only to registry, not ip_permission
 		depends_on = [
-			yandex_cloud_registry_ip_permission.my_ip_permission
+			yandex_cloudregistry_registry_ip_permission.my_ip_permission
 		]
 	}`
 }
 
 func getAccDataCloudRegistryIPPermissionConfigByID(registryName, kind, typeName string, push, pull []string) string {
 	return getAccDataCloudRegistryIPPermissionConfig(registryName, kind, typeName, push, pull) + `
-	data "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-		registry_id = yandex_cloud_registry.my_registry.id
+	data "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+		registry_id = yandex_cloudregistry_registry.my_registry.id
 		# registry_id adds dependency only to registry, not ip_permission
 		depends_on = [
-			yandex_cloud_registry_ip_permission.my_ip_permission
+			yandex_cloudregistry_registry_ip_permission.my_ip_permission
 		]
 	}`
 }
 
 func getAccDataCloudRegistryIPPermissionConfig(registryName, kind, typeName string, push, pull []string) string {
 	return getAccDataCloudRegistryIPPermissionRegistryConfig(registryName, kind, typeName) + fmt.Sprintf(`
-		resource "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-			registry_id = yandex_cloud_registry.my_registry.id
+		resource "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+			registry_id = yandex_cloudregistry_registry.my_registry.id
 			push        = [ %v ]
 			pull        = [ %v ]
 		}`,
@@ -89,7 +89,7 @@ func getAccDataCloudRegistryIPPermissionConfig(registryName, kind, typeName stri
 
 func getAccDataCloudRegistryIPPermissionRegistryConfig(registryName, kind, typeName string) string {
 	return fmt.Sprintf(`
-		resource "yandex_cloud_registry" "my_registry" {
+		resource "yandex_cloudregistry_registry" "my_registry" {
 			name = "%v"
 			kind = "%s"
             type = "%s"

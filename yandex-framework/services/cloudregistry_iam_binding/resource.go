@@ -35,7 +35,7 @@ func NewResource() resource.Resource {
 }
 
 func (r *CloudRegistryIAMBindingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "yandex_cloud_registry_iam_binding"
+	resp.TypeName = "yandex_cloudregistry_registry_iam_binding"
 }
 
 func (r *CloudRegistryIAMBindingResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

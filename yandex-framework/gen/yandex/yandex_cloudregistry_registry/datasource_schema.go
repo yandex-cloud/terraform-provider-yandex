@@ -102,13 +102,13 @@ func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Sch
 			},
 
 			"registry_id": schema.StringAttribute{
-				MarkdownDescription: "Output only. ID of the registry.",
-				Description: "Output only. ID of the registry." +
+				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.Registry.id
 					"package: yandex.cloud.cloudregistry.v1\n" +
-					"filename: yandex/cloud/cloudregistry/v1/registry.proto\n",
+					"filename: yandex/cloud/cloudregistry/v1/registry_service.proto\n",
 				Optional: true,
 				Computed: true,
 
@@ -118,13 +118,13 @@ func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Sch
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Output only. ID of the registry.",
-				Description: "Output only. ID of the registry." +
+				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.Registry.id
 					"package: yandex.cloud.cloudregistry.v1\n" +
-					"filename: yandex/cloud/cloudregistry/v1/registry.proto\n",
+					"filename: yandex/cloud/cloudregistry/v1/registry_service.proto\n",
 				Optional: true,
 				Computed: true,
 

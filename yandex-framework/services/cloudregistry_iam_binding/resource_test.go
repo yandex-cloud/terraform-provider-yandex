@@ -18,7 +18,7 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
-const cloudRegistryResource = "yandex_cloud_registry.test-registry"
+const cloudRegistryResource = "yandex_cloudregistry_registry.test-registry"
 const defaultListSize = 1000
 
 func TestMain(m *testing.M) {
@@ -50,7 +50,7 @@ func TestAccCloudRegistryIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_cloud_registry_iam_binding.puller",
+				ResourceName:      "yandex_cloudregistry_registry_iam_binding.puller",
 				ImportStateIdFunc: importCloudRegistryIDFunc(&registry, role),
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -98,14 +98,14 @@ func TestAccCloudRegistryIamBinding_remove(t *testing.T) {
 
 func testAccCloudRegistryIamBindingBasic(registryName, kind, typeName, role, userID string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "test-registry" {
+resource "yandex_cloudregistry_registry" "test-registry" {
   name       = "%s"
   kind       = "%s"
   type		 = "%s"
 }
 
-resource "yandex_cloud_registry_iam_binding" "puller" {
-  registry_id = yandex_cloud_registry.test-registry.id
+resource "yandex_cloudregistry_registry_iam_binding" "puller" {
+  registry_id = yandex_cloudregistry_registry.test-registry.id
   role        = "%s"
   members     = ["%s"]
 }
@@ -114,7 +114,7 @@ resource "yandex_cloud_registry_iam_binding" "puller" {
 
 func testAccCloudRegistry(registryName, kind, typeName string) string {
 	return fmt.Sprintf(`
-resource "yandex_cloud_registry" "test-registry" {
+resource "yandex_cloudregistry_registry" "test-registry" {
   name       = "%s"
   kind       = "%s"
   type		 = "%s"

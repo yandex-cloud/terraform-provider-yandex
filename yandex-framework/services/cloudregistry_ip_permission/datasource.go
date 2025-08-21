@@ -32,7 +32,7 @@ func NewDataSource() datasource.DataSource {
 }
 
 func (r *yandexCloudregistryIPPermissionDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = "yandex_cloud_registry_ip_permission"
+	resp.TypeName = "yandex_cloudregistry_registry_ip_permission"
 }
 
 func (r *yandexCloudregistryIPPermissionDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

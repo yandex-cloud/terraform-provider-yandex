@@ -26,7 +26,7 @@ func TestAccCloudRegistryIPPermission(t *testing.T) {
 
 	var (
 		registryName             = acctest.RandomWithPrefix("tf-registry")
-		ipPermissionResourceName = "yandex_cloud_registry_ip_permission.my_ip_permission"
+		ipPermissionResourceName = "yandex_cloudregistry_registry_ip_permission.my_ip_permission"
 	)
 
 	t.Run("test update from only push to only pull", func(t *testing.T) {
@@ -277,13 +277,13 @@ func TestAccCloudRegistryIPPermission(t *testing.T) {
 				// taint ip_permission (causes recreation of ip_permission)
 				{
 					Config: getAccResourceCloudRegistryIPPermissionConfig(registryName, push, pull),
-					Taint:  []string{"yandex_cloud_registry_ip_permission.my_ip_permission"},
+					Taint:  []string{"yandex_cloudregistry_registry_ip_permission.my_ip_permission"},
 				},
 
 				// taint registry (causes recreation of registry, ip_permission)
 				{
 					Config: getAccResourceCloudRegistryIPPermissionConfig(registryName, push, pull),
-					Taint:  []string{"yandex_cloud_registry.my_registry"},
+					Taint:  []string{"yandex_cloudregistry_registry.my_registry"},
 				},
 
 				// import
@@ -328,7 +328,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_cloud_registry" {
+		if rs.Type != "yandex_cloudregistry_registry" {
 			continue
 		}
 
@@ -352,23 +352,23 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 func getAccResourceCloudRegistryIPPermissionConfig(registryName string, push, pull []string) string {
 	if len(push) == 0 {
 		return getAccResourceCloudRegistryIPPermissionRegistryConfig(registryName, "DOCKER", "LOCAL") + fmt.Sprintf(`
-		resource "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-			registry_id = yandex_cloud_registry.my_registry.id
+		resource "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+			registry_id = yandex_cloudregistry_registry.my_registry.id
 			pull        = [ %v ]
 		}`, cloudRegistryIPPermissionCIDRSJoin(pull))
 	}
 
 	if len(pull) == 0 {
 		return getAccResourceCloudRegistryIPPermissionRegistryConfig(registryName, "DOCKER", "LOCAL") + fmt.Sprintf(`
-		resource "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-			registry_id = yandex_cloud_registry.my_registry.id
+		resource "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+			registry_id = yandex_cloudregistry_registry.my_registry.id
 			push        = [ %v ]
 		}`, cloudRegistryIPPermissionCIDRSJoin(push))
 	}
 
 	return getAccResourceCloudRegistryIPPermissionRegistryConfig(registryName, "DOCKER", "LOCAL") + fmt.Sprintf(`
-		resource "yandex_cloud_registry_ip_permission" "my_ip_permission" {
-			registry_id = yandex_cloud_registry.my_registry.id
+		resource "yandex_cloudregistry_registry_ip_permission" "my_ip_permission" {
+			registry_id = yandex_cloudregistry_registry.my_registry.id
 			push        = [ %v ]
 			pull        = [ %v ]
 		}`,
@@ -378,7 +378,7 @@ func getAccResourceCloudRegistryIPPermissionConfig(registryName string, push, pu
 
 func getAccResourceCloudRegistryIPPermissionRegistryConfig(registryName, kind, typeName string) string {
 	return fmt.Sprintf(`
-		resource "yandex_cloud_registry" "my_registry" {
+		resource "yandex_cloudregistry_registry" "my_registry" {
 			name = "%v"
 			kind = "%s"
   			type = "%s"
