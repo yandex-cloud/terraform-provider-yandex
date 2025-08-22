@@ -1032,6 +1032,151 @@ func TestAccALBVirtualHost_RegexRewrite(t *testing.T) {
 	}
 }
 
+func TestAccALBVirtualHost_DisableSecurityProfile(t *testing.T) {
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "http route: disable security profile: true",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.RouteDisableSecurityProfile = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "true", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: disable security profile: false",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "false", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: true",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.RouteDisableSecurityProfile = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "true", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: false",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { testAccPreCheck(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							testExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							testExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "false", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
 func testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -7230,6 +7375,247 @@ func Test_buildALBVirtualHostUpdateRequest(t *testing.T) {
 				},
 			},
 			expectErr: true,
+		},
+		{
+			name: "http route: disable security profile: true",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"http_route": []any{
+							map[string]any{
+								"http_match": []any{
+									map[string]any{
+										"path": []any{
+											map[string]any{
+												"exact": "/",
+											},
+										},
+									},
+								},
+								"direct_response_action": []any{
+									map[string]any{
+										"body":   "hello world",
+										"status": 200,
+									},
+								},
+							},
+						},
+						"disable_security_profile": true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: true,
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Match: &apploadbalancer.HttpRouteMatch{
+									Path: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "/",
+										},
+									},
+								},
+								Action: &apploadbalancer.HttpRoute_DirectResponse{
+									DirectResponse: &apploadbalancer.DirectResponseAction{
+										Status: 200,
+										Body: &apploadbalancer.Payload{
+											Payload: &apploadbalancer.Payload_Text{
+												Text: "hello world",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route: disable security profile: false",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"http_route": []any{
+							map[string]any{
+								"http_match": []any{
+									map[string]any{
+										"path": []any{
+											map[string]any{
+												"exact": "/",
+											},
+										},
+									},
+								},
+								"direct_response_action": []any{
+									map[string]any{
+										"body":   "hello world",
+										"status": 200,
+									},
+								},
+							},
+						},
+						"disable_security_profile": false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: false,
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Match: &apploadbalancer.HttpRouteMatch{
+									Path: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "/",
+										},
+									},
+								},
+								Action: &apploadbalancer.HttpRoute_DirectResponse{
+									DirectResponse: &apploadbalancer.DirectResponseAction{
+										Status: 200,
+										Body: &apploadbalancer.Payload{
+											Payload: &apploadbalancer.Payload_Text{
+												Text: "hello world",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			name: "grpc route: disable security profile: true",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"grpc_route": []any{
+							map[string]any{
+								"grpc_match": []any{
+									map[string]any{
+										"fqmn": []any{
+											map[string]any{
+												"exact": "some.service.Service",
+											},
+										},
+									},
+								},
+								"grpc_status_response_action": []any{
+									map[string]any{
+										"status": "ok",
+									},
+								},
+							},
+						},
+						"disable_security_profile": true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: true,
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Match: &apploadbalancer.GrpcRouteMatch{
+									Fqmn: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "some.service.Service",
+										},
+									},
+								},
+								Action: &apploadbalancer.GrpcRoute_StatusResponse{
+									StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+										Status: apploadbalancer.GrpcStatusResponseAction_OK,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: false",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"grpc_route": []any{
+							map[string]any{
+								"grpc_match": []any{
+									map[string]any{
+										"fqmn": []any{
+											map[string]any{
+												"exact": "some.service.Service",
+											},
+										},
+									},
+								},
+								"grpc_status_response_action": []any{
+									map[string]any{
+										"status": "ok",
+									},
+								},
+							},
+						},
+						"disable_security_profile": false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: false,
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Match: &apploadbalancer.GrpcRouteMatch{
+									Fqmn: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "some.service.Service",
+										},
+									},
+								},
+								Action: &apploadbalancer.GrpcRoute_StatusResponse{
+									StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+										Status: apploadbalancer.GrpcStatusResponseAction_OK,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 

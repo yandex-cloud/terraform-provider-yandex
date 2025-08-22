@@ -118,6 +118,8 @@ Read-Only:
 
 Read-Only:
 
+- `disable_security_profile` (Boolean) Disables security profile for the route
+
 - `grpc_route` (Block List, Max: 1) gRPC route resource. (see [below for nested schema](#nestedobjatt--route--grpc_route))
 
 - `http_route` (Block List, Max: 1) HTTP route resource. (see [below for nested schema](#nestedobjatt--route--http_route))

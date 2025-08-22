@@ -228,6 +228,10 @@ func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route
 		route.Name = v.(string)
 	}
 
+	if v, ok := d.GetOk(path + disableSecurityProfileSchemaKey); ok {
+		route.DisableSecurityProfile = v.(bool)
+	}
+
 	if _, ok := d.GetOk(path + "route_options"); ok {
 		ro, err := expandALBRouteOptions(d, path+"route_options.0.")
 		if err != nil {
@@ -1895,6 +1899,8 @@ func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}
 		flRoute := map[string]interface{}{
 			"name": route.Name,
 		}
+
+		flRoute[disableSecurityProfileSchemaKey] = route.GetDisableSecurityProfile()
 
 		ro, err := flattenALBRouteOptions(route.GetRouteOptions())
 		if err != nil {

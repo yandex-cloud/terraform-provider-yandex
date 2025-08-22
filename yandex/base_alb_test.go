@@ -181,6 +181,7 @@ type resourceALBVirtualHostInfo struct {
 	GRPCRouteRateLimitRPM           string
 	HTTPRouteRegexRewriteRegex      string
 	HTTPRouteRegexRewriteSubstitute string
+	RouteDisableSecurityProfile     bool
 }
 
 func albVirtualHostInfo() resourceALBVirtualHostInfo {
@@ -387,6 +388,7 @@ resource "yandex_alb_virtual_host" "test-vh" {
        }
        {{end}}
     }
+    disable_security_profile = {{ .RouteDisableSecurityProfile }}
     {{if .IsHTTPRoute}}
     http_route {
       http_match {

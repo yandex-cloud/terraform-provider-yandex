@@ -289,6 +289,11 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 								},
 							},
 						},
+						disableSecurityProfileSchemaKey: {
+							Type:        schema.TypeBool,
+							Description: disableSecurityProfileSchemaDescription,
+							Optional:    true,
+						},
 						"route_options": routeOptions(),
 					},
 				},

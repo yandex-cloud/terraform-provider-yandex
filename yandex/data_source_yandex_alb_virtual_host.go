@@ -9,15 +9,16 @@ import (
 )
 
 const (
-	allRequestsSchemaKey   = "all_requests"
-	perMinuteSchemaKey     = "per_minute"
-	perSecondSchemaKey     = "per_second"
-	prefixRewriteSchemaKey = "prefix_rewrite"
-	rateLimitSchemaKey     = "rate_limit"
-	regexSchemaKey         = "regex"
-	regexRewriteSchemaKey  = "regex_rewrite"
-	requestsPerIPSchemaKey = "requests_per_ip"
-	substituteSchemaKey    = "substitute"
+	allRequestsSchemaKey            = "all_requests"
+	perMinuteSchemaKey              = "per_minute"
+	perSecondSchemaKey              = "per_second"
+	prefixRewriteSchemaKey          = "prefix_rewrite"
+	rateLimitSchemaKey              = "rate_limit"
+	regexSchemaKey                  = "regex"
+	regexRewriteSchemaKey           = "regex_rewrite"
+	requestsPerIPSchemaKey          = "requests_per_ip"
+	substituteSchemaKey             = "substitute"
+	disableSecurityProfileSchemaKey = "disable_security_profile"
 )
 
 const (
@@ -80,6 +81,8 @@ const (
 	stringMatchRegexSchemaDescription  = "Match regex."
 
 	substituteSchemaDescription = "The string which should be used to substitute matched substrings"
+
+	disableSecurityProfileSchemaDescription = "Disables security profile for the route"
 )
 
 func dataSourceYandexALBVirtualHost() *schema.Resource {
@@ -129,6 +132,11 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 							Computed:    true,
 						},
 						"route_options": dataSourceRouteOptions(),
+						disableSecurityProfileSchemaKey: {
+							Type:        schema.TypeBool,
+							Description: disableSecurityProfileSchemaDescription,
+							Computed:    true,
+						},
 						"http_route": {
 							Type:        schema.TypeList,
 							Description: routeHTTPRouteSchemaDescription,

@@ -504,3 +504,243 @@ func Test_flattenALBAutoscalePolicy(t *testing.T) {
 		})
 	}
 }
+
+func Test_flattenALBRoutes(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		routes         []*apploadbalancer.Route
+		expectedResult []map[string]any
+		expectErr      bool
+	}{
+		{
+			name: "http route: disable security profile: true",
+			routes: []*apploadbalancer.Route{
+				{
+					Name: "my_little_route",
+					Route: &apploadbalancer.Route_Http{
+						Http: &apploadbalancer.HttpRoute{
+							Match: &apploadbalancer.HttpRouteMatch{
+								Path: &apploadbalancer.StringMatch{
+									Match: &apploadbalancer.StringMatch_ExactMatch{
+										ExactMatch: "/",
+									},
+								},
+							},
+							Action: &apploadbalancer.HttpRoute_DirectResponse{
+								DirectResponse: &apploadbalancer.DirectResponseAction{
+									Status: 200,
+									Body: &apploadbalancer.Payload{
+										Payload: &apploadbalancer.Payload_Text{
+											Text: "hello world",
+										},
+									},
+								},
+							},
+						},
+					},
+					DisableSecurityProfile: true,
+				},
+			},
+			expectedResult: []map[string]any{
+				{
+					"name": "my_little_route",
+					"http_route": []map[string]any{
+						{
+							"http_match": []map[string]any{
+								{
+									"http_method": []string(nil),
+									"path": []map[string]any{
+										{
+											"exact": "/",
+										},
+									},
+								},
+							},
+							"direct_response_action": []map[string]any{
+								{
+									"body":   "hello world",
+									"status": 200,
+								},
+							},
+						},
+					},
+					"route_options":            []map[string]any(nil),
+					"disable_security_profile": true,
+				},
+			},
+		},
+		{
+			name: "http route: disable security profile: false",
+			routes: []*apploadbalancer.Route{
+				{
+					Name: "my_little_route",
+					Route: &apploadbalancer.Route_Http{
+						Http: &apploadbalancer.HttpRoute{
+							Match: &apploadbalancer.HttpRouteMatch{
+								Path: &apploadbalancer.StringMatch{
+									Match: &apploadbalancer.StringMatch_ExactMatch{
+										ExactMatch: "/",
+									},
+								},
+							},
+							Action: &apploadbalancer.HttpRoute_DirectResponse{
+								DirectResponse: &apploadbalancer.DirectResponseAction{
+									Status: 200,
+									Body: &apploadbalancer.Payload{
+										Payload: &apploadbalancer.Payload_Text{
+											Text: "hello world",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: []map[string]any{
+				{
+					"name": "my_little_route",
+					"http_route": []map[string]any{
+						{
+							"http_match": []map[string]any{
+								{
+									"http_method": []string(nil),
+									"path": []map[string]any{
+										{
+											"exact": "/",
+										},
+									},
+								},
+							},
+							"direct_response_action": []map[string]any{
+								{
+									"body":   "hello world",
+									"status": 200,
+								},
+							},
+						},
+					},
+					"route_options":            []map[string]any(nil),
+					"disable_security_profile": false,
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: true",
+			routes: []*apploadbalancer.Route{
+				{
+					Name: "my_little_route",
+					Route: &apploadbalancer.Route_Grpc{
+						Grpc: &apploadbalancer.GrpcRoute{
+							Match: &apploadbalancer.GrpcRouteMatch{
+								Fqmn: &apploadbalancer.StringMatch{
+									Match: &apploadbalancer.StringMatch_ExactMatch{
+										ExactMatch: "some.service.Service",
+									},
+								},
+							},
+							Action: &apploadbalancer.GrpcRoute_StatusResponse{
+								StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+									Status: apploadbalancer.GrpcStatusResponseAction_OK,
+								},
+							},
+						},
+					},
+					DisableSecurityProfile: true,
+				},
+			},
+			expectedResult: []map[string]any{
+				{
+					"name": "my_little_route",
+					"grpc_route": []map[string]any{
+						{
+							"grpc_match": []map[string]any{
+								{
+									"fqmn": []map[string]any{
+										{
+											"exact": "some.service.Service",
+										},
+									},
+								},
+							},
+							"grpc_status_response_action": []map[string]any{
+								{
+									"status": "ok",
+								},
+							},
+						},
+					},
+					"route_options":            []map[string]any(nil),
+					"disable_security_profile": true,
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: false",
+			routes: []*apploadbalancer.Route{
+				{
+					Name: "my_little_route",
+					Route: &apploadbalancer.Route_Grpc{
+						Grpc: &apploadbalancer.GrpcRoute{
+							Match: &apploadbalancer.GrpcRouteMatch{
+								Fqmn: &apploadbalancer.StringMatch{
+									Match: &apploadbalancer.StringMatch_ExactMatch{
+										ExactMatch: "some.service.Service",
+									},
+								},
+							},
+							Action: &apploadbalancer.GrpcRoute_StatusResponse{
+								StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+									Status: apploadbalancer.GrpcStatusResponseAction_OK,
+								},
+							},
+						},
+					},
+					DisableSecurityProfile: false,
+				},
+			},
+			expectedResult: []map[string]any{
+				{
+					"name": "my_little_route",
+					"grpc_route": []map[string]any{
+						{
+							"grpc_match": []map[string]any{
+								{
+									"fqmn": []map[string]any{
+										{
+											"exact": "some.service.Service",
+										},
+									},
+								},
+							},
+							"grpc_status_response_action": []map[string]any{
+								{
+									"status": "ok",
+								},
+							},
+						},
+					},
+					"route_options":            []map[string]any(nil),
+					"disable_security_profile": false,
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			actualResult, err := flattenALBRoutes(testCase.routes)
+
+			if testCase.expectErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, testCase.expectedResult, actualResult)
+			}
+		})
+	}
+}

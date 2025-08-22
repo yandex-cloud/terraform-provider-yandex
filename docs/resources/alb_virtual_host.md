@@ -118,6 +118,7 @@ Optional:
 
 Optional:
 
+- `disable_security_profile` (Boolean) Disables security profile for the route
 - `grpc_route` (Block List, Max: 1) gRPC route resource.
 
 ~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified. (see [below for nested schema](#nestedblock--route--grpc_route))
