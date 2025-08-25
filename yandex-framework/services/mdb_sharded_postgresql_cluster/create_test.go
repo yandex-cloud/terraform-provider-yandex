@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
@@ -49,6 +50,7 @@ var (
 		"folder_id":           types.StringType,
 		"hosts":               types.MapType{ElemType: types.StringType},
 		"id":                  types.StringType,
+		"timeouts":            timeouts.Type{},
 	}
 	baseConfig = types.ObjectValueMust(
 		expectedConfigAttrs,
@@ -100,6 +102,7 @@ func TestYandexProvider_MDBSPQRClusterPrepareCreateRequest(t *testing.T) {
 			reqVal: types.ObjectValueMust(
 				expectedClusterAttrs,
 				map[string]attr.Value{
+					"timeouts":    timeouts.Value{},
 					"id":          types.StringUnknown(),
 					"folder_id":   types.StringValue("test-folder"),
 					"name":        types.StringValue("test-cluster"),

@@ -3,6 +3,7 @@ package mdb_redis_user
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -13,13 +14,14 @@ import (
 )
 
 type User struct {
-	Id          types.String `tfsdk:"id"`
-	ClusterID   types.String `tfsdk:"cluster_id"`
-	Name        types.String `tfsdk:"name"`
-	Permissions types.Object `tfsdk:"permissions"`
-	Enabled     types.Bool   `tfsdk:"enabled"`
-	Passwords   types.Set    `tfsdk:"passwords"`
-	ACLOptions  types.String `tfsdk:"acl_options"`
+	Id          types.String   `tfsdk:"id"`
+	ClusterID   types.String   `tfsdk:"cluster_id"`
+	Name        types.String   `tfsdk:"name"`
+	Permissions types.Object   `tfsdk:"permissions"`
+	Enabled     types.Bool     `tfsdk:"enabled"`
+	Passwords   types.Set      `tfsdk:"passwords"`
+	ACLOptions  types.String   `tfsdk:"acl_options"`
+	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
 type Permissions struct {

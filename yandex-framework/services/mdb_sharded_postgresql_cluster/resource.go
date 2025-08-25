@@ -3,7 +3,9 @@ package mdb_sharded_postgresql_cluster
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,6 +30,12 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/protobuf/field_mask"
+)
+
+const (
+	yandexMDBShardedPostgreSQLClusterCreateTimeout = 30 * time.Minute
+	yandexMDBShardedPostgreSQLClusterDeleteTimeout = 15 * time.Minute
+	yandexMDBShardedPostgreSQLClusterUpdateTimeout = 60 * time.Minute
 )
 
 type clusterResource struct {
@@ -61,11 +69,16 @@ func (r *clusterResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// TODO: fix description
 		MarkdownDescription: "Manages a ShardedPostgresql cluste within the Yandex Cloud.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["id"],
 				Computed:            true,
@@ -435,6 +448,14 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBShardedPostgreSQLClusterCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	tflog.Debug(ctx, "Creating Sharded Postgresql Cluster")
 
 	hostSpecsSlice, diags := mdbcommon.CreateClusterHosts(ctx, spqrHostService, plan.HostSpecs)
@@ -471,6 +492,14 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBShardedPostgreSQLClusterDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.Id.ValueString()
 	shardedPostgreSQLAPI.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
 }
@@ -483,6 +512,14 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBShardedPostgreSQLClusterUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
 
 	tflog.Debug(ctx, "Updating Sharded Postgresql Cluster", map[string]interface{}{"id": plan.Id.ValueString()})
 	tflog.Debug(ctx, fmt.Sprintf("Update Sharded Postgresql Cluster state: %+v", state))
@@ -500,7 +537,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	config := Config{}
-	diags := state.Config.As(ctx, &config, datasize.DefaultOpts)
+	diags = state.Config.As(ctx, &config, datasize.DefaultOpts)
 	resp.Diagnostics.Append(diags...)
 	updateHosts(
 		ctx,

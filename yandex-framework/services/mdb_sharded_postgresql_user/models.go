@@ -3,6 +3,7 @@ package mdb_sharded_postgresql_user
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -18,6 +19,7 @@ type User struct {
 	Grants      types.Set                  `tfsdk:"grants"`
 	Permissions types.Set                  `tfsdk:"permissions"`
 	Settings    mdbcommon.SettingsMapValue `tfsdk:"settings"`
+	Timeouts    timeouts.Value             `tfsdk:"timeouts"`
 }
 
 type Permission struct {

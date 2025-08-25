@@ -1,6 +1,7 @@
 package mdb_redis_cluster_v2
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -30,7 +31,8 @@ type Cluster struct {
 	MaintenanceWindow   types.Object `tfsdk:"maintenance_window"`
 	Resources           types.Object `tfsdk:"resources"`
 
-	Config *Config `tfsdk:"config"`
+	Config   *Config        `tfsdk:"config"`
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
 }
 
 type Access struct {

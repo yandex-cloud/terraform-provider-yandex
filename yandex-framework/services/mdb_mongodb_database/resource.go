@@ -3,12 +3,15 @@ package mdb_mongodb_database
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -16,6 +19,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+)
+
+const (
+	yandexMDBMongoDBDatabaseCreateTimeout = time.Hour
+	yandexMDBMongoDBDatabaseDeleteTimeout = time.Hour
 )
 
 type bindingResource struct {
@@ -48,11 +56,14 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *bindingResource) Schema(_ context.Context,
-	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a MongoDB Database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["id"],
 				Computed:            true,
@@ -122,6 +133,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBMongoDBDatabaseCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	dbName := plan.Name.ValueString()
 	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
@@ -147,6 +166,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBMongoDBDatabaseDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
 	deleteDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
@@ -168,6 +195,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	var state Database
 	state.ClusterID = types.StringValue(db.ClusterId)
 	state.Name = types.StringValue(db.Name)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+		}),
+	}
+
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }

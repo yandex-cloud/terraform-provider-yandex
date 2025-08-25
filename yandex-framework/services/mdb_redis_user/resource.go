@@ -3,8 +3,12 @@ package mdb_redis_user
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -23,7 +27,12 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-const defaultName = "default"
+const (
+	yandexMDBRedisUserCreateTimeout = 45 * time.Minute
+	yandexMDBRedisUserUpdateTimeout = 60 * time.Minute
+	yandexMDBRedisUserDeleteTimeout = 20 * time.Minute
+	defaultName                     = "default"
+)
 
 type bindingResource struct {
 	providerConfig *provider_config.Config
@@ -55,11 +64,16 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *bindingResource) Schema(_ context.Context,
+func (r *bindingResource) Schema(ctx context.Context,
 	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a Redis user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/).",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["id"],
 				Computed:            true,
@@ -205,6 +219,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBRedisUserCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	userPlan, diags := userFromState(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -270,6 +292,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBRedisUserUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
 	updatePaths := getUpdatePaths(ctx, &resp.Diagnostics, plan, state)
 	if resp.Diagnostics.HasError() {
 		return
@@ -298,6 +328,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBRedisUserDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.ClusterID.ValueString()
 	name := state.Name.ValueString()
 	if name == defaultName {
@@ -325,6 +363,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	}
 	var state User
 	resp.Diagnostics.Append(userToState(ctx, user, &state)...)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

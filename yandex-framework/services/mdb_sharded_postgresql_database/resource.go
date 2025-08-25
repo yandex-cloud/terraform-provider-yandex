@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -96,7 +98,12 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, yandexMDBShardedPostgreSQLDatabaseCreateTimeout)
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBShardedPostgreSQLDatabaseCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
@@ -140,7 +147,12 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, yandexMDBShardedPostgreSQLDatabaseUpdateTimeout)
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBShardedPostgreSQLDatabaseUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
@@ -178,7 +190,12 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, yandexMDBShardedPostgreSQLDatabaseDeleteTimeout)
+	deleteTimeout, diags := state.Timeouts.Update(ctx, yandexMDBShardedPostgreSQLDatabaseDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
 	cid := state.ClusterID.ValueString()
@@ -203,6 +220,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	var state Database
 
 	resp.Diagnostics.Append(dbToState(db, &state)...)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

@@ -3,6 +3,7 @@ package mdb_mongodb_user
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -10,11 +11,12 @@ import (
 )
 
 type User struct {
-	Id         types.String `tfsdk:"id"`
-	ClusterID  types.String `tfsdk:"cluster_id"`
-	Name       types.String `tfsdk:"name"`
-	Password   types.String `tfsdk:"password"`
-	Permission types.Set    `tfsdk:"permission"`
+	Id         types.String   `tfsdk:"id"`
+	ClusterID  types.String   `tfsdk:"cluster_id"`
+	Name       types.String   `tfsdk:"name"`
+	Password   types.String   `tfsdk:"password"`
+	Permission types.Set      `tfsdk:"permission"`
+	Timeouts   timeouts.Value `tfsdk:"timeouts"`
 }
 
 type Permission struct {

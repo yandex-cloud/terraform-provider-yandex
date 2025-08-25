@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -42,15 +44,23 @@ func (d *bindingDataSource) Configure(_ context.Context, req datasource.Configur
 
 func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a MongoDB Database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
-				Computed: true,
+				MarkdownDescription: common.ResourceDescriptions["id"],
+				Computed:            true,
 			},
 			"cluster_id": schema.StringAttribute{
-				Required: true,
+				MarkdownDescription: "The ID of MongoDB Cluster.",
+				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				MarkdownDescription: "The name of the database.",
+				Required:            true,
 			},
 		},
 	}

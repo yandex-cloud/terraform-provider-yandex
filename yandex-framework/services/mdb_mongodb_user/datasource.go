@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -41,33 +43,46 @@ func (d *bindingDataSource) Configure(_ context.Context, req datasource.Configur
 	d.providerConfig = providerConfig
 }
 
-func (d *bindingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a MongoDB user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/).",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
-				Computed: true,
+				MarkdownDescription: common.ResourceDescriptions["id"],
+				Computed:            true,
 			},
 			"cluster_id": schema.StringAttribute{
-				Required: true,
+				MarkdownDescription: "The ID of the cluster to which user belongs to.",
+				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				MarkdownDescription: "The name of the user.",
+				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				MarkdownDescription: "The password of the user.",
+				Computed:            true,
+				Sensitive:           true,
 			},
 		},
 		Blocks: map[string]schema.Block{
 			"permission": schema.SetNestedBlock{
+				MarkdownDescription: "Set of permissions granted to the user.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"database_name": schema.StringAttribute{
-							Required: true,
+							MarkdownDescription: "The name of the database that the permission grants access to.",
+							Required:            true,
 						},
 						"roles": schema.SetAttribute{
-							Optional:    true,
-							ElementType: basetypes.StringType{},
+							MarkdownDescription: "The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).",
+							Optional:            true,
+							ElementType:         basetypes.StringType{},
 						},
 					},
 				},

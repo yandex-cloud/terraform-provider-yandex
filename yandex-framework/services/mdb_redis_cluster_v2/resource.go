@@ -3,7 +3,9 @@ package mdb_redis_cluster_v2
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -29,7 +31,10 @@ import (
 )
 
 const (
-	defaultReplicaPriority = 100
+	yandexMDBRedisClusterCreateTimeout = 45 * time.Minute
+	yandexMDBRedisClusterUpdateTimeout = 60 * time.Minute
+	yandexMDBRedisClusterDeleteTimeout = 20 * time.Minute
+	defaultReplicaPriority             = 100
 )
 
 var (
@@ -71,6 +76,11 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/). [How to connect to the DB](https://yandex.cloud/docs/managed-redis/quickstart#connect). To connect, use port 6379. The port number is not configurable.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": defaultschema.Id(),
 			"cluster_id": schema.StringAttribute{
 				Computed:            true,
@@ -567,6 +577,14 @@ func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRe
 	var plan Cluster
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBRedisClusterCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	hostSpecsSlice, diags := mdbcommon.CreateClusterHosts(ctx, redisHostService, plan.HostSpecs)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
@@ -600,6 +618,14 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 	var state Cluster
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBRedisClusterUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
 
 	if !plan.FolderID.Equal(state.FolderID) {
 		redisAPI.MoveCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, plan.ID.ValueString(), plan.FolderID.ValueString())
@@ -655,6 +681,14 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 func (r *redisClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Cluster
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+
+	deleteTimeout, diags := state.Timeouts.Update(ctx, yandexMDBRedisClusterDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
 
 	redisAPI.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, state.ID.ValueString())
 	if resp.Diagnostics.HasError() {

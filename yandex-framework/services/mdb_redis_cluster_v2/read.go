@@ -3,6 +3,8 @@ package mdb_redis_cluster_v2
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
@@ -67,6 +69,15 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	var entityIdToApiHosts map[string]Host = mdbcommon.ReadHosts[Host, *redisproto.Host, *redisproto.HostSpec, redisproto.UpdateHostSpec](ctx, sdk, diagnostics, redisHostService, &redisAPI, state.HostSpecs, cid)
 
 	state.HostSpecs, diags = types.MapValueFrom(ctx, HostType, entityIdToApiHosts)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
+
 	diagnostics.Append(diags...)
 	if diagnostics.HasError() {
 		return

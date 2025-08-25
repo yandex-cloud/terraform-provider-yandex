@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'sharded_postgresql: add timeouts attributes to yandex_mdb_sharded_postgresql_cluster/yandex_mdb_sharded_postgresql_database/yandex_mdb_sharded_postgresql_user'
+time: 2025-08-23T21:45:04.936502+03:00
