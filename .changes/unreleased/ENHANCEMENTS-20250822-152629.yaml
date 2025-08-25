@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'kubernetes: fixed documentation for the resources `yandex_kubernetes_cluster_iam_binding` and `yandex_kubernetes_cluster_iam_member`, added usage examples'
-time: 2025-08-22T15:26:29.595581+02:00
