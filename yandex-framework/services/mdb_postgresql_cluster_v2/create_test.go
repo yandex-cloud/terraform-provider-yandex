@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -55,6 +56,7 @@ var (
 		"hosts":                  types.MapType{ElemType: types.StringType},
 		"id":                     types.StringType,
 		"disk_encryption_key_id": types.StringType,
+		"timeouts":               timeouts.Type{},
 	}
 	expectedPCAttrTypes = map[string]attr.Type{
 		"pool_discard": types.BoolType,
@@ -154,6 +156,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 						"time":           types.StringNull(),
 					}),
 					"disk_encryption_key_id": types.StringValue("test-key"),
+					"timeouts":               timeouts.Value{},
 				},
 			),
 			expectedVal: &postgresql.CreateClusterRequest{
@@ -225,6 +228,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 						"time":           types.StringNull(),
 					}),
 					"disk_encryption_key_id": types.StringNull(),
+					"timeouts":               timeouts.Value{},
 				},
 			),
 			expectedVal: &postgresql.CreateClusterRequest{
@@ -343,6 +347,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareRestoreRequest(t *testing.T) {
 						"time":           types.StringValue("2006-01-02T15:04:05"),
 					}),
 					"disk_encryption_key_id": types.StringValue("test-key"),
+					"timeouts":               timeouts.Value{},
 				},
 			),
 			expectedVal: &postgresql.RestoreClusterRequest{

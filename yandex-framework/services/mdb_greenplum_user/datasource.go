@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -40,29 +41,34 @@ func (d *bindingDataSource) Configure(_ context.Context, req datasource.Configur
 	d.providerConfig = providerConfig
 }
 
-func (d *bindingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Get information about a greenplum user.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["id"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"cluster_id": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["cluster_id"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["cluster_id"].GetMarkdownDescription(),
 				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["name"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["name"].GetMarkdownDescription(),
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["password"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["password"].GetMarkdownDescription(),
 				Sensitive:           true,
 				Computed:            true,
 			},
 			"resource_group": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["resource_group"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["resource_group"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 		},

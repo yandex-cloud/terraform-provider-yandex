@@ -3,7 +3,9 @@ package mdb_mysql_cluster_v2
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -27,6 +29,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+)
+
+const (
+	yandexMDBMySQLClusterDefaultTimeout = 30 * time.Minute
+	yandexMDBMySQLClusterUpdateTimeout  = 60 * time.Minute
 )
 
 type clusterResource struct {
@@ -60,10 +67,15 @@ func (r *clusterResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Manages a MySQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mysql/). [How to connect to the DB](https://yandex.cloud/docs/managed-mysql/quickstart#connect). To connect, use port 6432. The port number is not configurable.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				Description: common.ResourceDescriptions["id"],
 				Computed:    true,
@@ -370,6 +382,14 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBMySQLClusterDefaultTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	tflog.Debug(ctx, "Creating MySQL Cluster")
 
 	hostSpecsSlice, diags := mdbcommon.CreateClusterHosts(ctx, mysqlHostService, plan.HostSpecs)
@@ -409,6 +429,14 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBMySQLClusterUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
 
 	tflog.Debug(ctx, "Updating MySQL Cluster", map[string]interface{}{"id": plan.Id.ValueString()})
 	tflog.Debug(ctx, fmt.Sprintf("Update MySQL Cluster state: %+v", state))
@@ -451,7 +479,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
-	diags := resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
 
@@ -462,6 +490,10 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBMySQLClusterDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
 
 	cid := state.Id.ValueString()
 	mysqlApi.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)

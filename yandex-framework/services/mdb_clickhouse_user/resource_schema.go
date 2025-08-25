@@ -18,6 +18,11 @@ func UserSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		MarkdownDescription: "Manages a ClickHouse user within the Yandex.Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["id"],
 				Computed:            true,
@@ -56,11 +61,6 @@ func UserSchema(ctx context.Context) schema.Schema {
 			"permission": PermissionSchema(),
 			"quota":      QuotasSchema(),
 			"settings":   SettingsSchema(),
-			"timeouts": timeouts.Block(ctx, timeouts.Opts{
-				Create: true,
-				Update: true,
-				Delete: true,
-			}),
 		},
 	}
 }

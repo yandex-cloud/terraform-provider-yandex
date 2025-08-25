@@ -3,6 +3,7 @@ package mdb_greenplum_resource_group
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -15,11 +16,12 @@ type ResourceGroup struct {
 
 	IsUserDefined types.Bool `tfsdk:"is_user_defined"`
 
-	Concurrency       types.Int64 `tfsdk:"concurrency"`
-	CpuRateLimit      types.Int64 `tfsdk:"cpu_rate_limit"`
-	MemoryLimit       types.Int64 `tfsdk:"memory_limit"`
-	MemorySharedQuota types.Int64 `tfsdk:"memory_shared_quota"`
-	MemorySpillRatio  types.Int64 `tfsdk:"memory_spill_ratio"`
+	Concurrency       types.Int64    `tfsdk:"concurrency"`
+	CpuRateLimit      types.Int64    `tfsdk:"cpu_rate_limit"`
+	MemoryLimit       types.Int64    `tfsdk:"memory_limit"`
+	MemorySharedQuota types.Int64    `tfsdk:"memory_shared_quota"`
+	MemorySpillRatio  types.Int64    `tfsdk:"memory_spill_ratio"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
 }
 
 func resourceGroupToState(resourceGroup *greenplum.ResourceGroup, state *ResourceGroup) {

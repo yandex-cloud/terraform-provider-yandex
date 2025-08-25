@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mysql: add timeouts attributes to yandex_mdb_mysql_cluster_v2'
+time: 2025-08-20T19:01:42.726648+03:00

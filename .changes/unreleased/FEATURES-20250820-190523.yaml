@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: add timeouts attributes to yandex_mdb_clickhouse_database. In yandex_mdb_clickhouse_user timeouts block shanged to attributes'
+time: 2025-08-20T19:05:23.248098+03:00

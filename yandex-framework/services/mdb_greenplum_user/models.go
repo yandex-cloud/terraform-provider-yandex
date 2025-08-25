@@ -3,16 +3,18 @@ package mdb_greenplum_user
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
 type User struct {
-	Id            types.String `tfsdk:"id"`
-	ClusterID     types.String `tfsdk:"cluster_id"`
-	Name          types.String `tfsdk:"name"`
-	Password      *string      `tfsdk:"password"`
-	ResourceGroup types.String `tfsdk:"resource_group"`
+	Id            types.String   `tfsdk:"id"`
+	ClusterID     types.String   `tfsdk:"cluster_id"`
+	Name          types.String   `tfsdk:"name"`
+	Password      *string        `tfsdk:"password"`
+	ResourceGroup types.String   `tfsdk:"resource_group"`
+	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
 
 func userToState(user *greenplum.User, state *User) {
@@ -20,7 +22,7 @@ func userToState(user *greenplum.User, state *User) {
 	state.ResourceGroup = types.StringValue(user.ResourceGroup)
 }
 
-func userFromState(ctx context.Context, state *User) *greenplum.User {
+func userFromState(_ context.Context, state *User) *greenplum.User {
 	u := &greenplum.User{
 		Name:          state.Name.ValueString(),
 		Password:      "",

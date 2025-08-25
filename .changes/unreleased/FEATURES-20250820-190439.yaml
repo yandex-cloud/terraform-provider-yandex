@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'greenplum: add timeouts attributes to yandex_mdb_greenplum_resource_group, yandex_mdb_greenplum_user'
+time: 2025-08-20T19:04:39.639991+03:00

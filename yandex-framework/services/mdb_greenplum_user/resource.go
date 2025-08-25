@@ -3,7 +3,10 @@ package mdb_greenplum_user
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -13,6 +16,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+)
+
+const (
+	yandexMDBGreenplumUserDefaultTimeout = 120 * time.Minute
+	yandexMDBGreenplumUserUpdateTimeout  = 120 * time.Minute
 )
 
 type bindingResource struct {
@@ -45,45 +53,51 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-var resourceSchema = schema.Schema{
-	MarkdownDescription: "Manages a Greenplum user within the Yandex Cloud.",
-	Attributes: map[string]schema.Attribute{
-		"id": schema.StringAttribute{
-			MarkdownDescription: common.ResourceDescriptions["id"],
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
+func getSchema(ctx context.Context) schema.Schema {
+	return schema.Schema{
+		MarkdownDescription: "Manages a Greenplum user within the Yandex Cloud.",
+		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
+			"id": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["id"],
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"cluster_id": schema.StringAttribute{
+				MarkdownDescription: "The ID of the cluster to which user belongs to.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "The name of the user.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"password": schema.StringAttribute{
+				MarkdownDescription: "The password of the user.",
+				Optional:            true,
+				Sensitive:           true,
+			},
+			"resource_group": schema.StringAttribute{
+				MarkdownDescription: "The resource group of the user.",
+				Optional:            true,
 			},
 		},
-		"cluster_id": schema.StringAttribute{
-			MarkdownDescription: "The ID of the cluster to which user belongs to.",
-			Required:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
-		},
-		"name": schema.StringAttribute{
-			MarkdownDescription: "The name of the user.",
-			Required:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
-		},
-		"password": schema.StringAttribute{
-			MarkdownDescription: "The password of the user.",
-			Optional:            true,
-			Sensitive:           true,
-		},
-		"resource_group": schema.StringAttribute{
-			MarkdownDescription: "The resource group of the user.",
-			Optional:            true,
-		},
-	},
+	}
 }
 
-func (r *bindingResource) Schema(_ context.Context,
-	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resourceSchema
+func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = getSchema(ctx)
 }
 
 func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -114,6 +128,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBGreenplumUserDefaultTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
 	userPlan := userFromState(ctx, &plan)
@@ -148,6 +170,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBGreenplumUserUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	userState := userFromState(ctx, &state)
 	userPlan := userFromState(ctx, &plan)
@@ -161,7 +191,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	state.Id = types.StringValue(resourceid.Construct(cid, userPlan.Name))
-	diags := resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
 
@@ -172,6 +202,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBGreenplumUserDefaultTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
@@ -195,6 +233,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	userToState(user, &state)
 	state.Id = types.StringValue(req.ID)
 	state.ClusterID = types.StringValue(clusterId)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

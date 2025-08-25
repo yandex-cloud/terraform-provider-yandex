@@ -1,6 +1,7 @@
 package mdb_mysql_cluster_v2
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -26,6 +27,7 @@ type Cluster struct {
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
 	DiskEncryptionKeyId    types.String               `tfsdk:"disk_encryption_key_id"`
+	Timeouts               timeouts.Value             `tfsdk:"timeouts"`
 }
 
 type Host struct {

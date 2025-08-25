@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -40,44 +41,49 @@ func (d *bindingDataSource) Configure(_ context.Context, req datasource.Configur
 	d.providerConfig = providerConfig
 }
 
-func (d *bindingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Get information about a greenplum resource group.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["id"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["id"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"cluster_id": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["cluster_id"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["cluster_id"].GetMarkdownDescription(),
 				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: resourceSchema.Attributes["name"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["name"].GetMarkdownDescription(),
 				Required:            true,
 			},
 			"is_user_defined": schema.BoolAttribute{
-				MarkdownDescription: resourceSchema.Attributes["is_user_defined"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["is_user_defined"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"concurrency": schema.Int64Attribute{
-				MarkdownDescription: resourceSchema.Attributes["concurrency"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["concurrency"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"cpu_rate_limit": schema.Int64Attribute{
-				MarkdownDescription: resourceSchema.Attributes["cpu_rate_limit"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["cpu_rate_limit"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"memory_limit": schema.Int64Attribute{
-				MarkdownDescription: resourceSchema.Attributes["memory_limit"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["memory_limit"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"memory_shared_quota": schema.Int64Attribute{
-				MarkdownDescription: resourceSchema.Attributes["memory_shared_quota"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["memory_shared_quota"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 			"memory_spill_ratio": schema.Int64Attribute{
-				MarkdownDescription: resourceSchema.Attributes["memory_spill_ratio"].GetMarkdownDescription(),
+				MarkdownDescription: getSchema(ctx).Attributes["memory_spill_ratio"].GetMarkdownDescription(),
 				Computed:            true,
 			},
 		},

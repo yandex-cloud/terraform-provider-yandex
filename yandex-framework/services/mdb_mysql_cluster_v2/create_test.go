@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -57,6 +58,7 @@ var (
 		"backup_retain_period_days": types.Int64Type,
 		"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
 		"disk_encryption_key_id":    types.StringType,
+		"timeouts":                  timeouts.Type{},
 	}
 	baseCluster = Cluster{
 		Id:          types.StringValue("test-id"),
@@ -172,6 +174,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
 					"disk_encryption_key_id": types.StringValue("test-key"),
+					"timeouts":               timeouts.Value{},
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{
@@ -251,6 +254,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					"security_group_ids":     types.SetNull(types.StringType),
 					"mysql_config":           NewMsSettingsMapNull(),
 					"disk_encryption_key_id": types.StringNull(),
+					"timeouts":               timeouts.Value{},
 				},
 			),
 			expectedVal: &mysql.CreateClusterRequest{

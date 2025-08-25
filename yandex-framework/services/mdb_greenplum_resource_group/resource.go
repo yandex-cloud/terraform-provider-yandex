@@ -3,6 +3,10 @@ package mdb_greenplum_resource_group
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -15,6 +19,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+const (
+	yandexMDBGreenplumResourceGroupDefaultTimeout = 120 * time.Minute
+	yandexMDBGreenplumResourceGroupUpdateTimeout  = 120 * time.Minute
 )
 
 type bindingResource struct {
@@ -47,61 +56,68 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-var resourceSchema = schema.Schema{
-	MarkdownDescription: "Manages a Greenplum resource group within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).",
-	Attributes: map[string]schema.Attribute{
-		"id": schema.StringAttribute{
-			MarkdownDescription: common.ResourceDescriptions["id"],
-			Computed:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
+func getSchema(ctx context.Context) schema.Schema {
+	return schema.Schema{
+		MarkdownDescription: "Manages a Greenplum resource group within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).",
+		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Update: true,
+				Delete: true,
+			}),
+			"id": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["id"],
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"cluster_id": schema.StringAttribute{
+				MarkdownDescription: "The ID of the cluster to which resource group belongs to.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "The name of the resource group.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"is_user_defined": schema.BoolAttribute{
+				MarkdownDescription: "If false, the resource group is immutable and controlled by yandex",
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"concurrency": schema.Int64Attribute{
+				Description: "The maximum number of concurrent transactions, including active and idle transactions, that are permitted in the resource group.",
+				Optional:    true,
+			},
+			"cpu_rate_limit": schema.Int64Attribute{
+				Description: "The percentage of CPU resources available to this resource group.",
+				Optional:    true,
+			},
+			"memory_limit": schema.Int64Attribute{
+				Description: "The percentage of reserved memory resources available to this resource group.",
+				Optional:    true,
+			},
+			"memory_shared_quota": schema.Int64Attribute{
+				Description: "The percentage of reserved memory to share across transactions submitted in this resource group.",
+				Optional:    true,
+			},
+			"memory_spill_ratio": schema.Int64Attribute{
+				Description: "The memory usage threshold for memory-intensive transactions. When a transaction reaches this threshold, it spills to disk.",
+				Optional:    true,
 			},
 		},
-		"cluster_id": schema.StringAttribute{
-			MarkdownDescription: "The ID of the cluster to which resource group belongs to.",
-			Required:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
-		},
-		"name": schema.StringAttribute{
-			MarkdownDescription: "The name of the resource group.",
-			Required:            true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.RequiresReplace(),
-			},
-		},
-		"is_user_defined": schema.BoolAttribute{
-			MarkdownDescription: "If false, the resource group is immutable and controlled by yandex",
-			Computed:            true,
-			Default:             booldefault.StaticBool(true),
-		},
-		"concurrency": schema.Int64Attribute{
-			Description: "The maximum number of concurrent transactions, including active and idle transactions, that are permitted in the resource group.",
-			Optional:    true,
-		},
-		"cpu_rate_limit": schema.Int64Attribute{
-			Description: "The percentage of CPU resources available to this resource group.",
-			Optional:    true,
-		},
-		"memory_limit": schema.Int64Attribute{
-			Description: "The percentage of reserved memory resources available to this resource group.",
-			Optional:    true,
-		},
-		"memory_shared_quota": schema.Int64Attribute{
-			Description: "The percentage of reserved memory to share across transactions submitted in this resource group.",
-			Optional:    true,
-		},
-		"memory_spill_ratio": schema.Int64Attribute{
-			Description: "The memory usage threshold for memory-intensive transactions. When a transaction reaches this threshold, it spills to disk.",
-			Optional:    true,
-		},
-	},
+	}
 }
 
-func (r *bindingResource) Schema(_ context.Context,
+func (r *bindingResource) Schema(ctx context.Context,
 	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resourceSchema
+	resp.Schema = getSchema(ctx)
 }
 
 func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -132,6 +148,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBGreenplumResourceGroupDefaultTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
 	rgPlan := resourceGroupFromState(ctx, &plan)
@@ -190,6 +214,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBGreenplumResourceGroupUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	rgState := resourceGroupFromState(ctx, &state)
 	rgPlan := resourceGroupFromState(ctx, &plan)
@@ -215,6 +247,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBGreenplumResourceGroupDefaultTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
 	deleteResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
@@ -237,6 +277,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	resourceGroupToState(rg, &state)
 	state.Id = types.StringValue(req.ID)
 	state.ClusterID = types.StringValue(clusterId)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+			"update": types.StringType,
+		}),
+	}
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

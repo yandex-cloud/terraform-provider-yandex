@@ -3,7 +3,10 @@ package mdb_clickhouse_database
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -12,6 +15,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+)
+
+const (
+	yandexMDBClickhouseDatabaseCreateTimeout = 15 * time.Minute
+	yandexMDBClickhouseDatabaseDeleteTimeout = 10 * time.Minute
 )
 
 type bindingResource struct {
@@ -44,10 +52,15 @@ func (r *bindingResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
-func (r *bindingResource) Schema(_ context.Context,
+func (r *bindingResource) Schema(ctx context.Context,
 	_ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "A database of the ClickHouse cluster.",
 		Attributes: map[string]schema.Attribute{
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Create: true,
+				Delete: true,
+			}),
 			"id": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["id"],
 				Computed:            true,
@@ -109,6 +122,14 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBClickhouseDatabaseCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	cid := plan.ClusterID.ValueString()
 	dbName := plan.Name.ValueString()
 	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
@@ -133,6 +154,14 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	deleteTimeout, diags := state.Timeouts.Delete(ctx, yandexMDBClickhouseDatabaseDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
+
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
 	deleteDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
@@ -154,6 +183,14 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	var state Database
 	state.ClusterID = types.StringValue(db.ClusterId)
 	state.Name = types.StringValue(db.Name)
+
+	state.Timeouts = timeouts.Value{
+		Object: types.ObjectNull(map[string]attr.Type{
+			"create": types.StringType,
+			"delete": types.StringType,
+		}),
+	}
+
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 }
