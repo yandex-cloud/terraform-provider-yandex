@@ -14,24 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func flattenAccess(ctx context.Context, pgAccess *postgresql.Access, diags *diag.Diagnostics) types.Object {
-	if pgAccess == nil {
-		return types.ObjectNull(AccessAttrTypes)
-	}
-
-	obj, d := types.ObjectValueFrom(
-		ctx, AccessAttrTypes, Access{
-			DataLens:     types.BoolValue(pgAccess.DataLens),
-			DataTransfer: types.BoolValue(pgAccess.DataTransfer),
-			Serverless:   types.BoolValue(pgAccess.Serverless),
-			WebSql:       types.BoolValue(pgAccess.WebSql),
-		},
-	)
-	diags.Append(d...)
-
-	return obj
-}
-
 func flattenPerformanceDiagnostics(ctx context.Context, pd *postgresql.PerformanceDiagnostics, diags *diag.Diagnostics) types.Object {
 	if pd == nil {
 		return types.ObjectNull(PerformanceDiagnosticsAttrTypes)
@@ -118,7 +100,7 @@ func flattenConfig(ctx context.Context, statePGCfg mdbcommon.SettingsMapValue, c
 		Version:                types.StringValue(c.Version),
 		Resources:              mdbcommon.FlattenResources(ctx, c.Resources, diags),
 		Autofailover:           flattenBoolWrapper(ctx, c.GetAutofailover(), diags),
-		Access:                 flattenAccess(ctx, c.Access, diags),
+		Access:                 mdbcommon.FlattenAccess(ctx, c.Access, diags),
 		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, c.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.FlattenBackupWindowStart(ctx, c.BackupWindowStart, diags),

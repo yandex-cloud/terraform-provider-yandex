@@ -149,7 +149,7 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	}
 
 	if !plan.Access.Equal(state.Access) {
-		config.SetAccess(expandAccess(ctx, plan.Access, &diags))
+		config.SetAccess(mdbcommon.ExpandAccess[postgresql.Access](ctx, plan.Access, &diags))
 		updateMaskPaths = append(
 			updateMaskPaths,
 			"config_spec.access.web_sql",

@@ -93,13 +93,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				Required:            true,
 				MarkdownDescription: common.ResourceDescriptions["name"],
 			},
-			"network_id": schema.StringAttribute{
-				Required: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-				MarkdownDescription: common.ResourceDescriptions["network_id"],
-			},
+			"network_id": defaultschema.NetworkId(stringplanmodifier.RequiresReplace()),
 			"environment": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{
@@ -202,14 +196,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				},
 				MarkdownDescription: "Announce fqdn instead of ip address. Can be either true or false.",
 			},
-			"folder_id": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-				MarkdownDescription: common.ResourceDescriptions["folder_id"],
-			},
+			"folder_id":           defaultschema.FolderId(),
 			"created_at":          defaultschema.CreatedAt(),
 			"security_group_ids":  defaultschema.SecurityGroupIds(),
 			"deletion_protection": defaultschema.DeletionProtection(),

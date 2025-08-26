@@ -24,7 +24,7 @@ var (
 		"version":                   types.StringType,
 		"resources":                 types.ObjectType{AttrTypes: mdbcommon.ResourceType.AttrTypes},
 		"autofailover":              types.BoolType,
-		"access":                    types.ObjectType{AttrTypes: expectedAccessAttrTypes},
+		"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: mdbcommon.BackupWindowType.AttrTypes},
 		"backup_retain_period_days": types.Int64Type,
@@ -92,7 +92,7 @@ var (
 			"performance_diagnostics": types.ObjectNull(
 				expectedPDAttrs,
 			),
-			"access": types.ObjectNull(AccessAttrTypes),
+			"access": types.ObjectNull(mdbcommon.AccessAttrTypes),
 			"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
 				"max_connections": types.Int64Value(100),
 			}),

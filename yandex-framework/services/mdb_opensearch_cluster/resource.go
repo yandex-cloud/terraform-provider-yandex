@@ -672,15 +672,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"folder_id": schema.StringAttribute{
-				MarkdownDescription: common.ResourceDescriptions["folder_id"],
-				Computed:            true,
-				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
+			"folder_id": defaultschema.FolderId(),
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["created_at"],
 				Computed:            true,
@@ -696,11 +688,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: common.ResourceDescriptions["description"],
 				Optional:            true,
 			},
-			"labels": schema.MapAttribute{
-				MarkdownDescription: common.ResourceDescriptions["labels"],
-				Optional:            true,
-				ElementType:         types.StringType,
-			},
+			"labels": defaultschema.Labels(),
 			"environment": schema.StringAttribute{
 				MarkdownDescription: "Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It is not possible to change this value after cluster creation**.",
 				Computed:            true,
@@ -709,14 +697,8 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"hosts": common_schema.Hosts(),
-			"network_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the network, to which the OpenSearch cluster belongs. It is not possible to change this value after cluster creation.",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
+			"hosts":      common_schema.Hosts(),
+			"network_id": defaultschema.NetworkId(stringplanmodifier.RequiresReplace()),
 			"health": schema.StringAttribute{
 				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).",
 				Computed:            true,
@@ -730,11 +712,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: "ID of the service account authorized for this cluster.",
 				Optional:            true,
 			},
-			"deletion_protection": schema.BoolAttribute{
-				MarkdownDescription: common.ResourceDescriptions["deletion_protection"],
-				Computed:            true,
-				Optional:            true,
-			},
+			"deletion_protection": defaultschema.DeletionProtection(),
 			"auth_settings": schema.SingleNestedAttribute{
 				Description: "Authentication settings for Dashboards.",
 				Optional:    true,

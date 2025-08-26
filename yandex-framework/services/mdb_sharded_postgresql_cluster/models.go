@@ -92,13 +92,6 @@ var MaintenanceWindowAttrTypes = map[string]attr.Type{
 	"hour": types.Int64Type,
 }
 
-var AccessAttrTypes = map[string]attr.Type{
-	"data_lens":     types.BoolType,
-	"web_sql":       types.BoolType,
-	"data_transfer": types.BoolType,
-	"serverless":    types.BoolType,
-}
-
 type BackupWindowStart struct {
 	Hours   types.Int64 `tfsdk:"hours"`
 	Minutes types.Int64 `tfsdk:"minutes"`
@@ -110,7 +103,7 @@ var BackupWindowStartAttrTypes = map[string]attr.Type{
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
-	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
+	"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"sharded_postgresql_config": types.ObjectType{AttrTypes: ShardedPostgreSQLConfigAttrTypes},

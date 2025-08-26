@@ -99,9 +99,10 @@ func SubnetIds() *schema.SetAttribute {
 	}
 }
 
-func NetworkId() *schema.StringAttribute {
+func NetworkId(modifiers ...planmodifier.String) *schema.StringAttribute {
 	return &schema.StringAttribute{
 		MarkdownDescription: common.ResourceDescriptions["network_id"],
 		Required:            true,
+		PlanModifiers:       modifiers,
 	}
 }

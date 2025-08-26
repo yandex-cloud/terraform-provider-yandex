@@ -18,7 +18,7 @@ import (
 
 var (
 	expectedConfigAttrs = map[string]attr.Type{
-		"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
+		"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
 		"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"sharded_postgresql_config": types.ObjectType{AttrTypes: ShardedPostgreSQLConfigAttrTypes},
@@ -59,7 +59,7 @@ var (
 				expectedBWSAttrs,
 			),
 			"backup_retain_period_days": types.Int64Value(7),
-			"access":                    types.ObjectNull(AccessAttrTypes),
+			"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
 			"sharded_postgresql_config": types.ObjectValueMust(
 				ShardedPostgreSQLConfigAttrTypes,
 				map[string]attr.Value{

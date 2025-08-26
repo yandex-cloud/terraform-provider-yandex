@@ -109,3 +109,21 @@ func FlattenInt64Wrapper(ctx context.Context, pgBrpd *wrapperspb.Int64Value, dia
 	}
 	return types.Int64Value(pgBrpd.GetValue())
 }
+
+func FlattenAccess[V any, T accessModel[V]](ctx context.Context, access T, diags *diag.Diagnostics) types.Object {
+	if access == nil {
+		return types.ObjectNull(AccessAttrTypes)
+	}
+
+	obj, d := types.ObjectValueFrom(
+		ctx, AccessAttrTypes, Access{
+			DataLens:     types.BoolValue(access.GetDataLens()),
+			DataTransfer: types.BoolValue(access.GetDataTransfer()),
+			Serverless:   types.BoolValue(access.GetServerless()),
+			WebSql:       types.BoolValue(access.GetWebSql()),
+		},
+	)
+	diags.Append(d...)
+
+	return obj
+}

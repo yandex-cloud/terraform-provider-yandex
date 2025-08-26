@@ -17,24 +17,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-// Set access to default if null
-func expandAccess(ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) *postgresql.Access {
-	var access Access
-	diags.Append(cfgAccess.As(ctx, &access, basetypes.ObjectAsOptions{
-		UnhandledNullAsEmpty:    true,
-		UnhandledUnknownAsEmpty: true,
-	})...)
-	if diags.HasError() {
-		return nil
-	}
-	return &postgresql.Access{
-		WebSql:       access.WebSql.ValueBool(),
-		DataLens:     access.DataLens.ValueBool(),
-		DataTransfer: access.DataTransfer.ValueBool(),
-		Serverless:   access.Serverless.ValueBool(),
-	}
-}
-
 const (
 	anytimeType = "ANYTIME"
 	weeklyType  = "WEEKLY"
@@ -180,7 +162,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		Version:                configSpec.Version.ValueString(),
 		Resources:              mdbcommon.ExpandResources[postgresql.Resources](ctx, configSpec.Resources, diags),
 		Autofailover:           expandBoolWrapper(ctx, configSpec.Autofailover, diags),
-		Access:                 expandAccess(ctx, configSpec.Access, diags),
+		Access:                 mdbcommon.ExpandAccess[postgresql.Access](ctx, configSpec.Access, diags),
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),

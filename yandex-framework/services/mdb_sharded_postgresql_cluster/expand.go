@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
@@ -17,7 +16,7 @@ import (
 
 func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostics) *spqr.ConfigSpec {
 	return &spqr.ConfigSpec{
-		Access:                 expandAccess(ctx, configSpec.Access, diags),
+		Access:                 mdbcommon.ExpandAccess[spqr.Access](ctx, configSpec.Access, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		SpqrSpec:               expandSPQRConfig(ctx, configSpec.SPQRConfig, diags),
@@ -33,23 +32,6 @@ func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags
 	}
 
 	return bws
-}
-
-func expandAccess(ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) *spqr.Access {
-	var access Access
-	diags.Append(cfgAccess.As(ctx, &access, basetypes.ObjectAsOptions{
-		UnhandledNullAsEmpty:    true,
-		UnhandledUnknownAsEmpty: true,
-	})...)
-	if diags.HasError() {
-		return nil
-	}
-	return &spqr.Access{
-		WebSql:       access.WebSql.ValueBool(),
-		DataLens:     access.DataLens.ValueBool(),
-		DataTransfer: access.DataTransfer.ValueBool(),
-		Serverless:   access.Serverless.ValueBool(),
-	}
 }
 
 func expandSPQRConfig(

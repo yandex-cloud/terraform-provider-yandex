@@ -21,7 +21,7 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*spqr.Config
 	diags := diag.Diagnostics{}
 
 	if !plan.Access.Equal(state.Access) {
-		config.SetAccess(expandAccess(ctx, plan.Access, &diags))
+		config.SetAccess(mdbcommon.ExpandAccess[spqr.Access](ctx, plan.Access, &diags))
 		updateMaskPaths = append(
 			updateMaskPaths,
 			"config_spec.access.web_sql",

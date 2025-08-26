@@ -70,27 +70,13 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"version":                   types.StringType,
 	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},
 	"autofailover":              types.BoolType,
-	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
+	"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
-}
-
-type Access struct {
-	DataLens     types.Bool `tfsdk:"data_lens"`
-	WebSql       types.Bool `tfsdk:"web_sql"`
-	Serverless   types.Bool `tfsdk:"serverless"`
-	DataTransfer types.Bool `tfsdk:"data_transfer"`
-}
-
-var AccessAttrTypes = map[string]attr.Type{
-	"data_lens":     types.BoolType,
-	"web_sql":       types.BoolType,
-	"serverless":    types.BoolType,
-	"data_transfer": types.BoolType,
 }
 
 type PerformanceDiagnostics struct {

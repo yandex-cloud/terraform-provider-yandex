@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
@@ -185,4 +186,21 @@ func ExpandInt64Wrapper(ctx context.Context, in types.Int64, diags *diag.Diagnos
 	}
 
 	return w
+}
+
+func ExpandAccess[V any, T accessModel[V]](ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) T {
+	var access Access
+	diags.Append(cfgAccess.As(ctx, &access, basetypes.ObjectAsOptions{
+		UnhandledNullAsEmpty:    true,
+		UnhandledUnknownAsEmpty: true,
+	})...)
+	if diags.HasError() {
+		return nil
+	}
+	ac := T(new(V))
+	ac.SetDataLens(access.DataLens.ValueBool())
+	ac.SetDataTransfer(access.DataTransfer.ValueBool())
+	ac.SetServerless(access.Serverless.ValueBool())
+	ac.SetWebSql(access.WebSql.ValueBool())
+	return ac
 }

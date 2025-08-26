@@ -17,67 +17,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
-func TestYandexProvider_MDBPostgresClusterConfigAccessFlattener(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	expectedAccessAttrs := map[string]attr.Type{
-		"data_lens":     types.BoolType,
-		"data_transfer": types.BoolType,
-		"serverless":    types.BoolType,
-		"web_sql":       types.BoolType,
-	}
-
-	cases := []struct {
-		testname    string
-		reqVal      *postgresql.Access
-		expectedVal types.Object
-	}{
-		{
-			testname: "CheckAllAttributes",
-			reqVal: &postgresql.Access{
-				WebSql:   true,
-				DataLens: true,
-			},
-			expectedVal: types.ObjectValueMust(
-				expectedAccessAttrs, map[string]attr.Value{
-					"data_lens":     types.BoolValue(true),
-					"data_transfer": types.BoolValue(false),
-					"serverless":    types.BoolValue(false),
-					"web_sql":       types.BoolValue(true),
-				},
-			),
-		},
-		{
-			testname:    "CheckNullObject",
-			reqVal:      nil,
-			expectedVal: types.ObjectNull(expectedAccessAttrs),
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		access := flattenAccess(ctx, c.reqVal, &diags)
-		if diags.HasError() {
-			t.Errorf(
-				"Unexpected flatten diagnostics status %s test: errors: %v",
-				c.testname,
-				diags.Errors(),
-			)
-			continue
-		}
-
-		if !c.expectedVal.Equal(access) {
-			t.Errorf(
-				"Unexpected flatten result value %s test: expected %s, actual %s",
-				c.testname,
-				c.expectedVal,
-				access,
-			)
-		}
-	}
-}
-
 func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -677,7 +616,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_size":          types.Int64Value(10),
 					}),
 					"autofailover": types.BoolValue(true),
-					"access": types.ObjectValueMust(expectedAccessAttrTypes, map[string]attr.Value{
+					"access": types.ObjectValueMust(mdbcommon.AccessAttrTypes, map[string]attr.Value{
 						"data_lens":     types.BoolValue(true),
 						"data_transfer": types.BoolValue(true),
 						"serverless":    types.BoolValue(false),
@@ -728,7 +667,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_size":          types.Int64Value(15),
 					}),
 					"autofailover":              types.BoolNull(),
-					"access":                    types.ObjectNull(expectedAccessAttrTypes),
+					"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),

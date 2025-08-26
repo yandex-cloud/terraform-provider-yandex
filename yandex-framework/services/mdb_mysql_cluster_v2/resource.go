@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
@@ -93,18 +92,8 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				Default:     stringdefault.StaticString(""),
 				Optional:    true,
 			},
-			"folder_id": schema.StringAttribute{
-				Description: common.ResourceDescriptions["folder_id"],
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"network_id": schema.StringAttribute{
-				Description: "ID of the network that the cluster belongs to.",
-				Required:    true,
-			},
+			"folder_id":  defaultschema.FolderId(),
+			"network_id": defaultschema.NetworkId(),
 			"environment": schema.StringAttribute{
 				Description: "Deployment environment of the MySQL cluster.",
 				Required:    true,
@@ -112,11 +101,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"labels": schema.MapAttribute{
-				Description: common.ResourceDescriptions["labels"],
-				Optional:    true,
-				ElementType: types.StringType,
-			},
+			"labels": defaultschema.Labels(),
 			"hosts": schema.MapNestedAttribute{
 				Description: "A host configuration of the MySQL cluster.",
 				Required:    true,
@@ -158,14 +143,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					},
 				},
 			},
-			"deletion_protection": schema.BoolAttribute{
-				Description: "Inhibits deletion of the cluster. Can be either true or false.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
-			},
+			"deletion_protection": defaultschema.DeletionProtection(),
 			"version": schema.StringAttribute{
 				Description: "Version of the MySQL cluster.",
 				Required:    true,

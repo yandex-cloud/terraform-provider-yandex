@@ -55,31 +55,13 @@ func flattenConfig(ctx context.Context, cfgState Config, c *spqr.ClusterConfig, 
 	}
 
 	cfg := &Config{
-		Access:                 flattenAccess(ctx, c.Access, diags),
+		Access:                 mdbcommon.FlattenAccess(ctx, c.Access, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      flattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
 		SPQRConfig:             flattenSPQRConfig(ctx, cfgState, c.SpqrConfig, diags),
 	}
 	obj, d := types.ObjectValueFrom(ctx, ConfigAttrTypes, cfg)
 	diags.Append(d...)
-	return obj
-}
-
-func flattenAccess(ctx context.Context, access *spqr.Access, diags *diag.Diagnostics) types.Object {
-	if access == nil {
-		return types.ObjectNull(AccessAttrTypes)
-	}
-
-	obj, d := types.ObjectValueFrom(
-		ctx, AccessAttrTypes, Access{
-			DataLens:     types.BoolValue(access.DataLens),
-			DataTransfer: types.BoolValue(access.DataTransfer),
-			WebSql:       types.BoolValue(access.WebSql),
-			Serverless:   types.BoolValue(access.Serverless),
-		},
-	)
-	diags.Append(d...)
-
 	return obj
 }
 

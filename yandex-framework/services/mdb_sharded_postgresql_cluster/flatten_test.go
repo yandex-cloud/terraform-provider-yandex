@@ -14,46 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func TestYandexProvider_MDBSPQRClusterConfigAccessFlatten(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-
-	cases := []struct {
-		testname    string
-		reqVal      *spqr.Access
-		expectedVal types.Object
-	}{
-		{
-			testname: "CheckAllAttributes",
-			reqVal: &spqr.Access{
-				WebSql:   true,
-				DataLens: true,
-			},
-			expectedVal: types.ObjectValueMust(
-				AccessAttrTypes, map[string]attr.Value{
-					"data_lens":     types.BoolValue(true),
-					"serverless":    types.BoolValue(false),
-					"data_transfer": types.BoolValue(false),
-					"web_sql":       types.BoolValue(true),
-				},
-			),
-		},
-	}
-
-	for _, c := range cases {
-		diags := diag.Diagnostics{}
-		access := flattenAccess(ctx, c.reqVal, &diags)
-		if diags.HasError() {
-			t.Errorf("Unexpected flatten diagnostics status %s test: errors: %v", c.testname, diags.Errors())
-			continue
-		}
-
-		if !c.expectedVal.Equal(access) {
-			t.Errorf("Unexpected flatten result value %s test: expected %s, actual %s", c.testname, c.expectedVal, access)
-		}
-	}
-}
-
 func TestYandexProvider_MDBSPQRClusterMaintenanceWindowFlatten(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

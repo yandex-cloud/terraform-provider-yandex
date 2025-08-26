@@ -53,6 +53,20 @@ type resourceModel[T any] interface {
 	*T
 }
 
+type accessModel[T any] interface {
+	SetDataLens(bool)
+	SetDataTransfer(bool)
+	SetServerless(bool)
+	SetWebSql(bool)
+
+	GetDataLens() bool
+	GetDataTransfer() bool
+	GetServerless() bool
+	GetWebSql() bool
+
+	*T
+}
+
 var ResourceType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"resource_preset_id": types.StringType,
@@ -114,4 +128,18 @@ type maintenanceWindow[
 	GetAnytime() A
 	GetWeeklyMaintenanceWindow() W
 	*T
+}
+
+type Access struct {
+	DataLens     types.Bool `tfsdk:"data_lens"`
+	WebSql       types.Bool `tfsdk:"web_sql"`
+	Serverless   types.Bool `tfsdk:"serverless"`
+	DataTransfer types.Bool `tfsdk:"data_transfer"`
+}
+
+var AccessAttrTypes = map[string]attr.Type{
+	"data_lens":     types.BoolType,
+	"web_sql":       types.BoolType,
+	"serverless":    types.BoolType,
+	"data_transfer": types.BoolType,
 }
