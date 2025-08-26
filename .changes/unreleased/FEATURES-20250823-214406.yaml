@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'redis: add timeouts attributes to yandex_mdb_redis_cluster_v2/yandex_mdb_redis_user'
-time: 2025-08-23T21:44:06.044113+03:00
