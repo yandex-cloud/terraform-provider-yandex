@@ -110,6 +110,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--performance_diagnostics))
 - `resources` (Block, Optional) Resources allocated to hosts of the MySQL cluster. (see [below for nested schema](#nestedblock--resources))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -183,6 +184,16 @@ Required:
 - `disk_size` (Number) Size of the disk in bytes.
 - `disk_type_id` (String) ID of the disk type that determines the disk performance characteristics.
 - `resource_preset_id` (String) ID of the resource preset that determines the number of CPU cores and memory size for the host.
+
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 
 ## Import
 

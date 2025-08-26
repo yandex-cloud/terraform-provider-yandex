@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'resourcemanager: fix yandex_resourcemanager_cloud/yandex_resourcemanager_folder datasource creation'
+time: 2025-08-25T21:11:55.325603+03:00

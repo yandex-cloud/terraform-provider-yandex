@@ -78,7 +78,7 @@ Read-Only:
 
 - `resources` (Block List, Min: 1, Max: 1) Resources allocated to hosts of the PostgreSQL cluster. (see [below for nested schema](#nestedobjatt--config--resources))
 
-- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 12, 12-1c, 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
+- `version` (String) Version of the PostgreSQL cluster. (allowed versions are: 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).
 
 
 <a id="nestedobjatt--config--access"></a>
@@ -103,7 +103,7 @@ Read-Only:
 
 - `hours` (Number) The hour at which backup will be started (UTC).
 
-- `minutes` (Number) The hour at which backup will be started (UTC).
+- `minutes` (Number) The minute at which backup will be started.
 
 
 
@@ -112,11 +112,11 @@ Read-Only:
 
 Read-Only:
 
-- `disk_size_limit` (Number) Limit of disk size after autoscaling (GiB).
+- `disk_size_limit` (Number) The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.
 
-- `emergency_usage_threshold` (Number) Immediate autoscaling disk usage (percent).
+- `emergency_usage_threshold` (Number) Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.
 
-- `planned_usage_threshold` (Number) Maintenance window autoscaling disk usage (percent).
+- `planned_usage_threshold` (Number) Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.
 
 
 
@@ -127,9 +127,9 @@ Read-Only:
 
 - `enabled` (Boolean) Enable performance diagnostics.
 
-- `sessions_sampling_interval` (Number) Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+- `sessions_sampling_interval` (Number) Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.
 
-- `statements_sampling_interval` (Number) Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
+- `statements_sampling_interval` (Number) Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 1 to 86400, inclusive.
 
 
 
@@ -193,7 +193,7 @@ Read-Only:
 
 Read-Only:
 
-- `assign_public_ip` (Boolean) Sets whether the host should get a public IP address on creation. It can be changed on the fly only when `name` is set.
+- `assign_public_ip` (Boolean) Whether the host should get a public IP address.
 
 - `fqdn` (String) The fully qualified domain name of the host.
 

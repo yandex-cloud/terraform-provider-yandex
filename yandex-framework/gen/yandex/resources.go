@@ -17,8 +17,8 @@ func GetProviderResources() []func() resource.Resource {
 		yandex_resourcemanager_cloud.NewResource,
 		yandex_resourcemanager_folder.NewResource,
 		yandex_cm_certificate_iam_member.NewResource,
+		yandex_cloudregistry_registry.NewResource,
 		yandex_compute_disk_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
-		yandex_cloudregistry_registry.NewResource,
 	}
 }

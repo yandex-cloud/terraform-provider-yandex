@@ -33,6 +33,10 @@ output "concurrency" {
 - `cluster_id` (String) The ID of the cluster to which resource group belongs to.
 - `name` (String) The name of the resource group.
 
+### Optional
+
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
 ### Read-Only
 
 - `concurrency` (Number)
@@ -42,3 +46,12 @@ output "concurrency" {
 - `memory_limit` (Number)
 - `memory_shared_quota` (Number)
 - `memory_spill_ratio` (Number)
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).

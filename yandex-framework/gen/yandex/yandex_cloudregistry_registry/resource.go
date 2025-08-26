@@ -101,6 +101,8 @@ func (r *yandexCloudregistryRegistryResource) Read(ctx context.Context, req reso
 				"Failed to Read resource",
 				"registry not found",
 			)
+			resp.State.RemoveResource(ctx)
+			return
 		} else {
 			resp.Diagnostics.AddError(
 				"Failed to Read resource",

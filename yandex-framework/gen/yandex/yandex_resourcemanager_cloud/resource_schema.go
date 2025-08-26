@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -166,5 +167,15 @@ func YandexResourcemanagerCloudResourceSchema(ctx context.Context) schema.Schema
 		},
 
 		Blocks: map[string]schema.Block{},
+	}
+}
+
+func (r *yandexResourcemanagerCloudResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
+	schema0 := YandexResourcemanagerCloudResourceSchema(ctx)
+	return map[int64]resource.StateUpgrader{
+		0: resource.StateUpgrader{
+			PriorSchema:   &schema0,
+			StateUpgrader: moveStateFromV0,
+		},
 	}
 }

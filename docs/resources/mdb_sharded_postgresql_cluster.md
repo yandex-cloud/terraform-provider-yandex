@@ -100,6 +100,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Attributes) Maintenance policy of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -244,6 +245,16 @@ Optional:
 - `day` (String) Day of the week (in DDD format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT","SUN"
 - `hour` (Number) Hour of the day in UTC (in HH format). Allowed value is between 1 and 24.
 - `type` (String) Type of maintenance window. Can be either ANYTIME or WEEKLY. A day and hour of window need to be specified with weekly window.
+
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 
 ## Import
 

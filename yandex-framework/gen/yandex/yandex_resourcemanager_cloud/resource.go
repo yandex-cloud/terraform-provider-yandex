@@ -102,6 +102,8 @@ func (r *yandexResourcemanagerCloudResource) Read(ctx context.Context, req resou
 				"Failed to Read resource",
 				"cloud not found",
 			)
+			resp.State.RemoveResource(ctx)
+			return
 		} else {
 			resp.Diagnostics.AddError(
 				"Failed to Read resource",

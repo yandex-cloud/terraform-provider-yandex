@@ -7,7 +7,7 @@ description: |-
 
 # yandex_compute_disk_iam_binding (Resource)
 
-Allows creation and management of a single binding within IAM policy for an existing `Disk`.
+Allows creation and management of a single binding within IAM policy for an existing `disk`.
 
 ## Example usage
 
@@ -42,7 +42,7 @@ resource "yandex_compute_disk_iam_binding" "editor" {
 
 ### Required
 
-- `disk_id` (String) The ID of the compute Disk to attach the policy to.
+- `disk_id` (String) The ID of the compute `disk` to attach the policy to.
 - `members` (Set of String) An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
  * **serviceAccount:{service_account_id}**: A unique service account ID.

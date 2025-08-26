@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	resourcemanagerv1sdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
@@ -111,6 +112,42 @@ func TestAccResourceManagerCloud_create(t *testing.T) {
 				ResourceName:      "yandex_resourcemanager_cloud.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccResourceManagerCloud_UpgradeFromSDKv2(t *testing.T) {
+	t.Parallel()
+
+	cloudInfo := newCloudInfo()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { test.AccPreCheck(t) },
+		CheckDestroy: testAccCheckCloudDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.150.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testAccResourceManagerCloud(cloudInfo),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_resourcemanager_cloud.foobar", "name", cloudInfo.Name),
+					resource.TestCheckResourceAttr("yandex_resourcemanager_cloud.foobar", "description", cloudInfo.Description),
+					resource.TestCheckResourceAttr("yandex_resourcemanager_cloud.foobar", fmt.Sprintf("labels.%s", cloudInfo.LabelKey), cloudInfo.LabelValue),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: test.AccProviderFactories,
+				Config:                   testAccResourceManagerCloud(cloudInfo),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})

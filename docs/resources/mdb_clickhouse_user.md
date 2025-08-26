@@ -99,7 +99,7 @@ resource "yandex_mdb_clickhouse_user" "foo" {
 - `permission` (Block Set) Block represents databases that are permitted to user. (see [below for nested schema](#nestedblock--permission))
 - `quota` (Block Set) ClickHouse quota representation. Each quota associated with an user and limits it resource usage for an interval. For more information, see [the official documentation](https://clickhouse.com/docs/en/operations/quotas) (see [below for nested schema](#nestedblock--quota))
 - `settings` (Block, Optional) Block represents ClickHouse user settings. For more information, see [the official documentation](https://clickhouse.com/docs/ru/operations/settings/settings) (see [below for nested schema](#nestedblock--settings))
-- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -281,12 +281,12 @@ If the parameter is set to 0 (default), no hops is allowed.
 - `wait_for_async_insert_timeout` (Number) The timeout (in seconds) for waiting for processing of asynchronous insertion. Value must be at least 1000 (1 second).
 
 
-<a id="nestedblock--timeouts"></a>
+<a id="nestedatt--timeouts"></a>
 ### Nested Schema for `timeouts`
 
 Optional:
 
-- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 - `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -88,6 +89,42 @@ func TestAccResourceManagerFolder_create(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_resourcemanager_folder.foobar", "description", folderInfo.Description),
 					resource.TestCheckResourceAttr("yandex_resourcemanager_folder.foobar", fmt.Sprintf("labels.%s", folderInfo.LabelKey), folderInfo.LabelValue),
 				),
+			},
+		},
+	})
+}
+
+func TestAccResourceManagerFolder_UpgradeFromSDKv2(t *testing.T) {
+	t.Parallel()
+
+	folderInfo := newFolderInfo()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckFolderDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.150.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testAccResourceManagerFolder(folderInfo),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_resourcemanager_folder.foobar", "name", folderInfo.Name),
+					resource.TestCheckResourceAttr("yandex_resourcemanager_folder.foobar", "description", folderInfo.Description),
+					resource.TestCheckResourceAttr("yandex_resourcemanager_folder.foobar", fmt.Sprintf("labels.%s", folderInfo.LabelKey), folderInfo.LabelValue),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+				Config:                   testAccResourceManagerFolder(folderInfo),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})

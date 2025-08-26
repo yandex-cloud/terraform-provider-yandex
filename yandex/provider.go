@@ -219,6 +219,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_organizationmanager_saml_federation":              dataSourceYandexOrganizationManagerSamlFederation(),
 			"yandex_organizationmanager_saml_federation_user_account": dataSourceYandexOrganizationManagerSamlFederationUserAccount(),
 			"yandex_organizationmanager_user_ssh_key":                 dataSourceYandexOrganizationManagerUserSshKey(),
+			"yandex_resourcemanager_cloud":                            dataSourceYandexResourceManagerCloud(),
+			"yandex_resourcemanager_folder":                           dataSourceYandexResourceManagerFolder(),
 			"yandex_serverless_container":                             dataSourceYandexServerlessContainer(),
 			"yandex_vpc_address":                                      dataSourceYandexVPCAddress(),
 			"yandex_vpc_gateway":                                      dataSourceYandexVPCGateway(),

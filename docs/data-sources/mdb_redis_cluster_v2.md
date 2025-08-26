@@ -32,6 +32,7 @@ output "network_id" {
 
 - `cluster_id` (String) ID of the Redis cluster. This ID is assigned by MDB at creation time.
 - `name` (String) The resource name.
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -55,6 +56,16 @@ output "network_id" {
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `sharded` (Boolean) Redis sharded mode. Can be either true or false.
 - `tls_enabled` (Boolean) TLS port and functionality. Can be either true or false.
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+
 
 <a id="nestedatt--access"></a>
 ### Nested Schema for `access`

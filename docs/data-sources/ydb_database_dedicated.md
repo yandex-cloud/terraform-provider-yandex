@@ -89,7 +89,7 @@ Read-Only:
 
 Read-Only:
 
-- `fixed_scale` (Block List, Min: 1, Max: 1) Fixed scaling policy for the Yandex Database cluster. (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
+- `fixed_scale` (Block List, Max: 1) Fixed scaling policy for the Yandex Database cluster. (see [below for nested schema](#nestedobjatt--scale_policy--fixed_scale))
 
 
 <a id="nestedobjatt--scale_policy--fixed_scale"></a>
