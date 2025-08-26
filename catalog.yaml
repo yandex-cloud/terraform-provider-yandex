@@ -1249,6 +1249,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_sharded_postgresql_shard:
+    Category: "Managed Service for Sharded PostgreSQL"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
   storage_bucket:
     Category: "Object Storage (S3)"
     Type: sdk

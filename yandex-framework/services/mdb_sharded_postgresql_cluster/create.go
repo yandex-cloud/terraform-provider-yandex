@@ -26,12 +26,12 @@ func prepareCreateRequest(ctx context.Context, plan *Cluster, providerConfig *co
 		ConfigSpec:         expandConfig(ctx, configSpec, &diags),
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
-		/*MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
-			sharded_postgresql.MaintenanceWindow,
-			sharded_postgresql.WeeklyMaintenanceWindow,
-			sharded_postgresql.AnytimeMaintenanceWindow,
-			sharded_postgresql.WeeklyMaintenanceWindow_WeekDay,
-		](ctx, plan.MaintenanceWindow, &diags),*/
+		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
+			spqr.MaintenanceWindow,
+			spqr.WeeklyMaintenanceWindow,
+			spqr.AnytimeMaintenanceWindow,
+			spqr.WeeklyMaintenanceWindow_WeekDay,
+		](ctx, plan.MaintenanceWindow, &diags),
 	}
 	return request, diags
 }

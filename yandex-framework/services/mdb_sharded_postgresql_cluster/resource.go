@@ -70,7 +70,6 @@ func (r *clusterResource) Configure(_ context.Context,
 
 func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		// TODO: fix description
 		MarkdownDescription: "Manages a ShardedPostgresql cluste within the Yandex Cloud.",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
