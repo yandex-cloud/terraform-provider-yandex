@@ -453,6 +453,13 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key for cluster disk encryption.",
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -565,23 +572,31 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		return nil, fmt.Errorf("Error while expanding maintenance window on Redis Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	req := redis.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		ConfigSpec:         configSpec,
-		HostSpecs:          hosts,
-		Labels:             labels,
-		Sharded:            sharded,
-		TlsEnabled:         &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
-		PersistenceMode:    persistenceMode,
-		AnnounceHostnames:  d.Get("announce_hostnames").(bool),
-		SecurityGroupIds:   securityGroupIds,
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		MaintenanceWindow:  mw,
-		AuthSentinel:       d.Get("auth_sentinel").(bool),
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		ConfigSpec:          configSpec,
+		HostSpecs:           hosts,
+		Labels:              labels,
+		Sharded:             sharded,
+		TlsEnabled:          &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
+		PersistenceMode:     persistenceMode,
+		AnnounceHostnames:   d.Get("announce_hostnames").(bool),
+		SecurityGroupIds:    securityGroupIds,
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		MaintenanceWindow:   mw,
+		AuthSentinel:        d.Get("auth_sentinel").(bool),
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}
 	return &req, nil
 }
@@ -706,6 +721,12 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
+	}
 
 	return d.Set("labels", cluster.Labels)
 }

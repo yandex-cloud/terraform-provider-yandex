@@ -58,6 +58,30 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBRedisCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	redisName := acctest.RandomWithPrefix("ds-redis-disk-encryption")
+	redisDesc := "Redis Cluster Terraform Datasource Test Disk Encryption"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceMDBRedisClusterAttributesCheck(
+						"data.yandex_mdb_redis_cluster.bar",
+						"yandex_mdb_redis_cluster.foo"),
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_redis_cluster.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
@@ -91,6 +115,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"tls_enabled",
 			"persistence_mode",
 			"announce_hostnames",
+			"disk_encryption_key_id",
 			"config.0.timeout", // Cannot test full config, because API doesn't return password
 			"config.0.maxmemory_policy",
 			"config.0.notify_keyspace_events",
@@ -212,4 +237,8 @@ func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnab
 	return testAccMDBRedisClusterConfigMainWithMW(redisName, redisDesc, "PRESTABLE", false,
 		tlsEnabled, announceHostnames, authSentinel, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
 		[]*bool{nil}, []*int{nil}) + mdbRedisClusterByNameConfig
+}
+
+func testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc string) string {
+	return testAccMDBRedisClusterDiskEncrypted(redisName, redisDesc) + mdbRedisClusterByIDConfig
 }

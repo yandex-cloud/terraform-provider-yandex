@@ -359,6 +359,12 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBRedisCluster().Schema["disk_encryption_key_id"].Description,
+				Computed:    true,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -498,6 +504,12 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err = d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
+	}
 
 	d.SetId(cluster.Id)
 

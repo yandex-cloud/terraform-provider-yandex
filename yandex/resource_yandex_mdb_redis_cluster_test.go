@@ -564,6 +564,30 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	}
 }
 
+func TestAccMDBRedisCluster_EncryptedDisk(t *testing.T) {
+	t.Parallel()
+
+	var cluster redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis-disk-encryption")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			// Create Redis Cluster with disk encryption
+			{
+				Config: testAccMDBRedisClusterDiskEncrypted(redisName, "Encrypted Redis cluster"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &cluster, 1, false, false, false, "ON"),
+					resource.TestCheckResourceAttrSet(redisResource, "disk_encryption_key_id"),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
+}
+
 func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1491,4 +1515,42 @@ resource "yandex_mdb_redis_cluster" "bar" {
 }
 `, name, desc, getPersistenceMode(persistenceMode), version, diskSize, getDiskTypeStr(diskTypeId),
 		getShardedHosts(diskTypeId, "new"), diskSize*3)
+}
+
+func testAccMDBRedisClusterDiskEncrypted(name, desc string) string {
+	return fmt.Sprintf(redisVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_redis_cluster" "foo" {
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = yandex_vpc_network.foo.id
+
+  config {
+	password = "passw0rd"
+	lua_time_limit = 4444
+	repl_backlog_size_percent = 10
+	cluster_require_full_coverage = true
+	cluster_allow_reads_when_down = true
+	cluster_allow_pubsubshard_when_down = true
+	lfu_decay_time = 11
+	lfu_log_factor = 10
+	turn_before_switchover = true
+	allow_data_loss = true
+    version  = "7.2"
+  }
+
+  resources {
+    resource_preset_id = "hm3-c2-m8"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  host {
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, desc)
 }

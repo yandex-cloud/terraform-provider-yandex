@@ -208,6 +208,14 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				},
 				MarkdownDescription: "Allows to use ACL users to auth in sentinel",
 			},
+			"disk_encryption_key_id": schema.StringAttribute{
+				Description: "ID of the symmetric encryption key used to encrypt the disk of the cluster.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"resources": schema.SingleNestedAttribute{
 				MarkdownDescription: "Resources allocated to hosts of the Redis cluster.",
 				Required:            true,

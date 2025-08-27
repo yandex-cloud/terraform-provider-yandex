@@ -260,16 +260,17 @@ type config struct {
 }
 
 type redisConfigTest struct {
-	Name               *string
-	Environment        *string
-	Description        *string
-	Sharded            *bool
-	TlsEnabled         *bool
-	PersistenceMode    *string
-	AnnounceHostnames  *bool
-	FolderId           *string
-	DeletionProtection *bool
-	AuthSentinel       *bool
+	Name                *string
+	Environment         *string
+	Description         *string
+	Sharded             *bool
+	TlsEnabled          *bool
+	PersistenceMode     *string
+	AnnounceHostnames   *bool
+	FolderId            *string
+	DeletionProtection  *bool
+	AuthSentinel        *bool
+	DiskEncryptionKeyId *string
 
 	Resources           *hostResource
 	Labels              map[string]string
@@ -348,6 +349,7 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
   {{with .FolderId}} folder_id  = "{{.}}" {{end}}
   {{with .DeletionProtection}} deletion_protection  = {{.}} {{end}}
   {{with .AuthSentinel}} auth_sentinel  = {{.}} {{end}}
+  {{with .DiskEncryptionKeyId}} disk_encryption_key_id  = "{{.}}" {{end}}
 
 
 

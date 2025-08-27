@@ -34,6 +34,7 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.CreatedAt))
 	state.DeletionProtection = types.BoolValue(cluster.DeletionProtection)
 	state.AuthSentinel = types.BoolValue(cluster.AuthSentinel)
+	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, diagnostics)
 
 	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
 	state.Labels = labels

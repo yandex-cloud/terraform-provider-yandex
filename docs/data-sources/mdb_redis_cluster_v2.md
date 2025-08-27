@@ -43,6 +43,7 @@ output "network_id" {
 - `created_at` (String) The creation timestamp of the resource.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
+- `disk_encryption_key_id` (String) ID of the symmetric encryption key used to encrypt the disk of the cluster.
 - `disk_size_autoscaling` (Attributes) Disk size autoscaling settings. (see [below for nested schema](#nestedatt--disk_size_autoscaling))
 - `environment` (String) Deployment environment of the Redis cluster.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.

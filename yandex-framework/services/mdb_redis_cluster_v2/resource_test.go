@@ -11,7 +11,12 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 )
+
+const diskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
+`
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_redis_cluster_v2", &resource.Sweeper{
@@ -775,5 +780,44 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 		},
 	})
+}
 
+func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis-disk-encryption")
+	redisDesc := "Redis Cluster Terraform Test Disk Encryption"
+	folderID := test.GetExampleFolderID()
+	version := "7.2"
+	password := "12345678PP"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			// Create Redis Cluster with disk encryption
+			{
+				Config: diskEncryptionKeyResource + makeConfig(t, testAccBaseConfig(redisName, redisDesc), &redisConfigTest{
+					Config: &config{
+						Version:  &version,
+						Password: &password,
+					},
+					Hosts: map[string]host{
+						"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
+					},
+					DiskEncryptionKeyId: newPtr("${yandex_kms_symmetric_key.disk_encrypt.id}"),
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, false, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "disk_encryption_key_id"),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
 }

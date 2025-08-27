@@ -8,20 +8,21 @@ import (
 
 type Cluster struct {
 	//----Attributes----
-	ID                 types.String `tfsdk:"id"`
-	ClusterID          types.String `tfsdk:"cluster_id"`
-	Name               types.String `tfsdk:"name"`
-	NetworkID          types.String `tfsdk:"network_id"`
-	Environment        types.String `tfsdk:"environment"`
-	Description        types.String `tfsdk:"description"`
-	Sharded            types.Bool   `tfsdk:"sharded"`
-	TlsEnabled         types.Bool   `tfsdk:"tls_enabled"`
-	PersistenceMode    types.String `tfsdk:"persistence_mode"`
-	AnnounceHostnames  types.Bool   `tfsdk:"announce_hostnames"`
-	FolderID           types.String `tfsdk:"folder_id"`
-	CreatedAt          types.String `tfsdk:"created_at"`
-	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
-	AuthSentinel       types.Bool   `tfsdk:"auth_sentinel"`
+	ID                  types.String `tfsdk:"id"`
+	ClusterID           types.String `tfsdk:"cluster_id"`
+	Name                types.String `tfsdk:"name"`
+	NetworkID           types.String `tfsdk:"network_id"`
+	Environment         types.String `tfsdk:"environment"`
+	Description         types.String `tfsdk:"description"`
+	Sharded             types.Bool   `tfsdk:"sharded"`
+	TlsEnabled          types.Bool   `tfsdk:"tls_enabled"`
+	PersistenceMode     types.String `tfsdk:"persistence_mode"`
+	AnnounceHostnames   types.Bool   `tfsdk:"announce_hostnames"`
+	FolderID            types.String `tfsdk:"folder_id"`
+	CreatedAt           types.String `tfsdk:"created_at"`
+	DeletionProtection  types.Bool   `tfsdk:"deletion_protection"`
+	AuthSentinel        types.Bool   `tfsdk:"auth_sentinel"`
+	DiskEncryptionKeyId types.String `tfsdk:"disk_encryption_key_id"`
 
 	Labels              types.Map    `tfsdk:"labels"`
 	SecurityGroupIDs    types.Set    `tfsdk:"security_group_ids"`

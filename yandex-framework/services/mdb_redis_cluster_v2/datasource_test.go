@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 )
 
 func TestAccDataSourceMDBRedisClusterV2_byID(t *testing.T) {
@@ -53,6 +54,30 @@ func TestAccDataSourceMDBRedisClusterV2_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMDBRedisClusterV2_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	redisName := acctest.RandomWithPrefix("ds-redisv2-disk-encryption")
+	redisDesc := "Redis Cluster Terraform Datasource Test Disk Encryption"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc, "7.2"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceMDBRedisClusterAttributesCheck(
+						"data.yandex_mdb_redis_cluster_v2.bar",
+						"yandex_mdb_redis_cluster_v2.bar"),
+					resource.TestCheckResourceAttrSet("data.yandex_mdb_redis_cluster_v2.bar", "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
@@ -87,6 +112,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"persistence_mode",
 			"announce_hostnames",
 			"auth_sentinel",
+			"disk_encryption_key_id",
 			"config.timeout", // Cannot test full config, because API doesn't return password
 			"config.maxmemory_policy",
 			"config.notify_keyspace_events",
@@ -191,4 +217,20 @@ func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, version string
 	}
 
 	return conf + mdbRedisClusterByNameConfig
+}
+
+func testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc, version string) string {
+	hosts := map[string]host{
+		"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
+	}
+	conf := makeConfig(nil, testAccBaseConfig(redisName, redisDesc), &redisConfigTest{
+		Config: &config{
+			Version:  &version,
+			Password: newPtr("12345678PP"),
+		},
+		Hosts:               hosts,
+		DiskEncryptionKeyId: newPtr("${yandex_kms_symmetric_key.disk_encrypt.id}"),
+	})
+
+	return diskEncryptionKeyResource + conf + mdbRedisClusterByIDConfig
 }

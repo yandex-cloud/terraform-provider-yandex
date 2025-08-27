@@ -33,6 +33,7 @@ output "network_id" {
 
 - `cluster_id` (String) The ID of the Redis cluster.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `name` (String) The name of the Redis cluster.
 
