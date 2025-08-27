@@ -46,6 +46,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 			CoordinatorConfig: common.Coordinator,
 			WorkerConfig:      common.Worker,
 			RetryPolicy:       common.RetryPolicy,
+			Version:           common.Version,
 		},
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -72,6 +73,7 @@ type CommonForCreateAndUpdate struct {
 	Coordinator *trino.CoordinatorConfig
 	Worker      *trino.WorkerConfig
 	RetryPolicy *trino.RetryPolicyConfig
+	Version     string
 
 	MaintenanceWindow *trino.MaintenanceWindow
 }
@@ -256,6 +258,14 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "trino.retry_policy")
 	}
 
+	var version string
+	if !plan.Version.IsNull() && !plan.Version.IsUnknown() {
+		version = plan.Version.ValueString()
+	}
+	if state != nil && !plan.Version.Equal(state.Version) {
+		updateMaskPaths = append(updateMaskPaths, "trino.version")
+	}
+
 	var maintenanceWindow *trino.MaintenanceWindow
 	if !isNullOrUnknown(plan.MaintenanceWindow.MaintenanceWindowType) {
 		maintenanceWindow = &trino.MaintenanceWindow{}
@@ -308,6 +318,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		Worker:             workerConfig,
 		MaintenanceWindow:  maintenanceWindow,
 		RetryPolicy:        retrPolicyConfig,
+		Version:            version,
 	}
 
 	return params, updateMaskPaths, diags
@@ -345,6 +356,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 			CoordinatorConfig: common.coordinatorConfigForUpdate(),
 			WorkerConfig:      common.workerConfigForUpdate(),
 			RetryPolicy:       common.RetryPolicy,
+			Version:           common.Version,
 		},
 		NetworkSpec: &trino.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,

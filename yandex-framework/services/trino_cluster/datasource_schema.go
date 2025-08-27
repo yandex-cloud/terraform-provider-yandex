@@ -190,6 +190,10 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				MarkdownDescription: "The list of VPC subnets identifiers which resource is attached.",
 			},
+			"version": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Trino version. Format: \"Number\".",
+			},
 			"worker": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"auto_scale": schema.SingleNestedAttribute{

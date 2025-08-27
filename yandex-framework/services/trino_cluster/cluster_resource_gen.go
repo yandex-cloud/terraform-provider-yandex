@@ -240,6 +240,15 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					setplanmodifier.RequiresReplace(),
 				},
 			},
+			"version": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Trino version. Format: \"Number\".",
+				MarkdownDescription: "Trino version. Format: \"Number\".",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"worker": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"auto_scale": schema.SingleNestedAttribute{
@@ -324,6 +333,7 @@ type ClusterModel struct {
 	SecurityGroupIds   types.Set              `tfsdk:"security_group_ids"`
 	ServiceAccountId   types.String           `tfsdk:"service_account_id"`
 	SubnetIds          types.Set              `tfsdk:"subnet_ids"`
+	Version            types.String           `tfsdk:"version"`
 	Worker             WorkerValue            `tfsdk:"worker"`
 	Timeouts           timeouts.Value         `tfsdk:"timeouts"`
 }

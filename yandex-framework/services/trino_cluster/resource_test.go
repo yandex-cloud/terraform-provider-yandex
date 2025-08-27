@@ -67,6 +67,7 @@ type trinoClusterConfigParams struct {
 	DeletionProtection bool
 	AdditionalParams   bool
 	RetryPolicy        *RetryPolicyParams
+	Version            string
 }
 
 type MaintenanceWindow struct {
@@ -128,6 +129,10 @@ resource "yandex_trino_cluster" "trino_cluster" {
     {{ end }}
   }
   deletion_protection = {{ .DeletionProtection }}
+
+  {{ if .Version }}
+  version = "{{ .Version }}"
+  {{ end }}
 
   {{ if .Labels }}
   labels = {
@@ -286,6 +291,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							Count: 1,
 						},
 					},
+					Version: "468",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -298,6 +304,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "worker.fixed_scale.count", "1"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -332,6 +339,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							AdditionalProperties: map[string]string{},
 						},
 					},
+					Version: "476",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -360,6 +368,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.create", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.update", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.delete", "50m"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "476"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -379,6 +388,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					MaintenanceWindow: &MaintenanceWindow{
 						Type: "ANYTIME",
 					},
+					Version: "468",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -391,6 +401,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "worker.fixed_scale.count", "1"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
