@@ -31,6 +31,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request/cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request/nodegroups"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema/descriptions"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/validate"
 )
 
@@ -480,7 +481,7 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	tflog.Info(ctx, "Initializing opensearch data source schema")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a OpenSearch cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).",
+		MarkdownDescription: descriptions.Resource,
 		Version:             2,
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{
@@ -489,15 +490,15 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				Delete: true,
 			}),
 			"config": schema.SingleNestedBlock{
-				MarkdownDescription: "Configuration of the OpenSearch cluster.",
+				MarkdownDescription: descriptions.Config,
 				Attributes: map[string]schema.Attribute{
 					"version": schema.StringAttribute{
-						MarkdownDescription: "Version of OpenSearch.",
+						MarkdownDescription: descriptions.Version,
 						Computed:            true,
 						Optional:            true,
 					},
 					"admin_password": schema.StringAttribute{
-						MarkdownDescription: "Password for admin user of OpenSearch.",
+						MarkdownDescription: descriptions.AdminPassword,
 						Required:            true,
 						Sensitive:           true,
 						PlanModifiers: []planmodifier.String{
@@ -507,13 +508,13 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				},
 				Blocks: map[string]schema.Block{
 					"opensearch": schema.SingleNestedBlock{
-						MarkdownDescription: "Configuration for OpenSearch node groups.",
+						MarkdownDescription: descriptions.Opensearch,
 						Validators: []validator.Object{
 							objectvalidator.IsRequired(),
 						},
 						Attributes: map[string]schema.Attribute{
 							"plugins": schema.SetAttribute{
-								MarkdownDescription: "A set of requested OpenSearch plugins.",
+								MarkdownDescription: descriptions.Plugins,
 								Computed:            true,
 								Optional:            true,
 								ElementType:         types.StringType,
@@ -522,7 +523,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 						Blocks: map[string]schema.Block{
 							//NOTE: changed "set" to "list+customValidator" because https://github.com/hashicorp/terraform-plugin-sdk/issues/1210
 							"node_groups": schema.ListNestedBlock{
-								MarkdownDescription: "A set of named OpenSearch node group configurations.",
+								MarkdownDescription: descriptions.NodeGroups,
 								Validators: []validator.List{
 									listvalidator.IsRequired(),
 									listvalidator.SizeAtLeast(1),
@@ -534,31 +535,31 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 									},
 									Attributes: map[string]schema.Attribute{
 										"name": schema.StringAttribute{
-											MarkdownDescription: "Name of OpenSearch node group.",
+											MarkdownDescription: descriptions.NodeGroupName,
 											Required:            true,
 										},
 										"hosts_count": schema.Int64Attribute{
-											MarkdownDescription: "Number of hosts in this node group.",
+											MarkdownDescription: descriptions.HostsCount,
 											Required:            true,
 										},
 										"zone_ids": schema.SetAttribute{
-											MarkdownDescription: "A set of availability zones where hosts of node group may be allocated.",
+											MarkdownDescription: descriptions.ZoneIDs,
 											Required:            true,
 											ElementType:         types.StringType,
 										},
 										"subnet_ids": schema.ListAttribute{
-											MarkdownDescription: "A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.",
+											MarkdownDescription: descriptions.SubnetIDs,
 											Optional:            true,
 											Computed:            true,
 											ElementType:         types.StringType,
 										},
 										"assign_public_ip": schema.BoolAttribute{
-											MarkdownDescription: "Sets whether the hosts should get a public IP address.",
+											MarkdownDescription: descriptions.AssignPublicIP,
 											Computed:            true,
 											Optional:            true,
 										},
 										"roles": schema.SetAttribute{
-											MarkdownDescription: "A set of OpenSearch roles assigned to hosts. Available roles are: `DATA`, `MANAGER`. Default: [`DATA`, `MANAGER`].",
+											MarkdownDescription: descriptions.Roles,
 											Required:            true,
 											ElementType:         types.StringType,
 											Validators: []validator.Set{
@@ -571,7 +572,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 						},
 					},
 					"dashboards": schema.SingleNestedBlock{
-						MarkdownDescription: "Configuration for Dashboards node groups.",
+						MarkdownDescription: descriptions.Dashboards,
 						Validators: []validator.Object{
 							objectvalidator.AlsoRequires(
 								path.MatchRoot("config").AtName("dashboards").AtName("node_groups"),
@@ -590,26 +591,26 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 									},
 									Attributes: map[string]schema.Attribute{
 										"name": schema.StringAttribute{
-											MarkdownDescription: "Name of OpenSearch node group.",
+											MarkdownDescription: descriptions.NodeGroupName,
 											Required:            true,
 										},
 										"hosts_count": schema.Int64Attribute{
-											MarkdownDescription: "Number of hosts in this node group.",
+											MarkdownDescription: descriptions.HostsCount,
 											Required:            true,
 										},
 										"zone_ids": schema.SetAttribute{
-											MarkdownDescription: "A set of availability zones where hosts of node group may be allocated.",
+											MarkdownDescription: descriptions.ZoneIDs,
 											Required:            true,
 											ElementType:         types.StringType,
 										},
 										"subnet_ids": schema.ListAttribute{
-											MarkdownDescription: "A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.",
+											MarkdownDescription: descriptions.SubnetIDs,
 											Optional:            true,
 											Computed:            true,
 											ElementType:         types.StringType,
 										},
 										"assign_public_ip": schema.BoolAttribute{
-											MarkdownDescription: "Sets whether the hosts should get a public IP address.",
+											MarkdownDescription: descriptions.AssignPublicIP,
 											Computed:            true,
 											Optional:            true,
 										},
@@ -619,14 +620,14 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 						},
 					},
 					"access": schema.SingleNestedBlock{
-						MarkdownDescription: "Enable access to the Yandex Cloud services.",
+						MarkdownDescription: descriptions.Access,
 						Attributes: map[string]schema.Attribute{
 							"data_transfer": schema.BoolAttribute{
-								MarkdownDescription: "Enable access to the [Data Transfer](https://yandex.cloud/docs/data-transfer) service.",
+								MarkdownDescription: descriptions.DataTransfer,
 								Optional:            true,
 							},
 							"serverless": schema.BoolAttribute{
-								MarkdownDescription: "Enable access to the [Cloud Functions](https://yandex.cloud/docs/functions) service.",
+								MarkdownDescription: descriptions.Serverless,
 								Optional:            true,
 							},
 						},
@@ -681,7 +682,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the OpenSearch cluster. The name must be unique within the folder.",
+				MarkdownDescription: descriptions.Name,
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
@@ -690,7 +691,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"labels": defaultschema.Labels(),
 			"environment": schema.StringAttribute{
-				MarkdownDescription: "Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It is not possible to change this value after cluster creation**.",
+				MarkdownDescription: descriptions.Environment,
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
@@ -700,22 +701,22 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 			"hosts":      common_schema.Hosts(),
 			"network_id": defaultschema.NetworkId(stringplanmodifier.RequiresReplace()),
 			"health": schema.StringAttribute{
-				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).",
+				MarkdownDescription: descriptions.Health,
 				Computed:            true,
 			},
 			"status": schema.StringAttribute{
-				MarkdownDescription: " Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).",
+				MarkdownDescription: descriptions.Status,
 				Computed:            true,
 			},
 			"security_group_ids": defaultschema.SecurityGroupIds(),
 			"service_account_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the service account authorized for this cluster.",
+				MarkdownDescription: descriptions.ServiceAccountID,
 				Optional:            true,
 			},
 			"deletion_protection": defaultschema.DeletionProtection(),
 			"auth_settings": schema.SingleNestedAttribute{
-				Description: "Authentication settings for Dashboards.",
-				Optional:    true,
+				MarkdownDescription: descriptions.AuthSettings,
+				Optional:            true,
 				Validators: []validator.Object{
 					objectvalidator.AlsoRequires(
 						path.MatchRoot("config").AtName("dashboards"),
@@ -724,35 +725,35 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				},
 				Attributes: map[string]schema.Attribute{
 					"saml": schema.SingleNestedAttribute{
-						MarkdownDescription: "SAML authentication options.",
+						MarkdownDescription: descriptions.SAML,
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								MarkdownDescription: "Enables SAML authentication.",
+								MarkdownDescription: descriptions.SAMLEnabled,
 								Required:            true,
 							},
 							"idp_entity_id": schema.StringAttribute{
-								MarkdownDescription: "ID of the SAML Identity Provider.",
+								MarkdownDescription: descriptions.SAMLIdpEntityID,
 								Required:            true,
 							},
 							"idp_metadata_file_content": schema.StringAttribute{
-								MarkdownDescription: "Metadata file content of the SAML Identity Provider. You can either put file content manually or use [`file` function](https://developer.hashicorp.com/terraform/language/functions/file)",
+								MarkdownDescription: descriptions.SAMLIdpMetadataFileContent,
 								Required:            true,
 							},
 							"sp_entity_id": schema.StringAttribute{
-								MarkdownDescription: "Service provider entity ID.",
+								MarkdownDescription: descriptions.SAMLSpEntityID,
 								Required:            true,
 							},
 							"dashboards_url": schema.StringAttribute{
-								MarkdownDescription: "Dashboards URL.",
+								MarkdownDescription: descriptions.SAMLDashboardsURL,
 								Required:            true,
 							},
 							"roles_key": schema.StringAttribute{
-								MarkdownDescription: "Roles key.",
+								MarkdownDescription: descriptions.SAMLRolesKey,
 								Optional:            true,
 							},
 							"subject_key": schema.StringAttribute{
-								MarkdownDescription: "Subject key.",
+								MarkdownDescription: descriptions.SAMLSubjectKey,
 								Optional:            true,
 							},
 						},

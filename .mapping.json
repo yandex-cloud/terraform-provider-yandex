@@ -1775,6 +1775,7 @@
   "yandex-framework/services/mdb_opensearch_cluster/request/nodegroups/update_opensearch.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/request/nodegroups/update_opensearch.go",
   "yandex-framework/services/mdb_opensearch_cluster/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/resource.go",
   "yandex-framework/services/mdb_opensearch_cluster/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/resource_test.go",
+  "yandex-framework/services/mdb_opensearch_cluster/schema/descriptions/description.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/schema/descriptions/description.go",
   "yandex-framework/services/mdb_opensearch_cluster/schema/schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/schema/schema.go",
   "yandex-framework/services/mdb_opensearch_cluster/validate/unique_by_field_validator.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/validate/unique_by_field_validator.go",
   "yandex-framework/services/mdb_opensearch_cluster/validate/unique_case_insensitive.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/mdb_opensearch_cluster/validate/unique_case_insensitive.go",

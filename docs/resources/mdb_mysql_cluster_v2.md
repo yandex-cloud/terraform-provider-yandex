@@ -92,7 +92,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `environment` (String) Deployment environment of the MySQL cluster.
 - `hosts` (Attributes Map) A host configuration of the MySQL cluster. (see [below for nested schema](#nestedatt--hosts))
 - `name` (String) Name of the MySQL cluster. Provided by the client when the cluster is created.
-- `network_id` (String) ID of the network that the cluster belongs to.
+- `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `version` (String) Version of the MySQL cluster.
 
 ### Optional
@@ -100,7 +100,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `access` (Attributes) Access policy to the MySQL cluster. (see [below for nested schema](#nestedatt--access))
 - `backup_retain_period_days` (Number) The period in days during which backups are stored.
 - `backup_window_start` (Attributes) Time to start the daily backup, in the UTC timezone. (see [below for nested schema](#nestedatt--backup_window_start))
-- `deletion_protection` (Boolean) Inhibits deletion of the cluster. Can be either true or false.
+- `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) Description of the MySQL cluster.
 - `disk_encryption_key_id` (String) ID of the symmetric encryption key used to encrypt the disk of the cluster.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.

@@ -90,11 +90,11 @@ resource "yandex_vpc_subnet" "foo" {
 - `environment` (String) Deployment environment of the PostgreSQL cluster.
 - `hosts` (Attributes Map) A host configuration of the PostgreSQL cluster. (see [below for nested schema](#nestedatt--hosts))
 - `name` (String) Name of the Sharded PostgreSQL cluster. Provided by the client when the cluster is created.
-- `network_id` (String) ID of the network that the cluster belongs to.
+- `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 
 ### Optional
 
-- `deletion_protection` (Boolean) Inhibits deletion of the cluster. Can be either true or false.
+- `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) Description of the Sharded PostgreSQL cluster.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.

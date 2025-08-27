@@ -178,7 +178,7 @@ resource "yandex_vpc_subnet" "es-subnet-d" {
 ### Required
 
 - `name` (String) Name of the OpenSearch cluster. The name must be unique within the folder.
-- `network_id` (String) ID of the network, to which the OpenSearch cluster belongs. It is not possible to change this value after cluster creation.
+- `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 
 ### Optional
 

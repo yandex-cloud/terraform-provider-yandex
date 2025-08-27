@@ -12,11 +12,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema/descriptions"
 )
 
 func NewDataSource() datasource.DataSource {
@@ -95,6 +97,7 @@ func (o *openSearchClusterDataSource) Read(ctx context.Context, req datasource.R
 func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	tflog.Info(ctx, "Initializing opensearch data source schema")
 	resp.Schema = schema.Schema{
+		MarkdownDescription: descriptions.Datasource,
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{
 				Create: true,
@@ -102,18 +105,21 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 				Delete: true,
 			}),
 			"config": schema.SingleNestedBlock{
-				Description: "Configuration of the OpenSearch cluster.",
+				MarkdownDescription: descriptions.Config,
 				Blocks: map[string]schema.Block{
 					"opensearch": schema.SingleNestedBlock{
+						MarkdownDescription: descriptions.Opensearch,
 						Attributes: map[string]schema.Attribute{
 							"plugins": schema.SetAttribute{
-								Computed:    true,
-								Optional:    true,
-								ElementType: types.StringType,
+								MarkdownDescription: descriptions.Plugins,
+								Computed:            true,
+								Optional:            true,
+								ElementType:         types.StringType,
 							},
 						},
 						Blocks: map[string]schema.Block{
 							"node_groups": schema.ListNestedBlock{
+								MarkdownDescription: descriptions.NodeGroups,
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -122,24 +128,37 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 										"resources": common_schema.NodeResource(),
 									},
 									Attributes: map[string]schema.Attribute{
-										"name":        schema.StringAttribute{Computed: true},
-										"hosts_count": schema.Int64Attribute{Computed: true},
+										"name": schema.StringAttribute{
+											MarkdownDescription: descriptions.NodeGroupName,
+											Computed:            true,
+										},
+										"hosts_count": schema.Int64Attribute{
+											MarkdownDescription: descriptions.HostsCount,
+											Computed:            true,
+										},
 										"zone_ids": schema.SetAttribute{
-											Optional:    true,
-											Computed:    true,
-											ElementType: types.StringType,
+											MarkdownDescription: descriptions.ZoneIDs,
+											Optional:            true,
+											Computed:            true,
+											ElementType:         types.StringType,
 										},
 										"subnet_ids": schema.ListAttribute{
-											Optional:    true,
-											Computed:    true,
-											ElementType: types.StringType,
+											MarkdownDescription: descriptions.SubnetIDs,
+											Optional:            true,
+											Computed:            true,
+											ElementType:         types.StringType,
 										},
 
-										"assign_public_ip": schema.BoolAttribute{Computed: true, Optional: true},
+										"assign_public_ip": schema.BoolAttribute{
+											MarkdownDescription: descriptions.AssignPublicIP,
+											Computed:            true,
+											Optional:            true,
+										},
 										"roles": schema.SetAttribute{
-											Optional:    true,
-											Computed:    true,
-											ElementType: types.StringType,
+											MarkdownDescription: descriptions.Roles,
+											Optional:            true,
+											Computed:            true,
+											ElementType:         types.StringType,
 										},
 									},
 								},
@@ -147,91 +166,200 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 						},
 					},
 					"dashboards": schema.SingleNestedBlock{
+						MarkdownDescription: descriptions.Dashboards,
 						Blocks: map[string]schema.Block{
 							"node_groups": schema.ListNestedBlock{
+								MarkdownDescription: descriptions.DashboardNodeGroups,
 								NestedObject: schema.NestedBlockObject{
 									Blocks: map[string]schema.Block{
 										"resources": common_schema.NodeResource(),
 									},
 									Attributes: map[string]schema.Attribute{
-										"name":        schema.StringAttribute{Required: true},
-										"hosts_count": schema.Int64Attribute{Required: true},
+										"name": schema.StringAttribute{
+											MarkdownDescription: descriptions.NodeGroupName,
+											Required:            true,
+										},
+										"hosts_count": schema.Int64Attribute{
+											MarkdownDescription: descriptions.HostsCount,
+											Required:            true,
+										},
 										"zone_ids": schema.SetAttribute{
-											Optional:    true,
-											Computed:    true,
-											ElementType: types.StringType,
+											MarkdownDescription: descriptions.ZoneIDs,
+											Optional:            true,
+											Computed:            true,
+											ElementType:         types.StringType,
 										},
 										"subnet_ids": schema.ListAttribute{
-											Optional:    true,
-											Computed:    true,
-											ElementType: types.StringType,
+											MarkdownDescription: descriptions.SubnetIDs,
+											Optional:            true,
+											Computed:            true,
+											ElementType:         types.StringType,
 										},
 
-										"assign_public_ip": schema.BoolAttribute{Computed: true, Optional: true},
+										"assign_public_ip": schema.BoolAttribute{
+											MarkdownDescription: descriptions.AssignPublicIP,
+											Computed:            true,
+											Optional:            true,
+										},
 									},
 								},
 							},
 						},
 					},
 					"access": schema.SingleNestedBlock{
+						MarkdownDescription: descriptions.Access,
 						Attributes: map[string]schema.Attribute{
-							"data_transfer": schema.BoolAttribute{Computed: true},
-							"serverless":    schema.BoolAttribute{Computed: true},
+							"data_transfer": schema.BoolAttribute{
+								MarkdownDescription: descriptions.DataTransfer,
+								Computed:            true,
+							},
+							"serverless": schema.BoolAttribute{
+								MarkdownDescription: descriptions.Serverless,
+								Computed:            true,
+							},
 						},
 					},
 				},
 				Attributes: map[string]schema.Attribute{
-					"version":        schema.StringAttribute{Computed: true, Optional: true},
-					"admin_password": schema.StringAttribute{Computed: true, Optional: true, Sensitive: true},
+					"version": schema.StringAttribute{
+						MarkdownDescription: descriptions.Version,
+						Computed:            true,
+						Optional:            true,
+					},
+					"admin_password": schema.StringAttribute{
+						MarkdownDescription: descriptions.AdminPassword,
+						Computed:            true,
+						Optional:            true,
+						Sensitive:           true,
+					},
 				},
 			},
 			"maintenance_window": schema.SingleNestedBlock{
+				MarkdownDescription: descriptions.MaintenanceWindow,
 				Attributes: map[string]schema.Attribute{
-					"type": schema.StringAttribute{Computed: true},
-					"day":  schema.StringAttribute{Computed: true},
-					"hour": schema.Int64Attribute{Computed: true},
+					"type": schema.StringAttribute{
+						MarkdownDescription: descriptions.MaintenanceType,
+						Computed:            true,
+					},
+					"day": schema.StringAttribute{
+						MarkdownDescription: descriptions.MaintenanceDay,
+						Computed:            true,
+					},
+					"hour": schema.Int64Attribute{
+						MarkdownDescription: descriptions.MaintenanceHour,
+						Computed:            true,
+					},
 				},
 			},
 		},
 		Attributes: map[string]schema.Attribute{
-			"id":          schema.StringAttribute{Computed: true},
-			"cluster_id":  schema.StringAttribute{Computed: true, Optional: true},
-			"folder_id":   schema.StringAttribute{Computed: true, Optional: true},
-			"created_at":  schema.StringAttribute{Computed: true},
-			"name":        schema.StringAttribute{Computed: true, Optional: true},
-			"description": schema.StringAttribute{Computed: true, Optional: true},
+			"id": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["id"],
+				Computed:            true,
+			},
+			"cluster_id": schema.StringAttribute{
+				MarkdownDescription: descriptions.ClusterID,
+				Computed:            true,
+				Optional:            true,
+			},
+			"folder_id": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["folder_id"],
+				Computed:            true,
+				Optional:            true,
+			},
+			"created_at": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["created_at"],
+				Computed:            true,
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: descriptions.Name,
+				Computed:            true,
+				Optional:            true,
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: common.ResourceDescriptions["description"],
+				Computed:            true,
+				Optional:            true,
+			},
 			"labels": schema.MapAttribute{
-				Computed:    true,
-				Optional:    true,
-				ElementType: types.StringType,
+				MarkdownDescription: common.ResourceDescriptions["labels"],
+				Computed:            true,
+				Optional:            true,
+				ElementType:         types.StringType,
 			},
-			"environment": schema.StringAttribute{Computed: true},
-			"hosts":       common_schema.Hosts(),
-			"network_id":  schema.StringAttribute{Computed: true},
-			"health":      schema.StringAttribute{Computed: true},
-			"status":      schema.StringAttribute{Computed: true},
+			"environment": schema.StringAttribute{
+				MarkdownDescription: descriptions.Environment,
+				Computed:            true,
+			},
+			"hosts": common_schema.Hosts(),
+			"network_id": schema.StringAttribute{
+				MarkdownDescription: descriptions.NetworkID,
+				Computed:            true,
+			},
+			"health": schema.StringAttribute{
+				MarkdownDescription: descriptions.Health,
+				Computed:            true,
+			},
+			"status": schema.StringAttribute{
+				MarkdownDescription: descriptions.Status,
+				Computed:            true,
+			},
 			"security_group_ids": schema.SetAttribute{
-				Computed:    true,
-				Optional:    true,
-				ElementType: types.StringType,
+				MarkdownDescription: descriptions.SecurityGroupIDs,
+				Computed:            true,
+				Optional:            true,
+				ElementType:         types.StringType,
 			},
-			"service_account_id":  schema.StringAttribute{Computed: true, Optional: true},
-			"deletion_protection": schema.BoolAttribute{Computed: true, Optional: true},
+			"service_account_id": schema.StringAttribute{
+				MarkdownDescription: descriptions.ServiceAccountID,
+				Computed:            true,
+				Optional:            true,
+			},
+			"deletion_protection": schema.BoolAttribute{
+				MarkdownDescription: common.ResourceDescriptions["deletion_protection"],
+				Computed:            true,
+				Optional:            true,
+			},
 			"auth_settings": schema.SingleNestedAttribute{
-				Optional: true,
-				Computed: true,
+				MarkdownDescription: descriptions.AuthSettings,
+				Optional:            true,
+				Computed:            true,
 				Attributes: map[string]schema.Attribute{
 					"saml": schema.SingleNestedAttribute{
-						Optional: true,
-						Computed: true,
+						MarkdownDescription: descriptions.SAML,
+						Optional:            true,
+						Computed:            true,
 						Attributes: map[string]schema.Attribute{
-							"enabled":                   schema.BoolAttribute{Computed: true},
-							"idp_entity_id":             schema.StringAttribute{Computed: true},
-							"idp_metadata_file_content": schema.StringAttribute{Computed: true},
-							"sp_entity_id":              schema.StringAttribute{Computed: true},
-							"dashboards_url":            schema.StringAttribute{Computed: true},
-							"roles_key":                 schema.StringAttribute{Optional: true, Computed: true},
-							"subject_key":               schema.StringAttribute{Optional: true, Computed: true},
+							"enabled": schema.BoolAttribute{
+								MarkdownDescription: descriptions.SAMLEnabled,
+								Computed:            true,
+							},
+							"idp_entity_id": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLIdpEntityID,
+								Computed:            true,
+							},
+							"idp_metadata_file_content": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLIdpMetadataFileContent,
+								Computed:            true,
+							},
+							"sp_entity_id": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLSpEntityID,
+								Computed:            true,
+							},
+							"dashboards_url": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLDashboardsURL,
+								Computed:            true,
+							},
+							"roles_key": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLRolesKey,
+								Optional:            true,
+								Computed:            true,
+							},
+							"subject_key": schema.StringAttribute{
+								MarkdownDescription: descriptions.SAMLSubjectKey,
+								Optional:            true,
+								Computed:            true,
+							},
 						},
 					},
 				},
