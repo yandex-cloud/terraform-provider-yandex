@@ -2888,7 +2888,6 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
     nat                = false
-    security_group_ids = []
   }
 
   metadata = {

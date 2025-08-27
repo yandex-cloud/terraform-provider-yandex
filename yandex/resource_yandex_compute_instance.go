@@ -293,7 +293,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 						"security_group_ids": {
 							Type:        schema.TypeSet,
 							Description: "Security Group (SG) IDs for network interface.",
-							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Set:         schema.HashString,
 							Optional:    true,
