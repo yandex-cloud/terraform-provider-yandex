@@ -91,7 +91,6 @@ var SDKv2ResourcesList = []string{
 	"lockbox_secret_version",
 	"logging_group",
 	"mdb_clickhouse_cluster",
-	"mdb_elasticsearch_cluster",
 	"mdb_greenplum_cluster",
 	"mdb_greenplum_user",
 	"mdb_greenplum_resource_group",

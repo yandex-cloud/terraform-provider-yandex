@@ -841,14 +841,6 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
-  mdb_elasticsearch_cluster:
-    Category: "Managed Service for Elasticsearch"
-    Type: sdk
-    HasR: true
-    HasD: true
-    HasI: true
-    #HasF: false
-    #HasE: false
   mdb_greenplum_cluster:
     Category: "Managed Service for Greenplum"
     Type: sdk
