@@ -1,5 +1,21 @@
 
 
+## 0.155.0 (August 28, 2025)
+
+FEATURES:
+* sharded_postgresql: add shard resource
+* redis: add disk encryption
+* trino: added a new field 'version' in 'yandex_trino_cluster'
+
+BUG FIXES:
+* compute: fix handling of unspecified network_interface.security_group_ids attribute in `yandex_compute_instance` resource
+
+ENHANCEMENTS:
+* vpc: allow empty set for ingress/egress rule lists of `yandex_vpc_security_group` resource
+* elasticsearch: remove resource and datasource
+
+
+
 ## 0.154.0 (August 26, 2025)
 
 FEATURES:
@@ -10,7 +26,7 @@ FEATURES:
 BUG FIXES:
 * postgresql: fixed problem with pooler_config configuration passed through a module variable
 * resourcemanager: fix yandex_resourcemanager_cloud/yandex_resourcemanager_folder datasource creation
-* resourcemanager: add state upgrade for yandex_resourcemanager_cloud/yandex_resourcemanager_folder 
+* resourcemanager: add state upgrade for yandex_resourcemanager_cloud/yandex_resourcemanager_folder
 
 
 
