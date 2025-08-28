@@ -59,14 +59,6 @@ func expandBoolWrapper(_ context.Context, b types.Bool, _ *diag.Diagnostics) *wr
 	return wrapperspb.Bool(b.ValueBool())
 }
 
-func expandStringWrapper(_ context.Context, s types.String, _ *diag.Diagnostics) *wrapperspb.StringValue {
-	if s.IsNull() || s.IsUnknown() {
-		return nil
-	}
-
-	return wrapperspb.String(s.ValueString())
-}
-
 var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
 	"13":    &postgresql.ConfigSpec_PostgresqlConfig_13{},
 	"13-1c": &postgresql.ConfigSpec_PostgresqlConfig_13_1C{},

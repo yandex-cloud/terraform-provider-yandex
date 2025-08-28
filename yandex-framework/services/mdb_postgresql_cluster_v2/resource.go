@@ -730,5 +730,5 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		postgresql.WeeklyMaintenanceWindow_WeekDay,
 	](ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
-	state.DiskEncryptionKeyId = flattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
+	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
 }

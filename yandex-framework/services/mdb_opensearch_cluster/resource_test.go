@@ -13,11 +13,14 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -526,6 +529,33 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccMDBOpenSearchCluster_encryption(t *testing.T) {
+	var r opensearch.Cluster
+	openSearchName := acctest.RandomWithPrefix("tf-opensearch-disk-encryption")
+	openSearchDesc := "OpenSearch Cluster Terraform Test Disk Encryption"
+	randInt := acctest.RandInt()
+	openSearchResource := openSearchResourcePrefix + openSearchName
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBOpenSearchClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			// Create Encrypted OpenSearch Cluster
+			{
+				Config: testAccMDBOpenSearchClusterEncrypted(openSearchName, openSearchDesc, randInt),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(openSearchResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.NotNull()),
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 1),
+					resource.TestCheckResourceAttrSet(openSearchResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMDBOpenSearchClusterExists(n string, r *opensearch.Cluster, hosts int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -722,6 +752,71 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 }
 `, name, desc, environment)
+}
+
+func testAccMDBOpenSearchClusterEncrypted(name, desc string, randInt int) string {
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+diskEncryptionKeyResource+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-d",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
+  description = "%s"
+  labels = {
+    test_key  = "test_value"
+  }
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = false
+
+  config {
+
+    admin_password = "dummy_P@ssw0rd"
+
+    opensearch {
+      node_groups {
+        name             = "datamaster0"
+        assign_public_ip = false
+        hosts_count      = 1
+        zone_ids         = local.zones
+        roles = ["data","manager"]
+        resources {
+          resource_preset_id = "s2.micro"
+          disk_size          = 10737418240
+          disk_type_id       = "network-ssd"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
+  ]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, desc)
 }
 
 func testSamlAccMDBOpenSearchClusterConfig(name, desc, environment string, randInt int, enabled bool) string {
@@ -1559,6 +1654,11 @@ resource "yandex_iam_service_account_static_access_key" "sa-key" {
 }
 `, randInt, test.GetExampleFolderID())
 }
+
+const diskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
+
+`
 
 const openSearchVPCDependencies = `
 resource "yandex_vpc_network" "mdb-opensearch-test-net" {}

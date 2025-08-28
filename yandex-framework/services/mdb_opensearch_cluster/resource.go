@@ -714,6 +714,14 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"deletion_protection": defaultschema.DeletionProtection(),
+			"disk_encryption_key_id": schema.StringAttribute{
+				MarkdownDescription: descriptions.DiskEncryptionKeyID,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"auth_settings": schema.SingleNestedAttribute{
 				MarkdownDescription: descriptions.AuthSettings,
 				Optional:            true,

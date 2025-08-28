@@ -9,8 +9,6 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
-
 	"strings"
 	"testing"
 	"time"
@@ -29,6 +27,7 @@ import (
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -1386,7 +1385,7 @@ func TestAccMDBPostgreSQLCluster_EncryptionTests(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
-		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterEncryptedStep0(clusterName, version),
@@ -1413,7 +1412,7 @@ func TestAccMDBPostgreSQLCluster_dropDiskEncryption(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
-		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigRestoreDropEncryption(clusterName),
@@ -1437,7 +1436,7 @@ func TestAccMDBPostgreSQLCluster_addDiskEncryption(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
-		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigRestoreAddEncryption(clusterName),
@@ -1467,29 +1466,6 @@ func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 		}
 	}
 
-	return nil
-}
-
-func testAccCheckYandexKmsSymmetricKeyAllDestroyed(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_kms_symmetric_key" {
-			continue
-		}
-		if err := testAccCheckYandexKmsSymmetricKeyDestroyed(rs.Primary.ID); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func testAccCheckYandexKmsSymmetricKeyDestroyed(id string) error {
-	cfg := test.AccProvider.(*provider.Provider).GetConfig()
-	_, err := cfg.SDK.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
-		KeyId: id,
-	})
-	if err == nil {
-		return fmt.Errorf("LockboxSecret %s still exists", id)
-	}
 	return nil
 }
 

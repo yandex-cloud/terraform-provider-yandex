@@ -37,14 +37,15 @@ const (
 	MaintenanceHour   = "Hour of the day in UTC for maintenance (1-24)."
 
 	// Main cluster attributes
-	ClusterID        = "The ID of the OpenSearch cluster that the resource belongs to."
-	Name             = "Name of the OpenSearch cluster. The name must be unique within the folder."
-	Environment      = "Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It is not possible to change this value after cluster creation**."
-	NetworkID        = "ID of the network, to which the OpenSearch cluster belongs. It is not possible to change this value after cluster creation."
-	Health           = "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/)."
-	Status           = " Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/)."
-	SecurityGroupIDs = "A set of security groups IDs which assigned to hosts of the cluster."
-	ServiceAccountID = "ID of the service account authorized for this cluster."
+	ClusterID           = "The ID of the OpenSearch cluster that the resource belongs to."
+	Name                = "Name of the OpenSearch cluster. The name must be unique within the folder."
+	Environment         = "Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It is not possible to change this value after cluster creation**."
+	NetworkID           = "ID of the network, to which the OpenSearch cluster belongs. It is not possible to change this value after cluster creation."
+	Health              = "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/)."
+	Status              = " Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/)."
+	SecurityGroupIDs    = "A set of security groups IDs which assigned to hosts of the cluster."
+	ServiceAccountID    = "ID of the service account authorized for this cluster."
+	DiskEncryptionKeyID = "ID of the KMS key for cluster disk encryption."
 
 	// SAML settings
 	AuthSettings               = "Authentication settings for Dashboards."

@@ -15,25 +15,26 @@ import (
 )
 
 type OpenSearch struct {
-	Timeouts           timeouts.Value `tfsdk:"timeouts"`
-	ID                 types.String   `tfsdk:"id"`
-	ClusterID          types.String   `tfsdk:"cluster_id"`
-	FolderID           types.String   `tfsdk:"folder_id"`
-	CreatedAt          types.String   `tfsdk:"created_at"`
-	Name               types.String   `tfsdk:"name"`
-	Description        types.String   `tfsdk:"description"`
-	Labels             types.Map      `tfsdk:"labels"`
-	Environment        types.String   `tfsdk:"environment"`
-	Config             types.Object   `tfsdk:"config"`
-	Hosts              types.List     `tfsdk:"hosts"`
-	NetworkID          types.String   `tfsdk:"network_id"`
-	Health             types.String   `tfsdk:"health"`
-	Status             types.String   `tfsdk:"status"`
-	SecurityGroupIDs   types.Set      `tfsdk:"security_group_ids"`
-	ServiceAccountID   types.String   `tfsdk:"service_account_id"`
-	DeletionProtection types.Bool     `tfsdk:"deletion_protection"`
-	MaintenanceWindow  types.Object   `tfsdk:"maintenance_window"`
-	AuthSettings       types.Object   `tfsdk:"auth_settings"`
+	Timeouts            timeouts.Value `tfsdk:"timeouts"`
+	ID                  types.String   `tfsdk:"id"`
+	ClusterID           types.String   `tfsdk:"cluster_id"`
+	FolderID            types.String   `tfsdk:"folder_id"`
+	CreatedAt           types.String   `tfsdk:"created_at"`
+	Name                types.String   `tfsdk:"name"`
+	Description         types.String   `tfsdk:"description"`
+	Labels              types.Map      `tfsdk:"labels"`
+	Environment         types.String   `tfsdk:"environment"`
+	Config              types.Object   `tfsdk:"config"`
+	Hosts               types.List     `tfsdk:"hosts"`
+	NetworkID           types.String   `tfsdk:"network_id"`
+	Health              types.String   `tfsdk:"health"`
+	Status              types.String   `tfsdk:"status"`
+	SecurityGroupIDs    types.Set      `tfsdk:"security_group_ids"`
+	ServiceAccountID    types.String   `tfsdk:"service_account_id"`
+	DeletionProtection  types.Bool     `tfsdk:"deletion_protection"`
+	MaintenanceWindow   types.Object   `tfsdk:"maintenance_window"`
+	AuthSettings        types.Object   `tfsdk:"auth_settings"`
+	DiskEncryptionKeyID types.String   `tfsdk:"disk_encryption_key_id"`
 }
 
 type Config struct {
@@ -97,6 +98,7 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
 	state.MaintenanceWindow, diags = maintenanceWindowToObject(ctx, cluster.MaintenanceWindow)
+	state.DiskEncryptionKeyID = mdbcommon.FlattenStringWrapper(ctx, cluster.GetDiskEncryptionKeyId(), &diags)
 	return diags
 }
 

@@ -320,6 +320,11 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 				Computed:            true,
 				Optional:            true,
 			},
+			"disk_encryption_key_id": schema.StringAttribute{
+				MarkdownDescription: descriptions.DiskEncryptionKeyID,
+				Computed:            true,
+				Optional:            true,
+			},
 			"auth_settings": schema.SingleNestedAttribute{
 				MarkdownDescription: descriptions.AuthSettings,
 				Optional:            true,

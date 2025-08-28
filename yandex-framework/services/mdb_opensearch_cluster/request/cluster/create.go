@@ -57,18 +57,24 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		return nil, diags
 	}
 
+	diskEncryptionKeyID := mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyID, &diags)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	req := &opensearch.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               plan.Name.ValueString(),
-		Description:        plan.Description.ValueString(),
-		Labels:             labels,
-		Environment:        env,
-		ConfigSpec:         config,
-		NetworkId:          networkID,
-		SecurityGroupIds:   securityGroupIds,
-		ServiceAccountId:   plan.ServiceAccountID.ValueString(),
-		DeletionProtection: plan.DeletionProtection.ValueBool(),
-		MaintenanceWindow:  mw,
+		FolderId:            folderID,
+		Name:                plan.Name.ValueString(),
+		Description:         plan.Description.ValueString(),
+		Labels:              labels,
+		Environment:         env,
+		ConfigSpec:          config,
+		NetworkId:           networkID,
+		SecurityGroupIds:    securityGroupIds,
+		ServiceAccountId:    plan.ServiceAccountID.ValueString(),
+		DeletionProtection:  plan.DeletionProtection.ValueBool(),
+		MaintenanceWindow:   mw,
+		DiskEncryptionKeyId: diskEncryptionKeyID,
 	}
 
 	return req, diag.Diagnostics{}

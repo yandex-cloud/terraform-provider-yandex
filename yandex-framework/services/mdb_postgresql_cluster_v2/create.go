@@ -39,7 +39,7 @@ func prepareCreateRequest(
 			postgresql.AnytimeMaintenanceWindow,
 			postgresql.WeeklyMaintenanceWindow_WeekDay,
 		](ctx, plan.MaintenanceWindow, &diags),
-		DiskEncryptionKeyId: expandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
+		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 	return request, diags
 }
@@ -106,7 +106,7 @@ func prepareRestoreRequest(
 			postgresql.AnytimeMaintenanceWindow,
 			postgresql.WeeklyMaintenanceWindow_WeekDay,
 		](ctx, plan.MaintenanceWindow, &diags),
-		DiskEncryptionKeyId: expandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
+		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 
 	// Empty string will remove encryption when restoring

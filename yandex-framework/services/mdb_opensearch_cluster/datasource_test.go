@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 )
 
 func TestAccDataSourceMDBOpenSearchCluster_byID(t *testing.T) {
@@ -46,6 +47,29 @@ func TestAccDataSourceMDBOpenSearchCluster_byName(t *testing.T) {
 				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, false),
 				Check: testAccDataSourceMDBOpenSearchClusterCheck(
 					"data.yandex_mdb_opensearch_cluster.bar", osName, osDesc),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceMDBOpenSearchCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	osName := acctest.RandomWithPrefix("ds-os-disk-encryption")
+	osDesc := "OpenSearchCluster Terraform Datasource Disk Encryption Test"
+	openSearchDataSource := "data.yandex_mdb_opensearch_cluster.bar"
+	randInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBOpenSearchClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBOpenSearchClusterEncrypted(osName, osDesc, randInt) + fmt.Sprintf(mdbOpenSearchClusterByIDConfig, osName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(openSearchDataSource, "disk_encryption_key_id"),
+				),
 			},
 		},
 	})
