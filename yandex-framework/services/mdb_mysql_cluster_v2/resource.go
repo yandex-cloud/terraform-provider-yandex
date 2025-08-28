@@ -27,6 +27,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -251,6 +252,32 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					},
 				},
 			},
+			"restore": schema.SingleNestedAttribute{
+				Description: "The cluster will be created from the specified backup.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplace(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"backup_id": schema.StringAttribute{
+						Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups).",
+						Required:    true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
+					},
+					"time": schema.StringAttribute{
+						Description: "Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
+						Optional:    true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
+						Validators: []validator.String{
+							mdbcommon.NewStringToTimeValidator(),
+						},
+					},
+				},
+			},
 			"mysql_config": schema.MapAttribute{
 				CustomType:  mdbcommon.NewSettingsMapType(msAttrProvider),
 				Optional:    true,
@@ -375,20 +402,55 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	if utils.IsPresent(plan.Restore) {
+		r.restoreCluster(ctx, diags, plan, hostSpecsSlice, resp)
+	} else {
+		r.createCluster(ctx, plan, hostSpecsSlice, resp)
+	}
+}
+
+func (r *clusterResource) createCluster(
+	ctx context.Context,
+	plan Cluster,
+	hostSpecsSlice []*mysql.HostSpec,
+	resp *resource.CreateResponse,
+) {
 	// Prepare Create Request
-	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState)
+	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState, hostSpecsSlice)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	// Add Hosts to the request
-	request.HostSpecs = hostSpecsSlice
 
 	cid := mysqlApi.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	plan.Id = types.StringValue(cid)
+
+	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+}
+
+func (r *clusterResource) restoreCluster(
+	ctx context.Context,
+	diags diag.Diagnostics,
+	plan Cluster,
+	hostSpecsSlice []*mysql.HostSpec,
+	resp *resource.CreateResponse,
+) {
+	request, diags := prepareRestoreRequest(ctx, &plan, &r.providerConfig.ProviderState, hostSpecsSlice)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	cid := mysqlApi.RestoreCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	plan.Id = types.StringValue(cid)
 
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
@@ -416,7 +478,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	tflog.Debug(ctx, "Updating MySQL Cluster", map[string]interface{}{"id": plan.Id.ValueString()})
+	tflog.Debug(ctx, "Updating MySQL Cluster", map[string]any{"id": plan.Id.ValueString()})
 	tflog.Debug(ctx, fmt.Sprintf("Update MySQL Cluster state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("Update MySQL Cluster plan: %+v", plan))
 
@@ -442,7 +504,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	mdbcommon.UpdateClusterHosts[Host, *mysql.Host, *mysql.HostSpec, mysql.UpdateHostSpec](
+	mdbcommon.UpdateClusterHosts(
 		ctx,
 		r.providerConfig.SDK,
 		&resp.Diagnostics,

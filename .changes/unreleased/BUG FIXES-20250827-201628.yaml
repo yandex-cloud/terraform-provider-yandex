@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mysql: cluster restore from backup via yandex_mdb_mysql_cluster resource fix (missing parameters, troubles with DiskEncryptionKeyId etc)'
+time: 2025-08-27T20:16:28.357379+03:00

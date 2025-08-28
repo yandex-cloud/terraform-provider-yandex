@@ -27,6 +27,7 @@ type Cluster struct {
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
 	DiskEncryptionKeyId    types.String               `tfsdk:"disk_encryption_key_id"`
+	Restore                types.Object               `tfsdk:"restore"`
 	Timeouts               timeouts.Value             `tfsdk:"timeouts"`
 }
 
@@ -124,4 +125,9 @@ type BackupWindowStart struct {
 var BackupWindowStartAttrTypes = map[string]attr.Type{
 	"hours":   types.Int64Type,
 	"minutes": types.Int64Type,
+}
+
+type Restore struct {
+	BackupId types.String `tfsdk:"backup_id"`
+	Time     types.String `tfsdk:"time"`
 }

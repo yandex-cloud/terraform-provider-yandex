@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -208,6 +209,8 @@ func (r *MysqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 		return
 	}
 
+	tflog.Debug(ctx, "Deleting MySQL Cluster", map[string]any{"cluster_id": cid})
+
 	if err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -244,12 +247,53 @@ func (r *MysqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 		return ""
 	}
 
-	log.Printf("[DEBUG] Creating MySQL Cluster %q", md.ClusterId)
+	tflog.Debug(ctx, "Creating MySQL Cluster", map[string]any{"request_body": req})
 
 	if err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
 			fmt.Sprintf("Error while waiting for operation %q to create MySQL cluster: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+
+	return md.ClusterId
+}
+
+func (p *MysqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *mysql.RestoreClusterRequest) string {
+	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Restore(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while requesting API to restore MySQL cluster from backup: %s", err.Error()),
+		)
+		return ""
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+
+	md, ok := protoMetadata.(*mysql.RestoreClusterMetadata)
+	if !ok {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
+		)
+		return ""
+	}
+
+	tflog.Debug(ctx, "Restoring MySQL Cluster from backup", map[string]any{"request_body": req})
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to restore resource from backup",
+			fmt.Sprintf("Error while waiting for operation %q to restore MySQL cluster from backup: %s", op.Id(), err.Error()),
 		)
 		return ""
 	}
@@ -271,6 +315,8 @@ func (r *MysqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 		)
 		return
 	}
+
+	tflog.Debug(ctx, "Updating MySQL Cluster", map[string]any{"request_body": req})
 
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(

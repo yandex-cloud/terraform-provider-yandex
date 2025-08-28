@@ -1482,18 +1482,21 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 		return nil
 	}
 
+	request := &postgresql.UpdateUserRequest{
+		ClusterId:   d.Id(),
+		UserName:    us.Name,
+		Password:    us.Password,
+		Permissions: us.Permissions,
+		ConnLimit:   us.ConnLimit.GetValue(),
+		Login:       us.Login,
+		Grants:      us.Grants,
+		Settings:    us.Settings,
+		UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
+	}
+
+	log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", request)
 	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().User().Update(ctx, &postgresql.UpdateUserRequest{
-			ClusterId:   d.Id(),
-			UserName:    us.Name,
-			Password:    us.Password,
-			Permissions: us.Permissions,
-			ConnLimit:   us.ConnLimit.GetValue(),
-			Login:       us.Login,
-			Grants:      us.Grants,
-			Settings:    us.Settings,
-			UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
-		}),
+		config.sdk.MDB().PostgreSQL().User().Update(ctx, request),
 	)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in PostgreSQL Cluster %q: %s", d.Id(), err)

@@ -2043,7 +2043,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 	return fmt.Sprintf(pgVPCDependencies+`	  
 	resource "yandex_mdb_postgresql_cluster_v2" "restore_with_encryption_test" {
 		name        = "%s"
-		description = "PostgreSQL Cluster Restore Test"
+		description = "PostgreSQL Cluster Restore With Encryption Test"
 		environment = "PRESTABLE"
 		network_id  = yandex_vpc_network.mdb-pg-test-net.id
 		folder_id = "%s"

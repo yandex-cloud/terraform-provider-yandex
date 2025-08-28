@@ -439,7 +439,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"disk_encryption_key_id": {
 				Type:        schema.TypeString,
-				Description: "ID of the KMS key for cluster disk encryption.",
+				Description: "ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.",
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
@@ -502,7 +502,10 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Create(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending MySQL cluster create request: %+v", req)
+		return config.sdk.MDB().MySQL().Cluster().Create(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster: %s", err)
 	}
@@ -553,23 +556,37 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Restore(ctx, &mysql.RestoreClusterRequest{
+	request := &mysql.RestoreClusterRequest{
 		BackupId: backupID,
 		Time: &timestamp.Timestamp{
 			Seconds: timeBackup.Unix(),
 		},
-		Name:              req.Name,
-		Description:       req.Description,
-		Labels:            req.Labels,
-		Environment:       req.Environment,
-		ConfigSpec:        req.ConfigSpec,
-		HostSpecs:         req.HostSpecs,
-		NetworkId:         req.NetworkId,
-		FolderId:          req.FolderId,
-		SecurityGroupIds:  req.SecurityGroupIds,
-		HostGroupIds:      req.HostGroupIds,
-		MaintenanceWindow: req.MaintenanceWindow,
-	}))
+		Name:                req.Name,
+		Description:         req.Description,
+		NetworkId:           req.NetworkId,
+		Environment:         req.Environment,
+		ConfigSpec:          req.ConfigSpec,
+		HostSpecs:           req.HostSpecs,
+		Labels:              req.Labels,
+		SecurityGroupIds:    req.SecurityGroupIds,
+		DeletionProtection:  req.DeletionProtection,
+		HostGroupIds:        req.HostGroupIds,
+		FolderId:            req.FolderId,
+		MaintenanceWindow:   req.MaintenanceWindow,
+		DiskEncryptionKeyId: req.DiskEncryptionKeyId,
+	}
+
+	// Empty string will remove encryption when restoring
+	if request.DiskEncryptionKeyId == nil {
+		log.Printf("[WARN] Disk encryption key ID is not set. Encryption will be disabled if present in source cluster.")
+		request.DiskEncryptionKeyId = wrapperspb.String("")
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending MySQL cluster restore request: %+v", request)
+		return config.sdk.MDB().MySQL().Cluster().Restore(ctx, request)
+	})
+
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
 	}
@@ -912,7 +929,10 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Update(ctx, request))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending MySQL cluster update request: %+v", request)
+		return config.sdk.MDB().MySQL().Cluster().Update(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update MySQL Cluster %q: %s", d.Id(), err)
 	}

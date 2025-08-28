@@ -21,7 +21,7 @@ func (m *stringToTimeValidator) ValidateString(ctx context.Context, req validato
 
 	var t types.String
 
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, req.Path.AtName("time"), &t)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, req.Path, &t)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
