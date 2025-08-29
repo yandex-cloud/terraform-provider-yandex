@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	k8sTestVersion       = "1.29"
-	k8sTestUpdateVersion = "1.30"
+	k8sTestVersion       = "1.30"
+	k8sTestUpdateVersion = "1.31"
 )
 
 func init() {
