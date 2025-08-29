@@ -485,7 +485,7 @@ func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
 					checkNodeGroupAttributes(&ng, &nodeResourceStandard, true, false),
 				),
 			},
-			k8sNodeGroupImportStep(nodeResourceFullName),
+			k8sNodeGroupImportStep(nodeResourceFullName, "status"),
 		},
 	})
 }
