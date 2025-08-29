@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -655,9 +656,9 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	stateUsers := d.Get("user").([]interface{})
+	stateUsers := d.Get("user").([]any)
 	if len(stateUsers) == 0 {
-		if err := d.Set("user", []map[string]interface{}{}); err != nil {
+		if err := d.Set("user", []map[string]any{}); err != nil {
 			return err
 		}
 	} else {
@@ -995,22 +996,25 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	stateUser := d.Get("user").([]interface{})
+	stateUser := d.Get("user").([]any)
 	if d.HasChange("user") && len(stateUser) > 0 {
 		if err := updatePGClusterUsersAdd(d, meta); err != nil {
 			return err
 		}
 	}
 
-	stateDatabase := d.Get("database").([]interface{})
+	stateDatabase := d.Get("database").([]any)
+	var deletedDatabases []string
+	var err error
 	if d.HasChange("database") && len(stateDatabase) > 0 {
-		if err := updatePGClusterDatabases(d, meta); err != nil {
+		deletedDatabases, err = updatePGClusterDatabases(d, meta)
+		if err != nil {
 			return err
 		}
 	}
 
 	if d.HasChange("user") && len(stateUser) > 0 {
-		if err := updatePGClusterUsersUpdateAndDrop(d, meta); err != nil {
+		if err := updatePGClusterUsersUpdateAndDrop(d, meta, deletedDatabases); err != nil {
 			return err
 		}
 	}
@@ -1106,19 +1110,19 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config 
 	}, nil
 }
 
-func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
+func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) ([]string, error) {
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currDBs, err := listPGDatabases(ctx, config, d.Id())
 	if err != nil {
-		return err
+		return []string{}, err
 	}
 
 	targetDBs, err := expandPGDatabaseSpecs(d)
 	if err != nil {
-		return err
+		return []string{}, err
 	}
 
 	toDelete, toAdd := pgDatabasesDiff(currDBs, targetDBs)
@@ -1126,13 +1130,13 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 	for _, dbn := range toDelete {
 		err := deletePGDatabase(ctx, config, d, dbn)
 		if err != nil {
-			return err
+			return []string{}, err
 		}
 	}
 	for _, db := range toAdd {
 		err := createPGDatabase(ctx, config, d, db)
 		if err != nil {
-			return err
+			return []string{}, err
 		}
 	}
 
@@ -1140,7 +1144,7 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 
 	changedDatabases, err := pgChangedDatabases(oldSpecs.([]interface{}), newSpecs.([]interface{}))
 	if err != nil {
-		return err
+		return []string{}, err
 	}
 
 	dDatabase := make(map[string]string)
@@ -1152,11 +1156,10 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 	for _, u := range changedDatabases {
 		err := updatePGDatabase(ctx, config, d, u, dDatabase[u.Name])
 		if err != nil {
-			return err
+			return []string{}, err
 		}
 	}
-
-	return nil
+	return toDelete, nil
 }
 
 func updatePGClusterUsersAdd(d *schema.ResourceData, meta interface{}) error {
@@ -1184,7 +1187,7 @@ func updatePGClusterUsersAdd(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{}) error {
+func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta any, deletedDatabases []string) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -1207,7 +1210,7 @@ func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{})
 		path, ok := dUser[v.Name]
 		if !ok {
 			deleteNames = append(deleteNames, v.Name)
-		} else {
+		} else if userHasRealChanges(d, path, deletedDatabases) {
 			err := updatePGUser(ctx, config, d, v, path)
 			if err != nil {
 				return err
@@ -1223,6 +1226,39 @@ func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func userHasRealChanges(d *schema.ResourceData, path string, deletedDatabases []string) bool {
+	if d.HasChange(fmt.Sprintf("%vname", path)) {
+		return true
+	}
+	if d.HasChange(fmt.Sprintf("%vpassword", path)) {
+		return true
+	}
+	if d.HasChange(fmt.Sprintf("%vlogin", path)) {
+		return true
+	}
+	if d.HasChange(fmt.Sprintf("%vgrants", path)) {
+		return true
+	}
+	if d.HasChange(fmt.Sprintf("%vconn_limit", path)) {
+		return true
+	}
+	if d.HasChange(fmt.Sprintf("%vsettings", path)) {
+		return true
+	}
+
+	permissionsCount := d.Get(fmt.Sprintf("%vpermission.#", path)).(int)
+
+	for i := range permissionsCount {
+		databaseNamePath := fmt.Sprintf("%vpermission.%v.database_name", path, i)
+		databaseName := d.Get(databaseNamePath).(string)
+		if d.HasChange(databaseNamePath) && !slices.Contains(deletedDatabases, databaseName) {
+			return true
+		}
+	}
+	log.Printf("[WARN] Skipping update for user %s because there are no changes other than permissions for databases that have been deleted previously.", d.Get(fmt.Sprintf("%vname", path)).(string))
+	return false
 }
 
 func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
@@ -1443,7 +1479,13 @@ func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	return nil
 }
 
-func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, user *postgresql.User, path string) (err error) {
+func updatePGUser(
+	ctx context.Context,
+	config *Config,
+	d *schema.ResourceData,
+	user *postgresql.User,
+	path string,
+) (err error) {
 
 	us, err := expandPGUser(d, &postgresql.UserSpec{
 		Name:        user.Name,
