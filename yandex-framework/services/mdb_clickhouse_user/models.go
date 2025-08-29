@@ -303,6 +303,7 @@ type Setting struct {
 	LocalFilesystemReadMethod                     types.String  `tfsdk:"local_filesystem_read_method"`
 	MaxReadBufferSize                             types.Int64   `tfsdk:"max_read_buffer_size"`
 	InsertKeeperMaxRetries                        types.Int64   `tfsdk:"insert_keeper_max_retries"`
+	DoNotMergeAcrossPartitionsSelectFinal         types.Bool    `tfsdk:"do_not_merge_across_partitions_select_final"`
 	MaxTemporaryDataOnDiskSizeForUser             types.Int64   `tfsdk:"max_temporary_data_on_disk_size_for_user"`
 	MaxTemporaryDataOnDiskSizeForQuery            types.Int64   `tfsdk:"max_temporary_data_on_disk_size_for_query"`
 	MaxParserDepth                                types.Int64   `tfsdk:"max_parser_depth"`
@@ -311,6 +312,7 @@ type Setting struct {
 	MemoryOvercommitRatioDenominatorForUser       types.Int64   `tfsdk:"memory_overcommit_ratio_denominator_for_user"`
 	MemoryUsageOvercommitMaxWaitMicroseconds      types.Int64   `tfsdk:"memory_usage_overcommit_max_wait_microseconds"`
 	LogQueryThreads                               types.Bool    `tfsdk:"log_query_threads"`
+	LogQueryViews                                 types.Bool    `tfsdk:"log_query_views"`
 	MaxInsertThreads                              types.Int64   `tfsdk:"max_insert_threads"`
 	UseHedgedRequests                             types.Bool    `tfsdk:"use_hedged_requests"`
 	IdleConnectionTimeout                         types.Int64   `tfsdk:"idle_connection_timeout"`
@@ -318,6 +320,29 @@ type Setting struct {
 	LoadBalancing                                 types.String  `tfsdk:"load_balancing"`
 	PreferLocalhostReplica                        types.Bool    `tfsdk:"prefer_localhost_replica"`
 	// FormatRegexpEscapingRule                 types.String  `tfsdk:"format_regexp_escaping_rule"`
+	FormatAvroSchemaRegistryUrl                   types.String  `tfsdk:"format_avro_schema_registry_url"`
+	DataTypeDefaultNullable                       types.Bool    `tfsdk:"data_type_default_nullable"`
+	HttpMaxFieldNameSize                          types.Int64   `tfsdk:"http_max_field_name_size"`
+	HttpMaxFieldValueSize                         types.Int64   `tfsdk:"http_max_field_value_size"`
+	AsyncInsertUseAdaptiveBusyTimeout             types.Bool    `tfsdk:"async_insert_use_adaptive_busy_timeout"`
+	LogQueriesProbability                         types.Float64 `tfsdk:"log_queries_probability"`
+	LogProcessorsProfiles                         types.Bool    `tfsdk:"log_processors_profiles"`
+	UseQueryCache                                 types.Bool    `tfsdk:"use_query_cache"`
+	EnableReadsFromQueryCache                     types.Bool    `tfsdk:"enable_reads_from_query_cache"`
+	EnableWritesToQueryCache                      types.Bool    `tfsdk:"enable_writes_to_query_cache"`
+	QueryCacheMinQueryRuns                        types.Int64   `tfsdk:"query_cache_min_query_runs"`
+	QueryCacheMinQueryDuration                    types.Int64   `tfsdk:"query_cache_min_query_duration"`
+	QueryCacheTtl                                 types.Int64   `tfsdk:"query_cache_ttl"`
+	QueryCacheMaxEntries                          types.Int64   `tfsdk:"query_cache_max_entries"`
+	QueryCacheMaxSizeInBytes                      types.Int64   `tfsdk:"query_cache_max_size_in_bytes"`
+	QueryCacheTag                                 types.String  `tfsdk:"query_cache_tag"`
+	QueryCacheShareBetweenUsers                   types.Bool    `tfsdk:"query_cache_share_between_users"`
+	QueryCacheNondeterministicFunctionHandling    types.String  `tfsdk:"query_cache_nondeterministic_function_handling"`
+	QueryCacheSystemTableHandling                 types.String  `tfsdk:"query_cache_system_table_handling"`
+	IgnoreMaterializedViewsWithDroppedTargetTable types.Bool    `tfsdk:"ignore_materialized_views_with_dropped_target_table"`
+	EnableAnalyzer                                types.Bool    `tfsdk:"enable_analyzer"`
+	DistributedDdlOutputMode                      types.String  `tfsdk:"distributed_ddl_output_mode"`
+	S3UseAdaptiveTimeouts                         types.Bool    `tfsdk:"s3_use_adaptive_timeouts"`
 }
 
 var settingsType = map[string]attr.Type{
@@ -447,6 +472,7 @@ var settingsType = map[string]attr.Type{
 	"local_filesystem_read_method":                       types.StringType,
 	"max_read_buffer_size":                               types.Int64Type,
 	"insert_keeper_max_retries":                          types.Int64Type,
+	"do_not_merge_across_partitions_select_final":        types.BoolType,
 	"max_temporary_data_on_disk_size_for_user":           types.Int64Type,
 	"max_temporary_data_on_disk_size_for_query":          types.Int64Type,
 	"max_parser_depth":                                   types.Int64Type,
@@ -455,6 +481,7 @@ var settingsType = map[string]attr.Type{
 	"memory_overcommit_ratio_denominator_for_user":       types.Int64Type,
 	"memory_usage_overcommit_max_wait_microseconds":      types.Int64Type,
 	"log_query_threads":                                  types.BoolType,
+	"log_query_views":                                    types.BoolType,
 	"max_insert_threads":                                 types.Int64Type,
 	"use_hedged_requests":                                types.BoolType,
 	"idle_connection_timeout":                            types.Int64Type,
@@ -462,6 +489,29 @@ var settingsType = map[string]attr.Type{
 	"load_balancing":                                     types.StringType,
 	"prefer_localhost_replica":                           types.BoolType,
 	// "format_regexp_escaping_rule":                   types.StringType,
+	"format_avro_schema_registry_url":                     types.StringType,
+	"data_type_default_nullable":                          types.BoolType,
+	"http_max_field_name_size":                            types.Int64Type,
+	"http_max_field_value_size":                           types.Int64Type,
+	"async_insert_use_adaptive_busy_timeout":              types.BoolType,
+	"log_queries_probability":                             types.Float64Type,
+	"log_processors_profiles":                             types.BoolType,
+	"use_query_cache":                                     types.BoolType,
+	"enable_reads_from_query_cache":                       types.BoolType,
+	"enable_writes_to_query_cache":                        types.BoolType,
+	"query_cache_min_query_runs":                          types.Int64Type,
+	"query_cache_min_query_duration":                      types.Int64Type,
+	"query_cache_ttl":                                     types.Int64Type,
+	"query_cache_max_entries":                             types.Int64Type,
+	"query_cache_max_size_in_bytes":                       types.Int64Type,
+	"query_cache_tag":                                     types.StringType,
+	"query_cache_share_between_users":                     types.BoolType,
+	"query_cache_nondeterministic_function_handling":      types.StringType,
+	"query_cache_system_table_handling":                   types.StringType,
+	"ignore_materialized_views_with_dropped_target_table": types.BoolType,
+	"enable_analyzer":                                     types.BoolType,
+	"distributed_ddl_output_mode":                         types.StringType,
+	"s3_use_adaptive_timeouts":                            types.BoolType,
 }
 
 type ConnectionManager struct {

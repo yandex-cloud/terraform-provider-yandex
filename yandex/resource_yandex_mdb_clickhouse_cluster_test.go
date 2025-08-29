@@ -687,6 +687,26 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "best_effort"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_output_format", "simple"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.join_algorithm.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_avro_schema_registry_url", "atest"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.data_type_default_nullable", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.http_max_field_name_size", "2101"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.http_max_field_value_size", "2102"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_use_adaptive_busy_timeout", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_queries_probability", "0.5"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_processors_profiles", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.use_query_cache", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_reads_from_query_cache", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_writes_to_query_cache", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_min_query_runs", "2201"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_min_query_duration", "2202"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_ttl", "2203"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_max_entries", "2204"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_max_size_in_bytes", "2205"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_tag", "qtest"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_share_between_users", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.ignore_materialized_views_with_dropped_target_table", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_analyzer", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.s3_use_adaptive_timeouts", "false"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -740,6 +760,26 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_input_format", "basic"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.date_time_output_format", "iso"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.join_algorithm.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.format_avro_schema_registry_url", "atest1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.data_type_default_nullable", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.http_max_field_name_size", "3101"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.http_max_field_value_size", "3102"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_use_adaptive_busy_timeout", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_queries_probability", "0.6"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_processors_profiles", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.use_query_cache", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_reads_from_query_cache", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_writes_to_query_cache", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_min_query_runs", "3201"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_min_query_duration", "3202"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_ttl", "3203"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_max_entries", "3204"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_max_size_in_bytes", "3205"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_tag", "qtest1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.query_cache_share_between_users", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.ignore_materialized_views_with_dropped_target_table", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.enable_analyzer", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.s3_use_adaptive_timeouts", "true"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -4067,6 +4107,26 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  date_time_input_format 							 = "best_effort"
 	  date_time_output_format							 = "simple"
 	  join_algorithm									 = ["hash", "auto"]
+	  format_avro_schema_registry_url                     = "atest"
+	  data_type_default_nullable                          = false
+	  http_max_field_name_size                            = 2101
+	  http_max_field_value_size                           = 2102
+	  async_insert_use_adaptive_busy_timeout              = false
+	  log_queries_probability                             = 0.5
+	  log_processors_profiles                             = false
+	  use_query_cache                                     = false
+	  enable_reads_from_query_cache                       = false
+	  enable_writes_to_query_cache                        = false
+	  query_cache_min_query_runs                          = 2201
+	  query_cache_min_query_duration                      = 2202
+	  query_cache_ttl                                     = 2203
+	  query_cache_max_entries                             = 2204
+	  query_cache_max_size_in_bytes                       = 2205
+	  query_cache_tag                                     = "qtest"
+	  query_cache_share_between_users                     = false
+	  ignore_materialized_views_with_dropped_target_table = false
+	  enable_analyzer                                     = false
+	  s3_use_adaptive_timeouts                            = false
     }
   }
 
@@ -4167,6 +4227,26 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  date_time_input_format 							 = "basic"
 	  date_time_output_format							 = "iso"
 	  join_algorithm									 = ["parallel_hash"]
+	  format_avro_schema_registry_url                     = "atest1"
+	  data_type_default_nullable                          = true
+	  http_max_field_name_size                            = 3101
+	  http_max_field_value_size                           = 3102
+	  async_insert_use_adaptive_busy_timeout              = true
+	  log_queries_probability                             = 0.6
+	  log_processors_profiles                             = true
+	  use_query_cache                                     = true
+	  enable_reads_from_query_cache                       = true
+	  enable_writes_to_query_cache                        = true
+	  query_cache_min_query_runs                          = 3201
+	  query_cache_min_query_duration                      = 3202
+	  query_cache_ttl                                     = 3203
+	  query_cache_max_entries                             = 3204
+	  query_cache_max_size_in_bytes                       = 3205
+	  query_cache_tag                                     = "qtest1"
+	  query_cache_share_between_users                     = true
+	  ignore_materialized_views_with_dropped_target_table = true
+	  enable_analyzer                                     = true
+	  s3_use_adaptive_timeouts                            = true
     }
   }
 

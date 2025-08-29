@@ -228,6 +228,7 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 		LocalFilesystemReadMethod:                     types.StringValue("read"),
 		MaxReadBufferSize:                             types.Int64Value(10485780),
 		InsertKeeperMaxRetries:                        types.Int64Value(21),
+		DoNotMergeAcrossPartitionsSelectFinal:         types.BoolValue(true),
 		MaxTemporaryDataOnDiskSizeForUser:             types.Int64Value(2147483652),
 		MaxTemporaryDataOnDiskSizeForQuery:            types.Int64Value(1073741826),
 		MaxParserDepth:                                types.Int64Value(1007),
@@ -236,12 +237,36 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 		MemoryOvercommitRatioDenominatorForUser:       types.Int64Value(2147483656),
 		MemoryUsageOvercommitMaxWaitMicroseconds:      types.Int64Value(5000008),
 		LogQueryThreads:                               types.BoolValue(false),
+		LogQueryViews:                                 types.BoolValue(false),
 		MaxInsertThreads:                              types.Int64Value(10),
 		UseHedgedRequests:                             types.BoolValue(false),
 		IdleConnectionTimeout:                         types.Int64Value(400000),
 		HedgedConnectionTimeoutMs:                     types.Int64Value(1000),
 		LoadBalancing:                                 types.StringValue("first_or_random"),
 		PreferLocalhostReplica:                        types.BoolValue(false),
+		FormatAvroSchemaRegistryUrl:                   types.StringValue("test"),
+		DataTypeDefaultNullable:                       types.BoolValue(false),
+		HttpMaxFieldNameSize:                          types.Int64Value(1101),
+		HttpMaxFieldValueSize:                         types.Int64Value(1102),
+		AsyncInsertUseAdaptiveBusyTimeout:             types.BoolValue(false),
+		LogQueriesProbability:                         types.Float64Value(0.6),
+		LogProcessorsProfiles:                         types.BoolValue(false),
+		UseQueryCache:                                 types.BoolValue(false),
+		EnableReadsFromQueryCache:                     types.BoolValue(false),
+		EnableWritesToQueryCache:                      types.BoolValue(false),
+		QueryCacheMinQueryRuns:                        types.Int64Value(1201),
+		QueryCacheMinQueryDuration:                    types.Int64Value(1202),
+		QueryCacheTtl:                                 types.Int64Value(1203),
+		QueryCacheMaxEntries:                          types.Int64Value(1204),
+		QueryCacheMaxSizeInBytes:                      types.Int64Value(1205),
+		QueryCacheTag:                                 types.StringValue("test_tag"),
+		QueryCacheShareBetweenUsers:                   types.BoolValue(false),
+		QueryCacheNondeterministicFunctionHandling:    types.StringValue("throw"),
+		QueryCacheSystemTableHandling:                 types.StringValue("throw"),
+		IgnoreMaterializedViewsWithDroppedTargetTable: types.BoolValue(false),
+		EnableAnalyzer:                                types.BoolValue(false),
+		DistributedDdlOutputMode:                      types.StringValue("throw_only_active"),
+		S3UseAdaptiveTimeouts:                         types.BoolValue(false),
 	}
 
 	settingsUpdate := mdb_clickhouse_user.Setting{
@@ -370,6 +395,7 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 		LocalFilesystemReadMethod:                     types.StringValue("pread"),
 		MaxReadBufferSize:                             types.Int64Value(11485780),
 		InsertKeeperMaxRetries:                        types.Int64Value(22),
+		DoNotMergeAcrossPartitionsSelectFinal:         types.BoolValue(true),
 		MaxTemporaryDataOnDiskSizeForUser:             types.Int64Value(2247483652),
 		MaxTemporaryDataOnDiskSizeForQuery:            types.Int64Value(1173741826),
 		MaxParserDepth:                                types.Int64Value(1107),
@@ -378,12 +404,36 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 		MemoryOvercommitRatioDenominatorForUser:       types.Int64Value(2247483656),
 		MemoryUsageOvercommitMaxWaitMicroseconds:      types.Int64Value(5100008),
 		LogQueryThreads:                               types.BoolValue(true),
+		LogQueryViews:                                 types.BoolValue(true),
 		MaxInsertThreads:                              types.Int64Value(12),
 		UseHedgedRequests:                             types.BoolValue(true),
 		IdleConnectionTimeout:                         types.Int64Value(510000),
 		HedgedConnectionTimeoutMs:                     types.Int64Value(3000),
 		LoadBalancing:                                 types.StringValue("random"),
 		PreferLocalhostReplica:                        types.BoolValue(true),
+		FormatAvroSchemaRegistryUrl:                   types.StringValue("test2"),
+		DataTypeDefaultNullable:                       types.BoolValue(true),
+		HttpMaxFieldNameSize:                          types.Int64Value(2101),
+		HttpMaxFieldValueSize:                         types.Int64Value(2102),
+		AsyncInsertUseAdaptiveBusyTimeout:             types.BoolValue(true),
+		LogQueriesProbability:                         types.Float64Value(0.7),
+		LogProcessorsProfiles:                         types.BoolValue(true),
+		UseQueryCache:                                 types.BoolValue(true),
+		EnableReadsFromQueryCache:                     types.BoolValue(true),
+		EnableWritesToQueryCache:                      types.BoolValue(true),
+		QueryCacheMinQueryRuns:                        types.Int64Value(2201),
+		QueryCacheMinQueryDuration:                    types.Int64Value(2202),
+		QueryCacheTtl:                                 types.Int64Value(2203),
+		QueryCacheMaxEntries:                          types.Int64Value(2204),
+		QueryCacheMaxSizeInBytes:                      types.Int64Value(2205),
+		QueryCacheTag:                                 types.StringValue("test_tag2"),
+		QueryCacheShareBetweenUsers:                   types.BoolValue(true),
+		QueryCacheNondeterministicFunctionHandling:    types.StringValue("ignore"),
+		QueryCacheSystemTableHandling:                 types.StringValue("ignore"),
+		IgnoreMaterializedViewsWithDroppedTargetTable: types.BoolValue(true),
+		EnableAnalyzer:                                types.BoolValue(true),
+		DistributedDdlOutputMode:                      types.StringValue("throw"),
+		S3UseAdaptiveTimeouts:                         types.BoolValue(true),
 	}
 
 	chResourceID := makeCHUserResource(chUserResourceName4)
@@ -623,6 +673,7 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
       local_filesystem_read_method = "%s"
       max_read_buffer_size = %d
       insert_keeper_max_retries = %d
+	  do_not_merge_across_partitions_select_final = %t
       max_temporary_data_on_disk_size_for_user = %d
       max_temporary_data_on_disk_size_for_query = %d
       max_parser_depth = %d
@@ -631,12 +682,36 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
       memory_overcommit_ratio_denominator_for_user = %d
       memory_usage_overcommit_max_wait_microseconds = %d
       log_query_threads = %t
+	  log_query_views = %t
       max_insert_threads = %d
       use_hedged_requests = %t
       idle_connection_timeout = %d
       hedged_connection_timeout_ms = %d
       load_balancing = "%s"
       prefer_localhost_replica = %t
+	  format_avro_schema_registry_url                     = "%s"
+	  data_type_default_nullable                          = %t
+	  http_max_field_name_size                            = %d
+	  http_max_field_value_size                           = %d
+	  async_insert_use_adaptive_busy_timeout              = %t
+	  log_queries_probability                             = %f
+	  log_processors_profiles                             = %t
+	  use_query_cache                                     = %t
+	  enable_reads_from_query_cache                       = %t
+	  enable_writes_to_query_cache                        = %t
+	  query_cache_min_query_runs                          = %d
+	  query_cache_min_query_duration                      = %d
+	  query_cache_ttl                                     = %d
+	  query_cache_max_entries                             = %d
+	  query_cache_max_size_in_bytes                       = %d
+	  query_cache_tag                                     = "%s"
+	  query_cache_share_between_users                     = %t
+	  query_cache_nondeterministic_function_handling      = "%s"
+	  query_cache_system_table_handling                   = "%s"
+	  ignore_materialized_views_with_dropped_target_table = %t
+	  enable_analyzer                                     = %t
+	  distributed_ddl_output_mode                         = "%s"
+	  s3_use_adaptive_timeouts                            = %t
     }
   }
 `, userName, chClusterResourceIDLink, userName, makeCHDBResource(dbName),
@@ -765,6 +840,7 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
 		settings.LocalFilesystemReadMethod.ValueString(),
 		settings.MaxReadBufferSize.ValueInt64(),
 		settings.InsertKeeperMaxRetries.ValueInt64(),
+		settings.DoNotMergeAcrossPartitionsSelectFinal.ValueBool(),
 		settings.MaxTemporaryDataOnDiskSizeForUser.ValueInt64(),
 		settings.MaxTemporaryDataOnDiskSizeForQuery.ValueInt64(),
 		settings.MaxParserDepth.ValueInt64(),
@@ -773,12 +849,36 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
 		settings.MemoryOvercommitRatioDenominatorForUser.ValueInt64(),
 		settings.MemoryUsageOvercommitMaxWaitMicroseconds.ValueInt64(),
 		settings.LogQueryThreads.ValueBool(),
+		settings.LogQueryViews.ValueBool(),
 		settings.MaxInsertThreads.ValueInt64(),
 		settings.UseHedgedRequests.ValueBool(),
 		settings.IdleConnectionTimeout.ValueInt64(),
 		settings.HedgedConnectionTimeoutMs.ValueInt64(),
 		settings.LoadBalancing.ValueString(),
 		settings.PreferLocalhostReplica.ValueBool(),
+		settings.FormatAvroSchemaRegistryUrl.ValueString(),
+		settings.DataTypeDefaultNullable.ValueBool(),
+		settings.HttpMaxFieldNameSize.ValueInt64(),
+		settings.HttpMaxFieldValueSize.ValueInt64(),
+		settings.AsyncInsertUseAdaptiveBusyTimeout.ValueBool(),
+		settings.LogQueriesProbability.ValueFloat64(),
+		settings.LogProcessorsProfiles.ValueBool(),
+		settings.UseQueryCache.ValueBool(),
+		settings.EnableReadsFromQueryCache.ValueBool(),
+		settings.EnableWritesToQueryCache.ValueBool(),
+		settings.QueryCacheMinQueryRuns.ValueInt64(),
+		settings.QueryCacheMinQueryDuration.ValueInt64(),
+		settings.QueryCacheTtl.ValueInt64(),
+		settings.QueryCacheMaxEntries.ValueInt64(),
+		settings.QueryCacheMaxSizeInBytes.ValueInt64(),
+		settings.QueryCacheTag.ValueString(),
+		settings.QueryCacheShareBetweenUsers.ValueBool(),
+		settings.QueryCacheNondeterministicFunctionHandling.ValueString(),
+		settings.QueryCacheSystemTableHandling.ValueString(),
+		settings.IgnoreMaterializedViewsWithDroppedTargetTable.ValueBool(),
+		settings.EnableAnalyzer.ValueBool(),
+		settings.DistributedDdlOutputMode.ValueString(),
+		settings.S3UseAdaptiveTimeouts.ValueBool(),
 	)
 }
 

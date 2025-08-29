@@ -2300,6 +2300,40 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 		result.DateTimeOutputFormat = getDateTimeOutputFormatValue(v.(string))
 	}
 
+	setSettingFromMapBool(us, "do_not_merge_across_partitions_select_final", &result.DoNotMergeAcrossPartitionsSelectFinal)
+	setSettingFromMapBool(us, "log_query_views", &result.LogQueryViews)
+	setSettingFromMapBool(us, "data_type_default_nullable", &result.DataTypeDefaultNullable)
+	setSettingFromMapInt64(us, "http_max_field_name_size", &result.HttpMaxFieldNameSize)
+	setSettingFromMapInt64(us, "http_max_field_value_size", &result.HttpMaxFieldValueSize)
+	setSettingFromMapBool(us, "async_insert_use_adaptive_busy_timeout", &result.AsyncInsertUseAdaptiveBusyTimeout)
+	setSettingFromMapDouble(us, "log_queries_probability", &result.LogQueriesProbability)
+	setSettingFromMapBool(us, "log_processors_profiles", &result.LogProcessorsProfiles)
+	setSettingFromMapBool(us, "use_query_cache", &result.UseQueryCache)
+	setSettingFromMapBool(us, "enable_reads_from_query_cache", &result.EnableReadsFromQueryCache)
+	setSettingFromMapBool(us, "enable_writes_to_query_cache", &result.EnableWritesToQueryCache)
+	setSettingFromMapInt64(us, "query_cache_min_query_runs", &result.QueryCacheMinQueryRuns)
+	setSettingFromMapInt64(us, "query_cache_min_query_duration", &result.QueryCacheMinQueryDuration)
+	setSettingFromMapInt64(us, "query_cache_ttl", &result.QueryCacheTtl)
+	setSettingFromMapInt64(us, "query_cache_max_entries", &result.QueryCacheMaxEntries)
+	setSettingFromMapInt64(us, "query_cache_max_size_in_bytes", &result.QueryCacheMaxSizeInBytes)
+	setSettingFromMapBool(us, "query_cache_share_between_users", &result.QueryCacheShareBetweenUsers)
+	setSettingFromMapBool(us, "ignore_materialized_views_with_dropped_target_table", &result.IgnoreMaterializedViewsWithDroppedTargetTable)
+	setSettingFromMapBool(us, "enable_analyzer", &result.EnableAnalyzer)
+	setSettingFromMapBool(us, "s3_use_adaptive_timeouts", &result.S3UseAdaptiveTimeouts)
+
+	if v, ok := us["format_avro_schema_registry_url"]; ok {
+		vstr, ok := v.(string)
+		if ok && len(vstr) != 0 {
+			result.FormatAvroSchemaRegistryUrl = vstr
+		}
+	}
+	if v, ok := us["query_cache_tag"]; ok {
+		queryCacheTag, ok := v.(string)
+		if ok && len(queryCacheTag) != 0 {
+			result.QueryCacheTag = queryCacheTag
+		}
+	}
+
 	return result
 }
 
@@ -2523,6 +2557,40 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 
 	if v, ok := d.GetOk(rootKey + ".date_time_output_format"); ok {
 		result.DateTimeOutputFormat = getDateTimeOutputFormatValue(v.(string))
+	}
+
+	setSettingFromDataBool(d, rootKey+".do_not_merge_across_partitions_select_final", &result.DoNotMergeAcrossPartitionsSelectFinal)
+	setSettingFromDataBool(d, rootKey+".log_query_views", &result.LogQueryViews)
+	setSettingFromDataBool(d, rootKey+".data_type_default_nullable", &result.DataTypeDefaultNullable)
+	setSettingFromDataInt64(d, rootKey+".http_max_field_name_size", &result.HttpMaxFieldNameSize)
+	setSettingFromDataInt64(d, rootKey+".http_max_field_value_size", &result.HttpMaxFieldValueSize)
+	setSettingFromDataBool(d, rootKey+".async_insert_use_adaptive_busy_timeout", &result.AsyncInsertUseAdaptiveBusyTimeout)
+	setSettingFromDataDouble(d, rootKey+".log_queries_probability", &result.LogQueriesProbability)
+	setSettingFromDataBool(d, rootKey+".log_processors_profiles", &result.LogProcessorsProfiles)
+	setSettingFromDataBool(d, rootKey+".use_query_cache", &result.UseQueryCache)
+	setSettingFromDataBool(d, rootKey+".enable_reads_from_query_cache", &result.EnableReadsFromQueryCache)
+	setSettingFromDataBool(d, rootKey+".enable_writes_to_query_cache", &result.EnableWritesToQueryCache)
+	setSettingFromDataInt64(d, rootKey+".query_cache_min_query_runs", &result.QueryCacheMinQueryRuns)
+	setSettingFromDataInt64(d, rootKey+".query_cache_min_query_duration", &result.QueryCacheMinQueryDuration)
+	setSettingFromDataInt64(d, rootKey+".query_cache_ttl", &result.QueryCacheTtl)
+	setSettingFromDataInt64(d, rootKey+".query_cache_max_entries", &result.QueryCacheMaxEntries)
+	setSettingFromDataInt64(d, rootKey+".query_cache_max_size_in_bytes", &result.QueryCacheMaxSizeInBytes)
+	setSettingFromDataBool(d, rootKey+".query_cache_share_between_users", &result.QueryCacheShareBetweenUsers)
+	setSettingFromDataBool(d, rootKey+".ignore_materialized_views_with_dropped_target_table", &result.IgnoreMaterializedViewsWithDroppedTargetTable)
+	setSettingFromDataBool(d, rootKey+".enable_analyzer", &result.EnableAnalyzer)
+	setSettingFromDataBool(d, rootKey+".s3_use_adaptive_timeouts", &result.S3UseAdaptiveTimeouts)
+
+	if v, ok := d.GetOk(rootKey + ".format_avro_schema_registry_url"); ok {
+		vstr, ok := v.(string)
+		if ok && len(vstr) != 0 {
+			result.FormatAvroSchemaRegistryUrl = vstr
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".query_cache_tag"); ok {
+		queryCacheTag, ok := v.(string)
+		if ok && len(queryCacheTag) != 0 {
+			result.QueryCacheTag = queryCacheTag
+		}
 	}
 
 	return result
@@ -2879,6 +2947,52 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	result["date_time_input_format"] = getDateTimeInputFormatName(settings.DateTimeInputFormat)
 
 	result["date_time_output_format"] = getDateTimeOutputFormatName(settings.DateTimeOutputFormat)
+
+	result["do_not_merge_across_partitions_select_final"] = falseOnNil(settings.DoNotMergeAcrossPartitionsSelectFinal)
+	result["log_query_views"] = falseOnNil(settings.LogQueryViews)
+	result["data_type_default_nullable"] = falseOnNil(settings.DataTypeDefaultNullable)
+	if settings.HttpMaxFieldNameSize != nil {
+		result["http_max_field_name_size"] = settings.HttpMaxFieldNameSize.Value
+	}
+	if settings.HttpMaxFieldValueSize != nil {
+		result["http_max_field_value_size"] = settings.HttpMaxFieldValueSize.Value
+	}
+	result["async_insert_use_adaptive_busy_timeout"] = falseOnNil(settings.AsyncInsertUseAdaptiveBusyTimeout)
+	if settings.LogQueriesProbability != nil {
+		result["log_queries_probability"] = settings.LogQueriesProbability.Value
+	}
+	result["log_processors_profiles"] = falseOnNil(settings.LogProcessorsProfiles)
+	result["use_query_cache"] = falseOnNil(settings.UseQueryCache)
+	result["enable_reads_from_query_cache"] = falseOnNil(settings.EnableReadsFromQueryCache)
+	result["enable_writes_to_query_cache"] = falseOnNil(settings.EnableWritesToQueryCache)
+
+	if settings.QueryCacheMinQueryRuns != nil {
+		result["query_cache_min_query_runs"] = settings.QueryCacheMinQueryRuns.Value
+	}
+	if settings.QueryCacheMinQueryDuration != nil {
+		result["query_cache_min_query_duration"] = settings.QueryCacheMinQueryDuration.Value
+	}
+	if settings.QueryCacheTtl != nil {
+		result["query_cache_ttl"] = settings.QueryCacheTtl.Value
+	}
+	if settings.QueryCacheMaxEntries != nil {
+		result["query_cache_max_entries"] = settings.QueryCacheMaxEntries.Value
+	}
+	if settings.QueryCacheMaxSizeInBytes != nil {
+		result["query_cache_max_size_in_bytes"] = settings.QueryCacheMaxSizeInBytes.Value
+	}
+	result["query_cache_share_between_users"] = falseOnNil(settings.QueryCacheShareBetweenUsers)
+	result["ignore_materialized_views_with_dropped_target_table"] = falseOnNil(settings.IgnoreMaterializedViewsWithDroppedTargetTable)
+	result["enable_analyzer"] = falseOnNil(settings.EnableAnalyzer)
+	result["s3_use_adaptive_timeouts"] = falseOnNil(settings.S3UseAdaptiveTimeouts)
+
+	if len(settings.FormatAvroSchemaRegistryUrl) != 0 {
+		result["format_avro_schema_registry_url"] = settings.FormatAvroSchemaRegistryUrl
+	}
+
+	if len(settings.QueryCacheTag) != 0 {
+		result["query_cache_tag"] = settings.QueryCacheTag
+	}
 
 	return result
 }

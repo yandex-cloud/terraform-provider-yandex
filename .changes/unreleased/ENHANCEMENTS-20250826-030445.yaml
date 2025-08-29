@@ -1,0 +1,4 @@
+kind: ENHANCEMENTS
+body: 'clickhouse: added a batch of user-level settings to yandex_mdb_clickhouse_cluster
+  and yandex_mdb_clickhouse_user resources'
+time: 2025-08-26T03:04:45.529307605+03:00

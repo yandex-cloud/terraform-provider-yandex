@@ -548,6 +548,11 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 				Optional: true,
 				Computed: true,
 			},
+			"do_not_merge_across_partitions_select_final": schema.BoolAttribute{
+				MarkdownDescription: "Enable or disable independent processing of partitions for **SELECT** queries with **FINAL**.",
+				Optional:            true,
+				Computed:            true,
+			},
 			"max_temporary_data_on_disk_size_for_user": schema.Int64Attribute{
 				Optional: true,
 				Computed: true,
@@ -575,6 +580,11 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 			"log_query_threads": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
+			},
+			"log_query_views": schema.BoolAttribute{
+				MarkdownDescription: "Enables or disables query views logging to the the system.query_views_log table.",
+				Optional:            true,
+				Computed:            true,
 			},
 			"max_insert_threads": schema.Int64Attribute{
 				Optional: true,
@@ -644,6 +654,124 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+			},
+			"format_avro_schema_registry_url": schema.StringAttribute{
+				MarkdownDescription: "Avro schema registry URL.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"data_type_default_nullable": schema.BoolAttribute{
+				MarkdownDescription: "Allows data types without explicit modifiers NULL or NOT NULL in column definition will be Nullable.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"http_max_field_name_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum length of field name in HTTP header.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"http_max_field_value_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum length of field value in HTTP header.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"async_insert_use_adaptive_busy_timeout": schema.BoolAttribute{
+				MarkdownDescription: "If it is set to true, use adaptive busy timeout for asynchronous inserts.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"log_queries_probability": schema.Float64Attribute{
+				MarkdownDescription: "Log queries with the specified probability.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"log_processors_profiles": schema.BoolAttribute{
+				MarkdownDescription: "Enabled or disable logging of processors level profiling data to the the system.log_processors_profiles table.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"use_query_cache": schema.BoolAttribute{
+				MarkdownDescription: "If turned on, SELECT queries may utilize the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"enable_reads_from_query_cache": schema.BoolAttribute{
+				MarkdownDescription: "If turned on, results of SELECT queries are retrieved from the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"enable_writes_to_query_cache": schema.BoolAttribute{
+				MarkdownDescription: "If turned on, results of SELECT queries are stored in the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_min_query_runs": schema.Int64Attribute{
+				MarkdownDescription: "Minimum number of times a SELECT query must run before its result is stored in the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_min_query_duration": schema.Int64Attribute{
+				MarkdownDescription: "Minimum duration in milliseconds a query needs to run for its result to be stored in the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_ttl": schema.Int64Attribute{
+				MarkdownDescription: "After this time in seconds entries in the query cache become stale.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_max_entries": schema.Int64Attribute{
+				MarkdownDescription: "The maximum number of query results the current user may store in the query cache. 0 means unlimited.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_max_size_in_bytes": schema.Int64Attribute{
+				MarkdownDescription: "The maximum amount of memory (in bytes) the current user may allocate in the query cache. 0 means unlimited.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_tag": schema.StringAttribute{
+				MarkdownDescription: "A string which acts as a label for query cache entries. The same queries with different tags are considered different by the query cache.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_share_between_users": schema.BoolAttribute{
+				MarkdownDescription: "If turned on, the result of SELECT queries cached in the query cache can be read by other users. It is not recommended to enable this setting due to security reasons.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"query_cache_nondeterministic_function_handling": schema.StringAttribute{
+				MarkdownDescription: "Controls how the query cache handles **SELECT** queries with non-deterministic functions like rand() or now().",
+				Optional:            true,
+				Computed:            true,
+				Validators:          UserSettings_QueryCacheNondeterministicFunctionHandling_validator,
+			},
+			"query_cache_system_table_handling": schema.StringAttribute{
+				MarkdownDescription: "Controls how the query cache handles **SELECT** queries against system tables.",
+				Optional:            true,
+				Computed:            true,
+				Validators:          UserSettings_QueryCacheSystemTableHandling_validator,
+			},
+			"ignore_materialized_views_with_dropped_target_table": schema.BoolAttribute{
+				MarkdownDescription: "Ignore materialized views with dropped target table during pushing to views.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"enable_analyzer": schema.BoolAttribute{
+				MarkdownDescription: "Enable new query analyzer.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"distributed_ddl_output_mode": schema.StringAttribute{
+				MarkdownDescription: "Determines the format of distributed DDL query result.",
+				Optional:            true,
+				Computed:            true,
+				Validators:          UserSettings_DistributedDdlOutputMode_validator,
+			},
+			"s3_use_adaptive_timeouts": schema.BoolAttribute{
+				MarkdownDescription: "Enables or disables adaptive timeouts for S3 requests.",
+				Optional:            true,
+				Computed:            true,
 			},
 		},
 	}

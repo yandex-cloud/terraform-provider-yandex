@@ -116,6 +116,37 @@ var (
 	}
 	UserSettings_JoinAlgorithm_value     = makeReversedMap(UserSettings_JoinAlgorithm_name, clickhouse.UserSettings_JoinAlgorithm_value)
 	UserSettings_JoinAlgorithm_validator = makeEnumNamesValidator(UserSettings_JoinAlgorithm_name)
+
+	UserSettings_DistributedDdlOutputMode_name = map[int32]string{
+		0: "unspecified",
+		1: "throw",
+		2: "none",
+		3: "null_status_on_timeout",
+		4: "never_throw",
+		5: "none_only_active",
+		6: "null_status_on_timeout_only_active",
+		7: "throw_only_active",
+	}
+	UserSettings_DistributedDdlOutputMode_value     = makeReversedMap(UserSettings_DistributedDdlOutputMode_name, clickhouse.UserSettings_DistributedDdlOutputMode_value)
+	UserSettings_DistributedDdlOutputMode_validator = makeEnumNamesValidator(UserSettings_DistributedDdlOutputMode_name)
+
+	UserSettings_QueryCacheSystemTableHandling_name = map[int32]string{
+		0: "unspecified",
+		1: "throw",
+		2: "save",
+		3: "ignore",
+	}
+	UserSettings_QueryCacheSystemTableHandling_value     = makeReversedMap(UserSettings_QueryCacheSystemTableHandling_name, clickhouse.UserSettings_QueryCacheSystemTableHandling_value)
+	UserSettings_QueryCacheSystemTableHandling_validator = makeEnumNamesValidator(UserSettings_QueryCacheSystemTableHandling_name)
+
+	UserSettings_QueryCacheNondeterministicFunctionHandling_name = map[int32]string{
+		0: "unspecified",
+		1: "throw",
+		2: "save",
+		3: "ignore",
+	}
+	UserSettings_QueryCacheNondeterministicFunctionHandling_value     = makeReversedMap(UserSettings_QueryCacheNondeterministicFunctionHandling_name, clickhouse.UserSettings_QueryCacheNondeterministicFunctionHandling_value)
+	UserSettings_QueryCacheNondeterministicFunctionHandling_validator = makeEnumNamesValidator(UserSettings_QueryCacheNondeterministicFunctionHandling_name)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) types.String {
@@ -334,6 +365,64 @@ func getJoinAlgorithmValue(name types.String) clickhouse.UserSettings_JoinAlgori
 	}
 	if value, ok := UserSettings_JoinAlgorithm_value[name.ValueString()]; ok {
 		return clickhouse.UserSettings_JoinAlgorithm(value)
+	}
+	return 0
+}
+
+func getDistributedDdlOutputModeName(value clickhouse.UserSettings_DistributedDdlOutputMode) types.String {
+	if value == 0 {
+		return types.StringNull()
+	}
+	if name, ok := UserSettings_DistributedDdlOutputMode_name[int32(value)]; ok {
+		return types.StringValue(name)
+	}
+	return types.StringUnknown()
+}
+
+func getDistributedDdlOutputModeValue(name types.String) clickhouse.UserSettings_DistributedDdlOutputMode {
+	if name.IsNull() || name.IsUnknown() {
+		return 0
+	}
+	if value, ok := UserSettings_DistributedDdlOutputMode_value[name.ValueString()]; ok {
+		return clickhouse.UserSettings_DistributedDdlOutputMode(value)
+	}
+	return 0
+}
+func getQueryCacheSystemTableHandlingName(value clickhouse.UserSettings_QueryCacheSystemTableHandling) types.String {
+	if value == 0 {
+		return types.StringNull()
+	}
+	if name, ok := UserSettings_QueryCacheSystemTableHandling_name[int32(value)]; ok {
+		return types.StringValue(name)
+	}
+	return types.StringUnknown()
+}
+
+func getQueryCacheSystemTableHandlingValue(name types.String) clickhouse.UserSettings_QueryCacheSystemTableHandling {
+	if name.IsNull() || name.IsUnknown() {
+		return 0
+	}
+	if value, ok := UserSettings_QueryCacheSystemTableHandling_value[name.ValueString()]; ok {
+		return clickhouse.UserSettings_QueryCacheSystemTableHandling(value)
+	}
+	return 0
+}
+func getQueryCacheNondeterministicFunctionHandlingName(value clickhouse.UserSettings_QueryCacheNondeterministicFunctionHandling) types.String {
+	if value == 0 {
+		return types.StringNull()
+	}
+	if name, ok := UserSettings_QueryCacheNondeterministicFunctionHandling_name[int32(value)]; ok {
+		return types.StringValue(name)
+	}
+	return types.StringUnknown()
+}
+
+func getQueryCacheNondeterministicFunctionHandlingValue(name types.String) clickhouse.UserSettings_QueryCacheNondeterministicFunctionHandling {
+	if name.IsNull() || name.IsUnknown() {
+		return 0
+	}
+	if value, ok := UserSettings_QueryCacheNondeterministicFunctionHandling_value[name.ValueString()]; ok {
+		return clickhouse.UserSettings_QueryCacheNondeterministicFunctionHandling(value)
 	}
 	return 0
 }
