@@ -940,6 +940,8 @@
   "pkg/converter/enum.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/enum.go",
   "pkg/converter/id.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/id.go",
   "pkg/converter/map.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/map.go",
+  "pkg/converter/object.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/object.go",
+  "pkg/converter/time_of_day.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/time_of_day.go",
   "pkg/converter/timestamp.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/timestamp.go",
   "pkg/datasize/datasize.go":"opensource/terraform-provider-yandex-mirror/pkg/datasize/datasize.go",
   "pkg/globallock/mutex.go":"opensource/terraform-provider-yandex-mirror/pkg/globallock/mutex.go",

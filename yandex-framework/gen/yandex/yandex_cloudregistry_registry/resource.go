@@ -331,11 +331,23 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if !plan.Kind.Equal(state.Kind) {
 		updatePaths = append(updatePaths, "kind")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
 	if !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
+	}
+	if plan.Properties.IsNull() {
+		plan.Properties = types.MapNull(types.StringType)
+	}
+	if state.Properties.IsNull() {
+		state.Properties = types.MapNull(types.StringType)
 	}
 	if !plan.Properties.Equal(state.Properties) {
 		updatePaths = append(updatePaths, "properties")

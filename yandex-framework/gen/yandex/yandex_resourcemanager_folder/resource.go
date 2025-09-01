@@ -330,6 +330,12 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 	if !plan.FolderId.Equal(state.FolderId) {
 		updatePaths = append(updatePaths, "folder_id")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
 	if !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}

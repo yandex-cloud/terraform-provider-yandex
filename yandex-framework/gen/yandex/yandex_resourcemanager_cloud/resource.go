@@ -327,6 +327,12 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
 	if !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
