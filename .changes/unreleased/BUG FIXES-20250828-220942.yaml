@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: avoid "no changes detected" during removal of a database and user permissions in a single yandex_mdb_postgresql_cluster update'
-time: 2025-08-28T22:09:42.781523+03:00

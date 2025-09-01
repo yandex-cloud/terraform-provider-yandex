@@ -1,5 +1,15 @@
 
 
+## 0.156.0 (September 1, 2025)
+FEATURES:
+* opensearch: add disk encryption
+* mysql: add restore functuanality to yandex_mdb_mysql_cluster_v2 resource
+BUG FIXES:
+* mysql: cluster restore from backup via yandex_mdb_mysql_cluster resource fix (missing parameters, troubles with DiskEncryptionKeyId etc)
+* postgresql: avoid "no changes detected" during removal of a database and user permissions in a single yandex_mdb_postgresql_cluster update
+ENHANCEMENTS:
+* clickhouse: added a batch of user-level settings to yandex_mdb_clickhouse_cluster and yandex_mdb_clickhouse_user resources
+
 ## 0.155.0 (August 28, 2025)
 
 FEATURES:
