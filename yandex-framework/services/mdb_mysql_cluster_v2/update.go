@@ -13,7 +13,6 @@ import (
 )
 
 func prepareVersionUpdateRequest(state, plan *Cluster) (*mysql.UpdateClusterRequest, diag.Diagnostics) {
-
 	var diags diag.Diagnostics
 
 	sv := state.Version
@@ -123,6 +122,34 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 			request.UpdateMask.Paths = append(
 				request.UpdateMask.Paths,
 				"config_spec.performance_diagnostics.statements_sampling_interval",
+			)
+		}
+	}
+
+	if !plan.DiskSizeAutoscaling.Equal(state.DiskSizeAutoscaling) {
+		updConf = true
+		config.SetDiskSizeAutoscaling(expandDiskAutoScaling(ctx, plan.DiskSizeAutoscaling, &diags))
+
+		var psda, sdsa DiskSizeAutoscaling
+		diags.Append(state.DiskSizeAutoscaling.As(ctx, &sdsa, datasize.UnhandledOpts)...)
+		diags.Append(plan.DiskSizeAutoscaling.As(ctx, &psda, datasize.UnhandledOpts)...)
+
+		if !psda.DiskSizeLimit.Equal(sdsa.DiskSizeLimit) {
+			request.UpdateMask.Paths = append(
+				request.UpdateMask.Paths,
+				"config_spec.disk_size_autoscaling.disk_size_limit",
+			)
+		}
+		if !psda.PlannedUsageThreshold.Equal(sdsa.PlannedUsageThreshold) {
+			request.UpdateMask.Paths = append(
+				request.UpdateMask.Paths,
+				"config_spec.disk_size_autoscaling.planned_usage_threshold",
+			)
+		}
+		if !psda.EmergencyUsageThreshold.Equal(sdsa.EmergencyUsageThreshold) {
+			request.UpdateMask.Paths = append(
+				request.UpdateMask.Paths,
+				"config_spec.disk_size_autoscaling.emergency_usage_threshold",
 			)
 		}
 	}

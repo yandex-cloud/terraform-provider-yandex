@@ -24,6 +24,7 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 	accessElem := resourceSchema["access"].Elem.(*schema.Resource)
 	maintenanceWindowElem := resourceSchema["maintenance_window"].Elem.(*schema.Resource)
 	performanceDiagnosticsElem := resourceSchema["performance_diagnostics"].Elem.(*schema.Resource)
+	diskSizeAutoscalingElem := resourceSchema["disk_size_autoscaling"].Elem.(*schema.Resource)
 
 	return &schema.Resource{
 		Description: "Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).\n\n~> Either `cluster_id` or `name` should be specified.\n",
@@ -384,6 +385,30 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 						"statements_sampling_interval": {
 							Type:        schema.TypeInt,
 							Description: performanceDiagnosticsElem.Schema["statements_sampling_interval"].Description,
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling": {
+				Type:        schema.TypeList,
+				Description: resourceYandexMDBMySQLCluster().Schema["disk_size_autoscaling"].Description,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:        schema.TypeInt,
+							Description: diskSizeAutoscalingElem.Schema["disk_size_limit"].Description,
+							Computed:    true,
+						},
+						"planned_usage_threshold": {
+							Type:        schema.TypeInt,
+							Description: diskSizeAutoscalingElem.Schema["planned_usage_threshold"].Description,
+							Computed:    true,
+						},
+						"emergency_usage_threshold": {
+							Type:        schema.TypeInt,
+							Description: diskSizeAutoscalingElem.Schema["emergency_usage_threshold"].Description,
 							Computed:    true,
 						},
 					},

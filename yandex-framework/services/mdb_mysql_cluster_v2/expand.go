@@ -54,6 +54,24 @@ func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *d
 	}
 }
 
+func expandDiskAutoScaling(ctx context.Context, dsa types.Object, diags *diag.Diagnostics) *mysql.DiskSizeAutoscaling {
+	if dsa.IsNull() || dsa.IsUnknown() {
+		return nil
+	}
+	var dsaConf DiskSizeAutoscaling
+
+	diags.Append(dsa.As(ctx, &dsaConf, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &mysql.DiskSizeAutoscaling{
+		DiskSizeLimit:           datasize.ToBytes(dsaConf.DiskSizeLimit.ValueInt64()),
+		PlannedUsageThreshold:   dsaConf.PlannedUsageThreshold.ValueInt64(),
+		EmergencyUsageThreshold: dsaConf.EmergencyUsageThreshold.ValueInt64(),
+	}
+}
+
 var msVersionConfig = map[string]mysql.ConfigSpec_MysqlConfig{
 	"5.7": &mysql.ConfigSpec_MysqlConfig_5_7{},
 	"8.0": &mysql.ConfigSpec_MysqlConfig_8_0{},
@@ -64,7 +82,6 @@ func expandMySQLConfig(
 	version string, config mdbcommon.SettingsMapValue,
 	diags *diag.Diagnostics,
 ) mysql.ConfigSpec_MysqlConfig {
-
 	a := protobuf_adapter.NewProtobufMapDataAdapter()
 
 	if msVersionConfig[version] == nil {
@@ -89,6 +106,7 @@ func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostic
 		Resources:              mdbcommon.ExpandResources[mysql.Resources](ctx, configSpec.Resources, diags),
 		Access:                 expandAccess(ctx, configSpec.Access, diags),
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
+		DiskSizeAutoscaling:    expandDiskAutoScaling(ctx, configSpec.DiskSizeAutoscaling, diags),
 		BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		MysqlConfig:            expandMySQLConfig(ctx, configSpec.Version.ValueString(), configSpec.MySQLConfig, diags),

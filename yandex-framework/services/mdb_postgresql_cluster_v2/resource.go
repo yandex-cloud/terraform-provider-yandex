@@ -56,7 +56,8 @@ func (r *clusterResource) Metadata(_ context.Context, req resource.MetadataReque
 }
 
 func (r *clusterResource) Configure(_ context.Context,
-	req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	req resource.ConfigureRequest, resp *resource.ConfigureResponse,
+) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -407,7 +408,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
 								Required:    true,
 								Validators: []validator.Int64{
-									Int64GreaterValidator(path.MatchRoot("config").AtName("resources").AtName("disk_size")),
+									mdbcommon.Int64GreaterValidator(path.MatchRoot("config").AtName("resources").AtName("disk_size")),
 								},
 							},
 							"planned_usage_threshold": schema.Int64Attribute{
@@ -431,7 +432,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								Description: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
 								Validators: []validator.Int64{
 									int64validator.Any(
-										Int64GreaterValidator(path.MatchRoot("config").AtName("disk_size_autoscaling").AtName("planned_usage_threshold")),
+										mdbcommon.Int64GreaterValidator(path.MatchRoot("config").AtName("disk_size_autoscaling").AtName("planned_usage_threshold")),
 										int64validator.OneOf(0),
 									),
 								},
@@ -606,7 +607,6 @@ func (r *clusterResource) restoreCluster(
 }
 
 func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-
 	// Load the current plan
 	// We shouldnt read the state because we shouldn't use the state in the host update method
 	// The plan and the Api response should be enough
@@ -666,7 +666,6 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
-
 }
 
 func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

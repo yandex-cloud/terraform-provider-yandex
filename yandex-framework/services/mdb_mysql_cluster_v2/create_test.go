@@ -35,6 +35,11 @@ var (
 		"sessions_sampling_interval":   types.Int64Type,
 		"statements_sampling_interval": types.Int64Type,
 	}
+	expectedDSAAttrs = map[string]attr.Type{
+		"disk_size_limit":           types.Int64Type,
+		"emergency_usage_threshold": types.Int64Type,
+		"planned_usage_threshold":   types.Int64Type,
+	}
 	expectedMWAttrs = map[string]attr.Type{
 		"type": types.StringType,
 		"day":  types.StringType,
@@ -60,6 +65,7 @@ var (
 		"resources":                 types.ObjectType{AttrTypes: expectedResourcesAttrs},
 		"access":                    types.ObjectType{AttrTypes: expectedAccessAttrTypes},
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
+		"disk_size_autoscaling":     types.ObjectType{AttrTypes: expectedDSAAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: expectedBwsAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"restore":                   types.ObjectType{AttrTypes: expectedRestoreAttrTypes},
@@ -100,6 +106,9 @@ var (
 		BackupRetainPeriodDays: types.Int64Null(),
 		PerformanceDiagnostics: types.ObjectNull(
 			expectedPDAttrs,
+		),
+		DiskSizeAutoscaling: types.ObjectNull(
+			expectedDSAAttrs,
 		),
 		Access:             types.ObjectNull(AccessAttrTypes),
 		DeletionProtection: types.BoolValue(true),
@@ -159,6 +168,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					"backup_retain_period_days": types.Int64Null(),
 					"performance_diagnostics": types.ObjectNull(
 						expectedPDAttrs,
+					),
+					"disk_size_autoscaling": types.ObjectNull(
+						expectedDSAAttrs,
 					),
 					"access": types.ObjectNull(AccessAttrTypes),
 					"maintenance_window": types.ObjectValueMust(
@@ -259,6 +271,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					"performance_diagnostics": types.ObjectNull(
 						expectedPDAttrs,
 					),
+					"disk_size_autoscaling": types.ObjectNull(
+						expectedDSAAttrs,
+					),
 					"access":              types.ObjectNull(AccessAttrTypes),
 					"maintenance_window":  types.ObjectNull(expectedMWAttrs),
 					"deletion_protection": types.BoolNull(),
@@ -350,6 +365,9 @@ func TestYandexProvider_MDBMySQLClusterGetConfigSpec(t *testing.T) {
 		PerformanceDiagnostics: types.ObjectNull(
 			expectedPDAttrs,
 		),
+		DiskSizeAutoscaling: types.ObjectNull(
+			expectedDSAAttrs,
+		),
 		Access: types.ObjectNull(AccessAttrTypes),
 		MySQLConfig: NewMsSettingsMapValueMust(map[string]attr.Value{
 			"max_connections": types.Int64Value(100),
@@ -367,7 +385,6 @@ func TestYandexProvider_MDBMySQLClusterGetConfigSpec(t *testing.T) {
 			"Unexpected get config status diagnostics with status test errors: %v",
 			diags.Errors(),
 		)
-
 	}
 
 	if !reflect.DeepEqual(config, expected) {
@@ -422,6 +439,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 					"backup_retain_period_days": types.Int64Null(),
 					"performance_diagnostics": types.ObjectNull(
 						expectedPDAttrs,
+					),
+					"disk_size_autoscaling": types.ObjectNull(
+						expectedDSAAttrs,
 					),
 					"access": types.ObjectNull(AccessAttrTypes),
 					"maintenance_window": types.ObjectValueMust(

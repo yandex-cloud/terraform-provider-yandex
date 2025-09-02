@@ -123,6 +123,7 @@ func getConfigSpecFromState(state *Cluster) Config {
 		Resources:              state.Resources,
 		Access:                 state.Access,
 		PerformanceDiagnostics: state.PerformanceDiagnostics,
+		DiskSizeAutoscaling:    state.DiskSizeAutoscaling,
 		BackupRetainPeriodDays: state.BackupRetainPeriodDays,
 		BackupWindowStart:      state.BackupWindowStart,
 		MySQLConfig:            state.MySQLConfig,

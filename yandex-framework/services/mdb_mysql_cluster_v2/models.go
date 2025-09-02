@@ -23,6 +23,7 @@ type Cluster struct {
 	Resources              types.Object               `tfsdk:"resources"`
 	Access                 types.Object               `tfsdk:"access"`
 	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
+	DiskSizeAutoscaling    types.Object               `tfsdk:"disk_size_autoscaling"`
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
@@ -54,6 +55,7 @@ type Config struct {
 	Resources              types.Object               `tfsdk:"resources"`
 	Access                 types.Object               `tfsdk:"access"`
 	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
+	DiskSizeAutoscaling    types.Object               `tfsdk:"disk_size_autoscaling"`
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
@@ -76,6 +78,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},
 	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
+	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
@@ -99,10 +102,22 @@ type PerformanceDiagnostics struct {
 	StatementsSamplingInterval types.Int64 `tfsdk:"statements_sampling_interval"`
 }
 
+type DiskSizeAutoscaling struct {
+	DiskSizeLimit           types.Int64 `tfsdk:"disk_size_limit"`
+	PlannedUsageThreshold   types.Int64 `tfsdk:"planned_usage_threshold"`
+	EmergencyUsageThreshold types.Int64 `tfsdk:"emergency_usage_threshold"`
+}
+
 var PerformanceDiagnosticsAttrTypes = map[string]attr.Type{
 	"enabled":                      types.BoolType,
 	"sessions_sampling_interval":   types.Int64Type,
 	"statements_sampling_interval": types.Int64Type,
+}
+
+var DiskSizeAutoscalingAttrTypes = map[string]attr.Type{
+	"disk_size_limit":           types.Int64Type,
+	"planned_usage_threshold":   types.Int64Type,
+	"emergency_usage_threshold": types.Int64Type,
 }
 
 type Resources struct {

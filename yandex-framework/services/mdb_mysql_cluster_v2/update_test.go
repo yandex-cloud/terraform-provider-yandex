@@ -36,6 +36,8 @@ func TestYandexProvider_MDBMySQLClusterPrepateUpdateRequestBasic(t *testing.T) {
 	cluster.MySQLConfig = NewMsSettingsMapValueMust(
 		map[string]attr.Value{"max_connections": types.Int64Value(25)},
 	)
+	cluster.DiskSizeAutoscaling = types.ObjectNull(expectedDSAAttrs)
+	cluster.PerformanceDiagnostics = types.ObjectNull(expectedPDAttrs)
 
 	req, diags := prepareUpdateRequest(ctx, &baseCluster, &cluster)
 	if diags.HasError() {

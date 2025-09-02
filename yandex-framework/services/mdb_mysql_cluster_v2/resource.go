@@ -50,7 +50,8 @@ func (r *clusterResource) Metadata(_ context.Context, req resource.MetadataReque
 }
 
 func (r *clusterResource) Configure(_ context.Context,
-	req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	req resource.ConfigureRequest, resp *resource.ConfigureResponse,
+) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -164,14 +165,12 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 				Attributes: map[string]schema.Attribute{
 					"data_lens": schema.BoolAttribute{
-
 						Description: "Allow access for Yandex DataLens.",
 						Optional:    true,
 						Computed:    true,
 						Default:     booldefault.StaticBool(false),
 					},
 					"web_sql": schema.BoolAttribute{
-
 						Description: "Allow access for SQL queries in the management console",
 						Optional:    true,
 						Computed:    true,
@@ -212,6 +211,52 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						Validators: []validator.Int64{
 							int64validator.Between(60, 86400),
 						},
+					},
+				},
+			},
+			"disk_size_autoscaling": schema.SingleNestedAttribute{
+				Description: "Cluster disk size autoscaling settings.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"disk_size_limit": schema.Int64Attribute{
+						Description: "Limit of disk size after autoscaling (GiB).",
+						Required:    true,
+						Validators: []validator.Int64{
+							mdbcommon.Int64GreaterValidator(path.MatchRoot("resources").AtName("disk_size")),
+						},
+					},
+					"planned_usage_threshold": schema.Int64Attribute{
+						Description: "Maintenance window autoscaling disk usage (percent).",
+						Computed:    true,
+						Optional:    true,
+						Validators: []validator.Int64{
+							int64validator.Any(
+								int64validator.OneOf(0),
+								int64validator.AlsoRequires(
+									path.MatchRoot("maintenance_window"),
+									path.MatchRoot("maintenance_window").AtName("type"),
+									path.MatchRoot("maintenance_window").AtName("hour"),
+									path.MatchRoot("maintenance_window").AtName("day"),
+								),
+							),
+						},
+						Default: int64default.StaticInt64(0),
+					},
+					"emergency_usage_threshold": schema.Int64Attribute{
+						Description: "Immediate autoscaling disk usage (percent).",
+						Computed:    true,
+						Optional:    true,
+						Validators: []validator.Int64{
+							int64validator.Any(
+								mdbcommon.Int64GreaterValidator(path.MatchRoot("disk_size_autoscaling").AtName("planned_usage_threshold")),
+								int64validator.OneOf(0),
+							),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 				},
 			},
@@ -310,7 +355,6 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 				Attributes: map[string]schema.Attribute{
 					"type": schema.StringAttribute{
-
 						Description: "Type of maintenance window. Can be either ANYTIME or WEEKLY. A day and hour of window need to be specified with weekly window.",
 						Optional:    true,
 						Validators: []validator.String{
@@ -581,6 +625,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Resources = cfg.Resources
 	state.Access = cfg.Access
 	state.PerformanceDiagnostics = cfg.PerformanceDiagnostics
+	state.DiskSizeAutoscaling = cfg.DiskSizeAutoscaling
 	state.BackupRetainPeriodDays = cfg.BackupRetainPeriodDays
 	state.BackupWindowStart = cfg.BackupWindowStart
 	state.MySQLConfig = cfg.MySQLConfig

@@ -139,7 +139,6 @@ func TestYandexProvider_MDBMySQLClusterConfigPerfomanceDiagnosticsExpand(t *test
 		expected  *mysql.PerformanceDiagnostics
 		hasErr    bool
 	}{
-
 		{
 			testname:  "CheckNullBlock",
 			testBlock: types.ObjectNull(pdTestExpand),
@@ -230,6 +229,7 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 				BackupRetainPeriodDays: types.Int64Null(),
 				Access:                 types.ObjectNull(expectedAccessAttrTypes),
 				PerformanceDiagnostics: types.ObjectNull(expectedPDAttrs),
+				DiskSizeAutoscaling:    types.ObjectNull(expectedDSAAttrs),
 				MySQLConfig:            NewMsSettingsMapNull(),
 			},
 			expectedVal: &mysql.ConfigSpec{
@@ -282,6 +282,14 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 						"sessions_sampling_interval":   types.Int64Value(60),
 					},
 				),
+				DiskSizeAutoscaling: types.ObjectValueMust(
+					expectedDSAAttrs,
+					map[string]attr.Value{
+						"disk_size_limit":           types.Int64Value(20),
+						"planned_usage_threshold":   types.Int64Value(30),
+						"emergency_usage_threshold": types.Int64Value(60),
+					},
+				),
 				MySQLConfig: NewMsSettingsMapValueMust(map[string]attr.Value{
 					"max_connections": types.Int64Value(100),
 				}),
@@ -307,6 +315,11 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 					Enabled:                    true,
 					StatementsSamplingInterval: 600,
 					SessionsSamplingInterval:   60,
+				},
+				DiskSizeAutoscaling: &mysql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   30,
+					EmergencyUsageThreshold: 60,
 				},
 				MysqlConfig: &mysql.ConfigSpec_MysqlConfig_8_0{
 					MysqlConfig_8_0: &config.MysqlConfig8_0{

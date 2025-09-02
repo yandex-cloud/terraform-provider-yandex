@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
-
 	"strings"
 	"testing"
 	"time"
@@ -31,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
@@ -82,9 +82,7 @@ resource "yandex_vpc_security_group" "sgroup2" {
 
 `
 
-var (
-	msVersions = [...]string{"5.7", "8.0"}
-)
+var msVersions = [...]string{"5.7", "8.0"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_mysql_cluster_v2", &resource.Sweeper{
@@ -210,6 +208,13 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 			"statements_sampling_interval": knownvalue.Int64Exact(600),
 		})),
+		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+			map[string]knownvalue.Check{
+				"disk_size_limit":           knownvalue.Int64Exact(0),
+				"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				"emergency_usage_threshold": knownvalue.Int64Exact(0),
+			},
+		)),
 		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
 			map[string]knownvalue.Check{
 				"data_lens":     knownvalue.Bool(false),
@@ -244,6 +249,11 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			Enabled:                    false,
 			SessionsSamplingInterval:   60,
 			StatementsSamplingInterval: 600,
+		}),
+		testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &mysql.DiskSizeAutoscaling{
+			DiskSizeLimit:           0,
+			PlannedUsageThreshold:   0,
+			EmergencyUsageThreshold: 0,
 		}),
 		testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 		testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{}),
@@ -319,6 +329,13 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"disk_size_limit":           knownvalue.Int64Exact(0),
+							"planned_usage_threshold":   knownvalue.Int64Exact(0),
+							"emergency_usage_threshold": knownvalue.Int64Exact(0),
+						},
+					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"hours":   knownvalue.Int64Exact(0),
 						"minutes": knownvalue.Int64Exact(0),
@@ -345,6 +362,11 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						Enabled:                    false,
 						SessionsSamplingInterval:   60,
 						StatementsSamplingInterval: 600,
+					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &mysql.DiskSizeAutoscaling{
+						DiskSizeLimit:           0,
+						PlannedUsageThreshold:   0,
+						EmergencyUsageThreshold: 0,
 					}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
@@ -423,6 +445,17 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 		statements_sampling_interval = 1000
 	`
 
+	diskSizeAutoscaling := `
+		disk_size_limit = 30
+		emergency_usage_threshold = 20
+	`
+
+	diskSizeAutoscalingUpdated := `
+		disk_size_limit = 30
+		emergency_usage_threshold = 15
+		planned_usage_threshold = 10
+	`
+
 	backupRetainPeriodDays := 7
 	backupRetainPeriodDaysUpdated := 14
 
@@ -470,6 +503,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					environment, labels, version,
 					resources, access,
 					performanceDiagnostics,
+					diskSizeAutoscaling,
 					backupWindowStart,
 					msCfg,
 					maintenanceWindow,
@@ -498,6 +532,13 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							"enabled":                      knownvalue.Bool(true),
 							"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 							"statements_sampling_interval": knownvalue.Int64Exact(600),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"disk_size_limit":           knownvalue.Int64Exact(30),
+							"planned_usage_threshold":   knownvalue.Int64Exact(0),
+							"emergency_usage_threshold": knownvalue.Int64Exact(20),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(7)),
@@ -549,6 +590,13 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 600,
 						},
 					),
+					testAccCheckClusterDiskSizeAutoscalingExact(
+						&cluster,
+						&mysql.DiskSizeAutoscaling{
+							DiskSizeLimit:           datasize.ToBytes(30),
+							PlannedUsageThreshold:   0,
+							EmergencyUsageThreshold: 20,
+						}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 						Hours:   5,
@@ -592,6 +640,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resourceId, clusterName, descriptionUpdated,
 					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
 					performanceDiagnosticsUpdated,
+					diskSizeAutoscalingUpdated,
 					backupWindowStartUpdated,
 					msCfgUpdated,
 					maintenanceWindowUpdated,
@@ -622,6 +671,14 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							"statements_sampling_interval": knownvalue.Int64Exact(1000),
 						},
 					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"disk_size_limit":           knownvalue.Int64Exact(30),
+							"planned_usage_threshold":   knownvalue.Int64Exact(10),
+							"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						},
+					)),
+
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(14)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
@@ -670,6 +727,13 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 1000,
 						},
 					),
+					testAccCheckClusterDiskSizeAutoscalingExact(
+						&cluster,
+						&mysql.DiskSizeAutoscaling{
+							DiskSizeLimit:           datasize.ToBytes(30),
+							PlannedUsageThreshold:   10,
+							EmergencyUsageThreshold: 15,
+						}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
 					testAccCheckClusterMysqlConfigExact(
 						&cluster, &msconfig.MysqlConfig8_0{
@@ -742,6 +806,11 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 		statements_sampling_interval = 600
 	`
 
+	diskSizeAutoscaling := `
+		disk_size_limit = 50
+		emergency_usage_threshold = 70
+	`
+
 	maintenanceWindow := `
 		type = "ANYTIME"
 	`
@@ -783,6 +852,13 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
 				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(0),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					},
+				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"hours":   knownvalue.Int64Exact(0),
@@ -815,6 +891,11 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
 				}),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &mysql.DiskSizeAutoscaling{
+					DiskSizeLimit:           0,
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 0,
+				}),
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{}),
 				testAccCheckClusterMysqlConfigExact(&cluster, &msconfig.MysqlConfig8_0{}, nil),
@@ -830,6 +911,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 			Config: testAccMDBMySQLClusterFull(
 				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
 				performanceDiagnostics,
+				diskSizeAutoscaling,
 				backupWindowStart,
 				"",
 				maintenanceWindow,
@@ -856,6 +938,13 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"enabled":                      knownvalue.Bool(false),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(50),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(70),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(
@@ -890,6 +979,11 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					Enabled:                    false,
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &mysql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(50),
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 70,
 				}),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 					Hours:   0,
@@ -1331,7 +1425,6 @@ func testAccCheckClusterDeletionProtectionExact(r *mysql.Cluster, expected bool)
 
 func testAccCheckClusterSecurityGroupIdsExact(r *mysql.Cluster, expectedResourceNames []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-
 		rootModule := s.RootModule()
 
 		expectedResourceIds := make([]string, len(expectedResourceNames))
@@ -1370,6 +1463,15 @@ func testAccCheckClusterPerformanceDiagnosticsExact(r *mysql.Cluster, expected *
 			return nil
 		}
 		return fmt.Errorf("Cluster %s has mismatched config performance_diagnostics.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetPerformanceDiagnostics(), expected)
+	}
+}
+
+func testAccCheckClusterDiskSizeAutoscalingExact(r *mysql.Cluster, expected *mysql.DiskSizeAutoscaling) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetDiskSizeAutoscaling(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config disk_size_autoscaling.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetDiskSizeAutoscaling(), expected)
 	}
 }
 
@@ -1482,6 +1584,7 @@ func testAccMDBMySQLClusterFull(
 	version, resources,
 	access,
 	performanceDiagnostics,
+	diskSizeAutoscaling,
 	backupWindowStart,
 	mySqlCfg,
 	maintenanceWindow string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
@@ -1515,6 +1618,9 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
   performance_diagnostics = {
 	%s
   }
+  disk_size_autoscaling = {
+	%s
+  }
   backup_retain_period_days = %d
   backup_window_start = {
   %s
@@ -1534,7 +1640,8 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart,
+		performanceDiagnostics, diskSizeAutoscaling,
+		backupRetainPeriodDays, backupWindowStart,
 		mySqlCfg,
 		maintenanceWindow, deletionProtection, testAccMDBMySQLSecurityGroupIds(confSecurityGroupIds),
 	)

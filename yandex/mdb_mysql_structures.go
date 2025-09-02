@@ -1383,6 +1383,7 @@ func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
 		BackupWindowStart:      expandMDBBackupWindowStart(d, "backup_window_start.0"),
 		Access:                 expandMySQLAccess(d),
 		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
+		DiskSizeAutoscaling:    expandMyDiskSizeAutoscaling(d),
 		BackupRetainPeriodDays: expandMyBackupRetainPeriodDays(d),
 	}
 
@@ -1473,6 +1474,29 @@ func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDi
 	return out
 }
 
+func expandMyDiskSizeAutoscaling(d *schema.ResourceData) *mysql.DiskSizeAutoscaling {
+
+	if _, ok := d.GetOk("disk_size_autoscaling"); !ok {
+		return nil
+	}
+
+	out := &mysql.DiskSizeAutoscaling{}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.disk_size_limit"); ok {
+		out.DiskSizeLimit = toBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.planned_usage_threshold"); ok {
+		out.PlannedUsageThreshold = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.emergency_usage_threshold"); ok {
+		out.EmergencyUsageThreshold = int64(v.(int))
+	}
+
+	return out
+}
+
 func expandMyBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.Int64Value {
 	if v, ok := d.GetOk("backup_retain_period_days"); ok {
 		return &wrappers.Int64Value{
@@ -1494,6 +1518,20 @@ func flattenMyPerformanceDiagnostics(p *mysql.PerformanceDiagnostics) ([]interfa
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
 
 	return []interface{}{out}, nil
+}
+
+func flattenMyDiskSizeAutoscaling(p *mysql.DiskSizeAutoscaling) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["disk_size_limit"] = toGigabytes(p.DiskSizeLimit)
+	out["planned_usage_threshold"] = int(p.PlannedUsageThreshold)
+	out["emergency_usage_threshold"] = int(p.EmergencyUsageThreshold)
+
+	return []interface{}{out}
 }
 
 func isValidMySQLPasswordConfiguration(userSpec *mysql.UserSpec) bool {

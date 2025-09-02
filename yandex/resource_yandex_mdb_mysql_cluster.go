@@ -85,9 +85,10 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 							Required:    true,
 						},
 						"disk_size": {
-							Type:        schema.TypeInt,
-							Description: "Volume of the storage available to a MySQL host, in gigabytes.",
-							Required:    true,
+							Type:             schema.TypeInt,
+							Description:      "Volume of the storage available to a MySQL host, in gigabytes.",
+							Required:         true,
+							DiffSuppressFunc: suppressDiskSizeChangeOnAutoscaling("disk_size_autoscaling.0.disk_size_limit"),
 						},
 					},
 				},
@@ -152,7 +153,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 						},
 						"global_permissions": {
 							Type:        schema.TypeSet,
-							Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` for clear list use empty list. If the attribute is not specified there will be no changes.",
+							Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH OPTIMIZER COSTS`, `SHOW ROUTINE`, `MDB ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -196,7 +197,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 						},
 						"authentication_plugin": {
 							Type:        schema.TypeString,
-							Description: "Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`).",
+							Description: "Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).",
 							Optional:    true,
 							Computed:    true,
 						},
@@ -282,14 +283,14 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"hours": {
 							Type:         schema.TypeInt,
-							Description:  "The hour at which backup will be started.",
+							Description:  "The hour at which backup will be started (UTC).",
 							Optional:     true,
 							Default:      0,
 							ValidateFunc: validation.IntBetween(0, 23),
 						},
 						"minutes": {
 							Type:         schema.TypeInt,
-							Description:  "The minute at which backup will be started.",
+							Description:  "The minute at which backup will be started (UTC).",
 							Optional:     true,
 							Default:      0,
 							ValidateFunc: validation.IntBetween(0, 59),
@@ -471,9 +472,35 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"disk_size_autoscaling": {
+				Type:        schema.TypeList,
+				Description: "Cluster disk size autoscaling settings.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:        schema.TypeInt,
+							Description: "Limit of disk size after autoscaling (GiB).",
+							Required:    true,
+						},
+						"planned_usage_threshold": {
+							Type:        schema.TypeInt,
+							Description: "Maintenance window autoscaling disk usage (percent).",
+							Optional:    true,
+						},
+						"emergency_usage_threshold": {
+							Type:        schema.TypeInt,
+							Description: "Immediate autoscaling disk usage (percent).",
+							Optional:    true,
+						},
+					},
+				},
+			},
 			"host_group_ids": {
 				Type:        schema.TypeSet,
-				Description: "",
+				Description: "A list of host group IDs to place VMs of the cluster on.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 				Optional:    true,
@@ -617,7 +644,6 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 
 func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.CreateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
-
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding labels on MySQL Cluster create: %s", err)
 	}
@@ -792,6 +818,11 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	diskSizeAutoscaling := flattenMyDiskSizeAutoscaling(cluster.GetConfig().GetDiskSizeAutoscaling())
+	if err := d.Set("disk_size_autoscaling", diskSizeAutoscaling); err != nil {
+		return err
+	}
+
 	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
 	if err := d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
@@ -913,6 +944,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"security_group_ids":        "security_group_ids",
 	"maintenance_window":        "maintenance_window",
 	"deletion_protection":       "deletion_protection",
+	"disk_size_autoscaling":     "config_spec.disk_size_autoscaling",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1207,7 +1239,6 @@ func createMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 // Takes the old set of user specs and the new set of user specs.
 // Returns the slice of user specs which have changed.
 func mysqlChangedUsers(users []*mysql.User, d *schema.ResourceData) ([]*mysql.UserSpec, error) {
-
 	oldSpecs, newSpecs := d.GetChange("user")
 	result := []*mysql.UserSpec{}
 	oldPwd := make(map[string]string)

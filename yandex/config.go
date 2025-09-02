@@ -5,13 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 

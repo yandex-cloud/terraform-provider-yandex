@@ -143,6 +143,72 @@ func TestYandexProvider_MDBMySQLClusterConfigPerfomanceDiagnosticsFlatten(t *tes
 	}
 }
 
+func TestYandexProvider_MDBMySQLClusterConfigDiskSizeAutoscaleFlatten(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	cases := []struct {
+		testname       string
+		testData       *mysql.DiskSizeAutoscaling
+		expectedObject types.Object
+		hasErr         bool
+	}{
+		{
+			testname:       "CheckNullObject",
+			testData:       nil,
+			expectedObject: types.ObjectNull(expectedDSAAttrs),
+		},
+		{
+			testname: "CheckAllAttributes",
+			testData: &mysql.DiskSizeAutoscaling{
+				DiskSizeLimit:           datasize.ToBytes(20),
+				PlannedUsageThreshold:   30,
+				EmergencyUsageThreshold: 60,
+			},
+			expectedObject: types.ObjectValueMust(expectedDSAAttrs, map[string]attr.Value{
+				"disk_size_limit":           types.Int64Value(20),
+				"planned_usage_threshold":   types.Int64Value(30),
+				"emergency_usage_threshold": types.Int64Value(60),
+			}),
+		},
+		{
+			testname: "CheckPartialAttributes",
+			testData: &mysql.DiskSizeAutoscaling{
+				DiskSizeLimit:           datasize.ToBytes(20),
+				EmergencyUsageThreshold: 60,
+			},
+			expectedObject: types.ObjectValueMust(expectedDSAAttrs, map[string]attr.Value{
+				"disk_size_limit":           types.Int64Value(20),
+				"planned_usage_threshold":   types.Int64Value(0),
+				"emergency_usage_threshold": types.Int64Value(60),
+			}),
+		},
+		{
+			testname: "CheckEmptyAttributes",
+			testData: &mysql.DiskSizeAutoscaling{},
+			expectedObject: types.ObjectValueMust(expectedDSAAttrs, map[string]attr.Value{
+				"disk_size_limit":           types.Int64Value(0),
+				"planned_usage_threshold":   types.Int64Value(0),
+				"emergency_usage_threshold": types.Int64Value(0),
+			}),
+		},
+	}
+
+	for _, c := range cases {
+		var diags diag.Diagnostics
+		res := flattenDiskSizeAutoscaling(ctx, c.testData, &diags)
+		if c.hasErr {
+			if !diags.HasError() {
+				t.Errorf("Unexpected flatten error status: expected %v, actual %v", c.hasErr, diags.HasError())
+			}
+			continue
+		}
+
+		if !c.expectedObject.Equal(res) {
+			t.Errorf("Unexpected flatten object result: expected %v, actual %v", c.expectedObject, res)
+		}
+	}
+}
+
 type invalidMsConfig struct {
 	mysql.ClusterConfig_MysqlConfig
 }
@@ -285,6 +351,11 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
 				},
+				DiskSizeAutoscaling: &mysql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   30,
+					EmergencyUsageThreshold: 60,
+				},
 				BackupWindowStart: &timeofday.TimeOfDay{
 					Hours:   10,
 					Minutes: 0,
@@ -307,6 +378,11 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 					"enabled":                      types.BoolValue(true),
 					"sessions_sampling_interval":   types.Int64Value(60),
 					"statements_sampling_interval": types.Int64Value(600),
+				}),
+				DiskSizeAutoscaling: types.ObjectValueMust(expectedDSAAttrs, map[string]attr.Value{
+					"disk_size_limit":           types.Int64Value(20),
+					"emergency_usage_threshold": types.Int64Value(60),
+					"planned_usage_threshold":   types.Int64Value(30),
 				}),
 				BackupWindowStart: types.ObjectValueMust(expectedBwsAttrTypes, map[string]attr.Value{
 					"hours":   types.Int64Value(10),
@@ -336,6 +412,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 
 				Access:                 types.ObjectNull(expectedAccessAttrTypes),
 				PerformanceDiagnostics: types.ObjectNull(expectedPDAttrs),
+				DiskSizeAutoscaling:    types.ObjectNull(expectedDSAAttrs),
 				BackupWindowStart:      types.ObjectNull(expectedBwsAttrTypes),
 				BackupRetainPeriodDays: types.Int64Null(),
 				MySQLConfig:            NewMsSettingsMapValueMust(map[string]attr.Value{}),

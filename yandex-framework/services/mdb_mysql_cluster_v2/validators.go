@@ -16,7 +16,6 @@ func NewMaintenanceWindowStructValidator() *maintenanceWindowStructValidator {
 }
 
 func (m *maintenanceWindowStructValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
-
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}

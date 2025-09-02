@@ -134,7 +134,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
 					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
-						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
+						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}},
+					}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 3, 22),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "test_key", "test_value"),
@@ -150,6 +151,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
 
 					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "12"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.disk_size_limit", "0"),
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.planned_usage_threshold", "0"),
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.emergency_usage_threshold", "0"),
+					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResource, 0, 0, 0),
 
 					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
 					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
@@ -211,7 +217,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
-						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
+						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
+					}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
 					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
@@ -234,6 +241,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "WED"),
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
 
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.disk_size_limit", "40"),
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
+					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
+					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResource, 40, 70, 90),
+
 					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "13"),
 					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
 				),
@@ -255,7 +267,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
 		Steps: []resource.TestStep{
-			//Add new host
+			// Add new host
 			{
 				Config: testAccMDBMysqlClusterHA(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
@@ -273,7 +285,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
-			//Add new host 2 cc
+			// Add new host 2 cc
 			{
 				Config: testAccMDBMysqlClusterHA2(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
@@ -750,6 +762,45 @@ func testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(r string, enabled
 	}
 }
 
+func testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(r string, diskSizeLimit, plannedUsageThreshold, emergencyUsageThreshold int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Config.DiskSizeAutoscaling.DiskSizeLimit != toBytes(int(diskSizeLimit)) {
+			return fmt.Errorf("Cluster.Config.DiskSizeAutoscaling.DiskSizeLimit must be %d, current %v",
+				toBytes(int(diskSizeLimit)), found.Config.DiskSizeAutoscaling.DiskSizeLimit)
+		}
+
+		if found.Config.DiskSizeAutoscaling.PlannedUsageThreshold != plannedUsageThreshold {
+			return fmt.Errorf("Cluster.Config.DiskSizeAutoscaling.PlannedUsageThreshold must be %d, current %v",
+				plannedUsageThreshold, found.Config.DiskSizeAutoscaling.PlannedUsageThreshold)
+		}
+
+		if found.Config.DiskSizeAutoscaling.EmergencyUsageThreshold != emergencyUsageThreshold {
+			return fmt.Errorf("Cluster.Config.DiskSizeAutoscaling.EmergencyUsageThreshold must be %d, current %v",
+				emergencyUsageThreshold, found.Config.DiskSizeAutoscaling.EmergencyUsageThreshold)
+		}
+
+		return nil
+	}
+}
+
 func testAccMDBMysqlGetHostNames(resource string, hostNames *[]string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
@@ -1008,6 +1059,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 24
+  }
+
+  disk_size_autoscaling {
+    disk_size_limit           = 40
+    planned_usage_threshold   = 70
+    emergency_usage_threshold = 90
   }
 
   mysql_config = {
