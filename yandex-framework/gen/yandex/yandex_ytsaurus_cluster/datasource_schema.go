@@ -19,8 +19,8 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 
 			"cluster_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster. Generated at creation time.",
-				Description: "ID of the cluster. Generated at creation time." +
+				MarkdownDescription: "ID of the cluster to return.",
+				Description: "ID of the cluster to return." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.GetClusterRequest.cluster_id
@@ -35,8 +35,8 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the cluster. Generated at creation time.",
-				Description: "ID of the cluster. Generated at creation time." +
+				MarkdownDescription: "ID of the cluster to return.",
+				Description: "ID of the cluster to return." +
 					// proto paths: +
 					// -> yandex.cloud.ytsaurus.v1.Cluster.id
 					// -> yandex.cloud.ytsaurus.v1.GetClusterRequest.cluster_id
@@ -94,33 +94,11 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						Computed: true,
 					},
 
-					"internal_http_proxies": schema.ListAttribute{
-						ElementType:         types.StringType,
-						MarkdownDescription: "",
-						Description: "" +
-							// proto paths: +
-							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_http_proxies
-							"package: yandex.cloud.ytsaurus.v1\n" +
-							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
-						Computed: true,
-					},
-
 					"internal_http_proxy_alias": schema.StringAttribute{
 						MarkdownDescription: "",
 						Description: "" +
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_http_proxy_alias
-							"package: yandex.cloud.ytsaurus.v1\n" +
-							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
-						Computed: true,
-					},
-
-					"internal_rpc_proxies": schema.ListAttribute{
-						ElementType:         types.StringType,
-						MarkdownDescription: "",
-						Description: "" +
-							// proto paths: +
-							// -> yandex.cloud.ytsaurus.v1.Cluster.endpointsyandex.cloud.ytsaurus.v1.Cluster.Endpoints.internal_rpc_proxies
 							"package: yandex.cloud.ytsaurus.v1\n" +
 							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
 						Computed: true,
@@ -263,6 +241,16 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 
+								"name": schema.StringAttribute{
+									MarkdownDescription: "Name for exec pool.",
+									Description: "Name for exec pool." +
+										// proto paths: +
+										// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.name
+										"package: yandex.cloud.ytsaurus.v1\n" +
+										"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+									Computed: true,
+								},
+
 								"preset": schema.StringAttribute{
 									MarkdownDescription: "",
 									Description: "" +
@@ -347,6 +335,29 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						Description: "" +
 							// proto paths: +
 							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.compute
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Computed: true,
+					},
+
+					"odin": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"checks_ttl": schema.StringAttribute{
+								MarkdownDescription: "",
+								Description: "" +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.odinyandex.cloud.ytsaurus.v1.OdinSpec.checks_ttl
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Computed: true,
+							},
+						},
+						MarkdownDescription: "",
+						Description: "" +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.odin
 							"package: yandex.cloud.ytsaurus.v1\n" +
 							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
 						Computed: true,

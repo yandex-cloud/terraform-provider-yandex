@@ -1529,3 +1529,11 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  ytsaurus_cluster:
+    Category: "Managed TYsaurus"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false

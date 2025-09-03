@@ -22,10 +22,10 @@ description: |-
 
 ### Optional
 
-- `cluster_id` (String) ID of the cluster to delete.
+- `cluster_id` (String) ID of the cluster to return.
 - `description` (String) Description of the cluster.
 - `folder_id` (String) ID of the folder that the cluster belongs to.
-- `id` (String) ID of the cluster to delete.
+- `id` (String) ID of the cluster to return.
 - `labels` (Map of String) Cluster labels as `key:value` pairs.
 - `name` (String) Name of the cluster.
  The name is unique within the folder.
@@ -50,6 +50,8 @@ Optional:
 
 - `compute` (Attributes List) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto (see [below for nested schema](#nestedatt--spec--compute))
+- `odin` (Attributes) package: yandex.cloud.ytsaurus.v1
+filename: yandex/cloud/ytsaurus/v1/cluster.proto (see [below for nested schema](#nestedatt--spec--odin))
 - `proxy` (Attributes) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto (see [below for nested schema](#nestedatt--spec--proxy))
 - `storage` (Attributes) package: yandex.cloud.ytsaurus.v1
@@ -64,6 +66,7 @@ Optional:
 
 - `disks` (Attributes List) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto (see [below for nested schema](#nestedatt--spec--compute--disks))
+- `name` (String) Name for exec pool.
 - `preset` (String) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto
 - `scale_policy` (Attributes) package: yandex.cloud.ytsaurus.v1
@@ -108,6 +111,15 @@ Optional:
 - `size` (Number) ID of the cluster. Generated at creation time.
 
 
+
+
+<a id="nestedatt--spec--odin"></a>
+### Nested Schema for `spec.odin`
+
+Optional:
+
+- `checks_ttl` (String) package: yandex.cloud.ytsaurus.v1
+filename: yandex/cloud/ytsaurus/v1/cluster.proto
 
 
 <a id="nestedatt--spec--proxy"></a>
@@ -202,11 +214,7 @@ Read-Only:
 
 - `external_http_proxy_balancer` (String) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto
-- `internal_http_proxies` (List of String) package: yandex.cloud.ytsaurus.v1
-filename: yandex/cloud/ytsaurus/v1/cluster.proto
 - `internal_http_proxy_alias` (String) package: yandex.cloud.ytsaurus.v1
-filename: yandex/cloud/ytsaurus/v1/cluster.proto
-- `internal_rpc_proxies` (List of String) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto
 - `internal_rpc_proxy_alias` (String) package: yandex.cloud.ytsaurus.v1
 filename: yandex/cloud/ytsaurus/v1/cluster.proto

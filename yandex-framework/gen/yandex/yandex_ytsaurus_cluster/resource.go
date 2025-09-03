@@ -103,6 +103,8 @@ func (r *yandexYtsaurusClusterResource) Read(ctx context.Context, req resource.R
 				"Failed to Read resource",
 				"cluster not found",
 			)
+			resp.State.RemoveResource(ctx)
+			return
 		} else {
 			resp.Diagnostics.AddError(
 				"Failed to Read resource",
@@ -332,11 +334,23 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	if !plan.FolderId.Equal(state.FolderId) {
 		updatePaths = append(updatePaths, "folder_id")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
 	if !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
+	}
+	if plan.SecurityGroupIds.IsNull() {
+		plan.SecurityGroupIds = types.ListNull(types.StringType)
+	}
+	if state.SecurityGroupIds.IsNull() {
+		state.SecurityGroupIds = types.ListNull(types.StringType)
 	}
 	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
 		updatePaths = append(updatePaths, "security_group_ids")
@@ -349,8 +363,25 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		return
 	}
 
+	if yandexYtsaurusClusterSpecPlan.Compute.IsNull() {
+		yandexYtsaurusClusterSpecPlan.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
+	}
+	if yandexYtsaurusClusterSpecState.Compute.IsNull() {
+		yandexYtsaurusClusterSpecState.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
+	}
 	if !yandexYtsaurusClusterSpecPlan.Compute.Equal(yandexYtsaurusClusterSpecState.Compute) {
 		updatePaths = append(updatePaths, "spec.compute")
+	}
+
+	var yandexYtsaurusClusterSpecOdinState, yandexYtsaurusClusterSpecOdinPlan yandexYtsaurusClusterSpecOdinModel
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Odin.As(ctx, &yandexYtsaurusClusterSpecOdinPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Odin.As(ctx, &yandexYtsaurusClusterSpecOdinState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexYtsaurusClusterSpecOdinPlan.ChecksTtl.Equal(yandexYtsaurusClusterSpecOdinState.ChecksTtl) {
+		updatePaths = append(updatePaths, "spec.odin.checks_ttl")
 	}
 
 	var yandexYtsaurusClusterSpecProxyState, yandexYtsaurusClusterSpecProxyPlan yandexYtsaurusClusterSpecProxyModel

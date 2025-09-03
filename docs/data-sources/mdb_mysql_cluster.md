@@ -35,7 +35,7 @@ output "network_id" {
 - `cluster_id` (String) The ID of the MySQL cluster.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
-- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
+- `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `mysql_config` (Map of String) MySQL cluster config block.

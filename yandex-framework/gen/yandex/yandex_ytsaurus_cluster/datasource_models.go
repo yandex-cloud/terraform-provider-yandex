@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	ytsaurus "github.com/yandex-cloud/go-genproto/yandex/cloud/ytsaurus/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 )
 
 type yandexYtsaurusClusterDatasourceModel struct {
@@ -77,7 +78,7 @@ func flattenYandexYtsaurusClusterDatasource(ctx context.Context,
 		Labels:           flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusClusterDatasource.GetLabels(), diags),
 		Name:             types.StringValue(yandexYtsaurusClusterDatasource.GetName()),
 		SecurityGroupIds: flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusClusterDatasource.GetSecurityGroupIds(), diags),
-		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusClusterDatasource.GetSpec(), diags),
+		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusClusterDatasource.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
 		Status:           types.StringValue(yandexYtsaurusClusterDatasource.GetStatus().String()),
 		SubnetId:         types.StringValue(yandexYtsaurusClusterDatasource.GetSubnetId()),
 		UpdatedAt:        types.StringValue(yandexYtsaurusClusterDatasource.GetUpdatedAt().AsTime().Format(time.RFC3339)),

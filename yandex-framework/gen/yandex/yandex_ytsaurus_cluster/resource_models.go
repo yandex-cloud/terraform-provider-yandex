@@ -103,6 +103,7 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx
 
 type yandexYtsaurusClusterSpecComputeSpecStructModel struct {
 	Disks       types.List   `tfsdk:"disks"`
+	Name        types.String `tfsdk:"name"`
 	Preset      types.String `tfsdk:"preset"`
 	ScalePolicy types.Object `tfsdk:"scale_policy"`
 }
@@ -110,6 +111,7 @@ type yandexYtsaurusClusterSpecComputeSpecStructModel struct {
 var yandexYtsaurusClusterSpecComputeSpecStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disks":        types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType},
+		"name":         types.StringType,
 		"preset":       types.StringType,
 		"scale_policy": yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType,
 	},
@@ -123,6 +125,7 @@ func flattenYandexYtsaurusClusterSpecComputeSpecStruct(ctx context.Context,
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructModel{
 		Disks:       flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetDisks(), diags),
+		Name:        types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetName()),
 		Preset:      types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetPreset()),
 		ScalePolicy: flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetScalePolicy(), diags),
 	})
@@ -145,6 +148,7 @@ func expandYandexYtsaurusClusterSpecComputeSpecStruct(ctx context.Context, yande
 func expandYandexYtsaurusClusterSpecComputeSpecStructModel(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructState yandexYtsaurusClusterSpecComputeSpecStructModel, diags *diag.Diagnostics) *ytsaurus.ComputeSpec {
 	value := &ytsaurus.ComputeSpec{}
 	value.SetDisks(expandYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx, yandexYtsaurusClusterSpecComputeSpecStructState.Disks, diags))
+	value.SetName(yandexYtsaurusClusterSpecComputeSpecStructState.Name.ValueString())
 	value.SetPreset(yandexYtsaurusClusterSpecComputeSpecStructState.Preset.ValueString())
 	value.SetScalePolicy(expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx, yandexYtsaurusClusterSpecComputeSpecStructState.ScalePolicy, diags))
 	if diags.HasError() {
@@ -395,7 +399,7 @@ func flattenYandexYtsaurusCluster(ctx context.Context,
 		Labels:           flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), diags),
 		Name:             types.StringValue(yandexYtsaurusCluster.GetName()),
 		SecurityGroupIds: flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), diags),
-		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), diags),
+		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
 		Status:           types.StringValue(yandexYtsaurusCluster.GetStatus().String()),
 		SubnetId:         types.StringValue(yandexYtsaurusCluster.GetSubnetId()),
 		UpdatedAt:        types.StringValue(yandexYtsaurusCluster.GetUpdatedAt().AsTime().Format(time.RFC3339)),
@@ -446,9 +450,7 @@ func expandYandexYtsaurusClusterModel(ctx context.Context, yandexYtsaurusCluster
 
 type yandexYtsaurusClusterEndpointsModel struct {
 	ExternalHttpProxyBalancer types.String `tfsdk:"external_http_proxy_balancer"`
-	InternalHttpProxies       types.List   `tfsdk:"internal_http_proxies"`
 	InternalHttpProxyAlias    types.String `tfsdk:"internal_http_proxy_alias"`
-	InternalRpcProxies        types.List   `tfsdk:"internal_rpc_proxies"`
 	InternalRpcProxyAlias     types.String `tfsdk:"internal_rpc_proxy_alias"`
 	Ui                        types.String `tfsdk:"ui"`
 }
@@ -456,9 +458,7 @@ type yandexYtsaurusClusterEndpointsModel struct {
 var yandexYtsaurusClusterEndpointsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"external_http_proxy_balancer": types.StringType,
-		"internal_http_proxies":        types.ListType{ElemType: types.StringType},
 		"internal_http_proxy_alias":    types.StringType,
-		"internal_rpc_proxies":         types.ListType{ElemType: types.StringType},
 		"internal_rpc_proxy_alias":     types.StringType,
 		"ui":                           types.StringType,
 	},
@@ -472,9 +472,7 @@ func flattenYandexYtsaurusClusterEndpoints(ctx context.Context,
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterEndpointsModelType.AttrTypes, yandexYtsaurusClusterEndpointsModel{
 		ExternalHttpProxyBalancer: types.StringValue(yandexYtsaurusClusterEndpoints.GetExternalHttpProxyBalancer()),
-		InternalHttpProxies:       flattenYandexYtsaurusClusterEndpointsInternalHttpProxies(ctx, yandexYtsaurusClusterEndpoints.GetInternalHttpProxies(), diags),
 		InternalHttpProxyAlias:    types.StringValue(yandexYtsaurusClusterEndpoints.GetInternalHttpProxyAlias()),
-		InternalRpcProxies:        flattenYandexYtsaurusClusterEndpointsInternalRpcProxies(ctx, yandexYtsaurusClusterEndpoints.GetInternalRpcProxies(), diags),
 		InternalRpcProxyAlias:     types.StringValue(yandexYtsaurusClusterEndpoints.GetInternalRpcProxyAlias()),
 		Ui:                        types.StringValue(yandexYtsaurusClusterEndpoints.GetUi()),
 	})
@@ -497,83 +495,13 @@ func expandYandexYtsaurusClusterEndpoints(ctx context.Context, yandexYtsaurusClu
 func expandYandexYtsaurusClusterEndpointsModel(ctx context.Context, yandexYtsaurusClusterEndpointsState yandexYtsaurusClusterEndpointsModel, diags *diag.Diagnostics) *ytsaurus.Cluster_Endpoints {
 	value := &ytsaurus.Cluster_Endpoints{}
 	value.SetExternalHttpProxyBalancer(yandexYtsaurusClusterEndpointsState.ExternalHttpProxyBalancer.ValueString())
-	value.SetInternalHttpProxies(expandYandexYtsaurusClusterEndpointsInternalHttpProxies(ctx, yandexYtsaurusClusterEndpointsState.InternalHttpProxies, diags))
 	value.SetInternalHttpProxyAlias(yandexYtsaurusClusterEndpointsState.InternalHttpProxyAlias.ValueString())
-	value.SetInternalRpcProxies(expandYandexYtsaurusClusterEndpointsInternalRpcProxies(ctx, yandexYtsaurusClusterEndpointsState.InternalRpcProxies, diags))
 	value.SetInternalRpcProxyAlias(yandexYtsaurusClusterEndpointsState.InternalRpcProxyAlias.ValueString())
 	value.SetUi(yandexYtsaurusClusterEndpointsState.Ui.ValueString())
 	if diags.HasError() {
 		return nil
 	}
 	return value
-}
-
-func flattenYandexYtsaurusClusterEndpointsInternalHttpProxies(ctx context.Context, yandexYtsaurusClusterEndpointsInternalHttpProxies []string, diags *diag.Diagnostics) types.List {
-	if yandexYtsaurusClusterEndpointsInternalHttpProxies == nil {
-		return types.ListNull(types.StringType)
-	}
-	var yandexYtsaurusClusterEndpointsInternalHttpProxiesValues []attr.Value
-	for _, elem := range yandexYtsaurusClusterEndpointsInternalHttpProxies {
-		val := types.StringValue(elem)
-		yandexYtsaurusClusterEndpointsInternalHttpProxiesValues = append(yandexYtsaurusClusterEndpointsInternalHttpProxiesValues, val)
-	}
-
-	value, diag := types.ListValue(types.StringType, yandexYtsaurusClusterEndpointsInternalHttpProxiesValues)
-	diags.Append(diag...)
-	return value
-}
-
-func expandYandexYtsaurusClusterEndpointsInternalHttpProxies(ctx context.Context, yandexYtsaurusClusterEndpointsInternalHttpProxiesState types.List, diags *diag.Diagnostics) []string {
-	if yandexYtsaurusClusterEndpointsInternalHttpProxiesState.IsNull() || yandexYtsaurusClusterEndpointsInternalHttpProxiesState.IsUnknown() {
-		return nil
-	}
-	if len(yandexYtsaurusClusterEndpointsInternalHttpProxiesState.Elements()) == 0 {
-		return []string{}
-	}
-	yandexYtsaurusClusterEndpointsInternalHttpProxiesRes := make([]string, 0, len(yandexYtsaurusClusterEndpointsInternalHttpProxiesState.Elements()))
-	yandexYtsaurusClusterEndpointsInternalHttpProxiesType := make([]types.String, 0, len(yandexYtsaurusClusterEndpointsInternalHttpProxiesState.Elements()))
-	diags.Append(yandexYtsaurusClusterEndpointsInternalHttpProxiesState.ElementsAs(ctx, &yandexYtsaurusClusterEndpointsInternalHttpProxiesType, false)...)
-	if diags.HasError() {
-		return nil
-	}
-	for _, elem := range yandexYtsaurusClusterEndpointsInternalHttpProxiesType {
-		yandexYtsaurusClusterEndpointsInternalHttpProxiesRes = append(yandexYtsaurusClusterEndpointsInternalHttpProxiesRes, elem.ValueString())
-	}
-	return yandexYtsaurusClusterEndpointsInternalHttpProxiesRes
-}
-
-func flattenYandexYtsaurusClusterEndpointsInternalRpcProxies(ctx context.Context, yandexYtsaurusClusterEndpointsInternalRpcProxies []string, diags *diag.Diagnostics) types.List {
-	if yandexYtsaurusClusterEndpointsInternalRpcProxies == nil {
-		return types.ListNull(types.StringType)
-	}
-	var yandexYtsaurusClusterEndpointsInternalRpcProxiesValues []attr.Value
-	for _, elem := range yandexYtsaurusClusterEndpointsInternalRpcProxies {
-		val := types.StringValue(elem)
-		yandexYtsaurusClusterEndpointsInternalRpcProxiesValues = append(yandexYtsaurusClusterEndpointsInternalRpcProxiesValues, val)
-	}
-
-	value, diag := types.ListValue(types.StringType, yandexYtsaurusClusterEndpointsInternalRpcProxiesValues)
-	diags.Append(diag...)
-	return value
-}
-
-func expandYandexYtsaurusClusterEndpointsInternalRpcProxies(ctx context.Context, yandexYtsaurusClusterEndpointsInternalRpcProxiesState types.List, diags *diag.Diagnostics) []string {
-	if yandexYtsaurusClusterEndpointsInternalRpcProxiesState.IsNull() || yandexYtsaurusClusterEndpointsInternalRpcProxiesState.IsUnknown() {
-		return nil
-	}
-	if len(yandexYtsaurusClusterEndpointsInternalRpcProxiesState.Elements()) == 0 {
-		return []string{}
-	}
-	yandexYtsaurusClusterEndpointsInternalRpcProxiesRes := make([]string, 0, len(yandexYtsaurusClusterEndpointsInternalRpcProxiesState.Elements()))
-	yandexYtsaurusClusterEndpointsInternalRpcProxiesType := make([]types.String, 0, len(yandexYtsaurusClusterEndpointsInternalRpcProxiesState.Elements()))
-	diags.Append(yandexYtsaurusClusterEndpointsInternalRpcProxiesState.ElementsAs(ctx, &yandexYtsaurusClusterEndpointsInternalRpcProxiesType, false)...)
-	if diags.HasError() {
-		return nil
-	}
-	for _, elem := range yandexYtsaurusClusterEndpointsInternalRpcProxiesType {
-		yandexYtsaurusClusterEndpointsInternalRpcProxiesRes = append(yandexYtsaurusClusterEndpointsInternalRpcProxiesRes, elem.ValueString())
-	}
-	return yandexYtsaurusClusterEndpointsInternalRpcProxiesRes
 }
 
 func flattenYandexYtsaurusClusterLabels(ctx context.Context, yandexYtsaurusClusterLabels map[string]string, diags *diag.Diagnostics) types.Map {
@@ -646,6 +574,7 @@ func expandYandexYtsaurusClusterSecurityGroupIds(ctx context.Context, yandexYtsa
 
 type yandexYtsaurusClusterSpecModel struct {
 	Compute types.List   `tfsdk:"compute"`
+	Odin    types.Object `tfsdk:"odin"`
 	Proxy   types.Object `tfsdk:"proxy"`
 	Storage types.Object `tfsdk:"storage"`
 	Tablet  types.Object `tfsdk:"tablet"`
@@ -654,6 +583,7 @@ type yandexYtsaurusClusterSpecModel struct {
 var yandexYtsaurusClusterSpecModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"compute": types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructModelType},
+		"odin":    yandexYtsaurusClusterSpecOdinModelType,
 		"proxy":   yandexYtsaurusClusterSpecProxyModelType,
 		"storage": yandexYtsaurusClusterSpecStorageModelType,
 		"tablet":  yandexYtsaurusClusterSpecTabletModelType,
@@ -662,12 +592,14 @@ var yandexYtsaurusClusterSpecModelType = types.ObjectType{
 
 func flattenYandexYtsaurusClusterSpec(ctx context.Context,
 	yandexYtsaurusClusterSpec *ytsaurus.ClusterSpec,
+	state yandexYtsaurusClusterSpecModel,
 	diags *diag.Diagnostics) types.Object {
 	if yandexYtsaurusClusterSpec == nil {
 		return types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecModelType.AttrTypes, yandexYtsaurusClusterSpecModel{
 		Compute: flattenYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpec.GetCompute(), diags),
+		Odin:    flattenYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpec.GetOdin(), converter.ExpandObject(ctx, state.Odin, yandexYtsaurusClusterSpecOdinModel{}, diags).(yandexYtsaurusClusterSpecOdinModel), diags),
 		Proxy:   flattenYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpec.GetProxy(), diags),
 		Storage: flattenYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpec.GetStorage(), diags),
 		Tablet:  flattenYandexYtsaurusClusterSpecTablet(ctx, yandexYtsaurusClusterSpec.GetTablet(), diags),
@@ -691,6 +623,7 @@ func expandYandexYtsaurusClusterSpec(ctx context.Context, yandexYtsaurusClusterS
 func expandYandexYtsaurusClusterSpecModel(ctx context.Context, yandexYtsaurusClusterSpecState yandexYtsaurusClusterSpecModel, diags *diag.Diagnostics) *ytsaurus.ClusterSpec {
 	value := &ytsaurus.ClusterSpec{}
 	value.SetCompute(expandYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpecState.Compute, diags))
+	value.SetOdin(expandYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpecState.Odin, diags))
 	value.SetProxy(expandYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpecState.Proxy, diags))
 	value.SetStorage(expandYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpecState.Storage, diags))
 	value.SetTablet(expandYandexYtsaurusClusterSpecTablet(ctx, yandexYtsaurusClusterSpecState.Tablet, diags))
@@ -732,6 +665,51 @@ func expandYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurusC
 		yandexYtsaurusClusterSpecComputeRes = append(yandexYtsaurusClusterSpecComputeRes, expandYandexYtsaurusClusterSpecComputeSpecStructModel(ctx, elem, diags))
 	}
 	return yandexYtsaurusClusterSpecComputeRes
+}
+
+type yandexYtsaurusClusterSpecOdinModel struct {
+	ChecksTtl types.String `tfsdk:"checks_ttl"`
+}
+
+var yandexYtsaurusClusterSpecOdinModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"checks_ttl": types.StringType,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecOdin(ctx context.Context,
+	yandexYtsaurusClusterSpecOdin *ytsaurus.OdinSpec,
+	state yandexYtsaurusClusterSpecOdinModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecOdin == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecOdinModelType.AttrTypes, yandexYtsaurusClusterSpecOdinModel{
+		ChecksTtl: types.StringValue(converter.GetDuration(yandexYtsaurusClusterSpecOdin.GetChecksTtl(), state.ChecksTtl.ValueString(), diags)),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecOdin(ctx context.Context, yandexYtsaurusClusterSpecOdinState types.Object, diags *diag.Diagnostics) *ytsaurus.OdinSpec {
+	if yandexYtsaurusClusterSpecOdinState.IsNull() || yandexYtsaurusClusterSpecOdinState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecOdin yandexYtsaurusClusterSpecOdinModel
+	diags.Append(yandexYtsaurusClusterSpecOdinState.As(ctx, &yandexYtsaurusClusterSpecOdin, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecOdinModel(ctx, yandexYtsaurusClusterSpecOdin, diags)
+}
+
+func expandYandexYtsaurusClusterSpecOdinModel(ctx context.Context, yandexYtsaurusClusterSpecOdinState yandexYtsaurusClusterSpecOdinModel, diags *diag.Diagnostics) *ytsaurus.OdinSpec {
+	value := &ytsaurus.OdinSpec{}
+	value.SetChecksTtl(converter.ParseDuration(yandexYtsaurusClusterSpecOdinState.ChecksTtl.ValueString(), diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
 }
 
 type yandexYtsaurusClusterSpecProxyModel struct {

@@ -109,6 +109,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `mysql_config` (Map of String) MySQL cluster config.
 - `performance_diagnostics` (Attributes) Cluster performance diagnostics settings. The structure is documented below. (see [below for nested schema](#nestedatt--performance_diagnostics))
 - `resources` (Block, Optional) Resources allocated to hosts of the MySQL cluster. (see [below for nested schema](#nestedblock--resources))
+- `restore` (Attributes) The cluster will be created from the specified backup. (see [below for nested schema](#nestedatt--restore))
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
@@ -184,6 +185,18 @@ Required:
 - `disk_size` (Number) Size of the disk in bytes.
 - `disk_type_id` (String) ID of the disk type that determines the disk performance characteristics.
 - `resource_preset_id` (String) ID of the resource preset that determines the number of CPU cores and memory size for the host.
+
+
+<a id="nestedatt--restore"></a>
+### Nested Schema for `restore`
+
+Required:
+
+- `backup_id` (String) Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups).
+
+Optional:
+
+- `time` (String) Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.
 
 
 <a id="nestedatt--timeouts"></a>
