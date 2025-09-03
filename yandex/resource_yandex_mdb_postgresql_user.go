@@ -422,14 +422,31 @@ func removePgUserOwnerPermissions(
 	stateUserPermissions []*postgresql.Permission,
 ) ([]*postgresql.Permission, error) {
 	config := meta.(*Config)
+	responses := make([]*postgresql.ListDatabasesResponse, 0)
 
-	resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
-		ClusterId: clusterID,
-	})
+	nextPageToken := ""
+	for {
+		req := &postgresql.ListDatabasesRequest{
+			ClusterId: clusterID,
+			PageSize:  100,
+		}
+		if nextPageToken != "" {
+			req.SetPageToken(nextPageToken)
+		}
+		resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), req)
+		responses = append(responses, resp)
+
+		if resp.GetNextPageToken() == "" {
+			break
+		}
+		nextPageToken = resp.GetNextPageToken()
+	}
 
 	dbMap := make(map[string]*postgresql.Database)
-	for _, db := range resp.Databases {
-		dbMap[db.Name] = db
+	for _, resp := range responses {
+		for _, db := range resp.Databases {
+			dbMap[db.Name] = db
+		}
 	}
 
 	statePermissionsMap := make(map[string]*postgresql.Permission)
