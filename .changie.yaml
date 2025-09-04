@@ -16,5 +16,5 @@ kinds:
 - label: WARNING
 newlines:
   beforeKind: 1
-  endOfVersion: 2
+  endOfVersion: 4
 envPrefix: CHANGIE_

@@ -1,20 +1,29 @@
-
+# Release notes
 
 ## 0.157.0 (September 4, 2025)
+
 FEATURES:
 * mysql: add `disk_size_autoscaling` attribute to `mysql` entity in `yandex_mdb_mysql_cluster` resource
+
 BUG FIXES:
 * postgresql: fix yandex_mdb_postgresql_user plan/apply with more then 100 permissions
 
+
+
 ## 0.156.0 (September 1, 2025)
+
 FEATURES:
 * opensearch: add disk encryption
 * mysql: add restore functuanality to yandex_mdb_mysql_cluster_v2 resource
+
 BUG FIXES:
 * mysql: cluster restore from backup via yandex_mdb_mysql_cluster resource fix (missing parameters, troubles with DiskEncryptionKeyId etc)
 * postgresql: avoid "no changes detected" during removal of a database and user permissions in a single yandex_mdb_postgresql_cluster update
+
 ENHANCEMENTS:
 * clickhouse: added a batch of user-level settings to yandex_mdb_clickhouse_cluster and yandex_mdb_clickhouse_user resources
+
+
 
 ## 0.155.0 (August 28, 2025)
 
@@ -2370,3 +2379,4 @@ FEATURES:
 ENHANCEMENTS:
 * compute: support IPv6 addresses
 * vpc: support IPv6 addresses
+
