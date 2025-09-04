@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix yandex_mdb_postgresql_user plan/apply with more then 100 permissions'
-time: 2025-09-03T15:26:24.295004+03:00

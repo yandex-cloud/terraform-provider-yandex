@@ -1,5 +1,11 @@
 
 
+## 0.157.0 (September 4, 2025)
+FEATURES:
+* mysql: add `disk_size_autoscaling` attribute to `mysql` entity in `yandex_mdb_mysql_cluster` resource
+BUG FIXES:
+* postgresql: fix yandex_mdb_postgresql_user plan/apply with more then 100 permissions
+
 ## 0.156.0 (September 1, 2025)
 FEATURES:
 * opensearch: add disk encryption
