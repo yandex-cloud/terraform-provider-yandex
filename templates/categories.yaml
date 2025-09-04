@@ -35,6 +35,7 @@ DocsCategories:
   - "Managed Service for Greenplum"
   - "Managed Service for SQLServer"
   - "Managed Service for Trino"
+  - "Managed YTsaurus"
   - "Data Processing"
   - "Data Transfer"
   - "Message Queue"

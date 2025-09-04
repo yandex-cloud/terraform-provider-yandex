@@ -47,10 +47,11 @@ output "network_id" {
 - `backup_window_start` (List of Object) Time to start the daily backup, in the UTC. (see [below for nested schema](#nestedatt--backup_window_start))
 - `created_at` (String) The creation timestamp of the resource.
 - `database` (Set of Object) To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`. (see [below for nested schema](#nestedatt--database))
+- `disk_size_autoscaling` (List of Object) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedatt--disk_size_autoscaling))
 - `environment` (String) Deployment environment of the MySQL cluster.
 - `health` (String) Aggregated health of the cluster.
 - `host` (List of Object) A host of the MySQL cluster. (see [below for nested schema](#nestedatt--host))
-- `host_group_ids` (Set of String)
+- `host_group_ids` (Set of String) A list of host group IDs to place VMs of the cluster on.
 - `id` (String) The ID of this resource.
 - `maintenance_window` (List of Object) Maintenance policy of the MySQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))
 - `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
@@ -79,9 +80,9 @@ Optional:
 
 Read-Only:
 
-- `hours` (Number) The hour at which backup will be started.
+- `hours` (Number) The hour at which backup will be started (UTC).
 
-- `minutes` (Number) The minute at which backup will be started.
+- `minutes` (Number) The minute at which backup will be started (UTC).
 
 
 
@@ -91,6 +92,19 @@ Read-Only:
 Read-Only:
 
 - `name` (String) The name of the database.
+
+
+
+<a id="nestedatt--disk_size_autoscaling"></a>
+### Nested Schema for `disk_size_autoscaling`
+
+Read-Only:
+
+- `disk_size_limit` (Number) Limit of disk size after autoscaling (GiB).
+
+- `emergency_usage_threshold` (Number) Immediate autoscaling disk usage (percent).
+
+- `planned_usage_threshold` (Number) Maintenance window autoscaling disk usage (percent).
 
 
 
@@ -159,11 +173,11 @@ Read-Only:
 
 Read-Only:
 
-- `authentication_plugin` (String) Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`).
+- `authentication_plugin` (String) Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).
 
 - `connection_limits` (Block List, Max: 1) User's connection limits. If not specified there will be no changes. Default value is -1. When these parameters are set to -1, backend default values will be actually used. (see [below for nested schema](#nestedobjatt--user--connection_limits))
 
-- `global_permissions` (Set of String) List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` for clear list use empty list. If the attribute is not specified there will be no changes.
+- `global_permissions` (Set of String) List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH OPTIMIZER COSTS`, `SHOW ROUTINE`, `MDB ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.
 
 - `name` (String) The name of the user.
 

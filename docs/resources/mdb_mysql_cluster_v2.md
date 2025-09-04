@@ -103,6 +103,7 @@ resource "yandex_vpc_security_group" "test-sgroup" {
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) Description of the MySQL cluster.
 - `disk_encryption_key_id` (String) ID of the symmetric encryption key used to encrypt the disk of the cluster.
+- `disk_size_autoscaling` (Attributes) Cluster disk size autoscaling settings. (see [below for nested schema](#nestedatt--disk_size_autoscaling))
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `maintenance_window` (Attributes) Maintenance policy of the MySQL cluster. (see [below for nested schema](#nestedatt--maintenance_window))
@@ -152,6 +153,19 @@ Optional:
 
 - `hours` (Number) The hour at which backup will be started (UTC).
 - `minutes` (Number) The minute at which backup will be started (UTC).
+
+
+<a id="nestedatt--disk_size_autoscaling"></a>
+### Nested Schema for `disk_size_autoscaling`
+
+Required:
+
+- `disk_size_limit` (Number) Limit of disk size after autoscaling (GiB).
+
+Optional:
+
+- `emergency_usage_threshold` (Number) Immediate autoscaling disk usage (percent).
+- `planned_usage_threshold` (Number) Maintenance window autoscaling disk usage (percent).
 
 
 <a id="nestedatt--maintenance_window"></a>
