@@ -161,15 +161,13 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
   {{ end }}
 
   {{ if .LoggingEnabled.Valid }}
+  {{ if .LoggingEnabled.Value }}
   logging = {
-    {{ if .LoggingEnabled.Value }}
     enabled   = true
     folder_id = "{{ .FolderID }}"
     min_level = "INFO"
-	{{ else }}
-	enabled = false
-	{{ end }}
   }
+  {{ end }}
   {{ end }}
 
   {{ if .Version.Valid }}
@@ -214,10 +212,9 @@ func testAccCheckMetastoreClusterDestroy(s *terraform.State) error {
 
 func metastoreClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{
-		ResourceName:            name,
-		ImportState:             true,
-		ImportStateVerify:       true,
-		ImportStateVerifyIgnore: []string{"health"},
+		ResourceName:      name,
+		ImportState:       true,
+		ImportStateVerify: true,
 	}
 }
 
@@ -355,14 +352,12 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "description", ""),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.enabled", "false"),
-					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.folder_id", folderID), // is returned by metastore API
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "4.0"),
 					// Not set
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "security_group_ids.0"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.day"),
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "maintenance_window.hour"),
-					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.min_level"),
+					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging"),
 				),
 			},
 		},

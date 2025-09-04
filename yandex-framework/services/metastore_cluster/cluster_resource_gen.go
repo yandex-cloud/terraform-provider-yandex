@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -65,6 +66,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "IP address of Metastore server balancer endpoint.",
 				MarkdownDescription: "IP address of Metastore server balancer endpoint.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"folder_id": schema.StringAttribute{
 				Optional:            true,
@@ -74,14 +78,6 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
-				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.StringAttribute{
@@ -107,24 +103,32 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"folder_id": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
 						MarkdownDescription: "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
 					},
 					"log_group_id": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
 						MarkdownDescription: "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
 					},
 					"min_level": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).",
 						MarkdownDescription: "Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).",
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
 						Validators: []validator.String{
 							logLevelValidator(),
 						},
+						Default: stringdefault.StaticString("LEVEL_UNSPECIFIED"),
 					},
 				},
 				CustomType: LoggingType{
@@ -188,6 +192,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "VPC network identifier which resource is attached.",
 				MarkdownDescription: "VPC network identifier which resource is attached.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"security_group_ids": schema.SetAttribute{
 				ElementType:         types.StringType,
@@ -222,6 +229,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Metastore server version.",
 				MarkdownDescription: "Metastore server version.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -240,7 +250,6 @@ type ClusterModel struct {
 	Description        types.String           `tfsdk:"description"`
 	EndpointIp         types.String           `tfsdk:"endpoint_ip"`
 	FolderId           types.String           `tfsdk:"folder_id"`
-	Health             types.String           `tfsdk:"health"`
 	Id                 types.String           `tfsdk:"id"`
 	Labels             types.Map              `tfsdk:"labels"`
 	Logging            LoggingValue           `tfsdk:"logging"`

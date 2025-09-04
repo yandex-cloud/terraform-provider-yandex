@@ -262,7 +262,6 @@ func refreshState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel, diag
 
 	state.EndpointIp = types.StringValue(cluster.GetEndpointIp())
 	state.FolderId = types.StringValue(cluster.GetFolderId())
-	state.Health = types.StringValue(cluster.GetHealth().String())
 
 	labels := flattenStringMap(ctx, cluster.GetLabels(), diags)
 	if !mapsAreEqual(state.Labels, labels) {

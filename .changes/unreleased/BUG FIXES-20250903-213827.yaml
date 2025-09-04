@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'metastore: fix `yandex_metastore_cluster` state (with acceptance tests)'
+time: 2025-09-03T21:38:27.045587+03:00

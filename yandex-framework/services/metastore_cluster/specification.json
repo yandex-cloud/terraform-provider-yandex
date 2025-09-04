@@ -17,7 +17,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -32,13 +36,21 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 },
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.RequiresReplace()"
                   }
                 }
@@ -53,7 +65,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -79,22 +95,9 @@
             "map": {
               "computed_optional_required": "optional",
               "description": "A set of key/value label pairs which assigned to resource.",
-              "element_type": {"string": {}}
-            }
-          },
-          {
-            "name": "health",
-            "string": {
-              "computed_optional_required": "computed",
-              "description": "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
-              "plan_modifiers": [
-                {
-                  "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
-                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
-                  }
-                }
-              ]
+              "element_type": {
+                "string": {}
+              }
             }
           },
           {
@@ -105,7 +108,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -123,7 +130,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+                      }
+                    ],
                     "schema_definition": "setplanmodifier.RequiresReplace()"
                   }
                 }
@@ -145,21 +156,47 @@
             "bool": {
               "computed_optional_required": "computed_optional",
               "description": "The `true` value means that resource is protected from accidental deletion. By default is set to `false`.",
-              "default": {"static": false}
+              "default": {
+                "static": false
+              }
             }
           },
           {
             "name": "network_id",
             "string": {
               "computed_optional_required": "computed",
-              "description": "VPC network identifier which resource is attached."
+              "description": "VPC network identifier which resource is attached.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
             }
           },
           {
             "name": "endpoint_ip",
             "string": {
               "computed_optional_required": "computed",
-              "description": "IP address of Metastore server balancer endpoint."
+              "description": "IP address of Metastore server balancer endpoint.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
             }
           },
           {
@@ -201,15 +238,39 @@
                 {
                   "name": "folder_id",
                   "string": {
-                    "computed_optional_required": "computed_optional",
-                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to **default log group** of specified folder. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
+                    "plan_modifiers": [
+                      {
+                        "custom": {
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                            }
+                          ],
+                          "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                        }
+                      }
+                    ]
                   }
                 },
                 {
                   "name": "log_group_id",
                   "string": {
-                    "computed_optional_required": "computed_optional",
-                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified."
+                    "computed_optional_required": "optional",
+                    "description": "Logs will be written to the **specified log group**. Exactly one of the attributes `folder_id` or `log_group_id` should be specified.",
+                    "plan_modifiers": [
+                      {
+                        "custom": {
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                            }
+                          ],
+                          "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                        }
+                      }
+                    ]
                   }
                 },
                 {
@@ -217,10 +278,29 @@
                   "string": {
                     "computed_optional_required": "computed_optional",
                     "description": "Minimum level of messages that will be sent to Cloud Logging. Can be either `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` or `FATAL`. If not set then server default is applied (currently `INFO`).",
+                    "default": {
+                      "static": "LEVEL_UNSPECIFIED"
+                    },
+                    "plan_modifiers": [
+                      {
+                        "custom": {
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                            }
+                          ],
+                          "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                        }
+                      }
+                    ],
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "logLevelValidator()"
                         }
                       }
@@ -238,7 +318,11 @@
               "validators": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                      }
+                    ],
                     "schema_definition": "mwValidator()"
                   }
                 }
@@ -259,7 +343,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwTypeValidator()"
                         }
                       }
@@ -274,7 +362,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwHourValidator()"
                         }
                       }
@@ -289,7 +381,11 @@
                     "validators": [
                       {
                         "custom": {
-                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
                           "schema_definition": "mwDayValidator()"
                         }
                       }
@@ -303,7 +399,19 @@
             "name": "version",
             "string": {
               "computed_optional_required": "computed_optional",
-              "description": "Metastore server version."
+              "description": "Metastore server version.",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
             }
           }
         ],

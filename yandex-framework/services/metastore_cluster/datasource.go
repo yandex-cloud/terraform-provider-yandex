@@ -127,11 +127,6 @@ func (d *metastoreClusterDatasource) Schema(ctx context.Context, req datasource.
 				Description:         "The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.",
 				MarkdownDescription: "The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.",
 			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
-				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.",
-			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Optional:            true,
