@@ -20,6 +20,7 @@ import (
 
 const serverlessContainerResource = "yandex_serverless_container.test-container"
 const serverlessContainerServiceAccountResource = "yandex_iam_service_account.test-account"
+const serverlessContainerAsyncInvocationServiceAccountResource = "yandex_iam_service_account.async-invocation"
 const serverlessContainerTestImage1 = "cr.yandex/yc/demo/coi:v1"
 const serverlessContainerTestDigest1 = "sha256:e1d772fa8795adac847a2410c87d0d2e2d38fa02f118cab8c0b5fe1fb95c47f3"
 const serverlessContainerTestImage2 = "cr.yandex/yc/demo/nginx-hostname:cli"
@@ -263,6 +264,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		disabled: false,
 		minLevel: "ERROR",
 	}
+	params.asyncInvocationConfig.serviceAccountName = acctest.RandomWithPrefix("tf-container-async-invocation-sa")
 
 	paramsUpdated := testYandexServerlessContainerParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-container-updated")
@@ -319,6 +321,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	paramsUpdated.metadataOptions = metadataOptions{
 		awsV1HTTPEndpoint: 2,
 	}
+	paramsUpdated.asyncInvocationConfig.serviceAccountName = acctest.RandomWithPrefix("tf-container-async-invocation-sa-updated")
 
 	testConfigFunc := func(params testYandexServerlessContainerParameters) resource.TestStep {
 		return resource.TestStep{
@@ -370,6 +373,8 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 
 				resource.TestCheckResourceAttr(serverlessContainerResource, "metadata_options.0.aws_v1_http_endpoint", strconv.Itoa(params.metadataOptions.awsV1HTTPEndpoint)),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "metadata_options.0.gce_http_endpoint", strconv.Itoa(params.metadataOptions.gceHTTPEndpoint)),
+
+				testYandexServerlessContainerRevisionAsyncInvocationServiceAccountID(&revision, serverlessContainerAsyncInvocationServiceAccountResource),
 
 				testAccCheckCreatedAtAttr(serverlessContainerResource),
 			),
@@ -919,6 +924,22 @@ func testYandexServerlessContainerRevisionLogOptionsPtr(
 	}
 }
 
+func testYandexServerlessContainerRevisionAsyncInvocationServiceAccountID(revision *containers.Revision, serviceAccountResource string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		sa, ok := s.RootModule().Resources[serviceAccountResource]
+		if !ok {
+			return fmt.Errorf("Not found service account: %s", serverlessContainerResource)
+		}
+		if revision.AsyncInvocationConfig == nil {
+			return fmt.Errorf("Created revision lacking async invocation config")
+		}
+		if revision.AsyncInvocationConfig.ServiceAccountId != sa.Primary.ID {
+			return fmt.Errorf("Incorrect service account: expected '%s' but found '%s'", sa.Primary.ID, revision.AsyncInvocationConfig.ServiceAccountId)
+		}
+		return nil
+	}
+}
+
 func testYandexServerlessContainerBasic(name string, desc string, memory int, image string) string {
 	return fmt.Sprintf(`
 resource "yandex_serverless_container" "test-container" {
@@ -933,29 +954,34 @@ resource "yandex_serverless_container" "test-container" {
 }
 
 type testYandexServerlessContainerParameters struct {
-	name                string
-	desc                string
-	labelKey            string
-	labelValue          string
-	memory              int
-	cores               int
-	coreFraction        int
-	executionTimeout    string
-	concurrency         int
-	runtime             string
-	imageURL            string
-	workDir             string
-	command             string
-	argument            string
-	envVarKey           string
-	envVarValue         string
-	serviceAccount      string
-	secret              testSecretParameters
-	storageMount        testStorageMountParameters
-	ephemeralDiskMounts testEphemeralDiskParameters
-	objectStorageMounts testObjectStorageParameters
-	logOptions          testLogOptions
-	metadataOptions     metadataOptions
+	name                  string
+	desc                  string
+	labelKey              string
+	labelValue            string
+	memory                int
+	cores                 int
+	coreFraction          int
+	executionTimeout      string
+	concurrency           int
+	runtime               string
+	imageURL              string
+	workDir               string
+	command               string
+	argument              string
+	envVarKey             string
+	envVarValue           string
+	serviceAccount        string
+	secret                testSecretParameters
+	storageMount          testStorageMountParameters
+	ephemeralDiskMounts   testEphemeralDiskParameters
+	objectStorageMounts   testObjectStorageParameters
+	logOptions            testLogOptions
+	metadataOptions       metadataOptions
+	asyncInvocationConfig testYandexServerlessContainerRevisionAsyncInvocationConfig
+}
+
+type testYandexServerlessContainerRevisionAsyncInvocationConfig struct {
+	serviceAccountName string
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -978,7 +1004,8 @@ resource "yandex_serverless_container" "test-container" {
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
 	yandex_resourcemanager_folder_iam_member.payload-viewer,
-    yandex_resourcemanager_folder_iam_member.sa-editor
+    yandex_resourcemanager_folder_iam_member.sa-editor,
+    yandex_resourcemanager_folder_iam_member.async-invocation-container-invoker
   ]
   secrets {
     id = yandex_lockbox_secret.secret.id
@@ -1025,6 +1052,9 @@ resource "yandex_serverless_container" "test-container" {
   metadata_options {
     aws_v1_http_endpoint = %d
     gce_http_endpoint    = %d
+  }
+  async_invocation {
+    service_account_id = yandex_iam_service_account.async-invocation.id
   }
 }
 
@@ -1073,6 +1103,17 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 
 resource "yandex_logging_group" "logging-group" {
 }
+
+resource "yandex_iam_service_account" "async-invocation" {
+  name = "%s"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "async-invocation-container-invoker" {
+  folder_id   = yandex_iam_service_account.async-invocation.folder_id
+  role        = "serverless-containers.containerInvoker"
+  member      = "serviceAccount:${yandex_iam_service_account.async-invocation.id}"
+  sleep_after = 30
+}
 	`,
 		params.name,
 		params.desc,
@@ -1109,7 +1150,9 @@ resource "yandex_logging_group" "logging-group" {
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,
-		params.secret.secretValue)
+		params.secret.secretValue,
+		params.asyncInvocationConfig.serviceAccountName,
+	)
 }
 
 type testResourceYandexServerlessContainerOptions struct {

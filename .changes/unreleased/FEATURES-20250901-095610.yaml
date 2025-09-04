@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'serverless: added `async_invocation` block to `yandex_serverless_container` resource and data source'
+time: 2025-09-01T09:56:10.526554242+03:00

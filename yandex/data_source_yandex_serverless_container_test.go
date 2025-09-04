@@ -133,6 +133,7 @@ func TestAccDataSourceYandexServerlessContainer_noRevision(t *testing.T) {
 					resource.TestCheckNoResourceAttr(dataSourcePath, "image"),
 					resource.TestCheckNoResourceAttr(dataSourcePath, "connectivity"),
 					resource.TestCheckNoResourceAttr(dataSourcePath, "log_options"),
+					resource.TestCheckNoResourceAttr(dataSourcePath, "async_invocation"),
 				),
 			},
 		},
@@ -194,6 +195,7 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 		disabled: false,
 		minLevel: "WARN",
 	}
+	params.asyncInvocationConfig.serviceAccountName = acctest.RandomWithPrefix("tf-container-async-invocation-sa")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -264,6 +266,9 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
+
+					testYandexServerlessContainerRevisionAsyncInvocationServiceAccountIDAttr(serverlessContainerResource, serverlessContainerAsyncInvocationServiceAccountResource),
+
 					testAccCheckCreatedAtAttr(serverlessContainerResource),
 				),
 			},
@@ -282,6 +287,24 @@ func testYandexServerlessContainerServiceAccountAttr(name string, serviceAccount
 			return fmt.Errorf("Not found service account: %s", serviceAccountResource)
 		}
 		serviceAccountID := rs.Primary.Attributes["service_account_id"]
+		if serviceAccountID != sa.Primary.ID {
+			return fmt.Errorf("Incorrect service account id: expected '%s' but found '%s'", sa.Primary.ID, serviceAccountID)
+		}
+		return nil
+	}
+}
+
+func testYandexServerlessContainerRevisionAsyncInvocationServiceAccountIDAttr(name string, serviceAccountResource string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found serverless container: %s", name)
+		}
+		sa, ok := s.RootModule().Resources[serviceAccountResource]
+		if !ok {
+			return fmt.Errorf("Not found service account: %s", serviceAccountResource)
+		}
+		serviceAccountID := rs.Primary.Attributes["async_invocation.0.service_account_id"]
 		if serviceAccountID != sa.Primary.ID {
 			return fmt.Errorf("Incorrect service account id: expected '%s' but found '%s'", sa.Primary.ID, serviceAccountID)
 		}
@@ -343,7 +366,8 @@ resource "yandex_serverless_container" "test-container" {
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
 	yandex_resourcemanager_folder_iam_member.payload-viewer,
-    yandex_resourcemanager_folder_iam_member.sa-editor
+    yandex_resourcemanager_folder_iam_member.sa-editor,
+    yandex_resourcemanager_folder_iam_member.async-invocation-container-invoker
   ]
   secrets {
     id = yandex_lockbox_secret.secret.id
@@ -385,6 +409,9 @@ resource "yandex_serverless_container" "test-container" {
   	disabled = "%t"
 	log_group_id = yandex_logging_group.logging-group.id
 	min_level = "%s"
+  }
+  async_invocation {
+    service_account_id = yandex_iam_service_account.async-invocation.id
   }
 }
 
@@ -433,6 +460,17 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 
 resource "yandex_logging_group" "logging-group" {
 }
+
+resource "yandex_iam_service_account" "async-invocation" {
+  name = "%s"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "async-invocation-container-invoker" {
+  folder_id   = yandex_iam_service_account.async-invocation.folder_id
+  role        = "serverless-containers.containerInvoker"
+  member      = "serviceAccount:${yandex_iam_service_account.async-invocation.id}"
+  sleep_after = 30
+}
 	`,
 		params.name,
 		params.desc,
@@ -466,7 +504,9 @@ resource "yandex_logging_group" "logging-group" {
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,
-		params.secret.secretValue)
+		params.secret.secretValue,
+		params.asyncInvocationConfig.serviceAccountName,
+	)
 }
 
 type testDataSourceYandexServerlessContainerOptions struct {

@@ -330,6 +330,19 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+
+			"async_invocation": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

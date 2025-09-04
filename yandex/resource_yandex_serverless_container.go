@@ -409,6 +409,22 @@ func resourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+
+			"async_invocation": {
+				Type:        schema.TypeList,
+				Description: "Config for asynchronous invocations of Yandex Cloud Serverless Container.",
+				MaxItems:    1,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_account_id": {
+							Type:        schema.TypeString,
+							Description: "Service account used for async invocation.",
+							Optional:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -593,7 +609,7 @@ func resourceYandexServerlessContainerUpdate(ctx context.Context, d *schema.Reso
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
 		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "mounts", "log_options", "provision_policy",
-		"runtime", "metadata_options",
+		"runtime", "metadata_options", "async_invocation",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -849,6 +865,10 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 
 	revisionReq.MetadataOptions = expandServerlessContainerMetadataOptions(d)
 
+	if v, ok := d.GetOk("async_invocation.0"); ok {
+		revisionReq.AsyncInvocationConfig = expandServerlessContainerAsyncInvocationConfig(v)
+	}
+
 	return revisionReq, nil
 }
 
@@ -879,6 +899,17 @@ func expandServerlessContainerRuntime(v interface{}) *containers.Runtime {
 		// should never happen
 		panic("unknown runtime type: " + t)
 	}
+}
+
+func expandServerlessContainerAsyncInvocationConfig(v interface{}) *containers.AsyncInvocationConfig {
+	asyncConfig := v.(map[string]interface{})
+	config := &containers.AsyncInvocationConfig{}
+
+	if saID, ok := asyncConfig["service_account_id"]; ok {
+		config.ServiceAccountId = saID.(string)
+	}
+
+	return config
 }
 
 func mapContainerModeFromTF(mode string) containers.Mount_Mode {
@@ -967,6 +998,10 @@ func flattenYandexServerlessContainer(
 	}
 
 	d.Set("metadata_options", flattenServerlessContainerMetadataOptions(revision))
+
+	if asyncConfig := flattenServerlessContainerRevisionAsyncInvocationConfig(revision.AsyncInvocationConfig); asyncConfig != nil {
+		d.Set("async_invocation", asyncConfig)
+	}
 
 	return nil
 }
@@ -1139,5 +1174,16 @@ func flattenServerlessContainerLogOptions(
 		return nil
 	}
 	res["disabled"] = logOptions.Disabled
+	return []interface{}{res}
+}
+
+func flattenServerlessContainerRevisionAsyncInvocationConfig(config *containers.AsyncInvocationConfig) []interface{} {
+	if config == nil {
+		return nil
+	}
+	res := map[string]interface{}{}
+	if config.ServiceAccountId != "" {
+		res["service_account_id"] = config.ServiceAccountId
+	}
 	return []interface{}{res}
 }
