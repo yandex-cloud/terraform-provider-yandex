@@ -322,6 +322,11 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("size", toGigabytes(image.StorageSize))
 	d.Set("pooled", image.Pooled)
 
+	if image.Os != nil {
+		if err := d.Set("os_type", image.Os.Type.String()); err != nil {
+			return err
+		}
+	}
 	if err := d.Set("labels", image.Labels); err != nil {
 		return err
 	}

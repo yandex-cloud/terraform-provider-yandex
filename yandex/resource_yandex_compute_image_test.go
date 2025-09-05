@@ -104,7 +104,7 @@ func TestAccComputeImage_update(t *testing.T) {
 				ResourceName:            "yandex_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"source_url", "os_type", "source_family"},
+				ImportStateVerifyIgnore: []string{"source_url", "source_family"},
 			},
 		},
 	})
@@ -128,14 +128,44 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 					testAccCheckComputeImageHasSourceDisk("yandex_compute_image.foobar"),
 					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 					resource.TestCheckResourceAttr("yandex_compute_image.foobar", "hardware_generation.#", "1"),
-					resource.TestCheckResourceAttr("yandex_compute_image.foobar", "hardware_generation.0.generation2_features.#", "1"),
+					resource.TestCheckResourceAttr("yandex_compute_image.foobar", "hardware_generation.0.legacy_features.#", "1"),
 				),
 			},
 			{
 				ResourceName:            "yandex_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"source_snapshot", "source_disk", "source_url", "source_image", "os_type"},
+				ImportStateVerifyIgnore: []string{"source_snapshot", "source_disk", "source_url", "source_image"},
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_osType(t *testing.T) {
+	t.Parallel()
+
+	var imageLinux, imageWindows compute.Image
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_osTypeLinux("image-linux-" + acctest.RandString(8)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists("yandex_compute_image.linux", &imageLinux),
+					testAccCheckComputeImageOsType(&imageLinux, compute.Os_LINUX),
+					resource.TestCheckResourceAttr("yandex_compute_image.linux", "os_type", "LINUX"),
+				),
+			},
+			{
+				Config: testAccComputeImage_osTypeWindows("image-windows-" + acctest.RandString(8)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists("yandex_compute_image.windows", &imageWindows),
+					testAccCheckComputeImageOsType(&imageWindows, compute.Os_WINDOWS),
+					resource.TestCheckResourceAttr("yandex_compute_image.windows", "os_type", "WINDOWS"),
+				),
 			},
 		},
 	})
@@ -271,6 +301,15 @@ func testAccCheckComputeImageHasSourceDisk(n string) resource.TestCheckFunc {
 	}
 }
 
+func testAccCheckComputeImageOsType(image *compute.Image, expectedOsType compute.Os_Type) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if image.Os.Type != expectedOsType {
+			return fmt.Errorf("Wrong OS type: expected '%s' got '%s'", expectedOsType.String(), image.Os.Type.String())
+		}
+		return nil
+	}
+}
+
 func testAccComputeImage_basic(name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "foobar" {
@@ -279,7 +318,7 @@ resource "yandex_compute_image" "foobar" {
   family        = "ubuntu-1804-lts"
   source_family = "ubuntu-1804-lts"
   min_disk_size = 10
-  os_type       = "linux"
+  os_type       = "LINUX"
 
   labels = {
     tf-label    = "tf-label-value"
@@ -297,7 +336,7 @@ resource "yandex_compute_image" "foobar" {
   family        = "kube-master"
   source_url    = "https://storage.yandexcloud.net/image4tests/kube-master-bios.img"
   min_disk_size = 10
-  os_type       = "linux"
+  os_type       = "LINUX"
 
   labels = {
     tf-label    = "tf-label-value"
@@ -319,7 +358,7 @@ resource "yandex_compute_image" "foobar" {
   description   = "description-test"
   source_family = "ubuntu-1804-lts"
   min_disk_size = 10
-  os_type       = "linux"
+  os_type       = "LINUX"
 
   labels = {
     empty-label = "oh-look-theres-a-label-now"
@@ -351,10 +390,34 @@ resource "yandex_compute_image" "foobar" {
   name          = "image-test-%s"
   source_disk   = "${yandex_compute_disk.foobar.id}"
   min_disk_size = 8
-  os_type       = "linux"
+  os_type       = "LINUX"
   hardware_generation {
-    generation2_features {}
+    legacy_features {
+      pci_topology = "PCI_TOPOLOGY_V2"
+    }
   }
 }
 `, acctest.RandString(8), acctest.RandString(8))
+}
+
+func testAccComputeImage_osTypeLinux(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_compute_image" "linux" {
+  name          = "%s"
+  source_family = "ubuntu-1804-lts"
+  min_disk_size = 10
+  os_type       = "LINUX"
+}
+`, name)
+}
+
+func testAccComputeImage_osTypeWindows(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_compute_image" "windows" {
+  name          = "%s"
+  source_family = "fotonsrv-kosmosvm2025"
+  min_disk_size = 60
+  os_type       = "WINDOWS"
+}
+`, name)
 }
