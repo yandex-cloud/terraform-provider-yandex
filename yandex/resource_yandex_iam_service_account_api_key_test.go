@@ -65,6 +65,7 @@ func TestAccServiceAccountAPIKey_multi_scoped(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
 					resource.TestCheckResourceAttr(resourceName, "scopes.0", "yc.ydb.topics.manage"),
 					resource.TestCheckResourceAttr(resourceName, "scopes.1", "yc.ydb.tables.manage"),
+					resource.TestCheckResourceAttr(resourceName, "scopes.2", "yc.postbox.send"),
 					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
 					testAccCheckCreatedAtAttr(resourceName),
 				),
@@ -75,31 +76,7 @@ func TestAccServiceAccountAPIKey_multi_scoped(t *testing.T) {
 					testAccCheckServiceAccountAPIKeyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
 					resource.TestCheckResourceAttr(resourceName, "scopes.0", "yc.ydb.topics.manage"),
-					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
-					testAccCheckCreatedAtAttr(resourceName),
-				),
-			},
-		},
-	})
-}
-
-func TestAccServiceAccountAPIKey_scoped(t *testing.T) {
-	t.Parallel()
-
-	resourceName := "yandex_iam_service_account_api_key.acceptance"
-	accountName := "sa" + acctest.RandString(10)
-	accountDesc := "Terraform Test"
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountAPIKeyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccServiceAccountAPIKeyConfigScoped(accountName, accountDesc),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckServiceAccountAPIKeyExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
-					resource.TestCheckResourceAttr(resourceName, "scope", "yc.ydb.topics.manage"),
+					resource.TestCheckResourceAttr(resourceName, "scopes.1", "yc.ydb.tables.manage"),
 					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
 					testAccCheckCreatedAtAttr(resourceName),
 				),
@@ -533,7 +510,7 @@ resource "yandex_iam_service_account" "acceptance" {
 resource "yandex_iam_service_account_api_key" "acceptance" {
   service_account_id = "${yandex_iam_service_account.acceptance.id}"
   description        = "description for test"
-  scopes        	 = ["yc.ydb.topics.manage", "yc.ydb.tables.manage"]
+  scopes        	 = ["yc.ydb.topics.manage", "yc.ydb.tables.manage", "yc.postbox.send"]
 }
 `, name, desc)
 }
@@ -547,21 +524,7 @@ resource "yandex_iam_service_account" "acceptance" {
 resource "yandex_iam_service_account_api_key" "acceptance" {
   service_account_id = "${yandex_iam_service_account.acceptance.id}"
   description        = "description for test"
-  scopes        	 = ["yc.ydb.topics.manage"]
-}
-`, name, desc)
-}
-func testAccServiceAccountAPIKeyConfigScoped(name, desc string) string {
-	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "acceptance" {
-  name        = "%s"
-  description = "%s"
-}
-
-resource "yandex_iam_service_account_api_key" "acceptance" {
-  service_account_id = "${yandex_iam_service_account.acceptance.id}"
-  description        = "description for test"
-  scope        		 = "yc.ydb.topics.manage"
+  scopes        	 = ["yc.ydb.topics.manage", "yc.ydb.tables.manage"]
 }
 `, name, desc)
 }
