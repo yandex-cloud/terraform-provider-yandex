@@ -153,7 +153,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 						},
 						"global_permissions": {
 							Type:        schema.TypeSet,
-							Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH OPTIMIZER COSTS`, `SHOW ROUTINE`, `MDB ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.",
+							Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -613,7 +613,6 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 		log.Printf("[DEBUG] Sending MySQL cluster restore request: %+v", request)
 		return config.sdk.MDB().MySQL().Cluster().Restore(ctx, request)
 	})
-
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
 	}

@@ -68,7 +68,7 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			},
 			"global_permissions": {
 				Type:        schema.TypeSet,
-				Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` for clear list use empty list. If the attribute is not specified there will be no changes.",
+				Description: "List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -317,7 +317,6 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[DEBUG] Sending MySQL user update request: %+v", request)
 		return config.sdk.MDB().MySQL().User().Update(ctx, request)
 	})
-
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in MySQL Cluster %q: %s", clusterID, err)
 	}
@@ -349,7 +348,6 @@ func resourceYandexMDBMySQLUserDelete(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[DEBUG] Sending MySQL user delete request: %+v", request)
 		return config.sdk.MDB().MySQL().User().Delete(ctx, request)
 	})
-
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from MySQL Cluster %q: %s", clusterID, err)
 	}

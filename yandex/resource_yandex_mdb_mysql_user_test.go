@@ -27,7 +27,7 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "name", "john"),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_questions_per_hour", "42"),
-					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "global_permissions.#", "2"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "global_permissions.#", "5"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "generate_password", "false"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_manager.%", "1"),
@@ -56,7 +56,8 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "name", "mary"),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
-						"mary": {MockPermission{"new_testdb", []string{"ALTER", "CREATE", "INSERT", "DROP", "DELETE"}}}}),
+						"mary": {MockPermission{"new_testdb", []string{"ALTER", "CREATE", "INSERT", "DROP", "DELETE"}}},
+					}),
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "connection_limits.#", "0"),
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "global_permissions.#", "0"),
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "generate_password", "true"),
@@ -124,7 +125,7 @@ resource "yandex_mdb_mysql_user" "john" {
       max_questions_per_hour = 42
     }
 
-    global_permissions = ["REPLICATION_SLAVE", "PROCESS"]
+    global_permissions = ["REPLICATION_SLAVE", "PROCESS", "FLUSH_OPTIMIZER_COSTS", "MDB_ADMIN", "SHOW_ROUTINE"]
 
     authentication_plugin = "MYSQL_NATIVE_PASSWORD"
 }
