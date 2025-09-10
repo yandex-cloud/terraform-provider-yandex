@@ -1378,7 +1378,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 }
 
 func testAccMDBOpenSearchClusterConfigWithManagerGroup(name, desc string, randInt int) string {
-	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return fmt.Sprintf("\n"+openSearchVPCDependencies+`
 
 locals {
   zones = [
@@ -1514,7 +1514,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 }
 
 func testAccMDBOpenSearchClusterConfigRemoveGroup(name, desc string, randInt int) string {
-	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return fmt.Sprintf("\n"+openSearchVPCDependencies+`
 
 locals {
   zones = [
