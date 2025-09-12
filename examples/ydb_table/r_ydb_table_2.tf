@@ -1,5 +1,5 @@
 //
-// Create a new row-oriented YDB Table.
+// Create a new column-oriented YDB Table.
 //
 resource "yandex_ydb_table" "test_table" {
   path              = "test_dir/test_table_3_col"
@@ -26,4 +26,10 @@ resource "yandex_ydb_table" "test_table" {
   }
 
   primary_key = ["a", "b"]
+
+  store = "column"
+
+  partitioning_settings {
+    partition_by = ["b", "a"]
+  }
 }
