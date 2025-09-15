@@ -1,5 +1,11 @@
 # Release notes
 
+
+
+## 0.159.0 (September 15, 2025)
+##### FEATURES:
+* ydb_table: add support for column-oriented tables
+
 ## 0.158.0 (September 8, 2025)
 ##### FEATURES:
 * serverless: added `async_invocation` block to `yandex_serverless_container` resource and data source
@@ -7,6 +13,8 @@
 ##### BUG FIXES:
 * compute: fixed importing os_type to yandex_compute_image
 * metastore: fix `yandex_metastore_cluster` state (with acceptance tests)
+
+
 ## 0.157.0 (September 4, 2025)
 
 ##### FEATURES:
@@ -14,6 +22,8 @@
 
 ##### BUG FIXES:
 * postgresql: fix yandex_mdb_postgresql_user plan/apply with more then 100 permissions
+
+
 
 
 
@@ -29,6 +39,8 @@
 
 ##### ENHANCEMENTS:
 * clickhouse: added a batch of user-level settings to yandex_mdb_clickhouse_cluster and yandex_mdb_clickhouse_user resources
+
+
 
 
 
@@ -48,6 +60,8 @@
 
 
 
+
+
 ## 0.154.0 (August 26, 2025)
 
 ##### FEATURES:
@@ -59,6 +73,8 @@
 * postgresql: fixed problem with pooler_config configuration passed through a module variable
 * resourcemanager: fix yandex_resourcemanager_cloud/yandex_resourcemanager_folder datasource creation
 * resourcemanager: add state upgrade for yandex_resourcemanager_cloud/yandex_resourcemanager_folder
+
+
 
 
 
@@ -76,10 +92,14 @@
 
 
 
+
+
 ## 0.152.0 (August 22, 2025)
 
 ##### FEATURES:
 * mysql: add disk encryption
+
+
 
 
 
@@ -107,6 +127,8 @@
 
 
 
+
+
 ## 0.150.0 (August 12, 2025)
 
 ##### FEATURES:
@@ -118,6 +140,8 @@
 
 
 
+
+
 ## 0.149.0 (August 7, 2025)
 
 ##### FEATURES:
@@ -126,6 +150,8 @@
 
 ##### BUG FIXES:
 * postgresql: some improvements of postgresql_conf for yandex_mdb_postgresql_cluster resource
+
+
 
 
 
@@ -143,6 +169,8 @@
 
 
 
+
+
 ## 0.147.0 (July 28, 2025)
 
 ##### FEATURES:
@@ -151,6 +179,8 @@
 
 ##### BUG FIXES:
 * postgresql: disabling performance diagnostics fix
+
+
 
 
 
@@ -168,6 +198,8 @@
 * gitlab: add update instance resource support
 * storage: deprecate `yandex_storage_bucket.policy`
 * storage: deprecate `grant` and `acl` attributes of `yandex_storage_bucket` resource
+
+
 
 
 
@@ -189,6 +221,8 @@
 * compute: add descriptions for instance group fields
 * postgresql: ignore disk size decrease when disk autoscaling is enabled
 * postgresql: human readable auto_explain_log_format instead of integers
+
+
 
 
 
@@ -214,6 +248,8 @@
 
 
 
+
+
 ## 0.143.0 (June 3, 2025)
 
 ##### FEATURES:
@@ -222,6 +258,8 @@
 
 ##### BUG FIXES:
 * mysql: exception on cluster_v2 creation without description
+
+
 
 
 
@@ -253,6 +291,8 @@
 
 
 
+
+
 ## 0.141.0 (April 28, 2025)
 
 ##### FEATURES:
@@ -274,10 +314,14 @@
 
 
 
+
+
 ## 0.140.1 (April 3, 2025)
 
 ##### BUG FIXES:
 * connection_manager: fix NPE for clickhouse, mysql and postgresql clusters without connection-manager integration
+
+
 
 
 
@@ -304,6 +348,8 @@
 
 
 
+
+
 ## 0.139.0 (February 27, 2025)
 
 ##### FEATURES:
@@ -323,10 +369,14 @@
 
 
 
+
+
 ## 0.138.0 (February 14, 2025)
 
 ##### BUG FIXES:
 * redis: fix panic in terraform provider when applying or importing cluster with empty client_output_buffer_limit settings
+
+
 
 
 
@@ -342,6 +392,8 @@
 ##### BUG FIXES:
 * postgresql: the timeout for the cluster creation request is at least 5 minute
 * datasphere: removed unused `commit_mode` and `ide` attributes of yandex_datasphere_project resource causing import crashes
+
+
 
 
 
@@ -367,6 +419,8 @@
 
 
 
+
+
 ## 0.135.0 (December 18, 2024)
 
 ##### FEATURES:
@@ -386,6 +440,8 @@
 
 
 
+
+
 ## 0.134.0 (December 3, 2024)
 
 ##### FEATURES:
@@ -398,6 +454,8 @@
 
 ##### BUG FIXES:
 * serverless: `yandex_serverless_container` resource and data source now correctly handle absence of revision
+
+
 
 
 
@@ -421,6 +479,8 @@
 
 
 
+
+
 ## 0.132.0 (November 5, 2024)
 
 ##### FEATURES:
@@ -436,6 +496,8 @@
 
 ##### ENHANCEMENTS:
 * provider: updated yandex cloud go sdk version
+
+
 
 
 
@@ -455,6 +517,8 @@
 
 ##### ENHANCEMENTS:
 * vpc: allow inplace update of security_group_rule resource
+
+
 
 
 
@@ -516,6 +580,8 @@
 
 
 
+
+
 ## 0.129.0 (September 10, 2024)
 
 ##### FEATURES:
@@ -546,6 +612,8 @@
 
 
 
+
+
 ## 0.128.0 (August 30, 2024)
 
 ##### FEATURES:
@@ -566,6 +634,8 @@
 
 ##### ENHANCEMENTS:
 * redis: allow zero value for `disk_size_limit` to disable disk size autoscaling
+
+
 
 
 
@@ -594,6 +664,8 @@
 
 
 
+
+
 ## 0.126.0 (July 30, 2024)
 
 ##### FEATURES:
@@ -612,6 +684,8 @@
 
 
 
+
+
 ## 0.124.0 (July 16, 2024)
 
 ##### FEATURES:
@@ -627,6 +701,8 @@
 
 ##### ENHANCEMENTS:
 * kafka: disabled recreation of kafka cluster after updating `disk_type_id` field in `resource_yandex_mdb_kafka_cluster`
+
+
 
 
 
@@ -655,6 +731,8 @@
 
 
 
+
+
 ## 0.122.0 (June 19, 2024)
 
 ##### BUG FIXES:
@@ -666,10 +744,14 @@
 * postgresql: update PostgreSQL Host tests
 
 
+
+
 ## 0.121.0 (June 5, 2024)
 
 ##### FEATURES:
 * ydb: add imortant consumer flag to yandex_ydb_topic
+
+
 
 
 
@@ -695,6 +777,8 @@
 
 
 
+
+
 ## 0.119.0 (May 21, 2024)
 
 ##### FEATURES:
@@ -703,6 +787,8 @@
 ##### ENHANCEMENTS:
 * alb: suppress diff for empty object and nil value of http listener redirect object;
 * loadtesting: added `platform_id` parameter for `yandex_loadtesting_agent` resource
+
+
 
 
 
@@ -723,6 +809,8 @@
 
 
 
+
+
 ## 0.117.0 (April 25, 2024)
 
 ##### FEATURES:
@@ -731,6 +819,8 @@
 ##### ENHANCEMENTS:
 * opensearch: add `hosts` computed attribute
 * opensearch: replace deprecated methods and logger 
+
+
 
 
 
@@ -745,6 +835,8 @@
 * terraform import resource_yandex_mdb_postgresql_cluster fix
 * fix documentation for `yandex_cm_certificate` resource
 * clickhouse: fixed default shard-name parameter when create cluster
+
+
 
 
 
@@ -766,6 +858,8 @@
 
 
 
+
+
 ## 0.114.0 (April 3, 2024)
 
 ##### BUG FIXES:
@@ -777,6 +871,8 @@
 ##### ENHANCEMENTS:
 * dns: added `deletion_protection` parameter to `yandex_dns_zone` resource and datasource.
 * kms: support for resolving by name in `yandex_kms_symmetric_key` data source
+
+
 
 
 
@@ -796,6 +892,8 @@
 * greenplum: fixed `pxf_config` fetching in yandex_mdb_greenplum_cluster datasource.
 * vpc: allow to change cidrs in subnet (v4_cidr_blocks)
 * vpc: add `dns_record` attribute in `yandex_vpc_address` resource and data source
+
+
 
 
 
