@@ -434,6 +434,7 @@
   "examples/cloudregistry_registry/d_cloudregistry_registry_1.tf":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry/d_cloudregistry_registry_1.tf",
   "examples/cloudregistry_registry/import.sh":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry/import.sh",
   "examples/cloudregistry_registry/r_cloudregistry_registry_1.tf":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry/r_cloudregistry_registry_1.tf",
+  "examples/cloudregistry_registry_iam_binding/d_cloudregistry_registry_iam_binding_1.tf":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry_iam_binding/d_cloudregistry_registry_iam_binding_1.tf",
   "examples/cloudregistry_registry_iam_binding/import.sh":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry_iam_binding/import.sh",
   "examples/cloudregistry_registry_iam_binding/r_cloudregistry_registry_iam_binding_1.tf":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry_iam_binding/r_cloudregistry_registry_iam_binding_1.tf",
   "examples/cloudregistry_registry_ip_permission/d_cloudregistry_registry_ip_permission_1.tf":"opensource/terraform-provider-yandex-mirror/examples/cloudregistry_registry_ip_permission/d_cloudregistry_registry_ip_permission_1.tf",

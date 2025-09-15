@@ -8,4 +8,8 @@ resource "yandex_cloudregistry_registry" "default" {
   labels = {
     my-label = "my-label-value"
   }
+  kind      = "DOCKER"
+  type      = "LOCAL"
+
+  description = "Some desctiption"
 }
