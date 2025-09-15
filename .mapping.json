@@ -729,6 +729,7 @@
   "examples/mdb_redis_user/r_mdb_redis_user_1.tf":"opensource/terraform-provider-yandex-mirror/examples/mdb_redis_user/r_mdb_redis_user_1.tf",
   "examples/mdb_sharded_postgresql_cluster/import.sh":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_cluster/import.sh",
   "examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_1.tf":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_1.tf",
+  "examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_full.tf":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_full.tf",
   "examples/mdb_sharded_postgresql_database/import.sh":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_database/import.sh",
   "examples/mdb_sharded_postgresql_database/r_mdb_sharded_postgresql_database_1.tf":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_database/r_mdb_sharded_postgresql_database_1.tf",
   "examples/mdb_sharded_postgresql_shard/import.sh":"opensource/terraform-provider-yandex-mirror/examples/mdb_sharded_postgresql_shard/import.sh",

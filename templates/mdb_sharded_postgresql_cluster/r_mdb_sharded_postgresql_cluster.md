@@ -13,6 +13,8 @@ description: |-
 
 {{ tffile "examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_1.tf" }}
 
+{{ tffile "examples/mdb_sharded_postgresql_cluster/r_mdb_sharded_postgresql_cluster_full.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
 
 ## Import

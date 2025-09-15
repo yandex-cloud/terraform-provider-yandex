@@ -70,7 +70,7 @@ func (r *clusterResource) Configure(_ context.Context,
 
 func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a ShardedPostgresql cluste within the Yandex Cloud.",
+		MarkdownDescription: "Manages a Sharded Postgresql cluster within the Yandex Cloud.",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
 				Create: true,
