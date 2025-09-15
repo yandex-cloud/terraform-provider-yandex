@@ -9,7 +9,7 @@ description: |-
 
 Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/origins).
 
-~> One of `origin_group_id` or `name` should be specified.
+~> **Note:** One of `origin_group_id` or `name` should be specified.
 
 ## Example usage
 
@@ -37,21 +37,21 @@ output "origin_group_name" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `origin` (Set of Object) A set of available origins. (see [below for nested schema](#nestedatt--origin))
-- `provider_type` (String) CDN provider is a content delivery service provider
-- `use_next` (Boolean) If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.
+- `id` (String) The ID of the CDN origin group (stored as string).
+- `origin` (Block Set) A set of available origins in the group. (see [below for nested schema](#nestedblock--origin))
+- `provider_type` (String) CDN provider type.
+- `use_next` (Boolean) If `true`, the next origin in group will be used if current origin fails. If `false`, the request will fail.
 
-<a id="nestedatt--origin"></a>
+<a id="nestedblock--origin"></a>
 ### Nested Schema for `origin`
 
 Read-Only:
 
-- `backup` (Boolean) Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
+- `backup` (Boolean) Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable. Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable. Default: `false`.
 
-- `enabled` (Boolean) The origin is enabled and used as a source for the CDN. Default `enabled`.
+- `enabled` (Boolean) Whether the origin is enabled and used as a source for the CDN. The origin is enabled and used as a source for the CDN. Default: `true`.
 
-- `origin_group_id` (String) The ID of a specific origin group.
+- `origin_group_id` (Number) The ID of the origin group this origin belongs to. The ID of the origin group that this origin belongs to.
 
-- `source` (String) IP address or Domain name of your origin and the port.
+- `source` (String) IP address or domain name of your origin and the port (e.g., `example.com:8080`). IP address or Domain name of your origin and the port (e.g., `example.com:8080` or `192.0.2.1:80`).
 

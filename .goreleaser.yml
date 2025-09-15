@@ -1,3 +1,4 @@
+version: 2
 # Visit https://goreleaser.com for documentation on how to customize this
 # behavior.
 before:
@@ -5,7 +6,8 @@ before:
     # this is just an example and not a requirement for provider building/publishing
     - go mod tidy
 builds:
-- env:
+- no_unique_dist_dir: true
+  env:
     # goreleaser does not work with CGO, it could also complicate
     # usage by users in CI/CD systems like Terraform Cloud where
     # they are unable to install libraries.
@@ -14,7 +16,7 @@ builds:
   flags:
     - -trimpath
   ldflags:
-    - '-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion={{.Version}}'
+    - '-s -w -X {{.ModulePath}}/version.ProviderVersion={{.Version}}'
   goos:
     - freebsd
     - windows
@@ -30,9 +32,11 @@ builds:
       goarch: '386'
     - goos: windows
       goarch: arm64
-  binary: '{{ .ProjectName }}_v{{ .Version }}'
+    - goos: windows
+      goarch: arm
+  binary: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 archives:
-- format: zip
+- formats: [ "zip" ]
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
@@ -53,4 +57,4 @@ release:
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
 changelog:
-  skip: true
+  disable: true
