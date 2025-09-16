@@ -791,7 +791,6 @@ func loadExistingMySQLHostsInfo(currentHosts []*mysql.Host, oldHosts []interface
 }
 
 func compareMySQLHostsInfo(d *schema.ResourceData, currentHosts []*mysql.Host, isUpdate bool) (compareMySQLHostsInfoResult, error) {
-
 	result := compareMySQLHostsInfoResult{}
 
 	oldHosts, newHosts := d.GetChange("host")
@@ -1040,7 +1039,6 @@ func flattenMysqlUserPermissions(ps []*mysql.Permission) (*schema.Set, error) {
 }
 
 func flattenMysqlUserConnectionLimits(u *mysql.User) []map[string]interface{} {
-
 	if u.ConnectionLimits == nil {
 		return nil
 	}
@@ -1179,7 +1177,6 @@ func bindDatabaseRoles(permissions []string) ([]mysql.Permission_Privilege, erro
 	var roles []mysql.Permission_Privilege
 	for _, v := range permissions {
 		role, err := getRole(v)
-
 		if err != nil {
 			return nil, err
 		}
@@ -1452,7 +1449,6 @@ func expandMySQLSqlModes(d *schema.ResourceData) ([]int32, error) {
 }
 
 func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDiagnostics {
-
 	if _, ok := d.GetOkExists("performance_diagnostics"); !ok {
 		return nil
 	}
@@ -1475,7 +1471,6 @@ func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDi
 }
 
 func expandMyDiskSizeAutoscaling(d *schema.ResourceData) *mysql.DiskSizeAutoscaling {
-
 	if _, ok := d.GetOk("disk_size_autoscaling"); !ok {
 		return nil
 	}
@@ -1534,12 +1529,35 @@ func flattenMyDiskSizeAutoscaling(p *mysql.DiskSizeAutoscaling) []interface{} {
 	return []interface{}{out}
 }
 
-func isValidMySQLPasswordConfiguration(userSpec *mysql.UserSpec) bool {
+func isValidMySQLPasswordConfiguration(userSpec *mysql.UserSpec) error {
 	passwordSpecified := len(userSpec.Password) > 0
+	generatePassword := userSpec.GeneratePassword.GetValue()
+	isPasswordAuthPlugin := isPasswordAuthPlugin(userSpec.AuthenticationPlugin)
+	isBothFieldNotSpecified := !passwordSpecified && !generatePassword
+	isBothFieldSpecified := passwordSpecified && generatePassword
+	isAnyFieldSpecified := passwordSpecified || generatePassword
+	if !isPasswordAuthPlugin && isAnyFieldSpecified {
+		return fmt.Errorf("plugin %q does not require password", userSpec.AuthenticationPlugin)
+	}
+	if isPasswordAuthPlugin && (isBothFieldNotSpecified || isBothFieldSpecified) {
+		return fmt.Errorf("must specify either password or generate_password")
+	}
+	return nil
+}
 
-	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
-	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
-	return !isBothFieldNotSpecified && !isBothFieldSpecified
+func isPasswordAuthPlugin(authPlugin mysql.AuthPlugin) bool {
+	switch authPlugin {
+	case mysql.AuthPlugin_MYSQL_NO_LOGIN,
+		mysql.AuthPlugin_MDB_IAMPROXY_AUTH:
+		return false
+	case mysql.AuthPlugin_MYSQL_NATIVE_PASSWORD,
+		mysql.AuthPlugin_CACHING_SHA2_PASSWORD,
+		mysql.AuthPlugin_SHA256_PASSWORD,
+		mysql.AuthPlugin_AUTH_PLUGIN_UNSPECIFIED:
+		return true
+	default:
+		return true
+	}
 }
 
 var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().

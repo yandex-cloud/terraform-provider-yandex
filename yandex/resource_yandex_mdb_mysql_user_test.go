@@ -11,6 +11,7 @@ import (
 const (
 	mysqlUserResourceJohn = "yandex_mdb_mysql_user.john"
 	mysqlUserResourceMary = "yandex_mdb_mysql_user.mary"
+	mysqlUserResourceJane = "yandex_mdb_mysql_user.jane"
 )
 
 // Test that a MySQL User can be created, updated and destroyed
@@ -65,6 +66,21 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				),
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceMary),
+			{
+				Config: testAccMDBMySQLUserConfigStep4(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mysqlUserResourceJane, "name", "jane"),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
+						"jane": {MockPermission{"new_testdb", []string{"ALL"}}},
+					}),
+					resource.TestCheckResourceAttr(mysqlUserResourceJane, "connection_limits.#", "0"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJane, "global_permissions.#", "0"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJane, "connection_manager.%", "0"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJane, "authentication_plugin", "MDB_IAMPROXY_AUTH"),
+				),
+			},
+			mdbMySQLUserImportStep(mysqlUserResourceJane),
 		},
 	})
 }
@@ -161,7 +177,7 @@ resource "yandex_mdb_mysql_user" "john" {
 	  max_connections_per_hour = 30
 	  max_user_connections     = 40
 	}
-    
+
 	global_permissions = ["PROCESS"]
 
 	authentication_plugin = "SHA256_PASSWORD"
@@ -181,6 +197,23 @@ resource "yandex_mdb_mysql_user" "mary" {
       database_name = yandex_mdb_mysql_database.new_testdb.name
 	  roles         = ["ALTER", "CREATE", "INSERT", "DROP", "DELETE"]
     }
+}
+`
+}
+
+// Create a new user
+func testAccMDBMySQLUserConfigStep4(clusterName string) string {
+	return testAccMDBMySQLUserConfigStep2(clusterName) + `
+resource "yandex_mdb_mysql_user" "jane" {
+	cluster_id = yandex_mdb_mysql_cluster.foo.id
+    name       = "jane"
+
+    permission {
+      database_name = yandex_mdb_mysql_database.new_testdb.name
+      roles         = ["ALL"]
+    }
+
+    authentication_plugin = "MDB_IAMPROXY_AUTH"
 }
 `
 }

@@ -85,7 +85,7 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			},
 			"authentication_plugin": {
 				Type:        schema.TypeString,
-				Description: "Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`)",
+				Description: "Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).",
 				Optional:    true,
 				Computed:    true,
 			},
@@ -170,8 +170,8 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if !isValidMySQLPasswordConfiguration(userSpec) {
-		return fmt.Errorf("must specify either password or generate_password")
+	if err := isValidMySQLPasswordConfiguration(userSpec); err != nil {
+		return err
 	}
 
 	request := &mysql.CreateUserRequest{
@@ -298,8 +298,8 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if !isValidMySQLPasswordConfiguration(user) {
-		return fmt.Errorf("must specify either password or generate_password")
+	if err := isValidMySQLPasswordConfiguration(user); err != nil {
+		return err
 	}
 
 	clusterID := d.Get("cluster_id").(string)
