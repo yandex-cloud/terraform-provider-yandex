@@ -18,7 +18,7 @@ const kmsSymmetricKeyResource = "yandex_kms_symmetric_key.test-key"
 
 func importKMSSymmetricKeyIDFunc(symmetricKey *kms.SymmetricKey, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return symmetricKey.Id + " " + role, nil
+		return symmetricKey.Id + "," + role, nil
 	}
 }
 
@@ -30,8 +30,8 @@ func TestAccKMSSymmetricKeyIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKMSSymmetricKeyIamBindingBasic(symmetricKeyName, role, userID),
@@ -41,10 +41,10 @@ func TestAccKMSSymmetricKeyIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_kms_symmetric_key_iam_binding.viewer",
-				ImportStateIdFunc: importKMSSymmetricKeyIDFunc(&symmetricKey, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_kms_symmetric_key_iam_binding.viewer",
+				ImportStateIdFunc:                    importKMSSymmetricKeyIDFunc(&symmetricKey, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "symmetric_key_id",
 			},
 		},
 	})
@@ -58,8 +58,8 @@ func TestAccKMSSymmetricKeyIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

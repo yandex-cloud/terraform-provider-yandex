@@ -22,10 +22,10 @@ func TestAccCloudIamMember_basic(t *testing.T) {
 				Config: testAccCloudAssociateMemberBasic(cloudID, role, userID),
 			},
 			{
-				ResourceName:      "yandex_resourcemanager_cloud_iam_member.acceptance",
-				ImportStateId:     fmt.Sprintf("%s %s %s", cloudID, role, "userAccount:"+userID),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_resourcemanager_cloud_iam_member.acceptance",
+				ImportStateId:                        fmt.Sprintf("%s,%s,%s", cloudID, role, "userAccount:"+userID),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "cloud_id",
 			},
 		},
 	})

@@ -74,9 +74,9 @@ func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -98,9 +98,9 @@ func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -122,9 +122,9 @@ func TestAccKubernetesNodeGroup_zero_cores(t *testing.T) {
 	nodeResource.Cores = "0"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -142,9 +142,9 @@ func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
 	nodeResource.Memory = "0"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -163,9 +163,9 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -226,9 +226,9 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -300,9 +300,9 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -351,9 +351,9 @@ func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_autoscaled(clusterResource, nodeResource),
@@ -376,9 +376,9 @@ func TestAccKubernetesNodeGroup_createPlacementGroup(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource) + constPlacementGroupResource,
@@ -417,9 +417,9 @@ func TestAccKubernetesNodeGroup_dualStack(t *testing.T) {
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
@@ -467,9 +467,9 @@ func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceSoftwareAcceleration),
@@ -499,9 +499,9 @@ func TestAccKubernetesNodeGroup_containerRuntime(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceContainerd),
@@ -522,9 +522,9 @@ func TestAccKubernetesNodeGroup_containerRuntime_invalid(t *testing.T) {
 	nodeResourceInvalid.ContainerRuntimeType = "some_invalid_type"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceInvalid),
@@ -543,9 +543,9 @@ func TestAccKubernetesNodeGroup_containerNetwork(t *testing.T) {
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),

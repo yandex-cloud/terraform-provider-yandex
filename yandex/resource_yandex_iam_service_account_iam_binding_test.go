@@ -13,7 +13,7 @@ import (
 
 func importIDFunc(serviceAccount *iam.ServiceAccount, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return serviceAccount.Id + " " + role, nil
+		return serviceAccount.Id + "," + role, nil
 	}
 }
 
@@ -25,8 +25,8 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 	role := "viewer"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamBinding_basic(cloudID, serviceAccountName, role, userID),
@@ -36,10 +36,10 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_iam_service_account_iam_binding.foo",
-				ImportStateIdFunc: importIDFunc(&serviceAccount, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_iam_service_account_iam_binding.foo",
+				ImportStateIdFunc:                    importIDFunc(&serviceAccount, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "service_account_id",
 			},
 		},
 	})

@@ -19,7 +19,7 @@ const containerRegistryResource = "yandex_container_registry.test-registry"
 
 func importContainerRegistryIDFunc(registry *containerregistry.Registry, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return registry.Id + " " + role, nil
+		return registry.Id + "," + role, nil
 	}
 }
 
@@ -31,8 +31,8 @@ func TestAccContainerRegistryIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistryIamBindingBasic(registryName, role, userID),
@@ -42,10 +42,10 @@ func TestAccContainerRegistryIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_container_registry_iam_binding.puller",
-				ImportStateIdFunc: importContainerRegistryIDFunc(&registry, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_container_registry_iam_binding.puller",
+				ImportStateIdFunc:                    importContainerRegistryIDFunc(&registry, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "registry_id",
 			},
 		},
 	})
@@ -59,8 +59,8 @@ func TestAccContainerRegistryIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

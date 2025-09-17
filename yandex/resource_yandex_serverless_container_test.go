@@ -79,9 +79,9 @@ func TestAccYandexServerlessContainer_basic(t *testing.T) {
 	memory := (1 + acctest.RandIntRange(1, 4)) * 128
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			basicYandexServerlessContainerTestStep(containerName, containerDesc, memory, serverlessContainerTestImage1, &container, &revision, true),
 			serverlessContainerImportTestStep(),
@@ -103,9 +103,9 @@ func TestAccYandexServerlessContainer_update(t *testing.T) {
 	memoryUpdated := (4 + acctest.RandIntRange(4, 6)) * 128
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			// create container
 			basicYandexServerlessContainerTestStep(containerName, containerDesc, memory, serverlessContainerTestImage1, &container, &revision, true),
@@ -178,8 +178,8 @@ func TestAccYandexServerlessContainer_updateAfterRevisionDeployError(t *testing.
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: newConfig(
@@ -382,9 +382,9 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			testConfigFunc(params),
 			serverlessContainerImportTestStep(),
@@ -589,9 +589,9 @@ func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			applyServerlessContainerNoLogOptions,
 			importServerlessContainerNoLogOptions,

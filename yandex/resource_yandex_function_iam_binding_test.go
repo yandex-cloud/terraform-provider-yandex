@@ -13,7 +13,7 @@ import (
 
 func importFunctionIDFunc(function *functions.Function, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return function.Id + " " + role, nil
+		return function.Id + "," + role, nil
 	}
 }
 
@@ -26,8 +26,8 @@ func TestAccFunctionIamBinding(t *testing.T) {
 	role := "serverless.functions.invoker"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionIamBinding_basic(functionName, zipFilename, role, userID),
@@ -37,10 +37,10 @@ func TestAccFunctionIamBinding(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_function_iam_binding.foo",
-				ImportStateIdFunc: importFunctionIDFunc(&function, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_function_iam_binding.foo",
+				ImportStateIdFunc:                    importFunctionIDFunc(&function, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "function_id",
 			},
 		},
 	})

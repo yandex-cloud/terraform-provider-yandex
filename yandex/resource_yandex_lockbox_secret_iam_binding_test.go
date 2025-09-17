@@ -18,7 +18,7 @@ const lockboxSecretResource = "yandex_lockbox_secret.test-secret"
 
 func importLockboxSecretIDFunc(lockboxSecret *lockbox.Secret, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return lockboxSecret.Id + " " + role, nil
+		return lockboxSecret.Id + "," + role, nil
 	}
 }
 
@@ -30,8 +30,8 @@ func TestAccLockboxSecretIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLockboxSecretIamBindingBasic(lockboxSecretName, role, userID),
@@ -41,10 +41,10 @@ func TestAccLockboxSecretIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_lockbox_secret_iam_binding.viewer",
-				ImportStateIdFunc: importLockboxSecretIDFunc(&lockboxSecret, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_lockbox_secret_iam_binding.viewer",
+				ImportStateIdFunc:                    importLockboxSecretIDFunc(&lockboxSecret, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "secret_id",
 			},
 		},
 	})
@@ -58,8 +58,8 @@ func TestAccLockboxSecretIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

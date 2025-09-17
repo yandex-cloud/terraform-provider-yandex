@@ -24,9 +24,9 @@ func TestAccDataSourceYandexServerlessContainer_byID(t *testing.T) {
 	memory := (1 + acctest.RandIntRange(1, 3)) * 128
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexServerlessContainerByID(containerName, containerDesc, memory, serverlessContainerTestImage1),
@@ -54,9 +54,9 @@ func TestAccDataSourceYandexServerlessContainer_byName(t *testing.T) {
 	memory := (1 + acctest.RandIntRange(1, 3)) * 128
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexServerlessContainerByName(containerName, containerDesc, memory, serverlessContainerTestImage1),
@@ -84,9 +84,9 @@ func TestAccDataSourceYandexServerlessContainer_noRevision(t *testing.T) {
 	dataSourcePath := "data.yandex_serverless_container." + tfName
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: func() string {
@@ -198,9 +198,9 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	params.asyncInvocationConfig.serviceAccountName = acctest.RandomWithPrefix("tf-container-async-invocation-sa")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexServerlessContainerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexServerlessContainerDataSource(params),

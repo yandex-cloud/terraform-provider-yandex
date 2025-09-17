@@ -18,7 +18,7 @@ const dnsZoneResource = "yandex_dns_zone.test-key"
 
 func importDNSZoneIDFunc(dnsZone *dns.DnsZone, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return dnsZone.Id + " " + role, nil
+		return dnsZone.Id + "," + role, nil
 	}
 }
 
@@ -30,8 +30,8 @@ func TestAccDNSZoneIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSZoneIamBindingBasic(symmetricKeyName, role, userID),
@@ -41,10 +41,10 @@ func TestAccDNSZoneIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_dns_zone_iam_binding.viewer",
-				ImportStateIdFunc: importDNSZoneIDFunc(&dnsZone, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_dns_zone_iam_binding.viewer",
+				ImportStateIdFunc:                    importDNSZoneIDFunc(&dnsZone, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "dns_zone_id",
 			},
 		},
 	})
@@ -58,8 +58,8 @@ func TestAccDNSZoneIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

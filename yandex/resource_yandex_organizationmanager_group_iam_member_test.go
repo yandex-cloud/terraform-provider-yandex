@@ -24,8 +24,8 @@ func TestAccOrganizationManagerGroupIamMember_basic(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -59,8 +59,8 @@ func TestAccOrganizationManagerGroupIamMember_existingBinding(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Add an access binding for the first user.
 			{
@@ -120,8 +120,8 @@ func TestAccOrganizationManagerGroupIamMember_changeRole(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -164,8 +164,8 @@ func TestAccOrganizationManagerGroupIamMember_changeUser(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM member
 			{
@@ -210,8 +210,8 @@ func TestAccOrganizationManagerGroupIamMember_separateMembers(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply two IAM members. Check that both records are visible.
 			{
@@ -276,10 +276,10 @@ func groupIamMemberImportStep(resourceName string, group *organizationmanager.Gr
 	return resource.TestStep{
 		ResourceName: resourceName,
 		ImportStateIdFunc: func(s *terraform.State) (string, error) {
-			return group.Id + " " + role + " " + "userAccount:" + userID, nil
+			return group.Id + "," + role + "," + "userAccount:" + userID, nil
 		},
-		ImportState:       true,
-		ImportStateVerify: true,
+		ImportState:                          true,
+		ImportStateVerifyIdentifierAttribute: "group_id",
 	}
 }
 

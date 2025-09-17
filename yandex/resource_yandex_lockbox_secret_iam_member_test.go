@@ -20,8 +20,8 @@ func TestAccLockboxSecretIamMember_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLockboxSecretIamMemberBasic(secretName, "", ""),
@@ -40,10 +40,10 @@ func TestAccLockboxSecretIamMember_basic(t *testing.T) {
 			{
 				ResourceName: "yandex_lockbox_secret_iam_member.test-member",
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					return secret.Id + " " + role + " " + userID, nil
+					return secret.Id + "," + role + "," + userID, nil
 				},
-				ImportState:       true,
-				ImportStateVerify: true,
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "secret_id",
 			},
 			{
 				Config: testAccLockboxSecretIamMemberBasic(secretName, "", ""),

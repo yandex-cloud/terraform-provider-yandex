@@ -20,8 +20,8 @@ func TestAccKMSAsymmetricSignatureKeyIamMember_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKMSAsymmetricSignatureKeyIamMemberBasic(kmsKeyName, "", ""),
@@ -40,10 +40,10 @@ func TestAccKMSAsymmetricSignatureKeyIamMember_basic(t *testing.T) {
 			{
 				ResourceName: "yandex_kms_asymmetric_signature_key_iam_member.test-member",
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					return kmsKey.Id + " " + role + " " + userID, nil
+					return kmsKey.Id + "," + role + "," + userID, nil
 				},
-				ImportState:       true,
-				ImportStateVerify: true,
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "asymmetric_signature_key_id",
 			},
 			{
 				Config: testAccKMSAsymmetricSignatureKeyIamMemberBasic(kmsKeyName, "", ""),

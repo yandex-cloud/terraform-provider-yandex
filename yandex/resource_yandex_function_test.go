@@ -74,9 +74,9 @@ func TestAccYandexFunction_basic(t *testing.T) {
 	zipFilename := "test-fixtures/serverless/main.zip"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename, &function),
 			functionImportTestStep(),
@@ -101,9 +101,9 @@ func TestAccYandexFunction_update(t *testing.T) {
 	zipFilename := "test-fixtures/serverless/main.zip"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename, &function),
 			functionImportTestStep(),
@@ -140,8 +140,8 @@ func TestAccYandexFunction_updateAfterVersionCreateError(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: newConfig("-3"),
@@ -330,9 +330,9 @@ func TestAccYandexFunction_full(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			testConfigFunc(params),
 			functionImportTestStep(),
@@ -540,9 +540,9 @@ func TestAccYandexFunction_logOptions(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			applyFunctionNoLogOptions,
 			importFunctionNoLogOptions,

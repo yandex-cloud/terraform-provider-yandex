@@ -19,7 +19,7 @@ const containerRepositoryResource = "yandex_container_repository.test-repository
 
 func importContainerRepositoryIDFunc(repository *containerregistry.Repository, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return repository.Id + " " + role, nil
+		return repository.Id + "," + role, nil
 	}
 }
 
@@ -32,8 +32,8 @@ func TestAccContainerRepositoryIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRepositoryIamBindingBasic(registryName, repositoryNameSuffix, role, userID),
@@ -43,10 +43,10 @@ func TestAccContainerRepositoryIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_container_repository_iam_binding.puller",
-				ImportStateIdFunc: importContainerRepositoryIDFunc(&repository, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_container_repository_iam_binding.puller",
+				ImportStateIdFunc:                    importContainerRepositoryIDFunc(&repository, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "repository_id",
 			},
 		},
 	})
@@ -61,8 +61,8 @@ func TestAccContainerRepositoryIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

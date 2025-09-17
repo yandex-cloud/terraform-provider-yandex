@@ -23,9 +23,9 @@ func TestAccDataSourceYandexFunction_byID(t *testing.T) {
 	zipFilename := "test-fixtures/serverless/main.zip"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionByID(functionName, functionDesc, zipFilename),
@@ -51,9 +51,9 @@ func TestAccDataSourceYandexFunction_byName(t *testing.T) {
 	zipFilename := "test-fixtures/serverless/main.zip"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionByName(functionName, functionDesc, zipFilename),
@@ -79,9 +79,9 @@ func TestAccDataSourceYandexFunction_noVersion(t *testing.T) {
 	dataSourcePath := "data.yandex_function." + tfName
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: func() string {
@@ -195,9 +195,9 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 	params.concurrency = "2"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionDataSource(params),

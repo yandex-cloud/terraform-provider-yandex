@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -27,7 +26,7 @@ func TestAccCloudIamBinding_basic(t *testing.T) {
 			{
 				Config: testAccCloudAssociateBindingBasic(cloudID, role, userID),
 				Check: testAccCheckCloudIam(
-					"yandex_resourcemanager_cloud_iam_binding.acceptance", role, []string{"userAccount:" + userID}),
+					cloudID, role, []string{"userAccount:" + userID}),
 			},
 			cloudIamBindingImportStep("yandex_resourcemanager_cloud_iam_binding.acceptance", cloudID, role),
 		},
@@ -49,15 +48,15 @@ func TestAccCloudIamBinding_multiple(t *testing.T) {
 			// Apply an IAM binding
 			{
 				Config: testAccCloudAssociateBindingBasic(cloudID, role1, userID1),
-				Check:  testAccCheckCloudIam("yandex_resourcemanager_cloud_iam_binding.acceptance", role1, []string{"userAccount:" + userID1}),
+				Check:  testAccCheckCloudIam(cloudID, role1, []string{"userAccount:" + userID1}),
 			},
 			// Apply another IAM binding
 			{
 				Config: testAccCloudAssociateBindingMultiple(cloudID, role1, role2, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudIam("yandex_resourcemanager_cloud_iam_binding.acceptance", role1,
+					testAccCheckCloudIam(cloudID, role1,
 						[]string{"userAccount:" + userID1, "userAccount:" + userID2}),
-					testAccCheckCloudIam("yandex_resourcemanager_cloud_iam_binding.multiple", role2,
+					testAccCheckCloudIam(cloudID, role2,
 						[]string{"userAccount:" + userID1, "userAccount:" + userID2}),
 				),
 			},
@@ -153,16 +152,9 @@ func TestAccCloudIamBinding_remove(t *testing.T) {
 	})
 }
 
-func testAccCheckCloudIam(resourceName, role string, members []string) resource.TestCheckFunc {
+func testAccCheckCloudIam(cloudID, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
-
-		cloudID := strings.SplitN(rs.Primary.ID, "/", 2)[0]
 
 		bindings, err := getCloudAccessBindings(config.Context(), config, cloudID)
 		if err != nil {
@@ -227,10 +219,10 @@ resource "yandex_resourcemanager_cloud_iam_binding" "multiple" {
 }
 func cloudIamBindingImportStep(resourceName, cloudID, role string) resource.TestStep {
 	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     fmt.Sprintf("%s %s", cloudID, role),
-		ImportState:       true,
-		ImportStateVerify: true,
+		ResourceName:                         resourceName,
+		ImportStateId:                        fmt.Sprintf("%s,%s", cloudID, role),
+		ImportState:                          true,
+		ImportStateVerifyIdentifierAttribute: "cloud_id",
 	}
 }
 

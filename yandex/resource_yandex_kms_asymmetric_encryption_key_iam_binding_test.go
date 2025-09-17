@@ -18,7 +18,7 @@ const kmsAsymmetricEncryptionKeyResource = "yandex_kms_asymmetric_encryption_key
 
 func importKMSAsymmetricEncryptionKeyIDFunc(asymmetricEncryptionKey *kms.AsymmetricEncryptionKey, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return asymmetricEncryptionKey.Id + " " + role, nil
+		return asymmetricEncryptionKey.Id + "," + role, nil
 	}
 }
 
@@ -30,8 +30,8 @@ func TestAccKMSAsymmetricEncryptionKeyIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKMSAsymmetricEncryptionKeyIamBindingBasic(asymmetricEncryptionKeyName, role, userID),
@@ -41,10 +41,10 @@ func TestAccKMSAsymmetricEncryptionKeyIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_kms_asymmetric_encryption_key_iam_binding.viewer",
-				ImportStateIdFunc: importKMSAsymmetricEncryptionKeyIDFunc(&asymmetricEncryptionKey, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_kms_asymmetric_encryption_key_iam_binding.viewer",
+				ImportStateIdFunc:                    importKMSAsymmetricEncryptionKeyIDFunc(&asymmetricEncryptionKey, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "asymmetric_encryption_key_id",
 			},
 		},
 	})
@@ -58,8 +58,8 @@ func TestAccKMSAsymmetricEncryptionKeyIamBinding_remove(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

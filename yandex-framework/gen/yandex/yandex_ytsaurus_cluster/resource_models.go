@@ -31,12 +31,13 @@ var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType = types.Ob
 
 func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct(ctx context.Context,
 	yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct *ytsaurus.ComputeSpec_DiskSpec,
+	state yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel,
 	diags *diag.Diagnostics) types.Object {
 	if yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct == nil {
 		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{
-		Locations: flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetLocations(), diags),
+		Locations: flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetLocations(), state.Locations, diags),
 		SizeGb:    types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetSizeGb())),
 		Type:      types.StringValue(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetType()),
 	})
@@ -67,8 +68,11 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel(ctx con
 	return value
 }
 
-func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations []string, diags *diag.Diagnostics) types.List {
+func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations []string, listState types.List, diags *diag.Diagnostics) types.List {
 	if yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.ListNull(types.StringType)
 	}
 	var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationsValues []attr.Value
@@ -119,12 +123,13 @@ var yandexYtsaurusClusterSpecComputeSpecStructModelType = types.ObjectType{
 
 func flattenYandexYtsaurusClusterSpecComputeSpecStruct(ctx context.Context,
 	yandexYtsaurusClusterSpecComputeSpecStruct *ytsaurus.ComputeSpec,
+	state yandexYtsaurusClusterSpecComputeSpecStructModel,
 	diags *diag.Diagnostics) types.Object {
 	if yandexYtsaurusClusterSpecComputeSpecStruct == nil {
 		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructModel{
-		Disks:       flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetDisks(), diags),
+		Disks:       flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetDisks(), state.Disks, diags),
 		Name:        types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetName()),
 		Preset:      types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetPreset()),
 		ScalePolicy: flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetScalePolicy(), diags),
@@ -157,13 +162,25 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructModel(ctx context.Context, 
 	return value
 }
 
-func flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDisks []*ytsaurus.ComputeSpec_DiskSpec, diags *diag.Diagnostics) types.List {
+func flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDisks []*ytsaurus.ComputeSpec_DiskSpec, listState types.List, diags *diag.Diagnostics) types.List {
 	if yandexYtsaurusClusterSpecComputeSpecStructDisks == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType)
 	}
+	if listState.IsNull() {
+		listState = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType)
+	}
+	stateVals := make([]yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel, 0)
+	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
 	var yandexYtsaurusClusterSpecComputeSpecStructDisksValues []attr.Value
-	for _, elem := range yandexYtsaurusClusterSpecComputeSpecStructDisks {
-		val := flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct(ctx, elem, diags)
+	for i, elem := range yandexYtsaurusClusterSpecComputeSpecStructDisks {
+		state := yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{}
+		if len(stateVals) > i {
+			state = stateVals[i]
+		}
+		val := flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct(ctx, elem, state, diags)
 		yandexYtsaurusClusterSpecComputeSpecStructDisksValues = append(yandexYtsaurusClusterSpecComputeSpecStructDisksValues, val)
 	}
 
@@ -396,9 +413,9 @@ func flattenYandexYtsaurusCluster(ctx context.Context,
 		Endpoints:        flattenYandexYtsaurusClusterEndpoints(ctx, yandexYtsaurusCluster.GetEndpoints(), diags),
 		FolderId:         types.StringValue(yandexYtsaurusCluster.GetFolderId()),
 		Health:           types.StringValue(yandexYtsaurusCluster.GetHealth().String()),
-		Labels:           flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), diags),
+		Labels:           flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), state.Labels, diags),
 		Name:             types.StringValue(yandexYtsaurusCluster.GetName()),
-		SecurityGroupIds: flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), diags),
+		SecurityGroupIds: flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
 		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
 		Status:           types.StringValue(yandexYtsaurusCluster.GetStatus().String()),
 		SubnetId:         types.StringValue(yandexYtsaurusCluster.GetSubnetId()),
@@ -504,8 +521,11 @@ func expandYandexYtsaurusClusterEndpointsModel(ctx context.Context, yandexYtsaur
 	return value
 }
 
-func flattenYandexYtsaurusClusterLabels(ctx context.Context, yandexYtsaurusClusterLabels map[string]string, diags *diag.Diagnostics) types.Map {
+func flattenYandexYtsaurusClusterLabels(ctx context.Context, yandexYtsaurusClusterLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
 	if yandexYtsaurusClusterLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.MapNull(types.StringType)
 	}
 	yandexYtsaurusClusterLabelsValues := make(map[string]attr.Value)
@@ -538,8 +558,11 @@ func expandYandexYtsaurusClusterLabels(ctx context.Context, yandexYtsaurusCluste
 	return yandexYtsaurusClusterLabelsRes
 }
 
-func flattenYandexYtsaurusClusterSecurityGroupIds(ctx context.Context, yandexYtsaurusClusterSecurityGroupIds []string, diags *diag.Diagnostics) types.List {
+func flattenYandexYtsaurusClusterSecurityGroupIds(ctx context.Context, yandexYtsaurusClusterSecurityGroupIds []string, listState types.List, diags *diag.Diagnostics) types.List {
 	if yandexYtsaurusClusterSecurityGroupIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.ListNull(types.StringType)
 	}
 	var yandexYtsaurusClusterSecurityGroupIdsValues []attr.Value
@@ -598,7 +621,7 @@ func flattenYandexYtsaurusClusterSpec(ctx context.Context,
 		return types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecModelType.AttrTypes, yandexYtsaurusClusterSpecModel{
-		Compute: flattenYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpec.GetCompute(), diags),
+		Compute: flattenYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpec.GetCompute(), state.Compute, diags),
 		Odin:    flattenYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpec.GetOdin(), converter.ExpandObject(ctx, state.Odin, yandexYtsaurusClusterSpecOdinModel{}, diags).(yandexYtsaurusClusterSpecOdinModel), diags),
 		Proxy:   flattenYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpec.GetProxy(), diags),
 		Storage: flattenYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpec.GetStorage(), diags),
@@ -633,13 +656,25 @@ func expandYandexYtsaurusClusterSpecModel(ctx context.Context, yandexYtsaurusClu
 	return value
 }
 
-func flattenYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurusClusterSpecCompute []*ytsaurus.ComputeSpec, diags *diag.Diagnostics) types.List {
+func flattenYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurusClusterSpecCompute []*ytsaurus.ComputeSpec, listState types.List, diags *diag.Diagnostics) types.List {
 	if yandexYtsaurusClusterSpecCompute == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
 	}
+	if listState.IsNull() {
+		listState = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
+	}
+	stateVals := make([]yandexYtsaurusClusterSpecComputeSpecStructModel, 0)
+	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
 	var yandexYtsaurusClusterSpecComputeValues []attr.Value
-	for _, elem := range yandexYtsaurusClusterSpecCompute {
-		val := flattenYandexYtsaurusClusterSpecComputeSpecStruct(ctx, elem, diags)
+	for i, elem := range yandexYtsaurusClusterSpecCompute {
+		state := yandexYtsaurusClusterSpecComputeSpecStructModel{}
+		if len(stateVals) > i {
+			state = stateVals[i]
+		}
+		val := flattenYandexYtsaurusClusterSpecComputeSpecStruct(ctx, elem, state, diags)
 		yandexYtsaurusClusterSpecComputeValues = append(yandexYtsaurusClusterSpecComputeValues, val)
 	}
 

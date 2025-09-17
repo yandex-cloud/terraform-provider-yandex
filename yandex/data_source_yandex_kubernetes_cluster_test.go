@@ -18,9 +18,9 @@ func TestAccDataSourceKubernetesClusterZonal_basic(t *testing.T) {
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceKubernetesClusterZonalConfig_basic(clusterResource),
@@ -44,9 +44,9 @@ func TestAccDataSourceKubernetesClusterRegional_basic(t *testing.T) {
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceKubernetesClusterRegionalConfig_basic(clusterResource),
@@ -77,9 +77,9 @@ func TestAccDataSourceKubernetesClusterRegional_externalIPv6Address(t *testing.T
 	defer mutexKV.Unlock(clusterResource.SubnetResourceNameD)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceKubernetesClusterRegionalConfig_basic(clusterResource),
@@ -105,9 +105,9 @@ func TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium(t *test
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceKubernetesClusterZonalConfig_basic(clusterResource),

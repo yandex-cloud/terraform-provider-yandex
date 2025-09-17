@@ -28,7 +28,7 @@ import (
 
 const (
 	defaultPageSize = 1000
-	defaultTimeout  = 1 * time.Minute
+	defaultTimeout  = 5 * time.Minute
 )
 
 type iamPolicyModifyFunc func(p *accessbinding.Policy) error
@@ -69,6 +69,10 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"sleep_after": schema.Int64Attribute{
+				MarkdownDescription: "For test purposes, to compensate IAM operations delay",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -103,7 +107,7 @@ func (r *IAMMemberUpdater) Metadata(_ context.Context, req resource.MetadataRequ
 }
 
 func (r *IAMMemberUpdater) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, " ")
+	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 3 {
 		resp.Diagnostics.AddError(
@@ -189,6 +193,12 @@ func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateReques
 				u.certificateId, err),
 		)
 		return
+	}
+
+	var sleep types.Int64
+	req.Plan.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
+	if !sleep.IsNull() && !sleep.IsUnknown() {
+		time.Sleep(time.Second * time.Duration(sleep.ValueInt64()))
 	}
 
 	u.refreshMemberState(ctx, req.Plan, &resp.State, resp.Diagnostics)
@@ -377,6 +387,9 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 		diag.Append(resp.SetAttribute(ctx, path.Root("certificate_id"), "")...)
 		diag.Append(resp.SetAttribute(ctx, path.Root("role"), "")...)
 		diag.Append(resp.SetAttribute(ctx, path.Root("member"), "")...)
+		var sleep types.Int64
+		req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
+		diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
 	}
 
 	p, err := u.GetResourceIamPolicy(ctx)
@@ -440,4 +453,7 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	diag.Append(resp.SetAttribute(ctx, path.Root("certificate_id"), u.certificateId)...)
 	diag.Append(resp.SetAttribute(ctx, path.Root("role"), member.RoleId)...)
 	diag.Append(resp.SetAttribute(ctx, path.Root("member"), canonicalMemberValue)...)
+	var sleep types.Int64
+	req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
+	diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
 }

@@ -20,20 +20,9 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_disk_placement_group_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_filesystem_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_gpu_cluster_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_image_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_instance_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_placement_group_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_snapshot_iam_binding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute_snapshot_schedule_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_database"
@@ -290,9 +279,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
 		datasphere_project.NewResource,
-		datasphere_project_iam_binding.NewIamBinding,
 		datasphere_community.NewResource,
-		datasphere_community_iam_binding.NewIamBinding,
 		mdb_clickhouse_database.NewResource,
 		mdb_clickhouse_user.NewResource,
 		mdb_greenplum_resource_group.NewResource,
@@ -300,14 +287,6 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_mongodb_database.NewResource,
 		mdb_mongodb_user.NewResource,
 		mdb_opensearch_cluster.NewResource,
-		compute_disk_placement_group_iam_binding.NewIamBinding,
-		compute_filesystem_iam_binding.NewIamBinding,
-		compute_gpu_cluster_iam_binding.NewIamBinding,
-		compute_image_iam_binding.NewIamBinding,
-		compute_instance_iam_binding.NewIamBinding,
-		compute_placement_group_iam_binding.NewIamBinding,
-		compute_snapshot_iam_binding.NewIamBinding,
-		compute_snapshot_schedule_iam_binding.NewIamBinding,
 		airflow_cluster.NewResource,
 		metastore_cluster.NewResource,
 		vpc_security_group_rule.NewResource,
@@ -332,7 +311,6 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_sharded_postgresql_cluster.NewShardedPostgreSQLClusterResource,
 		mdb_sharded_postgresql_user.NewShardedPostgreSQLUserResource,
 		mdb_sharded_postgresql_database.NewShardedPostgreSQLDatabaseResource,
-		cloudregistry_iam_binding.NewResource,
 		cloudregistry_ip_permission.NewResource,
 		mdb_sharded_postgresql_shard.NewShardedPostgreSQLShardResource,
 	}, yandex_gen.GetProviderResources()...)

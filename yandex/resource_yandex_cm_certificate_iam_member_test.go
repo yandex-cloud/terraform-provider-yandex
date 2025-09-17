@@ -24,8 +24,8 @@ func TestAccCMCertificateIamMember_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCMCertificateIamMemberBasic(name, certificateContent, privateKey, "", ""),
@@ -44,10 +44,10 @@ func TestAccCMCertificateIamMember_basic(t *testing.T) {
 			{
 				ResourceName: "yandex_cm_certificate_iam_member.test-member",
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					return certificate.Id + " " + role + " " + userID, nil
+					return certificate.Id + "," + role + "," + userID, nil
 				},
-				ImportState:       true,
-				ImportStateVerify: true,
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "certificate_id",
 			},
 			{
 				Config: testAccCMCertificateIamMemberBasic(name, certificateContent, privateKey, "", ""),

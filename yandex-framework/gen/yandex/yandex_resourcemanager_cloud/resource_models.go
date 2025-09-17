@@ -52,7 +52,7 @@ func flattenYandexResourcemanagerCloud(ctx context.Context,
 		ID:             types.StringValue(yandexResourcemanagerCloud.GetId()),
 		CreatedAt:      types.StringValue(yandexResourcemanagerCloud.GetCreatedAt().AsTime().Format(time.RFC3339)),
 		Description:    types.StringValue(yandexResourcemanagerCloud.GetDescription()),
-		Labels:         flattenYandexResourcemanagerCloudLabels(ctx, yandexResourcemanagerCloud.GetLabels(), diags),
+		Labels:         flattenYandexResourcemanagerCloudLabels(ctx, yandexResourcemanagerCloud.GetLabels(), state.Labels, diags),
 		Name:           types.StringValue(yandexResourcemanagerCloud.GetName()),
 		OrganizationId: types.StringValue(yandexResourcemanagerCloud.GetOrganizationId()),
 		Timeouts:       to,
@@ -88,8 +88,11 @@ func expandYandexResourcemanagerCloudModel(ctx context.Context, yandexResourcema
 	return value
 }
 
-func flattenYandexResourcemanagerCloudLabels(ctx context.Context, yandexResourcemanagerCloudLabels map[string]string, diags *diag.Diagnostics) types.Map {
+func flattenYandexResourcemanagerCloudLabels(ctx context.Context, yandexResourcemanagerCloudLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
 	if yandexResourcemanagerCloudLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.MapNull(types.StringType)
 	}
 	yandexResourcemanagerCloudLabelsValues := make(map[string]attr.Value)

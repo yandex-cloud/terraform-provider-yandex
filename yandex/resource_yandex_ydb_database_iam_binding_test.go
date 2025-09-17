@@ -18,7 +18,7 @@ const ydbDatabaseResource = "yandex_ydb_database_serverless.test-database"
 
 func importYDBDatabaseIDFunc(database *ydb.Database, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return database.Id + " " + role, nil
+		return database.Id + "," + role, nil
 	}
 }
 
@@ -31,8 +31,8 @@ func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
 	userID := "system:allAuthenticatedUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId),
@@ -42,10 +42,10 @@ func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_ydb_database_iam_binding.viewer",
-				ImportStateIdFunc: importYDBDatabaseIDFunc(&database, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_ydb_database_iam_binding.viewer",
+				ImportStateIdFunc:                    importYDBDatabaseIDFunc(&database, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "database_id",
 			},
 		},
 	})
@@ -60,8 +60,8 @@ func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
 	userID := "system:allAuthenticatedUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{

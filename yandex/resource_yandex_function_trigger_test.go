@@ -71,9 +71,9 @@ func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-trigger-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, "* * * * ? *", labelKey, labelValue),
@@ -104,9 +104,9 @@ func TestAccYandexFunctionTrigger_invokeContainerBasic(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-trigger-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerInvokeContainer(triggerName, triggerDesc, labelKey, labelValue),
@@ -144,9 +144,9 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 	const cronExpressionUpdated = "0 * ? * * *"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, cronExpression, labelKey, labelValue),
@@ -197,9 +197,9 @@ func TestAccYandexFunctionTrigger_iot(t *testing.T) {
 	var device iot.Device
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerIoT(registryName, deviceName, triggerName),
@@ -233,9 +233,9 @@ func TestAccYandexFunctionTrigger_message(t *testing.T) {
 	serviceAccount := acctest.RandomWithPrefix("tf-service-account")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerMessageQueue(triggerName, queueID, serviceAccount),
@@ -264,9 +264,9 @@ func TestAccYandexFunctionTrigger_object(t *testing.T) {
 	bucket := acctest.RandomWithPrefix("tf-bucket")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerObjectStorage(triggerName, bucket),
@@ -297,9 +297,9 @@ func TestAccYandexFunctionTrigger_logging(t *testing.T) {
 	triggerName := acctest.RandomWithPrefix("tf-trigger")
 	logSrcFn := &functions.Function{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerLogging(triggerName, 5, 100),
@@ -325,9 +325,9 @@ func TestAccYandexFunctionTrigger_CR(t *testing.T) {
 	trigger := &triggers.Trigger{}
 	triggerName := acctest.RandomWithPrefix("tf-trigger")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerContainerRegistry(triggerName, 3, 10),
@@ -353,9 +353,9 @@ func TestAccYandexFunctionTrigger_YDS(t *testing.T) {
 	trigger := &triggers.Trigger{}
 	triggerName := acctest.RandomWithPrefix("tf-trigger")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerYDS(triggerName, 5, 1000),
@@ -380,9 +380,9 @@ func TestAccYandexFunctionTrigger_Mail(t *testing.T) {
 	trigger := &triggers.Trigger{}
 	triggerName := acctest.RandomWithPrefix("tf-trigger")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerMail(triggerName, 3, 10),

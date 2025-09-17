@@ -27,8 +27,8 @@ func TestAccCMCertificateIamBinding_basic(t *testing.T) {
 	userID := "system:allUsers"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCMCertificateIamBindingBasic(certificateName, certificateContent, privateKey, "", ""),
@@ -49,8 +49,8 @@ func TestAccCMCertificateIamBinding_basic(t *testing.T) {
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
 					return certificate.Id + " " + role, nil
 				},
-				ImportState:       true,
-				ImportStateVerify: true,
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "certificate_id",
 			},
 			{
 				Config: testAccCMCertificateIamBindingBasic(certificateName, certificateContent, privateKey, "", ""),

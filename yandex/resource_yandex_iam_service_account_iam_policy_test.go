@@ -18,8 +18,8 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 	role := "editor"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamPolicy_basic(cloudID, serviceAccountName, userID, role),

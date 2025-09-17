@@ -25,7 +25,7 @@ import (
 
 const (
 	defaultPageSize = 1000
-	defaultTimeout  = 1 * time.Minute
+	defaultTimeout  = 5 * time.Minute
 )
 
 type iamPolicyModifyFunc func(p *accessbinding.Policy) error
@@ -57,6 +57,10 @@ func (u *IAMUpdater) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 			"disk_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the compute `disk` to attach the policy to.",
 				Required:            true,
+			},
+			"sleep_after": schema.Int64Attribute{
+				MarkdownDescription: "For test purposes, to compensate IAM operations delay",
+				Optional:            true,
 			},
 		},
 	}
@@ -132,6 +136,12 @@ func (u *IAMUpdater) Create(ctx context.Context, req resource.CreateRequest, res
 				"Error: %s", err),
 		)
 		return
+	}
+
+	var sleep types.Int64
+	req.Plan.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
+	if !sleep.IsNull() && !sleep.IsUnknown() {
+		time.Sleep(time.Second * time.Duration(sleep.ValueInt64()))
 	}
 
 	u.refreshBindingState(ctx, req.Plan, &resp.State, resp.Diagnostics)
@@ -344,6 +354,9 @@ func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.
 	diag.Append(resp.SetAttribute(ctx, path.Root("members"), mBindingsSet)...)
 	diag.Append(resp.SetAttribute(ctx, path.Root("role"), role)...)
 	diag.Append(resp.SetAttribute(ctx, path.Root("disk_id"), u.diskId)...)
+	var sleep types.Int64
+	req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
+	diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
 }
 
 func (u *IAMUpdater) iamPolicyReadModifySet(ctx context.Context, updater accessbinding.ResourceIamUpdater, modify iamPolicyModifyFunc) error {

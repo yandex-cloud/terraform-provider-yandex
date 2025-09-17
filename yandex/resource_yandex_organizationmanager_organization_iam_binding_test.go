@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -20,14 +19,14 @@ func TestAccOrganizationIamBinding_basic(t *testing.T) {
 	userID := getExampleUserID2()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply an IAM binding
 			{
 				Config: testAccOrganizationAssociateBindingBasic(organizationID, role, userID),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_binding.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID}),
 			},
@@ -59,7 +58,7 @@ func TestAccOrganizationIamBinding_existingBinding(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateBindingBasic(organizationID, role, userID2),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_binding.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID, "userAccount:" + userID2}),
 			},
@@ -83,7 +82,7 @@ func TestAccOrganizationIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateBindingBasic(organizationID, role1, userID1),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_binding.acceptance",
+					organizationID,
 					role1,
 					[]string{"userAccount:" + userID1}),
 			},
@@ -92,11 +91,11 @@ func TestAccOrganizationIamBinding_multiple(t *testing.T) {
 				Config: testAccOrganizationAssociateBindingMultiple(organizationID, role1, role2, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOrganizationIam(
-						"yandex_organizationmanager_organization_iam_binding.acceptance",
+						organizationID,
 						role1,
 						[]string{"userAccount:" + userID1, "userAccount:" + userID2}),
 					testAccCheckOrganizationIam(
-						"yandex_organizationmanager_organization_iam_binding.multiple",
+						organizationID,
 						role2,
 						[]string{"userAccount:" + userID1, "userAccount:" + userID2}),
 				),
@@ -150,7 +149,7 @@ func TestAccOrganizationIamBinding_update(t *testing.T) {
 				Config: testAccOrganizationAssociateBindingBasic(organizationID, role, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOrganizationIam(
-						"yandex_organizationmanager_organization_iam_binding.acceptance",
+						organizationID,
 						role,
 						[]string{"userAccount:" + userID1})),
 			},
@@ -160,7 +159,7 @@ func TestAccOrganizationIamBinding_update(t *testing.T) {
 				Config: testAccOrganizationAssociateBindingUpdated(organizationID, role, userID1, userID2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOrganizationIam(
-						"yandex_organizationmanager_organization_iam_binding.acceptance",
+						organizationID,
 						role,
 						[]string{"userAccount:" + userID1, "userAccount:" + userID2})),
 			},
@@ -170,7 +169,7 @@ func TestAccOrganizationIamBinding_update(t *testing.T) {
 				Config: testAccOrganizationAssociateBindingDropMemberFromBasic(organizationID, role, userID1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOrganizationIam(
-						"yandex_organizationmanager_organization_iam_binding.acceptance",
+						organizationID,
 						role,
 						[]string{"userAccount:" + userID1})),
 			},
@@ -210,16 +209,9 @@ func TestAccOrganizationIamBinding_remove(t *testing.T) {
 	})
 }
 
-func testAccCheckOrganizationIam(resourceName, role string, members []string) resource.TestCheckFunc {
+func testAccCheckOrganizationIam(organizationID, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
-
-		organizationID := strings.SplitN(rs.Primary.ID, "/", 2)[0]
 
 		bindings, err := getOrganizationAccessBindings(config.Context(), config, organizationID)
 		if err != nil {
@@ -286,10 +278,10 @@ resource "yandex_organizationmanager_organization_iam_binding" "multiple" {
 
 func organizationIamBindingImportStep(resourceName, organizationID, role string) resource.TestStep {
 	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     fmt.Sprintf("%s %s", organizationID, role),
-		ImportState:       true,
-		ImportStateVerify: true,
+		ResourceName:                         resourceName,
+		ImportStateId:                        fmt.Sprintf("%s,%s", organizationID, role),
+		ImportState:                          true,
+		ImportStateVerifyIdentifierAttribute: "organization_id",
 	}
 }
 

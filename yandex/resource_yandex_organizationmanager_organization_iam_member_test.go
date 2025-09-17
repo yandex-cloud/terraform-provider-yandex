@@ -22,7 +22,7 @@ func TestAccOrganizationIamMember_basic(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role, userID),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID}),
 			},
@@ -58,7 +58,7 @@ func TestAccOrganizationIamMember_existingBinding(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role, userID2),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID, "userAccount:" + userID2}),
 			},
@@ -95,7 +95,7 @@ func TestAccOrganizationIamMember_changeRole(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role1, userID),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role1,
 					[]string{"userAccount:" + userID}),
 			},
@@ -103,7 +103,7 @@ func TestAccOrganizationIamMember_changeRole(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role2, userID),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role2,
 					[]string{"userAccount:" + userID}),
 			},
@@ -131,7 +131,7 @@ func TestAccOrganizationIamMember_changeUser(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role, userID1),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID1}),
 			},
@@ -139,7 +139,7 @@ func TestAccOrganizationIamMember_changeUser(t *testing.T) {
 			{
 				Config: testAccOrganizationAssociateMemberBasic(organizationID, role, userID2),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID2}),
 			},
@@ -167,7 +167,7 @@ func TestAccOrganizationIamMember_separateMembers(t *testing.T) {
 			{
 				Config: testAccOrganizationTwoIamMembers(organizationID, role, userID1, userID2, "acceptance1", "acceptance2"),
 				Check: testAccCheckOrganizationIam(
-					"yandex_organizationmanager_organization_iam_member.acceptance1",
+					organizationID,
 					role,
 					[]string{"userAccount:" + userID1, "userAccount:" + userID2}),
 			},
@@ -212,9 +212,9 @@ resource "yandex_organizationmanager_organization_iam_member" "%[2]s" {
 
 func organizationIamMemberImportStep(resourceName, organizationID, role, userID string) resource.TestStep {
 	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     fmt.Sprintf("%s %s %s", organizationID, role, "userAccount:"+userID),
-		ImportState:       true,
-		ImportStateVerify: true,
+		ResourceName:                         resourceName,
+		ImportStateId:                        fmt.Sprintf("%s,%s,%s", organizationID, role, "userAccount:"+userID),
+		ImportState:                          true,
+		ImportStateVerifyIdentifierAttribute: "organization_id",
 	}
 }

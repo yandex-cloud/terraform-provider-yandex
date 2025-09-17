@@ -13,7 +13,7 @@ import (
 
 func importServerlessContainerIDFunc(container *containers.Container, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return container.Id + " " + role, nil
+		return container.Id + "," + role, nil
 	}
 }
 
@@ -26,8 +26,8 @@ func TestAccServerlessContainerIamBinding(t *testing.T) {
 	role := "serverless.containers.invoker"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServerlessContainerIamBinding_basic(containerName, memory, serverlessContainerTestImage1, role, userID),
@@ -37,10 +37,10 @@ func TestAccServerlessContainerIamBinding(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_serverless_container_iam_binding.foo",
-				ImportStateIdFunc: importServerlessContainerIDFunc(&container, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_serverless_container_iam_binding.foo",
+				ImportStateIdFunc:                    importServerlessContainerIDFunc(&container, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "container_id",
 			},
 		},
 	})

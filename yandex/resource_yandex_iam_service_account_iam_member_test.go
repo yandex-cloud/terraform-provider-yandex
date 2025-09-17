@@ -20,8 +20,8 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	identity := "userAccount:" + userID
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamMember_basic(cloudID, serviceAccountName, role, userID),
@@ -33,10 +33,10 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 			{
 				ResourceName: "yandex_iam_service_account_iam_member.foo",
 				ImportStateIdFunc: func(*terraform.State) (string, error) {
-					return fmt.Sprintf("%s %s %s", serviceAccount.Id, role, identity), nil
+					return fmt.Sprintf("%s,%s,%s", serviceAccount.Id, role, identity), nil
 				},
-				ImportState:       true,
-				ImportStateVerify: true,
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "service_account_id",
 			},
 		},
 	})

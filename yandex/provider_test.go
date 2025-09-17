@@ -70,7 +70,7 @@ var testStorageEndpoint = "no.storage.endpoint"
 func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
 	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
 		context.Background(),
-		NewSDKProvider().GRPCProvider,
+		testAccProvider.GRPCProvider,
 	)
 	providers := []func() tfprotov6.ProviderServer{
 		providerserver.NewProtocol6(accProvider),
@@ -88,15 +88,6 @@ func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderS
 }
 
 func init() {
-	accProvider = yandex_framework.NewFrameworkProvider()
-	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
-	testAccProviderServer = testAccProviderFunc()
-	testAccProviderFactoriesV6 = map[string]func() (tfprotov6.ProviderServer, error){
-		"yandex": func() (tfprotov6.ProviderServer, error) {
-			return testAccProviderServer, nil
-		},
-	}
-
 	testAccProvider = NewSDKProvider()
 	testAccProvider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		return providerConfigure(context.Background(), d, testAccProvider, false, true)
@@ -114,6 +105,15 @@ func init() {
 
 	testAccProviderEmptyFolder = map[string]*schema.Provider{
 		"yandex": emptyFolderProvider(),
+	}
+
+	accProvider = yandex_framework.NewFrameworkProvider()
+	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
+	testAccProviderServer = testAccProviderFunc()
+	testAccProviderFactoriesV6 = map[string]func() (tfprotov6.ProviderServer, error){
+		"yandex": func() (tfprotov6.ProviderServer, error) {
+			return testAccProviderServer, nil
+		},
 	}
 
 	if os.Getenv("TF_ACC") != "" {

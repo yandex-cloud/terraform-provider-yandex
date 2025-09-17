@@ -15,7 +15,7 @@ import (
 
 func importFederationIDFunc(federation *oidc.Federation, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
-		return federation.Id + " " + role, nil
+		return federation.Id + "," + role, nil
 	}
 }
 
@@ -27,8 +27,8 @@ func TestAccIAMWorkloadIdentityOidcFederationIamBinding(t *testing.T) {
 	role := "viewer"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkloadIdentityOidcFederationIamBinding_basic(cloudID, federationName, role, userID),
@@ -38,10 +38,10 @@ func TestAccIAMWorkloadIdentityOidcFederationIamBinding(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "yandex_iam_workload_identity_oidc_federation_iam_binding.foo",
-				ImportStateIdFunc: importFederationIDFunc(&federation, role),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:                         "yandex_iam_workload_identity_oidc_federation_iam_binding.foo",
+				ImportStateIdFunc:                    importFederationIDFunc(&federation, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "federation_id",
 			},
 		},
 	})

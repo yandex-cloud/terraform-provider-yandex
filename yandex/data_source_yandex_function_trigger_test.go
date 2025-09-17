@@ -20,9 +20,9 @@ func TestAccDataSourceYandexFunctionTrigger_byID(t *testing.T) {
 	triggerDesc := acctest.RandomWithPrefix("tf-trigger-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerByID(triggerName, triggerDesc),
@@ -49,9 +49,9 @@ func TestAccDataSourceYandexFunctionTrigger_byName(t *testing.T) {
 	triggerDesc := acctest.RandomWithPrefix("tf-trigger-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexFunctionTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexFunctionTriggerByName(triggerName, triggerDesc),

@@ -57,6 +57,10 @@ resource "yandex_compute_disk_iam_binding" "editor" {
 ~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 - `role` (String) The role that should be assigned. Only one yandex_compute_disk_iam_binding can be used per role.
 
+### Optional
+
+- `sleep_after` (Number) For test purposes, to compensate IAM operations delay
+
 ## Import
 
 ~> Import for this resource is not implemented yet.

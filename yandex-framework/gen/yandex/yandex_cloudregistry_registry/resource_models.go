@@ -62,10 +62,10 @@ func flattenYandexCloudregistryRegistry(ctx context.Context,
 		Description: types.StringValue(yandexCloudregistryRegistry.GetDescription()),
 		FolderId:    types.StringValue(yandexCloudregistryRegistry.GetFolderId()),
 		Kind:        types.StringValue(yandexCloudregistryRegistry.GetKind().String()),
-		Labels:      flattenYandexCloudregistryRegistryLabels(ctx, yandexCloudregistryRegistry.GetLabels(), diags),
+		Labels:      flattenYandexCloudregistryRegistryLabels(ctx, yandexCloudregistryRegistry.GetLabels(), state.Labels, diags),
 		ModifiedAt:  types.StringValue(yandexCloudregistryRegistry.GetModifiedAt().AsTime().Format(time.RFC3339)),
 		Name:        types.StringValue(yandexCloudregistryRegistry.GetName()),
-		Properties:  flattenYandexCloudregistryRegistryProperties(ctx, yandexCloudregistryRegistry.GetProperties(), diags),
+		Properties:  flattenYandexCloudregistryRegistryProperties(ctx, yandexCloudregistryRegistry.GetProperties(), state.Properties, diags),
 		RegistryId:  types.StringValue(yandexCloudregistryRegistry.GetId()),
 		ID:          types.StringValue(yandexCloudregistryRegistry.GetId()),
 		Status:      types.StringValue(yandexCloudregistryRegistry.GetStatus().String()),
@@ -108,8 +108,11 @@ func expandYandexCloudregistryRegistryModel(ctx context.Context, yandexCloudregi
 	return value
 }
 
-func flattenYandexCloudregistryRegistryLabels(ctx context.Context, yandexCloudregistryRegistryLabels map[string]string, diags *diag.Diagnostics) types.Map {
+func flattenYandexCloudregistryRegistryLabels(ctx context.Context, yandexCloudregistryRegistryLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
 	if yandexCloudregistryRegistryLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.MapNull(types.StringType)
 	}
 	yandexCloudregistryRegistryLabelsValues := make(map[string]attr.Value)
@@ -142,8 +145,11 @@ func expandYandexCloudregistryRegistryLabels(ctx context.Context, yandexCloudreg
 	return yandexCloudregistryRegistryLabelsRes
 }
 
-func flattenYandexCloudregistryRegistryProperties(ctx context.Context, yandexCloudregistryRegistryProperties map[string]string, diags *diag.Diagnostics) types.Map {
+func flattenYandexCloudregistryRegistryProperties(ctx context.Context, yandexCloudregistryRegistryProperties map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
 	if yandexCloudregistryRegistryProperties == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.MapNull(types.StringType)
 	}
 	yandexCloudregistryRegistryPropertiesValues := make(map[string]attr.Value)

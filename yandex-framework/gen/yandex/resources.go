@@ -5,20 +5,96 @@ package yandex
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_disk_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_disk_placement_group_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_filesystem_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_gpu_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_image_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_instance_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_placement_group_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_schedule_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_registry_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_zone_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_function_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_oidc_federation_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_symmetric_key_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_symmetric_key_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kubernetes_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kubernetes_cluster_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
 func GetProviderResources() []func() resource.Resource {
 	return []func() resource.Resource{
+		yandex_container_registry_iam_binding.NewResource,
+		yandex_container_repository_iam_binding.NewResource,
+		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,
+		yandex_iam_service_account_iam_binding.NewResource,
+		yandex_iam_service_account_iam_member.NewResource,
+		yandex_kubernetes_cluster_iam_binding.NewResource,
+		yandex_kubernetes_cluster_iam_member.NewResource,
+		yandex_kms_asymmetric_encryption_key_iam_binding.NewResource,
+		yandex_kms_asymmetric_encryption_key_iam_member.NewResource,
+		yandex_kms_asymmetric_signature_key_iam_binding.NewResource,
+		yandex_kms_asymmetric_signature_key_iam_member.NewResource,
+		yandex_kms_symmetric_key_iam_binding.NewResource,
+		yandex_kms_symmetric_key_iam_member.NewResource,
+		yandex_organizationmanager_group_iam_member.NewResource,
+		yandex_organizationmanager_organization_iam_binding.NewResource,
+		yandex_organizationmanager_organization_iam_member.NewResource,
 		yandex_resourcemanager_cloud.NewResource,
+		yandex_resourcemanager_cloud_iam_binding.NewResource,
+		yandex_resourcemanager_cloud_iam_member.NewResource,
 		yandex_resourcemanager_folder.NewResource,
+		yandex_resourcemanager_folder_iam_binding.NewResource,
+		yandex_resourcemanager_folder_iam_member.NewResource,
+		yandex_ydb_database_iam_binding.NewResource,
+		yandex_cm_certificate_iam_binding.NewResource,
 		yandex_cm_certificate_iam_member.NewResource,
 		yandex_cloudregistry_registry.NewResource,
+		yandex_cloudregistry_registry_iam_binding.NewResource,
+		yandex_compute_disk_placement_group_iam_binding.NewResource,
 		yandex_compute_disk_iam_binding.NewResource,
+		yandex_compute_filesystem_iam_binding.NewResource,
+		yandex_compute_gpu_cluster_iam_binding.NewResource,
+		yandex_compute_image_iam_binding.NewResource,
+		yandex_compute_instance_iam_binding.NewResource,
+		yandex_compute_placement_group_iam_binding.NewResource,
+		yandex_compute_snapshot_schedule_iam_binding.NewResource,
+		yandex_compute_snapshot_iam_binding.NewResource,
+		yandex_datasphere_community_iam_binding.NewResource,
+		yandex_datasphere_project_iam_binding.NewResource,
+		yandex_dns_zone_iam_binding.NewResource,
+		yandex_lockbox_secret_iam_binding.NewResource,
+		yandex_lockbox_secret_iam_member.NewResource,
+		yandex_serverless_container_iam_binding.NewResource,
+		yandex_function_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
 	}
 }

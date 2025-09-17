@@ -55,7 +55,7 @@ func flattenYandexResourcemanagerFolder(ctx context.Context,
 		Description: types.StringValue(yandexResourcemanagerFolder.GetDescription()),
 		FolderId:    types.StringValue(yandexResourcemanagerFolder.GetId()),
 		ID:          types.StringValue(yandexResourcemanagerFolder.GetId()),
-		Labels:      flattenYandexResourcemanagerFolderLabels(ctx, yandexResourcemanagerFolder.GetLabels(), diags),
+		Labels:      flattenYandexResourcemanagerFolderLabels(ctx, yandexResourcemanagerFolder.GetLabels(), state.Labels, diags),
 		Name:        types.StringValue(yandexResourcemanagerFolder.GetName()),
 		Status:      types.StringValue(yandexResourcemanagerFolder.GetStatus().String()),
 		Timeouts:    to,
@@ -92,8 +92,11 @@ func expandYandexResourcemanagerFolderModel(ctx context.Context, yandexResourcem
 	return value
 }
 
-func flattenYandexResourcemanagerFolderLabels(ctx context.Context, yandexResourcemanagerFolderLabels map[string]string, diags *diag.Diagnostics) types.Map {
+func flattenYandexResourcemanagerFolderLabels(ctx context.Context, yandexResourcemanagerFolderLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
 	if yandexResourcemanagerFolderLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
 		return types.MapNull(types.StringType)
 	}
 	yandexResourcemanagerFolderLabelsValues := make(map[string]attr.Value)
