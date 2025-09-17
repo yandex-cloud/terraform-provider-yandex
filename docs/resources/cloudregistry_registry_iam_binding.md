@@ -16,13 +16,21 @@ Allows creation and management of a single binding within IAM policy for an exis
 // Create a new Cloud Registry and new IAM Binding for it.
 //
 resource "yandex_cloudregistry_registry" "your-registry" {
-  folder_id = "your-folder-id"
-  name      = "registry-name"
+  name      = "test-registry"
+  folder_id = "test_folder_id"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+  kind      = "DOCKER"
+  type      = "LOCAL"
+
+  description = "Some desctiption"
 }
 
 resource "yandex_cloudregistry_registry_iam_binding" "puller" {
   registry_id = yandex_cloudregistry_registry.your-registry.id
-  role        = "cloudregistry-registry.images.puller"
+  role        = "cloud-registry.artifacts.puller"
 
   members = [
     "system:allUsers",

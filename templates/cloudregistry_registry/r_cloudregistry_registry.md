@@ -1,8 +1,8 @@
 ---
-subcategory: "Container Registry"
+subcategory: "Cloud Registry"
 page_title: "Yandex: {{.Name}}"
 description: |-
-  Creates a new container registry.
+  Creates a new cloud registry.
 ---
 
 # {{.Name}} ({{.Type}})

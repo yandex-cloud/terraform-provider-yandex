@@ -1,8 +1,8 @@
 ---
-subcategory: "Container Registry"
+subcategory: "Cloud Registry"
 page_title: "Yandex: yandex_cloudregistry_registry"
 description: |-
-  Creates a new container registry.
+  Creates a new cloud registry.
 ---
 
 # yandex_cloudregistry_registry (Resource)
@@ -22,6 +22,10 @@ resource "yandex_cloudregistry_registry" "default" {
   labels = {
     my-label = "my-label-value"
   }
+  kind      = "DOCKER"
+  type      = "LOCAL"
+
+  description = "Some desctiption"
 }
 ```
 
