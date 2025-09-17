@@ -589,7 +589,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
 					testAccCheckComputeInstanceHasNoLabel(&instance, "my_key"),
 					testAccCheckComputeInstanceHasNoLabel(&instance, "my_other_key"),
-					testAccCheckComputeInstanceHasServiceAccount(&instance),
+					testAccCheckComputeInstanceHasServiceAccount(&instance, true),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.#", "1"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_endpoint", "2"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_endpoint", "2"),
@@ -951,8 +951,17 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						instanceResource, &instance),
-					testAccCheckComputeInstanceHasServiceAccount(&instance),
+					testAccCheckComputeInstanceHasServiceAccount(&instance, true),
 					testAccCheckCreatedAtAttr(instanceResource),
+				),
+			},
+			computeInstanceImportStep(),
+			{
+				Config: testAccComputeInstance_service_account_empty(instanceName, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						instanceResource, &instance),
+					testAccCheckComputeInstanceHasServiceAccount(&instance, false),
 				),
 			},
 			computeInstanceImportStep(),
@@ -2003,10 +2012,13 @@ func testAccCheckComputeInstanceIsPreemptible(instance *compute.Instance, expect
 	}
 }
 
-func testAccCheckComputeInstanceHasServiceAccount(instance *compute.Instance) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasServiceAccount(instance *compute.Instance, mustHaveSA bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instance.ServiceAccountId == "" {
+		if mustHaveSA && instance.ServiceAccountId == "" {
 			return fmt.Errorf("No Service Account assigned to instance")
+		}
+		if !mustHaveSA && instance.ServiceAccountId != "" {
+			return fmt.Errorf("Service Account assigned to instance")
 		}
 
 		return nil
@@ -3158,7 +3170,7 @@ data "yandex_compute_image" "ubuntu" {
 }
 
 resource "yandex_compute_instance" "foobar" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "testAccComputeInstance_basic"
   platform_id = "standard-v2"
   zone        = "ru-central1-a"
@@ -3203,6 +3215,12 @@ resource "yandex_vpc_subnet" "inst-update-test-subnet" {
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["10.0.0.0/24"]
 }
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
 `, instance)
 }
 
@@ -4150,6 +4168,54 @@ resource "yandex_compute_instance" "foobar" {
   zone               = "ru-central1-a"
   platform_id        = "standard-v2"
   service_account_id = "${yandex_iam_service_account.sa-test.id}"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "sa-test" {
+  name        = "%s"
+  description = "Test SA for VM"
+}
+`, instance, sa)
+}
+
+func testAccComputeInstance_service_account_empty(instance, sa string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name               = "%s"
+  description        = "testAccComputeInstance_basic"
+  zone               = "ru-central1-a"
+  platform_id        = "standard-v2"
 
   resources {
     cores  = 2

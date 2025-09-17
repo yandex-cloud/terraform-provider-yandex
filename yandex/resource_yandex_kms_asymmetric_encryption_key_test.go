@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	kms "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func init() {
@@ -415,7 +416,18 @@ func sweepKMSAsymmetricEncryptionKeyOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexKMSAsymmetricEncryptionKeyDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().Delete(ctx, &kms.DeleteAsymmetricEncryptionKeyRequest{
+	op, err := conf.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().Update(ctx, &kms.UpdateAsymmetricEncryptionKeyRequest{
+		KeyId:              id,
+		DeletionProtection: false,
+		UpdateMask: &fieldmaskpb.FieldMask{
+			Paths: []string{"deletion_protection"},
+		},
+	})
+	if err := handleSweepOperation(ctx, conf, op, err); err != nil {
+		return err
+	}
+
+	op, err = conf.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().Delete(ctx, &kms.DeleteAsymmetricEncryptionKeyRequest{
 		KeyId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

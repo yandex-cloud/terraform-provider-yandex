@@ -92,7 +92,7 @@ resource "yandex_compute_image" "foobar" {
   family        = "ubuntu-1804-lts"
   source_family = "ubuntu-1804-lts"
   min_disk_size = 10
-  os_type       = "linux"
+  os_type       = "LINUX"
 
   labels = {
     tf-label    = "tf-label-value"

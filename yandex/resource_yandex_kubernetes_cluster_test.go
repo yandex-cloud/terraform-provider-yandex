@@ -29,7 +29,6 @@ func init() {
 		F:    testSweepKubernetesClusters,
 		Dependencies: []string{
 			"yandex_kubernetes_node_group",
-			"yandex_kms_symmetric_key",
 		},
 	})
 }

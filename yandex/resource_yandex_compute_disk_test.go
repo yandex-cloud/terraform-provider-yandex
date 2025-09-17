@@ -420,9 +420,7 @@ resource "yandex_compute_disk" "foobar" {
 resource "yandex_compute_snapshot" "snapdisk" {
   name           = "%s"
   source_disk_id = "${yandex_compute_disk.foobar.id}"
-  hardware_generation {
-    generation2_features {}
-  }
+  hardware_generation {}
 }
 
 resource "yandex_compute_disk" "seconddisk" {

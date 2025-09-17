@@ -36,7 +36,6 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 						"yandex_compute_snapshot.foobar", &snapshot),
 					testAccCheckCreatedAtAttr("yandex_compute_snapshot.foobar"),
 					resource.TestCheckResourceAttr("yandex_compute_snapshot.foobar", "hardware_generation.#", "1"),
-					resource.TestCheckResourceAttr("yandex_compute_snapshot.foobar", "hardware_generation.0.generation2_features.#", "1"),
 				),
 			},
 		},
@@ -199,9 +198,7 @@ resource "yandex_compute_snapshot" "foobar" {
     test_label = "%s"
   }
 
-  hardware_generation {
-    generation2_features {}
-  }
+  hardware_generation {}
 }
 `, diskName, snapshotName, labelValue)
 }

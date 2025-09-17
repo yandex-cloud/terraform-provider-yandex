@@ -522,7 +522,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 			"service_account_id": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["service_account_id"],
-				Computed:    true,
 				Optional:    true,
 			},
 

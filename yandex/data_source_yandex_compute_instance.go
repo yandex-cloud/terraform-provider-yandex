@@ -76,8 +76,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Computed:    true,
 			},
 			"resources": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["resources"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"memory": {
@@ -100,8 +101,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"boot_disk": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["boot_disk"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
@@ -169,8 +171,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Computed:    true,
 			},
 			"network_interface": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["network_interface"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"index": {
@@ -295,8 +298,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"secondary_disk": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: resourceYandexComputeInstance().Schema["secondary_disk"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
@@ -319,8 +323,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"scheduling_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["scheduling_policy"].Description,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
@@ -334,13 +339,14 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			"service_account_id": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["service_account_id"],
-				Computed:    true,
+				Optional:    true,
 			},
 
 			"placement_policy": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["placement_policy"].Description,
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"placement_group_id": {
@@ -387,8 +393,9 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"local_disk": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["local_disk"].Description,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size_bytes": {
@@ -405,10 +412,11 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"metadata_options": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["metadata_options"].Description,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"gce_http_endpoint": {
@@ -440,9 +448,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"filesystem": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      hashFilesystem,
+				Type:        schema.TypeSet,
+				Description: resourceYandexComputeInstance().Schema["filesystem"].Description,
+				Optional:    true,
+				Set:         hashFilesystem,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"filesystem_id": {
@@ -485,7 +494,8 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"hardware_generation": {
-				Type: schema.TypeList,
+				Type:        schema.TypeList,
+				Description: resourceYandexComputeInstance().Schema["hardware_generation"].Description,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"legacy_features": {

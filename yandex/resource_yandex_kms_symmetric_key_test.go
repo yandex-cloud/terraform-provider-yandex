@@ -17,6 +17,12 @@ func init() {
 	resource.AddTestSweepers("yandex_kms_symmetric_key", &resource.Sweeper{
 		Name: "yandex_kms_symmetric_key",
 		F:    testSweepKMSSymmetricKey,
+		Dependencies: []string{
+			"yandex_compute_instance",
+			"yandex_compute_instance_group",
+			"yandex_compute_disk",
+			"yandex_kubernetes_cluster",
+		},
 	})
 }
 

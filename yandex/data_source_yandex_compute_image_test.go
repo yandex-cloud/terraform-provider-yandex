@@ -192,7 +192,7 @@ resource "yandex_compute_image" "image" {
   name          = "%s"
   source_disk   = "${yandex_compute_disk.disk.id}"
   min_disk_size = 10
-  os_type       = "linux"
+  os_type       = "LINUX"
 }
 
 resource "yandex_compute_disk" "disk" {
