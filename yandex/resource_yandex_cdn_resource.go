@@ -135,11 +135,18 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 					},
 				},
 			},
+
 			"provider_cname": {
 				Type:        schema.TypeString,
 				Description: "Provider CNAME of CDN resource, computed value for read and update operations.",
 				Computed:    true,
 			},
+			"provider_type": {
+				Type:        schema.TypeString,
+				Description: "Type of the CDN provider for this resource.",
+				Computed:    true,
+			},
+
 			"options": {
 				Type:        schema.TypeList,
 				Description: "CDN Resource settings and options to tune CDN edge behavior.",
@@ -1059,6 +1066,8 @@ func flattenYandexCDNResource(d *schema.ResourceData, resource *cdn.Resource) er
 	_ = d.Set("updated_at", getTimestamp(resource.UpdatedAt))
 
 	_ = d.Set("active", resource.Active)
+	_ = d.Set("provider_cname", resource.ProviderCname)
+	_ = d.Set("provider_type", resource.ProviderType)
 
 	if err := flattenYandexCDNResourceSecondaryNames(d, resource.SecondaryHostnames); err != nil {
 		return err
@@ -1178,17 +1187,6 @@ func resourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	cname, err := config.sdk.CDN().Resource().GetProviderCName(ctx, &cdn.GetProviderCNameRequest{
-		FolderId: resource.FolderId,
-	})
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("get provider cname: cdn resource %q, folder id %q", d.Id(), resource.FolderId))
-	}
-
-	if err = d.Set("provider_cname", cname.Cname); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -1304,24 +1302,6 @@ func resourceYandexCDNResourceUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Completed updating CDN Resource %q", d.Id())
-
-	resource, err := config.sdk.CDN().Resource().Get(ctx, &cdn.GetResourceRequest{
-		ResourceId: d.Id(),
-	})
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("cdn resource %q", d.Id()))
-	}
-
-	cname, err := config.sdk.CDN().Resource().GetProviderCName(ctx, &cdn.GetProviderCNameRequest{
-		FolderId: resource.FolderId,
-	})
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("get provider cname: cdn resource %q, folder id %q", d.Id(), resource.FolderId))
-	}
-
-	if err = d.Set("provider_cname", cname.Cname); err != nil {
-		return err
-	}
 
 	return resourceYandexCDNResourceRead(d, meta)
 }

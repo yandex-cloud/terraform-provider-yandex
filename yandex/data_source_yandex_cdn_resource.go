@@ -15,7 +15,8 @@ func dataSourceYandexCDNResource() *schema.Resource {
 	// TODO: SA1019: resourceSchema.Read is deprecated: Use ReadContext or ReadWithoutTimeout instead. This implementation does not support request cancellation initiated by Terraform, such as a system or practitioner sending SIGINT (Ctrl-c). This implementation also does not support warning diagnostics. (staticcheck)
 	resourceSchema.Read = dataSourceYandexCDNResourceRead
 	resourceSchema.Schema["resource_id"] = &schema.Schema{
-		Type: schema.TypeString,
+		Type:        schema.TypeString,
+		Description: "The ID of a specific resource.",
 
 		Computed: true,
 		Optional: true,
@@ -78,6 +79,9 @@ func dataSourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := flattenYandexCDNResource(d, resource); err != nil {
+		return err
+	}
+	if err := d.Set("options", flattenYandexCDNResourceOptions(resource.Options)); err != nil {
 		return err
 	}
 
