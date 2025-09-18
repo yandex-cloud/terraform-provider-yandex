@@ -121,18 +121,12 @@ func prepareCDNCreateOriginGroupRequest(d *schema.ResourceData, meta *Config) (*
 		return nil, fmt.Errorf("Error getting folder ID while creating instance: %s", err)
 	}
 
-	var useNext *wrappers.BoolValue
-	if v, ok := d.GetOk("use_next"); ok {
-		useNext = &wrappers.BoolValue{Value: v.(bool)}
-	}
-
 	log.Printf("[DEBUG] Preparing create CDN Origin Group request %q", d.Get("name").(string))
 
 	result := &cdn.CreateOriginGroupRequest{
 		FolderId: folderID,
 		Name:     d.Get("name").(string),
-
-		UseNext: useNext,
+		UseNext:  &wrappers.BoolValue{Value: d.Get("use_next").(bool)},
 	}
 
 	for _, origin := range d.Get("origin").(*schema.Set).List() {
@@ -269,14 +263,8 @@ func prepareCDNUpdateOriginGroupRequest(d *schema.ResourceData, config *Config) 
 	result := &cdn.UpdateOriginGroupRequest{
 		FolderId:      folderID,
 		OriginGroupId: groupID,
-	}
-
-	if d.HasChange("name") {
-		result.GroupName = &wrappers.StringValue{Value: d.Get("name").(string)}
-	}
-
-	if d.HasChange("use_next") {
-		result.UseNext = &wrappers.BoolValue{Value: d.Get("use_next").(bool)}
+		GroupName:     &wrappers.StringValue{Value: d.Get("name").(string)},
+		UseNext:       &wrappers.BoolValue{Value: d.Get("use_next").(bool)},
 	}
 
 	for _, v := range d.Get("origin").(*schema.Set).List() {
