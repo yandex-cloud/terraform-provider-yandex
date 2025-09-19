@@ -13,6 +13,8 @@ Allows management of policy of an existing [Yandex Cloud Storage Bucket](https:/
 
 ~> Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.
 
+~> "Version" element is required and must be set to `2012-10-17`.
+
 ## Example usage
 
 ```terraform

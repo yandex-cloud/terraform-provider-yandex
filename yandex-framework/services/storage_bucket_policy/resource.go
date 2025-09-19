@@ -155,14 +155,5 @@ func (r *storageBucketPolicyResource) readBucketPolicy(ctx context.Context, mode
 }
 
 func (r *storageBucketPolicyResource) getS3Client(ctx context.Context, model *StorageBucketPolicyResourceModel) (*storage.Client, error) {
-	var accessKey, secretKey string
-
-	if !model.AccessKey.IsNull() && !model.AccessKey.IsUnknown() {
-		accessKey = model.AccessKey.ValueString()
-	}
-	if !model.SecretKey.IsNull() && !model.SecretKey.IsUnknown() {
-		secretKey = model.SecretKey.ValueString()
-	}
-
-	return storage.GetS3Client(ctx, accessKey, secretKey, r.providerConfig)
+	return r.providerConfig.GetS3Client(ctx, model.AccessKey.ValueString(), model.SecretKey.ValueString())
 }

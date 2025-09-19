@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	storage "github.com/yandex-cloud/terraform-provider-yandex/pkg/storage/s3"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -83,7 +82,7 @@ func testAccStorageBucketPolicyExists(resourceName, bucketName string) resource.
 			return fmt.Errorf("bucket name mismatch: expected %s, got %s", bucketName, bucket)
 		}
 
-		s3Client, err := storage.GetS3Client(context.Background(), "", "", &config)
+		s3Client, err := config.GetS3Client(context.Background(), "", "")
 		if err != nil {
 			return fmt.Errorf("error getting S3 client: %s", err)
 		}
