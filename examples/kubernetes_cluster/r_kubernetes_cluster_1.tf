@@ -57,4 +57,8 @@ resource "yandex_kubernetes_cluster" "zonal_cluster" {
   kms_provider {
     key_id = yandex_kms_symmetric_key.kms_key_resource_name.id
   }
+
+  workload_identity_federation {
+    enabled = true
+  }
 }

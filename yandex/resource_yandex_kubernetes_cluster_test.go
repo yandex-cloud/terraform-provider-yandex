@@ -170,6 +170,30 @@ func TestAccKubernetesClusterZonalScalePolicy_autoScale(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonalWLI_basic(t *testing.T) {
+	clusterResource := clusterInfo("testAccKubernetesClusterZonalWLI_basic", true)
+	clusterResource.WorkloadIdentityFederation = true
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
 	clusterResource.MasterVersion = ""
@@ -377,6 +401,9 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResourceWithMasterAutoScale := clusterUpdatedResource7
 	clusterUpdatedResourceWithMasterAutoScale.constructScalePolicyField(AutoScalePolicy)
 
+	clusterUpdatedResourceWithWLI := clusterUpdatedResourceWithMasterAutoScale
+	clusterUpdatedResourceWithWLI.WorkloadIdentityFederation = true
+
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
@@ -456,6 +483,14 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithWLI),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithWLI, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
 		},
 	})
 }
@@ -478,6 +513,9 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 
 	clusterUpdatedResourceAutoScaled := clusterUpdatedResource
 	clusterUpdatedResourceAutoScaled.constructScalePolicyField(AutoScalePolicy)
+
+	clusterUpdatedResourceWLI := clusterUpdatedResourceAutoScaled
+	clusterUpdatedResourceWLI.WorkloadIdentityFederation = true
 
 	var cluster k8s.Cluster
 
@@ -507,6 +545,14 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
 					checkClusterAttributes(&cluster, &clusterUpdatedResourceAutoScaled, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceWLI),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWLI, true),
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
@@ -1074,6 +1120,15 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			//nothing to check
 		}
 
+		if info.WorkloadIdentityFederation {
+			wif := cluster.GetWorkloadIdentityFederation()
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.enabled", strconv.FormatBool(wif.GetEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.issuer", wif.GetIssuer()),
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.jwks_uri", wif.GetJwksUri()),
+			)
+		}
+
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
 	}
 }
@@ -1200,6 +1255,8 @@ type resourceClusterInfo struct {
 
 	ScalePolicyType scalePolicyType
 	ScalePolicy     string
+
+	WorkloadIdentityFederation bool
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1450,6 +1507,12 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     }
   }
   {{end}}
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
 }
 `
 
@@ -1533,6 +1596,12 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   kms_provider {
     key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
   }
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
 }
 `
 

@@ -522,6 +522,31 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 					},
 				},
 			},
+			"workload_identity_federation": {
+				Type:        schema.TypeList,
+				Description: "Workload Identity Federation configuration.",
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "Identifies whether Workload Identity Federation is enabled.",
+							Required:    true,
+						},
+						"issuer": {
+							Type:        schema.TypeString,
+							Description: "Issuer URI for Kubernetes service account tokens.",
+							Computed:    true,
+						},
+						"jwks_uri": {
+							Type:        schema.TypeString,
+							Description: "JSON Web Key Set URI used to verify token signatures.",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -585,17 +610,18 @@ func resourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interface{
 }
 
 var updateKubernetesClusterFieldsMap = map[string]string{
-	"name":                        "name",
-	"description":                 "description",
-	"labels":                      "labels",
-	"service_account_id":          "service_account_id",
-	"node_service_account_id":     "node_service_account_id",
-	"master.0.version":            "master_spec.version.version",
-	"master.0.maintenance_policy": "master_spec.maintenance_policy",
-	"master.0.security_group_ids": "master_spec.security_group_ids",
-	"master.0.master_logging":     "master_spec.master_logging",
-	"master.0.master_location":    "master_spec.locations",
-	"master.0.scale_policy":       "master_spec.scale_policy",
+	"name":                         "name",
+	"description":                  "description",
+	"labels":                       "labels",
+	"service_account_id":           "service_account_id",
+	"node_service_account_id":      "node_service_account_id",
+	"master.0.version":             "master_spec.version.version",
+	"master.0.maintenance_policy":  "master_spec.maintenance_policy",
+	"master.0.security_group_ids":  "master_spec.security_group_ids",
+	"master.0.master_logging":      "master_spec.master_logging",
+	"master.0.master_location":     "master_spec.locations",
+	"master.0.scale_policy":        "master_spec.scale_policy",
+	"workload_identity_federation": "workload_identity_federation",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -661,6 +687,11 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 		return nil, fmt.Errorf("failed to get cluster master scale policy: %s", err)
 	}
 
+	wif, err := getKubernetesClusterWorkloadIdentityFederation(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cluster workload identity federation: %s", err)
+	}
+
 	req := &k8s.UpdateClusterRequest{
 		ClusterId:            d.Id(),
 		Name:                 d.Get("name").(string),
@@ -680,6 +711,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 			ScalePolicy:       sp,
 			Locations:         getKubernetesClusterLocations(d),
 		},
+		WorkloadIdentityFederation: wif,
 	}
 
 	return req, nil
@@ -741,19 +773,25 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 		return nil, err
 	}
 
+	wif, err := getKubernetesClusterWorkloadIdentityFederation(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cluster workload identity federation: %s", err)
+	}
+
 	req := &k8s.CreateClusterRequest{
-		FolderId:             folderID,
-		Name:                 d.Get("name").(string),
-		Description:          d.Get("description").(string),
-		Labels:               labels,
-		NetworkId:            d.Get("network_id").(string),
-		MasterSpec:           masterSpec,
-		IpAllocationPolicy:   getIPAllocationPolicy(d),
-		ServiceAccountId:     d.Get("service_account_id").(string),
-		NodeServiceAccountId: d.Get("node_service_account_id").(string),
-		ReleaseChannel:       releaseChannel,
-		NetworkPolicy:        networkPolicy,
-		KmsProvider:          getKubernetesClusterKMSProvider(d),
+		FolderId:                   folderID,
+		Name:                       d.Get("name").(string),
+		Description:                d.Get("description").(string),
+		Labels:                     labels,
+		NetworkId:                  d.Get("network_id").(string),
+		MasterSpec:                 masterSpec,
+		IpAllocationPolicy:         getIPAllocationPolicy(d),
+		ServiceAccountId:           d.Get("service_account_id").(string),
+		NodeServiceAccountId:       d.Get("node_service_account_id").(string),
+		ReleaseChannel:             releaseChannel,
+		NetworkPolicy:              networkPolicy,
+		KmsProvider:                getKubernetesClusterKMSProvider(d),
+		WorkloadIdentityFederation: wif,
 	}
 
 	_, ok := d.GetOk("network_implementation.0.cilium")
@@ -839,6 +877,21 @@ func getKubernetesClusterKMSProvider(d *schema.ResourceData) *k8s.KMSProvider {
 	return &k8s.KMSProvider{
 		KeyId: kmsKeyID,
 	}
+}
+
+func getKubernetesClusterWorkloadIdentityFederation(d *schema.ResourceData) (*k8s.WorkloadIdentityFederationSpec, error) {
+	if _, ok := d.GetOk("workload_identity_federation"); !ok {
+		return nil, nil
+	}
+
+	enabled, ok := d.Get("workload_identity_federation.0.enabled").(bool)
+	if !ok {
+		return nil, fmt.Errorf("failed to get workload_identity_federation.enabled value")
+	}
+
+	return &k8s.WorkloadIdentityFederationSpec{
+		Enabled: enabled,
+	}, nil
 }
 
 func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.MasterSpec, error) {
@@ -1114,6 +1167,20 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 					"cilium": []map[string]interface{}{{}},
 				},
 			})
+		}
+	}
+
+	// Set Workload Identity Federation
+	if wif := cluster.GetWorkloadIdentityFederation(); wif != nil {
+		wifData := []map[string]interface{}{
+			{
+				"enabled":  wif.GetEnabled(),
+				"issuer":   wif.GetIssuer(),
+				"jwks_uri": wif.GetJwksUri(),
+			},
+		}
+		if err := d.Set("workload_identity_federation", wifData); err != nil {
+			return err
 		}
 	}
 

@@ -400,6 +400,30 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 					},
 				},
 			},
+			"workload_identity_federation": {
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["workload_identity_federation"].Description,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: resourceYandexKubernetesCluster().Schema["workload_identity_federation"].Elem.(*schema.Resource).Schema["enabled"].Description,
+							Computed:    true,
+						},
+						"issuer": {
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["workload_identity_federation"].Elem.(*schema.Resource).Schema["issuer"].Description,
+							Computed:    true,
+						},
+						"jwks_uri": {
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesCluster().Schema["workload_identity_federation"].Elem.(*schema.Resource).Schema["jwks_uri"].Description,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

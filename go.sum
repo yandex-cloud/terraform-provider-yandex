@@ -781,8 +781,8 @@ github.com/xen0n/gosmopolitan v1.2.1 h1:3pttnTuFumELBRSh+KQs1zcz4fN6Zy7aB0xlnQSn
 github.com/xen0n/gosmopolitan v1.2.1/go.mod h1:JsHq/Brs1o050OOdmzHeOr0N7OtlnKRAGAsElF8xBQA=
 github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM=
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
-github.com/yandex-cloud/go-genproto v0.23.0 h1:7nnb/o//eK4ZDd3wCuhWn2DoY1U2+dcUTJosoY49h0M=
-github.com/yandex-cloud/go-genproto v0.23.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
+github.com/yandex-cloud/go-genproto v0.24.0 h1:xTkWdUJKHamKk2IyM7LJ197E1mxlIhZi+6qwwtfCbAs=
+github.com/yandex-cloud/go-genproto v0.24.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
 github.com/yandex-cloud/go-sdk v0.19.0 h1:YX7DYusKcV1IlPOt8M4XCVfR91QBnX2eavPCeboWgZs=
 github.com/yandex-cloud/go-sdk v0.19.0/go.mod h1:MYr57iTbMZg5tbQtF1i6A85FAs2kgkVoICHK1aU8V38=
 github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10 h1:ujEwlNJTWfg8O4o5JpL0WRRo9Y7MNet1Y1EdngoPCjk=

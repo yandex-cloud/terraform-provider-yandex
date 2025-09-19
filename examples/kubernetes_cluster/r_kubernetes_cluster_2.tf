@@ -71,4 +71,8 @@ resource "yandex_kubernetes_cluster" "regional_cluster" {
   }
 
   release_channel = "STABLE"
+
+  workload_identity_federation {
+    enabled = true
+  }
 }
