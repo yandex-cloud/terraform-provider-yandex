@@ -24,6 +24,7 @@ import (
 	"github.com/yandex-cloud/go-sdk/v2/credentials"
 	iamkeyv2 "github.com/yandex-cloud/go-sdk/v2/pkg/iamkey"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/options"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/storage/s3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -66,7 +67,6 @@ type State struct {
 	Profile               types.String `tfsdk:"profile"`
 	//
 	//sharedCredentials *SharedCredentials
-	//defaultS3Client   *s3.S3
 }
 
 // TODO: remove yandex.Config when it is not used
@@ -87,6 +87,8 @@ type Config struct {
 	SDKv2     *ycsdkv2.SDK
 	YqSdk     *yqsdk.SDK
 	iamToken  *iamToken
+
+	defaultS3Client *s3.Client
 }
 
 // Client configures and returns a fully initialized Yandex Cloud SDK
@@ -181,7 +183,39 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		return err
 	}
 
+	return c.initializeDefaultS3Client(ctx)
+}
+
+func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {
+	accessKey := c.ProviderState.StorageAccessKey.ValueString()
+	secretKey := c.ProviderState.StorageSecretKey.ValueString()
+
+	// accessKey, secretKey := c.resolveStorageAccessKeys()
+	iamToken, err := c.getIAMToken(ctx)
+	if err != nil {
+		log.Println("[WARN] Failed to get IAM token for default storage client:", err)
+		iamToken = ""
+	}
+
+	if (accessKey == "" || secretKey == "") && iamToken == "" {
+		return nil
+	}
+
+	c.defaultS3Client, err = s3.NewClient(ctx, accessKey, secretKey, iamToken, c.ProviderState.StorageEndpoint.ValueString())
 	return err
+}
+
+func (c *Config) GetS3Client(ctx context.Context, accessKey, secretKey string) (*s3.Client, error) {
+	if accessKey == "" || secretKey == "" {
+		if c.defaultS3Client == nil {
+			return nil, fmt.Errorf("failed to get default storage client")
+		}
+		return c.defaultS3Client, nil
+	}
+
+	// iamToken is not needed here, since we cannot specify it in the resource.
+	// Otherwise, defaultS3Client must be initialised.
+	return s3.NewClient(ctx, accessKey, secretKey, "", c.ProviderState.StorageEndpoint.ValueString())
 }
 
 func (c *Config) Credentials(ctx context.Context) (ycsdk.Credentials, error) {

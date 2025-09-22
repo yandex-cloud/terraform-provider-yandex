@@ -15,6 +15,8 @@ Allows management of grants on an existing [Yandex Cloud Storage Bucket](https:/
 
 This resource should be used for managing [Primitive roles](https://yandex.cloud/docs/storage/security/#primitive-roles) only.
 
+Declaring multiple yandex_storage_bucket_grant resources to the same bucket will cause a perpetual difference in configuration.
+
 ## Example usage
 
 ```terraform

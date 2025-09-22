@@ -84,9 +84,9 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:     func() { testAccPreCheck(t) },
-				Providers:    testAccProviders,
-				CheckDestroy: testAccCheckStorageBucketDestroy,
+				PreCheck:                 func() { testAccPreCheck(t) },
+				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+				CheckDestroy:             testAccCheckStorageBucketDestroy,
 				Steps: []resource.TestStep{
 					{
 						Config: tt.configFunc(rInt),
@@ -111,9 +111,9 @@ func TestAccStorageBucket_namePrefix(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithNamePrefix(rInt),
@@ -131,9 +131,9 @@ func TestAccStorageBucket_generatedName(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithGeneratedName(rInt),
@@ -150,9 +150,9 @@ func TestAccStorageBucket_Policy(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithPolicy(rInt),
@@ -170,9 +170,9 @@ func TestAccStorageBucket_PolicyNone(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketBasic(rInt),
@@ -190,9 +190,9 @@ func TestAccStorageBucket_PolicyEmpty(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithEmptyPolicy(rInt),
@@ -210,9 +210,9 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAclPreConfig(rInt),
@@ -250,9 +250,9 @@ func TestAccStorageBucket_Website_Simple(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfig(rInt),
@@ -293,9 +293,9 @@ func TestAccStorageBucket_WebsiteRedirect(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithRedirect(rInt),
@@ -314,9 +314,9 @@ func TestAccStorageBucket_WebsiteHttpsRedirect(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithHttpsRedirect(rInt),
@@ -335,9 +335,9 @@ func TestAccStorageBucket_WebsiteRoutingRules(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWebsiteConfigWithRoutingRules(rInt),
@@ -376,9 +376,9 @@ func TestAccStorageBucket_shouldFailNotFound(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketDestroyedConfig(rInt),
@@ -398,9 +398,9 @@ func TestAccStorageBucket_VersioningNone(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketBasic(rInt),
@@ -418,9 +418,9 @@ func TestAccStorageBucket_VersioningEnabled(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithVersioning(rInt),
@@ -445,9 +445,9 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORS(rInt),
@@ -529,9 +529,9 @@ func TestAccStorageBucket_MaxSize(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketMaxSize(rInt, maxSize),
@@ -560,9 +560,9 @@ func TestAccStorageBucket_HTTPSConfig(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketHTTPSConfig(bucketName, externalCertificateID),
@@ -587,9 +587,9 @@ func TestAccStorageBucket_AnonymousAccessFlags(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAnonymousAccessFlags(rInt),
@@ -611,9 +611,9 @@ func TestAccStorageBucket_StorageClass(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketDefaultStorageClassCold(rInt),
@@ -633,9 +633,9 @@ func TestAccStorageBucket_FolderID(t *testing.T) {
 	folderID := testFolderID
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWithFolderID(rInt, folderID),
@@ -653,9 +653,9 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORS(rInt),
@@ -708,9 +708,9 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithCORSEmptyOrigin(rInt),
@@ -753,9 +753,9 @@ func TestAccStorageBucket_SSE(t *testing.T) {
 	var symmetricKey kms.SymmetricKey
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketSSEDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketSSEDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketSSEDefault(keyName, rInt),
@@ -787,9 +787,9 @@ func TestAccStorageBucket_ObjectLockNone(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketBasic(rInt),
@@ -808,9 +808,9 @@ func TestAccStorageBucket_ObjectLockEnabled(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, "", 0, 0),
@@ -834,9 +834,9 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionDays(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 10, 0),
@@ -866,9 +866,9 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionYears(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 0, 10),
@@ -901,10 +901,10 @@ func TestAccStorageBucket_Tagging(t *testing.T) {
 		Value: aws.String("value"),
 	}}
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
-		ErrorCheck:   checkErrorSkipNotImplemented(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
+		ErrorCheck:               checkErrorSkipNotImplemented(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketWithTags(rInt),
@@ -2329,9 +2329,9 @@ func TestAccStorageBucket_Logging(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithLogging(rInt),
@@ -2349,9 +2349,9 @@ func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithLifecycle(rInt),
@@ -2377,9 +2377,9 @@ func TestAccStorageBucket_LifecycleVersioning(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithVersioningLifecycle(rInt),
@@ -2413,9 +2413,9 @@ func TestAccStorageBucket_LifecycleRule_Expiration_EmptyConfigurationBlock(t *te
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(rInt),
@@ -2433,9 +2433,9 @@ func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExp
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rInt),
@@ -2452,9 +2452,9 @@ func TestAccStorageBucket_LifecycleRule_TransitionToIceStorage(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithTransitionToIceStorage(rInt),
@@ -2472,9 +2472,9 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(rInt),
@@ -2496,9 +2496,9 @@ func TestAccStorageBucket_Grants(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithValidGrant(rInt),
@@ -2529,9 +2529,9 @@ func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithLifecycleFilter(rInt),
@@ -2595,9 +2595,9 @@ func TestAccStorageBucket_ImportBasic(t *testing.T) {
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketConfigWithPolicy(rInt),

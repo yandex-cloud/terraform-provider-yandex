@@ -247,17 +247,7 @@ func (r *storageBucketGrantResource) readBucketGrant(ctx context.Context, model 
 }
 
 func (r *storageBucketGrantResource) getS3Client(ctx context.Context, model *StorageBucketGrantResourceModel) (*storage.Client, error) {
-	accessKey := ""
-	secretKey := ""
-
-	if !model.AccessKey.IsNull() && !model.AccessKey.IsUnknown() {
-		accessKey = model.AccessKey.ValueString()
-	}
-	if !model.SecretKey.IsNull() && !model.SecretKey.IsUnknown() {
-		secretKey = model.SecretKey.ValueString()
-	}
-
-	return storage.GetS3Client(ctx, accessKey, secretKey, r.providerConfig)
+	return r.providerConfig.GetS3Client(ctx, model.AccessKey.ValueString(), model.SecretKey.ValueString())
 }
 
 // Convert Terraform model grants to S3 grant structures
