@@ -5,12 +5,14 @@ package yandex
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
 func GetProviderDataSources() []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		yandex_cloudregistry_registry.NewDataSource,
+		yandex_connectionmanager_connection.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }

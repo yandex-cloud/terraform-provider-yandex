@@ -358,62 +358,62 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if !plan.Type.Equal(state.Type) {
 		updatePaths = append(updatePaths, "type")
 	}
+	if len(updatePaths) != 0 {
 
-	updateReq := &cloudregistry.UpdateRegistryRequest{}
-	id := plan.ID.ValueString()
-	if !plan.RegistryId.IsUnknown() && !plan.RegistryId.IsNull() {
-		id = plan.RegistryId.ValueString()
+		updateReq := &cloudregistry.UpdateRegistryRequest{}
+		id := plan.ID.ValueString()
+		if !plan.RegistryId.IsUnknown() && !plan.RegistryId.IsNull() {
+			id = plan.RegistryId.ValueString()
+		}
+		updateReq.SetRegistryId(id)
+		updateReq.SetName(plan.Name.ValueString())
+		updateReq.SetLabels(expandYandexCloudregistryRegistryLabels(ctx, plan.Labels, &diags))
+		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetProperties(expandYandexCloudregistryRegistryProperties(ctx, plan.Properties, &diags))
+		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
+
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update registry request: %s", validate.ProtoDump(updateReq)))
+
+		md := new(metadata.MD)
+		op, err := cloudregistryv1sdk.NewRegistryClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
+		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update registry x-server-trace-id: %s", traceHeader[0]))
+		}
+		if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update registry x-server-request-id: %s", traceHeader[0]))
+		}
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Failed to Read resource",
+				"Error while requesting API to update registry:"+err.Error(),
+			)
+			return
+		}
+		updateRes, err := op.Wait(ctx)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Update Resource",
+				fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
+					"Please retry the operation or report this issue to the provider developers.\n\n"+
+					"Error: %s", err),
+			)
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update registry response: %s", validate.ProtoDump(updateRes)))
+
+		plan.RegistryId = types.StringValue(updateRes.Id)
 	}
-	updateReq.SetRegistryId(id)
-	updateReq.SetName(plan.Name.ValueString())
-	updateReq.SetLabels(expandYandexCloudregistryRegistryLabels(ctx, plan.Labels, &diags))
-	updateReq.SetDescription(plan.Description.ValueString())
-	updateReq.SetProperties(expandYandexCloudregistryRegistryProperties(ctx, plan.Properties, &diags))
-	updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
-
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update registry request: %s", validate.ProtoDump(updateReq)))
-
-	md := new(metadata.MD)
-	op, err := cloudregistryv1sdk.NewRegistryClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
-	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update registry x-server-trace-id: %s", traceHeader[0]))
-	}
-	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update registry x-server-request-id: %s", traceHeader[0]))
-	}
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to update registry:"+err.Error(),
-		)
-		return
-	}
-	updateRes, err := op.Wait(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update registry response: %s", validate.ProtoDump(updateRes)))
-
-	plan.RegistryId = types.StringValue(updateRes.Id)
-
 	reqApi := &cloudregistry.GetRegistryRequest{}
 	reqApi.SetRegistryId(plan.RegistryId.ValueString())
 
 	tflog.Debug(ctx, fmt.Sprintf("Read registry request: %s", validate.ProtoDump(reqApi)))
-
-	md = new(metadata.MD)
+	md := new(metadata.MD)
 	res, err := cloudregistryv1sdk.NewRegistryClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read registry x-server-trace-id: %s", traceHeader[0]))
@@ -447,7 +447,12 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 		return
 	}
 
-	newState := flattenYandexCloudregistryRegistry(ctx, res, plan, state.Timeouts, &resp.Diagnostics)
+	to := state.Timeouts
+	if !plan.Timeouts.Equal(state.Timeouts) {
+		to = plan.Timeouts
+	}
+
+	newState := flattenYandexCloudregistryRegistry(ctx, res, plan, to, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -342,61 +342,61 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
+	if len(updatePaths) != 0 {
 
-	updateReq := &resourcemanager.UpdateFolderRequest{}
-	id := plan.ID.ValueString()
-	if !plan.FolderId.IsUnknown() && !plan.FolderId.IsNull() {
-		id = plan.FolderId.ValueString()
+		updateReq := &resourcemanager.UpdateFolderRequest{}
+		id := plan.ID.ValueString()
+		if !plan.FolderId.IsUnknown() && !plan.FolderId.IsNull() {
+			id = plan.FolderId.ValueString()
+		}
+		updateReq.SetFolderId(id)
+		updateReq.SetName(plan.Name.ValueString())
+		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexResourcemanagerFolderLabels(ctx, plan.Labels, &diags))
+		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
+
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update folder request: %s", validate.ProtoDump(updateReq)))
+
+		md := new(metadata.MD)
+		op, err := resourcemanagerv1sdk.NewFolderClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
+		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update folder x-server-trace-id: %s", traceHeader[0]))
+		}
+		if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update folder x-server-request-id: %s", traceHeader[0]))
+		}
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Failed to Read resource",
+				"Error while requesting API to update folder:"+err.Error(),
+			)
+			return
+		}
+		updateRes, err := op.Wait(ctx)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Update Resource",
+				fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
+					"Please retry the operation or report this issue to the provider developers.\n\n"+
+					"Error: %s", err),
+			)
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update folder response: %s", validate.ProtoDump(updateRes)))
+
+		plan.FolderId = types.StringValue(updateRes.Id)
 	}
-	updateReq.SetFolderId(id)
-	updateReq.SetName(plan.Name.ValueString())
-	updateReq.SetDescription(plan.Description.ValueString())
-	updateReq.SetLabels(expandYandexResourcemanagerFolderLabels(ctx, plan.Labels, &diags))
-	updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
-
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update folder request: %s", validate.ProtoDump(updateReq)))
-
-	md := new(metadata.MD)
-	op, err := resourcemanagerv1sdk.NewFolderClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
-	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update folder x-server-trace-id: %s", traceHeader[0]))
-	}
-	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update folder x-server-request-id: %s", traceHeader[0]))
-	}
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to update folder:"+err.Error(),
-		)
-		return
-	}
-	updateRes, err := op.Wait(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update folder response: %s", validate.ProtoDump(updateRes)))
-
-	plan.FolderId = types.StringValue(updateRes.Id)
-
 	reqApi := &resourcemanager.GetFolderRequest{}
 	reqApi.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
 
 	tflog.Debug(ctx, fmt.Sprintf("Read folder request: %s", validate.ProtoDump(reqApi)))
-
-	md = new(metadata.MD)
+	md := new(metadata.MD)
 	res, err := resourcemanagerv1sdk.NewFolderClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read folder x-server-trace-id: %s", traceHeader[0]))
@@ -430,7 +430,12 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 		return
 	}
 
-	newState := flattenYandexResourcemanagerFolder(ctx, res, plan, state.Timeouts, &resp.Diagnostics)
+	to := state.Timeouts
+	if !plan.Timeouts.Equal(state.Timeouts) {
+		to = plan.Timeouts
+	}
+
+	newState := flattenYandexResourcemanagerFolder(ctx, res, plan, to, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -342,61 +342,61 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 	if !plan.OrganizationId.Equal(state.OrganizationId) {
 		updatePaths = append(updatePaths, "organization_id")
 	}
+	if len(updatePaths) != 0 {
 
-	updateReq := &resourcemanager.UpdateCloudRequest{}
-	id := plan.ID.ValueString()
-	if !plan.CloudId.IsUnknown() && !plan.CloudId.IsNull() {
-		id = plan.CloudId.ValueString()
+		updateReq := &resourcemanager.UpdateCloudRequest{}
+		id := plan.ID.ValueString()
+		if !plan.CloudId.IsUnknown() && !plan.CloudId.IsNull() {
+			id = plan.CloudId.ValueString()
+		}
+		updateReq.SetCloudId(id)
+		updateReq.SetName(plan.Name.ValueString())
+		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexResourcemanagerCloudLabels(ctx, plan.Labels, &diags))
+		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
+
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update cloud request: %s", validate.ProtoDump(updateReq)))
+
+		md := new(metadata.MD)
+		op, err := resourcemanagerv1sdk.NewCloudClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
+		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update cloud x-server-trace-id: %s", traceHeader[0]))
+		}
+		if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update cloud x-server-request-id: %s", traceHeader[0]))
+		}
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Failed to Read resource",
+				"Error while requesting API to update cloud:"+err.Error(),
+			)
+			return
+		}
+		updateRes, err := op.Wait(ctx)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Update Resource",
+				fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
+					"Please retry the operation or report this issue to the provider developers.\n\n"+
+					"Error: %s", err),
+			)
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update cloud response: %s", validate.ProtoDump(updateRes)))
+
+		plan.CloudId = types.StringValue(updateRes.Id)
 	}
-	updateReq.SetCloudId(id)
-	updateReq.SetName(plan.Name.ValueString())
-	updateReq.SetDescription(plan.Description.ValueString())
-	updateReq.SetLabels(expandYandexResourcemanagerCloudLabels(ctx, plan.Labels, &diags))
-	updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
-
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update cloud request: %s", validate.ProtoDump(updateReq)))
-
-	md := new(metadata.MD)
-	op, err := resourcemanagerv1sdk.NewCloudClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
-	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update cloud x-server-trace-id: %s", traceHeader[0]))
-	}
-	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update cloud x-server-request-id: %s", traceHeader[0]))
-	}
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to update cloud:"+err.Error(),
-		)
-		return
-	}
-	updateRes, err := op.Wait(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update cloud response: %s", validate.ProtoDump(updateRes)))
-
-	plan.CloudId = types.StringValue(updateRes.Id)
-
 	reqApi := &resourcemanager.GetCloudRequest{}
 	reqApi.SetCloudId(converter.GetCloudID(plan.CloudId.ValueString(), r.providerConfig, &diags))
 
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud request: %s", validate.ProtoDump(reqApi)))
-
-	md = new(metadata.MD)
+	md := new(metadata.MD)
 	res, err := resourcemanagerv1sdk.NewCloudClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read cloud x-server-trace-id: %s", traceHeader[0]))
@@ -430,7 +430,12 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 		return
 	}
 
-	newState := flattenYandexResourcemanagerCloud(ctx, res, plan, state.Timeouts, &resp.Diagnostics)
+	to := state.Timeouts
+	if !plan.Timeouts.Equal(state.Timeouts) {
+		to = plan.Timeouts
+	}
+
+	newState := flattenYandexResourcemanagerCloud(ctx, res, plan, to, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

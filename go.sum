@@ -781,8 +781,8 @@ github.com/xen0n/gosmopolitan v1.2.1 h1:3pttnTuFumELBRSh+KQs1zcz4fN6Zy7aB0xlnQSn
 github.com/xen0n/gosmopolitan v1.2.1/go.mod h1:JsHq/Brs1o050OOdmzHeOr0N7OtlnKRAGAsElF8xBQA=
 github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM=
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
-github.com/yandex-cloud/go-genproto v0.24.0 h1:xTkWdUJKHamKk2IyM7LJ197E1mxlIhZi+6qwwtfCbAs=
-github.com/yandex-cloud/go-genproto v0.24.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
+github.com/yandex-cloud/go-genproto v0.25.0 h1:jErJ7kmAiWfGlmC1iZPWD1eLLy7+FAMzS7TLcDpmuUo=
+github.com/yandex-cloud/go-genproto v0.25.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
 github.com/yandex-cloud/go-sdk v0.19.0 h1:YX7DYusKcV1IlPOt8M4XCVfR91QBnX2eavPCeboWgZs=
 github.com/yandex-cloud/go-sdk v0.19.0/go.mod h1:MYr57iTbMZg5tbQtF1i6A85FAs2kgkVoICHK1aU8V38=
 github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10 h1:ujEwlNJTWfg8O4o5JpL0WRRo9Y7MNet1Y1EdngoPCjk=
@@ -791,6 +791,8 @@ github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.12 h1:i2pd+2rvGkSugoO
 github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.12/go.mod h1:o4jkWsxgjOnsgmJnHn6Nd7mh4ji9eGYt0inTTrcyE2w=
 github.com/yandex-cloud/go-sdk/services/compute v1.0.15 h1:T9rVXh1XakWAmbYXOh2vOBbA5VuqSuiWsfZhmphDsd0=
 github.com/yandex-cloud/go-sdk/services/compute v1.0.15/go.mod h1:0o84cwXf+6MpzK3u56MPgF3KE4rRpnsMZISSp3DhWDo=
+github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8 h1:pBZRIDHX3D5hCFYJrDR4qD/YK6B9oCflaD739PvLRZg=
+github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8/go.mod h1:BzEz01jtqbGnsurS4GZfu0XX/WPsTG4hLuhz/R2CFtU=
 github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12 h1:rpQZWOD827Xvu/I+ARq/xZFQNQVXcqXa/Crea6YqQQ8=
 github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12/go.mod h1:2CAmVM+XRQ+X2xP/0Jhj9i8K98u1m/XvTXzjofRAc6w=
 github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12 h1:pqk3AkGixC2GoClTHNhbLchk6UHijDG8kmNp4md0vYg=

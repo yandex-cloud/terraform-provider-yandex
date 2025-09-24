@@ -17,6 +17,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_placement_group_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_schedule_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_registry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
@@ -88,6 +89,7 @@ func GetProviderResources() []func() resource.Resource {
 		yandex_compute_placement_group_iam_binding.NewResource,
 		yandex_compute_snapshot_schedule_iam_binding.NewResource,
 		yandex_compute_snapshot_iam_binding.NewResource,
+		yandex_connectionmanager_connection.NewResource,
 		yandex_datasphere_community_iam_binding.NewResource,
 		yandex_datasphere_project_iam_binding.NewResource,
 		yandex_dns_zone_iam_binding.NewResource,

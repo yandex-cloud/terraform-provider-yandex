@@ -470,64 +470,64 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	if !plan.ZoneId.Equal(state.ZoneId) {
 		updatePaths = append(updatePaths, "zone_id")
 	}
+	if len(updatePaths) != 0 {
 
-	updateReq := &ytsaurus.UpdateClusterRequest{}
-	id := plan.ID.ValueString()
-	if !plan.ClusterId.IsUnknown() && !plan.ClusterId.IsNull() {
-		id = plan.ClusterId.ValueString()
+		updateReq := &ytsaurus.UpdateClusterRequest{}
+		id := plan.ID.ValueString()
+		if !plan.ClusterId.IsUnknown() && !plan.ClusterId.IsNull() {
+			id = plan.ClusterId.ValueString()
+		}
+		updateReq.SetClusterId(id)
+		updateReq.SetName(plan.Name.ValueString())
+		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexYtsaurusClusterLabels(ctx, plan.Labels, &diags))
+		updateReq.SetSubnetId(plan.SubnetId.ValueString())
+		updateReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
+		updateReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
+		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
+
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(updateReq)))
+
+		md := new(metadata.MD)
+		op, err := ytsaurusv1sdk.NewClusterClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
+		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update cluster x-server-trace-id: %s", traceHeader[0]))
+		}
+		if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
+			tflog.Debug(ctx, fmt.Sprintf("Update cluster x-server-request-id: %s", traceHeader[0]))
+		}
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Failed to Read resource",
+				"Error while requesting API to update cluster:"+err.Error(),
+			)
+			return
+		}
+		updateRes, err := op.Wait(ctx)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Update Resource",
+				fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
+					"Please retry the operation or report this issue to the provider developers.\n\n"+
+					"Error: %s", err),
+			)
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Update cluster response: %s", validate.ProtoDump(updateRes)))
+
+		plan.ClusterId = types.StringValue(updateRes.Id)
 	}
-	updateReq.SetClusterId(id)
-	updateReq.SetName(plan.Name.ValueString())
-	updateReq.SetDescription(plan.Description.ValueString())
-	updateReq.SetLabels(expandYandexYtsaurusClusterLabels(ctx, plan.Labels, &diags))
-	updateReq.SetSubnetId(plan.SubnetId.ValueString())
-	updateReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
-	updateReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
-	updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
-
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(updateReq)))
-
-	md := new(metadata.MD)
-	op, err := ytsaurusv1sdk.NewClusterClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
-	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update cluster x-server-trace-id: %s", traceHeader[0]))
-	}
-	if traceHeader := md.Get("x-server-request-id"); len(traceHeader) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("Update cluster x-server-request-id: %s", traceHeader[0]))
-	}
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to Read resource",
-			"Error while requesting API to update cluster:"+err.Error(),
-		)
-		return
-	}
-	updateRes, err := op.Wait(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while waiting longrunning response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Update cluster response: %s", validate.ProtoDump(updateRes)))
-
-	plan.ClusterId = types.StringValue(updateRes.Id)
-
 	reqApi := &ytsaurus.GetClusterRequest{}
 	reqApi.SetClusterId(plan.ClusterId.ValueString())
 
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster request: %s", validate.ProtoDump(reqApi)))
-
-	md = new(metadata.MD)
+	md := new(metadata.MD)
 	res, err := ytsaurusv1sdk.NewClusterClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read cluster x-server-trace-id: %s", traceHeader[0]))
@@ -561,7 +561,12 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	newState := flattenYandexYtsaurusCluster(ctx, res, plan, state.Timeouts, &resp.Diagnostics)
+	to := state.Timeouts
+	if !plan.Timeouts.Equal(state.Timeouts) {
+		to = plan.Timeouts
+	}
+
+	newState := flattenYandexYtsaurusCluster(ctx, res, plan, to, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
