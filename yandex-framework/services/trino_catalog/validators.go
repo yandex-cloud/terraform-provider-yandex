@@ -16,6 +16,7 @@ func isNullOrUnknown(v attr.Value) bool {
 func onlyOneOptionValidator(name string, attributes ...string) validator.Object {
 	return &onlyOneOptionSetStructValidator{
 		attributes: attributes,
+		name:       name,
 	}
 }
 

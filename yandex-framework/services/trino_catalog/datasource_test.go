@@ -11,7 +11,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
-func TestAccDataSourceTrinoCatalog_postgresql(t *testing.T) {
+func TestAccDataSourceMDBTrinoCatalog_postgresql(t *testing.T) {
 	t.Parallel()
 
 	randSuffix := fmt.Sprintf("%d", acctest.RandInt())

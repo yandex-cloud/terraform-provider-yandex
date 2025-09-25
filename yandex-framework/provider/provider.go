@@ -45,6 +45,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_grant"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_access_control"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule"
@@ -297,6 +298,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		kubernetes_marketplace_helm_release.NewResource,
 		spark_cluster.NewResource,
 		gitlab_instance.NewResource,
+		trino_access_control.NewResource,
 		trino_cluster.NewResource,
 		trino_catalog.NewResource,
 		yq_object_storage_connection.NewResource,
@@ -339,6 +341,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		vpc_security_group_rule.NewDataSource,
 		spark_cluster.NewDatasource,
 		gitlab_instance.NewDataSource,
+		trino_access_control.NewDatasource,
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
 		cloudregistry_ip_permission.NewDataSource,
