@@ -71,8 +71,9 @@ func resourceYandexCDNOriginGroup() *schema.Resource {
 							Required:    true,
 						},
 						"origin_group_id": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "The ID of a specific origin group.",
+							Computed:    true,
 						},
 						"enabled": {
 							Type:        schema.TypeBool,
@@ -164,7 +165,6 @@ func resourceYandexCDNOriginGroupCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create CDN Origin Group: %s", err)
 	}
-
 	protoMetadata, err := operation.Metadata()
 	if err != nil {
 		return fmt.Errorf("error while obtaining response metadata for CDN Origin Group: %s", err)
@@ -175,12 +175,14 @@ func resourceYandexCDNOriginGroupCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("origin group metadata type mismatch on create")
 	}
 
-	d.SetId(strconv.FormatInt(pm.OriginGroupId, 10))
-
 	err = operation.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create origin group: %s", err)
 	}
+	if _, err := operation.Response(); err != nil {
+		return fmt.Errorf("bad API response: %w", err)
+	}
+	d.SetId(fmt.Sprint(pm.OriginGroupId))
 
 	return resourceYandexCDNOriginGroupRead(d, meta)
 }
