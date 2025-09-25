@@ -80,6 +80,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
 				Optional:    true,
+				Sensitive:   true,
 			},
 
 			"secret_key": {
