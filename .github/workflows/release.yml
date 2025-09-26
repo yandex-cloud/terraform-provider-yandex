@@ -22,11 +22,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Clean disk space
+        name: Disk space before
         run: |
-          echo "=== Disk space before ==="
-          df -h
-          df -h /home
+          df -h $GITHUB_WORKSPACE
+
+      -
+        name: CLEAN-UP
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # false if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
+      - name: Disk space after CLEAN-UP
+        run: |
+          df -h $GITHUB_WORKSPACE
 #      -
 #        name: Checkout
 #        uses: actions/checkout@v2
