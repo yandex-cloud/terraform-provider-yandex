@@ -25,7 +25,8 @@ jobs:
         name: Clean disk space
         run: |
           echo "=== Disk space before ==="
-          ls -la
+          df -h
+          df -h /home
 #      -
 #        name: Checkout
 #        uses: actions/checkout@v2
