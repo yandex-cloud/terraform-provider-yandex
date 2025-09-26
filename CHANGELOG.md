@@ -2,12 +2,6 @@
 
 
 
-## 0.160.0 (September 18, 2025)
-##### FEATURES:
-* mysql: add `authentication_plugins` `MYSQL_NO_LOGIN` and `MDB_IAMPROXY_AUTH`
-##### ENHANCEMENTS:
-* iam: move all iam_binding and iam_member resource to new framework
-
 ## 0.159.0 (September 15, 2025)
 ##### FEATURES:
 * ydb_table: add support for column-oriented tables
