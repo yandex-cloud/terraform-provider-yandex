@@ -19,6 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Clean disk space
+        run: |
+          echo "=== Disk space before ==="
+          df -h
+
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          df -h
+      -
         name: Checkout
         uses: actions/checkout@v2
       -
