@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'iam: move all iam_binding and iam_member resource to new framework'
-time: 2025-09-14T17:06:25.571655+03:00

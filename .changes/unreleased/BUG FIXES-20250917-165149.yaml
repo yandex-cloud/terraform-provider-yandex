@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'CDN: Fix yandex_cdn_origin_group misbehavior when domain not resolved (Issue #374)'
-time: 2025-09-17T16:51:49.208892+03:00
