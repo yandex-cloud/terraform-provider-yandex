@@ -395,6 +395,14 @@ func TestAccCDNResource_optionIgnoreQueryParams(t *testing.T) {
 					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
 				),
 			},
+			{
+				Config: testAccCDNResource_optionIgnoreQueryParamsFalse(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_query_params", "false"),
+					testCDNResourceQueryParamsOptions(&cdnResource, "ignore_false"),
+				),
+			},
 		},
 	})
 }
@@ -1050,4 +1058,273 @@ func makeGroupResourceByName(groupName string) string {
 		}
 	}
 	`, groupName)
+}
+
+func TestAccCDNResource_optionQueryParamsConflict(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_queryParamsIgnore(groupName, resourceCName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_query_params", "true"),
+					testCDNResourceQueryParamsOptions(&cdnResource, "ignore"),
+				),
+			},
+			{
+				Config: testAccCDNResource_queryParamsWhitelist(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.query_params_whitelist.#", "2"),
+					testCDNResourceQueryParamsOptions(&cdnResource, "whitelist"),
+				),
+			},
+			{
+				Config: testAccCDNResource_queryParamsBlacklist(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.query_params_blacklist.#", "2"),
+					testCDNResourceQueryParamsOptions(&cdnResource, "blacklist"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCDNResource_optionCompressionConflict(t *testing.T) {
+	t.Parallel()
+
+	folderID := getExampleFolderID()
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_compressionGzip(groupName, resourceCName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.gzip_on", "true"),
+					testCDNResourceCompressionOptions(&cdnResource, "gzip"),
+				),
+			},
+			{
+				Config: testAccCDNResource_compressionFetched(groupName, resourceCName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.fetched_compressed", "true"),
+					testCDNResourceCompressionOptions(&cdnResource, "fetched"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCDNResource_booleanFalseValues(t *testing.T) {
+	t.Parallel()
+
+	folderID := getExampleFolderID()
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_booleanOptionsAllFalse(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.disable_cache", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_query_params", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.slice", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.gzip_on", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_cookie", "false"),
+					testCDNResourceBooleanOptions(&cdnResource),
+				),
+			},
+		},
+	})
+}
+
+func testCDNResourceQueryParamsOptions(resource *cdn.Resource, expectedType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if resource.Options == nil || resource.Options.QueryParamsOptions == nil {
+			return fmt.Errorf("query params options not found in resource")
+		}
+
+		switch expectedType {
+		case "ignore":
+			if _, ok := resource.Options.QueryParamsOptions.QueryParamsVariant.(*cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString); !ok {
+				return fmt.Errorf("expected ignore_query_params, but got different type")
+			}
+		case "ignore_false":
+			ignoreOpt, ok := resource.Options.QueryParamsOptions.QueryParamsVariant.(*cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString)
+			if !ok {
+				return fmt.Errorf("expected ignore_query_params, but got different type")
+			}
+			if ignoreOpt.IgnoreQueryString.Value != false {
+				return fmt.Errorf("expected ignore_query_params to be false, but got %v", ignoreOpt.IgnoreQueryString.Value)
+			}
+		case "whitelist":
+			if _, ok := resource.Options.QueryParamsOptions.QueryParamsVariant.(*cdn.ResourceOptions_QueryParamsOptions_QueryParamsWhitelist); !ok {
+				return fmt.Errorf("expected query_params_whitelist, but got different type")
+			}
+		case "blacklist":
+			if _, ok := resource.Options.QueryParamsOptions.QueryParamsVariant.(*cdn.ResourceOptions_QueryParamsOptions_QueryParamsBlacklist); !ok {
+				return fmt.Errorf("expected query_params_blacklist, but got different type")
+			}
+		}
+		return nil
+	}
+}
+
+func testCDNResourceCompressionOptions(resource *cdn.Resource, expectedType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if resource.Options == nil || resource.Options.CompressionOptions == nil {
+			return fmt.Errorf("compression options not found in resource")
+		}
+
+		switch expectedType {
+		case "gzip":
+			if _, ok := resource.Options.CompressionOptions.CompressionVariant.(*cdn.ResourceOptions_CompressionOptions_GzipOn); !ok {
+				return fmt.Errorf("expected gzip_on, but got different type")
+			}
+		case "fetched":
+			if _, ok := resource.Options.CompressionOptions.CompressionVariant.(*cdn.ResourceOptions_CompressionOptions_FetchCompressed); !ok {
+				return fmt.Errorf("expected fetched_compressed, but got different type")
+			}
+		}
+		return nil
+	}
+}
+
+func testCDNResourceBooleanOptions(resource *cdn.Resource) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if resource.Options == nil {
+			return fmt.Errorf("options not found in resource")
+		}
+
+		if resource.Options.DisableCache == nil || resource.Options.DisableCache.Value != false {
+			return fmt.Errorf("expected disable_cache to be false")
+		}
+
+		if resource.Options.IgnoreCookie == nil || resource.Options.IgnoreCookie.Value != false {
+			return fmt.Errorf("expected ignore_cookie to be false")
+		}
+
+		if resource.Options.Slice == nil || resource.Options.Slice.Value != false {
+			return fmt.Errorf("expected slice to be false")
+		}
+
+		return nil
+	}
+}
+
+func testAccCDNResource_queryParamsIgnore(groupName, resourceCNAME string, ignoreParams bool) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		ignore_query_params = %t
+	}
+}`, resourceCNAME, ignoreParams)
+}
+
+func testAccCDNResource_queryParamsWhitelist(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		query_params_whitelist = ["param1", "param2"]
+	}
+}`, resourceCNAME)
+}
+
+func testAccCDNResource_queryParamsBlacklist(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		query_params_blacklist = ["param3", "param4"]
+	}
+}`, resourceCNAME)
+}
+
+func testAccCDNResource_compressionGzip(groupName, resourceCNAME string, gzipOn bool) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		gzip_on = %t
+	}
+}`, resourceCNAME, gzipOn)
+}
+
+func testAccCDNResource_compressionFetched(groupName, resourceCNAME string, fetchedCompressed bool) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		fetched_compressed = %t
+	}
+}`, resourceCNAME, fetchedCompressed)
+}
+
+func testAccCDNResource_booleanOptionsAllFalse(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		disable_cache       = false
+		ignore_query_params = false
+		slice              = false
+		gzip_on            = false
+		ignore_cookie      = false
+	}
+}`, resourceCNAME)
+}
+
+func testAccCDNResource_optionIgnoreQueryParamsFalse(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+	origin_group_id = yandex_cdn_origin_group.foo_cdn_group.id
+
+	options {
+		ignore_query_params = false
+	}
+}`, resourceCNAME)
 }

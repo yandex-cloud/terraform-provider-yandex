@@ -183,6 +183,50 @@ func TestAccCDNOriginGroup_update(t *testing.T) {
 	})
 }
 
+func TestAccCDNOriginGroup_updateOriginOnly(t *testing.T) {
+	groupName := fmt.Sprintf("tf-test-cdn-origin-group-%s", acctest.RandString(10))
+
+	var originGroup, originGroupUpdated cdn.OriginGroup
+
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNOriginGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNOriginGroup_basic(groupName),
+				Check: resource.ComposeTestCheckFunc(
+					testOriginGroupExists("yandex_cdn_origin_group.test_cdn_group", &originGroup),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "use_next", "true"),
+					testAccCDNOriginsContainsSources(&originGroup,
+						"ya.ru",
+						"yandex.ru",
+						"goo.gl",
+						"amazon.com",
+					),
+				),
+			},
+			{
+				Config: testAccCDNOriginGroup_updateOriginOnly(groupName),
+				Check: resource.ComposeTestCheckFunc(
+					testOriginGroupExists("yandex_cdn_origin_group.test_cdn_group", &originGroupUpdated),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "use_next", "true"),
+					testAccCDNOriginsContainsSources(&originGroupUpdated,
+						"storage.yandexcloud.net",
+						"website.yandexcloud.net",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testSweepCDNOriginGroups(_ string) error {
 	conf, err := configForSweepers()
 	if err != nil {
@@ -340,6 +384,22 @@ resource "yandex_cdn_origin_group" "test_cdn_group" {
 
   origin {
 	source = "ya.ru"
+  }
+}
+`, groupName)
+}
+
+func testAccCDNOriginGroup_updateOriginOnly(groupName string) string {
+	return fmt.Sprintf(`
+resource "yandex_cdn_origin_group" "test_cdn_group" {
+  name     = "%s"
+
+  origin {
+	source = "storage.yandexcloud.net"
+  }
+
+  origin {
+	source = "website.yandexcloud.net"
   }
 }
 `, groupName)
