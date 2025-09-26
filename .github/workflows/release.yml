@@ -19,6 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: CLEAN-UP
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # false if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+      -
         name: Checkout
         uses: actions/checkout@v2
       -
