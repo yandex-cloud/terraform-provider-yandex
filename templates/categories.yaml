@@ -40,6 +40,7 @@ DocsCategories:
   - "Data Transfer"
   - "Message Queue"
   - "Yandex Query"
+  - "Metadata Hub Connection Manager"
 
   # Serverless services
   - "Yandex API Gateway"
