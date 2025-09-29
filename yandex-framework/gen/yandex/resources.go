@@ -24,6 +24,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_zone_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_function_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_oidc_federation_iam_binding"
@@ -56,6 +57,7 @@ func GetProviderResources() []func() resource.Resource {
 		yandex_container_registry_iam_binding.NewResource,
 		yandex_container_repository_iam_binding.NewResource,
 		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,
+		yandex_iam_oauth_client.NewResource,
 		yandex_iam_service_account_iam_binding.NewResource,
 		yandex_iam_service_account_iam_member.NewResource,
 		yandex_kubernetes_cluster_iam_binding.NewResource,
