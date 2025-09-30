@@ -31,7 +31,10 @@ func ParseTimeOfDay(ts string, diags *diag.Diagnostics) *timeofday.TimeOfDay {
 
 func GetTimeOfDay(d1 *timeofday.TimeOfDay, stateValue string, diags *diag.Diagnostics) string {
 	if stateValue == "" {
-		return d1.String()
+		date := time.Date(0, time.January, 1,
+			int(d1.GetHours()), int(d1.GetMinutes()), int(d1.GetSeconds()), int(d1.GetNanos()), time.UTC)
+
+		return date.Format(time.Kitchen)
 	}
 	t, err := time.Parse(time.Kitchen, stateValue)
 	if err != nil {
