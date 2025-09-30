@@ -1759,7 +1759,11 @@ var mdbPGSettingsFieldsInfo16 = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig16_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig16_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig16_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig16_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig16_PasswordEncryption_name,
+		int(config.PostgresqlConfig16_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_DebugParallelQuery_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
@@ -1782,7 +1786,11 @@ var mdbPGSettingsFieldsInfo16_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig16_1C_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig16_1C_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig16_1C_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig16_1C_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig16_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig16_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_1C_DebugParallelQuery_name).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
@@ -1806,7 +1814,11 @@ var mdbPGSettingsFieldsInfo15 = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig15_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig15_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig15_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig15_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig15_PasswordEncryption_name,
+		int(config.PostgresqlConfig15_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
@@ -1829,7 +1841,11 @@ var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig15_1C_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig15_1C_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig15_1C_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig15_1C_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig15_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig15_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
@@ -1852,7 +1868,11 @@ var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig14_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig14_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig14_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig14_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig14_PasswordEncryption_name,
+		int(config.PostgresqlConfig14_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
@@ -1875,7 +1895,11 @@ var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig14_1C_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig14_1C_LogLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig14_1C_AutoExplainLogFormat_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig14_1C_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig14_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig14_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
@@ -1897,7 +1921,11 @@ var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig13_PlanCacheMode_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig13_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig13_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig13_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig13_PasswordEncryption_name,
+		int(config.PostgresqlConfig13_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
@@ -1919,5 +1947,9 @@ var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
 	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig13_1C_PlanCacheMode_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig13_1C_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig13_1C_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("password_encryption", config.PostgresqlConfig13_1C_PasswordEncryption_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig13_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig13_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
