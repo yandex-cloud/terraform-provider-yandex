@@ -44,7 +44,6 @@ func TestAccDataSourceBackupPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "format", "AUTO"),
 					resource.TestCheckResourceAttr(dataSourceName, "multi_volume_snapshotting_enabled", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "performance_window_enabled", "false"),
-					resource.TestCheckResourceAttr(dataSourceName, "preserve_file_security_settings", "true"),
 				),
 			},
 		},
