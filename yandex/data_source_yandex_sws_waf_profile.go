@@ -657,7 +657,7 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Computed:    true,
 												},
 
-												"waf_profile_id": {
+												"id": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
@@ -738,7 +738,7 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Computed:    true,
 												},
 
-												"waf_profile_id": {
+												"id": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,
@@ -819,7 +819,7 @@ func dataSourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Computed:    true,
 												},
 
-												"waf_profile_id": {
+												"id": {
 													Type:        schema.TypeString,
 													Description: "",
 													Computed:    true,

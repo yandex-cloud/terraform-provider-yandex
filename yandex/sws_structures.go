@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	smartcaptcha "github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
@@ -4818,6 +4819,10 @@ func expandWafProfileRuleSetsCoreRuleSetRuleSet(d *schema.ResourceData, indexes 
 		val.SetType(ruleSetType)
 	}
 
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
 	return val, nil
 }
 
@@ -4863,6 +4868,10 @@ func expandWafProfileRuleSetsYaRuleSetRuleSet(d *schema.ResourceData, indexes ..
 		}
 
 		val.SetType(ruleSetType)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
 	}
 
 	return val, nil
@@ -4953,6 +4962,10 @@ func expandWafProfileRuleSetsMlRuleSetRuleSet(d *schema.ResourceData, indexes ..
 		}
 
 		val.SetType(ruleSetType)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
 	}
 
 	return val, nil
@@ -5095,6 +5108,7 @@ func flatten_yandex_cloud_smartwebsecurity_v1_waf_RuleSet(v *waf.RuleSet) ([]map
 	m["name"] = v.Name
 	m["type"] = v.Type.String()
 	m["version"] = v.Version
+	m["id"] = v.Id
 
 	return []map[string]interface{}{m}, nil
 }
@@ -6053,6 +6067,10 @@ func expandWafProfileRuleSetsCoreRuleSetRuleSet_(d *schema.ResourceData, indexes
 		val.SetType(ruleSetType)
 	}
 
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.core_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
+	}
+
 	return val, nil
 }
 
@@ -6098,6 +6116,10 @@ func expandWafProfileRuleSetsYaRuleSetRuleSet_(d *schema.ResourceData, indexes .
 		}
 
 		val.SetType(ruleSetType)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ya_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
 	}
 
 	return val, nil
@@ -6188,6 +6210,10 @@ func expandWafProfileRuleSetsMlRuleSetRuleSet_(d *schema.ResourceData, indexes .
 		}
 
 		val.SetType(ruleSetType)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("rule_set.%d.ml_rule_set.0.rule_set.0.id", indexes...)); ok {
+		val.SetId(v.(string))
 	}
 
 	return val, nil

@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_sws_waf_profile: add missing field `id` to `rule_set`'
+time: 2025-10-01T10:44:12.785617+03:00

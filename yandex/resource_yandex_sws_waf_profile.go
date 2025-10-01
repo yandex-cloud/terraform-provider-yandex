@@ -119,6 +119,12 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 										Description: "Version of the rule set.",
 										Required:    true,
 									},
+
+									"id": {
+										Type:        schema.TypeString,
+										Description: "Id of the rule set.",
+										Optional:    true,
+									},
 								},
 							},
 							Required: true,
@@ -724,6 +730,12 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Description: "Version of the rule set.",
 													Required:    true,
 												},
+
+												"id": {
+													Type:        schema.TypeString,
+													Description: "ID of the rule set.",
+													Optional:    true,
+												},
 											},
 										},
 										Required: true,
@@ -803,6 +815,12 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "Version of the rule set.",
 													Required:    true,
+												},
+
+												"id": {
+													Type:        schema.TypeString,
+													Description: "ID of the rule set.",
+													Optional:    true,
 												},
 											},
 										},
@@ -884,6 +902,12 @@ func resourceYandexSmartwebsecurityWafWafProfile() *schema.Resource {
 													Type:        schema.TypeString,
 													Description: "Version of the rule set.",
 													Required:    true,
+												},
+
+												"id": {
+													Type:        schema.TypeString,
+													Description: "ID of the rule set.",
+													Optional:    true,
 												},
 											},
 										},

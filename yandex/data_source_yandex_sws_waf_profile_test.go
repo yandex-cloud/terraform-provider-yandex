@@ -65,7 +65,7 @@ resource "yandex_sws_waf_profile" "this" {
         rule_set {
             name = "OWASP Core Ruleset"
             version = "4.0.0"
-			type = "RULE_SET_TYPE_UNSPECIFIED"
+			type = "CORE"
         }
     }
     dynamic "rule" {
@@ -84,6 +84,21 @@ resource "yandex_sws_waf_profile" "this" {
         size_limit = 8
         size_limit_action = "IGNORE"
     }
+	rule_set {
+		action     = "DENY"
+    	is_enabled = true
+    	priority   = 1
+		core_rule_set {
+			inbound_anomaly_score = 2
+			paranoia_level = local.waf_paranoia_level
+			rule_set {
+				name = "OWASP Core Ruleset"
+				version = "4.0.0"
+				type = "CORE"
+				id = "OWASP_CRS_4_0_0"
+			}
+		}
+	}
 }
 `, name)
 }
