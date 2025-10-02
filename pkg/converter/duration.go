@@ -27,6 +27,9 @@ func ParseDuration(ts string, diags *diag.Diagnostics) *durationpb.Duration {
 
 func GetDuration(d1 *durationpb.Duration, stateValue string, diags *diag.Diagnostics) string {
 	if stateValue == "" {
+		if d1 == nil {
+			return ""
+		}
 		return d1.AsDuration().String()
 	}
 	t, err := time.ParseDuration(stateValue)
@@ -43,5 +46,8 @@ func GetDuration(d1 *durationpb.Duration, stateValue string, diags *diag.Diagnos
 		return stateValue
 	}
 
+	if d1 == nil {
+		return ""
+	}
 	return d1.AsDuration().String()
 }

@@ -1,11 +1,14 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
 )
 
 func TestAccDataSourceIAMWorkloadIdentityOidcFederationById(t *testing.T) {
@@ -13,9 +16,9 @@ func TestAccDataSourceIAMWorkloadIdentityOidcFederationById(t *testing.T) {
 	folderID := getExampleFolderID()
 	resourceName := "data.yandex_iam_workload_identity_oidc_federation.test"
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckWorkloadIdentityOidcFederationDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckWorkloadIdentityOidcFederationDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkloadIdentityOidcFederationByIdConfig(federationName, folderID),
@@ -44,9 +47,9 @@ func TestAccDataSourceIAMWorkloadIdentityOidcFederationByName(t *testing.T) {
 	folderID := getExampleFolderID()
 	resourceName := "data.yandex_iam_workload_identity_oidc_federation.test"
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckWorkloadIdentityOidcFederationDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckWorkloadIdentityOidcFederationDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkloadIdentityOidcFederationByNameConfig(federationName, folderID),
@@ -68,6 +71,46 @@ func TestAccDataSourceIAMWorkloadIdentityOidcFederationByName(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckWorkloadIdentityOidcFederationExists(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+		config := testAccProvider.Meta().(*Config)
+
+		_, err := config.sdk.WorkloadOidc().Federation().Get(context.Background(), &oidc.GetFederationRequest{
+			FederationId: rs.Primary.ID,
+		})
+
+		return err
+	}
+}
+
+func testAccCheckWorkloadIdentityOidcFederationDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_iam_workload_identity_oidc_federation" {
+			continue
+		}
+
+		_, err := config.sdk.WorkloadOidc().Federation().Get(context.Background(), &oidc.GetFederationRequest{
+			FederationId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("WLI OIDC federation still exists")
+		}
+	}
+
+	return nil
 }
 
 func testAccWorkloadIdentityOidcFederationByIdConfig(federationName, folderId string) string {

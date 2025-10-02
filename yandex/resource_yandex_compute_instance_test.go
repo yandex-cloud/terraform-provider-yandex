@@ -568,9 +568,9 @@ func TestAccComputeInstance_update(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_basic(instanceName),
@@ -731,9 +731,9 @@ func TestAccComputeInstance_stopInstanceToUpdateAttachDetachNetworkIfaces(t *tes
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_stopInstanceToUpdate_attach_detach_NetworkInterfaces(instanceName),
@@ -910,9 +910,9 @@ func TestAccComputeInstance_update_scheduling_policy(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-scheduling-policy-update-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_preemptible(instanceName, false),
@@ -942,9 +942,9 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 	var saName = acctest.RandomWithPrefix("test-sa-for-vm")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_service_account(instanceName, saName),
@@ -1454,9 +1454,9 @@ func TestAccComputeInstance_filesystem(t *testing.T) {
 	var newFsName = acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			// Create instance with a filesystem attached to it
 			{
@@ -4666,7 +4666,7 @@ func testAccComputeInstance_GpuCluster(gpuCluster, instance string) string {
 
 	resource "yandex_compute_gpu_cluster" "foobar" {
 		name              = "%s"
-        interconnect_type = "infiniband"
+        interconnect_type = "INFINIBAND"
 		zone              = "ru-central1-a"
 	}
 

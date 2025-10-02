@@ -101,3 +101,18 @@ func dataSourceYandexEventrouterBusRead(ctx context.Context, d *schema.ResourceD
 	d.Set("bus_id", bus.Id)
 	return diag.FromErr(flattenYandexEventrouterBus(d, bus))
 }
+
+func flattenYandexEventrouterBus(
+	d *schema.ResourceData,
+	bus *eventrouter.Bus,
+) error {
+	d.Set("name", bus.Name)
+	d.Set("folder_id", bus.FolderId)
+	d.Set("cloud_id", bus.CloudId)
+	d.Set("created_at", getTimestamp(bus.CreatedAt))
+	d.Set("description", bus.Description)
+	d.Set("labels", bus.Labels)
+	d.Set("deletion_protection", bus.DeletionProtection)
+
+	return nil
+}

@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sort"
@@ -158,4 +159,34 @@ func getKMSAsymmetricSignatureKeyResourceAccessBindings(s *terraform.State, reso
 	}
 
 	return getKMSAsymmetricSignatureKeyAccessBindings(config.Context(), config, rs.Primary.ID)
+}
+
+func testAccCheckKMSAsymmetricSignatureKeyExists(name string, asymmetricSignatureKey *kms.AsymmetricSignatureKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.KMSAsymmetricSignature().AsymmetricSignatureKey().Get(context.Background(), &kms.GetAsymmetricSignatureKeyRequest{
+			KeyId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("KMS AsymmetricSignatureKey not found")
+		}
+
+		*asymmetricSignatureKey = *found
+
+		return nil
+	}
 }

@@ -16,8 +16,8 @@ func TestAccDataSourceComputeSnapshot_byID(t *testing.T) {
 	label := acctest.RandomWithPrefix("label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckComputeSnapshotDestroy,
@@ -54,8 +54,8 @@ func TestAccDataSourceComputeSnapshot_byName(t *testing.T) {
 	label := acctest.RandomWithPrefix("label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckComputeSnapshotDestroy,

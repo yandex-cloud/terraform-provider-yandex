@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -53,7 +54,7 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 
 			"default_algorithm": {
 				Type:         schema.TypeString,
-				Description:  resourceYandexKMSSymmetricKey().Schema["default_algorithm"].Description,
+				Description:  "Encryption algorithm to be used with a new key version, generated with the next rotation. The default value is `AES_128`.",
 				Default:      "AES_128",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKmsDefaultAlgorithm),
@@ -68,7 +69,7 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 
 			"rotation_period": {
 				Type:             schema.TypeString,
-				Description:      resourceYandexKMSSymmetricKey().Schema["rotation_period"].Description,
+				Description:      "Interval between automatic rotations. To disable automatic rotation, omit this parameter.",
 				Optional:         true,
 				ValidateFunc:     validateParsableValue(parsePositiveDuration),
 				DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
@@ -76,13 +77,13 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexKMSSymmetricKey().Schema["status"].Description,
+				Description: "The status of the key.",
 				Computed:    true,
 			},
 
 			"rotated_at": {
 				Type:        schema.TypeString,
-				Description: resourceYandexKMSSymmetricKey().Schema["rotated_at"].Description,
+				Description: "Last rotation timestamp of the key.",
 				Computed:    true,
 			},
 
@@ -148,4 +149,17 @@ func dataSourceYandexKMSSymmetricKeyRead(ctx context.Context, data *schema.Resou
 
 	return nil
 
+}
+
+func parsePositiveDuration(s string) (*duration.Duration, error) {
+	d, err := parseDuration(s)
+	if err != nil {
+		return nil, err
+	}
+
+	if d.GetSeconds() == 0 && d.GetNanos() == 0 {
+		return nil, fmt.Errorf("can not use zero duration")
+	}
+
+	return d, nil
 }

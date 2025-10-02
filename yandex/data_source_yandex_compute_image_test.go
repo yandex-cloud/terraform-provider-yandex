@@ -167,8 +167,8 @@ func TestAccDataSourceComputeImage_encrypted(t *testing.T) {
 	family := "ubuntu-1804-lts"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeImageDestroy,
 			testAccCheckComputeDiskDestroy,

@@ -16,8 +16,8 @@ func TestAccDataSourceComputeInstance_byID(t *testing.T) {
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeInstanceDestroy,
 			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
@@ -42,8 +42,8 @@ func TestAccDataSourceComputeInstance_byName(t *testing.T) {
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeInstanceDestroy,
 			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
@@ -109,9 +109,9 @@ func TestAccDataSourceComputeInstance_GpusById(t *testing.T) {
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceGpusConfig(instanceName, true),

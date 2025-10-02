@@ -31,6 +31,23 @@ type yandexCloudregistryRegistryModel struct {
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
+func NewYandexCloudregistryRegistryModel() yandexCloudregistryRegistryModel {
+	return yandexCloudregistryRegistryModel{
+		CreatedAt:   types.StringNull(),
+		Description: types.StringNull(),
+		FolderId:    types.StringNull(),
+		Kind:        types.StringNull(),
+		Labels:      types.MapNull(types.StringType),
+		ModifiedAt:  types.StringNull(),
+		Name:        types.StringNull(),
+		Properties:  types.MapNull(types.StringType),
+		RegistryId:  types.StringNull(),
+		ID:          types.StringNull(),
+		Status:      types.StringNull(),
+		Type:        types.StringNull(),
+	}
+}
+
 var yandexCloudregistryRegistryModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":  types.StringType,

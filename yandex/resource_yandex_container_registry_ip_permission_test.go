@@ -31,8 +31,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -69,8 +69,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -107,8 +107,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -146,8 +146,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -185,8 +185,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -224,8 +224,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,
@@ -263,8 +263,8 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRegistryIPPermissionDestroy,

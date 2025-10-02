@@ -50,3 +50,18 @@ func GetOrganizationID(stateValue string, providerConfig *config.Config, diags *
 		return ""
 	}
 }
+
+func GetZone(stateValue string, providerConfig *config.Config, diags *diag.Diagnostics) string {
+	switch {
+	case stateValue != "":
+		return stateValue
+	case !providerConfig.ProviderState.Zone.IsUnknown() && !providerConfig.ProviderState.Zone.IsNull():
+		return providerConfig.ProviderState.Zone.ValueString()
+	default:
+		diags.AddError(
+			"Cannot determine zone",
+			"Please set 'zone' key in this resource or at provider level",
+		)
+		return ""
+	}
+}

@@ -20,9 +20,9 @@ func TestAccDataSourceEventrouterConnector_byID(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-connector-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorByID(name, desc),
@@ -48,9 +48,9 @@ func TestAccDataSourceEventrouterConnector_byName(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-connector-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorByName(name, desc),

@@ -30,8 +30,8 @@ func TestAccContainerRepositoryLifecyclePolicy(t *testing.T) {
 		const lifecyclePolicyResourceName = "yandex_container_repository_lifecycle_policy.my_lifecycle_policy"
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 			CheckDestroy: resource.ComposeTestCheckFunc(
 				testAccCheckContainerRegistryDestroy,
 				testAccCheckContainerRepositoryDestroy,

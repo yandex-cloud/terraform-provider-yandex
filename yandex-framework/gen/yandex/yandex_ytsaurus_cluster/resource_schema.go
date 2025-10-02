@@ -203,6 +203,7 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
 					mapvalidator.ValueStringsAre(),
@@ -245,6 +246,7 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedList(),
 				},
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(),
@@ -280,6 +282,7 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 												PlanModifiers: []planmodifier.List{
 													listplanmodifier.UseStateForUnknown(),
+													planmodifiers.NilRelaxedList(),
 												},
 												Validators: []validator.List{
 													listvalidator.ValueStringsAre(),
@@ -334,6 +337,7 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 									PlanModifiers: []planmodifier.List{
 										listplanmodifier.UseStateForUnknown(),
+										planmodifiers.NilRelaxedList(),
 									},
 								},
 
@@ -496,6 +500,7 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 						PlanModifiers: []planmodifier.List{
 							listplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedList(),
 						},
 					},
 

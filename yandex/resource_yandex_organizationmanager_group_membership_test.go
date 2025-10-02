@@ -23,8 +23,8 @@ func TestAccOrganizationManagerGroupMembership_basic(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply a group membership
 			{
@@ -54,8 +54,8 @@ func TestAccOrganizationManagerGroupMembership_existingMember(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Add a member for the first user.
 			{
@@ -100,8 +100,8 @@ func TestAccOrganizationManagerGroupMembership_deleteUser(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply a group membership with 2 users.
 			{
@@ -144,8 +144,8 @@ func TestAccOrganizationManagerGroupMembership_addUser(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply a group membership with one user.
 			{
@@ -191,8 +191,8 @@ func TestAccOrganizationManagerGroupMembership_restoresDeleted(t *testing.T) {
 		testAccGroupMembership(groupResourceName, "membership", userID1, userID2)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply a Group Membership with 2 users, then delete the first user from the group and ensure there is
 			// only the second user in the group.
@@ -242,8 +242,8 @@ func TestAccOrganizationManagerGroupMembership_changeUser(t *testing.T) {
 	var group organizationmanager.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			// Apply a Group Membership
 			{

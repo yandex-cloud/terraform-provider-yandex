@@ -35,6 +35,28 @@ type yandexYtsaurusClusterDatasourceModel struct {
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
 }
 
+func NewYandexYtsaurusClusterDatasourceModel() yandexYtsaurusClusterDatasourceModel {
+	return yandexYtsaurusClusterDatasourceModel{
+		ClusterId:        types.StringNull(),
+		ID:               types.StringNull(),
+		CreatedAt:        types.StringNull(),
+		CreatedBy:        types.StringNull(),
+		Description:      types.StringNull(),
+		Endpoints:        types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes),
+		FolderId:         types.StringNull(),
+		Health:           types.StringNull(),
+		Labels:           types.MapNull(types.StringType),
+		Name:             types.StringNull(),
+		SecurityGroupIds: types.ListNull(types.StringType),
+		Spec:             types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
+		Status:           types.StringNull(),
+		SubnetId:         types.StringNull(),
+		UpdatedAt:        types.StringNull(),
+		UpdatedBy:        types.StringNull(),
+		ZoneId:           types.StringNull(),
+	}
+}
+
 var yandexYtsaurusClusterDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"cluster_id":         types.StringType,

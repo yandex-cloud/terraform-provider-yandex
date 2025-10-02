@@ -327,9 +327,6 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FolderId.Equal(state.FolderId) {
-		updatePaths = append(updatePaths, "folder_id")
-	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
 	}

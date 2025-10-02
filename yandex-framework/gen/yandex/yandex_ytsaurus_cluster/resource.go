@@ -331,9 +331,6 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FolderId.Equal(state.FolderId) {
-		updatePaths = append(updatePaths, "folder_id")
-	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
 	}
@@ -466,9 +463,6 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	}
 	if !plan.SubnetId.Equal(state.SubnetId) {
 		updatePaths = append(updatePaths, "subnet_id")
-	}
-	if !plan.ZoneId.Equal(state.ZoneId) {
-		updatePaths = append(updatePaths, "zone_id")
 	}
 	if len(updatePaths) != 0 {
 

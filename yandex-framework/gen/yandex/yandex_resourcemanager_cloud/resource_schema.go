@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
 func YandexResourcemanagerCloudResourceSchema(ctx context.Context) schema.Schema {
@@ -112,6 +113,7 @@ func YandexResourcemanagerCloudResourceSchema(ctx context.Context) schema.Schema
 
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
 					mapvalidator.KeysAre(

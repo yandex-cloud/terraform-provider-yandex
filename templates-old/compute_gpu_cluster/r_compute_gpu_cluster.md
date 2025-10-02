@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `zone` - (Optional) Availability zone where the GPU cluster will reside.
 
-* `interconnect_type` - (Optional) Type of interconnect between nodes to use in GPU cluster. Type `infiniband` is set by default, and it is the only one available at the moment.
+* `interconnect_type` - (Optional) Type of interconnect between nodes to use in GPU cluster. Type `INFINIBAND` is set by default, and it is the only one available at the moment.
 
 ## Attributes Reference
 

@@ -31,6 +31,24 @@ type yandexConnectionmanagerConnectionDatasourceModel struct {
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
 
+func NewYandexConnectionmanagerConnectionDatasourceModel() yandexConnectionmanagerConnectionDatasourceModel {
+	return yandexConnectionmanagerConnectionDatasourceModel{
+		CanUse:        types.BoolNull(),
+		ConnectionId:  types.StringNull(),
+		ID:            types.StringNull(),
+		CreatedAt:     types.StringNull(),
+		CreatedBy:     types.StringNull(),
+		Description:   types.StringNull(),
+		FolderId:      types.StringNull(),
+		IsManaged:     types.BoolNull(),
+		Labels:        types.MapNull(types.StringType),
+		LockboxSecret: types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes),
+		Name:          types.StringNull(),
+		Params:        types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes),
+		UpdatedAt:     types.StringNull(),
+	}
+}
+
 var yandexConnectionmanagerConnectionDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"can_use":        types.BoolType,

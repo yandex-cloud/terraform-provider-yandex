@@ -22,9 +22,9 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfig(accountName, accountDesc, "description for test"),
@@ -56,9 +56,9 @@ func TestAccServiceAccountKey_encrypted(t *testing.T) {
 	publicKey := pgpkeys.TestPubKey1
 	fingerprints, _ := pgpkeys.GetFingerprints([]string{publicKey}, nil)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfigEncrypted(accountName, accountDesc, publicKey),
@@ -83,9 +83,9 @@ func TestAccServiceAccountKey_output_to_lockbox_on_create(t *testing.T) {
 	accountDesc := "Terraform Test"
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// output_to_lockbox is defined, so sensitive fields are stored in Lockbox
@@ -127,9 +127,9 @@ func TestAccServiceAccountKey_output_to_lockbox_on_destroy(t *testing.T) {
 	accountDesc := "Terraform Test"
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// output_to_lockbox is defined, so sensitive fields are stored in Lockbox
@@ -167,9 +167,9 @@ func TestAccServiceAccountKey_output_to_lockbox_added_and_removed(t *testing.T) 
 	originalPrivateKey := ""
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// initially, output_to_lockbox is not defined
@@ -229,9 +229,9 @@ func TestAccServiceAccountKey_output_to_lockbox_updated_secret(t *testing.T) {
 	lockboxVersionID1 := ""
 	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
@@ -302,9 +302,9 @@ func TestAccServiceAccountKey_output_to_lockbox_updated_entries(t *testing.T) {
 	lockboxVersionID1 := ""
 	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),

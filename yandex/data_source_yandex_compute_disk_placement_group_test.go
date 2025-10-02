@@ -10,9 +10,9 @@ import (
 
 func TestAccDataSourceComputeDisk_diskPlacementGroupByID(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeDiskPlacementConfig(true),
@@ -26,9 +26,9 @@ func TestAccDataSourceComputeDisk_diskPlacementGroupByID(t *testing.T) {
 
 func TestAccDataSourceComputeDisk_diskPlacementGroupByName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeDiskPlacementConfig(false),

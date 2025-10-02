@@ -1,11 +1,16 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestAccDataSourceContainerRegistry_byID(t *testing.T) {
@@ -16,9 +21,9 @@ func TestAccDataSourceContainerRegistry_byID(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegistryDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceContainerRegistryConfig(registryName, folderID, label, true),
@@ -47,9 +52,9 @@ func TestAccDataSourceContainerRegistry_byName(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegistryDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceContainerRegistryConfig(registryName, folderID, label, false),
@@ -68,6 +73,60 @@ func TestAccDataSourceContainerRegistry_byName(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckContainerRegistryDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_container_registry" {
+			continue
+		}
+
+		_, err := config.sdk.ContainerRegistry().Registry().Get(context.Background(), &containerregistry.GetRegistryRequest{
+			RegistryId: rs.Primary.ID,
+		})
+
+		if err != nil {
+			if grpcStatus, ok := status.FromError(err); ok && grpcStatus != nil && grpcStatus.Code() == codes.NotFound {
+				return nil
+			} else if ok {
+				return fmt.Errorf("Error while requesting Yandex Cloud: grpc code error : %d, http message error: %s", grpcStatus.Code(), grpcStatus.Message())
+			}
+			return fmt.Errorf("Container Registry still exists")
+		}
+	}
+
+	return nil
+}
+
+func testAccCheckContainerRegistryExists(n string, registry *containerregistry.Registry) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.ContainerRegistry().Registry().Get(context.Background(), &containerregistry.GetRegistryRequest{
+			RegistryId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Container Registry %s not found", n)
+		}
+
+		*registry = *found
+		return nil
+	}
 }
 
 func testAccDataSourceContainerRegistryConfig(folderID, name, labelValue string, useID bool) string {

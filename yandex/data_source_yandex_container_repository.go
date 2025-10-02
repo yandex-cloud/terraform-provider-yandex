@@ -25,7 +25,7 @@ func dataSourceYandexContainerRepository() *schema.Resource {
 
 			"name": {
 				Type:        schema.TypeString,
-				Description: resourceYandexContainerRepository().Schema["name"].Description,
+				Description: "A name of the repository. The name of the repository should start with id of a container registry and match the name of the images that will be pushed in the repository.",
 				Optional:    true,
 				Computed:    true,
 			},

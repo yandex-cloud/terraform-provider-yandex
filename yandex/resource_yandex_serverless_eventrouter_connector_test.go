@@ -72,9 +72,9 @@ func TestAccEventrouterConnector_yds(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorYds(name, desc, labelKey, labelValue),
@@ -108,9 +108,9 @@ func TestAccEventrouterConnector_ymq(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorYmq(name, desc, labelKey, labelValue),
@@ -145,9 +145,9 @@ func TestAccEventrouterConnector_timer(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorTimer(name, desc, labelKey, labelValue, "0 45 16 ? * *", "Europe/Moscow", "payload"),
@@ -187,9 +187,9 @@ func TestAccEventrouterConnector_update(t *testing.T) {
 	queueName := acctest.RandomWithPrefix("tf-queue")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterConnectorDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterConnectorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterConnectorBasic(name, desc, labelKey, labelValue, queueName),

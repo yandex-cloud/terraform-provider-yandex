@@ -56,7 +56,7 @@ func dataSourceYandexComputeFilesystem() *schema.Resource {
 			},
 			"type": {
 				Type:        schema.TypeString,
-				Description: resourceYandexComputeFilesystem().Schema["type"].Description,
+				Description: "Type of filesystem to create. Type `network-hdd` is set by default.",
 				Computed:    true,
 			},
 			"zone": {
@@ -66,17 +66,17 @@ func dataSourceYandexComputeFilesystem() *schema.Resource {
 			},
 			"size": {
 				Type:        schema.TypeInt,
-				Description: resourceYandexComputeFilesystem().Schema["size"].Description,
+				Description: "Size of the filesystem, specified in GB.",
 				Computed:    true,
 			},
 			"block_size": {
 				Type:        schema.TypeInt,
-				Description: resourceYandexComputeFilesystem().Schema["block_size"].Description,
+				Description: "Block size of the filesystem, specified in bytes.",
 				Computed:    true,
 			},
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexComputeFilesystem().Schema["status"].Description,
+				Description: "The status of the filesystem.",
 				Computed:    true,
 			},
 		},

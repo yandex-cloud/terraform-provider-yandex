@@ -53,10 +53,13 @@ require (
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.12
 	github.com/yandex-cloud/go-sdk/services/kms v0.0.12
+	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.12
 	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12
+	github.com/yandex-cloud/go-sdk/services/logging v0.0.12
 	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.12
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12
 	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1
+	github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3
 	github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2

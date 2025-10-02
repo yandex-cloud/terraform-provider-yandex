@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,7 +19,7 @@ func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
 		ReadContext: dataSourceYandexContainerRegistryIPPermissionRead,
 
 		Timeouts: &schema.ResourceTimeout{
-			Default: schema.DefaultTimeout(yandexContainerRegistryDefaultTimeout),
+			Default: schema.DefaultTimeout(15 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{

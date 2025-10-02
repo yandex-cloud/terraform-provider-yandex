@@ -21,9 +21,9 @@ func TestAccServiceAccountStaticAccessKey_basic(t *testing.T) {
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountStaticAccessKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountStaticAccessKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountStaticAccessKeyConfig(accountName, accountDesc),
@@ -48,9 +48,9 @@ func TestAccServiceAccountStaticAccessKey_encrypted(t *testing.T) {
 	publicKey := pgpkeys.TestPubKey1
 	fingerprints, _ := pgpkeys.GetFingerprints([]string{publicKey}, nil)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountStaticAccessKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountStaticAccessKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountStaticAccessKeyConfigEncrypted(accountName, accountDesc, publicKey),
@@ -75,9 +75,9 @@ func TestAccServiceAccountStaticAccessKey_output_to_lockbox_on_create(t *testing
 	accountDesc := "Terraform Test"
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountStaticAccessKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountStaticAccessKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// output_to_lockbox is defined, so sensitive fields are stored in Lockbox
@@ -120,9 +120,9 @@ func TestAccServiceAccountStaticAccessKey_output_to_lockbox_on_destroy(t *testin
 	accountDesc := "Terraform Test"
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountStaticAccessKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountStaticAccessKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// output_to_lockbox is defined, so sensitive fields are stored in Lockbox
@@ -161,9 +161,9 @@ func TestAccServiceAccountStaticAccessKey_output_to_lockbox_on_update(t *testing
 	originalSecretKey := ""
 	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountStaticAccessKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountStaticAccessKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				// initially, output_to_lockbox is not defined
@@ -232,9 +232,9 @@ func TestAccServiceAccountStaticAccessKey_output_to_lockbox_updated_secret(t *te
 	lockboxVersionID1 := ""
 	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountStaticAccessKeyConfigOutputToLockbox(accountName, accountDesc, ""),
@@ -314,9 +314,9 @@ func TestAccServiceAccountStaticAccessKey_output_to_lockbox_updated_entries(t *t
 	lockboxVersionID1 := ""
 	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountStaticAccessKeyConfigOutputToLockbox(accountName, accountDesc, ""),

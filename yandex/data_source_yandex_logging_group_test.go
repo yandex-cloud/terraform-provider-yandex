@@ -1,15 +1,15 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 )
 
@@ -113,6 +113,80 @@ func TestAccDataSourceYandexLoggingGroup_full(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testYandexLoggingGroupDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_logging_group" {
+			continue
+		}
+
+		_, err := testGetYandexLoggingGroupByID(config, rs.Primary.ID)
+		if err == nil {
+			return fmt.Errorf("Yandex Cloud Logging group still exists")
+		}
+	}
+
+	return nil
+}
+
+func testYandexLoggingGroupExists(name string, group *logging.LogGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := testGetYandexLoggingGroupByID(config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Yandex Cloud Logging group not found")
+		}
+
+		*group = *found
+		return nil
+	}
+}
+
+func testGetYandexLoggingGroupByID(config *Config, ID string) (*logging.LogGroup, error) {
+	req := logging.GetLogGroupRequest{
+		LogGroupId: ID,
+	}
+
+	return config.sdk.Logging().LogGroup().Get(context.Background(), &req)
+}
+
+func testYandexLoggingGroupContainsLabel(group *logging.LogGroup, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := group.Labels[key]
+		if !ok {
+			return fmt.Errorf("expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+type testYandexLoggingGroupParameters struct {
+	name            string
+	desc            string
+	dataStream      string
+	labelKey        string
+	labelValue      string
+	retentionPeriod time.Duration
 }
 
 func testYandexLoggingGroupByID(name string, desc string) string {

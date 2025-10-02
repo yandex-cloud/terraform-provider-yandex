@@ -3,7 +3,10 @@ package testhelpers
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"strconv"
 	"text/template"
 	"time"
 
@@ -88,4 +91,91 @@ func TemplateConfig(tmpl string, ctx ...map[string]interface{}) string {
 		panic(fmt.Errorf("failed to execute config template: %v", err))
 	}
 	return b.String()
+}
+
+func CheckImportFolderID(folderID string) resource.ImportStateCheckFunc {
+	return func(s []*terraform.InstanceState) error {
+		if len(s) == 0 {
+			return errors.New("No InstanceState found")
+		}
+
+		if len(s) != 1 {
+			return fmt.Errorf("Expected one InstanceState, found: %d", len(s))
+		}
+
+		fID := s[0].Attributes["folder_id"]
+		if fID != folderID {
+			return fmt.Errorf("Expected folder_id %q, got %q", folderID, fID)
+		}
+
+		return nil
+	}
+}
+
+func AccCheckBoolValue(resourceName, attributePath string, expectedValue bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		actualValue, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		parseBool, err := strconv.ParseBool(actualValue)
+		if err != nil {
+			return err
+		}
+		if !parseBool == expectedValue {
+			return fmt.Errorf("stored value: '%t' doesn't match expected value: '%t'", parseBool, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+func AccCheckDuration(resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		startTime, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		if !shouldSuppressDiffForTimeDuration(expectedValue, startTime) {
+			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", startTime, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+func shouldSuppressDiffForTimeDuration(old, new string) bool {
+	oldD, err := time.ParseDuration(old)
+	if err != nil {
+		return false
+	}
+	d1 := durationpb.New(oldD)
+
+	newD, err := time.ParseDuration(new)
+	if err != nil {
+		return false
+	}
+	d2 := durationpb.New(newD)
+
+	if d1 == nil && d2 == nil {
+		return true
+	}
+
+	if d1 != nil && d2 != nil {
+		return d1.Seconds == d2.Seconds && d1.Nanos == d2.Nanos
+	}
+
+	return false
 }

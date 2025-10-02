@@ -18,9 +18,9 @@ func TestAccDataSourceKMSSymmetricKey_basic(t *testing.T) {
 	basicData := "data.yandex_kms_symmetric_key.basic_key"
 	basicDataByName := "data.yandex_kms_symmetric_key.basic_key_by_name"
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexKmsSymmetricKeyAllDestroyed,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexKmsSymmetricKeyAllDestroyed,
 		Steps: []resource.TestStep{
 			{
 				// Create secret

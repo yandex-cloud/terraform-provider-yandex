@@ -73,9 +73,9 @@ func TestAccLBNetworkLoadBalancer_basic(t *testing.T) {
 	nlbName := acctest.RandomWithPrefix("tf-network-load-balancer")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBNetworkLoadBalancerBasic(nlbName),
@@ -103,9 +103,9 @@ func TestAccLBNetworkLoadBalancer_deletion_protection(t *testing.T) {
 	nlbNewName := acctest.RandomWithPrefix("tf-network-load-balancer")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBNetworkLoadBalancerDeletionProtection(nlbName, true),
@@ -144,9 +144,9 @@ func TestAccLBNetworkLoadBalancer_full(t *testing.T) {
 	atgPath := ""
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralNLBTemplate(lbDefaultNLBValues(), false, true, true, true),
@@ -207,9 +207,9 @@ func TestAccLBNetworkLoadBalancer_defaults(t *testing.T) {
 	var nlb loadbalancer.NetworkLoadBalancer
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBNetworkLoadBalancerDefaults(lbDefaultNLBValues()),
@@ -273,9 +273,9 @@ func TestAccLBNetworkLoadBalancer_update(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralNLBTemplate(nlbDefaults, false, true, true, true),
@@ -374,9 +374,9 @@ func TestAccLBNetworkLoadBalancer_update_healthcheck(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralNLBTemplate(nlbDefaults, false, true, true, true),
@@ -476,9 +476,9 @@ func TestAccLBNetworkLoadBalancer_update_listener(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralNLBTemplate(nlbDefaults, false, true, true, true),

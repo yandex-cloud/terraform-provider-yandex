@@ -72,9 +72,9 @@ func TestAccEventrouterRule_yds(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleYds(name, desc, labelKey, labelValue),
@@ -107,9 +107,9 @@ func TestAccEventrouterRule_ymq(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleYmq(name, desc, labelKey, labelValue, name),
@@ -141,9 +141,9 @@ func TestAccEventrouterRule_function(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleFunction(name, desc, labelKey, labelValue),
@@ -177,9 +177,9 @@ func TestAccEventrouterRule_container(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleContainer(name, desc, labelKey, labelValue),
@@ -213,9 +213,9 @@ func TestAccEventrouterRule_gatewayWsBroadcast(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleGatewayWsBroadcast(name, desc, labelKey, labelValue),
@@ -251,9 +251,9 @@ func TestAccEventrouterRule_logging(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleLogging(name, desc, labelKey, labelValue),
@@ -286,9 +286,9 @@ func TestAccEventrouterRule_workflow(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleWorkflow(name, desc, labelKey, labelValue),
@@ -331,9 +331,9 @@ func TestAccEventrouterRule_update(t *testing.T) {
 	queueName := acctest.RandomWithPrefix("tf-queue")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleYmq(name, desc, labelKey, labelValue, queueName),

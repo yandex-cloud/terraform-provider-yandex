@@ -7,7 +7,7 @@ description: |-
 
 # yandex_cloudregistry_registry (Resource)
 
-A Registry resource.
+A Registry resource. For more information, see the [Registry](/docs/cloud-registry/concepts/registry) section of the documentation.
 
 ## Example usage
 

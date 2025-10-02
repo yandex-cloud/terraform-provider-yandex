@@ -21,6 +21,14 @@ type yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel struct {
 	Type      types.String `tfsdk:"type"`
 }
 
+func NewYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel() yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{
+		Locations: types.ListNull(types.StringType),
+		SizeGb:    types.Int64Null(),
+		Type:      types.StringNull(),
+	}
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"locations": types.ListType{ElemType: types.StringType},
@@ -112,6 +120,15 @@ type yandexYtsaurusClusterSpecComputeSpecStructModel struct {
 	ScalePolicy types.Object `tfsdk:"scale_policy"`
 }
 
+func NewYandexYtsaurusClusterSpecComputeSpecStructModel() yandexYtsaurusClusterSpecComputeSpecStructModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructModel{
+		Disks:       types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType),
+		Name:        types.StringNull(),
+		Preset:      types.StringNull(),
+		ScalePolicy: types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType.AttrTypes),
+	}
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disks":        types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType},
@@ -169,14 +186,14 @@ func flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx context.Context,
 		}
 		return types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType)
 	}
-	if listState.IsNull() {
+	if listState.IsNull() || listState.IsUnknown() {
 		listState = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType)
 	}
 	stateVals := make([]yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel, 0)
 	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
 	var yandexYtsaurusClusterSpecComputeSpecStructDisksValues []attr.Value
 	for i, elem := range yandexYtsaurusClusterSpecComputeSpecStructDisks {
-		state := yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{}
+		state := NewYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel()
 		if len(stateVals) > i {
 			state = stateVals[i]
 		}
@@ -211,6 +228,13 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx context.Context, 
 type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel struct {
 	Auto  types.Object `tfsdk:"auto"`
 	Fixed types.Object `tfsdk:"fixed"`
+}
+
+func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel{
+		Auto:  types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType.AttrTypes),
+		Fixed: types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModelType.AttrTypes),
+	}
 }
 
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType = types.ObjectType{
@@ -265,6 +289,13 @@ type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel struct {
 	MinSize types.Int64 `tfsdk:"min_size"`
 }
 
+func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel{
+		MaxSize: types.Int64Null(),
+		MinSize: types.Int64Null(),
+	}
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"max_size": types.Int64Type,
@@ -310,6 +341,12 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel(ctx co
 
 type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel struct {
 	Size types.Int64 `tfsdk:"size"`
+}
+
+func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel{
+		Size: types.Int64Null(),
+	}
 }
 
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModelType = types.ObjectType{
@@ -371,6 +408,28 @@ type yandexYtsaurusClusterModel struct {
 	UpdatedBy        types.String   `tfsdk:"updated_by"`
 	ZoneId           types.String   `tfsdk:"zone_id"`
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
+}
+
+func NewYandexYtsaurusClusterModel() yandexYtsaurusClusterModel {
+	return yandexYtsaurusClusterModel{
+		ClusterId:        types.StringNull(),
+		ID:               types.StringNull(),
+		CreatedAt:        types.StringNull(),
+		CreatedBy:        types.StringNull(),
+		Description:      types.StringNull(),
+		Endpoints:        types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes),
+		FolderId:         types.StringNull(),
+		Health:           types.StringNull(),
+		Labels:           types.MapNull(types.StringType),
+		Name:             types.StringNull(),
+		SecurityGroupIds: types.ListNull(types.StringType),
+		Spec:             types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
+		Status:           types.StringNull(),
+		SubnetId:         types.StringNull(),
+		UpdatedAt:        types.StringNull(),
+		UpdatedBy:        types.StringNull(),
+		ZoneId:           types.StringNull(),
+	}
 }
 
 var yandexYtsaurusClusterModelType = types.ObjectType{
@@ -470,6 +529,15 @@ type yandexYtsaurusClusterEndpointsModel struct {
 	InternalHttpProxyAlias    types.String `tfsdk:"internal_http_proxy_alias"`
 	InternalRpcProxyAlias     types.String `tfsdk:"internal_rpc_proxy_alias"`
 	Ui                        types.String `tfsdk:"ui"`
+}
+
+func NewYandexYtsaurusClusterEndpointsModel() yandexYtsaurusClusterEndpointsModel {
+	return yandexYtsaurusClusterEndpointsModel{
+		ExternalHttpProxyBalancer: types.StringNull(),
+		InternalHttpProxyAlias:    types.StringNull(),
+		InternalRpcProxyAlias:     types.StringNull(),
+		Ui:                        types.StringNull(),
+	}
 }
 
 var yandexYtsaurusClusterEndpointsModelType = types.ObjectType{
@@ -603,6 +671,16 @@ type yandexYtsaurusClusterSpecModel struct {
 	Tablet  types.Object `tfsdk:"tablet"`
 }
 
+func NewYandexYtsaurusClusterSpecModel() yandexYtsaurusClusterSpecModel {
+	return yandexYtsaurusClusterSpecModel{
+		Compute: types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType),
+		Odin:    types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes),
+		Proxy:   types.ObjectNull(yandexYtsaurusClusterSpecProxyModelType.AttrTypes),
+		Storage: types.ObjectNull(yandexYtsaurusClusterSpecStorageModelType.AttrTypes),
+		Tablet:  types.ObjectNull(yandexYtsaurusClusterSpecTabletModelType.AttrTypes),
+	}
+}
+
 var yandexYtsaurusClusterSpecModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"compute": types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructModelType},
@@ -663,14 +741,14 @@ func flattenYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurus
 		}
 		return types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
 	}
-	if listState.IsNull() {
+	if listState.IsNull() || listState.IsUnknown() {
 		listState = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
 	}
 	stateVals := make([]yandexYtsaurusClusterSpecComputeSpecStructModel, 0)
 	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
 	var yandexYtsaurusClusterSpecComputeValues []attr.Value
 	for i, elem := range yandexYtsaurusClusterSpecCompute {
-		state := yandexYtsaurusClusterSpecComputeSpecStructModel{}
+		state := NewYandexYtsaurusClusterSpecComputeSpecStructModel()
 		if len(stateVals) > i {
 			state = stateVals[i]
 		}
@@ -704,6 +782,12 @@ func expandYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurusC
 
 type yandexYtsaurusClusterSpecOdinModel struct {
 	ChecksTtl types.String `tfsdk:"checks_ttl"`
+}
+
+func NewYandexYtsaurusClusterSpecOdinModel() yandexYtsaurusClusterSpecOdinModel {
+	return yandexYtsaurusClusterSpecOdinModel{
+		ChecksTtl: types.StringNull(),
+	}
 }
 
 var yandexYtsaurusClusterSpecOdinModelType = types.ObjectType{
@@ -750,6 +834,13 @@ func expandYandexYtsaurusClusterSpecOdinModel(ctx context.Context, yandexYtsauru
 type yandexYtsaurusClusterSpecProxyModel struct {
 	Http types.Object `tfsdk:"http"`
 	Rpc  types.Object `tfsdk:"rpc"`
+}
+
+func NewYandexYtsaurusClusterSpecProxyModel() yandexYtsaurusClusterSpecProxyModel {
+	return yandexYtsaurusClusterSpecProxyModel{
+		Http: types.ObjectNull(yandexYtsaurusClusterSpecProxyHttpModelType.AttrTypes),
+		Rpc:  types.ObjectNull(yandexYtsaurusClusterSpecProxyRpcModelType.AttrTypes),
+	}
 }
 
 var yandexYtsaurusClusterSpecProxyModelType = types.ObjectType{
@@ -799,6 +890,12 @@ type yandexYtsaurusClusterSpecProxyHttpModel struct {
 	Count types.Int64 `tfsdk:"count"`
 }
 
+func NewYandexYtsaurusClusterSpecProxyHttpModel() yandexYtsaurusClusterSpecProxyHttpModel {
+	return yandexYtsaurusClusterSpecProxyHttpModel{
+		Count: types.Int64Null(),
+	}
+}
+
 var yandexYtsaurusClusterSpecProxyHttpModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"count": types.Int64Type,
@@ -841,6 +938,12 @@ func expandYandexYtsaurusClusterSpecProxyHttpModel(ctx context.Context, yandexYt
 
 type yandexYtsaurusClusterSpecProxyRpcModel struct {
 	Count types.Int64 `tfsdk:"count"`
+}
+
+func NewYandexYtsaurusClusterSpecProxyRpcModel() yandexYtsaurusClusterSpecProxyRpcModel {
+	return yandexYtsaurusClusterSpecProxyRpcModel{
+		Count: types.Int64Null(),
+	}
 }
 
 var yandexYtsaurusClusterSpecProxyRpcModelType = types.ObjectType{
@@ -886,6 +989,13 @@ func expandYandexYtsaurusClusterSpecProxyRpcModel(ctx context.Context, yandexYts
 type yandexYtsaurusClusterSpecStorageModel struct {
 	Hdd types.Object `tfsdk:"hdd"`
 	Ssd types.Object `tfsdk:"ssd"`
+}
+
+func NewYandexYtsaurusClusterSpecStorageModel() yandexYtsaurusClusterSpecStorageModel {
+	return yandexYtsaurusClusterSpecStorageModel{
+		Hdd: types.ObjectNull(yandexYtsaurusClusterSpecStorageHddModelType.AttrTypes),
+		Ssd: types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdModelType.AttrTypes),
+	}
 }
 
 var yandexYtsaurusClusterSpecStorageModelType = types.ObjectType{
@@ -934,6 +1044,13 @@ func expandYandexYtsaurusClusterSpecStorageModel(ctx context.Context, yandexYtsa
 type yandexYtsaurusClusterSpecStorageHddModel struct {
 	Count  types.Int64 `tfsdk:"count"`
 	SizeGb types.Int64 `tfsdk:"size_gb"`
+}
+
+func NewYandexYtsaurusClusterSpecStorageHddModel() yandexYtsaurusClusterSpecStorageHddModel {
+	return yandexYtsaurusClusterSpecStorageHddModel{
+		Count:  types.Int64Null(),
+		SizeGb: types.Int64Null(),
+	}
 }
 
 var yandexYtsaurusClusterSpecStorageHddModelType = types.ObjectType{
@@ -985,6 +1102,14 @@ type yandexYtsaurusClusterSpecStorageSsdModel struct {
 	Type   types.String `tfsdk:"type"`
 }
 
+func NewYandexYtsaurusClusterSpecStorageSsdModel() yandexYtsaurusClusterSpecStorageSsdModel {
+	return yandexYtsaurusClusterSpecStorageSsdModel{
+		Count:  types.Int64Null(),
+		SizeGb: types.Int64Null(),
+		Type:   types.StringNull(),
+	}
+}
+
 var yandexYtsaurusClusterSpecStorageSsdModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"count":   types.Int64Type,
@@ -1034,6 +1159,13 @@ func expandYandexYtsaurusClusterSpecStorageSsdModel(ctx context.Context, yandexY
 type yandexYtsaurusClusterSpecTabletModel struct {
 	Count  types.Int64  `tfsdk:"count"`
 	Preset types.String `tfsdk:"preset"`
+}
+
+func NewYandexYtsaurusClusterSpecTabletModel() yandexYtsaurusClusterSpecTabletModel {
+	return yandexYtsaurusClusterSpecTabletModel{
+		Count:  types.Int64Null(),
+		Preset: types.StringNull(),
+	}
 }
 
 var yandexYtsaurusClusterSpecTabletModelType = types.ObjectType{

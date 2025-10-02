@@ -1,11 +1,13 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
 )
 
@@ -19,9 +21,9 @@ func TestAccDataSourceEventrouterBus_byID(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-bus-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterBusDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterBusDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterBusByID(name, desc),
@@ -47,9 +49,9 @@ func TestAccDataSourceEventrouterBus_byName(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-bus-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterBusDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterBusDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterBusByName(name, desc),
@@ -65,6 +67,58 @@ func TestAccDataSourceEventrouterBus_byName(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testYandexEventrouterBusDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_serverless_eventrouter_bus" {
+			continue
+		}
+
+		_, err := testGetEventrouterBusByID(config, rs.Primary.ID)
+		if err == nil {
+			return fmt.Errorf("Event Router bus still exists")
+		}
+	}
+
+	return nil
+}
+
+func testYandexEventrouterBusExists(name string, bus *eventrouter.Bus) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := testGetEventrouterBusByID(config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Event Router bus not found")
+		}
+
+		*bus = *found
+		return nil
+	}
+}
+
+func testGetEventrouterBusByID(config *Config, ID string) (*eventrouter.Bus, error) {
+	req := eventrouter.GetBusRequest{
+		BusId: ID,
+	}
+
+	return config.sdk.Serverless().Eventrouter().Bus().Get(context.Background(), &req)
 }
 
 func testYandexEventrouterBusByID(name string, desc string) string {

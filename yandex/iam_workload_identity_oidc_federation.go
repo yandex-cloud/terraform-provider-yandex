@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -52,7 +53,7 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) SetResourceIamPolicy(ctx cont
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexIAMWorkloadIdentityOidcFederationDefaultTimeout)
+	ctx, cancel := context.WithTimeout(u.Config.Context(), 1*time.Minute)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.WorkloadOidc().Federation().SetAccessBindings(ctx, req))

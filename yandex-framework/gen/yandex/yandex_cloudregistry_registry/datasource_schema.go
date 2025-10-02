@@ -14,8 +14,8 @@ import (
 
 func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "A Registry resource.",
-		MarkdownDescription: "A Registry resource.",
+		Description:         "A Registry resource. For more information, see the [Registry](/docs/cloud-registry/concepts/registry) section of the documentation.",
+		MarkdownDescription: "A Registry resource. For more information, see the [Registry](/docs/cloud-registry/concepts/registry) section of the documentation.",
 		Attributes: map[string]schema.Attribute{
 
 			"created_at": schema.StringAttribute{

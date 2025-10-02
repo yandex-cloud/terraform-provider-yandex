@@ -339,9 +339,6 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.OrganizationId.Equal(state.OrganizationId) {
-		updatePaths = append(updatePaths, "organization_id")
-	}
 	if len(updatePaths) != 0 {
 
 		updateReq := &resourcemanager.UpdateCloudRequest{}

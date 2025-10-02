@@ -15,8 +15,8 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 	diskName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckYandexKmsSymmetricKeyAllDestroyed,
@@ -59,8 +59,8 @@ func TestAccDataSourceComputeDisk_byName(t *testing.T) {
 	diskName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeDiskDestroy,
 			testAccCheckYandexKmsSymmetricKeyAllDestroyed,

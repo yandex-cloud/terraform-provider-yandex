@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/fatih/structs"
 	"github.com/hashicorp/go-multierror"
@@ -22,7 +23,7 @@ func init() {
 }
 
 func testSweepGroupOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexOrganizationManagerGroupDefaultTimeout)
+	ctx, cancel := conf.ContextWithTimeout(1 * time.Minute)
 	defer cancel()
 
 	op, err := conf.sdk.OrganizationManager().Group().Delete(ctx, &organizationmanager.DeleteGroupRequest{
@@ -68,9 +69,9 @@ func TestAccOrganizationManagerGroup_import(t *testing.T) {
 
 	var group organizationmanager.Group
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationManagerGroup(info),
@@ -97,9 +98,9 @@ resource "yandex_organizationmanager_group" group {
 `, getExampleOrganizationID())
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: config,
@@ -116,9 +117,9 @@ func testAccGroupRunTest(t *testing.T, fun GroupConfigGenerateFunc, rs bool, n i
 		info := newGroupInfo()
 		var group organizationmanager.Group
 		resource.Test(t, resource.TestCase{
-			PreCheck:          func() { testAccPreCheck(t) },
-			ProviderFactories: testAccProviderFactories,
-			CheckDestroy:      testAccCheckGroupDestroy,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+			CheckDestroy:             testAccCheckGroupDestroy,
 			Steps: []resource.TestStep{
 				{
 					Config: fun(info),

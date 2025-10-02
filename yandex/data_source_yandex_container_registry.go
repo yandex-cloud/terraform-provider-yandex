@@ -41,7 +41,7 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexContainerRegistry().Schema["status"].Description,
+				Description: "Status of the registry.",
 				Computed:    true,
 			},
 

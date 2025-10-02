@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	connectionmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/connectionmanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
 func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema.Schema {
@@ -156,6 +157,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
 					mapvalidator.ValueStringsAre(),
@@ -640,6 +642,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -680,6 +683,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
 													},
 													Validators: []validator.List{
 														listvalidator.ValueStringsAre(),
@@ -700,6 +704,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -819,6 +824,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueStringsAre(),
@@ -1260,6 +1266,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -1379,6 +1386,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueStringsAre(),
@@ -1712,6 +1720,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 												PlanModifiers: []planmodifier.List{
 													listplanmodifier.UseStateForUnknown(),
+													planmodifiers.NilRelaxedList(),
 												},
 												Validators: []validator.List{
 													listvalidator.ValueStringsAre(
@@ -1854,6 +1863,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -2430,6 +2440,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -2549,6 +2560,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueStringsAre(),
@@ -2990,6 +3002,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -3109,6 +3122,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueStringsAre(),
@@ -3531,6 +3545,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
 													},
 													Validators: []validator.List{
 														listvalidator.ValueStringsAre(
@@ -3556,6 +3571,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -4115,6 +4131,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -4234,6 +4251,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueStringsAre(),
@@ -4692,6 +4710,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -4828,6 +4847,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueInt64sAre(),
@@ -5749,6 +5769,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
 										},
 									},
 
@@ -5885,6 +5906,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 
 								PlanModifiers: []planmodifier.List{
 									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
 								},
 								Validators: []validator.List{
 									listvalidator.ValueInt64sAre(),

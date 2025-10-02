@@ -20,9 +20,9 @@ func TestAccDataSourceEventrouterRule_byID(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleByID(name, desc),
@@ -48,9 +48,9 @@ func TestAccDataSourceEventrouterRule_byName(t *testing.T) {
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexEventrouterRuleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexEventrouterRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexEventrouterRuleByName(name, desc),

@@ -17,12 +17,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	cloudregistry "github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
 func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "A Registry resource.",
-		MarkdownDescription: "A Registry resource.",
+		Description:         "A Registry resource. For more information, see the [Registry](/docs/cloud-registry/concepts/registry) section of the documentation.",
+		MarkdownDescription: "A Registry resource. For more information, see the [Registry](/docs/cloud-registry/concepts/registry) section of the documentation.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
@@ -108,6 +109,7 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
 					mapvalidator.KeysAre(
@@ -166,6 +168,7 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
 					mapvalidator.KeysAre(

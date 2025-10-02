@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -148,4 +149,22 @@ func getGroupMembers(context context.Context, config *Config, groupID string) ([
 		token = resp.NextPageToken
 	}
 	return result, nil
+}
+
+func flattenGroup(context context.Context, groupID string, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	group, err := config.sdk.OrganizationManager().Group().Get(context,
+		&organizationmanager.GetGroupRequest{
+			GroupId: groupID,
+		})
+
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Group %q", d.Id()))
+	}
+
+	d.Set("created_at", getTimestamp(group.CreatedAt))
+	d.Set("name", group.Name)
+	d.Set("organization_id", group.OrganizationId)
+	return d.Set("description", group.Description)
 }

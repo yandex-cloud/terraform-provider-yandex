@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -70,7 +71,7 @@ func sweepLBNetworkLoadBalancerAttachments(conf *Config, nlbId, tgId string) boo
 }
 
 func sweepLBNetworkLoadBalancerAttachmentsOnce(conf *Config, nlbId, tgId string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexLBNetworkLoadBalancerDefaultTimeout)
+	ctx, cancel := conf.ContextWithTimeout(5 * time.Minute)
 	defer cancel()
 
 	op, err := conf.sdk.LoadBalancer().NetworkLoadBalancer().DetachTargetGroup(
@@ -113,9 +114,9 @@ func TestAccLBTargetGroup_basic(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBTargetGroupBasic(tgName),
@@ -143,9 +144,9 @@ func TestAccLBTargetGroup_full(t *testing.T) {
 	instancePrefix := acctest.RandomWithPrefix("tf-instance")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralTGTemplate(
@@ -187,9 +188,9 @@ func TestAccLBTargetGroup_update(t *testing.T) {
 	instancePrefix := acctest.RandomWithPrefix("tf-instance")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralTGTemplate(

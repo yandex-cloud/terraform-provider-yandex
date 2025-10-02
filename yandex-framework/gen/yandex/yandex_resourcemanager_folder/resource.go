@@ -321,9 +321,6 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.CloudId.Equal(state.CloudId) {
-		updatePaths = append(updatePaths, "cloud_id")
-	}
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}

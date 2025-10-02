@@ -60,7 +60,7 @@ func dataSourceYandexComputeDiskPlacementGroup() *schema.Resource {
 
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexComputeDiskPlacementGroup().Schema["status"].Description,
+				Description: "Status of the Disk Placement Group.",
 				Computed:    true,
 			},
 

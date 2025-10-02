@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 )
 
@@ -21,8 +20,8 @@ func TestAccKMSSecretCiphertext_basic(t *testing.T) {
 	aadContext := acctest.RandString(36)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKMSSecretCiphertext_basic(keyName, plaintext, aadContext),

@@ -56,7 +56,7 @@ func dataSourceYandexComputeGpuCluster() *schema.Resource {
 			},
 			"interconnect_type": {
 				Type:        schema.TypeString,
-				Description: resourceYandexComputeGpuCluster().Schema["interconnect_type"].Description,
+				Description: "Type of interconnect between nodes to use in GPU cluster. Type `INFINIBAND` is set by default, and it is the only one available at the moment.",
 				Computed:    true,
 			},
 			"zone": {
@@ -66,7 +66,7 @@ func dataSourceYandexComputeGpuCluster() *schema.Resource {
 			},
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexComputeGpuCluster().Schema["status"].Description,
+				Description: "The status of the GPU cluster.",
 				Computed:    true,
 			},
 		},

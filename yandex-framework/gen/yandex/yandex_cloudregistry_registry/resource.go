@@ -325,12 +325,6 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FolderId.Equal(state.FolderId) {
-		updatePaths = append(updatePaths, "folder_id")
-	}
-	if !plan.Kind.Equal(state.Kind) {
-		updatePaths = append(updatePaths, "kind")
-	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
 	}
@@ -354,9 +348,6 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	}
 	if !plan.RegistryId.Equal(state.RegistryId) {
 		updatePaths = append(updatePaths, "registry_id")
-	}
-	if !plan.Type.Equal(state.Type) {
-		updatePaths = append(updatePaths, "type")
 	}
 	if len(updatePaths) != 0 {
 

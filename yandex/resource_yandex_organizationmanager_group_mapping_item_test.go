@@ -30,8 +30,8 @@ func TestAccOrganizationManagerGroupMappingItem(t *testing.T) {
 	externalGroupId := "test_external_group_id"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationManagerSamlFederation(federationInfo) +

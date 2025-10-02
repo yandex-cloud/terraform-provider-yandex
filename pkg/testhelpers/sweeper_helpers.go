@@ -77,12 +77,12 @@ func ConfigForSweepers() (*provider_config.Config, error) {
 }
 
 func SweepWithRetry(sf sweeperFunc, conf *provider_config.Config, resource, id string) bool {
-	return sweepWithRetryByFunc(conf, fmt.Sprintf("%s '%s'", resource, id), func(conf *provider_config.Config) error {
+	return SweepWithRetryByFunc(conf, fmt.Sprintf("%s '%s'", resource, id), func(conf *provider_config.Config) error {
 		return sf(conf, id)
 	})
 }
 
-func sweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(conf *provider_config.Config) error) bool {
+func SweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(conf *provider_config.Config) error) bool {
 	DebugLog("started sweeping %s", message)
 	for i := 1; i <= int(conf.ProviderState.MaxRetries.ValueInt64()); i++ {
 		err := sf(conf)

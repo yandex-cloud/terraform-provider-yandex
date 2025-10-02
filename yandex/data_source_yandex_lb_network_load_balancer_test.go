@@ -24,9 +24,9 @@ func TestAccDataSourceLBNetworkLoadBalancer_byID(t *testing.T) {
 	var nlb loadbalancer.NetworkLoadBalancer
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceLBNetworkLoadBalancerConfigByID(nlbName, nlbDesc),
@@ -56,9 +56,9 @@ func TestAccDataSourceLBNetworkLoadBalancer_byName(t *testing.T) {
 	var nlb loadbalancer.NetworkLoadBalancer
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceLBNetworkLoadBalancerConfigByName(nlbName, nlbDesc),
@@ -88,9 +88,9 @@ func TestAccDataSourceLBNetworkLoadBalancer_full(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBNetworkLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralNLBTemplate(nlbValues, true, true, true, true),

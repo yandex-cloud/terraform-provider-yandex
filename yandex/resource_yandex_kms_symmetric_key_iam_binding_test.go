@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sort"
@@ -85,6 +86,55 @@ func TestAccKMSSymmetricKeyIamBinding_remove(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckKMSSymmetricKeyExists(name string, symmetricKey *kms.SymmetricKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+			KeyId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("KMS Symmetric Key not found")
+		}
+
+		*symmetricKey = *found
+
+		return nil
+	}
+}
+
+func testAccCheckKMSSymmetricKeyDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_kms_symmetric_key" {
+			continue
+		}
+
+		_, err := config.sdk.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+			KeyId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("KMS Symmetric Key still exists")
+		}
+	}
+
+	return nil
 }
 
 func testAccKMSSymmetricKeyIamBindingBasic(symmetricKeyName, role, userID string) string {

@@ -27,6 +27,19 @@ type yandexResourcemanagerFolderModel struct {
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
+func NewYandexResourcemanagerFolderModel() yandexResourcemanagerFolderModel {
+	return yandexResourcemanagerFolderModel{
+		CloudId:     types.StringNull(),
+		CreatedAt:   types.StringNull(),
+		Description: types.StringNull(),
+		FolderId:    types.StringNull(),
+		ID:          types.StringNull(),
+		Labels:      types.MapNull(types.StringType),
+		Name:        types.StringNull(),
+		Status:      types.StringNull(),
+	}
+}
+
 var yandexResourcemanagerFolderModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"cloud_id":    types.StringType,

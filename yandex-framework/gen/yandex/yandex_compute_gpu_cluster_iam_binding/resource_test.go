@@ -104,7 +104,7 @@ func testAccComputeGpuCluster_basic(name, role, userID string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_gpu_cluster" "foobar" {
   name              = "%s"
-  interconnect_type = "infiniband"
+  interconnect_type = "INFINIBAND"
 
   labels = {
     my-label = "my-label-value"

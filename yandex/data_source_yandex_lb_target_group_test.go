@@ -24,9 +24,9 @@ func TestAccDataSourceLBTargetGroup_byID(t *testing.T) {
 	var tg loadbalancer.TargetGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceLBTargetGroupConfigByID(tgName, tgDesc),
@@ -55,9 +55,9 @@ func TestAccDataSourceLBTargetGroup_byName(t *testing.T) {
 	var tg loadbalancer.TargetGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceLBTargetGroupConfigByName(tgName, tgDesc),
@@ -86,9 +86,9 @@ func TestAccDataSourceLBTargetGroup_full(t *testing.T) {
 	var tg loadbalancer.TargetGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBGeneralTGTemplate(tgName, tgDesc, testAccLBBaseTemplate(instancePrefix), 1, true),

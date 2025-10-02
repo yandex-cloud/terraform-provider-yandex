@@ -41,7 +41,7 @@ func dataSourceYandexLoggingGroup() *schema.Resource {
 
 			"retention_period": {
 				Type:        schema.TypeString,
-				Description: resourceYandexLoggingGroup().Schema["retention_period"].Description,
+				Description: "Log entries retention period for the Yandex Cloud Logging group.",
 				Computed:    true,
 			},
 
@@ -53,7 +53,7 @@ func dataSourceYandexLoggingGroup() *schema.Resource {
 
 			"data_stream": {
 				Type:        schema.TypeString,
-				Description: resourceYandexLoggingGroup().Schema["data_stream"].Description,
+				Description: "Data Stream.",
 				Computed:    true,
 			},
 
@@ -79,7 +79,7 @@ func dataSourceYandexLoggingGroup() *schema.Resource {
 
 			"status": {
 				Type:        schema.TypeString,
-				Description: resourceYandexLoggingGroup().Schema["status"].Description,
+				Description: "The Yandex Cloud Logging group status.",
 				Computed:    true,
 			},
 		},
@@ -119,4 +119,19 @@ func dataSourceYandexLoggingGroupRead(d *schema.ResourceData, meta interface{}) 
 	d.SetId(group.Id)
 	d.Set("group_id", group.Id)
 	return flattenYandexLoggingGroup(d, group)
+}
+
+func flattenYandexLoggingGroup(d *schema.ResourceData, group *logging.LogGroup) error {
+	if group == nil {
+		return nil
+	}
+	d.Set("name", group.Name)
+	d.Set("folder_id", group.FolderId)
+	d.Set("retention_period", formatDuration(group.RetentionPeriod))
+	d.Set("description", group.Description)
+	d.Set("data_stream", group.DataStream)
+	d.Set("status", group.Status.String())
+	d.Set("cloud_id", group.CloudId)
+	d.Set("created_at", getTimestamp(group.CreatedAt))
+	return d.Set("labels", group.Labels)
 }

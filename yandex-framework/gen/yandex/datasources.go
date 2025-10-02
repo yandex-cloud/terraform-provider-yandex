@@ -7,12 +7,20 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_federated_credential"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
 func GetProviderDataSources() []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		yandex_iam_workload_identity_federated_credential.NewDataSource,
 		yandex_iam_oauth_client.NewDataSource,
+		yandex_kms_asymmetric_encryption_key.NewDataSource,
+		yandex_kms_asymmetric_signature_key.NewDataSource,
+		yandex_organizationmanager_user_ssh_key.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
