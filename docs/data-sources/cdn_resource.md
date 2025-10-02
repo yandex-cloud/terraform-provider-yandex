@@ -7,9 +7,11 @@ description: |-
 
 # yandex_cdn_resource (Data Source)
 
-Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
+Get information about a [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
 
-~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.
+~> **Note:** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.
+
+~> **Note:** Yandex Cloud CDN supports multiple CDN providers: Yandex Cloud CDN (based on Yandex own technology, used by default) and EdgeCDN (based on EdgeCenter infrastructure). The provider type can be retrieved via the `provider_type` attribute.
 
 ## Example usage
 
@@ -38,7 +40,7 @@ output "resource_cname" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `options` (Block List, Max: 1) CDN Resource settings and options to tune CDN edge behavior. (see [below for nested schema](#nestedblock--options))
-- `origin_group_id` (Number) The ID of a specific origin group.
+- `origin_group_id` (String) The ID of a specific origin group.
 - `origin_group_name` (String) The name of a specific origin group.
 - `origin_protocol` (String) Protocol of origin resource. `http` or `https`.
 - `resource_id` (String)
@@ -51,6 +53,7 @@ output "resource_cname" {
 - `created_at` (String) The creation timestamp of the resource.
 - `id` (String) The ID of this resource.
 - `provider_cname` (String) Provider CNAME of CDN resource, computed value for read and update operations.
+- `provider_type` (String) Type of the CDN provider for this resource. Possible values: `ourcdn` (Yandex Cloud CDN), `gcore` (EdgeCDN).
 
 <a id="nestedblock--options"></a>
 ### Nested Schema for `options`

@@ -9,7 +9,9 @@ description: |-
 
 Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/cdn/concepts/origins).
 
-~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.
+~> **Note:** CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.
+
+~> **Note:** Yandex Cloud CDN supports multiple CDN providers: Yandex Cloud CDN (based on Yandex own technology, used by default) and EdgeCDN (based on EdgeCenter infrastructure). The provider is automatically assigned when creating an origin group and cannot be changed.
 
 ## Example usage
 
