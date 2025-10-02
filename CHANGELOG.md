@@ -2,6 +2,14 @@
 
 
 
+## 0.161.0 (October 2, 2025)
+##### FEATURES:
+* iam: add yandex_iam_oauth_client resource and datasource
+##### BUG FIXES:
+* ydb_database_dedicated: fixed error: `Invalid address to set in : scale_policy`
+* postgresql: avoid changes detected with "PASSWORD_ENCRYPTION_MD5" -> null for pg clusters with version < 17
+* yandex_sws_waf_profile: add missing field `id` to `rule_set`
+
 ## 0.160.0 (September 26, 2025)
 ##### FEATURES:
 * mysql: add `authentication_plugins` `MYSQL_NO_LOGIN` and `MDB_IAMPROXY_AUTH`
