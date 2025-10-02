@@ -50,6 +50,16 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 
 				ValidateFunc: validation.NoZeroValues,
 			},
+			"provider_type": {
+				Type:         schema.TypeString,
+				Description:  `CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"`,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ourcdn", "gcore"}, false),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					return newValue == ""
+				},
+			},
 			"folder_id": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["folder_id"],
@@ -141,12 +151,6 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 				Description: "Provider CNAME of CDN resource, computed value for read and update operations.",
 				Computed:    true,
 			},
-			"provider_type": {
-				Type:        schema.TypeString,
-				Description: "Type of the CDN provider for this resource.",
-				Computed:    true,
-			},
-
 			"options": {
 				Type:        schema.TypeList,
 				Description: "CDN Resource settings and options to tune CDN edge behavior.",
@@ -845,10 +849,15 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return nil, err
 	}
+	provider := "ourcdn"
+	if v := d.Get("provider_type"); v != "" {
+		provider = v.(string)
+	}
 
 	result := &cdn.CreateResourceRequest{
-		FolderId: folderID,
-		Cname:    d.Get("cname").(string),
+		FolderId:     folderID,
+		Cname:        d.Get("cname").(string),
+		ProviderType: provider,
 
 		SecondaryHostnames: prepareCDNResourceSecondaryHostnames(d),
 
@@ -886,6 +895,11 @@ func resourceYandexCDNResourceCreate(d *schema.ResourceData, meta interface{}) e
 
 	request, err := prepareCDNCreateResourceRequest(ctx, d, config)
 	if err != nil {
+		return err
+	}
+
+	// check whether origin_group.provider matches resource.provider or not
+	if err := cdnCheckProviderMatching(ctx, request, config); err != nil {
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,4 +69,22 @@ func prepareCDNResourceNewSSLCertificate(d *schema.ResourceData) (*cdn.SSLTarget
 	}
 
 	return result, nil
+}
+
+func cdnCheckProviderMatching(ctx context.Context, req *cdn.CreateResourceRequest, config *Config) error {
+	originGroup, err := config.sdk.CDN().OriginGroup().Get(ctx, &cdn.GetOriginGroupRequest{
+		FolderId:      req.FolderId,
+		OriginGroupId: req.Origin.GetOriginGroupId(),
+	})
+	if err != nil {
+		return fmt.Errorf("cannot check origin group: %w", err)
+	}
+	if req.ProviderType != originGroup.ProviderType {
+		return fmt.Errorf(
+			"cdn_resource provider %q does not match cdn_origin_group provider %q.",
+			req.ProviderType,
+			originGroup.ProviderType,
+		)
+	}
+	return nil
 }

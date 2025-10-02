@@ -28,6 +28,11 @@ func dataSourceYandexCDNOriginGroup() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+			"provider_type": {
+				Type:        schema.TypeString,
+				Description: "CDN provider is a content delivery service provider",
+				Computed:    true,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["name"],
@@ -40,27 +45,32 @@ func dataSourceYandexCDNOriginGroup() *schema.Resource {
 				Computed:    true,
 			},
 			"origin": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Description: "A set of available origins.",
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "IP address or Domain name of your origin and the port.",
+							Required:    true,
 						},
 						"origin_group_id": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Description: "The ID of a specific origin group.",
+							Computed:    true,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Type:        schema.TypeBool,
+							Description: "The origin is enabled and used as a source for the CDN.",
+							Optional:    true,
+							Default:     true,
 						},
 						"backup": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.",
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},

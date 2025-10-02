@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -50,6 +51,16 @@ func resourceYandexCDNOriginGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["name"],
 				Required:    true,
+			},
+			"provider_type": {
+				Type:         schema.TypeString,
+				Description:  `CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"`,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ourcdn", "gcore"}, false),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					return newValue == ""
+				},
 			},
 			"use_next": {
 				Type:        schema.TypeBool,
@@ -128,10 +139,15 @@ func prepareCDNCreateOriginGroupRequest(d *schema.ResourceData, meta *Config) (*
 	}
 
 	log.Printf("[DEBUG] Preparing create CDN Origin Group request %q", d.Get("name").(string))
+	provider := "ourcdn"
+	if v := d.Get("provider_type"); v != "" {
+		provider = v.(string)
+	}
 
 	result := &cdn.CreateOriginGroupRequest{
-		FolderId: folderID,
-		Name:     d.Get("name").(string),
+		FolderId:     folderID,
+		Name:         d.Get("name").(string),
+		ProviderType: provider,
 
 		UseNext: useNext,
 	}
@@ -210,6 +226,7 @@ func flattenYandexCDNOriginGroup(d *schema.ResourceData, origin *cdn.OriginGroup
 	d.Set("folder_id", origin.FolderId)
 	d.Set("name", origin.Name)
 	d.Set("use_next", origin.UseNext)
+	d.Set("provider_type", origin.ProviderType)
 
 	if err := d.Set("origin", flattenYandexCDNOrigins(origin.Origins)); err != nil {
 		return err
