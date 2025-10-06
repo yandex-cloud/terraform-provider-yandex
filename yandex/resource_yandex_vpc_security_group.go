@@ -64,7 +64,6 @@ func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 			Computed:    true,
 			Elem:        resourceYandexSecurityGroupRule(),
 			Set:         resourceYandexVPCSecurityGroupRuleHash,
-			ConfigMode:  schema.SchemaConfigModeAttr,
 		},
 
 		"egress": {
@@ -74,7 +73,6 @@ func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 			Computed:    true,
 			Elem:        resourceYandexSecurityGroupRule(),
 			Set:         resourceYandexVPCSecurityGroupRuleHash,
-			ConfigMode:  schema.SchemaConfigModeAttr,
 		},
 
 		"status": {

@@ -163,7 +163,10 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.#", "0"),
+					// last rule can not be deleted because of optional+computed
+					// setting ConfigModeAttr breaks json config format and migration
+					// to terraform-plugin-framework
+					// resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.#", "0"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.protocol", "ICMP"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.port", "-1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.to_port", "-1"),
@@ -298,8 +301,6 @@ resource "yandex_vpc_security_group" "sg1" {
     protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
   }
-
-  egress = []
 }
 
 `, networkName, sg1Name, getExampleFolderID())

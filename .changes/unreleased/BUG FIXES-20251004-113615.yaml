@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'vpc: reverted fix for empty rules handling in yandex_security_group because it breaks JSON configuration and migration to terraform-plugin-framework'
+time: 2025-10-04T11:36:15.579691941+02:00
