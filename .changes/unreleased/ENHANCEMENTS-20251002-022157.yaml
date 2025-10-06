@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'general: move resources to terraform-plugin-framework: yandex_container_registry, yandex_container_repository, yandex_iam_workload_identity_oidc_federation, yandex_iam_workload_identity_federated_credential, yandex_iam_service_account, yandex_kms_asymmetric_encryption_key, yandex_kms_asymmetric_signature_key, yandex_kms_symmetric_key, yandex_lb_target_group, yandex_organizationmanager_group, yandex_organizationmanager_user_ssh_key, yandex_compute_disk_placement_group, yandex_compute_filesystem, yandex_compute_gpu_cluster, yandex_logging_group, yandex_serverless_eventrouter_bus'
-time: 2025-10-02T02:21:57.179866+03:00
