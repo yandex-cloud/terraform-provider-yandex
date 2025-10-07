@@ -124,9 +124,9 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBGreenplumClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBGreenplumClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create Greenplum Cluster
 			{
@@ -412,7 +412,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   zone = "ru-central1-b"
   subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
   assign_public_ip = false
-  version = "6.25"
+  version = "6.28"
 
   labels = { test_key_create : "test_value_create" }
 

@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `environment` - (Required) Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 
-* `version` - (Required) Version of the Greenplum cluster. (6.25)
+* `version` - (Required) Version of the Greenplum cluster. (`6.28`)
 
 * `master_host_count` - (Required) Number of hosts in master subcluster (1 or 2).
 
@@ -208,7 +208,7 @@ The resource can be imported by using their `resource ID`. For getting the resou
 
 ## Greenplum cluster settings
 
-| Setting name and type \ Greenplum version                                                                                                                                             | 6.25      |
+| Setting name and type \ Greenplum version                                                                                                                                             | 6.28      |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
 | gp_add_column_inherits_table_setting : boolean                                                                                                                                        | supported |
 | gp_enable_global_deadlock_detector : boolean                                                                                                                                          | supported |
@@ -217,7 +217,7 @@ The resource can be imported by using their `resource ID`. For getting the resou
 | gp_workfile_limit_files_per_query : integer                                                                                                                                           | supported |
 | gp_workfile_limit_per_segment : integer                                                                                                                                               | supported |
 | gp_workfile_limit_per_query : integer                                                                                                                                                 | supported |
-| log_statement : one of<br> - 0: " LOG_STATEMENT_UNSPECIFIED"<br> - 1: " LOG_STATEMENT_NONE"<br> - 2: " LOG_STATEMENT_DDL"<er> - 3: " LOG_STATEMENT_MOD"<br> - 4: " LOG_STATEMENT_ALL" | supported |
+| log_statement : one of<br> - 0: " LOG_STATEMENT_UNSPECIFIED"<br> - 1: " LOG_STATEMENT_NONE"<br> - 2: " LOG_STATEMENT_DDL"<br> - 3: " LOG_STATEMENT_MOD"<br> - 4: " LOG_STATEMENT_ALL" | supported |
 | max_connections : integer                                                                                                                                                             | supported |
 | max_prepared_transactions : integer                                                                                                                                                   | supported |
 | max_slot_wal_keep_size : integer                                                                                                                                                      | supported |

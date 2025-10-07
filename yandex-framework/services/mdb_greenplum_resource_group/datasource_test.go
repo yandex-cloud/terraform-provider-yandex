@@ -149,7 +149,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
 	zone = "ru-central1-b"
 	subnet_id = yandex_vpc_subnet.foo.id
 	assign_public_ip = false
-	version = "6.25"
+	version = "6.28"
 	
 	labels = { test_key_create : "test_value_create" }
 	

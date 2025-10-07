@@ -9,7 +9,7 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
   zone_id            = "ru-central1-a"
   subnet_id          = yandex_vpc_subnet.foo.id
   assign_public_ip   = true
-  version            = "6.25"
+  version            = "6.28"
   master_host_count  = 2
   segment_host_count = 5
   segment_in_host    = 1

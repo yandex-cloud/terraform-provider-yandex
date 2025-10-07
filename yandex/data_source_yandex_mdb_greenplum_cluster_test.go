@@ -16,9 +16,9 @@ func TestAccDataSourceMDBGreenplumCluster_byID(t *testing.T) {
 	greenplumDescription := "Greenplum Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBGreenplumClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBGreenplumClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDescription, true),
@@ -37,9 +37,9 @@ func TestAccDataSourceMDBGreenplumCluster_byName(t *testing.T) {
 	greenplumDesc := "Greenplum Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBGreenplumClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBGreenplumClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDesc, false),
