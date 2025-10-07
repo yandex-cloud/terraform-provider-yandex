@@ -82,7 +82,7 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 `
 
 var (
-	pgVersions   = [...]string{"14", "15", "16", "17"}
+	pgVersions   = [...]string{"14", "15", "16", "17", "18"}
 	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c", "16-1c", "17-1c"} //nolint:unused
 )
 
@@ -1645,6 +1645,8 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 			cmpObj = r.GetConfig().GetPostgresqlConfig_17().GetUserConfig()
 		case *pconfig.PostgresqlConfig17_1C:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_17_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig18:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_18().GetUserConfig()
 		default:
 			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
 		}

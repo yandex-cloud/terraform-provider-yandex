@@ -41,7 +41,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.25.0
+	github.com/yandex-cloud/go-genproto v0.26.0
 	github.com/yandex-cloud/go-sdk v0.19.0
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.12

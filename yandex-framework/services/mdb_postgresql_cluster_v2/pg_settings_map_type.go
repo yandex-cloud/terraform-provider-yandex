@@ -45,6 +45,8 @@ func pgSharedPreloadLibrariesEnumNames() map[int32]string {
 	maps.Copy(namesMap, config.PostgresqlConfig16_1C_SharedPreloadLibraries_name)
 	maps.Copy(namesMap, config.PostgresqlConfig17_SharedPreloadLibraries_name)
 	maps.Copy(namesMap, config.PostgresqlConfig17_1C_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig18_SharedPreloadLibraries_name)
+	maps.Copy(namesMap, config.PostgresqlConfig18_1C_SharedPreloadLibraries_name)
 	return namesMap
 }
 
@@ -83,6 +85,8 @@ func pgSharedPreloadLibrariesEnumValues() map[string]int32 {
 		config.PostgresqlConfig16_1C_SharedPreloadLibraries_value,
 		config.PostgresqlConfig17_SharedPreloadLibraries_value,
 		config.PostgresqlConfig17_1C_SharedPreloadLibraries_value,
+		config.PostgresqlConfig18_SharedPreloadLibraries_value,
+		config.PostgresqlConfig18_1C_SharedPreloadLibraries_value,
 	)
 	return kek
 }
