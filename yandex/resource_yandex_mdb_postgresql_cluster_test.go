@@ -125,9 +125,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			// 1. Create PostgreSQL Cluster
 			{
@@ -352,9 +352,9 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigHA(clusterName, version),
@@ -403,9 +403,9 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			// 1. Create PostgreSQL Cluster
 			{
@@ -502,9 +502,9 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 	folderId := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigRestore(clusterName, true),
@@ -555,9 +555,9 @@ func TestAccMDBPostgreSQLCluster_diskEncryption_create(t *testing.T) {
 	pgDesc := "PostgreSQL Cluster With Disk Encryption Terraform Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterDiskEncrypted(clusterName, pgDesc, "PRESTABLE", version, 10),
@@ -581,9 +581,9 @@ func TestAccMDBPostgreSQLCluster_dropDiskEncryption(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-drop-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigRestoreDropEncryption(clusterName),
@@ -606,9 +606,9 @@ func TestAccMDBPostgreSQLCluster_addDiskEncryption(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-add-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterConfigRestoreAddEncryption(clusterName),

@@ -19,9 +19,9 @@ func TestAccDataSourceMDBPostgreSQLDatabase_basic(t *testing.T) {
 	description := "PostgreSQL Database Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPostgreSQLDatabaseDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPostgreSQLDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBPostgreSQLDatabaseConfig(clusterName, description, true),

@@ -23,9 +23,9 @@ func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version, true),
@@ -48,9 +48,9 @@ func TestAccDataSourceMDBPostgreSQLCluster_byName(t *testing.T) {
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version, false),
@@ -73,9 +73,9 @@ func TestAccDataSourceMDBPostgreSQLCluster_diskEncryption(t *testing.T) {
 	pgDesc := "PostgreSQL Cluster With Disk Encryption Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBPGClusterDiskEncrypted(pgName, pgDesc, "PRESTABLE", version, 10) + mdbPGClusterByIDConfig,

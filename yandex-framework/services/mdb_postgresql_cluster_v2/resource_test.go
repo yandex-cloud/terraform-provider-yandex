@@ -1647,6 +1647,8 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 			cmpObj = r.GetConfig().GetPostgresqlConfig_17_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig18:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_18().GetUserConfig()
+		case *pconfig.PostgresqlConfig18_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_18_1C().GetUserConfig()
 		default:
 			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
 		}
