@@ -47,7 +47,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster" {
 
     master_logging {
       enabled                    = true
-      log_group_id               = yandex_logging_group.log_group_resoruce_name.id
+      log_group_id               = yandex_logging_group.log_group_resource_name.id
       kube_apiserver_enabled     = true
       cluster_autoscaler_enabled = true
       events_enabled             = true
