@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'loadbalancer: fix yandex_lb_target_group.target type'
+time: 2025-10-07T23:01:14.336556+03:00

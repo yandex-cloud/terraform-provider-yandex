@@ -36,6 +36,28 @@ func NewYandexIAMServiceAccountModel() yandexIAMServiceAccountModel {
 	}
 }
 
+func yandexIAMServiceAccountModelFillUnknown(target yandexIAMServiceAccountModel) yandexIAMServiceAccountModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	return target
+}
+
 var yandexIAMServiceAccountModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":         types.StringType,

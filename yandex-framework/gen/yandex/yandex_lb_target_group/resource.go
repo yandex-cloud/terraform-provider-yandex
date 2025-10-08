@@ -84,7 +84,6 @@ func (r *yandexLbTargetGroupResource) Read(ctx context.Context, req resource.Rea
 		id = state.TargetGroupId.ValueString()
 	}
 	reqApi.SetTargetGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexLbTargetGroupResource) Read(ctx context.Context, req resource.Rea
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexLbTargetGroupResource) Create(ctx context.Context, req resource.C
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create target_group request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexLbTargetGroupResource) Create(ctx context.Context, req resource.C
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create target_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.TargetGroupId = types.StringValue(createRes.Id)
 
 	reqApi := &loadbalancer.GetTargetGroupRequest{}
 	reqApi.SetTargetGroupId(plan.TargetGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexLbTargetGroupResource) Create(ctx context.Context, req resource.C
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexLbTargetGroupResource) Delete(ctx context.Context, req resource.D
 		id = state.TargetGroupId.ValueString()
 	}
 	reqApi.SetTargetGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete target_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexLbTargetGroupResource) Delete(ctx context.Context, req resource.D
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete target_group response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -337,10 +329,10 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.Target.IsNull() {
-		plan.Target = types.ListNull(yandexLbTargetGroupTargetStructModelType)
+		plan.Target = types.SetNull(yandexLbTargetGroupTargetStructModelType)
 	}
 	if state.Target.IsNull() {
-		state.Target = types.ListNull(yandexLbTargetGroupTargetStructModelType)
+		state.Target = types.SetNull(yandexLbTargetGroupTargetStructModelType)
 	}
 	if !plan.Target.Equal(state.Target) {
 		updatePaths = append(updatePaths, "targets")
@@ -366,7 +358,6 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update target_group request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -394,14 +385,12 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update target_group response: %s", validate.ProtoDump(updateRes)))
 
 		plan.TargetGroupId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &loadbalancer.GetTargetGroupRequest{}
 	reqApi.SetTargetGroupId(plan.TargetGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := loadbalancerv1sdk.NewTargetGroupClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -424,7 +413,6 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

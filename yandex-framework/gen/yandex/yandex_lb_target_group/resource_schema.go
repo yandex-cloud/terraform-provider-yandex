@@ -11,9 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -190,7 +190,7 @@ func YandexLbTargetGroupResourceSchema(ctx context.Context) schema.Schema {
 
 		Blocks: map[string]schema.Block{
 
-			"target": schema.ListNestedBlock{
+			"target": schema.SetNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 
 					Attributes: map[string]schema.Attribute{
@@ -242,9 +242,9 @@ func YandexLbTargetGroupResourceSchema(ctx context.Context) schema.Schema {
 					"package: yandex.cloud.loadbalancer.v1\n" +
 					"filename: yandex/cloud/loadbalancer/v1/target_group.proto\n",
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
 			},
 			"timeouts": timeouts.BlockAll(ctx),

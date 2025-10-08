@@ -80,7 +80,6 @@ func (r *yandexIamOauthClientResource) Read(ctx context.Context, req resource.Re
 
 	reqApi := &iam.GetOAuthClientRequest{}
 	reqApi.SetOauthClientId(state.OauthClientId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -106,7 +105,6 @@ func (r *yandexIamOauthClientResource) Read(ctx context.Context, req resource.Re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -156,7 +154,6 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create o_auth_client request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -184,14 +181,12 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create o_auth_client response: %s", validate.ProtoDump(createRes)))
 
 	plan.OauthClientId = types.StringValue(createRes.Id)
 
 	reqApi := &iam.GetOAuthClientRequest{}
 	reqApi.SetOauthClientId(plan.OauthClientId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -215,7 +210,6 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -258,7 +252,6 @@ func (r *yandexIamOauthClientResource) Delete(ctx context.Context, req resource.
 
 	reqApi := &iam.DeleteOAuthClientRequest{}
 	reqApi.SetOauthClientId(state.OauthClientId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete o_auth_client request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -287,7 +280,6 @@ func (r *yandexIamOauthClientResource) Delete(ctx context.Context, req resource.
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete o_auth_client response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -348,7 +340,6 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update o_auth_client request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -376,14 +367,12 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update o_auth_client response: %s", validate.ProtoDump(updateRes)))
 
 		plan.OauthClientId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &iam.GetOAuthClientRequest{}
 	reqApi.SetOauthClientId(plan.OauthClientId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := iamv1sdk.NewOAuthClientClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -406,7 +395,6 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

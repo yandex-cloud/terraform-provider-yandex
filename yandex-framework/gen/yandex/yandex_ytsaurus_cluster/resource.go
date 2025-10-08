@@ -86,7 +86,6 @@ func (r *yandexYtsaurusClusterResource) Read(ctx context.Context, req resource.R
 		id = state.ClusterId.ValueString()
 	}
 	reqApi.SetClusterId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -112,7 +111,6 @@ func (r *yandexYtsaurusClusterResource) Read(ctx context.Context, req resource.R
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -166,7 +164,6 @@ func (r *yandexYtsaurusClusterResource) Create(ctx context.Context, req resource
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create cluster request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -194,14 +191,12 @@ func (r *yandexYtsaurusClusterResource) Create(ctx context.Context, req resource
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create cluster response: %s", validate.ProtoDump(createRes)))
 
 	plan.ClusterId = types.StringValue(createRes.Id)
 
 	reqApi := &ytsaurus.GetClusterRequest{}
 	reqApi.SetClusterId(plan.ClusterId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -225,7 +220,6 @@ func (r *yandexYtsaurusClusterResource) Create(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -272,7 +266,6 @@ func (r *yandexYtsaurusClusterResource) Delete(ctx context.Context, req resource
 		id = state.ClusterId.ValueString()
 	}
 	reqApi.SetClusterId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -301,7 +294,6 @@ func (r *yandexYtsaurusClusterResource) Delete(ctx context.Context, req resource
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete cluster response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -484,7 +476,6 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -512,14 +503,12 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update cluster response: %s", validate.ProtoDump(updateRes)))
 
 		plan.ClusterId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &ytsaurus.GetClusterRequest{}
 	reqApi.SetClusterId(plan.ClusterId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := ytsaurusv1sdk.NewClusterClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -542,7 +531,6 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

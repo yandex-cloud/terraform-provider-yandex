@@ -108,7 +108,7 @@ func (r *yandexConnectionmanagerConnectionDataSource) Read(ctx context.Context, 
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddError("Failed to read", "Resource not found")
+		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
 		return
 	}
 

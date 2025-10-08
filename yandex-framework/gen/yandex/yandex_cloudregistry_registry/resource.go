@@ -84,7 +84,6 @@ func (r *yandexCloudregistryRegistryResource) Read(ctx context.Context, req reso
 		id = state.RegistryId.ValueString()
 	}
 	reqApi.SetRegistryId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexCloudregistryRegistryResource) Read(ctx context.Context, req reso
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -163,7 +161,6 @@ func (r *yandexCloudregistryRegistryResource) Create(ctx context.Context, req re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create registry request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -191,14 +188,12 @@ func (r *yandexCloudregistryRegistryResource) Create(ctx context.Context, req re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create registry response: %s", validate.ProtoDump(createRes)))
 
 	plan.RegistryId = types.StringValue(createRes.Id)
 
 	reqApi := &cloudregistry.GetRegistryRequest{}
 	reqApi.SetRegistryId(plan.RegistryId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -222,7 +217,6 @@ func (r *yandexCloudregistryRegistryResource) Create(ctx context.Context, req re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -269,7 +263,6 @@ func (r *yandexCloudregistryRegistryResource) Delete(ctx context.Context, req re
 		id = state.RegistryId.ValueString()
 	}
 	reqApi.SetRegistryId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete registry request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -298,7 +291,6 @@ func (r *yandexCloudregistryRegistryResource) Delete(ctx context.Context, req re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete registry response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -367,7 +359,6 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update registry request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -395,14 +386,12 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update registry response: %s", validate.ProtoDump(updateRes)))
 
 		plan.RegistryId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &cloudregistry.GetRegistryRequest{}
 	reqApi.SetRegistryId(plan.RegistryId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := cloudregistryv1sdk.NewRegistryClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -425,7 +414,6 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read registry response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

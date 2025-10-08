@@ -27,6 +27,16 @@ func NewYandexLbTargetGroupTargetStructModel() yandexLbTargetGroupTargetStructMo
 	}
 }
 
+func yandexLbTargetGroupTargetStructModelFillUnknown(target yandexLbTargetGroupTargetStructModel) yandexLbTargetGroupTargetStructModel {
+	if target.Address.IsUnknown() || target.Address.IsNull() {
+		target.Address = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	return target
+}
+
 var yandexLbTargetGroupTargetStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"address":   types.StringType,
@@ -77,7 +87,7 @@ type yandexLbTargetGroupModel struct {
 	Labels        types.Map      `tfsdk:"labels"`
 	Name          types.String   `tfsdk:"name"`
 	RegionId      types.String   `tfsdk:"region_id"`
-	Target        types.List     `tfsdk:"target"`
+	Target        types.Set      `tfsdk:"target"`
 	TargetGroupId types.String   `tfsdk:"target_group_id"`
 	ID            types.String   `tfsdk:"id"`
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
@@ -91,10 +101,41 @@ func NewYandexLbTargetGroupModel() yandexLbTargetGroupModel {
 		Labels:        types.MapNull(types.StringType),
 		Name:          types.StringNull(),
 		RegionId:      types.StringNull(),
-		Target:        types.ListNull(yandexLbTargetGroupTargetStructModelType),
+		Target:        types.SetNull(yandexLbTargetGroupTargetStructModelType),
 		TargetGroupId: types.StringNull(),
 		ID:            types.StringNull(),
 	}
+}
+
+func yandexLbTargetGroupModelFillUnknown(target yandexLbTargetGroupModel) yandexLbTargetGroupModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.RegionId.IsUnknown() || target.RegionId.IsNull() {
+		target.RegionId = types.StringNull()
+	}
+	if target.Target.IsUnknown() || target.Target.IsNull() {
+		target.Target = types.SetNull(yandexLbTargetGroupTargetStructModelType)
+	}
+	if target.TargetGroupId.IsUnknown() || target.TargetGroupId.IsNull() {
+		target.TargetGroupId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	return target
 }
 
 var yandexLbTargetGroupModelType = types.ObjectType{
@@ -105,7 +146,7 @@ var yandexLbTargetGroupModelType = types.ObjectType{
 		"labels":          types.MapType{ElemType: types.StringType},
 		"name":            types.StringType,
 		"region_id":       types.StringType,
-		"target":          types.ListType{ElemType: yandexLbTargetGroupTargetStructModelType},
+		"target":          types.SetType{ElemType: yandexLbTargetGroupTargetStructModelType},
 		"target_group_id": types.StringType,
 		"id":              types.StringType,
 		"timeouts":        timeouts.BlockAll(context.Background()).Type(),
@@ -202,12 +243,12 @@ func expandYandexLbTargetGroupLabels(ctx context.Context, yandexLbTargetGroupLab
 	return yandexLbTargetGroupLabelsRes
 }
 
-func flattenYandexLbTargetGroupTarget(ctx context.Context, yandexLbTargetGroupTarget []*loadbalancer.Target, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexLbTargetGroupTarget(ctx context.Context, yandexLbTargetGroupTarget []*loadbalancer.Target, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexLbTargetGroupTarget == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(yandexLbTargetGroupTargetStructModelType)
+		return types.SetNull(yandexLbTargetGroupTargetStructModelType)
 	}
 	var yandexLbTargetGroupTargetValues []attr.Value
 	for _, elem := range yandexLbTargetGroupTarget {
@@ -215,12 +256,12 @@ func flattenYandexLbTargetGroupTarget(ctx context.Context, yandexLbTargetGroupTa
 		yandexLbTargetGroupTargetValues = append(yandexLbTargetGroupTargetValues, val)
 	}
 
-	value, diag := types.ListValue(yandexLbTargetGroupTargetStructModelType, yandexLbTargetGroupTargetValues)
+	value, diag := types.SetValue(yandexLbTargetGroupTargetStructModelType, yandexLbTargetGroupTargetValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexLbTargetGroupTarget(ctx context.Context, yandexLbTargetGroupTargetState types.List, diags *diag.Diagnostics) []*loadbalancer.Target {
+func expandYandexLbTargetGroupTarget(ctx context.Context, yandexLbTargetGroupTargetState types.Set, diags *diag.Diagnostics) []*loadbalancer.Target {
 	if yandexLbTargetGroupTargetState.IsNull() || yandexLbTargetGroupTargetState.IsUnknown() {
 		return nil
 	}

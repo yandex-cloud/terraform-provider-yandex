@@ -84,7 +84,6 @@ func (r *yandexOrganizationmanagerGroupResource) Read(ctx context.Context, req r
 		id = state.GroupId.ValueString()
 	}
 	reqApi.SetGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexOrganizationmanagerGroupResource) Read(ctx context.Context, req r
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -159,7 +157,6 @@ func (r *yandexOrganizationmanagerGroupResource) Create(ctx context.Context, req
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create group request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -187,14 +184,12 @@ func (r *yandexOrganizationmanagerGroupResource) Create(ctx context.Context, req
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create group response: %s", validate.ProtoDump(createRes)))
 
 	plan.GroupId = types.StringValue(createRes.Id)
 
 	reqApi := &organizationmanager.GetGroupRequest{}
 	reqApi.SetGroupId(plan.GroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -218,7 +213,6 @@ func (r *yandexOrganizationmanagerGroupResource) Create(ctx context.Context, req
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -265,7 +259,6 @@ func (r *yandexOrganizationmanagerGroupResource) Delete(ctx context.Context, req
 		id = state.GroupId.ValueString()
 	}
 	reqApi.SetGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -294,7 +287,6 @@ func (r *yandexOrganizationmanagerGroupResource) Delete(ctx context.Context, req
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete group response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -343,7 +335,6 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update group request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -371,14 +362,12 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update group response: %s", validate.ProtoDump(updateRes)))
 
 		plan.GroupId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &organizationmanager.GetGroupRequest{}
 	reqApi.SetGroupId(plan.GroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := organizationmanagerv1sdk.NewGroupClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -401,7 +390,6 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

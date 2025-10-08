@@ -84,7 +84,6 @@ func (r *yandexComputeFilesystemResource) Read(ctx context.Context, req resource
 		id = state.FilesystemId.ValueString()
 	}
 	reqApi.SetFilesystemId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexComputeFilesystemResource) Read(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -164,7 +162,6 @@ func (r *yandexComputeFilesystemResource) Create(ctx context.Context, req resour
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create filesystem request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -192,14 +189,12 @@ func (r *yandexComputeFilesystemResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create filesystem response: %s", validate.ProtoDump(createRes)))
 
 	plan.FilesystemId = types.StringValue(createRes.Id)
 
 	reqApi := &compute.GetFilesystemRequest{}
 	reqApi.SetFilesystemId(plan.FilesystemId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -223,7 +218,6 @@ func (r *yandexComputeFilesystemResource) Create(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -270,7 +264,6 @@ func (r *yandexComputeFilesystemResource) Delete(ctx context.Context, req resour
 		id = state.FilesystemId.ValueString()
 	}
 	reqApi.SetFilesystemId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete filesystem request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -299,7 +292,6 @@ func (r *yandexComputeFilesystemResource) Delete(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete filesystem response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -362,7 +354,6 @@ func (r *yandexComputeFilesystemResource) Update(ctx context.Context, req resour
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update filesystem request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -390,14 +381,12 @@ func (r *yandexComputeFilesystemResource) Update(ctx context.Context, req resour
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update filesystem response: %s", validate.ProtoDump(updateRes)))
 
 		plan.FilesystemId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &compute.GetFilesystemRequest{}
 	reqApi.SetFilesystemId(plan.FilesystemId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := computev1sdk.NewFilesystemClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -420,7 +409,6 @@ func (r *yandexComputeFilesystemResource) Update(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

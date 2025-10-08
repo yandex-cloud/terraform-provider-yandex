@@ -84,7 +84,6 @@ func (r *yandexIAMServiceAccountResource) Read(ctx context.Context, req resource
 		id = state.ServiceAccountId.ValueString()
 	}
 	reqApi.SetServiceAccountId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexIAMServiceAccountResource) Read(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -159,7 +157,6 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create service_account request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -187,14 +184,12 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create service_account response: %s", validate.ProtoDump(createRes)))
 
 	plan.ServiceAccountId = types.StringValue(createRes.Id)
 
 	reqApi := &iam.GetServiceAccountRequest{}
 	reqApi.SetServiceAccountId(plan.ServiceAccountId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -218,7 +213,6 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -265,7 +259,6 @@ func (r *yandexIAMServiceAccountResource) Delete(ctx context.Context, req resour
 		id = state.ServiceAccountId.ValueString()
 	}
 	reqApi.SetServiceAccountId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete service_account request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -294,7 +287,6 @@ func (r *yandexIAMServiceAccountResource) Delete(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete service_account response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -343,7 +335,6 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update service_account request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -371,14 +362,12 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update service_account response: %s", validate.ProtoDump(updateRes)))
 
 		plan.ServiceAccountId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &iam.GetServiceAccountRequest{}
 	reqApi.SetServiceAccountId(plan.ServiceAccountId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := iamv1sdk.NewServiceAccountClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -401,7 +390,6 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

@@ -84,7 +84,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Read(ctx context.Context, req
 		id = state.AsymmetricEncryptionKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Read(ctx context.Context, req
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Create(ctx context.Context, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create asymmetric_encryption_key request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Create(ctx context.Context, r
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create asymmetric_encryption_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.AsymmetricEncryptionKeyId = types.StringValue(createRes.Id)
 
 	reqApi := &asymmetricencryption.GetAsymmetricEncryptionKeyRequest{}
 	reqApi.SetKeyId(plan.AsymmetricEncryptionKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Create(ctx context.Context, r
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Delete(ctx context.Context, r
 		id = state.AsymmetricEncryptionKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete asymmetric_encryption_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Delete(ctx context.Context, r
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete asymmetric_encryption_key response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -364,7 +356,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Update(ctx context.Context, r
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update asymmetric_encryption_key request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -392,14 +383,12 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Update(ctx context.Context, r
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update asymmetric_encryption_key response: %s", validate.ProtoDump(updateRes)))
 
 		plan.AsymmetricEncryptionKeyId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &asymmetricencryption.GetAsymmetricEncryptionKeyRequest{}
 	reqApi.SetKeyId(plan.AsymmetricEncryptionKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := asymmetricencryptionsdk.NewAsymmetricEncryptionKeyClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -422,7 +411,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Update(ctx context.Context, r
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

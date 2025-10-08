@@ -57,6 +57,61 @@ func NewYandexYtsaurusClusterDatasourceModel() yandexYtsaurusClusterDatasourceMo
 	}
 }
 
+func yandexYtsaurusClusterDatasourceModelFillUnknown(target yandexYtsaurusClusterDatasourceModel) yandexYtsaurusClusterDatasourceModel {
+	if target.ClusterId.IsUnknown() || target.ClusterId.IsNull() {
+		target.ClusterId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.CreatedBy.IsUnknown() || target.CreatedBy.IsNull() {
+		target.CreatedBy = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.Endpoints.IsUnknown() || target.Endpoints.IsNull() {
+		target.Endpoints = types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes)
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.SecurityGroupIds.IsUnknown() || target.SecurityGroupIds.IsNull() {
+		target.SecurityGroupIds = types.ListNull(types.StringType)
+	}
+	if target.Spec.IsUnknown() || target.Spec.IsNull() {
+		target.Spec = types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes)
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
+	if target.UpdatedBy.IsUnknown() || target.UpdatedBy.IsNull() {
+		target.UpdatedBy = types.StringNull()
+	}
+	if target.ZoneId.IsUnknown() || target.ZoneId.IsNull() {
+		target.ZoneId = types.StringNull()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"cluster_id":         types.StringType,

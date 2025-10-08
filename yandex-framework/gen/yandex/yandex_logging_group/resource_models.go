@@ -46,6 +46,43 @@ func NewYandexLoggingGroupModel() yandexLoggingGroupModel {
 	}
 }
 
+func yandexLoggingGroupModelFillUnknown(target yandexLoggingGroupModel) yandexLoggingGroupModel {
+	if target.CloudId.IsUnknown() || target.CloudId.IsNull() {
+		target.CloudId = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.DataStream.IsUnknown() || target.DataStream.IsNull() {
+		target.DataStream = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.LogGroupId.IsUnknown() || target.LogGroupId.IsNull() {
+		target.LogGroupId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.RetentionPeriod.IsUnknown() || target.RetentionPeriod.IsNull() {
+		target.RetentionPeriod = types.StringNull()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	return target
+}
+
 var yandexLoggingGroupModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"cloud_id":         types.StringType,

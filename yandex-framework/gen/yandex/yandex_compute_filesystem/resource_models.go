@@ -48,6 +48,46 @@ func NewYandexComputeFilesystemModel() yandexComputeFilesystemModel {
 	}
 }
 
+func yandexComputeFilesystemModelFillUnknown(target yandexComputeFilesystemModel) yandexComputeFilesystemModel {
+	if target.BlockSize.IsUnknown() || target.BlockSize.IsNull() {
+		target.BlockSize = types.Int64Null()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FilesystemId.IsUnknown() || target.FilesystemId.IsNull() {
+		target.FilesystemId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Size.IsUnknown() || target.Size.IsNull() {
+		target.Size = types.Float64Null()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	if target.Type.IsUnknown() || target.Type.IsNull() {
+		target.Type = types.StringNull()
+	}
+	if target.Zone.IsUnknown() || target.Zone.IsNull() {
+		target.Zone = types.StringNull()
+	}
+	return target
+}
+
 var yandexComputeFilesystemModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"block_size":    types.Int64Type,

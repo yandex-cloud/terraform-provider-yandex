@@ -84,7 +84,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Read(ctx context.Context, 
 		id = state.UserSshKeyId.ValueString()
 	}
 	reqApi.SetUserSshKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Read(ctx context.Context, 
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -161,7 +159,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Create(ctx context.Context
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create user_ssh_key request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -189,14 +186,12 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Create(ctx context.Context
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create user_ssh_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.UserSshKeyId = types.StringValue(createRes.Id)
 
 	reqApi := &organizationmanager.GetUserSshKeyRequest{}
 	reqApi.SetUserSshKeyId(plan.UserSshKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -220,7 +215,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Create(ctx context.Context
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -267,7 +261,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Delete(ctx context.Context
 		id = state.UserSshKeyId.ValueString()
 	}
 	reqApi.SetUserSshKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete user_ssh_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -296,7 +289,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Delete(ctx context.Context
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete user_ssh_key response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -345,7 +337,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Update(ctx context.Context
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update user_ssh_key request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -373,14 +364,12 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Update(ctx context.Context
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update user_ssh_key response: %s", validate.ProtoDump(updateRes)))
 
 		plan.UserSshKeyId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &organizationmanager.GetUserSshKeyRequest{}
 	reqApi.SetUserSshKeyId(plan.UserSshKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := organizationmanagerv1sdk.NewUserSshKeyClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -403,7 +392,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Update(ctx context.Context
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

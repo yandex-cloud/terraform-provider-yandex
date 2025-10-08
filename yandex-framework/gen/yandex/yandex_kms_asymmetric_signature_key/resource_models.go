@@ -44,6 +44,40 @@ func NewYandexKmsAsymmetricSignatureKeyModel() yandexKmsAsymmetricSignatureKeyMo
 	}
 }
 
+func yandexKmsAsymmetricSignatureKeyModelFillUnknown(target yandexKmsAsymmetricSignatureKeyModel) yandexKmsAsymmetricSignatureKeyModel {
+	if target.AsymmetricSignatureKeyId.IsUnknown() || target.AsymmetricSignatureKeyId.IsNull() {
+		target.AsymmetricSignatureKeyId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.DeletionProtection.IsUnknown() || target.DeletionProtection.IsNull() {
+		target.DeletionProtection = types.BoolNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.SignatureAlgorithm.IsUnknown() || target.SignatureAlgorithm.IsNull() {
+		target.SignatureAlgorithm = types.StringNull()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	return target
+}
+
 var yandexKmsAsymmetricSignatureKeyModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"asymmetric_signature_key_id": types.StringType,

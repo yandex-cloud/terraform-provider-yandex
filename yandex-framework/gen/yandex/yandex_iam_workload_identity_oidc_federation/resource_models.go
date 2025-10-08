@@ -48,6 +48,46 @@ func NewYandexIamWorkloadIdentityOidcFederationModel() yandexIamWorkloadIdentity
 	}
 }
 
+func yandexIamWorkloadIdentityOidcFederationModelFillUnknown(target yandexIamWorkloadIdentityOidcFederationModel) yandexIamWorkloadIdentityOidcFederationModel {
+	if target.Audiences.IsUnknown() || target.Audiences.IsNull() {
+		target.Audiences = types.ListNull(types.StringType)
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.BoolNull()
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.BoolNull()
+	}
+	if target.FederationId.IsUnknown() || target.FederationId.IsNull() {
+		target.FederationId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Issuer.IsUnknown() || target.Issuer.IsNull() {
+		target.Issuer = types.StringNull()
+	}
+	if target.JwksUrl.IsUnknown() || target.JwksUrl.IsNull() {
+		target.JwksUrl = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	return target
+}
+
 var yandexIamWorkloadIdentityOidcFederationModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"audiences":     types.ListType{ElemType: types.StringType},

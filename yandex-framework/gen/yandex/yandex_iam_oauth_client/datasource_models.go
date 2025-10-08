@@ -35,6 +35,31 @@ func NewYandexIamOauthClientDatasourceModel() yandexIamOauthClientDatasourceMode
 	}
 }
 
+func yandexIamOauthClientDatasourceModelFillUnknown(target yandexIamOauthClientDatasourceModel) yandexIamOauthClientDatasourceModel {
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.OauthClientId.IsUnknown() || target.OauthClientId.IsNull() {
+		target.OauthClientId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.RedirectUris.IsUnknown() || target.RedirectUris.IsNull() {
+		target.RedirectUris = types.ListNull(types.StringType)
+	}
+	if target.Scopes.IsUnknown() || target.Scopes.IsNull() {
+		target.Scopes = types.ListNull(types.StringType)
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	return target
+}
+
 var yandexIamOauthClientDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"folder_id":       types.StringType,

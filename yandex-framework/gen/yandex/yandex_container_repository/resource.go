@@ -82,7 +82,6 @@ func (r *yandexContainerRepositoryResource) Read(ctx context.Context, req resour
 		id = state.RepositoryId.ValueString()
 	}
 	reqApi.SetRepositoryId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read repository request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -108,7 +107,6 @@ func (r *yandexContainerRepositoryResource) Read(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read repository response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -155,7 +153,6 @@ func (r *yandexContainerRepositoryResource) Create(ctx context.Context, req reso
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create repository request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -183,14 +180,12 @@ func (r *yandexContainerRepositoryResource) Create(ctx context.Context, req reso
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create repository response: %s", validate.ProtoDump(createRes)))
 
 	plan.RepositoryId = types.StringValue(createRes.Id)
 
 	reqApi := &containerregistry.GetRepositoryRequest{}
 	reqApi.SetRepositoryId(plan.RepositoryId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read repository request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -214,7 +209,6 @@ func (r *yandexContainerRepositoryResource) Create(ctx context.Context, req reso
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read repository response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -261,7 +255,6 @@ func (r *yandexContainerRepositoryResource) Delete(ctx context.Context, req reso
 		id = state.RepositoryId.ValueString()
 	}
 	reqApi.SetRepositoryId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete repository request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -290,7 +283,6 @@ func (r *yandexContainerRepositoryResource) Delete(ctx context.Context, req reso
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete repository response: %s", validate.ProtoDump(deleteRes)))
 }
 

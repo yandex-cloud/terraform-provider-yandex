@@ -84,7 +84,6 @@ func (r *yandexComputeGpuClusterResource) Read(ctx context.Context, req resource
 		id = state.GpuClusterId.ValueString()
 	}
 	reqApi.SetGpuClusterId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexComputeGpuClusterResource) Read(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexComputeGpuClusterResource) Create(ctx context.Context, req resour
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create gpu_cluster request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexComputeGpuClusterResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create gpu_cluster response: %s", validate.ProtoDump(createRes)))
 
 	plan.GpuClusterId = types.StringValue(createRes.Id)
 
 	reqApi := &compute.GetGpuClusterRequest{}
 	reqApi.SetGpuClusterId(plan.GpuClusterId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexComputeGpuClusterResource) Create(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexComputeGpuClusterResource) Delete(ctx context.Context, req resour
 		id = state.GpuClusterId.ValueString()
 	}
 	reqApi.SetGpuClusterId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete gpu_cluster request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexComputeGpuClusterResource) Delete(ctx context.Context, req resour
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete gpu_cluster response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -356,7 +348,6 @@ func (r *yandexComputeGpuClusterResource) Update(ctx context.Context, req resour
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update gpu_cluster request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -384,14 +375,12 @@ func (r *yandexComputeGpuClusterResource) Update(ctx context.Context, req resour
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update gpu_cluster response: %s", validate.ProtoDump(updateRes)))
 
 		plan.GpuClusterId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &compute.GetGpuClusterRequest{}
 	reqApi.SetGpuClusterId(plan.GpuClusterId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := computev1sdk.NewGpuClusterClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -414,7 +403,6 @@ func (r *yandexComputeGpuClusterResource) Update(ctx context.Context, req resour
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

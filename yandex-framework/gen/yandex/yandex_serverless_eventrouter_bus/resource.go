@@ -84,7 +84,6 @@ func (r *yandexServerlessEventrouterBusResource) Read(ctx context.Context, req r
 		id = state.BusId.ValueString()
 	}
 	reqApi.SetBusId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexServerlessEventrouterBusResource) Read(ctx context.Context, req r
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -161,7 +159,6 @@ func (r *yandexServerlessEventrouterBusResource) Create(ctx context.Context, req
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create bus request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -189,14 +186,12 @@ func (r *yandexServerlessEventrouterBusResource) Create(ctx context.Context, req
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create bus response: %s", validate.ProtoDump(createRes)))
 
 	plan.BusId = types.StringValue(createRes.Id)
 
 	reqApi := &eventrouter.GetBusRequest{}
 	reqApi.SetBusId(plan.BusId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -220,7 +215,6 @@ func (r *yandexServerlessEventrouterBusResource) Create(ctx context.Context, req
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -267,7 +261,6 @@ func (r *yandexServerlessEventrouterBusResource) Delete(ctx context.Context, req
 		id = state.BusId.ValueString()
 	}
 	reqApi.SetBusId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete bus request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -296,7 +289,6 @@ func (r *yandexServerlessEventrouterBusResource) Delete(ctx context.Context, req
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete bus response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -359,7 +351,6 @@ func (r *yandexServerlessEventrouterBusResource) Update(ctx context.Context, req
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update bus request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -387,14 +378,12 @@ func (r *yandexServerlessEventrouterBusResource) Update(ctx context.Context, req
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update bus response: %s", validate.ProtoDump(updateRes)))
 
 		plan.BusId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &eventrouter.GetBusRequest{}
 	reqApi.SetBusId(plan.BusId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := eventrouterv1sdk.NewBusClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -417,7 +406,6 @@ func (r *yandexServerlessEventrouterBusResource) Update(ctx context.Context, req
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read bus response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

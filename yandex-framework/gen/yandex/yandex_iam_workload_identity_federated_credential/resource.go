@@ -82,7 +82,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Read(ctx context.
 		id = state.FederatedCredentialId.ValueString()
 	}
 	reqApi.SetFederatedCredentialId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -108,7 +107,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Read(ctx context.
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -157,7 +155,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Create(ctx contex
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create federated_credential request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -185,14 +182,12 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Create(ctx contex
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create federated_credential response: %s", validate.ProtoDump(createRes)))
 
 	plan.FederatedCredentialId = types.StringValue(createRes.Id)
 
 	reqApi := &workload.GetFederatedCredentialRequest{}
 	reqApi.SetFederatedCredentialId(plan.FederatedCredentialId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -216,7 +211,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Create(ctx contex
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -263,7 +257,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Delete(ctx contex
 		id = state.FederatedCredentialId.ValueString()
 	}
 	reqApi.SetFederatedCredentialId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete federated_credential request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -292,7 +285,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Delete(ctx contex
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete federated_credential response: %s", validate.ProtoDump(deleteRes)))
 }
 

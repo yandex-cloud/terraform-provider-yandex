@@ -84,7 +84,6 @@ func (r *yandexKMSSymmetricKeyResource) Read(ctx context.Context, req resource.R
 		id = state.SymmetricKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexKMSSymmetricKeyResource) Read(ctx context.Context, req resource.R
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -163,7 +161,6 @@ func (r *yandexKMSSymmetricKeyResource) Create(ctx context.Context, req resource
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create symmetric_key request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -191,14 +188,12 @@ func (r *yandexKMSSymmetricKeyResource) Create(ctx context.Context, req resource
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create symmetric_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.SymmetricKeyId = types.StringValue(createRes.Id)
 
 	reqApi := &kms.GetSymmetricKeyRequest{}
 	reqApi.SetKeyId(plan.SymmetricKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -222,7 +217,6 @@ func (r *yandexKMSSymmetricKeyResource) Create(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -269,7 +263,6 @@ func (r *yandexKMSSymmetricKeyResource) Delete(ctx context.Context, req resource
 		id = state.SymmetricKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete symmetric_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -298,7 +291,6 @@ func (r *yandexKMSSymmetricKeyResource) Delete(ctx context.Context, req resource
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete symmetric_key response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -373,7 +365,6 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update symmetric_key request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -401,14 +392,12 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update symmetric_key response: %s", validate.ProtoDump(updateRes)))
 
 		plan.SymmetricKeyId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &kms.GetSymmetricKeyRequest{}
 	reqApi.SetKeyId(plan.SymmetricKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := kmsv1sdk.NewSymmetricKeyClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -431,7 +420,6 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

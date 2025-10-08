@@ -85,7 +85,6 @@ func (r *yandexConnectionmanagerConnectionResource) Read(ctx context.Context, re
 		id = state.ConnectionId.ValueString()
 	}
 	reqApi.SetConnectionId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -111,7 +110,6 @@ func (r *yandexConnectionmanagerConnectionResource) Read(ctx context.Context, re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexConnectionmanagerConnectionResource) Create(ctx context.Context, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create connection request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexConnectionmanagerConnectionResource) Create(ctx context.Context, 
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create connection response: %s", validate.ProtoDump(createRes)))
 
 	plan.ConnectionId = types.StringValue(createRes.Id)
 
 	reqApi := &connectionmanager.GetConnectionRequest{}
 	reqApi.SetConnectionId(plan.ConnectionId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexConnectionmanagerConnectionResource) Create(ctx context.Context, 
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexConnectionmanagerConnectionResource) Delete(ctx context.Context, 
 		id = state.ConnectionId.ValueString()
 	}
 	reqApi.SetConnectionId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete connection request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexConnectionmanagerConnectionResource) Delete(ctx context.Context, 
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete connection response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -1613,7 +1605,6 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update connection request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -1641,14 +1632,12 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update connection response: %s", validate.ProtoDump(updateRes)))
 
 		plan.ConnectionId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &connectionmanager.GetConnectionRequest{}
 	reqApi.SetConnectionId(plan.ConnectionId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := connectionmanagerv1sdk.NewConnectionClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -1671,7 +1660,6 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read connection response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

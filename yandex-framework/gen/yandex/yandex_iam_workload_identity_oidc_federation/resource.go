@@ -84,7 +84,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Read(ctx context.Conte
 		id = state.FederationId.ValueString()
 	}
 	reqApi.SetFederationId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Read(ctx context.Conte
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -164,7 +162,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Create(ctx context.Con
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create federation request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -192,14 +189,12 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Create(ctx context.Con
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create federation response: %s", validate.ProtoDump(createRes)))
 
 	plan.FederationId = types.StringValue(createRes.Id)
 
 	reqApi := &oidc.GetFederationRequest{}
 	reqApi.SetFederationId(plan.FederationId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -223,7 +218,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Create(ctx context.Con
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -270,7 +264,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Delete(ctx context.Con
 		id = state.FederationId.ValueString()
 	}
 	reqApi.SetFederationId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete federation request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -299,7 +292,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Delete(ctx context.Con
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete federation response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -376,7 +368,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update federation request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -404,14 +395,12 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update federation response: %s", validate.ProtoDump(updateRes)))
 
 		plan.FederationId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &oidc.GetFederationRequest{}
 	reqApi.SetFederationId(plan.FederationId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := oidcsdk.NewFederationClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -434,7 +423,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read federation response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

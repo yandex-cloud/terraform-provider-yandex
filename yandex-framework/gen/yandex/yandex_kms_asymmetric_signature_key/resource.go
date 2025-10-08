@@ -84,7 +84,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Read(ctx context.Context, req 
 		id = state.AsymmetricSignatureKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Read(ctx context.Context, req 
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Create(ctx context.Context, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create asymmetric_signature_key request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Create(ctx context.Context, re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create asymmetric_signature_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.AsymmetricSignatureKeyId = types.StringValue(createRes.Id)
 
 	reqApi := &asymmetricsignature.GetAsymmetricSignatureKeyRequest{}
 	reqApi.SetKeyId(plan.AsymmetricSignatureKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Create(ctx context.Context, re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Delete(ctx context.Context, re
 		id = state.AsymmetricSignatureKeyId.ValueString()
 	}
 	reqApi.SetKeyId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete asymmetric_signature_key request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Delete(ctx context.Context, re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete asymmetric_signature_key response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -364,7 +356,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update asymmetric_signature_key request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -392,14 +383,12 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update asymmetric_signature_key response: %s", validate.ProtoDump(updateRes)))
 
 		plan.AsymmetricSignatureKeyId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &asymmetricsignature.GetAsymmetricSignatureKeyRequest{}
 	reqApi.SetKeyId(plan.AsymmetricSignatureKeyId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := asymmetricsignaturesdk.NewAsymmetricSignatureKeyClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -422,7 +411,6 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

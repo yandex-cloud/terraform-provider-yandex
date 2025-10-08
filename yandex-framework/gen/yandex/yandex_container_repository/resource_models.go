@@ -28,6 +28,19 @@ func NewYandexContainerRepositoryModel() yandexContainerRepositoryModel {
 	}
 }
 
+func yandexContainerRepositoryModelFillUnknown(target yandexContainerRepositoryModel) yandexContainerRepositoryModel {
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.RepositoryId.IsUnknown() || target.RepositoryId.IsNull() {
+		target.RepositoryId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	return target
+}
+
 var yandexContainerRepositoryModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"name":          types.StringType,

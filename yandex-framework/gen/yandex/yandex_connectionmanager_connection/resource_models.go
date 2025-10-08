@@ -35,6 +35,25 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel(
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.HttpPort.IsUnknown() || target.HttpPort.IsNull() {
+		target.HttpPort = types.Int64Null()
+	}
+	if target.ShardName.IsUnknown() || target.ShardName.IsNull() {
+		target.ShardName = types.StringNull()
+	}
+	if target.TcpPort.IsUnknown() || target.TcpPort.IsNull() {
+		target.TcpPort = types.Int64Null()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"health":     types.StringType,
@@ -97,6 +116,16 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStruct
 		Name:       types.StringNull(),
 		ShardNames: types.ListNull(types.StringType),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel {
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.ShardNames.IsUnknown() || target.ShardNames.IsNull() {
+		target.ShardNames = types.ListNull(types.StringType)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModelType = types.ObjectType{
@@ -196,6 +225,22 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel()
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"health": types.StringType,
@@ -257,6 +302,19 @@ func NewYandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel() yan
 		Host:   types.StringNull(),
 		Port:   types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelType = types.ObjectType{
@@ -321,6 +379,25 @@ func NewYandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel() y
 		Role:   types.StringNull(),
 		Type:   types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	if target.Type.IsUnknown() || target.Type.IsNull() {
+		target.Type = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModelType = types.ObjectType{
@@ -391,6 +468,22 @@ func NewYandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel() yan
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"health": types.StringType,
@@ -454,6 +547,22 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel(
 		Port:   types.Int64Null(),
 		Roles:  types.ListNull(types.StringType),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Roles.IsUnknown() || target.Roles.IsNull() {
+		target.Roles = types.ListNull(types.StringType)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModelType = types.ObjectType{
@@ -561,6 +670,25 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel(
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.ReplicaType.IsUnknown() || target.ReplicaType.IsNull() {
+		target.ReplicaType = types.StringNull()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"health":       types.StringType,
@@ -631,6 +759,25 @@ func NewYandexConnectionmanagerConnectionParamsRedisClusterHostStructModel() yan
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsRedisClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	if target.ShardName.IsUnknown() || target.ShardName.IsNull() {
+		target.ShardName = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsRedisClusterHostStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"health":     types.StringType,
@@ -699,6 +846,25 @@ func NewYandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel() ya
 		Role:      types.StringNull(),
 		ShardName: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	if target.ShardName.IsUnknown() || target.ShardName.IsNull() {
+		target.ShardName = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModelType = types.ObjectType{
@@ -786,6 +952,49 @@ func NewYandexConnectionmanagerConnectionModel() yandexConnectionmanagerConnecti
 		Params:        types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes),
 		UpdatedAt:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionModelFillUnknown(target yandexConnectionmanagerConnectionModel) yandexConnectionmanagerConnectionModel {
+	if target.CanUse.IsUnknown() || target.CanUse.IsNull() {
+		target.CanUse = types.BoolNull()
+	}
+	if target.ConnectionId.IsUnknown() || target.ConnectionId.IsNull() {
+		target.ConnectionId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.CreatedBy.IsUnknown() || target.CreatedBy.IsNull() {
+		target.CreatedBy = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.IsManaged.IsUnknown() || target.IsManaged.IsNull() {
+		target.IsManaged = types.BoolNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.LockboxSecret.IsUnknown() || target.LockboxSecret.IsNull() {
+		target.LockboxSecret = types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Params.IsUnknown() || target.Params.IsNull() {
+		target.Params = types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes)
+	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionModelType = types.ObjectType{
@@ -923,6 +1132,22 @@ func NewYandexConnectionmanagerConnectionLockboxSecretModel() yandexConnectionma
 	}
 }
 
+func yandexConnectionmanagerConnectionLockboxSecretModelFillUnknown(target yandexConnectionmanagerConnectionLockboxSecretModel) yandexConnectionmanagerConnectionLockboxSecretModel {
+	if target.ConnectionId.IsUnknown() || target.ConnectionId.IsNull() {
+		target.ConnectionId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.NewestVersion.IsUnknown() || target.NewestVersion.IsNull() {
+		target.NewestVersion = types.StringNull()
+	}
+	if target.Version.IsUnknown() || target.Version.IsNull() {
+		target.Version = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionLockboxSecretModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"connection_id":  types.StringType,
@@ -998,6 +1223,40 @@ func NewYandexConnectionmanagerConnectionParamsModel() yandexConnectionmanagerCo
 		Trino:      types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoModelType.AttrTypes),
 		Valkey:     types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsModel) yandexConnectionmanagerConnectionParamsModel {
+	if target.Clickhouse.IsUnknown() || target.Clickhouse.IsNull() {
+		target.Clickhouse = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseModelType.AttrTypes)
+	}
+	if target.Greenplum.IsUnknown() || target.Greenplum.IsNull() {
+		target.Greenplum = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumModelType.AttrTypes)
+	}
+	if target.Kafka.IsUnknown() || target.Kafka.IsNull() {
+		target.Kafka = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaModelType.AttrTypes)
+	}
+	if target.Mongodb.IsUnknown() || target.Mongodb.IsNull() {
+		target.Mongodb = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbModelType.AttrTypes)
+	}
+	if target.Mysql.IsUnknown() || target.Mysql.IsNull() {
+		target.Mysql = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlModelType.AttrTypes)
+	}
+	if target.Opensearch.IsUnknown() || target.Opensearch.IsNull() {
+		target.Opensearch = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchModelType.AttrTypes)
+	}
+	if target.Postgresql.IsUnknown() || target.Postgresql.IsNull() {
+		target.Postgresql = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlModelType.AttrTypes)
+	}
+	if target.Redis.IsUnknown() || target.Redis.IsNull() {
+		target.Redis = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisModelType.AttrTypes)
+	}
+	if target.Trino.IsUnknown() || target.Trino.IsNull() {
+		target.Trino = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoModelType.AttrTypes)
+	}
+	if target.Valkey.IsUnknown() || target.Valkey.IsNull() {
+		target.Valkey = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsModelType = types.ObjectType{
@@ -1104,6 +1363,22 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseModel() yandexConnectio
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsClickhouseModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseModel) yandexConnectionmanagerConnectionParamsClickhouseModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsClickhouseModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":               yandexConnectionmanagerConnectionParamsClickhouseAuthModelType,
@@ -1164,6 +1439,13 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseAuthModel() yandexConne
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsClickhouseAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseAuthModel) yandexConnectionmanagerConnectionParamsClickhouseAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsClickhouseAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelType,
@@ -1217,6 +1499,16 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel()
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelType = types.ObjectType{
@@ -1275,6 +1567,19 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswor
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -1336,6 +1641,16 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswor
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -1403,6 +1718,31 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswor
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -1475,6 +1815,19 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterModel() yandexCo
 		ShardGroups: types.ListNull(yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModelType),
 		TlsParams:   types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterModel) yandexConnectionmanagerConnectionParamsClickhouseClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModelType)
+	}
+	if target.ShardGroups.IsUnknown() || target.ShardGroups.IsNull() {
+		target.ShardGroups = types.ListNull(yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseClusterModelType = types.ObjectType{
@@ -1619,6 +1972,16 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel()
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelType,
@@ -1673,6 +2036,10 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisable
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -1716,6 +2083,13 @@ func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsMode
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModelType = types.ObjectType{
@@ -1811,6 +2185,22 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumModel() yandexConnection
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsGreenplumModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumModel) yandexConnectionmanagerConnectionParamsGreenplumModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsGreenplumModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":               yandexConnectionmanagerConnectionParamsGreenplumAuthModelType,
@@ -1871,6 +2261,13 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumAuthModel() yandexConnec
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsGreenplumAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumAuthModel) yandexConnectionmanagerConnectionParamsGreenplumAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsGreenplumAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelType,
@@ -1924,6 +2321,16 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel() 
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelType = types.ObjectType{
@@ -1982,6 +2389,19 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassword
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -2043,6 +2463,16 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassword
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -2110,6 +2540,31 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassword
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -2180,6 +2635,16 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumClusterModel() yandexCon
 		CoordinatorHosts: types.ListNull(yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModelType),
 		TlsParams:        types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumClusterModel) yandexConnectionmanagerConnectionParamsGreenplumClusterModel {
+	if target.CoordinatorHosts.IsUnknown() || target.CoordinatorHosts.IsNull() {
+		target.CoordinatorHosts = types.ListNull(yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumClusterModelType = types.ObjectType{
@@ -2275,6 +2740,16 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel() 
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModelType,
@@ -2329,6 +2804,10 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabled
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -2372,6 +2851,13 @@ func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModelType = types.ObjectType{
@@ -2465,6 +2951,19 @@ func NewYandexConnectionmanagerConnectionParamsKafkaModel() yandexConnectionmana
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaModel) yandexConnectionmanagerConnectionParamsKafkaModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaClusterModelType.AttrTypes)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":               yandexConnectionmanagerConnectionParamsKafkaAuthModelType,
@@ -2524,6 +3023,16 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthModel() yandexConnection
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthModel) yandexConnectionmanagerConnectionParamsKafkaAuthModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModelType.AttrTypes)
+	}
+	if target.Sasl.IsUnknown() || target.Sasl.IsNull() {
+		target.Sasl = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModelType,
@@ -2579,6 +3088,10 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthDisabledModel() yandexCo
 	return yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModel) yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaAuthDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -2626,6 +3139,19 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslModel() yandexConnec
 		SupportedMechanisms: types.ListNull(types.StringType),
 		User:                types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsKafkaAuthSaslModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelType.AttrTypes)
+	}
+	if target.SupportedMechanisms.IsUnknown() || target.SupportedMechanisms.IsNull() {
+		target.SupportedMechanisms = types.ListNull(types.StringType)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsKafkaAuthSaslModelType = types.ObjectType{
@@ -2689,6 +3215,19 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel() yand
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"lockbox_secret_key":          types.StringType,
@@ -2748,6 +3287,16 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGene
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -2815,6 +3364,31 @@ func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGene
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -2924,6 +3498,16 @@ func NewYandexConnectionmanagerConnectionParamsKafkaClusterModel() yandexConnect
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaClusterModel) yandexConnectionmanagerConnectionParamsKafkaClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaClusterModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"hosts":      types.ListType{ElemType: yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelType},
@@ -3017,6 +3601,16 @@ func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel() yand
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModelType,
@@ -3071,6 +3665,10 @@ func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledMode
 	return yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -3114,6 +3712,13 @@ func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel() y
 	return yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModelType = types.ObjectType{
@@ -3170,6 +3775,22 @@ func NewYandexConnectionmanagerConnectionParamsMongodbModel() yandexConnectionma
 		Databases:        types.ListNull(types.StringType),
 		ManagedClusterId: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbModel) yandexConnectionmanagerConnectionParamsMongodbModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbModelType = types.ObjectType{
@@ -3234,6 +3855,16 @@ func NewYandexConnectionmanagerConnectionParamsMongodbAuthModel() yandexConnecti
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMongodbAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbAuthModel) yandexConnectionmanagerConnectionParamsMongodbAuthModel {
+	if target.AuthSource.IsUnknown() || target.AuthSource.IsNull() {
+		target.AuthSource = types.StringNull()
+	}
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMongodbAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth_source":   types.StringType,
@@ -3292,6 +3923,16 @@ func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel() ya
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"password": yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelType,
@@ -3348,6 +3989,19 @@ func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordMo
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -3409,6 +4063,16 @@ func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPa
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -3476,6 +4140,31 @@ func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPa
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -3546,6 +4235,16 @@ func NewYandexConnectionmanagerConnectionParamsMongodbClusterModel() yandexConne
 		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModelType),
 		TlsParams: types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbClusterModel) yandexConnectionmanagerConnectionParamsMongodbClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbClusterModelType = types.ObjectType{
@@ -3641,6 +4340,16 @@ func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel() ya
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModelType,
@@ -3695,6 +4404,10 @@ func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledMo
 	return yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -3738,6 +4451,13 @@ func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel()
 	return yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModelType = types.ObjectType{
@@ -3833,6 +4553,22 @@ func NewYandexConnectionmanagerConnectionParamsMysqlModel() yandexConnectionmana
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMysqlModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlModel) yandexConnectionmanagerConnectionParamsMysqlModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMysqlModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":               yandexConnectionmanagerConnectionParamsMysqlAuthModelType,
@@ -3893,6 +4629,13 @@ func NewYandexConnectionmanagerConnectionParamsMysqlAuthModel() yandexConnection
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMysqlAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlAuthModel) yandexConnectionmanagerConnectionParamsMysqlAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMysqlAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelType,
@@ -3946,6 +4689,16 @@ func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel() yand
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelType = types.ObjectType{
@@ -4004,6 +4757,19 @@ func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordMode
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -4065,6 +4831,16 @@ func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPass
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -4132,6 +4908,31 @@ func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPass
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -4202,6 +5003,16 @@ func NewYandexConnectionmanagerConnectionParamsMysqlClusterModel() yandexConnect
 		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModelType),
 		TlsParams: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlClusterModel) yandexConnectionmanagerConnectionParamsMysqlClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlClusterModelType = types.ObjectType{
@@ -4297,6 +5108,16 @@ func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel() yand
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModelType,
@@ -4351,6 +5172,10 @@ func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledMode
 	return yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -4394,6 +5219,13 @@ func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel() y
 	return yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModelType = types.ObjectType{
@@ -4487,6 +5319,19 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchModel() yandexConnectio
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsOpensearchModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchModel) yandexConnectionmanagerConnectionParamsOpensearchModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterModelType.AttrTypes)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsOpensearchModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":               yandexConnectionmanagerConnectionParamsOpensearchAuthModelType,
@@ -4544,6 +5389,13 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchAuthModel() yandexConne
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsOpensearchAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchAuthModel) yandexConnectionmanagerConnectionParamsOpensearchAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsOpensearchAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelType,
@@ -4597,6 +5449,16 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel()
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelType = types.ObjectType{
@@ -4655,6 +5517,19 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswor
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -4716,6 +5591,16 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswor
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -4783,6 +5668,31 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswor
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -4853,6 +5763,16 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchClusterModel() yandexCo
 		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModelType),
 		TlsParams: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchClusterModel) yandexConnectionmanagerConnectionParamsOpensearchClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchClusterModelType = types.ObjectType{
@@ -4957,6 +5877,16 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel()
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModelType,
@@ -5011,6 +5941,10 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisable
 	return yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -5054,6 +5988,13 @@ func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsMode
 	return yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModelType = types.ObjectType{
@@ -5110,6 +6051,22 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlModel() yandexConnectio
 		Databases:        types.ListNull(types.StringType),
 		ManagedClusterId: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlModel) yandexConnectionmanagerConnectionParamsPostgresqlModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlModelType = types.ObjectType{
@@ -5172,6 +6129,13 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthModel() yandexConne
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsPostgresqlAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlAuthModel) yandexConnectionmanagerConnectionParamsPostgresqlAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsPostgresqlAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelType,
@@ -5225,6 +6189,16 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel()
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelType = types.ObjectType{
@@ -5283,6 +6257,19 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswor
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -5344,6 +6331,16 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswor
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -5411,6 +6408,31 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswor
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -5481,6 +6503,16 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterModel() yandexCo
 		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModelType),
 		TlsParams: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) yandexConnectionmanagerConnectionParamsPostgresqlClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlClusterModelType = types.ObjectType{
@@ -5576,6 +6608,16 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel()
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModelType,
@@ -5630,6 +6672,10 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisable
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -5673,6 +6719,13 @@ func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsMode
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModelType = types.ObjectType{
@@ -5766,6 +6819,19 @@ func NewYandexConnectionmanagerConnectionParamsRedisModel() yandexConnectionmana
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsRedisModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisModel) yandexConnectionmanagerConnectionParamsRedisModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.Int64Type)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsRedisModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":      yandexConnectionmanagerConnectionParamsRedisAuthModelType,
@@ -5823,6 +6889,13 @@ func NewYandexConnectionmanagerConnectionParamsRedisAuthModel() yandexConnection
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsRedisAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisAuthModel) yandexConnectionmanagerConnectionParamsRedisAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsRedisAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelType,
@@ -5876,6 +6949,16 @@ func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel() yand
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelType = types.ObjectType{
@@ -5934,6 +7017,19 @@ func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordMode
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -5995,6 +7091,16 @@ func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPass
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -6062,6 +7168,31 @@ func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPass
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -6134,6 +7265,19 @@ func NewYandexConnectionmanagerConnectionParamsRedisClusterModel() yandexConnect
 		SentinelPort: types.Int64Null(),
 		TlsParams:    types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisClusterModel) yandexConnectionmanagerConnectionParamsRedisClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsRedisClusterHostStructModelType)
+	}
+	if target.SentinelPort.IsUnknown() || target.SentinelPort.IsNull() {
+		target.SentinelPort = types.Int64Null()
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisClusterModelType = types.ObjectType{
@@ -6232,6 +7376,16 @@ func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel() yand
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModelType,
@@ -6286,6 +7440,10 @@ func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledMode
 	return yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -6329,6 +7487,13 @@ func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel() y
 	return yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModelType = types.ObjectType{
@@ -6420,6 +7585,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoModel() yandexConnectionmana
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsTrinoModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoModel) yandexConnectionmanagerConnectionParamsTrinoModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsTrinoModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auth":    yandexConnectionmanagerConnectionParamsTrinoAuthModelType,
@@ -6472,6 +7647,13 @@ func NewYandexConnectionmanagerConnectionParamsTrinoAuthModel() yandexConnection
 	return yandexConnectionmanagerConnectionParamsTrinoAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoAuthModel) yandexConnectionmanagerConnectionParamsTrinoAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoAuthModelType = types.ObjectType{
@@ -6527,6 +7709,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel() yand
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelType = types.ObjectType{
@@ -6585,6 +7777,19 @@ func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordMode
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -6646,6 +7851,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPass
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -6713,6 +7928,31 @@ func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPass
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -6785,6 +8025,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoClusterModel() yandexConnect
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsTrinoClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoClusterModel) yandexConnectionmanagerConnectionParamsTrinoClusterModel {
+	if target.Coordinator.IsUnknown() || target.Coordinator.IsNull() {
+		target.Coordinator = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModelType.AttrTypes)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsTrinoClusterModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"coordinator": yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModelType,
@@ -6838,6 +8088,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel() ya
 		Host: types.StringNull(),
 		Port: types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel {
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModelType = types.ObjectType{
@@ -6895,6 +8155,16 @@ func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel() yand
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModelType,
@@ -6949,6 +8219,10 @@ func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledMode
 	return yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -6992,6 +8266,13 @@ func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel() y
 	return yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModelType = types.ObjectType{
@@ -7048,6 +8329,22 @@ func NewYandexConnectionmanagerConnectionParamsValkeyModel() yandexConnectionman
 		Databases:        types.ListNull(types.Int64Type),
 		ManagedClusterId: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyModel) yandexConnectionmanagerConnectionParamsValkeyModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.Int64Type)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyModelType = types.ObjectType{
@@ -7110,6 +8407,13 @@ func NewYandexConnectionmanagerConnectionParamsValkeyAuthModel() yandexConnectio
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsValkeyAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyAuthModel) yandexConnectionmanagerConnectionParamsValkeyAuthModel {
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsValkeyAuthModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"user_password": yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelType,
@@ -7163,6 +8467,16 @@ func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel() yan
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModelType.AttrTypes),
 		User:     types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelType = types.ObjectType{
@@ -7221,6 +8535,19 @@ func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordMod
 		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
 		Raw:                       types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModelType = types.ObjectType{
@@ -7282,6 +8609,16 @@ func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPas
 		Cookie:                           types.StringNull(),
 		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
@@ -7349,6 +8686,31 @@ func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPas
 		IncludedPunctuation: types.StringNull(),
 		Length:              types.Int64Null(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
@@ -7421,6 +8783,19 @@ func NewYandexConnectionmanagerConnectionParamsValkeyClusterModel() yandexConnec
 		SentinelPort: types.Int64Null(),
 		TlsParams:    types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModelType.AttrTypes),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyClusterModel) yandexConnectionmanagerConnectionParamsValkeyClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModelType)
+	}
+	if target.SentinelPort.IsUnknown() || target.SentinelPort.IsNull() {
+		target.SentinelPort = types.Int64Null()
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyClusterModelType = types.ObjectType{
@@ -7519,6 +8894,16 @@ func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel() yan
 	}
 }
 
+func yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"disabled": yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModelType,
@@ -7573,6 +8958,10 @@ func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledMod
 	return yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModel{}
 }
 
+func yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModel {
+	return target
+}
+
 var yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
@@ -7616,6 +9005,13 @@ func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel() 
 	return yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
 	}
+}
+
+func yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
 }
 
 var yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModelType = types.ObjectType{

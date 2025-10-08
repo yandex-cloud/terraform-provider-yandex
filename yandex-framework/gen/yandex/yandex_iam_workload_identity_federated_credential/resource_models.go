@@ -36,6 +36,28 @@ func NewYandexIamWorkloadIdentityFederatedCredentialModel() yandexIamWorkloadIde
 	}
 }
 
+func yandexIamWorkloadIdentityFederatedCredentialModelFillUnknown(target yandexIamWorkloadIdentityFederatedCredentialModel) yandexIamWorkloadIdentityFederatedCredentialModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.ExternalSubjectId.IsUnknown() || target.ExternalSubjectId.IsNull() {
+		target.ExternalSubjectId = types.StringNull()
+	}
+	if target.FederatedCredentialId.IsUnknown() || target.FederatedCredentialId.IsNull() {
+		target.FederatedCredentialId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.FederationId.IsUnknown() || target.FederationId.IsNull() {
+		target.FederationId = types.StringNull()
+	}
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
 var yandexIamWorkloadIdentityFederatedCredentialModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":              types.StringType,

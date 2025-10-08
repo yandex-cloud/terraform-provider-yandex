@@ -42,6 +42,40 @@ func NewYandexKmsAsymmetricEncryptionKeyDatasourceModel() yandexKmsAsymmetricEnc
 	}
 }
 
+func yandexKmsAsymmetricEncryptionKeyDatasourceModelFillUnknown(target yandexKmsAsymmetricEncryptionKeyDatasourceModel) yandexKmsAsymmetricEncryptionKeyDatasourceModel {
+	if target.AsymmetricEncryptionKeyId.IsUnknown() || target.AsymmetricEncryptionKeyId.IsNull() {
+		target.AsymmetricEncryptionKeyId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.DeletionProtection.IsUnknown() || target.DeletionProtection.IsNull() {
+		target.DeletionProtection = types.BoolNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.EncryptionAlgorithm.IsUnknown() || target.EncryptionAlgorithm.IsNull() {
+		target.EncryptionAlgorithm = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	return target
+}
+
 var yandexKmsAsymmetricEncryptionKeyDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"asymmetric_encryption_key_id": types.StringType,

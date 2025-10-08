@@ -36,6 +36,28 @@ func NewYandexOrganizationmanagerGroupModel() yandexOrganizationmanagerGroupMode
 	}
 }
 
+func yandexOrganizationmanagerGroupModelFillUnknown(target yandexOrganizationmanagerGroupModel) yandexOrganizationmanagerGroupModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.GroupId.IsUnknown() || target.GroupId.IsNull() {
+		target.GroupId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
+		target.OrganizationId = types.StringNull()
+	}
+	return target
+}
+
 var yandexOrganizationmanagerGroupModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":      types.StringType,

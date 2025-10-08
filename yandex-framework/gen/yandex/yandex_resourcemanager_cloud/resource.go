@@ -85,7 +85,6 @@ func (r *yandexResourcemanagerCloudResource) Read(ctx context.Context, req resou
 		id = state.CloudId.ValueString()
 	}
 	reqApi.SetCloudId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -111,7 +110,6 @@ func (r *yandexResourcemanagerCloudResource) Read(ctx context.Context, req resou
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -161,7 +159,6 @@ func (r *yandexResourcemanagerCloudResource) Create(ctx context.Context, req res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create cloud request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -189,14 +186,12 @@ func (r *yandexResourcemanagerCloudResource) Create(ctx context.Context, req res
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create cloud response: %s", validate.ProtoDump(createRes)))
 
 	plan.CloudId = types.StringValue(createRes.Id)
 
 	reqApi := &resourcemanager.GetCloudRequest{}
 	reqApi.SetCloudId(converter.GetCloudID(plan.CloudId.ValueString(), r.providerConfig, &diags))
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -220,7 +215,6 @@ func (r *yandexResourcemanagerCloudResource) Create(ctx context.Context, req res
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexResourcemanagerCloudResource) Delete(ctx context.Context, req res
 	}
 	reqApi.SetCloudId(id)
 	reqApi.SetDeleteAfter(timestamppb.Now())
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete cloud request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexResourcemanagerCloudResource) Delete(ctx context.Context, req res
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete cloud response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -356,7 +348,6 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update cloud request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -384,14 +375,12 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update cloud response: %s", validate.ProtoDump(updateRes)))
 
 		plan.CloudId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &resourcemanager.GetCloudRequest{}
 	reqApi.SetCloudId(converter.GetCloudID(plan.CloudId.ValueString(), r.providerConfig, &diags))
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := resourcemanagerv1sdk.NewCloudClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -414,7 +403,6 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

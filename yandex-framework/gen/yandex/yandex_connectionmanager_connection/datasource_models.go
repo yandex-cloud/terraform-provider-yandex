@@ -49,6 +49,49 @@ func NewYandexConnectionmanagerConnectionDatasourceModel() yandexConnectionmanag
 	}
 }
 
+func yandexConnectionmanagerConnectionDatasourceModelFillUnknown(target yandexConnectionmanagerConnectionDatasourceModel) yandexConnectionmanagerConnectionDatasourceModel {
+	if target.CanUse.IsUnknown() || target.CanUse.IsNull() {
+		target.CanUse = types.BoolNull()
+	}
+	if target.ConnectionId.IsUnknown() || target.ConnectionId.IsNull() {
+		target.ConnectionId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.CreatedBy.IsUnknown() || target.CreatedBy.IsNull() {
+		target.CreatedBy = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.IsManaged.IsUnknown() || target.IsManaged.IsNull() {
+		target.IsManaged = types.BoolNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.LockboxSecret.IsUnknown() || target.LockboxSecret.IsNull() {
+		target.LockboxSecret = types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Params.IsUnknown() || target.Params.IsNull() {
+		target.Params = types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes)
+	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
+	return target
+}
+
 var yandexConnectionmanagerConnectionDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"can_use":        types.BoolType,

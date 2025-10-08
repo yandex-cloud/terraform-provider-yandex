@@ -42,6 +42,37 @@ func NewYandexComputeDiskPlacementGroupModel() yandexComputeDiskPlacementGroupMo
 	}
 }
 
+func yandexComputeDiskPlacementGroupModelFillUnknown(target yandexComputeDiskPlacementGroupModel) yandexComputeDiskPlacementGroupModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.DiskPlacementGroupId.IsUnknown() || target.DiskPlacementGroupId.IsNull() {
+		target.DiskPlacementGroupId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	if target.Zone.IsUnknown() || target.Zone.IsNull() {
+		target.Zone = types.StringNull()
+	}
+	return target
+}
+
 var yandexComputeDiskPlacementGroupModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":              types.StringType,

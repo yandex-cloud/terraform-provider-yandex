@@ -84,7 +84,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Read(ctx context.Context, req 
 		id = state.DiskPlacementGroupId.ValueString()
 	}
 	reqApi.SetDiskPlacementGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Read(ctx context.Context, req 
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Create(ctx context.Context, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create disk_placement_group request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexComputeDiskPlacementGroupResource) Create(ctx context.Context, re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create disk_placement_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.DiskPlacementGroupId = types.StringValue(createRes.Id)
 
 	reqApi := &compute.GetDiskPlacementGroupRequest{}
 	reqApi.SetDiskPlacementGroupId(plan.DiskPlacementGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Create(ctx context.Context, re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Delete(ctx context.Context, re
 		id = state.DiskPlacementGroupId.ValueString()
 	}
 	reqApi.SetDiskPlacementGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete disk_placement_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Delete(ctx context.Context, re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete disk_placement_group response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -356,7 +348,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Update(ctx context.Context, re
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update disk_placement_group request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -384,14 +375,12 @@ func (r *yandexComputeDiskPlacementGroupResource) Update(ctx context.Context, re
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update disk_placement_group response: %s", validate.ProtoDump(updateRes)))
 
 		plan.DiskPlacementGroupId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &compute.GetDiskPlacementGroupRequest{}
 	reqApi.SetDiskPlacementGroupId(plan.DiskPlacementGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := computev1sdk.NewDiskPlacementGroupClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -414,7 +403,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Update(ctx context.Context, re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

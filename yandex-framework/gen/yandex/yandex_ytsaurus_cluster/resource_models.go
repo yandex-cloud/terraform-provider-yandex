@@ -29,6 +29,19 @@ func NewYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel() yandexYt
 	}
 }
 
+func yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel {
+	if target.Locations.IsUnknown() || target.Locations.IsNull() {
+		target.Locations = types.ListNull(types.StringType)
+	}
+	if target.SizeGb.IsUnknown() || target.SizeGb.IsNull() {
+		target.SizeGb = types.Int64Null()
+	}
+	if target.Type.IsUnknown() || target.Type.IsNull() {
+		target.Type = types.StringNull()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"locations": types.ListType{ElemType: types.StringType},
@@ -127,6 +140,22 @@ func NewYandexYtsaurusClusterSpecComputeSpecStructModel() yandexYtsaurusClusterS
 		Preset:      types.StringNull(),
 		ScalePolicy: types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType.AttrTypes),
 	}
+}
+
+func yandexYtsaurusClusterSpecComputeSpecStructModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructModel) yandexYtsaurusClusterSpecComputeSpecStructModel {
+	if target.Disks.IsUnknown() || target.Disks.IsNull() {
+		target.Disks = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.Preset.IsUnknown() || target.Preset.IsNull() {
+		target.Preset = types.StringNull()
+	}
+	if target.ScalePolicy.IsUnknown() || target.ScalePolicy.IsNull() {
+		target.ScalePolicy = types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecComputeSpecStructModelType = types.ObjectType{
@@ -237,6 +266,16 @@ func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel() yandexYtsau
 	}
 }
 
+func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel) yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel {
+	if target.Auto.IsUnknown() || target.Auto.IsNull() {
+		target.Auto = types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType.AttrTypes)
+	}
+	if target.Fixed.IsUnknown() || target.Fixed.IsNull() {
+		target.Fixed = types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"auto":  yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType,
@@ -296,6 +335,16 @@ func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel() yandexY
 	}
 }
 
+func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel {
+	if target.MaxSize.IsUnknown() || target.MaxSize.IsNull() {
+		target.MaxSize = types.Int64Null()
+	}
+	if target.MinSize.IsUnknown() || target.MinSize.IsNull() {
+		target.MinSize = types.Int64Null()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"max_size": types.Int64Type,
@@ -347,6 +396,13 @@ func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel() yandex
 	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel{
 		Size: types.Int64Null(),
 	}
+}
+
+func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel) yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel {
+	if target.Size.IsUnknown() || target.Size.IsNull() {
+		target.Size = types.Int64Null()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModelType = types.ObjectType{
@@ -430,6 +486,61 @@ func NewYandexYtsaurusClusterModel() yandexYtsaurusClusterModel {
 		UpdatedBy:        types.StringNull(),
 		ZoneId:           types.StringNull(),
 	}
+}
+
+func yandexYtsaurusClusterModelFillUnknown(target yandexYtsaurusClusterModel) yandexYtsaurusClusterModel {
+	if target.ClusterId.IsUnknown() || target.ClusterId.IsNull() {
+		target.ClusterId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.CreatedBy.IsUnknown() || target.CreatedBy.IsNull() {
+		target.CreatedBy = types.StringNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.Endpoints.IsUnknown() || target.Endpoints.IsNull() {
+		target.Endpoints = types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes)
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.SecurityGroupIds.IsUnknown() || target.SecurityGroupIds.IsNull() {
+		target.SecurityGroupIds = types.ListNull(types.StringType)
+	}
+	if target.Spec.IsUnknown() || target.Spec.IsNull() {
+		target.Spec = types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes)
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
+	if target.UpdatedBy.IsUnknown() || target.UpdatedBy.IsNull() {
+		target.UpdatedBy = types.StringNull()
+	}
+	if target.ZoneId.IsUnknown() || target.ZoneId.IsNull() {
+		target.ZoneId = types.StringNull()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterModelType = types.ObjectType{
@@ -538,6 +649,22 @@ func NewYandexYtsaurusClusterEndpointsModel() yandexYtsaurusClusterEndpointsMode
 		InternalRpcProxyAlias:     types.StringNull(),
 		Ui:                        types.StringNull(),
 	}
+}
+
+func yandexYtsaurusClusterEndpointsModelFillUnknown(target yandexYtsaurusClusterEndpointsModel) yandexYtsaurusClusterEndpointsModel {
+	if target.ExternalHttpProxyBalancer.IsUnknown() || target.ExternalHttpProxyBalancer.IsNull() {
+		target.ExternalHttpProxyBalancer = types.StringNull()
+	}
+	if target.InternalHttpProxyAlias.IsUnknown() || target.InternalHttpProxyAlias.IsNull() {
+		target.InternalHttpProxyAlias = types.StringNull()
+	}
+	if target.InternalRpcProxyAlias.IsUnknown() || target.InternalRpcProxyAlias.IsNull() {
+		target.InternalRpcProxyAlias = types.StringNull()
+	}
+	if target.Ui.IsUnknown() || target.Ui.IsNull() {
+		target.Ui = types.StringNull()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterEndpointsModelType = types.ObjectType{
@@ -681,6 +808,25 @@ func NewYandexYtsaurusClusterSpecModel() yandexYtsaurusClusterSpecModel {
 	}
 }
 
+func yandexYtsaurusClusterSpecModelFillUnknown(target yandexYtsaurusClusterSpecModel) yandexYtsaurusClusterSpecModel {
+	if target.Compute.IsUnknown() || target.Compute.IsNull() {
+		target.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
+	}
+	if target.Odin.IsUnknown() || target.Odin.IsNull() {
+		target.Odin = types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes)
+	}
+	if target.Proxy.IsUnknown() || target.Proxy.IsNull() {
+		target.Proxy = types.ObjectNull(yandexYtsaurusClusterSpecProxyModelType.AttrTypes)
+	}
+	if target.Storage.IsUnknown() || target.Storage.IsNull() {
+		target.Storage = types.ObjectNull(yandexYtsaurusClusterSpecStorageModelType.AttrTypes)
+	}
+	if target.Tablet.IsUnknown() || target.Tablet.IsNull() {
+		target.Tablet = types.ObjectNull(yandexYtsaurusClusterSpecTabletModelType.AttrTypes)
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"compute": types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructModelType},
@@ -790,6 +936,13 @@ func NewYandexYtsaurusClusterSpecOdinModel() yandexYtsaurusClusterSpecOdinModel 
 	}
 }
 
+func yandexYtsaurusClusterSpecOdinModelFillUnknown(target yandexYtsaurusClusterSpecOdinModel) yandexYtsaurusClusterSpecOdinModel {
+	if target.ChecksTtl.IsUnknown() || target.ChecksTtl.IsNull() {
+		target.ChecksTtl = types.StringNull()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecOdinModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"checks_ttl": types.StringType,
@@ -841,6 +994,16 @@ func NewYandexYtsaurusClusterSpecProxyModel() yandexYtsaurusClusterSpecProxyMode
 		Http: types.ObjectNull(yandexYtsaurusClusterSpecProxyHttpModelType.AttrTypes),
 		Rpc:  types.ObjectNull(yandexYtsaurusClusterSpecProxyRpcModelType.AttrTypes),
 	}
+}
+
+func yandexYtsaurusClusterSpecProxyModelFillUnknown(target yandexYtsaurusClusterSpecProxyModel) yandexYtsaurusClusterSpecProxyModel {
+	if target.Http.IsUnknown() || target.Http.IsNull() {
+		target.Http = types.ObjectNull(yandexYtsaurusClusterSpecProxyHttpModelType.AttrTypes)
+	}
+	if target.Rpc.IsUnknown() || target.Rpc.IsNull() {
+		target.Rpc = types.ObjectNull(yandexYtsaurusClusterSpecProxyRpcModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecProxyModelType = types.ObjectType{
@@ -896,6 +1059,13 @@ func NewYandexYtsaurusClusterSpecProxyHttpModel() yandexYtsaurusClusterSpecProxy
 	}
 }
 
+func yandexYtsaurusClusterSpecProxyHttpModelFillUnknown(target yandexYtsaurusClusterSpecProxyHttpModel) yandexYtsaurusClusterSpecProxyHttpModel {
+	if target.Count.IsUnknown() || target.Count.IsNull() {
+		target.Count = types.Int64Null()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecProxyHttpModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"count": types.Int64Type,
@@ -944,6 +1114,13 @@ func NewYandexYtsaurusClusterSpecProxyRpcModel() yandexYtsaurusClusterSpecProxyR
 	return yandexYtsaurusClusterSpecProxyRpcModel{
 		Count: types.Int64Null(),
 	}
+}
+
+func yandexYtsaurusClusterSpecProxyRpcModelFillUnknown(target yandexYtsaurusClusterSpecProxyRpcModel) yandexYtsaurusClusterSpecProxyRpcModel {
+	if target.Count.IsUnknown() || target.Count.IsNull() {
+		target.Count = types.Int64Null()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecProxyRpcModelType = types.ObjectType{
@@ -996,6 +1173,16 @@ func NewYandexYtsaurusClusterSpecStorageModel() yandexYtsaurusClusterSpecStorage
 		Hdd: types.ObjectNull(yandexYtsaurusClusterSpecStorageHddModelType.AttrTypes),
 		Ssd: types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdModelType.AttrTypes),
 	}
+}
+
+func yandexYtsaurusClusterSpecStorageModelFillUnknown(target yandexYtsaurusClusterSpecStorageModel) yandexYtsaurusClusterSpecStorageModel {
+	if target.Hdd.IsUnknown() || target.Hdd.IsNull() {
+		target.Hdd = types.ObjectNull(yandexYtsaurusClusterSpecStorageHddModelType.AttrTypes)
+	}
+	if target.Ssd.IsUnknown() || target.Ssd.IsNull() {
+		target.Ssd = types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdModelType.AttrTypes)
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecStorageModelType = types.ObjectType{
@@ -1051,6 +1238,16 @@ func NewYandexYtsaurusClusterSpecStorageHddModel() yandexYtsaurusClusterSpecStor
 		Count:  types.Int64Null(),
 		SizeGb: types.Int64Null(),
 	}
+}
+
+func yandexYtsaurusClusterSpecStorageHddModelFillUnknown(target yandexYtsaurusClusterSpecStorageHddModel) yandexYtsaurusClusterSpecStorageHddModel {
+	if target.Count.IsUnknown() || target.Count.IsNull() {
+		target.Count = types.Int64Null()
+	}
+	if target.SizeGb.IsUnknown() || target.SizeGb.IsNull() {
+		target.SizeGb = types.Int64Null()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecStorageHddModelType = types.ObjectType{
@@ -1110,6 +1307,19 @@ func NewYandexYtsaurusClusterSpecStorageSsdModel() yandexYtsaurusClusterSpecStor
 	}
 }
 
+func yandexYtsaurusClusterSpecStorageSsdModelFillUnknown(target yandexYtsaurusClusterSpecStorageSsdModel) yandexYtsaurusClusterSpecStorageSsdModel {
+	if target.Count.IsUnknown() || target.Count.IsNull() {
+		target.Count = types.Int64Null()
+	}
+	if target.SizeGb.IsUnknown() || target.SizeGb.IsNull() {
+		target.SizeGb = types.Int64Null()
+	}
+	if target.Type.IsUnknown() || target.Type.IsNull() {
+		target.Type = types.StringNull()
+	}
+	return target
+}
+
 var yandexYtsaurusClusterSpecStorageSsdModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"count":   types.Int64Type,
@@ -1166,6 +1376,16 @@ func NewYandexYtsaurusClusterSpecTabletModel() yandexYtsaurusClusterSpecTabletMo
 		Count:  types.Int64Null(),
 		Preset: types.StringNull(),
 	}
+}
+
+func yandexYtsaurusClusterSpecTabletModelFillUnknown(target yandexYtsaurusClusterSpecTabletModel) yandexYtsaurusClusterSpecTabletModel {
+	if target.Count.IsUnknown() || target.Count.IsNull() {
+		target.Count = types.Int64Null()
+	}
+	if target.Preset.IsUnknown() || target.Preset.IsNull() {
+		target.Preset = types.StringNull()
+	}
+	return target
 }
 
 var yandexYtsaurusClusterSpecTabletModelType = types.ObjectType{

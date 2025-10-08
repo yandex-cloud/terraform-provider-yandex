@@ -42,6 +42,37 @@ func NewYandexOrganizationmanagerUserSshKeyModel() yandexOrganizationmanagerUser
 	}
 }
 
+func yandexOrganizationmanagerUserSshKeyModelFillUnknown(target yandexOrganizationmanagerUserSshKeyModel) yandexOrganizationmanagerUserSshKeyModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.Data.IsUnknown() || target.Data.IsNull() {
+		target.Data = types.StringNull()
+	}
+	if target.ExpiresAt.IsUnknown() || target.ExpiresAt.IsNull() {
+		target.ExpiresAt = types.StringNull()
+	}
+	if target.Fingerprint.IsUnknown() || target.Fingerprint.IsNull() {
+		target.Fingerprint = types.StringNull()
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
+		target.OrganizationId = types.StringNull()
+	}
+	if target.SubjectId.IsUnknown() || target.SubjectId.IsNull() {
+		target.SubjectId = types.StringNull()
+	}
+	if target.UserSshKeyId.IsUnknown() || target.UserSshKeyId.IsNull() {
+		target.UserSshKeyId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	return target
+}
+
 var yandexOrganizationmanagerUserSshKeyModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":      types.StringType,

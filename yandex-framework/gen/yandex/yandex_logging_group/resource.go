@@ -84,7 +84,6 @@ func (r *yandexLoggingGroupResource) Read(ctx context.Context, req resource.Read
 		id = state.LogGroupId.ValueString()
 	}
 	reqApi.SetLogGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -110,7 +109,6 @@ func (r *yandexLoggingGroupResource) Read(ctx context.Context, req resource.Read
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -162,7 +160,6 @@ func (r *yandexLoggingGroupResource) Create(ctx context.Context, req resource.Cr
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create log_group request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -190,14 +187,12 @@ func (r *yandexLoggingGroupResource) Create(ctx context.Context, req resource.Cr
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create log_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.LogGroupId = types.StringValue(createRes.Id)
 
 	reqApi := &logging.GetLogGroupRequest{}
 	reqApi.SetLogGroupId(plan.LogGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -221,7 +216,6 @@ func (r *yandexLoggingGroupResource) Create(ctx context.Context, req resource.Cr
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexLoggingGroupResource) Delete(ctx context.Context, req resource.De
 		id = state.LogGroupId.ValueString()
 	}
 	reqApi.SetLogGroupId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete log_group request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexLoggingGroupResource) Delete(ctx context.Context, req resource.De
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete log_group response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -364,7 +356,6 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update log_group request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -392,14 +383,12 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update log_group response: %s", validate.ProtoDump(updateRes)))
 
 		plan.LogGroupId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &logging.GetLogGroupRequest{}
 	reqApi.SetLogGroupId(plan.LogGroupId.ValueString())
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := loggingv1sdk.NewLogGroupClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -422,7 +411,6 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

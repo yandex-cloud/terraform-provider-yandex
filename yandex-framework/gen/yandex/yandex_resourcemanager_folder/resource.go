@@ -85,7 +85,6 @@ func (r *yandexResourcemanagerFolderResource) Read(ctx context.Context, req reso
 		id = state.FolderId.ValueString()
 	}
 	reqApi.SetFolderId(id)
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -111,7 +110,6 @@ func (r *yandexResourcemanagerFolderResource) Read(ctx context.Context, req reso
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -161,7 +159,6 @@ func (r *yandexResourcemanagerFolderResource) Create(ctx context.Context, req re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create folder request: %s", validate.ProtoDump(createReq)))
 
 	md := new(metadata.MD)
@@ -189,14 +186,12 @@ func (r *yandexResourcemanagerFolderResource) Create(ctx context.Context, req re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Create folder response: %s", validate.ProtoDump(createRes)))
 
 	plan.FolderId = types.StringValue(createRes.Id)
 
 	reqApi := &resourcemanager.GetFolderRequest{}
 	reqApi.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder request: %s", validate.ProtoDump(reqApi)))
 
 	md = new(metadata.MD)
@@ -220,7 +215,6 @@ func (r *yandexResourcemanagerFolderResource) Create(ctx context.Context, req re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {
@@ -268,7 +262,6 @@ func (r *yandexResourcemanagerFolderResource) Delete(ctx context.Context, req re
 	}
 	reqApi.SetFolderId(id)
 	reqApi.SetDeleteAfter(timestamppb.Now())
-
 	tflog.Debug(ctx, fmt.Sprintf("Delete folder request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
@@ -297,7 +290,6 @@ func (r *yandexResourcemanagerFolderResource) Delete(ctx context.Context, req re
 		)
 		return
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Delete folder response: %s", validate.ProtoDump(deleteRes)))
 }
 
@@ -356,7 +348,6 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 		if resp.Diagnostics.HasError() {
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update folder request: %s", validate.ProtoDump(updateReq)))
 
 		md := new(metadata.MD)
@@ -384,14 +375,12 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 			)
 			return
 		}
-
 		tflog.Debug(ctx, fmt.Sprintf("Update folder response: %s", validate.ProtoDump(updateRes)))
 
 		plan.FolderId = types.StringValue(updateRes.Id)
 	}
 	reqApi := &resourcemanager.GetFolderRequest{}
 	reqApi.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder request: %s", validate.ProtoDump(reqApi)))
 	md := new(metadata.MD)
 	res, err := resourcemanagerv1sdk.NewFolderClient(r.providerConfig.SDKv2).Get(ctx, reqApi, grpc.Header(md))
@@ -414,7 +403,6 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 			)
 		}
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("Read folder response: %s", validate.ProtoDump(res)))
 
 	if resp.Diagnostics.HasError() {

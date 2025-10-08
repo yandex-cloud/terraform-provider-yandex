@@ -48,6 +48,46 @@ func NewYandexKMSSymmetricKeyModel() yandexKMSSymmetricKeyModel {
 	}
 }
 
+func yandexKMSSymmetricKeyModelFillUnknown(target yandexKMSSymmetricKeyModel) yandexKMSSymmetricKeyModel {
+	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
+		target.CreatedAt = types.StringNull()
+	}
+	if target.DefaultAlgorithm.IsUnknown() || target.DefaultAlgorithm.IsNull() {
+		target.DefaultAlgorithm = types.StringNull()
+	}
+	if target.DeletionProtection.IsUnknown() || target.DeletionProtection.IsNull() {
+		target.DeletionProtection = types.BoolNull()
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
+	if target.Name.IsUnknown() || target.Name.IsNull() {
+		target.Name = types.StringNull()
+	}
+	if target.RotatedAt.IsUnknown() || target.RotatedAt.IsNull() {
+		target.RotatedAt = types.StringNull()
+	}
+	if target.RotationPeriod.IsUnknown() || target.RotationPeriod.IsNull() {
+		target.RotationPeriod = types.StringNull()
+	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
+	if target.SymmetricKeyId.IsUnknown() || target.SymmetricKeyId.IsNull() {
+		target.SymmetricKeyId = types.StringNull()
+	}
+	if target.ID.IsUnknown() || target.ID.IsNull() {
+		target.ID = types.StringNull()
+	}
+	return target
+}
+
 var yandexKMSSymmetricKeyModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":          types.StringType,
