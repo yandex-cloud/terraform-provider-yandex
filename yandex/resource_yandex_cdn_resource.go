@@ -497,16 +497,24 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		}
 	}
 
-	if rawOption, ok := d.GetOk("options.0.ignore_query_params"); ok {
+	if rawOption, ok := d.GetOkExists("options.0.ignore_query_params"); ok {
 		optionsSet = true
 
-		result.QueryParamsOptions = &cdn.ResourceOptions_QueryParamsOptions{
-			QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
-				IgnoreQueryString: &cdn.ResourceOptions_BoolOption{
-					Enabled: rawOption.(bool),
-					Value:   rawOption.(bool),
+		if rawOption.(bool) {
+			result.QueryParamsOptions = &cdn.ResourceOptions_QueryParamsOptions{
+				QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
+					IgnoreQueryString: &cdn.ResourceOptions_BoolOption{
+						Enabled: rawOption.(bool),
+						Value:   rawOption.(bool),
+					},
 				},
-			},
+			}
+		} else {
+			result.QueryParamsOptions = &cdn.ResourceOptions_QueryParamsOptions{
+				QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
+					IgnoreQueryString: &cdn.ResourceOptions_BoolOption{},
+				},
+			}
 		}
 	}
 
