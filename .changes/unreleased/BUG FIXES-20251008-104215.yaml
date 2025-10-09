@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix 16-1c, 17-1c and 18 pg version support in yandex_mdb_postgresql_cluster_v2'
-time: 2025-10-08T10:42:15.723807+03:00

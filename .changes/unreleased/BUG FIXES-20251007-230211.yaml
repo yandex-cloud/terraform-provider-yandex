@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'all: in generated datasources return warning when resource not found'
-time: 2025-10-07T23:02:11.917475+03:00
