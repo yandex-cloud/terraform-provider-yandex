@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'loadbalancer: revert lb_target_group resource to SDKv2 version'
-time: 2025-10-10T12:31:42.85179+03:00

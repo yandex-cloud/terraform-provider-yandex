@@ -2,6 +2,10 @@
 
 
 
+## 0.164.0 (October 10, 2025)
+##### BUG FIXES:
+* loadbalancer: revert lb_target_group resource to SDKv2 version
+
 ## 0.163.0 (October 9, 2025)
 ##### FEATURES:
 * postgresql: add pg 18 support
