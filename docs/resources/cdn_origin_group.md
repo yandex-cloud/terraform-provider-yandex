@@ -45,35 +45,35 @@ resource "yandex_cdn_origin_group" "my_group" {
 
 ### Required
 
-- `name` (String) The resource name.
-- `origin` (Block Set, Min: 1) A set of available origins, an origins group must contain at least one enabled origin with fields below. (see [below for nested schema](#nestedblock--origin))
+- `name` (String) Name of the origin group.
 
 ### Optional
 
-- `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
-- `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+- `folder_id` (String) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
+- `origin` (Block Set) A set of available origins. An origin group must contain at least one enabled origin. (see [below for nested schema](#nestedblock--origin))
+- `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore".
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `use_next` (Boolean) If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) The ID of the CDN origin group.
 
 <a id="nestedblock--origin"></a>
 ### Nested Schema for `origin`
 
 Required:
 
-- `source` (String) IP address or Domain name of your origin and the port.
+- `source` (String) IP address or Domain name of your origin and the port (e.g., `example.com:8080` or `192.0.2.1:80`).
 
 Optional:
 
-- `backup` (Boolean) Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
-- `enabled` (Boolean) The origin is enabled and used as a source for the CDN. Default `enabled`.
+- `backup` (Boolean) Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable. Default: `false`.
+- `enabled` (Boolean) The origin is enabled and used as a source for the CDN. Default: `true`.
 
 Read-Only:
 
-- `origin_group_id` (Number) The ID of a specific origin group.
+- `origin_group_id` (Number) The ID of the origin group that this origin belongs to.
 
 
 <a id="nestedblock--timeouts"></a>
@@ -81,7 +81,7 @@ Read-Only:
 
 Optional:
 
-- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 - `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 

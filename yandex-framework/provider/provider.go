@@ -20,6 +20,9 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cdn_origin_group"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cdn_resource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cdn_rule"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
@@ -279,6 +282,9 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 				billing_cloud_binding.BindingServiceInstanceCloudType,
 				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
+		cdn_origin_group.NewResource,
+		cdn_resource.NewResource,
+		cdn_rule.NewResource,
 		datasphere_project.NewResource,
 		datasphere_community.NewResource,
 		mdb_clickhouse_database.NewResource,
@@ -325,6 +331,9 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 				billing_cloud_binding.BindingServiceInstanceCloudType,
 				billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
+		cdn_origin_group.NewDataSource,
+		cdn_resource.NewDataSource,
+		cdn_rule.NewDataSource,
 		airflow_cluster.NewDatasource,
 		metastore_cluster.NewDatasource,
 		datasphere_project.NewDataSource,
