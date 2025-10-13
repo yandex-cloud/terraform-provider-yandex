@@ -103,7 +103,7 @@ func YandexLoggingGroupResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

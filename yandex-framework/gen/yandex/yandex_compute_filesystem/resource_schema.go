@@ -44,7 +44,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				Default:  int64default.StaticInt64(4096),
 
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
+					int64planmodifier.RequiresReplaceIfConfigured(),
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
@@ -133,7 +133,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -204,7 +204,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				Default:  float64default.StaticFloat64(150),
 
 				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.RequiresReplace(),
+					float64planmodifier.RequiresReplaceIfConfigured(),
 					float64planmodifier.UseStateForUnknown(),
 				},
 			},
@@ -232,7 +232,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				Default:  stringdefault.StaticString("network-hdd"),
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -252,7 +252,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

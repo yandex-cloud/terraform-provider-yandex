@@ -96,6 +96,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 					planmodifiers.NilRelaxedBool(),
+					planmodifiers.NullWriteOnlyBool(),
 				},
 			},
 
@@ -163,7 +164,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -182,7 +183,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

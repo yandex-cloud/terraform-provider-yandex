@@ -47,6 +47,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_symmetric_key_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kubernetes_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kubernetes_cluster_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lb_target_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_logging_group"
@@ -91,6 +92,7 @@ func GetProviderResources() []func() resource.Resource {
 		yandex_kms_symmetric_key.NewResource,
 		yandex_kms_symmetric_key_iam_binding.NewResource,
 		yandex_kms_symmetric_key_iam_member.NewResource,
+		yandex_lb_target_group.NewResource,
 		yandex_organizationmanager_group.NewResource,
 		yandex_organizationmanager_group_iam_member.NewResource,
 		yandex_organizationmanager_organization_iam_binding.NewResource,

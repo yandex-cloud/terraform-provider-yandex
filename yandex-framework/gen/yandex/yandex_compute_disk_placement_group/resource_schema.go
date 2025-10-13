@@ -111,7 +111,7 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

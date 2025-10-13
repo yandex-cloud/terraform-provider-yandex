@@ -325,7 +325,6 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_sws_advanced_rate_limiter_profile":                resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
 			"yandex_sws_waf_profile":                                  resourceYandexSmartwebsecurityWafWafProfile(),
 			"yandex_smartcaptcha_captcha":                             resourceYandexSmartcaptchaCaptcha(),
-			"yandex_lb_target_group":                                  resourceYandexLBTargetGroup(),
 		},
 	}
 

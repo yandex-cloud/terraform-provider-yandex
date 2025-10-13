@@ -67,7 +67,7 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -121,7 +121,7 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 				Default:  stringdefault.StaticString("INFINIBAND"),
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -190,7 +190,7 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},

@@ -41,7 +41,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -62,7 +62,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -83,7 +83,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -102,7 +102,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -122,7 +122,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

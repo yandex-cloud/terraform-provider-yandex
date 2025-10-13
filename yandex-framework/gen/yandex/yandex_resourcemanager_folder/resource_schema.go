@@ -38,7 +38,7 @@ func YandexResourcemanagerFolderResourceSchema(ctx context.Context) schema.Schem
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

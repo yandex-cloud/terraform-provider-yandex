@@ -152,7 +152,7 @@ func YandexKmsAsymmetricEncryptionKeyResourceSchema(ctx context.Context) schema.
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

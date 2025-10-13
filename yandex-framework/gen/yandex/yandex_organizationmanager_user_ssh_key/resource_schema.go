@@ -42,7 +42,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -108,7 +108,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -127,7 +127,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -149,7 +149,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -171,7 +171,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{

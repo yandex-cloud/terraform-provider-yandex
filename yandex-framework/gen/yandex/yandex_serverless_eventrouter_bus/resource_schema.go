@@ -137,7 +137,7 @@ func YandexServerlessEventrouterBusResourceSchema(ctx context.Context) schema.Sc
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},

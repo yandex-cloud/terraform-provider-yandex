@@ -136,6 +136,36 @@ func TestAccLBTargetGroup_basic(t *testing.T) {
 	})
 }
 
+func TestAccLBTargetGroup_dynamicBlock(t *testing.T) {
+	t.Parallel()
+
+	var tg loadbalancer.TargetGroup
+	tgName := acctest.RandomWithPrefix("tf-target-group")
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckLBTargetGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBTargetGroupDynamicBlock(tgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					resource.TestCheckResourceAttr(tgResource, "name", tgName),
+					resource.TestCheckResourceAttrSet(tgResource, "folder_id"),
+					resource.TestCheckResourceAttr(tgResource, "folder_id", folderID),
+					testAccCheckLBTargetGroupContainsLabel(&tg, "tf-label", "tf-label-value"),
+					testAccCheckLBTargetGroupContainsLabel(&tg, "empty-label", ""),
+					testAccCheckCreatedAtAttr(tgResource),
+					//testAccCheckLBTargetGroupValues(&tg, []string{}),
+				),
+			},
+			targetGroupImportStep(),
+		},
+	})
+}
+
 func TestAccLBTargetGroup_full(t *testing.T) {
 	t.Parallel()
 
@@ -299,4 +329,105 @@ resource "yandex_lb_target_group" "test-tg" {
   }
 }
 `, name)
+}
+
+func testAccLBTargetGroupDynamicBlock(name string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "test-iig"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "test-account"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_lb_target_group" "test-tg" {
+  name		= "%s"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  dynamic "target" {
+     for_each = [for v in yandex_compute_instance_group.group1.instances.* : {
+       subnet = v.network_interface.0.subnet_id,
+       ip     = v.network_interface.0.ip_address
+     }]
+
+    content {
+      subnet_id = target.value.subnet
+      address   = target.value.ip
+    }
+  }
+}
+`, getExampleFolderID(), name)
 }

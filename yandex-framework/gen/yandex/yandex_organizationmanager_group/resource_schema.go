@@ -124,7 +124,7 @@ func YandexOrganizationmanagerGroupResourceSchema(ctx context.Context) schema.Sc
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
