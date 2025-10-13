@@ -2,6 +2,10 @@
 
 
 
+## 0.165.0 (October 13, 2025)
+##### BUG FIXES:
+* loadbalancer: move yandex_lb_target_group to generated framework realisation
+
 ## 0.164.0 (October 10, 2025)
 ##### BUG FIXES:
 * loadbalancer: revert lb_target_group resource to SDKv2 version
