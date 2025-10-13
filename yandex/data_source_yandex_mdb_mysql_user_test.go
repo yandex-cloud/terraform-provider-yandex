@@ -17,9 +17,9 @@ func TestAccDataSourceMDBMySQLUser_basic(t *testing.T) {
 
 	clusterName := acctest.RandomWithPrefix("ds-mysql-user")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMySQLUserDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMySQLUserDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBMySQLUserConfig(clusterName, true),

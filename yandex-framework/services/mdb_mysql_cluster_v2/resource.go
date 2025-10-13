@@ -153,6 +153,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					stringvalidator.OneOf(
 						"5.7",
 						"8.0",
+						"8.4",
 					),
 				},
 			},

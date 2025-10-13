@@ -17,9 +17,9 @@ func TestAccDataSourceMDBMySQLDatabase_basic(t *testing.T) {
 
 	clusterName := acctest.RandomWithPrefix("ds-mysql-database")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMySQLDatabaseDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMySQLDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBMySQLDatabaseConfig(clusterName, true),

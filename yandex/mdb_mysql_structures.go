@@ -27,11 +27,17 @@ func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
 	return mysql.Cluster_Environment(v), nil
 }
 
-func getMySQLConfigFieldName(version string) string {
-	if version == "5.7" {
-		return "mysql_config_5_7"
+func getMySQLConfigFieldName(version string) (string, error) {
+	switch version {
+	case "5.7":
+		return "mysql_config_5_7", nil
+	case "8.0":
+		return "mysql_config_8_0", nil
+	case "8.4":
+		return "mysql_config_8_4", nil
+	default:
+		return "", fmt.Errorf("Unsupported MySQL version: %s", version)
 	}
-	return "mysql_config_8_0"
 }
 
 func expandMysqlDatabases(d *schema.ResourceData) ([]*mysql.DatabaseSpec, error) {
@@ -1328,6 +1334,14 @@ func convertSQLModes80ToInt32(sqlModes []config.MysqlConfig8_0_SQLMode) []int32 
 	return modes
 }
 
+func convertSQLModes84ToInt32(sqlModes []config.MysqlConfig8_4_SQLMode) []int32 {
+	modes := make([]int32, 0)
+	for _, v := range sqlModes {
+		modes = append(modes, int32(v))
+	}
+	return modes
+}
+
 func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map[string]string, error) {
 	sqlMode, err := mdbMySQLSettingsFieldsInfo.intSliceToString("sql_mode", modes)
 	if err != nil {
@@ -1351,6 +1365,10 @@ func flattenMySQLConfig(c *mysql.ClusterConfig) (map[string]string, error) {
 	var userConfig interface{}
 	var sqlModes []int32
 
+	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_4); ok {
+		userConfig = cf.MysqlConfig_8_4.UserConfig
+		sqlModes = convertSQLModes84ToInt32(cf.MysqlConfig_8_4.EffectiveConfig.SqlMode)
+	}
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_0); ok {
 		userConfig = cf.MysqlConfig_8_0.UserConfig
 		sqlModes = convertSQLModes80ToInt32(cf.MysqlConfig_8_0.EffectiveConfig.SqlMode)
@@ -1435,9 +1453,25 @@ func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.Con
 		}
 
 		return nil
+	} else if version == "8.4" {
+		cfg := &mysql.ConfigSpec_MysqlConfig_8_4{
+			MysqlConfig_8_4: &config.MysqlConfig8_4{},
+		}
+		if len(sdlModes) > 0 {
+			for _, v := range sdlModes {
+				cfg.MysqlConfig_8_4.SqlMode = append(cfg.MysqlConfig_8_4.SqlMode, config.MysqlConfig8_4_SQLMode(v))
+			}
+		}
+		configSpec.MysqlConfig = cfg
+
+		if err := expandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, cfg.MysqlConfig_8_4, "mysql_config.", true); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	return fmt.Errorf("unknown MySQL version: %s but '5.7' and '8.0' are only available", version)
+	return fmt.Errorf("unknown MySQL version: %s but '5.7', '8.0' and '8.4' are only available", version)
 }
 
 func expandMySQLSqlModes(d *schema.ResourceData) ([]int32, error) {
@@ -1560,11 +1594,17 @@ func isPasswordAuthPlugin(authPlugin mysql.AuthPlugin) bool {
 	}
 }
 
+// todo проверить настройки
 var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().
+	addType(config.MysqlConfig8_4{}).
 	addType(config.MysqlConfig8_0{}).
 	addType(config.MysqlConfig5_7{}).
 	addEnumGeneratedNames("default_authentication_plugin", config.MysqlConfig8_0_AuthPlugin_name).
 	addEnumGeneratedNames("transaction_isolation", config.MysqlConfig8_0_TransactionIsolation_name).
 	addEnumGeneratedNames("binlog_row_image", config.MysqlConfig8_0_BinlogRowImage_name).
 	addEnumGeneratedNames("slave_parallel_type", config.MysqlConfig8_0_SlaveParallelType_name).
+	addEnumGeneratedNames("log_slow_rate_type", config.MysqlConfig8_0_LogSlowRateType_name).
+	addEnumGeneratedNames("log_slow_filter_type", config.MysqlConfig8_0_LogSlowFilterType_name).
+	addEnumGeneratedNames("audit_log_policy", config.MysqlConfig8_0_AuditLogPolicy_name).
+	addEnumGeneratedNames("innodb_change_buffering", config.MysqlConfig8_0_InnodbChangeBuffering_name).
 	addSkipEnumGeneratedNames("sql_mode", config.MysqlConfig8_0_SQLMode_name, defaultStringOfEnumsCheck("sql_mode"), defaultStringCompare)

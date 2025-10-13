@@ -75,6 +75,7 @@ func expandDiskAutoScaling(ctx context.Context, dsa types.Object, diags *diag.Di
 var msVersionConfig = map[string]mysql.ConfigSpec_MysqlConfig{
 	"5.7": &mysql.ConfigSpec_MysqlConfig_5_7{},
 	"8.0": &mysql.ConfigSpec_MysqlConfig_8_0{},
+	"8.4": &mysql.ConfigSpec_MysqlConfig_8_4{},
 }
 
 func expandMySQLConfig(

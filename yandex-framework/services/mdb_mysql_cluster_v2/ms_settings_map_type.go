@@ -30,6 +30,10 @@ var msSettingsEnumNames = map[string]map[int32]string{
 	"binlog_row_image":              config.MysqlConfig8_0_BinlogRowImage_name,
 	"slave_parallel_type":           config.MysqlConfig8_0_SlaveParallelType_name,
 	"sql_mode.element":              config.MysqlConfig8_0_SQLMode_name,
+	"log_slow_rate_type":            config.MysqlConfig8_0_LogSlowRateType_name,
+	"log_slow_filter_type":          config.MysqlConfig8_0_LogSlowFilterType_name,
+	"audit_log_policy":              config.MysqlConfig8_0_AuditLogPolicy_name,
+	"innodb_change_buffering":       config.MysqlConfig8_0_InnodbChangeBuffering_name,
 }
 
 var msSettingsEnumValues = map[string]map[string]int32{
@@ -38,6 +42,10 @@ var msSettingsEnumValues = map[string]map[string]int32{
 	"binlog_row_image":              config.MysqlConfig8_0_BinlogRowImage_value,
 	"slave_parallel_type":           config.MysqlConfig8_0_SlaveParallelType_value,
 	"sql_mode.element":              config.MysqlConfig8_0_SQLMode_value,
+	"log_slow_rate_type":            config.MysqlConfig8_0_LogSlowRateType_value,
+	"log_slow_filter_type":          config.MysqlConfig8_0_LogSlowFilterType_value,
+	"audit_log_policy":              config.MysqlConfig8_0_AuditLogPolicy_value,
+	"innodb_change_buffering":       config.MysqlConfig8_0_InnodbChangeBuffering_value,
 }
 
 var listAttributes = map[string]struct{}{

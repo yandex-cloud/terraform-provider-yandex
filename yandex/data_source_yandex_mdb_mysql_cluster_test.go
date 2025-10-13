@@ -16,9 +16,9 @@ func TestAccDataSourceMDBMySQLCluster_byID(t *testing.T) {
 	mysqlDesc := "MySQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMysqlClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBMysqlClusterConfig(mysqlName, mysqlDesc, true),
@@ -37,9 +37,9 @@ func TestAccDataSourceMDBMySQLCluster_byName(t *testing.T) {
 	mysqlDesc := "MySQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMysqlClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBMysqlClusterConfig(mysqlName, mysqlDesc, false),
@@ -58,9 +58,9 @@ func TestAccDataSourceMDBMySQLCluster_diskEncryption(t *testing.T) {
 	mysqlDesc := "MySQL Cluster Terraform Datasource Test Disk Encryption"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMySQLClusterDiskEncrypted(mysqlName, mysqlDesc) + mdbMysqlClusterByNameConfig,

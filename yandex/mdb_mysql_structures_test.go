@@ -40,6 +40,9 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 					InnodbPrintAllDeadlocks: &wrappers.BoolValue{
 						Value: true,
 					},
+					AuditLogPolicy:        config.MysqlConfig5_7_LOGINS,
+					InnodbChangeBuffering: config.MysqlConfig5_7_INNODB_CHANGE_BUFFERING_INSERTS,
+					LogSlowRateType:       config.MysqlConfig5_7_SESSION,
 				},
 				EffectiveConfig: &config.MysqlConfig5_7{
 					SqlMode: []config.MysqlConfig5_7_SQLMode{
@@ -58,13 +61,13 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 	}
 
 	ethalon := map[string]string{
-		"audit_log_policy":                       "0",
-		"innodb_change_buffering":                "0",
+		"audit_log_policy":                       "LOGINS",
+		"innodb_change_buffering":                "INNODB_CHANGE_BUFFERING_INSERTS",
 		"binlog_transaction_dependency_tracking": "0",
 		"max_connections":                        "555",
 		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
 		"innodb_print_all_deadlocks":             "true",
-		"log_slow_rate_type":                     "0",
+		"log_slow_rate_type":                     "SESSION",
 	}
 
 	if !reflect.DeepEqual(ethalon, m) {
@@ -85,6 +88,9 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 					InnodbPrintAllDeadlocks: &wrappers.BoolValue{
 						Value: true,
 					},
+					AuditLogPolicy:        config.MysqlConfig8_0_LOGINS,
+					InnodbChangeBuffering: config.MysqlConfig8_0_INNODB_CHANGE_BUFFERING_INSERTS,
+					LogSlowRateType:       config.MysqlConfig8_0_SESSION,
 				},
 				EffectiveConfig: &config.MysqlConfig8_0{
 					SqlMode: []config.MysqlConfig8_0_SQLMode{
@@ -104,17 +110,65 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 
 	// TODO remove deep equal
 	ethalon := map[string]string{
-		"audit_log_policy":                       "0",
-		"innodb_change_buffering":                "0",
+		"audit_log_policy":                       "LOGINS",
+		"innodb_change_buffering":                "INNODB_CHANGE_BUFFERING_INSERTS",
 		"binlog_transaction_dependency_tracking": "0",
 		"max_connections":                        "555",
 		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
 		"innodb_print_all_deadlocks":             "true",
-		"log_slow_rate_type":                     "0",
+		"log_slow_rate_type":                     "SESSION",
 	}
 
 	if !reflect.DeepEqual(ethalon, m) {
 		t.Errorf("FlattenMySQLSettings fail: flatten 8_0 should return %v map but map is: %v", ethalon, m)
+	}
+}
+
+func TestFlattenMySQLSettings_8_4(t *testing.T) {
+	t.Parallel()
+
+	config := &mysql.ClusterConfig{
+		MysqlConfig: &mysql.ClusterConfig_MysqlConfig_8_4{
+			MysqlConfig_8_4: &config.MysqlConfigSet8_4{
+				UserConfig: &config.MysqlConfig8_4{
+					MaxConnections: &wrappers.Int64Value{
+						Value: 555,
+					},
+					InnodbPrintAllDeadlocks: &wrappers.BoolValue{
+						Value: true,
+					},
+					AuditLogPolicy:        config.MysqlConfig8_4_LOGINS,
+					InnodbChangeBuffering: config.MysqlConfig8_4_INNODB_CHANGE_BUFFERING_INSERTS,
+					LogSlowRateType:       config.MysqlConfig8_4_SESSION,
+				},
+				EffectiveConfig: &config.MysqlConfig8_4{
+					SqlMode: []config.MysqlConfig8_4_SQLMode{
+						config.MysqlConfig8_4_NO_BACKSLASH_ESCAPES,
+						config.MysqlConfig8_4_STRICT_ALL_TABLES,
+					},
+				},
+			},
+		},
+	}
+
+	m, err := flattenMySQLConfig(config)
+
+	if err != nil {
+		t.Errorf("FlattenMySQLSettings fail: flatten 8_4 error: %v", err)
+	}
+
+	// TODO remove deep equal
+	ethalon := map[string]string{
+		"audit_log_policy":           "LOGINS",
+		"innodb_change_buffering":    "INNODB_CHANGE_BUFFERING_INSERTS",
+		"max_connections":            "555",
+		"sql_mode":                   "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
+		"innodb_print_all_deadlocks": "true",
+		"log_slow_rate_type":         "SESSION",
+	}
+
+	if !reflect.DeepEqual(ethalon, m) {
+		t.Errorf("FlattenMySQLSettings fail: flatten 8_4 should return %v map but map is: %v", ethalon, m)
 	}
 }
 

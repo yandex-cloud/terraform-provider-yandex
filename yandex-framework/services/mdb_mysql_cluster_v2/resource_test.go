@@ -82,7 +82,7 @@ resource "yandex_vpc_security_group" "sgroup2" {
 
 `
 
-var msVersions = [...]string{"5.7", "8.0"}
+var msVersions = [...]string{"5.7", "8.0", "8.4"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_mysql_cluster_v2", &resource.Sweeper{
@@ -1501,6 +1501,8 @@ func testAccCheckClusterMysqlConfigExact(r *mysql.Cluster, expectedUserConfig in
 			cmpObj = r.GetConfig().GetMysqlConfig_5_7().GetUserConfig()
 		case *msconfig.MysqlConfig8_0:
 			cmpObj = r.GetConfig().GetMysqlConfig_8_0().GetUserConfig()
+		case *msconfig.MysqlConfig8_4:
+			cmpObj = r.GetConfig().GetMysqlConfig_8_4().GetUserConfig()
 		default:
 			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
 		}

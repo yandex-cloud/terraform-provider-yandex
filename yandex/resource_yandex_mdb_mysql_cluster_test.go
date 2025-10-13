@@ -118,9 +118,9 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMysqlClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create MySQL Cluster
 			{
@@ -263,9 +263,9 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMysqlClusterDestroy,
 		Steps: []resource.TestStep{
 			// Add new host
 			{
@@ -373,9 +373,9 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("mysql-restored-cluster")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMySQLClusterConfigRestore(clusterName, msRestoreBackupId, true),
@@ -408,9 +408,9 @@ func TestAccMDBMySQLCluster_EncryptedDisk(t *testing.T) {
 	mysqlName := acctest.RandomWithPrefix("tf-mysql-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			// Create MySQL Cluster with disk encryption
 			{
@@ -434,9 +434,9 @@ func TestAccMDBMySQLCluster_dropDiskEncryption(t *testing.T) {
 	clusterResource := "yandex_mdb_mysql_cluster.restore_with_encryption_test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMySQLClusterConfigRestoreDropEncryption(clusterName),
@@ -458,9 +458,9 @@ func TestAccMDBMySQLCluster_addDiskEncryption(t *testing.T) {
 	clusterResource := "yandex_mdb_mysql_cluster.restore_with_encryption_test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMySQLClusterConfigRestoreAddEncryption(clusterName),

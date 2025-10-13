@@ -31,11 +31,17 @@ func prepareVersionUpdateRequest(state, plan *Cluster) (*mysql.UpdateClusterRequ
 	}, diags
 }
 
-func getMySQLConfigFieldName(version string) string {
-	if version == "5.7" {
-		return "mysql_config_5_7"
+func getMySQLConfigFieldName(version string) (string, error) {
+	switch version {
+	case "5.7":
+		return "mysql_config_5_7", nil
+	case "8.0":
+		return "mysql_config_8_0", nil
+	case "8.4":
+		return "mysql_config_8_4", nil
+	default:
+		return "", fmt.Errorf("Unsupported MySQL version: %s", version)
 	}
-	return "mysql_config_8_0"
 }
 
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.UpdateClusterRequest, diag.Diagnostics) {
@@ -184,7 +190,12 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 
 		maps.Copy(attrsPlan, attrsState)
 		for attr := range attrsPlan {
-			request.UpdateMask.Paths = append(request.UpdateMask.Paths, fmt.Sprintf("config_spec.%s.%s", getMySQLConfigFieldName(plan.Version.ValueString()), attr))
+			myFieldName, err := getMySQLConfigFieldName(plan.Version.ValueString())
+			if err != nil {
+				diags.AddError("Invalid version", fmt.Sprintf("Details: %v", err))
+				return nil, diags
+			}
+			request.UpdateMask.Paths = append(request.UpdateMask.Paths, fmt.Sprintf("config_spec.%s.%s", myFieldName, attr))
 		}
 	}
 

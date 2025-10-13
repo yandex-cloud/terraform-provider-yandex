@@ -19,8 +19,8 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandomWithPrefix("tf-mysql")
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMySQLUserConfigStep1(clusterName),

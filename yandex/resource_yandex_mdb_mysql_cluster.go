@@ -64,7 +64,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the MySQL cluster. (allowed versions are: 5.7, 8.0).",
+				Description: "Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).",
 				Required:    true,
 			},
 			"resources": {
@@ -1010,7 +1010,11 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData, config *Config) (*
 
 	if d.HasChange("mysql_config") {
 		version := d.Get("version").(string)
-		updatePaths = append(updatePaths, "config_spec."+getMySQLConfigFieldName(version))
+		myFieldName, err := getMySQLConfigFieldName(version)
+		if err != nil {
+			return nil, err
+		}
+		updatePaths = append(updatePaths, fmt.Sprintf("config_spec.%s", myFieldName))
 	}
 
 	return &mysql.UpdateClusterRequest{
