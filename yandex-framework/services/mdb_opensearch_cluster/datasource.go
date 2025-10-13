@@ -160,6 +160,27 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 											Computed:            true,
 											ElementType:         types.StringType,
 										},
+										"disk_size_autoscaling": schema.SingleNestedAttribute{
+											Description: "Node group disk size autoscaling settings.",
+											Optional:    true,
+											Computed:    true,
+											Attributes: map[string]schema.Attribute{
+												"disk_size_limit": schema.Int64Attribute{
+													Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details.",
+													Computed:    true,
+												},
+												"planned_usage_threshold": schema.Int64Attribute{
+													Description: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
+													Optional:    true,
+													Computed:    true,
+												},
+												"emergency_usage_threshold": schema.Int64Attribute{
+													Description: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
+													Optional:    true,
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},

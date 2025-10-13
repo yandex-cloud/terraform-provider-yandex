@@ -19,17 +19,65 @@ type OpenSearchSubConfig struct {
 }
 
 type OpenSearchNode struct {
-	Name           types.String `tfsdk:"name"`
-	Resources      types.Object `tfsdk:"resources"`
-	HostsCount     types.Int64  `tfsdk:"hosts_count"`
-	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
-	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
-	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
-	Roles          types.Set    `tfsdk:"roles"`
+	Name                types.String `tfsdk:"name"`
+	Resources           types.Object `tfsdk:"resources"`
+	HostsCount          types.Int64  `tfsdk:"hosts_count"`
+	ZoneIDs             types.Set    `tfsdk:"zone_ids"`
+	SubnetIDs           types.List   `tfsdk:"subnet_ids"`
+	AssignPublicIP      types.Bool   `tfsdk:"assign_public_ip"`
+	Roles               types.Set    `tfsdk:"roles"`
+	DiskSizeAutoscaling types.Object `tfsdk:"disk_size_autoscaling"`
+}
+
+func (o OpenSearchNode) Equal(other OpenSearchNode) bool {
+	if !o.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !o.Resources.Equal(other.Resources) {
+		return false
+	}
+	if !o.HostsCount.Equal(other.HostsCount) {
+		return false
+	}
+	if !o.ZoneIDs.Equal(other.ZoneIDs) {
+		return false
+	}
+	if !o.SubnetIDs.Equal(other.SubnetIDs) {
+		return false
+	}
+	if !o.AssignPublicIP.Equal(other.AssignPublicIP) {
+		return false
+	}
+	if !o.Roles.Equal(other.Roles) {
+		return false
+	}
+
+	if (o.DiskSizeAutoscaling.IsUnknown() || o.DiskSizeAutoscaling.IsNull()) && (!other.DiskSizeAutoscaling.IsUnknown() && !other.DiskSizeAutoscaling.IsNull()) {
+		return false
+	}
+
+	if (other.DiskSizeAutoscaling.IsUnknown() || other.DiskSizeAutoscaling.IsNull()) && (!o.DiskSizeAutoscaling.IsUnknown() && !o.DiskSizeAutoscaling.IsNull()) {
+		return false
+	}
+
+	if !(o.DiskSizeAutoscaling.IsUnknown() || o.DiskSizeAutoscaling.IsNull()) && !(other.DiskSizeAutoscaling.IsUnknown() || other.DiskSizeAutoscaling.IsNull()) && !o.DiskSizeAutoscaling.Equal(other.DiskSizeAutoscaling) {
+		return false
+	}
+
+	return true
+}
+
+func (n OpenSearchNode) GetName() string {
+	return n.Name.ValueString()
 }
 
 func (n OpenSearchNode) GetResources() types.Object {
 	return n.Resources
+}
+
+func (n OpenSearchNode) GetDiskSizeAutoscaling() types.Object {
+	return n.DiskSizeAutoscaling
 }
 
 var OpenSearchSubConfigAttrTypes = map[string]attr.Type{
@@ -39,13 +87,14 @@ var OpenSearchSubConfigAttrTypes = map[string]attr.Type{
 
 var OpenSearchNodeType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"name":             types.StringType,
-		"resources":        types.ObjectType{AttrTypes: NodeResourceAttrTypes},
-		"hosts_count":      types.Int64Type,
-		"zone_ids":         types.SetType{ElemType: types.StringType},
-		"subnet_ids":       types.ListType{ElemType: types.StringType},
-		"assign_public_ip": types.BoolType,
-		"roles":            types.SetType{ElemType: types.StringType},
+		"name":                  types.StringType,
+		"resources":             types.ObjectType{AttrTypes: NodeResourceAttrTypes},
+		"hosts_count":           types.Int64Type,
+		"zone_ids":              types.SetType{ElemType: types.StringType},
+		"subnet_ids":            types.ListType{ElemType: types.StringType},
+		"assign_public_ip":      types.BoolType,
+		"roles":                 types.SetType{ElemType: types.StringType},
+		"disk_size_autoscaling": types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 	},
 }
 
@@ -140,14 +189,21 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 			return types.ListUnknown(OpenSearchNodeType), diags
 		}
 
+		diskSizeAutoscaling, diags := diskSizeAutoscalingToObject(ctx, v.GetDiskSizeAutoscaling())
+		if diags.HasError() {
+			diags.AddError("Failed to parse opensearch.node_groups.disk_size_autoscaling", fmt.Sprintf("Error while parsing disk_size_autoscaling for group: %s", groupName))
+			return types.ListUnknown(OpenSearchNodeType), diags
+		}
+
 		ret = append(ret, OpenSearchNode{
-			Name:           types.StringValue(v.GetName()),
-			Resources:      resources,
-			HostsCount:     types.Int64Value(v.GetHostsCount()),
-			ZoneIDs:        zoneIds,
-			SubnetIDs:      subnetIds,
-			AssignPublicIP: types.BoolValue(v.GetAssignPublicIp()),
-			Roles:          roles,
+			Name:                types.StringValue(v.GetName()),
+			Resources:           resources,
+			HostsCount:          types.Int64Value(v.GetHostsCount()),
+			ZoneIDs:             zoneIds,
+			SubnetIDs:           subnetIds,
+			AssignPublicIP:      types.BoolValue(v.GetAssignPublicIp()),
+			Roles:               roles,
+			DiskSizeAutoscaling: diskSizeAutoscaling,
 		})
 	}
 

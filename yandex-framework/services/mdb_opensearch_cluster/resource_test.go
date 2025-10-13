@@ -376,7 +376,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
-					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "analysis-icu", "repository-s3"),
+					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "analysis-icu", "mapper-murmur3"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
@@ -463,7 +463,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key2", "test_value2"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
-					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "repository-s3"),
+					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "analysis-icu"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "ANYTIME"),
 					func(s *terraform.State) error {
 						time.Sleep(1 * time.Minute)
@@ -1057,6 +1057,11 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_size          = 10737418240
           disk_type_id       = "network-ssd"
         }
+        disk_size_autoscaling = {
+          disk_size_limit = 12884901888
+          planned_usage_threshold = 75
+          emergency_usage_threshold = 90
+        }
       }
       node_groups {
         name             = "manager0"
@@ -1090,6 +1095,11 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           resource_preset_id = "s2.micro"
           disk_size          = 10737418240
           disk_type_id       = "network-ssd"
+        }
+        disk_size_autoscaling = {
+          disk_size_limit = 12884901888
+          planned_usage_threshold = 75
+          emergency_usage_threshold = 90
         }
       }
     }
@@ -1160,7 +1170,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id       = "network-ssd"
         }
       }
-      plugins = ["analysis-icu", "repository-s3"]
+      plugins = ["analysis-icu", "mapper-murmur3"]
     }
 
     dashboards {
@@ -1246,7 +1256,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id       = "network-ssd"
         }
       }
-      plugins = ["analysis-icu", "repository-s3"]
+      plugins = ["analysis-icu", "mapper-murmur3"]
     }
 
     dashboards {
@@ -1336,7 +1346,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id         = "network-ssd"
         }
       }
-      plugins = ["repository-s3"]
+      plugins = ["analysis-icu"]
     }
 
     dashboards {
@@ -1472,7 +1482,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id         = "network-ssd"
         }
       }
-      plugins = ["repository-s3"]
+      plugins = ["analysis-icu"]
     }
 
     dashboards {
@@ -1591,7 +1601,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id         = "network-ssd"
         }
       }
-      plugins = ["repository-s3"]
+      plugins = ["analysis-icu"]
     }
 
     dashboards {

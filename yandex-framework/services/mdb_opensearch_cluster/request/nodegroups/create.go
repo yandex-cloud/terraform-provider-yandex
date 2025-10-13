@@ -52,14 +52,21 @@ func PrepareOpenSearchCreate(ctx context.Context, cfg model.OpenSearchSubConfig)
 			roles = append(roles, opensearch.OpenSearch_GroupRole(roleId))
 		}
 
+		diskSizeAutoscaling, d := prepareDiskSizeAutoscaling(ctx, ng)
+		diags.Append(d...)
+		if diags.HasError() {
+			return nil, diags
+		}
+
 		result = append(result, &opensearch.OpenSearchCreateSpec_NodeGroup{
-			Name:           ng.Name.ValueString(),
-			Resources:      resources,
-			HostsCount:     ng.HostsCount.ValueInt64(),
-			ZoneIds:        zoneIDs,
-			SubnetIds:      subnetIDs,
-			AssignPublicIp: ng.AssignPublicIP.ValueBool(),
-			Roles:          roles,
+			Name:                ng.Name.ValueString(),
+			Resources:           resources,
+			HostsCount:          ng.HostsCount.ValueInt64(),
+			ZoneIds:             zoneIDs,
+			SubnetIds:           subnetIDs,
+			AssignPublicIp:      ng.AssignPublicIP.ValueBool(),
+			Roles:               roles,
+			DiskSizeAutoscaling: diskSizeAutoscaling,
 		})
 	}
 
@@ -128,5 +135,23 @@ func prepareResources(ctx context.Context, ng model.WithResources) (*opensearch.
 		ResourcePresetId: resource.ResourcePresetID.ValueString(),
 		DiskSize:         resource.DiskSize.ValueInt64(),
 		DiskTypeId:       resource.DiskTypeID.ValueString(),
+	}, diag.Diagnostics{}
+}
+
+func prepareDiskSizeAutoscaling(ctx context.Context, ng model.WithDiskSizeAutoscaling) (*opensearch.DiskSizeAutoscaling, diag.Diagnostics) {
+	r := ng.GetDiskSizeAutoscaling()
+	if r.IsUnknown() || r.IsNull() {
+		return &opensearch.DiskSizeAutoscaling{}, diag.Diagnostics{}
+	}
+
+	resource, diags := model.ParseNodeDiskSizeAutoscaling(ctx, ng)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return &opensearch.DiskSizeAutoscaling{
+		DiskSizeLimit:           resource.DiskSizeLimit.ValueInt64(),
+		PlannedUsageThreshold:   resource.PlannedUsageThreshold.ValueInt64(),
+		EmergencyUsageThreshold: resource.EmergencyUsageThreshold.ValueInt64(),
 	}, diag.Diagnostics{}
 }

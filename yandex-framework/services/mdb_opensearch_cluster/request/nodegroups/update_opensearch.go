@@ -190,6 +190,18 @@ func prepareUpdateOpenSearchRequest(clusterID string, plan, state openSearchNode
 		nodeGroupSpec.AssignPublicIp = plan.AssignPublicIp
 	}
 
+	if plan.DiskSizeAutoscaling != state.DiskSizeAutoscaling {
+		nodeGroupSpec.DiskSizeAutoscaling = plan.DiskSizeAutoscaling
+		planDiskSizeAutoscaling := plan.DiskSizeAutoscaling
+		stateDiskSizeAutoscaling := state.DiskSizeAutoscaling
+		paths = appendIfNotEqual(paths, planDiskSizeAutoscaling.DiskSizeLimit,
+			stateDiskSizeAutoscaling.DiskSizeLimit, "disk_size_autoscaling.disk_size_limit")
+		paths = appendIfNotEqual(paths, planDiskSizeAutoscaling.PlannedUsageThreshold,
+			stateDiskSizeAutoscaling.PlannedUsageThreshold, "disk_size_autoscaling.planned_usage_threshold")
+		paths = appendIfNotEqual(paths, planDiskSizeAutoscaling.EmergencyUsageThreshold,
+			stateDiskSizeAutoscaling.EmergencyUsageThreshold, "disk_size_autoscaling.emergency_usage_threshold")
+	}
+
 	return &opensearch.UpdateOpenSearchNodeGroupRequest{
 		ClusterId:     clusterID,
 		Name:          plan.Name,
