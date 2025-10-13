@@ -71,7 +71,7 @@ Read-Only:
 
 - `allowed_http_methods` (List of String) Allowed HTTP methods. HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.
 
-- `browser_cache_settings` (Block List) Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. **By default, browser caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--browser_cache_settings))
+- `browser_cache_settings` (Block List) Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. **By default, browser caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = 0`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--browser_cache_settings)) (see [below for nested schema](#nestedblock--options--browser_cache_settings))
 
 - `cache_http_headers` (List of String) HTTP headers to include in cache key. List HTTP headers that must be included in responses to clients.
 
@@ -83,7 +83,7 @@ Read-Only:
 
 - `disable_proxy_force_ranges` (Boolean) Disable proxy force ranges. Disabling proxy force ranges.
 
-- `edge_cache_settings` (Block List) Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings))
+- `edge_cache_settings` (Block List) Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = {"*" = 0}`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings)) (see [below for nested schema](#nestedblock--options--edge_cache_settings))
 
 - `enable_ip_url_signing` (Boolean) Enable IP/URL signing. Enable access limiting by IP addresses, option available only with setting secure_key.
 
@@ -125,9 +125,9 @@ Read-Only:
 
 Read-Only:
 
-- `cache_time` (Number) Browser cache time in seconds. Cache time in seconds for browsers. Must be between 0 and 31536000 (1 year).
+- `cache_time` (Number) Browser cache time in seconds. Cache time in seconds for browsers. Must be between 0 and 31536000 (1 year). Use `0` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.
 
-- `enabled` (Boolean) Enable browser caching. True - browser caching is enabled. False - browser caching is disabled. Use `enabled = false` to explicitly disable browser caching (which is enabled by default in Yandex CDN).
+- `enabled` (Boolean) Enable browser caching. True - browser caching is enabled with `cache_time` setting. False - browser caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable browser caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.
 
 
 
@@ -136,9 +136,9 @@ Read-Only:
 
 Read-Only:
 
-- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes. Cache time in seconds. Use `"*"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{"200" = 3600, "404" = 300}`).
+- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes. Cache time in seconds. Use `"*"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{"200" = 3600, "404" = 300}`). Use `{"*" = 0}` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.
 
-- `enabled` (Boolean) Enable edge caching. True - caching is enabled. False - caching is disabled. Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN).
+- `enabled` (Boolean) Enable edge caching. True - caching is enabled with `cache_time` settings. False - caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.
 
 
 

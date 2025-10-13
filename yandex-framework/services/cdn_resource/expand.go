@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
 )
 
@@ -373,16 +374,30 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 
 	edgeCache := edgeCacheModels[0]
 
+	// CRITICAL: Enabled field semantics in Yandex CDN API:
+	// - Enabled=true:  use values_variant (custom cache_time)
+	// - Enabled=false: ignore values_variant, use system default (345600)
+	//
+	// To DISABLE caching, API requires: Enabled=true, cache_time=0
+	// User-facing: enabled=false means "disable caching"
+	// We translate: enabled=false → Enabled=true + DefaultValue=0
+
 	// Determine enabled status (defaults to true if not set)
 	enabled := true
 	if !edgeCache.Enabled.IsNull() && !edgeCache.Enabled.IsUnknown() {
 		enabled = edgeCache.Enabled.ValueBool()
 	}
 
-	// If enabled=false, don't send block to API at all
-	// The API doesn't support storing disabled state - it simply omits the block
-	// Users should remove the block from config to disable the feature
+	// If user set enabled=false, they want to DISABLE caching
+	// API way to disable: send cache_time=0
 	if !enabled {
+		tflog.Debug(ctx, "EdgeCacheSettings: User set enabled=false, translating to cache_time=0 for API")
+		result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
+			Enabled: true, // API requires true to apply our value
+			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_DefaultValue{
+				DefaultValue: 0, // 0 = disable caching per proto spec
+			},
+		}
 		return
 	}
 
@@ -434,16 +449,24 @@ func expandBrowserCacheSettings(ctx context.Context, browserCacheList types.List
 
 	browserCache := browserCacheModels[0]
 
+	// CRITICAL: Same semantics as EdgeCacheSettings
+	// User-facing: enabled=false means "disable caching"
+	// API-facing: Enabled=true + Value=0 means "disable caching"
+
 	// Determine enabled status (defaults to true if not set)
 	enabled := true
 	if !browserCache.Enabled.IsNull() && !browserCache.Enabled.IsUnknown() {
 		enabled = browserCache.Enabled.ValueBool()
 	}
 
-	// If enabled=false, don't send block to API at all
-	// The API doesn't support storing disabled state - it simply omits the block
-	// Users should remove the block from config to disable the feature
+	// If user set enabled=false, they want to DISABLE caching
+	// API way to disable: send cache_time=0
 	if !enabled {
+		tflog.Debug(ctx, "BrowserCacheSettings: User set enabled=false, translating to cache_time=0 for API")
+		result.BrowserCacheSettings = &cdn.ResourceOptions_Int64Option{
+			Enabled: true, // API requires true to apply our value
+			Value:   0,    // 0 = disable caching per proto spec
+		}
 		return
 	}
 

@@ -471,11 +471,11 @@ func RewriteSchema() schema.ListNestedBlock {
 // EdgeCacheSettingsSchema returns the schema for edge_cache_settings block
 func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 	return schema.ListNestedBlock{
-		MarkdownDescription: "Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false`. To remove the configuration entirely, omit this block.",
+		MarkdownDescription: "Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = {\"*\" = 0}`. To remove the configuration entirely, omit this block.",
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
 				"enabled": schema.BoolAttribute{
-					MarkdownDescription: "True - caching is enabled. False - caching is disabled. Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN).",
+					MarkdownDescription: "True - caching is enabled with `cache_time` settings. False - caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.",
 					Optional:            true,
 					Computed:            true,
 					PlanModifiers: []planmodifier.Bool{
@@ -483,7 +483,7 @@ func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 					},
 				},
 				"cache_time": schema.MapAttribute{
-					MarkdownDescription: "Cache time in seconds. Use `\"*\"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{\"200\" = 3600, \"404\" = 300}`).",
+					MarkdownDescription: "Cache time in seconds. Use `\"*\"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{\"200\" = 3600, \"404\" = 300}`). Use `{\"*\" = 0}` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.",
 					ElementType:         types.Int64Type,
 					Optional:            true,
 					Computed:            true,
@@ -503,11 +503,11 @@ func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 // BrowserCacheSettingsSchema returns the schema for browser_cache_settings block
 func BrowserCacheSettingsSchema() schema.ListNestedBlock {
 	return schema.ListNestedBlock{
-		MarkdownDescription: "Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. **By default, browser caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false`. To remove the configuration entirely, omit this block.",
+		MarkdownDescription: "Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. **By default, browser caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = 0`. To remove the configuration entirely, omit this block.",
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
 				"enabled": schema.BoolAttribute{
-					MarkdownDescription: "True - browser caching is enabled. False - browser caching is disabled. Use `enabled = false` to explicitly disable browser caching (which is enabled by default in Yandex CDN).",
+					MarkdownDescription: "True - browser caching is enabled with `cache_time` setting. False - browser caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable browser caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.",
 					Optional:            true,
 					Computed:            true,
 					PlanModifiers: []planmodifier.Bool{
@@ -515,7 +515,7 @@ func BrowserCacheSettingsSchema() schema.ListNestedBlock {
 					},
 				},
 				"cache_time": schema.Int64Attribute{
-					MarkdownDescription: "Cache time in seconds for browsers. Must be between 0 and 31536000 (1 year).",
+					MarkdownDescription: "Cache time in seconds for browsers. Must be between 0 and 31536000 (1 year). Use `0` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.",
 					Optional:            true,
 					Computed:            true,
 					PlanModifiers: []planmodifier.Int64{
