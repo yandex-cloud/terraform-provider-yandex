@@ -13,8 +13,8 @@ resource "yandex_connectionmanager_connection" "test-connection" {
       managed_cluster_id = "cluster_id"
       auth = {
         user_password = {
-          username = "user"
-          password: {
+          user = "name"
+          password = {
             raw: "password"
           }
         }
