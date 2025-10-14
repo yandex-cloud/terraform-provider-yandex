@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'ydb_topic: fix removing consumers from topics'
+time: 2025-10-07T13:32:00.533289+03:00

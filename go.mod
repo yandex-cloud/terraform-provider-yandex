@@ -64,7 +64,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
 	github.com/yandex-cloud/go-sdk/v2 v2.11.0
-	github.com/ydb-platform/terraform-provider-ydb v0.0.28
+	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819

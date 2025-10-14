@@ -827,8 +827,8 @@ github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2 h1:YFttcg0q4wXnirKSCRNU7
 github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2/go.mod h1:+bFDGTAN2W39/sOee7ES9RldZEI/GfUu43B4mn4xefE=
 github.com/yandex-cloud/go-sdk/v2 v2.11.0 h1:K3Z0IyKkhEnvcDa0NUKm9ArB0yDL7Nr1rgxTz8W2VH0=
 github.com/yandex-cloud/go-sdk/v2 v2.11.0/go.mod h1:aiib58mIEY7YiKbpViYZJtBvMjcskAvZ5w/TFshPRCg=
-github.com/ydb-platform/terraform-provider-ydb v0.0.28 h1:3/43dHuM3czIrWWl4tsMAdpt1erTQYRa7zP2CFmllUc=
-github.com/ydb-platform/terraform-provider-ydb v0.0.28/go.mod h1:yOLQKHyOTtnZMRjdN3Vzlxt/EIJXwUxU0XTaAlrUyeY=
+github.com/ydb-platform/terraform-provider-ydb v0.0.29 h1:oxqK74cOb7tEAaD5MwX3VcCBgnaCQs6y52j38e/faQk=
+github.com/ydb-platform/terraform-provider-ydb v0.0.29/go.mod h1:yOLQKHyOTtnZMRjdN3Vzlxt/EIJXwUxU0XTaAlrUyeY=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f h1:DQ4V9+FSvJbMFp7qVAfVEW5MHFhB2m0RyJ9KjglYID4=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f/go.mod h1:Er+FePu1dNUieD+XTMDduGpQuCPssK5Q4BjF+IIXJ3I=
 github.com/ydb-platform/ydb-go-sdk/v3 v3.115.7 h1:ZnjIktxylxgVrDIIygMIPqEH3wsmr/l9zx3I376sT0U=
