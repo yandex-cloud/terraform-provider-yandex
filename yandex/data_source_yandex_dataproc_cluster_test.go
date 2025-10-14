@@ -17,9 +17,9 @@ func TestAccDataSourceDataprocCluster_byName(t *testing.T) {
 		}`
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: config,
@@ -40,9 +40,9 @@ func TestAccDataSourceDataprocCluster_byId(t *testing.T) {
 		}`
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: config,

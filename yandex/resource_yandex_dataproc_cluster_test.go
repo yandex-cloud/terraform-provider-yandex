@@ -613,9 +613,9 @@ func TestAccDataprocCluster(t *testing.T) {
 	resourceName := "yandex_dataproc_cluster.tf-dataproc-cluster"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataprocClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocClusterConfig(t, templateParams),
