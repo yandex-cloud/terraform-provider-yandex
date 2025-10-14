@@ -21,7 +21,7 @@ const (
 
 func resourceYandexCDNOriginGroup() *schema.Resource {
 	return &schema.Resource{
-		Description: "Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/cdn/concepts/origins).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.\n",
+		Description: "Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/cdn/concepts/origins).",
 		Create:      resourceYandexCDNOriginGroupCreate,
 		Read:        resourceYandexCDNOriginGroupRead,
 		Update:      resourceYandexCDNOriginGroupUpdate,
@@ -82,7 +82,7 @@ func resourceYandexCDNOriginGroup() *schema.Resource {
 							Required:    true,
 						},
 						"origin_group_id": {
-							Type:        schema.TypeInt,
+							Type:        schema.TypeString,
 							Description: "The ID of a specific origin group.",
 							Computed:    true,
 						},
@@ -209,7 +209,7 @@ func flattenYandexCDNOrigins(origins []*cdn.Origin) []map[string]interface{} {
 	for i := range origins {
 		om := make(map[string]interface{})
 
-		om["origin_group_id"] = origins[i].OriginGroupId
+		om["origin_group_id"] = fmt.Sprint(origins[i].OriginGroupId)
 		om["source"] = origins[i].Source
 		om["enabled"] = origins[i].Enabled
 		om["backup"] = origins[i].Backup

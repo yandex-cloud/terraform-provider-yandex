@@ -9,8 +9,6 @@ description: |-
 
 Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
 
-~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.
-
 ## Example usage
 
 ```terraform
@@ -47,7 +45,7 @@ resource "yandex_cdn_resource" "my_resource" {
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `options` (Block List, Max: 1) CDN Resource settings and options to tune CDN edge behavior. (see [below for nested schema](#nestedblock--options))
-- `origin_group_id` (Number) The ID of a specific origin group.
+- `origin_group_id` (String) The ID of a specific origin group.
 - `origin_group_name` (String) The name of a specific origin group.
 - `origin_protocol` (String) Protocol of origin resource. `http` or `https`.
 - `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"

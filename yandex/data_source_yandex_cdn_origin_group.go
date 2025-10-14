@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -17,7 +18,7 @@ func dataSourceYandexCDNOriginGroup() *schema.Resource {
 		Read:        dataSourceYandexCDNOriginGroupRead,
 		Schema: map[string]*schema.Schema{
 			"origin_group_id": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Description: "The ID of a specific origin group.",
 				Computed:    true,
 				Optional:    true,
@@ -56,7 +57,7 @@ func dataSourceYandexCDNOriginGroup() *schema.Resource {
 							Required:    true,
 						},
 						"origin_group_id": {
-							Type:        schema.TypeInt,
+							Type:        schema.TypeString,
 							Description: "The ID of a specific origin group.",
 							Computed:    true,
 						},
@@ -92,10 +93,9 @@ func dataSourceYandexCDNOriginGroupRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("error getting folder ID while reading CDN origin group: %s", err)
 	}
 
-	originGroupID := int64(d.Get("origin_group_id").(int))
-	_, originGroupNameOk := d.GetOk("name")
+	var originGroupID int64
 
-	if originGroupNameOk {
+	if _, originGroupNameOk := d.GetOk("name"); originGroupNameOk {
 		var (
 			err error
 		)
@@ -105,6 +105,8 @@ func dataSourceYandexCDNOriginGroupRead(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source cdn origin group by name: %v", err)
 		}
+	} else {
+		originGroupID, _ = strconv.ParseInt(d.Get("origin_group_id").(string), 10, 64)
 	}
 
 	request, err := func() (*cdn.GetOriginGroupRequest, error) {

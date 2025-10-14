@@ -22,7 +22,7 @@ func dataSourceYandexCDNResource() *schema.Resource {
 
 func dataSourceYandexCDNResourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.",
+		Description: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).",
 
 		SchemaVersion: 0,
 
@@ -70,7 +70,7 @@ func dataSourceYandexCDNResourceSchema() *schema.Resource {
 				Computed:    true,
 			},
 			"origin_group_id": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Description: "The ID of a specific origin group.",
 				Computed:    true,
 			},

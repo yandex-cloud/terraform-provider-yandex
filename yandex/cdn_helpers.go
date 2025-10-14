@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,7 +58,7 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 		ResourceId: d.Id(),
 	}
 	if d.HasChange("origin_group_id") {
-		groupID := d.Get("origin_group_id").(int)
+		groupID, _ := strconv.ParseInt(d.Get("origin_group_id").(string), 10, 64)
 		if groupID > 0 {
 			request.OriginGroupId = &wrappers.Int64Value{
 				Value: int64(groupID),
@@ -175,9 +176,10 @@ func prepareCDNResourceLabels(d *schema.ResourceData) map[string]string {
 
 func prepareCDNResourceOriginVariant(ctx context.Context, meta *Config, folderID string, d *schema.ResourceData) (*cdn.CreateResourceRequest_Origin, error) {
 	if v, ok := d.GetOk("origin_group_id"); ok {
+		groupId, _ := strconv.ParseInt(v.(string), 10, 64)
 		return &cdn.CreateResourceRequest_Origin{
 			OriginVariant: &cdn.CreateResourceRequest_Origin_OriginGroupId{
-				OriginGroupId: int64(v.(int)),
+				OriginGroupId: groupId,
 			},
 		}, nil
 	}
@@ -545,7 +547,7 @@ func flattenCDNResource(resource *cdn.Resource) (map[string]any, error) {
 	res["provider_type"] = resource.ProviderType
 
 	res["origin_group_name"] = resource.OriginGroupName
-	res["origin_group_id"] = resource.OriginGroupId
+	res["origin_group_id"] = fmt.Sprint(resource.OriginGroupId)
 
 	if secondaryHostnames := flattenCDNResourceSecondaryNames(resource.SecondaryHostnames); secondaryHostnames != nil {
 		res["secondary_hostnames"] = secondaryHostnames
