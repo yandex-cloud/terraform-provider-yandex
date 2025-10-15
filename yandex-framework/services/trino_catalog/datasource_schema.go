@@ -46,6 +46,16 @@ func CatalogDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Configuration for Hive connector.",
 				MarkdownDescription: "Configuration for Hive connector.",
 			},
+			"hudi": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesDataSourceSchema(),
+					"file_system":           fileSystemDataSourceSchema(),
+					"metastore":             metastoreDataSourceSchema(),
+				},
+				Computed:            true,
+				Description:         "Configuration for Hudi connector.",
+				MarkdownDescription: "Configuration for Hudi connector.",
+			},
 			"iceberg": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesDataSourceSchema(),

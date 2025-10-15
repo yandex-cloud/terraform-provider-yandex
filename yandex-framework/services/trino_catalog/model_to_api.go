@@ -123,6 +123,13 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogMode
 		if state != nil && !plan.Iceberg.Equal(state.Iceberg) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.iceberg")
 		}
+	case plan.Hudi != nil:
+		hudi, dd := hudiConnectorToAPI(ctx, plan.Hudi)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Hudi{Hudi: hudi}
+		if state != nil && !plan.Hudi.Equal(state.Hudi) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.hudi")
+		}
 	case plan.Oracle != nil:
 		oracle, dd := oracleConnectorToAPI(ctx, plan.Oracle)
 		diags.Append(dd...)
@@ -356,6 +363,56 @@ func icebergConnectorToAPI(ctx context.Context, iceberg *Iceberg) (*trino.Iceber
 	diags.Append(iceberg.FileSystem.As(ctx, &fileSystem, baseOptions)...)
 
 	connector := &trino.IcebergConnector{
+		Metastore: &trino.Metastore{
+			Type: &trino.Metastore_Hive{
+				Hive: &trino.Metastore_HiveMetastore{
+					Connection: &trino.Metastore_HiveMetastore_Uri{
+						Uri: metastore.Uri.ValueString(),
+					},
+				},
+			},
+		},
+		Filesystem:           &trino.FileSystem{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !fileSystem.S3.IsNull() && !fileSystem.S3.IsUnknown():
+		s3 := S3{}
+		diags.Append(fileSystem.S3.As(ctx, &s3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_S3{
+			S3: &trino.FileSystem_S3FileSystem{},
+		}
+	case !fileSystem.ExternalS3.IsNull() && !fileSystem.ExternalS3.IsUnknown():
+		externalS3 := ExternalS3{}
+		diags.Append(fileSystem.ExternalS3.As(ctx, &externalS3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_ExternalS3{
+			ExternalS3: &trino.FileSystem_ExternalS3FileSystem{
+				AwsAccessKey: externalS3.AwsAccessKey.ValueString(),
+				AwsSecretKey: externalS3.AwsSecretKey.ValueString(),
+				AwsEndpoint:  externalS3.AwsEndpoint.ValueString(),
+				AwsRegion:    externalS3.AwsRegion.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func hudiConnectorToAPI(ctx context.Context, hudi *Hudi) (*trino.HudiConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+	additionalProperties := make(map[string]string, len(hudi.AdditionalProperties.Elements()))
+	diags.Append(hudi.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	metastore := Metastore{}
+	diags.Append(hudi.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	fileSystem := FileSystem{}
+	diags.Append(hudi.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+
+	connector := &trino.HudiConnector{
 		Metastore: &trino.Metastore{
 			Type: &trino.Metastore_Hive{
 				Hive: &trino.Metastore_HiveMetastore{

@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func CatalogResourceSchema(ctx context.Context) schema.Schema {
+func CatalogResourceSchema(_ context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"clickhouse": schema.SingleNestedAttribute{
@@ -53,6 +53,16 @@ func CatalogResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Configuration for Hive connector.",
 				MarkdownDescription: "Configuration for Hive connector.",
+			},
+			"hudi": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesSchema(),
+					"file_system":           fileSystemSchema(),
+					"metastore":             metastoreSchema(),
+				},
+				Optional:            true,
+				Description:         "Configuration for Hudi connector.",
+				MarkdownDescription: "Configuration for Hudi connector.",
 			},
 			"iceberg": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -271,21 +281,23 @@ func metastoreSchema() schema.SingleNestedAttribute {
 }
 
 type CatalogModel struct {
-	Clickhouse  *Clickhouse    `tfsdk:"clickhouse"`
-	DeltaLake   *DeltaLake     `tfsdk:"delta_lake"`
-	Description types.String   `tfsdk:"description"`
-	Hive        *Hive          `tfsdk:"hive"`
-	Iceberg     *Iceberg       `tfsdk:"iceberg"`
 	Id          types.String   `tfsdk:"id"`
-	ClusterId   types.String   `tfsdk:"cluster_id"`
-	Labels      types.Map      `tfsdk:"labels"`
 	Name        types.String   `tfsdk:"name"`
-	Oracle      *Oracle        `tfsdk:"oracle"`
-	Postgresql  *Postgresql    `tfsdk:"postgresql"`
-	Sqlserver   *Sqlserver     `tfsdk:"sqlserver"`
-	Tpcds       *Tpcds         `tfsdk:"tpcds"`
-	Tpch        *Tpch          `tfsdk:"tpch"`
+	ClusterId   types.String   `tfsdk:"cluster_id"`
+	Description types.String   `tfsdk:"description"`
+	Labels      types.Map      `tfsdk:"labels"`
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
+
+	Clickhouse *Clickhouse `tfsdk:"clickhouse"`
+	DeltaLake  *DeltaLake  `tfsdk:"delta_lake"`
+	Hive       *Hive       `tfsdk:"hive"`
+	Hudi       *Hudi       `tfsdk:"hudi"`
+	Iceberg    *Iceberg    `tfsdk:"iceberg"`
+	Oracle     *Oracle     `tfsdk:"oracle"`
+	Postgresql *Postgresql `tfsdk:"postgresql"`
+	Sqlserver  *Sqlserver  `tfsdk:"sqlserver"`
+	Tpcds      *Tpcds      `tfsdk:"tpcds"`
+	Tpch       *Tpch       `tfsdk:"tpch"`
 }
 
 var baseOptions = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
@@ -524,6 +536,40 @@ func NewIcebergNull() *Iceberg {
 }
 
 func (v *Iceberg) Equal(other *Iceberg) bool {
+	if (v == nil && other != nil) || (v != nil && other == nil) {
+		return false
+	}
+
+	if !v.AdditionalProperties.Equal(other.AdditionalProperties) {
+		return false
+	}
+
+	if !v.FileSystem.Equal(other.FileSystem) {
+		return false
+	}
+
+	if !v.Metastore.Equal(other.Metastore) {
+		return false
+	}
+
+	return true
+}
+
+type Hudi struct {
+	AdditionalProperties types.Map    `tfsdk:"additional_properties"`
+	FileSystem           types.Object `tfsdk:"file_system"`
+	Metastore            types.Object `tfsdk:"metastore"`
+}
+
+func NewHudiNull() *Hudi {
+	return &Hudi{
+		AdditionalProperties: types.MapNull(types.StringType),
+		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
+		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
+	}
+}
+
+func (v *Hudi) Equal(other *Hudi) bool {
 	if (v == nil && other != nil) || (v != nil && other == nil) {
 		return false
 	}

@@ -38,6 +38,11 @@ func CatalogToState(ctx context.Context, catalog *trino.Catalog, state *CatalogM
 			state.Hive = NewHiveNull()
 		}
 		diags.Append(hiveToModel(ctx, connector.Hive, state.Hive)...)
+	case *trino.Connector_Hudi:
+		if state.Hudi == nil {
+			state.Hudi = NewHudiNull()
+		}
+		diags.Append(hudiToModel(ctx, connector.Hudi, state.Hudi)...)
 	case *trino.Connector_Clickhouse:
 		if state.Clickhouse == nil {
 			state.Clickhouse = NewClickhouseNull()
@@ -121,6 +126,34 @@ func hiveToModel(ctx context.Context, hive *trino.HiveConnector, state *Hive) di
 	// Handle file system
 	if hive.Filesystem != nil {
 		fileSystemObject, dd := fileSystemToModel(ctx, state.FileSystem, hive.Filesystem)
+		diags.Append(dd...)
+		state.FileSystem = fileSystemObject
+	}
+
+	return diags
+}
+
+func hudiToModel(ctx context.Context, hudi *trino.HudiConnector, state *Hudi) diag.Diagnostics {
+	diags := diag.Diagnostics{}
+	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, hudi.AdditionalProperties)
+	diags.Append(dd...)
+	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
+		state.AdditionalProperties = additionalProperties
+	}
+
+	// Handle metastore
+	if hudi.Metastore != nil && hudi.Metastore.GetHive() != nil {
+		metastore := Metastore{
+			Uri: types.StringValue(hudi.Metastore.GetHive().GetUri()),
+		}
+		metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+		diags.Append(dd...)
+		state.Metastore = metastoreObject
+	}
+
+	// Handle file system
+	if hudi.Filesystem != nil {
+		fileSystemObject, dd := fileSystemToModel(ctx, state.FileSystem, hudi.Filesystem)
 		diags.Append(dd...)
 		state.FileSystem = fileSystemObject
 	}
