@@ -156,7 +156,7 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
 
 	config = {
 		password = "mySecre4tP@ssw0rd"
-	    version = "7.2"
+	    version = "8.1-valkey"
 	}
 
 	resources = {

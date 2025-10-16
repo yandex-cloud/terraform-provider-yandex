@@ -136,7 +136,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	network_id  = yandex_vpc_network.foo.id
 
 	cluster_config {
-		version = "6.0"
+		version = "8.0"
 	}
 
 	host {

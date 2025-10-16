@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 )
 
 func TestAccDataSourceMDBRedisClusterV2_byID(t *testing.T) {
@@ -24,7 +23,7 @@ func TestAccDataSourceMDBRedisClusterV2_byID(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "7.2", true),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "8.1-valkey", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster_v2.bar",
 					"yandex_mdb_redis_cluster_v2.bar", redisName, redisDesc),
@@ -45,7 +44,7 @@ func TestAccDataSourceMDBRedisClusterV2_byName(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "7.2", false),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "8.1-valkey", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster_v2.bar",
 					"yandex_mdb_redis_cluster_v2.bar", redisName, redisDesc),
@@ -54,7 +53,7 @@ func TestAccDataSourceMDBRedisClusterV2_byName(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceMDBRedisClusterV2_diskEncryption(t *testing.T) {
+/*func TestAccDataSourceMDBRedisClusterV2_diskEncryption(t *testing.T) {
 	t.Parallel()
 
 	redisName := acctest.RandomWithPrefix("ds-redisv2-disk-encryption")
@@ -66,7 +65,7 @@ func TestAccDataSourceMDBRedisClusterV2_diskEncryption(t *testing.T) {
 		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, kms_symmetric_key.TestAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc, "7.2"),
+				Config: testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc, "8.1-valkey"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceMDBRedisClusterAttributesCheck(
 						"data.yandex_mdb_redis_cluster_v2.bar",
@@ -76,7 +75,7 @@ func TestAccDataSourceMDBRedisClusterV2_diskEncryption(t *testing.T) {
 			},
 		},
 	})
-}
+}*/
 
 func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

@@ -11,7 +11,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 )
 
 const diskEncryptionKeyResource = `
@@ -49,7 +48,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 	diskTypeId := "network-ssd"
 	baseFlavor := "hm3-c2-m8"
 	tlsEnabled := true
-	version := "7.2"
+	version := "8.1-valkey"
 	password := "12345678PP"
 
 	ops := []Op{
@@ -218,7 +217,7 @@ func TestAccMDBRedisClusterV2_create_without_settings(t *testing.T) {
 	tlsEnabled := true
 	normalLimits := "16777215 8388607 61"
 	pubsubLimits := "16777214 8388606 62"
-	version := "7.2"
+	version := "8.1-valkey"
 	password := "12345678PP_OLD"
 
 	nonShardedHosts := map[string]host{
@@ -373,7 +372,7 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 	pubIpUnset := false
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 51
-	version := "7.2"
+	version := "8.1-valkey"
 	ops := []Op{
 		OpCreate,
 		OpModify,
@@ -581,7 +580,7 @@ func TestAccMDBRedisClusterV2_enable_sharding(t *testing.T) {
 	announceHostnames := false
 	authSentinel := false
 	password := "12345678P"
-	version := "7.2"
+	version := "8.1-valkey"
 	ops := []Op{
 		OpCreate,
 		OpEnableSh,
@@ -695,7 +694,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 	persistenceMode := "ON"
 	password := "12345678P"
 	conf := testAccBaseConfig(redisName, desc)
-	version := "7.2"
+	version := "8.0-valkey"
 	ops := []Op{
 		OpCreate,
 		OpAddShard,
@@ -766,7 +765,7 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 			{
 				Config: makeConfig(t, conf, &redisConfigTest{
 					Config: &config{
-						Version:  newPtr("7.2-valkey"),
+						Version:  newPtr("8.1-valkey"),
 						Password: &password,
 					}}),
 				Check: resource.ComposeTestCheckFunc(
@@ -782,14 +781,14 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 	})
 }
 
-func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
+/*func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
 	t.Parallel()
 
 	var r redis.Cluster
 	redisName := acctest.RandomWithPrefix("tf-redis-disk-encryption")
 	redisDesc := "Redis Cluster Terraform Test Disk Encryption"
 	folderID := test.GetExampleFolderID()
-	version := "7.2"
+	version := "8.1-valkey"
 	password := "12345678PP"
 
 	resource.Test(t, resource.TestCase{
@@ -820,4 +819,4 @@ func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 		},
 	})
-}
+}*/

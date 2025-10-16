@@ -116,12 +116,12 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 61
 
-	for _, version := range []string{"7.2"} {
-		//updateVersion := "7.2"
+	for _, version := range []string{"8.0-valkey"} {
+		updateVersion := "8.1-valkey"
 		resource.Test(t, resource.TestCase{
-			PreCheck:     func() { testAccPreCheck(t) },
-			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+			CheckDestroy:             testAccCheckVPCNetworkDestroy,
 			Steps: []resource.TestStep{
 				// Create Redis Cluster
 				{
@@ -249,7 +249,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				},
 				mdbRedisClusterImportStep(redisResource),
 				// Upgrade version
-				/*{
+				{
 					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, &announceHostnames, &authSentinel, persistenceMode,
 						updateVersion, updatedFlavor, updatedDiskSize, "",
 						[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
@@ -258,9 +258,9 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, updateVersion,
 							normalUpdatedLimits, pubsubUpdatedLimits, 65, 3333, 9,
-							false, false, false, 13, 12, false, false, true, false),
+							false, false, false, 13, 12, false, false, true, false, 128),
 					),
-				},*/
+				},
 				mdbRedisClusterImportStep(redisResource),
 			},
 		})
@@ -284,12 +284,12 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 	pubsubLimits := "16777214 8388606 62"
 	pubIpUnset := false
 	baseReplicaPriority := 100
-	for _, version := range []string{"7.2"} {
+	for _, version := range []string{"8.1-valkey"} {
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:     func() { testAccPreCheck(t) },
-			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+			CheckDestroy:             testAccCheckVPCNetworkDestroy,
 			Steps: []resource.TestStep{
 				// Create Redis Cluster
 				{
@@ -381,7 +381,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 51
 
-	for _, version := range []string{"7.2"} {
+	for _, version := range []string{"8.1-valkey"} {
 		// don't check disabling for 6.2 (limited in API) until we use rdsync
 		if version == "6.2" {
 			announceHostnamesChanged = true
@@ -389,9 +389,9 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 			announceHostnamesChanged = false
 		}
 		resource.Test(t, resource.TestCase{
-			PreCheck:     func() { testAccPreCheck(t) },
-			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+			CheckDestroy:             testAccCheckVPCNetworkDestroy,
 			Steps: []resource.TestStep{
 				// Create Redis Cluster
 				{
@@ -517,11 +517,11 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	persistenceMode := "ON"
 	persistenceModeChanged := "OFF"
 
-	for _, version := range []string{"7.2"} {
+	for _, version := range []string{"8.1-valkey"} {
 		resource.Test(t, resource.TestCase{
-			PreCheck:     func() { testAccPreCheck(t) },
-			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+			CheckDestroy:             testAccCheckVPCNetworkDestroy,
 			Steps: []resource.TestStep{
 				// Create Redis Cluster
 				{
@@ -571,9 +571,9 @@ func TestAccMDBRedisCluster_EncryptedDisk(t *testing.T) {
 	redisName := acctest.RandomWithPrefix("tf-redis-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			// Create Redis Cluster with disk encryption
 			{
@@ -1536,7 +1536,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	lfu_log_factor = 10
 	turn_before_switchover = true
 	allow_data_loss = true
-    version  = "7.2"
+    version  = "8.1-valkey"
   }
 
   resources {

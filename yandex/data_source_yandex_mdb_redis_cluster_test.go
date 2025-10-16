@@ -17,13 +17,13 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 	persistenceMode := "OFF"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, nil, persistenceMode,
-					"7.2", true),
+					"8.1-valkey", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, nil, persistenceMode),
@@ -43,13 +43,13 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 	authSentinel := true
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, &authSentinel, persistenceMode,
-					"7.2", false),
+					"8.1-valkey", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, &authSentinel, persistenceMode),
@@ -65,9 +65,9 @@ func TestAccDataSourceMDBRedisCluster_diskEncryption(t *testing.T) {
 	redisDesc := "Redis Cluster Terraform Datasource Test Disk Encryption"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBRedisClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterDiskEncryptionConfig(redisName, redisDesc),

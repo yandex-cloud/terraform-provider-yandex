@@ -32,7 +32,7 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 			"hours":   3,
 			"minutes": 4,
 		},
-		"Version":   "6.0",
+		"Version":   "8.0",
 		"Databases": []string{"testdb"},
 		"Users": []*mongodb.UserSpec{
 			{
@@ -71,9 +71,9 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 	datasourceName := "data.yandex_mdb_mongodb_cluster.bar"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMDBMongoDBClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMongoDBClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: makeConfig(t, &configData, nil) + mdbMongoDBClusterByNameConfig,
@@ -108,9 +108,9 @@ func TestAccDataSourceMDBMongoDBCluster_diskEncryption(t *testing.T) {
 	mongoDesc := "MongoDB Cluster Terraform Datasource Test Disk Encryption"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMongoDBClusterDiskEncrypted(mongoName, mongoDesc) + mdbMongoDBClusterByNameConfig,

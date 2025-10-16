@@ -23,8 +23,8 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:c9qhh0gi4hn06qkdoqke"
-const mongodbRestoreBackupIdEncrypted = "c9q1omobes6h1t4bmm5b:mdbat7o7b0mptt3btvi3"
+const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:mdb948pf5jgli93dbujp"
+const mongodbRestoreBackupIdEncrypted = "c9q1omobes6h1t4bmm5b:mdbos8dlgnfe5nqvt5nl"
 
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
 
@@ -578,10 +578,10 @@ func mdbMongoDBClusterImportStep() resource.TestStep {
 	}
 }
 
-func create6_0ConfigData() map[string]interface{} {
+func create8_0ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":              "6.0",
-		"CompatibilityVersion": "6.0",
+		"Version":              "8.0",
+		"CompatibilityVersion": "8.0",
 		"ClusterName":          acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment":          "PRESTABLE",
 		"Lables":               map[string]string{"test_key": "test_value"},
@@ -627,7 +627,7 @@ func create6_0ConfigData() map[string]interface{} {
 
 func createRestoreConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "6.0",
+		"Version":     "8.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Restore": map[string]string{
 			"BackupId": mongodbRestoreBackupId,
@@ -677,19 +677,19 @@ func createRestoreConfigData() map[string]interface{} {
 }
 
 // Test that a MongoDB Cluster can be created, updated and destroyed
-func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0ConfigData()
+	configData := create8_0ConfigData()
 	clusterName := configData["ClusterName"].(string)
 
 	var r mongodb.Cluster
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckVPCNetworkDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckVPCNetworkDestroy,
 		Steps: []resource.TestStep{
 			// Create MongoDB Cluster
 			{
@@ -699,7 +699,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					//todo set compatibility_version doesn't work in create method , change test after fix in api
-					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "6.0"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "8.0"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "10"),
@@ -783,7 +783,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 						},
 					},
 					"DeletionProtection":   nil,
-					"CompatibilityVersion": "5.0",
+					"CompatibilityVersion": "7.0",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
@@ -796,7 +796,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "20"),
-					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "5.0"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "7.0"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -945,9 +945,9 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 }
 
 // minimal configs for creation mongodb cluster
-func create6_0V1ConfigData() map[string]interface{} {
+func create8_0V1ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "6.0",
+		"Version":     "8.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Mongod":      map[string]interface{}{},
@@ -996,9 +996,9 @@ func create6_0V1ConfigData() map[string]interface{} {
 	}
 }
 
-func create6_0V0ConfigData() map[string]interface{} {
+func create8_0V0ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "6.0",
+		"Version":     "8.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Mongod":      map[string]interface{}{},
@@ -1031,10 +1031,10 @@ func create6_0V0ConfigData() map[string]interface{} {
 }
 
 // 3 tests for check backward compatibility and upgrade to new resources
-func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0NotShardedV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V0ConfigData()
+	configData := create8_0V0ConfigData()
 	configData["Hosts"] = mongoHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1054,8 +1054,8 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
 		DiskTypeId:       s2Small26hdd.DiskTypeId,
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1112,10 +1112,10 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
 	})
 }
 
-func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0ShardedCfgV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V0ConfigData()
+	configData := create8_0V0ConfigData()
 	configData["Hosts"] = shardedMongoCfgHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1145,8 +1145,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1280,10 +1280,10 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 	})
 }
 
-func TestAccMDBMongoDBCluster_6_0ShardedInfraV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0ShardedInfraV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V0ConfigData()
+	configData := create8_0V0ConfigData()
 	configData["Hosts"] = shardedMongoInfraHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1310,8 +1310,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV0(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1375,10 +1375,10 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV0(t *testing.T) {
 	})
 }
 
-func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0NotShardedV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V1ConfigData()
+	configData := create8_0V1ConfigData()
 	delete(configData, "ResourcesMongos")
 	delete(configData, "ResourcesMongoCfg")
 	delete(configData, "ResourcesMongoInfra")
@@ -1395,8 +1395,8 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 		DiskTypeId:       s2Small26hdd.DiskTypeId,
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1513,10 +1513,10 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V1ConfigData()
+	configData := create8_0V1ConfigData()
 	delete(configData, "ResourcesMongoInfra")
 	configData["Hosts"] = shardedMongoCfgHosts
 	clusterName := configData["ClusterName"].(string)
@@ -1553,8 +1553,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1724,10 +1724,10 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_8_0ShardedInfraV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V1ConfigData()
+	configData := create8_0V1ConfigData()
 	delete(configData, "ResourcesMongos")
 	delete(configData, "ResourcesMongoCfg")
 	configData["Hosts"] = shardedMongoInfraHosts
@@ -1755,8 +1755,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -1898,7 +1898,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 func TestAccMDBMongoDBCluster_enableSharding(t *testing.T) {
 	t.Parallel()
 
-	configData := create6_0V1ConfigData()
+	configData := create8_0V1ConfigData()
 	delete(configData, "ResourcesMongos")
 	delete(configData, "ResourcesMongoCfg")
 	delete(configData, "ResourcesMongoInfra")
@@ -1940,8 +1940,8 @@ func TestAccMDBMongoDBCluster_enableSharding(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -2034,8 +2034,8 @@ func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckMDBMongoDBClusterDestroy,
 			testAccCheckVPCNetworkDestroy,
@@ -2082,9 +2082,9 @@ func TestAccMDBMongoDBCluster_EncryptedDisk(t *testing.T) {
 	mongoName := acctest.RandomWithPrefix("tf-mongodb-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			// Create MongoDB Cluster with disk encryption
 			{
@@ -2111,9 +2111,9 @@ func TestAccMDBMongoDBCluster_dropDiskEncryption(t *testing.T) {
 	mongoName := acctest.RandomWithPrefix("tf-mongodb-drop-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMongoDBClusterConfigRestoreDropEncryption(mongoName),
@@ -2133,9 +2133,9 @@ func TestAccMDBMongoDBCluster_addDiskEncryption(t *testing.T) {
 	mongoName := acctest.RandomWithPrefix("tf-mongodb-add-disk-encryption")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMongoDBClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBMongoDBClusterConfigRestoreAddEncryption(mongoName),
@@ -2566,7 +2566,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   network_id     = "${yandex_vpc_network.foo.id}"
 
   cluster_config {
-    version = "6.0"
+    version = "8.0"
   }
 
   resources_mongod {
@@ -2599,7 +2599,7 @@ func testAccMDBMongoDBClusterConfigRestoreWithEncryption(clusterName string, bac
         }
 
         cluster_config {
-            version = "6.0"
+            version = "8.0"
         }
 
         resources_mongod {
