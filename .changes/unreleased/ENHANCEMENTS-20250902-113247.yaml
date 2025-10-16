@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'opensearch: avoid unnecessary update auth settings request during cluster creation'
-time: 2025-09-02T11:32:47.720708+03:00

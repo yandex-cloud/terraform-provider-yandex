@@ -2,6 +2,20 @@
 
 
 
+## 0.166.0 (October 16, 2025)
+##### FEATURES:
+* opensearch: add disk_size_autoscaling option
+* mysql: add 8.4 mysql version support
+* trino: add Hudi connector support
+##### BUG FIXES:
+* ydb_topic: fix removing consumers from topics
+* CDN: fix UpdateOriginGroup InvalidArgument("Name: required")
+##### ENHANCEMENTS:
+* opensearch: avoid unnecessary update auth settings request during cluster creation
+* dataproc: fixed acceptance tests
+##### WARNING:
+* CDN: fixed 'inconsistent final plan' by migrating origin_group_id to string. Call `terraform refresh` to migrate state
+
 ## 0.165.0 (October 13, 2025)
 ##### BUG FIXES:
 * loadbalancer: move yandex_lb_target_group to generated framework realisation

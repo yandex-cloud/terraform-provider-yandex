@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'CDN: fixed ''inconsistent final plan'' by migrating origin_group_id to string. Call `terraform refresh` to migrate state'
-time: 2025-10-14T13:21:29.214054+03:00
