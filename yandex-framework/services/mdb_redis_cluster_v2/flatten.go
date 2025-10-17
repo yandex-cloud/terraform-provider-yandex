@@ -22,6 +22,62 @@ func flattenAutoscaling(ctx context.Context, r *redis.DiskSizeAutoscaling) (type
 	return types.ObjectValueFrom(ctx, DiskSizeAutoscalingType.AttributeTypes(), a)
 }
 
+func flattenModules(ctx context.Context, r *redis.ValkeyModules) (types.Object, diag.Diagnostics) {
+	if r == nil {
+		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
+	}
+	a := ValkeyModules{}
+
+	// Only create module objects if the API returns non-nil values
+	if r.ValkeySearch != nil {
+		a.ValkeySearch = &ValkeySearch{
+			Enabled: types.BoolValue(r.ValkeySearch.GetEnabled()),
+		}
+		if r.ValkeySearch.ReaderThreads != nil {
+			a.ValkeySearch.ReaderThreads = types.Int64Value(r.ValkeySearch.GetReaderThreads().GetValue())
+		}
+		if r.ValkeySearch.WriterThreads != nil {
+			a.ValkeySearch.WriterThreads = types.Int64Value(r.ValkeySearch.GetWriterThreads().GetValue())
+		}
+	}
+
+	if r.ValkeyJson != nil {
+		a.ValkeyJson = &ValkeyJson{
+			Enabled: types.BoolValue(r.ValkeyJson.GetEnabled()),
+		}
+	}
+
+	if r.ValkeyBloom != nil {
+		a.ValkeyBloom = &ValkeyBloom{
+			Enabled: types.BoolValue(r.ValkeyBloom.GetEnabled()),
+		}
+	}
+
+	// If no modules are present, return null
+	if a.ValkeySearch == nil && a.ValkeyJson == nil && a.ValkeyBloom == nil {
+		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
+	}
+
+	// If all modules are disabled (default values), return null to maintain consistency
+	// with the plan when no modules are specified in the configuration
+	allDisabled := true
+	if a.ValkeySearch != nil && a.ValkeySearch.Enabled.ValueBool() {
+		allDisabled = false
+	}
+	if a.ValkeyJson != nil && a.ValkeyJson.Enabled.ValueBool() {
+		allDisabled = false
+	}
+	if a.ValkeyBloom != nil && a.ValkeyBloom.Enabled.ValueBool() {
+		allDisabled = false
+	}
+
+	if allDisabled {
+		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
+	}
+
+	return types.ObjectValueFrom(ctx, ValkeyModulesType.AttributeTypes(), a)
+}
+
 func flattenAccess(ctx context.Context, r *redis.Access) (types.Object, diag.Diagnostics) {
 	if r == nil {
 		return types.ObjectNull(AccessType.AttributeTypes()), nil

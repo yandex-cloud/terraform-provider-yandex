@@ -89,6 +89,17 @@ func testAccAllSettingsConfig(name, description, version string, baseDiskSize in
 			DiskSizeLimit:           newPtr(baseDiskSize * 2),
 			EmergencyUsageThreshold: newPtr(83),
 		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled: newPtr(false),
+			},
+			ValkeyJson: &valkeyJson{
+				Enabled: newPtr(true),
+			},
+			ValkeyBloom: &valkeyBloom{
+				Enabled: newPtr(false),
+			},
+		},
 		MaintenanceWindow: &maintenanceWindow{
 			Type: newPtr("WEEKLY"),
 			Hour: newPtr(1),
@@ -152,6 +163,19 @@ func testAccAllSettingsConfigChanged(name, description, version string, baseDisk
 		DiskSizeAutoscaling: &diskSizeAutoscaling{
 			DiskSizeLimit:           newPtr(baseDiskSize * 3),
 			EmergencyUsageThreshold: newPtr(84),
+		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled:       newPtr(true),
+				ReaderThreads: newPtr(3),
+				WriterThreads: newPtr(3),
+			},
+			ValkeyJson: &valkeyJson{
+				Enabled: newPtr(true),
+			},
+			ValkeyBloom: &valkeyBloom{
+				Enabled: newPtr(true),
+			},
 		},
 		MaintenanceWindow: &maintenanceWindow{
 			Type: newPtr("WEEKLY"),
@@ -217,6 +241,26 @@ type diskSizeAutoscaling struct {
 	EmergencyUsageThreshold *int
 }
 
+type valkeyModules struct {
+	ValkeySearch *valkeySearch
+	ValkeyJson   *valkeyJson
+	ValkeyBloom  *valkeyBloom
+}
+
+type valkeySearch struct {
+	Enabled       *bool
+	ReaderThreads *int
+	WriterThreads *int
+}
+
+type valkeyJson struct {
+	Enabled *bool
+}
+
+type valkeyBloom struct {
+	Enabled *bool
+}
+
 type backupWindowStart struct {
 	Hours   *int
 	Minutes *int
@@ -278,6 +322,7 @@ type redisConfigTest struct {
 	Hosts               map[string]host
 	Access              *access
 	DiskSizeAutoscaling *diskSizeAutoscaling
+	Modules             *valkeyModules
 	MaintenanceWindow   *maintenanceWindow
 	Config              *config
 }
@@ -391,6 +436,25 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
 	  {{with .DiskSizeLimit}} disk_size_limit  = {{.}} {{end}}
 	  {{with .PlannedUsageThreshold}} planned_usage_threshold  = {{.}} {{end}}
 	  {{with .EmergencyUsageThreshold}} emergency_usage_threshold  = {{.}} {{end}}
+  }
+  {{end}}
+
+  {{with .Modules}}
+  modules = {
+      {{with .ValkeySearch}} valkey_search = {
+		  {{with .Enabled}} enabled = {{.}} {{end}}
+		  {{with .ReaderThreads}} reader_threads = {{.}} {{end}}
+		  {{with .WriterThreads}} writer_threads = {{.}} {{end}}
+	  }
+	  {{end}}
+	  {{with .ValkeyBloom}} valkey_bloom = {
+		  {{with .Enabled}} enabled = {{.}} {{end}}
+	  }
+	  {{end}}
+	  {{with .ValkeyJson}} valkey_json = {
+		  {{with .Enabled}} enabled = {{.}} {{end}}
+	  }
+	  {{end}}
   }
   {{end}}
 

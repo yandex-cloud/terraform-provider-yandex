@@ -349,6 +349,54 @@ func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.Schema
 					},
 				},
 			},
+			"modules": schema.SingleNestedAttribute{
+				Computed:            true,
+				MarkdownDescription: "Valkey modules.",
+
+				Attributes: map[string]schema.Attribute{
+					"valkey_search": schema.SingleNestedAttribute{
+						Computed:            true,
+						MarkdownDescription: "Valkey search module settings.",
+
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Computed:            true,
+								MarkdownDescription: "Enable Valkey search module.",
+							},
+							"reader_threads": schema.Int64Attribute{
+								Computed:            true,
+								MarkdownDescription: "Number of reader threads.",
+							},
+							"writer_threads": schema.Int64Attribute{
+								Computed:            true,
+								MarkdownDescription: "Number of writer threads.",
+							},
+						},
+					},
+					"valkey_json": schema.SingleNestedAttribute{
+						Computed:            true,
+						MarkdownDescription: "Valkey json module settings.",
+
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Computed:            true,
+								MarkdownDescription: "Enable Valkey json module.",
+							},
+						},
+					},
+					"valkey_bloom": schema.SingleNestedAttribute{
+						Computed:            true,
+						MarkdownDescription: "Valkey bloom module settings.",
+
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Computed:            true,
+								MarkdownDescription: "Enable Valkey bloom module.",
+							},
+						},
+					},
+				},
+			},
 			"maintenance_window": schema.SingleNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Maintenance window settings of the Redis cluster.",

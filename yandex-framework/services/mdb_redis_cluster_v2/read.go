@@ -57,6 +57,9 @@ func clusterRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnost
 	state.DiskSizeAutoscaling, diags = flattenAutoscaling(ctx, cluster.GetConfig().GetDiskSizeAutoscaling())
 	diagnostics.Append(diags...)
 
+	state.Modules, diags = flattenModules(ctx, cluster.GetConfig().GetModules())
+	diagnostics.Append(diags...)
+
 	state.MaintenanceWindow = mdbcommon.FlattenMaintenanceWindow[
 		redis.MaintenanceWindow,
 		redis.WeeklyMaintenanceWindow,

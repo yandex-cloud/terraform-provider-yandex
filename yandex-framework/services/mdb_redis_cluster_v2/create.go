@@ -36,6 +36,9 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 	autoscaling, diags := expandAutoscaling(ctx, plan.DiskSizeAutoscaling)
 	diagnostics.Append(diags...)
 
+	modules, _, diags := expandModules(ctx, plan.Modules)
+	diagnostics.Append(diags...)
+
 	access, diags := expandAccess(ctx, plan.Access)
 	diagnostics.Append(diags...)
 
@@ -48,6 +51,7 @@ func prepareCreateRedisRequest(ctx context.Context, meta *provider_config.Config
 		Access:                 access,
 		Redis:                  conf,
 		DiskSizeAutoscaling:    autoscaling,
+		Modules:                modules,
 		BackupRetainPeriodDays: utils.Int64FromTF(plan.Config.BackupRetainPeriodDays),
 	}
 

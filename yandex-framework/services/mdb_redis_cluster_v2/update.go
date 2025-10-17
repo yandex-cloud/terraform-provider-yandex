@@ -81,6 +81,13 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.disk_size_autoscaling")
 	}
 
+	if !plan.Modules.Equal(state.Modules) {
+		paths := []string{}
+		req.ConfigSpec.Modules, paths, diags = expandModules(ctx, plan.Modules)
+		diagnostics.Append(diags...)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, paths...)
+	}
+
 	mask := plan.Config.EvalUpdateMask(state.Config)
 	if msk := mask; len(msk) > 0 {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, mask...)

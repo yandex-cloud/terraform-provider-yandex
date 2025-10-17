@@ -31,6 +31,7 @@ type Cluster struct {
 	DiskSizeAutoscaling types.Object `tfsdk:"disk_size_autoscaling"`
 	MaintenanceWindow   types.Object `tfsdk:"maintenance_window"`
 	Resources           types.Object `tfsdk:"resources"`
+	Modules             types.Object `tfsdk:"modules"`
 
 	Config   *Config        `tfsdk:"config"`
 	Timeouts timeouts.Value `tfsdk:"timeouts"`
@@ -72,6 +73,48 @@ var DiskSizeAutoscalingType = types.ObjectType{
 		"disk_size_limit":           types.Int64Type,
 		"planned_usage_threshold":   types.Int64Type,
 		"emergency_usage_threshold": types.Int64Type,
+	},
+}
+
+type ValkeyModules struct {
+	ValkeySearch *ValkeySearch `tfsdk:"valkey_search"`
+	ValkeyJson   *ValkeyJson   `tfsdk:"valkey_json"`
+	ValkeyBloom  *ValkeyBloom  `tfsdk:"valkey_bloom"`
+}
+
+type ValkeySearch struct {
+	Enabled       types.Bool  `tfsdk:"enabled"`
+	ReaderThreads types.Int64 `tfsdk:"reader_threads"`
+	WriterThreads types.Int64 `tfsdk:"writer_threads"`
+}
+
+type ValkeyJson struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+type ValkeyBloom struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+var ValkeyModulesType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"valkey_search": types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"enabled":        types.BoolType,
+				"reader_threads": types.Int64Type,
+				"writer_threads": types.Int64Type,
+			},
+		},
+		"valkey_json": types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"enabled": types.BoolType,
+			},
+		},
+		"valkey_bloom": types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"enabled": types.BoolType,
+			},
+		},
 	},
 }
 

@@ -507,6 +507,86 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 					objectplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"modules": schema.SingleNestedAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Valkey modules.",
+				Attributes: map[string]schema.Attribute{
+					"valkey_search": schema.SingleNestedAttribute{
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "Valkey search module settings.",
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+								MarkdownDescription: "Enable Valkey search module.",
+							},
+							"reader_threads": schema.Int64Attribute{
+								Optional: true,
+								Computed: true,
+								PlanModifiers: []planmodifier.Int64{
+									int64planmodifier.UseStateForUnknown(),
+								},
+								MarkdownDescription: "Number of reader threads.",
+							},
+							"writer_threads": schema.Int64Attribute{
+								Optional: true,
+								Computed: true,
+								PlanModifiers: []planmodifier.Int64{
+									int64planmodifier.UseStateForUnknown(),
+								},
+								MarkdownDescription: "Number of writer threads.",
+							},
+						},
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+					"valkey_json": schema.SingleNestedAttribute{
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "Valkey json module settings.",
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+								MarkdownDescription: "Enable Valkey json module.",
+							},
+						},
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+					"valkey_bloom": schema.SingleNestedAttribute{
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "Valkey bloom module settings.",
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+								MarkdownDescription: "Enable Valkey bloom module.",
+							},
+						},
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+				},
+				PlanModifiers: []planmodifier.Object{
+					modulesUseStateForUnknownWhenNotConfigured(),
+				},
+			},
 			"maintenance_window": schema.SingleNestedAttribute{
 				Optional:            true,
 				Computed:            true,

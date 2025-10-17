@@ -142,6 +142,11 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"disk_size_autoscaling.disk_size_limit",
 			"disk_size_autoscaling.planned_usage_threshold",
 			"disk_size_autoscaling.emergency_usage_threshold",
+			"config_spec.modules.valkey_search.enabled",
+			"config_spec.modules.valkey_search.reader_threads",
+			"config_spec.modules.valkey_search.writer_threads",
+			"config_spec.modules.valkey_bloom.enabled",
+			"config_spec.modules.valkey_json.enabled",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -186,7 +191,9 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.disk_size_limit", "32"),
 		//resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.planned_usage_threshold", "70"),
-		resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.emergency_usage_threshold", "83"),
+		resource.TestCheckResourceAttr(datasourceName, "modules.valkey_search.enabled", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "modules.valkey_json.enabled", "true"),
+		resource.TestCheckResourceAttr(datasourceName, "modules.valkey_bloom.enabled", "false"),
 	)
 }
 
