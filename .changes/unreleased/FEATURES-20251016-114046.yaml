@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'trino: added TLS configuration to cluster resource and datasource'
+time: 2025-10-16T11:40:46.688591+03:00

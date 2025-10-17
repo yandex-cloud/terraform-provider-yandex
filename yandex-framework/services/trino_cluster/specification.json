@@ -334,6 +334,25 @@
             }
           },
           {
+            "name": "tls",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "description": "Configuration for TLS.",
+              "attributes": [
+                {
+                  "name": "trusted_certificates",
+                  "list": {
+                    "computed_optional_required": "optional",
+                    "description": "Trusted CA-certificates. Each element should contain single self-signed CA-certificate or chain of CA-certificates where first certificate if leaf and last certificate is self-signed root.",
+                    "element_type": {
+                      "string": {}
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
             "name": "version",
             "string": {
               "computed_optional_required": "computed_optional",

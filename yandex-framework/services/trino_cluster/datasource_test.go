@@ -60,9 +60,9 @@ func trinoDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 			},
 			ExchangeManager: ExchangeManagerParams{},
 		},
-		Version: "476",
-	},
-	)
+		Version:      "476",
+		TrustedCerts: []string{caCert1},
+	})
 
 	var datasource string
 	if byID {
@@ -105,5 +105,6 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.min_level", "INFO"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "version", "476"),
+		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
 	)
 }

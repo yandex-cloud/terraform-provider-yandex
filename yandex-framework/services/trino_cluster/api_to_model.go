@@ -67,6 +67,14 @@ func ClusterToState(ctx context.Context, cluster *trino.Cluster, state *ClusterM
 	}
 	state.Worker = worker
 
+	tlsValue, diags := tlsValueFromAPI(ctx, cluster.GetTrino().GetTls())
+	if diags.HasError() {
+		return diags
+	}
+	if !tlsValuesAreEqual(state.Tls, tlsValue) {
+		state.Tls = tlsValue
+	}
+
 	retryPolicy, diags := retryPolicyValueFromAPI(ctx, cluster.GetTrino().GetRetryPolicy())
 	if diags.HasError() {
 		return diags
@@ -138,6 +146,21 @@ func workerValueFromAPI(ctx context.Context, cfg *trino.WorkerConfig) (WorkerVal
 	return value, diag.Diagnostics{}
 }
 
+func tlsValueFromAPI(ctx context.Context, cfg *trino.TLSConfig) (TlsValue, diag.Diagnostics) {
+	if cfg == nil {
+		return NewTlsValueNull(), diag.Diagnostics{}
+	}
+	trustedCertificates, diags := nullableStringSliceToList(ctx, cfg.GetTrustedCertificates())
+	if diags.HasError() {
+		return NewTlsValueUnknown(), diags
+	}
+	value := TlsValue{
+		state:               attr.ValueStateKnown,
+		TrustedCertificates: trustedCertificates,
+	}
+	return value, diags
+}
+
 func retryPolicyValueFromAPI(ctx context.Context, cfg *trino.RetryPolicyConfig) (RetryPolicyValue, diag.Diagnostics) {
 	if cfg == nil {
 		return NewRetryPolicyValueNull(), diag.Diagnostics{}
@@ -192,6 +215,14 @@ func nullableStringSliceToSet(ctx context.Context, s []string) (types.Set, diag.
 	}
 
 	return types.SetValueFrom(ctx, types.StringType, s)
+}
+
+func nullableStringSliceToList(ctx context.Context, s []string) (types.List, diag.Diagnostics) {
+	if s == nil {
+		return types.ListNull(types.StringType), diag.Diagnostics{}
+	}
+
+	return types.ListValueFrom(ctx, types.StringType, s)
 }
 
 func loggingValueFromAPI(cfg *trino.LoggingConfig) (LoggingValue, diag.Diagnostics) {

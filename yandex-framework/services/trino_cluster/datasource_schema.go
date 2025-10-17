@@ -190,6 +190,24 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				MarkdownDescription: "The list of VPC subnets identifiers which resource is attached.",
 			},
+			"tls": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"trusted_certificates": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Computed:            true,
+						Description:         "Trusted CA-certificates. Each element should contain single self-signed CA-certificate or chain of CA-certificates where first certificate if leaf and last certificate is self-signed root.",
+						MarkdownDescription: "Trusted CA-certificates. Each element should contain single self-signed CA-certificate or chain of CA-certificates where first certificate if leaf and last certificate is self-signed root.",
+					},
+				},
+				CustomType: TlsType{
+					ObjectType: types.ObjectType{
+						AttrTypes: TlsValue{}.AttributeTypes(ctx),
+					},
+				},
+				Computed:            true,
+				Description:         "Configuration for TLS.",
+				MarkdownDescription: "Configuration for TLS.",
+			},
 			"version": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Trino version. Format: \"Number\".",

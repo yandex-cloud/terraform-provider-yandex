@@ -3,6 +3,7 @@ package trino_cluster_test
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"fmt"
 	"os"
 	"testing"
@@ -15,6 +16,13 @@ import (
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+)
+
+var (
+	//go:embed test-data/CA1.pem
+	caCert1 string
+	//go:embed test-data/CA2.pem
+	caCert2 string
 )
 
 func infraResources(t *testing.T, randSuffix string) string {
@@ -68,6 +76,7 @@ type trinoClusterConfigParams struct {
 	AdditionalParams   bool
 	RetryPolicy        *RetryPolicyParams
 	Version            string
+	TrustedCerts       []string
 }
 
 type MaintenanceWindow struct {
@@ -132,6 +141,19 @@ resource "yandex_trino_cluster" "trino_cluster" {
 
   {{ if .Version }}
   version = "{{ .Version }}"
+  {{ end }}
+
+  {{ if .TrustedCerts }}
+  tls = {
+    trusted_certificates = [
+	{{ range .TrustedCerts}}
+<<EOT
+{{ . -}}
+EOT
+,
+	{{ end }}
+	]
+  }
   {{ end }}
 
   {{ if .Labels }}
@@ -291,7 +313,8 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							Count: 1,
 						},
 					},
-					Version: "468",
+					Version:      "468",
+					TrustedCerts: []string{caCert1},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -305,6 +328,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -339,7 +363,8 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							AdditionalProperties: map[string]string{},
 						},
 					},
-					Version: "476",
+					Version:      "476",
+					TrustedCerts: []string{caCert2},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -369,6 +394,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.update", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.delete", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "476"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert2),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -390,7 +416,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					},
 					Version: "468",
 				}),
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "subnet_ids.0"),
@@ -402,6 +428,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.#", "0"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),

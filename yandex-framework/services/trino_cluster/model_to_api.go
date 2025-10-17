@@ -47,6 +47,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 			WorkerConfig:      common.Worker,
 			RetryPolicy:       common.RetryPolicy,
 			Version:           common.Version,
+			Tls:               common.Tls,
 		},
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -72,6 +73,7 @@ type CommonForCreateAndUpdate struct {
 
 	Coordinator *trino.CoordinatorConfig
 	Worker      *trino.WorkerConfig
+	Tls         *trino.TLSConfig
 	RetryPolicy *trino.RetryPolicyConfig
 	Version     string
 
@@ -225,6 +227,18 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "trino.worker_config")
 	}
 
+	var tlsConfig *trino.TLSConfig
+	if !isNullOrUnknown(plan.Tls) {
+		trustedCertificates := make([]string, len(plan.Tls.TrustedCertificates.Elements()))
+		diags.Append(plan.Tls.TrustedCertificates.ElementsAs(ctx, &trustedCertificates, false)...)
+		tlsConfig = &trino.TLSConfig{
+			TrustedCertificates: trustedCertificates,
+		}
+	}
+	if state != nil && !tlsValuesAreEqual(state.Tls, plan.Tls) {
+		updateMaskPaths = append(updateMaskPaths, "trino.tls")
+	}
+
 	var retrPolicyConfig *trino.RetryPolicyConfig
 	if !isNullOrUnknown(plan.RetryPolicy.ExchangeManager) {
 		// ExchangeManager
@@ -317,6 +331,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		Coordinator:        coordinatorConfig,
 		Worker:             workerConfig,
 		MaintenanceWindow:  maintenanceWindow,
+		Tls:                tlsConfig,
 		RetryPolicy:        retrPolicyConfig,
 		Version:            version,
 	}
@@ -357,6 +372,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 			WorkerConfig:      common.workerConfigForUpdate(),
 			RetryPolicy:       common.RetryPolicy,
 			Version:           common.Version,
+			Tls:               common.Tls,
 		},
 		NetworkSpec: &trino.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,
@@ -417,4 +433,15 @@ func loggingValuesAreEqual(val1, val2 LoggingValue) bool {
 	}
 
 	return false
+}
+
+func tlsValuesAreEqual(a, b TlsValue) bool {
+	if a.Equal(b) {
+		return true
+	}
+	return isEmptyTlsValue(a) && isEmptyTlsValue(b)
+}
+
+func isEmptyTlsValue(t TlsValue) bool {
+	return t.IsNull() || (!t.IsUnknown() && len(t.TrustedCertificates.Elements()) == 0)
 }

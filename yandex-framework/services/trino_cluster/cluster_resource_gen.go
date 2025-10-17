@@ -240,6 +240,24 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					setplanmodifier.RequiresReplace(),
 				},
 			},
+			"tls": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"trusted_certificates": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Trusted CA-certificates. Each element should contain single self-signed CA-certificate or chain of CA-certificates where first certificate if leaf and last certificate is self-signed root.",
+						MarkdownDescription: "Trusted CA-certificates. Each element should contain single self-signed CA-certificate or chain of CA-certificates where first certificate if leaf and last certificate is self-signed root.",
+					},
+				},
+				CustomType: TlsType{
+					ObjectType: types.ObjectType{
+						AttrTypes: TlsValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Configuration for TLS.",
+				MarkdownDescription: "Configuration for TLS.",
+			},
 			"version": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -333,6 +351,7 @@ type ClusterModel struct {
 	SecurityGroupIds   types.Set              `tfsdk:"security_group_ids"`
 	ServiceAccountId   types.String           `tfsdk:"service_account_id"`
 	SubnetIds          types.Set              `tfsdk:"subnet_ids"`
+	Tls                TlsValue               `tfsdk:"tls"`
 	Version            types.String           `tfsdk:"version"`
 	Worker             WorkerValue            `tfsdk:"worker"`
 	Timeouts           timeouts.Value         `tfsdk:"timeouts"`
@@ -2769,6 +2788,356 @@ func (v ServiceS3Value) Type(ctx context.Context) attr.Type {
 
 func (v ServiceS3Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{}
+}
+
+var _ basetypes.ObjectTypable = TlsType{}
+
+type TlsType struct {
+	basetypes.ObjectType
+}
+
+func (t TlsType) Equal(o attr.Type) bool {
+	other, ok := o.(TlsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t TlsType) String() string {
+	return "TlsType"
+}
+
+func (t TlsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	trustedCertificatesAttribute, ok := attributes["trusted_certificates"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`trusted_certificates is missing from object`)
+
+		return nil, diags
+	}
+
+	trustedCertificatesVal, ok := trustedCertificatesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`trusted_certificates expected to be basetypes.ListValue, was: %T`, trustedCertificatesAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return TlsValue{
+		TrustedCertificates: trustedCertificatesVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTlsValueNull() TlsValue {
+	return TlsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewTlsValueUnknown() TlsValue {
+	return TlsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewTlsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (TlsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing TlsValue Attribute Value",
+				"While creating a TlsValue value, a missing attribute value was detected. "+
+					"A TlsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TlsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid TlsValue Attribute Type",
+				"While creating a TlsValue value, an invalid attribute value was detected. "+
+					"A TlsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TlsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("TlsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra TlsValue Attribute Value",
+				"While creating a TlsValue value, an extra attribute value was detected. "+
+					"A TlsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra TlsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewTlsValueUnknown(), diags
+	}
+
+	trustedCertificatesAttribute, ok := attributes["trusted_certificates"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`trusted_certificates is missing from object`)
+
+		return NewTlsValueUnknown(), diags
+	}
+
+	trustedCertificatesVal, ok := trustedCertificatesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`trusted_certificates expected to be basetypes.ListValue, was: %T`, trustedCertificatesAttribute))
+	}
+
+	if diags.HasError() {
+		return NewTlsValueUnknown(), diags
+	}
+
+	return TlsValue{
+		TrustedCertificates: trustedCertificatesVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTlsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) TlsValue {
+	object, diags := NewTlsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewTlsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t TlsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewTlsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewTlsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewTlsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewTlsValueMust(TlsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t TlsType) ValueType(ctx context.Context) attr.Value {
+	return TlsValue{}
+}
+
+var _ basetypes.ObjectValuable = TlsValue{}
+
+type TlsValue struct {
+	TrustedCertificates basetypes.ListValue `tfsdk:"trusted_certificates"`
+	state               attr.ValueState
+}
+
+func (v TlsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["trusted_certificates"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.TrustedCertificates.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["trusted_certificates"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v TlsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v TlsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v TlsValue) String() string {
+	return "TlsValue"
+}
+
+func (v TlsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var trustedCertificatesVal basetypes.ListValue
+	switch {
+	case v.TrustedCertificates.IsUnknown():
+		trustedCertificatesVal = types.ListUnknown(types.StringType)
+	case v.TrustedCertificates.IsNull():
+		trustedCertificatesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		trustedCertificatesVal, d = types.ListValue(types.StringType, v.TrustedCertificates.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"trusted_certificates": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"trusted_certificates": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"trusted_certificates": trustedCertificatesVal,
+		})
+
+	return objVal, diags
+}
+
+func (v TlsValue) Equal(o attr.Value) bool {
+	other, ok := o.(TlsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.TrustedCertificates.Equal(other.TrustedCertificates) {
+		return false
+	}
+
+	return true
+}
+
+func (v TlsValue) Type(ctx context.Context) attr.Type {
+	return TlsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v TlsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"trusted_certificates": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
 }
 
 var _ basetypes.ObjectTypable = WorkerType{}
