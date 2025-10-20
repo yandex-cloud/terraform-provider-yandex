@@ -167,7 +167,7 @@ Read-Only:
 
 
 
-<a id="nestedatt--ssl_certificate"></a>
+<a id="nestedblock--ssl_certificate"></a>
 ### Nested Schema for `ssl_certificate`
 
 Read-Only:

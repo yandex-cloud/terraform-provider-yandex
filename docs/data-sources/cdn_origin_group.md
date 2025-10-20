@@ -33,7 +33,7 @@ output "origin_group_name" {
 
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `name` (String) The resource name.
-- `origin_group_id` (String) The ID of a specific origin group.
+- `origin_group_id` (Number) The ID of a specific origin group.
 
 ### Read-Only
 
