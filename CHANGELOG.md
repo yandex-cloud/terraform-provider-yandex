@@ -2,6 +2,11 @@
 
 
 
+## 0.167.0 (October 20, 2025)
+##### FEATURES:
+* valkey: Add valkey-modules
+* trino: added TLS configuration to cluster resource and datasource
+
 ## 0.166.0 (October 16, 2025)
 ##### FEATURES:
 * opensearch: add disk_size_autoscaling option
