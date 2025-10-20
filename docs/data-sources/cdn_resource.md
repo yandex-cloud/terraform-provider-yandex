@@ -48,6 +48,7 @@ output "resource_cname" {
 - `provider_cname` (String) Provider CNAME of CDN resource, computed value for read and update operations.
 - `provider_type` (String) CDN provider is a content delivery service provider.
 - `secondary_hostnames` (Set of String) List of secondary hostname strings.
+- `shielding` (String) Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.
 - `ssl_certificate` (Set of Object) SSL certificate of CDN resource. (see [below for nested schema](#nestedatt--ssl_certificate))
 - `updated_at` (String) Last update timestamp. Computed value for read and update operations.
 

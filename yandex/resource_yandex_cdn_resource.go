@@ -122,6 +122,13 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 				Description: "The name of a specific origin group.",
 				Optional:    true,
 			},
+			"shielding": {
+				Type: schema.TypeString,
+				Description: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.\n" +
+					"Specify location id to enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding",
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validateCDNShieldingLocation),
+			},
 			"ssl_certificate": {
 				Type:        schema.TypeSet,
 				Description: "SSL certificate of CDN resource.",
@@ -452,6 +459,10 @@ func (c *cdnResource) Create(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
+	if err := updateShielding(ctx, d, config); err != nil {
+		return diag.FromErr(fmt.Errorf("updating shielding: %w", err))
+	}
+
 	return c.Read(ctx, d, meta)
 }
 
@@ -469,7 +480,12 @@ func (*cdnResource) Read(ctx context.Context, d *schema.ResourceData, meta any) 
 
 	log.Printf("[DEBUG] Completed Reading CDN Resource %q", d.Id())
 
-	res, err := flattenCDNResource(resource)
+	shielding, err := getShieldingLocation(ctx, d.Id(), config.sdk)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("reading shielding: %w", err))
+	}
+
+	res, err := flattenCDNResource(resource, shielding)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -515,8 +531,6 @@ func (c *cdnResource) Update(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.Errorf("cdn resource metadata type mismatch")
 	}
 
-	d.SetId(pm.ResourceId)
-
 	if err = operation.Wait(ctx); err != nil {
 		return diag.Errorf("error while requesting API to update CDN Resource: %s", err)
 	}
@@ -524,6 +538,12 @@ func (c *cdnResource) Update(ctx context.Context, d *schema.ResourceData, meta a
 	if _, err := operation.Response(); err != nil {
 		return diag.FromErr(err)
 	}
+
+	if err := updateShielding(ctx, d, config); err != nil {
+		return diag.FromErr(fmt.Errorf("updating shielding: %w", err))
+	}
+
+	d.SetId(pm.ResourceId)
 
 	log.Printf("[DEBUG] Completed updating CDN Resource %q", d.Id())
 	return c.Read(ctx, d, meta)

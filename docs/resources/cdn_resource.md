@@ -50,6 +50,8 @@ resource "yandex_cdn_resource" "my_resource" {
 - `origin_protocol` (String) Protocol of origin resource. `http` or `https`.
 - `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
 - `secondary_hostnames` (Set of String) List of secondary hostname strings.
+- `shielding` (String) Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.
+Specify location id to enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding
 - `ssl_certificate` (Block Set, Max: 1) SSL certificate of CDN resource. (see [below for nested schema](#nestedblock--ssl_certificate))
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `updated_at` (String) Last update timestamp. Computed value for read and update operations.

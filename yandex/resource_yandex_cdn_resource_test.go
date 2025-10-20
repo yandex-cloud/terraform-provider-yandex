@@ -1028,6 +1028,48 @@ func TestAccCDNResource_changeCNameError(t *testing.T) {
 	})
 }
 
+func TestAccCDNResource_shieldingOk(t *testing.T) {
+	t.Parallel()
+	groupName := fmt.Sprintf("tf-og-%s", acctest.RandString(10))
+	cname := fmt.Sprintf("cdn-%s.yandex.net", acctest.RandString(4))
+	locationId := int64(1)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_shielding(cname, groupName, nil),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
+			},
+			// enabling shielding
+			{
+				Config: testAccCDNResource_shielding(cname, groupName, &locationId),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", fmt.Sprint(locationId)),
+			},
+			// disabling shielding
+			{
+				Config: testAccCDNResource_shielding(cname, groupName, nil),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
+			},
+		},
+	})
+}
+
+func testAccCDNResource_shielding(cname string, groupName string, location *int64) string {
+	tmp := makeGroupResource(groupName) + `
+resource "yandex_cdn_resource" "foo" {
+	cname = "%s"
+	origin_group_name = yandex_cdn_origin_group.foo_cdn_group.name
+	%s
+}`
+	shielding := ""
+	if location != nil {
+		shielding = fmt.Sprintf(`shielding = "%v"`, *location)
+	}
+	return fmt.Sprintf(tmp, cname, shielding)
+}
+
 func makeGroupResource(groupName string) string {
 	return fmt.Sprintf(`
 	resource "yandex_cdn_origin_group" "foo_cdn_group" {

@@ -108,6 +108,11 @@ func dataSourceYandexCDNResourceSchema() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"shielding": {
+				Type:        schema.TypeString,
+				Description: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.",
+				Computed:    true,
+			},
 			"ssl_certificate": {
 				Type:        schema.TypeSet,
 				Description: "SSL certificate of CDN resource.",
@@ -199,7 +204,12 @@ func dataSourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("cdn resource with ID %q", resourceID))
 	}
 
-	res, err := flattenCDNResource(resource)
+	shielding, err := getShieldingLocation(ctx, resourceID, config.sdk)
+	if err != nil {
+		return fmt.Errorf("reading shielding: %w", err)
+	}
+
+	res, err := flattenCDNResource(resource, shielding)
 	if err != nil {
 		return err
 	}

@@ -10,11 +10,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
 	validateCDNProvider = validation.StringInSlice([]string{cdnProviderOurcdn, cdnProviderGcore}, false)
+
+	validateCDNShieldingLocation = validation.StringInSlice([]string{
+		"1",   // ourcdn
+		"130", // gcore
+	}, false)
 
 	validateCDNResourceACLPolicyType = validation.StringInSlice(
 		[]string{cdnACLPolicyTypeAllow, cdnACLPolicyTypeDeny},
@@ -533,7 +540,7 @@ func castSlice[T any](arr []any) []T {
 	return res
 }
 
-func flattenCDNResource(resource *cdn.Resource) (map[string]any, error) {
+func flattenCDNResource(resource *cdn.Resource, shieldingLocation *int64) (map[string]any, error) {
 	res := make(map[string]any)
 	res["folder_id"] = resource.FolderId
 	res["cname"] = resource.Cname
@@ -548,6 +555,8 @@ func flattenCDNResource(resource *cdn.Resource) (map[string]any, error) {
 
 	res["origin_group_name"] = resource.OriginGroupName
 	res["origin_group_id"] = fmt.Sprint(resource.OriginGroupId)
+
+	res["shielding"] = flattenCDNShielding(shieldingLocation)
 
 	if secondaryHostnames := flattenCDNResourceSecondaryNames(resource.SecondaryHostnames); secondaryHostnames != nil {
 		res["secondary_hostnames"] = secondaryHostnames
@@ -568,6 +577,13 @@ func flattenCDNResource(resource *cdn.Resource) (map[string]any, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+func flattenCDNShielding(shielding *int64) any {
+	if shielding == nil {
+		return nil
+	}
+	return fmt.Sprint(*shielding)
 }
 
 func flattenCDNResourceSecondaryNames(secondaryHostnames []string) []any {
@@ -786,4 +802,54 @@ func aclPolicyTypeToString(policyType cdn.PolicyType) string {
 	}
 
 	return cdnACLPolicyTypeAllow
+}
+
+func getShieldingLocation(ctx context.Context, resourceId string, sdk *ycsdk.SDK) (*int64, error) {
+	resp, err := sdk.CDN().Shielding().Get(ctx, &cdn.GetShieldingDetailsRequest{
+		ResourceId: resourceId,
+	})
+	if isStatusWithCode(err, codes.NotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &resp.LocationId, nil
+}
+
+func updateShielding(ctx context.Context, d *schema.ResourceData, config *Config) error {
+	if !d.HasChange("shielding") {
+		return nil
+	}
+	val, ok := d.GetOk("shielding")
+	if ok {
+		locationId, _ := strconv.Atoi(val.(string))
+		return cdnEnableShielding(ctx, config, d.Id(), int64(locationId))
+	}
+	return cdnDisableShielding(ctx, config, d.Id())
+}
+
+func cdnDisableShielding(ctx context.Context, config *Config, resourceId string) error {
+	res, err := config.sdk.WrapOperation(
+		config.sdk.CDN().Shielding().Deactivate(ctx, &cdn.DeactivateShieldingRequest{
+			ResourceId: resourceId,
+		}),
+	)
+	if err != nil {
+		return err
+	}
+	return res.Wait(ctx)
+}
+
+func cdnEnableShielding(ctx context.Context, config *Config, resourceId string, locationId int64) error {
+	res, err := config.sdk.WrapOperation(
+		config.sdk.CDN().Shielding().Activate(ctx, &cdn.ActivateShieldingRequest{
+			ResourceId: resourceId,
+			LocationId: locationId,
+		}),
+	)
+	if err != nil {
+		return err
+	}
+	return res.Wait(ctx)
 }
