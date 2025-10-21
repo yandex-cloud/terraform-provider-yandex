@@ -53,6 +53,7 @@ func CDNRuleSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Rule name (max 50 characters).",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 50),
+					stringvalidator.RegexMatches(regexp.MustCompile(`^[^-]*$`), "Rule name cannot contain dash (-) character"),
 				},
 			},
 			"rule_pattern": schema.StringAttribute{

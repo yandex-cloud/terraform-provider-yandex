@@ -43,7 +43,7 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 		}
 	}
 
-	if !opt.DisableProxyForceRanges.IsNull() {
+	if !opt.DisableProxyForceRanges.IsNull() && opt.DisableProxyForceRanges.ValueBool() {
 		result.DisableProxyForceRanges = &cdn.ResourceOptions_BoolOption{
 			Enabled: true,
 			Value:   opt.DisableProxyForceRanges.ValueBool(),
