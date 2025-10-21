@@ -221,6 +221,14 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		if v, ok := d.GetOkExists("settings.pgaudit"); ok {
+			as, err := expandPgAuditSettings(v.(string))
+			if err != nil {
+				return nil, err
+			}
+			user.Settings.Pgaudit = as
+		}
 	}
 
 	if v, ok := d.GetOk("deletion_protection"); ok {

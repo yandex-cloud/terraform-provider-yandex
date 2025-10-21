@@ -673,7 +673,7 @@ func TestDynamicGetFieldsInfo(t *testing.T) {
 
 	testStruct := TestStruct{}
 
-	m, err := getFieldsInfo(testStruct, "tag_test", "name")
+	m, err := getFieldsInfo(testStruct, "tag_test", "name", []reflect.Type{})
 
 	if err != nil {
 		t.Error(err)

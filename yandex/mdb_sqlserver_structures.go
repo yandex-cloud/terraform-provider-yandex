@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 	"strconv"
 
@@ -583,5 +584,5 @@ func expandSQLServerConfigSpecSettings(d *schema.ResourceData, configSpec *sqlse
 }
 
 var mdbSQLServerSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(config.SQLServerConfig2016Sp2Std{}).
-	addType(config.SQLServerConfig2016Sp2Ent{})
+	addType(config.SQLServerConfig2016Sp2Std{}, []reflect.Type{}).
+	addType(config.SQLServerConfig2016Sp2Ent{}, []reflect.Type{})

@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -187,7 +188,7 @@ func setFloatFieldToReflect(rv reflect.Value, name string, v *float64) error {
 		}
 		return &typeMismatchError{text: "setFloatValueToReflect: type ptr not implement"}
 	default:
-		return &typeMismatchError{text: "setFloatValueToReflect: type not implement"}
+		return &typeMismatchError{text: fmt.Sprintf("setFloatFieldToReflect: field name: %v, type %v not implement", name, f.Type())}
 	}
 }
 
@@ -207,12 +208,12 @@ func setStringFieldToReflect(rv reflect.Value, name string, v *string) error {
 	switch f.Type().Kind() {
 	case reflect.String:
 		if v == nil {
-			return &nilNotAllowedError{text: fmt.Sprintf("setFloatValueToReflect: field %s is not nilable", name)}
+			return &nilNotAllowedError{text: fmt.Sprintf("setStringFieldToReflect: field %s is not nilable", name)}
 		}
 		f.SetString(*v)
 		return nil
 	default:
-		return &typeMismatchError{text: "setFloatValueToReflect: type not implement"}
+		return &typeMismatchError{text: fmt.Sprintf("setStringFieldToReflect: field name: %v, type %v not implement", name, f.Type())}
 	}
 }
 
@@ -353,7 +354,7 @@ func wrapperspbDoubleValue() reflect.Type {
 	return reflect.TypeOf(&wrappers.DoubleValue{})
 }
 
-func getFieldsInfo(v interface{}, tagName string, tagValue string) (map[string]fieldReflectInfo, error) {
+func getFieldsInfo(v interface{}, tagName string, tagValue string, allowedUserTypes []reflect.Type) (map[string]fieldReflectInfo, error) {
 
 	fis := make(map[string]fieldReflectInfo)
 	t, err := getStructType(v)
@@ -386,6 +387,13 @@ func getFieldsInfo(v interface{}, tagName string, tagValue string) (map[string]f
 				}
 			}
 			if f.Type.Kind() == reflect.String {
+				fis[tg] = fieldReflectInfo{
+					valueType: schema.TypeString,
+					name:      f.Name,
+				}
+			}
+
+			if slices.Contains(allowedUserTypes, f.Type) {
 				fis[tg] = fieldReflectInfo{
 					valueType: schema.TypeString,
 					name:      f.Name,

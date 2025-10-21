@@ -314,9 +314,9 @@ func newObjectFieldsInfo() *objectFieldsInfo {
 }
 
 // addType panics on get type errors and any other errors
-func (fieldsInfo *objectFieldsInfo) addType(v interface{}) *objectFieldsInfo {
+func (fieldsInfo *objectFieldsInfo) addType(v interface{}, allowedUserTypes []reflect.Type) *objectFieldsInfo {
 
-	fis, err := getFieldsInfo(v, "protobuf", "name")
+	fis, err := getFieldsInfo(v, "protobuf", "name", allowedUserTypes)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -365,6 +365,14 @@ func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, valu
 func (fieldsInfo *objectFieldsInfo) addIDefault(field string, def int) *objectFieldsInfo {
 
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{defaultIntValue: &def, isDefaultSet: true}
+
+	return fieldsInfo
+}
+
+func (fieldsInfo *objectFieldsInfo) addFieldInfoManually(field string, skip bool) *objectFieldsInfo {
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{
+		skip: skip,
+	}
 
 	return fieldsInfo
 }

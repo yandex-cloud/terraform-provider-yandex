@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -1596,9 +1597,9 @@ func isPasswordAuthPlugin(authPlugin mysql.AuthPlugin) bool {
 
 // todo проверить настройки
 var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(config.MysqlConfig8_4{}).
-	addType(config.MysqlConfig8_0{}).
-	addType(config.MysqlConfig5_7{}).
+	addType(config.MysqlConfig8_4{}, []reflect.Type{}).
+	addType(config.MysqlConfig8_0{}, []reflect.Type{}).
+	addType(config.MysqlConfig5_7{}, []reflect.Type{}).
 	addEnumGeneratedNames("default_authentication_plugin", config.MysqlConfig8_0_AuthPlugin_name).
 	addEnumGeneratedNames("transaction_isolation", config.MysqlConfig8_0_TransactionIsolation_name).
 	addEnumGeneratedNames("binlog_row_image", config.MysqlConfig8_0_BinlogRowImage_name).

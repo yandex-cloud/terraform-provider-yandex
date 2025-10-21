@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -622,4 +623,4 @@ func parseGreenplumPoolingMode(s string) (greenplum.ConnectionPoolerConfig_PoolM
 }
 
 var mdbGreenplumSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(greenplum.GreenplumConfig6{})
+	addType(greenplum.GreenplumConfig6{}, []reflect.Type{})

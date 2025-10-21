@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -21,6 +22,10 @@ import (
 type PostgreSQLHostSpec struct {
 	HostSpec *postgresql.HostSpec
 	Fqdn     string
+}
+
+type PGAuditSettings struct {
+	Log []string `json:"log"`
 }
 
 func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
@@ -1153,6 +1158,21 @@ func expandPGUserGrants(gs []interface{}) ([]string, error) {
 	return out, nil
 }
 
+func expandPgAuditSettings(as string) (*postgresql.PGAuditSettings, error) {
+	var auditSettings PGAuditSettings
+	err := json.Unmarshal([]byte(as), &auditSettings)
+	if err != nil {
+		return nil, err
+	}
+
+	asl := make([]postgresql.PGAuditSettings_PGAuditSettingsLog, 0)
+	for _, log := range auditSettings.Log {
+		asl = append(asl, mdbPGUserSettingsPgauditName[strings.ToLower(log)])
+	}
+
+	return &postgresql.PGAuditSettings{Log: asl}, nil
+}
+
 func expandPGUserPermissions(ps *schema.Set) ([]*postgresql.Permission, error) {
 	out := []*postgresql.Permission{}
 
@@ -1699,8 +1719,19 @@ var mdbPGUserSettingsPoolModeName = map[int]string{
 	int(postgresql.UserSettings_SESSION):                  "session",
 }
 
+var mdbPGUserSettingsPgauditName = map[string]postgresql.PGAuditSettings_PGAuditSettingsLog{
+	"read":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_READ,
+	"write":    postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_WRITE,
+	"function": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_FUNCTION,
+	"role":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_ROLE,
+	"ddl":      postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_DDL,
+	"misc":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC,
+	"misc_set": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC_SET,
+}
+
 var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(postgresql.UserSettings{}).
+	addType(postgresql.UserSettings{}, []reflect.Type{reflect.TypeOf(&postgresql.PGAuditSettings{})}).
+	addFieldInfoManually("pgaudit", true).
 	addIDefault("log_min_duration_statement", -1).
 	addEnumHumanNames("default_transaction_isolation", mdbPGUserSettingsTransactionIsolationName,
 		postgresql.UserSettings_TransactionIsolation_name).
@@ -1743,7 +1774,7 @@ func getMdbPGSettingsFieldsInfo(version string) (*objectFieldsInfo, error) {
 }
 
 var mdbPGSettingsFieldsInfo18 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig18{}).
+	addType(config.PostgresqlConfig18{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig18_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig18_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig18_ConstraintExclusion_name).
@@ -1770,7 +1801,7 @@ var mdbPGSettingsFieldsInfo18 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig18_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo18_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig18_1C{}).
+	addType(config.PostgresqlConfig18_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig18_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig18_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig18_1C_ConstraintExclusion_name).
@@ -1797,7 +1828,7 @@ var mdbPGSettingsFieldsInfo18_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig18_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig17{}).
+	addType(config.PostgresqlConfig17{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_ConstraintExclusion_name).
@@ -1824,7 +1855,7 @@ var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig17_1C{}).
+	addType(config.PostgresqlConfig17_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_1C_ConstraintExclusion_name).
@@ -1851,7 +1882,7 @@ var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo16 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig16{}).
+	addType(config.PostgresqlConfig16{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig16_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig16_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig16_ConstraintExclusion_name).
@@ -1878,7 +1909,7 @@ var mdbPGSettingsFieldsInfo16 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo16_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig16_1C{}).
+	addType(config.PostgresqlConfig16_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig16_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig16_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig16_1C_ConstraintExclusion_name).
@@ -1905,7 +1936,7 @@ var mdbPGSettingsFieldsInfo16_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo15 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig15{}).
+	addType(config.PostgresqlConfig15{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig15_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig15_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig15_ConstraintExclusion_name).
@@ -1932,7 +1963,7 @@ var mdbPGSettingsFieldsInfo15 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig15_1C{}).
+	addType(config.PostgresqlConfig15_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig15_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig15_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig15_1C_ConstraintExclusion_name).
@@ -1959,7 +1990,7 @@ var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig14{}).
+	addType(config.PostgresqlConfig14{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig14_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig14_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig14_ConstraintExclusion_name).
@@ -1986,7 +2017,7 @@ var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig14_1C{}).
+	addType(config.PostgresqlConfig14_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig14_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig14_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig14_1C_ConstraintExclusion_name).
@@ -2013,7 +2044,7 @@ var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig13{}).
+	addType(config.PostgresqlConfig13{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig13_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig13_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig13_ConstraintExclusion_name).
@@ -2039,7 +2070,7 @@ var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
 	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
 
 var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig13_1C{}).
+	addType(config.PostgresqlConfig13_1C{}, []reflect.Type{}).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig13_1C_WalLevel_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig13_1C_SynchronousCommit_name).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig13_1C_ConstraintExclusion_name).
