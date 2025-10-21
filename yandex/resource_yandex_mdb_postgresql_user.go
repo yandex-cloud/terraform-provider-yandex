@@ -307,6 +307,10 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("must specify either password or generate_password")
 	}
 
+	if d.HasChange("name") {
+		return fmt.Errorf("can't change name of an existing user")
+	}
+
 	updatePath := []string{}
 	changeMask := map[string]string{
 		"password":                                     "password",
@@ -314,6 +318,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		"login":                                        "login",
 		"grants":                                       "grants",
 		"conn_limit":                                   "conn_limit",
+		"deletion_protection":                          "deletion_protection",
 		"settings.default_transaction_isolation":       "settings.default_transaction_isolation",
 		"settings.lock_timeout":                        "settings.lock_timeout",
 		"settings.log_min_duration_statement":          "settings.log_min_duration_statement",
@@ -333,14 +338,6 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		if d.HasChange(field) {
 			updatePath = append(updatePath, mask)
 		}
-	}
-
-	if user.DeletionProtection != nil {
-		updatePath = append(updatePath, "deletion_protection")
-	}
-
-	if len(updatePath) == 0 && user.DeletionProtection == nil {
-		updatePath = []string{"name"}
 	}
 
 	if len(updatePath) == 0 {
