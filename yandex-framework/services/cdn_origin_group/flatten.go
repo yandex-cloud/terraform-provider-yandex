@@ -17,7 +17,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, diags *diag.Diag
 		return types.SetNull(types.ObjectType{
 			AttrTypes: map[string]attr.Type{
 				"source":          types.StringType,
-				"origin_group_id": types.Int64Type,
+				"origin_group_id": types.StringType,
 				"enabled":         types.BoolType,
 				"backup":          types.BoolType,
 			},
@@ -28,7 +28,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, diags *diag.Diag
 	for _, origin := range origins {
 		model := OriginModel{
 			Source:        types.StringValue(origin.Source),
-			OriginGroupID: types.Int64Value(origin.OriginGroupId),
+			OriginGroupID: types.StringValue(strconv.FormatInt(origin.OriginGroupId, 10)),
 			Enabled:       types.BoolValue(origin.Enabled),
 			Backup:        types.BoolValue(origin.Backup),
 		}
@@ -38,7 +38,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, diags *diag.Diag
 	setVal, d := types.SetValueFrom(ctx, types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"source":          types.StringType,
-			"origin_group_id": types.Int64Type,
+			"origin_group_id": types.StringType,
 			"enabled":         types.BoolType,
 			"backup":          types.BoolType,
 		},

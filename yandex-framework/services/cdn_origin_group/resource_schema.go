@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -89,12 +88,12 @@ func CDNOriginGroupSchema(ctx context.Context) schema.Schema {
 							Description:         "IP address or Domain name of your origin and the port (e.g., example.com:8080 or 192.0.2.1:80).",
 							MarkdownDescription: "IP address or Domain name of your origin and the port (e.g., `example.com:8080` or `192.0.2.1:80`).",
 						},
-						"origin_group_id": schema.Int64Attribute{
+						"origin_group_id": schema.StringAttribute{
 							Computed:            true,
 							Description:         "The ID of the origin group that this origin belongs to.",
 							MarkdownDescription: "The ID of the origin group that this origin belongs to.",
-							PlanModifiers: []planmodifier.Int64{
-								int64planmodifier.UseStateForUnknown(),
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"enabled": schema.BoolAttribute{

@@ -19,7 +19,7 @@ type CDNOriginGroupModel struct {
 // CDNOriginGroupDataSource represents the Terraform data source model for yandex_cdn_origin_group
 type CDNOriginGroupDataSource struct {
 	ID            types.String `tfsdk:"id"`
-	OriginGroupID types.Int64  `tfsdk:"origin_group_id"`
+	OriginGroupID types.String `tfsdk:"origin_group_id"`
 	FolderID      types.String `tfsdk:"folder_id"`
 	Name          types.String `tfsdk:"name"`
 	ProviderType  types.String `tfsdk:"provider_type"`
@@ -30,7 +30,7 @@ type CDNOriginGroupDataSource struct {
 // OriginModel represents a single origin in the origin group
 type OriginModel struct {
 	Source        types.String `tfsdk:"source"`
-	OriginGroupID types.Int64  `tfsdk:"origin_group_id"`
+	OriginGroupID types.String `tfsdk:"origin_group_id"`
 	Enabled       types.Bool   `tfsdk:"enabled"`
 	Backup        types.Bool   `tfsdk:"backup"`
 }

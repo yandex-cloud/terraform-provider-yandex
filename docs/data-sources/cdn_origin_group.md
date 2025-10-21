@@ -33,7 +33,7 @@ output "origin_group_name" {
 
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `name` (String) The resource name.
-- `origin_group_id` (Number) The ID of a specific origin group.
+- `origin_group_id` (String) The ID of a specific origin group.
 
 ### Read-Only
 
@@ -51,7 +51,7 @@ Read-Only:
 
 - `enabled` (Boolean) Whether the origin is enabled and used as a source for the CDN. The origin is enabled and used as a source for the CDN. Default: `true`.
 
-- `origin_group_id` (Number) The ID of the origin group this origin belongs to. The ID of the origin group that this origin belongs to.
+- `origin_group_id` (String) The ID of the origin group this origin belongs to. The ID of the origin group that this origin belongs to.
 
 - `source` (String) IP address or domain name of your origin and the port (e.g., `example.com:8080`). IP address or Domain name of your origin and the port (e.g., `example.com:8080` or `192.0.2.1:80`).
 

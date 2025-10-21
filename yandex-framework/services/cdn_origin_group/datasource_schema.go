@@ -1,7 +1,6 @@
 package cdn_origin_group
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -23,13 +22,13 @@ func DataSourceCDNOriginGroupSchema() schema.Schema {
 				MarkdownDescription: "The ID of the CDN origin group (stored as string).",
 				Computed:            true,
 			},
-			"origin_group_id": schema.Int64Attribute{
+			"origin_group_id": schema.StringAttribute{
 				Description:         "The ID of a specific origin group.",
 				MarkdownDescription: "The ID of a specific origin group.",
 				Optional:            true,
 				Computed:            true,
-				Validators: []validator.Int64{
-					int64validator.AtLeastOneOf(path.MatchRoot("name")),
+				Validators: []validator.String{
+					stringvalidator.AtLeastOneOf(path.MatchRoot("name")),
 				},
 			},
 			"folder_id": schema.StringAttribute{
@@ -71,7 +70,7 @@ func DataSourceCDNOriginGroupSchema() schema.Schema {
 							MarkdownDescription: "IP address or domain name of your origin and the port (e.g., `example.com:8080`).",
 							Computed:            true,
 						},
-						"origin_group_id": schema.Int64Attribute{
+						"origin_group_id": schema.StringAttribute{
 							Description:         "The ID of the origin group this origin belongs to.",
 							MarkdownDescription: "The ID of the origin group this origin belongs to.",
 							Computed:            true,

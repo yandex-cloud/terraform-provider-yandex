@@ -73,8 +73,16 @@ func (d *cdnOriginGroupDataSource) Read(ctx context.Context, req datasource.Read
 
 	// Determine origin group ID: either from origin_group_id or resolve by name
 	var originGroupID int64
-	if !state.OriginGroupID.IsNull() && state.OriginGroupID.ValueInt64() != 0 {
-		originGroupID = state.OriginGroupID.ValueInt64()
+	if !state.OriginGroupID.IsNull() && state.OriginGroupID.ValueString() != "" {
+		var err error
+		originGroupID, err = strconv.ParseInt(state.OriginGroupID.ValueString(), 10, 64)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Invalid origin_group_id format",
+				fmt.Sprintf("Error parsing origin_group_id %q: %s", state.OriginGroupID.ValueString(), err),
+			)
+			return
+		}
 		tflog.Debug(ctx, "Using provided origin_group_id", map[string]interface{}{
 			"origin_group_id": originGroupID,
 		})
@@ -129,7 +137,7 @@ func (d *cdnOriginGroupDataSource) Read(ctx context.Context, req datasource.Read
 
 	// Convert API response to state
 	state.ID = types.StringValue(strconv.FormatInt(originGroup.Id, 10))
-	state.OriginGroupID = types.Int64Value(originGroup.Id)
+	state.OriginGroupID = types.StringValue(strconv.FormatInt(originGroup.Id, 10))
 	state.FolderID = types.StringValue(originGroup.FolderId)
 	state.Name = types.StringValue(originGroup.Name)
 	state.UseNext = types.BoolValue(originGroup.UseNext)
