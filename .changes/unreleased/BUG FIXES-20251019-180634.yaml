@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: possibility to manage pgaudit settings for users via terraform'
-time: 2025-10-19T18:06:34.673198+03:00

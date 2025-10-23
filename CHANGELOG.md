@@ -2,6 +2,15 @@
 
 
 
+## 0.168.0 (October 23, 2025)
+##### FEATURES:
+* CDN: shielding feature for cdn_resource
+##### BUG FIXES:
+* IAM: fix length validation for field external_subject_id for resource yandex_iam_workload_identity_federated_credential
+* postgresql: possibility to manage pgaudit settings for users via terraform
+* postgresql: error on an attempt to change name for existing user with yandex_mdb_postgresql_user
+* postgresql: possibility to reset deletion_protection to default via yandex_mdb_postgresql_user
+
 ## 0.167.0 (October 20, 2025)
 ##### FEATURES:
 * valkey: Add valkey-modules

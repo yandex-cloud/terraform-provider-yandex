@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'IAM: fix length validation for field external_subject_id for resource yandex_iam_workload_identity_federated_credential'
-time: 2025-10-19T12:54:10.011898+03:00
