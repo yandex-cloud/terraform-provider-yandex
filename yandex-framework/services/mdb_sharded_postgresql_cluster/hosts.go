@@ -17,13 +17,15 @@ type SPQRHostService struct {
 func (r SPQRHostService) FullyMatch(planHost Host, stateHost Host) bool {
 	return planHost.Zone.ValueString() == stateHost.Zone.ValueString() &&
 		(planHost.SubnetId.IsUnknown() || planHost.SubnetId.ValueString() == stateHost.SubnetId.ValueString()) &&
-		planHost.AssignPublicIp.ValueBool() == stateHost.AssignPublicIp.ValueBool()
+		planHost.AssignPublicIp.ValueBool() == stateHost.AssignPublicIp.ValueBool() &&
+		planHost.Type.ValueString() == stateHost.Type.ValueString()
 }
 
 func (r SPQRHostService) PartialMatch(planHost Host, stateHost Host) bool {
 	return planHost.Zone.Equal(stateHost.Zone) &&
 		(planHost.FQDN.IsUnknown() || planHost.FQDN.Equal(stateHost.FQDN)) &&
-		(planHost.SubnetId.IsUnknown() || planHost.SubnetId.Equal(stateHost.SubnetId))
+		(planHost.SubnetId.IsUnknown() || planHost.SubnetId.Equal(stateHost.SubnetId)) &&
+		planHost.Type.Equal(stateHost.Type)
 }
 
 func (r SPQRHostService) GetChanges(plan Host, state Host) (*spqr.UpdateHostSpec, diag.Diagnostics) {
