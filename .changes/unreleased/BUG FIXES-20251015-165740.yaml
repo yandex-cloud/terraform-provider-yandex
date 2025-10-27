@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'redis: fix for every time changed field `acl_options`'
+time: 2025-10-15T16:57:40.026664+03:00

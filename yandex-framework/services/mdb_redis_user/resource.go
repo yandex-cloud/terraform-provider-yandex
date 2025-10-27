@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -22,6 +23,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
+	customstringplanmodifier "github.com/yandex-cloud/terraform-provider-yandex/pkg/stringplanmodifier"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc/codes"
@@ -116,6 +118,24 @@ func (r *bindingResource) Schema(ctx context.Context,
 			"acl_options": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Raw ACL string which has been inserted into the Redis",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+					customstringplanmodifier.RequiresRefreshIf(
+						func(ctx context.Context, req planmodifier.StringRequest, resp *customstringplanmodifier.RequiresRefreshIfFuncResponse) {
+							var plan, state User
+							resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+							resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+							if resp.Diagnostics.HasError() {
+								return
+							}
+
+							resp.RequiresRefresh = !plan.Permissions.Equal(state.Permissions) ||
+								!plan.Enabled.Equal(state.Enabled)
+						},
+						"Refresh ACL options if permissions or enabled modified",
+						"Refresh ACL options if permissions or enabled modified",
+					),
+				},
 			},
 			"permissions": schema.SingleNestedAttribute{
 				MarkdownDescription: "Set of permissions granted to the user.",
@@ -168,6 +188,10 @@ func (r *bindingResource) Schema(ctx context.Context,
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
+				},
+
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
