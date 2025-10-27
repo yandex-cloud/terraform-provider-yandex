@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mongodb: fix empty diff when permission block changes from empty to null'
+time: 2025-10-20T10:06:02.578837627Z

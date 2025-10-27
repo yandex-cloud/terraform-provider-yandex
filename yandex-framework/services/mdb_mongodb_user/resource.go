@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -17,6 +18,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
+
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc/codes"
 )
@@ -105,7 +107,9 @@ func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						"roles": schema.SetAttribute{
 							MarkdownDescription: "The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).",
 							Optional:            true,
+							Computed:            true,
 							ElementType:         basetypes.StringType{},
+							Default:             setdefault.StaticValue(types.SetValueMust(types.StringType, []attr.Value{})),
 						},
 					},
 				},
