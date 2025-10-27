@@ -74,6 +74,9 @@ $ make testacc
 
 ### Documentation Guide
 
+#### Generation changelog
+Docs - https://wiki.yandex-team.ru/cloud/devel/yandex.cloud-instrumenty-publichnogo-api/zony-otvetsvennosti-komandy/generacija-changelog/
+
 Our documentation generator follows a specific flow. Based on the documentation template and the description fields for resources/datasources and their schema fields in the Terraform provider, we generate the corresponding documentation.
 
 For every resource and data source defined in the Yandex provider, a documentation template is automatically generated.
