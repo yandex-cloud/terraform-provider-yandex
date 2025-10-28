@@ -40,7 +40,8 @@ output "permission" {
 - `login` (Boolean) User's ability to login.
 - `settings` (Map of String) Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
 
-* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - `read uncommitted`
+* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+  - `read uncommitted`
   - `read committed`
   - `repeatable read`
   - `serializable`

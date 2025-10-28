@@ -77,7 +77,8 @@ resource "yandex_vpc_subnet" "foo" {
 - `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedblock--permission))
 - `settings` (Map of String) Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
 
-* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - `read uncommitted`
+* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+  - `read uncommitted`
   - `read committed`
   - `repeatable read`
   - `serializable`
