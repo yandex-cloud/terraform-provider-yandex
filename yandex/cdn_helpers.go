@@ -37,6 +37,25 @@ var (
 	)
 )
 
+var (
+	customizeDiffCDN_EdgeCacheSettings schema.CustomizeDiffFunc = func(_ context.Context, rd *schema.ResourceDiff, _ any) error {
+		if _, ok := rd.GetOk("options.0.edge_cache_settings_codes"); ok {
+			opts := rd.Get("options").([]any)[0].(map[string]any)
+			opts["edge_cache_settings"] = nil
+			if err := rd.SetNew("options", []any{opts}); err != nil {
+				return err
+			}
+		} else if optsPlan := rd.GetRawConfig().GetAttr("options").AsValueSlice(); len(optsPlan) > 0 && optsPlan[0].GetAttr("edge_cache_settings").IsNull() {
+			opts := rd.Get("options").([]any)[0].(map[string]any)
+			opts["edge_cache_settings"] = 86400
+			if err := rd.SetNew("options", []any{opts}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+)
+
 func cdnCheckProviderMatching(ctx context.Context, req *cdn.CreateResourceRequest, config *Config) error {
 	originGroup, err := config.sdk.CDN().OriginGroup().Get(ctx, &cdn.GetOriginGroupRequest{
 		FolderId:      req.FolderId,
@@ -281,6 +300,7 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		RedirectOptions:    prepareCDNResourceOptions_RedirectOptions(d),
 		IpAddressAcl:       prepareCDNResourceOptions_IPAddressACL(d),
 		SecureKey:          prepareCDNResourceOptions_SecureKey(d),
+		EdgeCacheSettings:  prepareCDNResourceOptions_EdgeCacheSettings(d),
 	}
 
 	// bool options
@@ -323,15 +343,6 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.CustomServerName = cdnStringOption(rawOption.(string))
 	}
 
-	if rawOption, ok := d.GetOk("options.0.edge_cache_settings"); ok {
-		result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
-			Enabled: true,
-			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_DefaultValue{
-				DefaultValue: int64(rawOption.(int)),
-			},
-		}
-	}
-
 	if rawOption, ok := d.GetOk("options.0.browser_cache_settings"); ok {
 		result.BrowserCacheSettings = &cdn.ResourceOptions_Int64Option{
 			Enabled: true,
@@ -358,6 +369,36 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		}
 	}
 	return nil
+}
+
+func prepareCDNResourceOptions_EdgeCacheSettings(d *schema.ResourceData) *cdn.ResourceOptions_EdgeCacheSettings {
+	if _, ok := d.GetOk("options.0.edge_cache_settings_codes"); ok {
+		res := new(cdn.ResourceOptions_CachingTimes)
+		if valueRaw, ok := d.GetOk("options.0.edge_cache_settings_codes.0.value"); ok {
+			res.SimpleValue = int64(valueRaw.(int))
+		}
+		if custom_values, ok := d.GetOk("options.0.edge_cache_settings_codes.0.custom_values"); ok {
+			mp := make(map[string]int64)
+			for k, v := range custom_values.(map[string]any) {
+				// TODO: validate keys
+				mp[k] = int64(v.(int))
+			}
+			res.CustomValues = mp
+		}
+		return &cdn.ResourceOptions_EdgeCacheSettings{
+			Enabled:       true,
+			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_Value{Value: res},
+		}
+	}
+	if rawOption, ok := d.GetOk("options.0.edge_cache_settings"); ok {
+		return &cdn.ResourceOptions_EdgeCacheSettings{
+			Enabled: true,
+			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_DefaultValue{
+				DefaultValue: int64(rawOption.(int)),
+			},
+		}
+	}
+	return &cdn.ResourceOptions_EdgeCacheSettings{}
 }
 
 func prepareCDNResourceOptions_SecureKey(d *schema.ResourceData) *cdn.ResourceOptions_SecureKeyOption {
@@ -666,14 +707,7 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 		item[optionName] = value
 	}
 
-	if options.EdgeCacheSettings != nil && options.EdgeCacheSettings.Enabled {
-		switch v := options.EdgeCacheSettings.ValuesVariant.(type) {
-		case *cdn.ResourceOptions_EdgeCacheSettings_DefaultValue:
-			item["edge_cache_settings"] = v.DefaultValue
-		default:
-			log.Printf("[WARN] custom timings for cdn edge_cache_setting option are not implemented")
-		}
-	}
+	flattenCDNResourceOptions_EdgeCacheSettings(options.EdgeCacheSettings, item)
 
 	if options.QueryParamsOptions != nil {
 		switch val := options.QueryParamsOptions.QueryParamsVariant.(type) {
@@ -780,6 +814,22 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 	}
 
 	return []map[string]any{item}, nil
+}
+
+func flattenCDNResourceOptions_EdgeCacheSettings(opts *cdn.ResourceOptions_EdgeCacheSettings, dest map[string]any) {
+	if opts == nil || !opts.Enabled {
+		return
+	}
+	switch v := opts.ValuesVariant.(type) {
+	case *cdn.ResourceOptions_EdgeCacheSettings_DefaultValue:
+		dest["edge_cache_settings"] = v.DefaultValue
+	case *cdn.ResourceOptions_EdgeCacheSettings_Value:
+		dest["edge_cache_settings"] = 0
+		dest["edge_cache_settings_codes"] = []map[string]any{{
+			"value":         v.Value.SimpleValue,
+			"custom_values": v.Value.CustomValues,
+		}}
+	}
 }
 
 func aclPolicyTypeFromString(policyType string) cdn.PolicyType {

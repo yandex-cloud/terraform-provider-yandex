@@ -44,6 +44,10 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 		Description: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).",
 
 		SchemaVersion: 0,
+		CustomizeDiff: func(ctx context.Context, rd *schema.ResourceDiff, v any) error {
+			err := customizeDiffCDN_EdgeCacheSettings(ctx, rd, v)
+			return err
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cname": {
@@ -185,13 +189,45 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
-			// TODO: use CDN Provider custom values for response codes.
+
 			"edge_cache_settings": {
-				Type:        schema.TypeInt,
-				Description: "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
-				Computed:    true,
-				Optional:    true,
+				Type:          schema.TypeInt,
+				Description:   "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
+				Computed:      true,
+				Optional:      true,
+				ConflictsWith: []string{"options.0.edge_cache_settings_codes"},
 			},
+			"edge_cache_settings_codes": {
+				Type:          schema.TypeList,
+				Description:   "Set the cache expiration time for CDN servers",
+				MaxItems:      1,
+				Optional:      true,
+				ConflictsWith: []string{"options.0.edge_cache_settings"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"value": {
+							Type: schema.TypeInt,
+							Description: "Caching time for a response with codes 200, 206, 301, 302. " +
+								"Responses with codes 4xx, 5xx will not be cached. Use `0` disable to caching. " +
+								"Use `custom_values` field to specify a custom caching time for a response with specific codes.",
+							Optional:     true,
+							AtLeastOneOf: []string{"options.0.edge_cache_settings_codes.0.value", "options.0.edge_cache_settings_codes.0.custom_values"},
+						},
+						"custom_values": {
+							Type: schema.TypeMap,
+							Description: "Caching time for a response with specific codes. These settings have a higher priority than the `value` field. " +
+								"Response code (`304`, `404` for example). Use `any` to specify caching time for all response codes. ",
+							Optional: true,
+							Elem: &schema.Schema{
+								Type:        schema.TypeInt,
+								Description: "Caching time in seconds. Use `0` to disable caching for a specific response code.",
+							},
+							AtLeastOneOf: []string{"options.0.edge_cache_settings_codes.0.value", "options.0.edge_cache_settings_codes.0.custom_values"},
+						},
+					},
+				},
+			},
+
 			"browser_cache_settings": {
 				Type:        schema.TypeInt,
 				Description: "Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.",

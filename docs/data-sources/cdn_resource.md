@@ -75,6 +75,8 @@ Optional:
 
 - `edge_cache_settings` (Number) Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached. Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.
 
+- `edge_cache_settings_codes` (Block List, Max: 1) Set the cache expiration time for CDN servers (see [below for nested schema](#nestedblock--options--edge_cache_settings_codes))
+
 - `enable_ip_url_signing` (Boolean) Enable access limiting by IP addresses, option available only with setting secure_key. Enable access limiting by IP addresses, option available only with setting secure_key.
 
 - `fetched_compressed` (Boolean) Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN. Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN.
@@ -106,6 +108,17 @@ Optional:
 - `static_request_headers` (Map of String) Set up custom headers that CDN servers will send in requests to origins. Set up custom headers that CDN servers will send in requests to origins.
 
 - `static_response_headers` (Map of String) Set up a static response header. The header name must be lowercase. Set up a static response header. The header name must be lowercase.
+
+
+<a id="nestedblock--options--edge_cache_settings_codes"></a>
+### Nested Schema for `options.edge_cache_settings_codes`
+
+Optional:
+
+- `custom_values` (Map of Number) Caching time for a response with specific codes. These settings have a higher priority than the `value` field. Response code (`304`, `404` for example). Use `any` to specify caching time for all response codes. Caching time for a response with specific codes. These settings have a higher priority than the `value` field. Response code (`304`, `404` for example). Use `any` to specify caching time for all response codes.
+
+- `value` (Number) Caching time for a response with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will not be cached. Use `0` disable to caching. Use `custom_values` field to specify a custom caching time for a response with specific codes. Caching time for a response with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will not be cached. Use `0` disable to caching. Use `custom_values` field to specify a custom caching time for a response with specific codes.
+
 
 
 <a id="nestedblock--options--ip_address_acl"></a>

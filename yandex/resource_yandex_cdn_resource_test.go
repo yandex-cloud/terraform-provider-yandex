@@ -1033,6 +1033,7 @@ func TestAccCDNResource_shieldingOk(t *testing.T) {
 	groupName := fmt.Sprintf("tf-og-%s", acctest.RandString(10))
 	cname := fmt.Sprintf("cdn-%s.yandex.net", acctest.RandString(4))
 	locationId := int64(1)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1068,6 +1069,100 @@ resource "yandex_cdn_resource" "foo" {
 		shielding = fmt.Sprintf(`shielding = "%v"`, *location)
 	}
 	return fmt.Sprintf(tmp, cname, shielding)
+}
+
+func TestAccCDNResource_edgeCacheSettings(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tfog%s", acctest.RandString(10))
+	cname := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, `edge_cache_settings = 40`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "40"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname, `edge_cache_settings_codes { value = 80 }`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "80"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname, `edge_cache_settings_codes { value = 40 }`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname,
+					`edge_cache_settings_codes { 
+						value = 40
+						custom_values = { 
+							"200" = 1200
+							"400" = 0
+						} 
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
+
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.200", "1200"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.400", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func makeCDNResourceWithOptions(groupName string, cname string, options string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foo" {
+	cname = "%s"
+	origin_group_name = yandex_cdn_origin_group.foo_cdn_group.name
+	options {
+		%s
+	}
+}`, cname, options)
 }
 
 func makeGroupResource(groupName string) string {
