@@ -73,7 +73,7 @@ Optional:
 - `cors` (List of String) Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.
 - `custom_host_header` (String) Custom value for the Host header. Your server must be able to process requests with the chosen header.
 - `custom_server_name` (String) Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.
-- `disable_cache` (Boolean) Setup a cache status.
+- `disable_cache` (Boolean, Deprecated) Setup a cache status.
 - `disable_proxy_force_ranges` (Boolean) Disabling proxy force ranges.
 - `edge_cache_settings` (Number) Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.
 - `edge_cache_settings_codes` (Block List, Max: 1) Set the cache expiration time for CDN servers (see [below for nested schema](#nestedblock--options--edge_cache_settings_codes))

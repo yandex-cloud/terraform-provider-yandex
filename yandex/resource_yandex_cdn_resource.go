@@ -185,6 +185,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"disable_cache": {
 				Type:        schema.TypeBool,
+				Deprecated:  "This attribute does not affect anything. You can safely delete it.",
 				Description: "Setup a cache status.",
 				Optional:    true,
 				Computed:    true,

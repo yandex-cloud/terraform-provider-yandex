@@ -304,9 +304,6 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	}
 
 	// bool options
-	if rawOption, ok := d.GetOk("options.0.disable_cache"); ok {
-		result.DisableCache = cdnBoolOption(rawOption.(bool))
-	}
 	if rawOption, ok := d.GetOk("options.0.slice"); ok {
 		result.Slice = cdnBoolOption(rawOption.(bool))
 	}
@@ -354,7 +351,7 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.HostOptions, result.QueryParamsOptions, result.CompressionOptions,
 		result.RedirectOptions, result.IpAddressAcl, result.SecureKey,
 
-		result.DisableCache, result.Slice, result.IgnoreCookie,
+		result.Slice, result.IgnoreCookie,
 		result.ProxyCacheMethodsSet, result.DisableProxyForceRanges,
 
 		result.CacheHttpHeaders, result.Cors, result.AllowedHttpMethods,
@@ -745,10 +742,6 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 		case *cdn.ResourceOptions_HostOptions_Host:
 			setIfEnabled("custom_host_header", val.Host.Enabled, val.Host.Value)
 		}
-	}
-
-	if options.DisableCache != nil {
-		setIfEnabled("disable_cache", options.DisableCache.Enabled, options.DisableCache.Value)
 	}
 
 	if options.BrowserCacheSettings != nil {

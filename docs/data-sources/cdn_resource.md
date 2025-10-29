@@ -69,7 +69,7 @@ Optional:
 
 - `custom_server_name` (String) Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS. Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.
 
-- `disable_cache` (Boolean) Setup a cache status. Setup a cache status.
+- `disable_cache` (Boolean, Deprecated) Setup a cache status. Setup a cache status.
 
 - `disable_proxy_force_ranges` (Boolean) Disabling proxy force ranges. Disabling proxy force ranges.
 
