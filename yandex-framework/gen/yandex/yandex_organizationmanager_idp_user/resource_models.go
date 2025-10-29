@@ -35,6 +35,55 @@ type yandexOrganizationmanagerIdpUserModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetEmail() types.String {
+	return m.Email
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetExternalId() types.String {
+	return m.ExternalId
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetFamilyName() types.String {
+	return m.FamilyName
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetFullName() types.String {
+	return m.FullName
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetGivenName() types.String {
+	return m.GivenName
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetIsActive() types.Bool {
+	return m.IsActive
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetPasswordHash() types.Object {
+	return m.PasswordHash
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetPasswordSpec() types.Object {
+	return m.PasswordSpec
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetPhoneNumber() types.String {
+	return m.PhoneNumber
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetUserId() types.String {
+	return m.UserId
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetUsername() types.String {
+	return m.Username
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetUserpoolId() types.String {
+	return m.UserpoolId
+}
+
 func NewYandexOrganizationmanagerIdpUserModel() yandexOrganizationmanagerIdpUserModel {
 	return yandexOrganizationmanagerIdpUserModel{
 		CreatedAt:    types.StringNull(),
@@ -199,6 +248,13 @@ type yandexOrganizationmanagerIdpUserPasswordHashModel struct {
 	PasswordHashType types.String `tfsdk:"password_hash_type"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) GetPasswordHash() types.String {
+	return m.PasswordHash
+}
+func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) GetPasswordHashType() types.String {
+	return m.PasswordHashType
+}
+
 func NewYandexOrganizationmanagerIdpUserPasswordHashModel() yandexOrganizationmanagerIdpUserPasswordHashModel {
 	return yandexOrganizationmanagerIdpUserPasswordHashModel{
 		PasswordHash:     types.StringNull(),
@@ -263,6 +319,13 @@ func expandYandexOrganizationmanagerIdpUserPasswordHashModel(ctx context.Context
 type yandexOrganizationmanagerIdpUserPasswordSpecModel struct {
 	GenerationProof types.String `tfsdk:"generation_proof"`
 	Password        types.String `tfsdk:"password"`
+}
+
+func (m *yandexOrganizationmanagerIdpUserPasswordSpecModel) GetGenerationProof() types.String {
+	return m.GenerationProof
+}
+func (m *yandexOrganizationmanagerIdpUserPasswordSpecModel) GetPassword() types.String {
+	return m.Password
 }
 
 func NewYandexOrganizationmanagerIdpUserPasswordSpecModel() yandexOrganizationmanagerIdpUserPasswordSpecModel {

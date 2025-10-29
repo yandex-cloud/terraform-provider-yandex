@@ -26,6 +26,28 @@ type yandexContainerRegistryModel struct {
 	Timeouts   timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexContainerRegistryModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexContainerRegistryModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexContainerRegistryModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexContainerRegistryModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexContainerRegistryModel) GetRegistryId() types.String {
+	return m.RegistryId
+}
+func (m *yandexContainerRegistryModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexContainerRegistryModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexContainerRegistryModel() yandexContainerRegistryModel {
 	return yandexContainerRegistryModel{
 		CreatedAt:  types.StringNull(),

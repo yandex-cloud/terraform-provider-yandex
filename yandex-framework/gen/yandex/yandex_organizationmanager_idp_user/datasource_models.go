@@ -30,6 +30,46 @@ type yandexOrganizationmanagerIdpUserDatasourceModel struct {
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetEmail() types.String {
+	return m.Email
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetExternalId() types.String {
+	return m.ExternalId
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetFamilyName() types.String {
+	return m.FamilyName
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetFullName() types.String {
+	return m.FullName
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetGivenName() types.String {
+	return m.GivenName
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetPhoneNumber() types.String {
+	return m.PhoneNumber
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetUserId() types.String {
+	return m.UserId
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetUsername() types.String {
+	return m.Username
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetUserpoolId() types.String {
+	return m.UserpoolId
+}
+
 func NewYandexOrganizationmanagerIdpUserDatasourceModel() yandexOrganizationmanagerIdpUserDatasourceModel {
 	return yandexOrganizationmanagerIdpUserDatasourceModel{
 		CreatedAt:   types.StringNull(),

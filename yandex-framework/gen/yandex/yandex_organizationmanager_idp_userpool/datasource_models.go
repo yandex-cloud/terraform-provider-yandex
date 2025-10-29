@@ -32,6 +32,49 @@ type yandexOrganizationmanagerIdpUserpoolDatasourceModel struct {
 	Timeouts                   timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetBruteforceProtectionPolicy() types.Object {
+	return m.BruteforceProtectionPolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetDomains() types.List {
+	return m.Domains
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetOrganizationId() types.String {
+	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetPasswordLifetimePolicy() types.Object {
+	return m.PasswordLifetimePolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetPasswordQualityPolicy() types.Object {
+	return m.PasswordQualityPolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetUserSettings() types.Object {
+	return m.UserSettings
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetUserpoolId() types.String {
+	return m.UserpoolId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolDatasourceModel() yandexOrganizationmanagerIdpUserpoolDatasourceModel {
 	return yandexOrganizationmanagerIdpUserpoolDatasourceModel{
 		BruteforceProtectionPolicy: types.ObjectNull(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModelType.AttrTypes),

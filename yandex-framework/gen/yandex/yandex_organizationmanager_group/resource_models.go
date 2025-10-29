@@ -25,6 +25,25 @@ type yandexOrganizationmanagerGroupModel struct {
 	Timeouts       timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerGroupModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerGroupModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexOrganizationmanagerGroupModel) GetGroupId() types.String {
+	return m.GroupId
+}
+func (m *yandexOrganizationmanagerGroupModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexOrganizationmanagerGroupModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexOrganizationmanagerGroupModel) GetOrganizationId() types.String {
+	return m.OrganizationId
+}
+
 func NewYandexOrganizationmanagerGroupModel() yandexOrganizationmanagerGroupModel {
 	return yandexOrganizationmanagerGroupModel{
 		CreatedAt:      types.StringNull(),

@@ -29,6 +29,43 @@ type yandexCloudregistryRegistryDatasourceModel struct {
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexCloudregistryRegistryDatasourceModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetKind() types.String {
+	return m.Kind
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetModifiedAt() types.String {
+	return m.ModifiedAt
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetProperties() types.Map {
+	return m.Properties
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetRegistryId() types.String {
+	return m.RegistryId
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexCloudregistryRegistryDatasourceModel) GetType() types.String {
+	return m.Type
+}
+
 func NewYandexCloudregistryRegistryDatasourceModel() yandexCloudregistryRegistryDatasourceModel {
 	return yandexCloudregistryRegistryDatasourceModel{
 		CreatedAt:   types.StringNull(),

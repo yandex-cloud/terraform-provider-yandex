@@ -23,6 +23,25 @@ type yandexIamWorkloadIdentityFederatedCredentialDatasourceModel struct {
 	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetExternalSubjectId() types.String {
+	return m.ExternalSubjectId
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetFederatedCredentialId() types.String {
+	return m.FederatedCredentialId
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetFederationId() types.String {
+	return m.FederationId
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
 func NewYandexIamWorkloadIdentityFederatedCredentialDatasourceModel() yandexIamWorkloadIdentityFederatedCredentialDatasourceModel {
 	return yandexIamWorkloadIdentityFederatedCredentialDatasourceModel{
 		CreatedAt:             types.StringNull(),

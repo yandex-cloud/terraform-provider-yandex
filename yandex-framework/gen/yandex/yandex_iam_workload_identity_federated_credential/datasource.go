@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	workload "github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload"
-	workloadsdk "github.com/yandex-cloud/go-sdk/services/iam/v1/workload"
+	workloadsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc"

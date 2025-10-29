@@ -31,6 +31,43 @@ type yandexComputeFilesystemModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexComputeFilesystemModel) GetBlockSize() types.Int64 {
+	return m.BlockSize
+}
+func (m *yandexComputeFilesystemModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexComputeFilesystemModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexComputeFilesystemModel) GetFilesystemId() types.String {
+	return m.FilesystemId
+}
+func (m *yandexComputeFilesystemModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexComputeFilesystemModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexComputeFilesystemModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexComputeFilesystemModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexComputeFilesystemModel) GetSize() types.Float64 {
+	return m.Size
+}
+func (m *yandexComputeFilesystemModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexComputeFilesystemModel) GetType() types.String {
+	return m.Type
+}
+func (m *yandexComputeFilesystemModel) GetZone() types.String {
+	return m.Zone
+}
+
 func NewYandexComputeFilesystemModel() yandexComputeFilesystemModel {
 	return yandexComputeFilesystemModel{
 		BlockSize:    types.Int64Null(),

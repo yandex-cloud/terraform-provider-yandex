@@ -28,6 +28,34 @@ type yandexComputeDiskPlacementGroupModel struct {
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexComputeDiskPlacementGroupModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetDiskPlacementGroupId() types.String {
+	return m.DiskPlacementGroupId
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexComputeDiskPlacementGroupModel) GetZone() types.String {
+	return m.Zone
+}
+
 func NewYandexComputeDiskPlacementGroupModel() yandexComputeDiskPlacementGroupModel {
 	return yandexComputeDiskPlacementGroupModel{
 		CreatedAt:            types.StringNull(),

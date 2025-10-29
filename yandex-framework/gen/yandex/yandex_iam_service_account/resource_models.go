@@ -25,6 +25,25 @@ type yandexIAMServiceAccountModel struct {
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexIAMServiceAccountModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexIAMServiceAccountModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexIAMServiceAccountModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexIAMServiceAccountModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexIAMServiceAccountModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+func (m *yandexIAMServiceAccountModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexIAMServiceAccountModel() yandexIAMServiceAccountModel {
 	return yandexIAMServiceAccountModel{
 		CreatedAt:        types.StringNull(),

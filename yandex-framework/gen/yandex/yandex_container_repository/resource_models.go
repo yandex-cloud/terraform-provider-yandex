@@ -20,6 +20,16 @@ type yandexContainerRepositoryModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexContainerRepositoryModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexContainerRepositoryModel) GetRepositoryId() types.String {
+	return m.RepositoryId
+}
+func (m *yandexContainerRepositoryModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexContainerRepositoryModel() yandexContainerRepositoryModel {
 	return yandexContainerRepositoryModel{
 		Name:         types.StringNull(),

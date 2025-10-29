@@ -31,6 +31,43 @@ type yandexKMSSymmetricKeyModel struct {
 	Timeouts           timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexKMSSymmetricKeyModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexKMSSymmetricKeyModel) GetDefaultAlgorithm() types.String {
+	return m.DefaultAlgorithm
+}
+func (m *yandexKMSSymmetricKeyModel) GetDeletionProtection() types.Bool {
+	return m.DeletionProtection
+}
+func (m *yandexKMSSymmetricKeyModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexKMSSymmetricKeyModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexKMSSymmetricKeyModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexKMSSymmetricKeyModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexKMSSymmetricKeyModel) GetRotatedAt() types.String {
+	return m.RotatedAt
+}
+func (m *yandexKMSSymmetricKeyModel) GetRotationPeriod() types.String {
+	return m.RotationPeriod
+}
+func (m *yandexKMSSymmetricKeyModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexKMSSymmetricKeyModel) GetSymmetricKeyId() types.String {
+	return m.SymmetricKeyId
+}
+func (m *yandexKMSSymmetricKeyModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexKMSSymmetricKeyModel() yandexKMSSymmetricKeyModel {
 	return yandexKMSSymmetricKeyModel{
 		CreatedAt:          types.StringNull(),

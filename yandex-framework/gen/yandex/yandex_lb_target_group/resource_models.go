@@ -20,6 +20,13 @@ type yandexLbTargetGroupTargetStructModel struct {
 	SubnetId types.String `tfsdk:"subnet_id"`
 }
 
+func (m *yandexLbTargetGroupTargetStructModel) GetAddress() types.String {
+	return m.Address
+}
+func (m *yandexLbTargetGroupTargetStructModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+
 func NewYandexLbTargetGroupTargetStructModel() yandexLbTargetGroupTargetStructModel {
 	return yandexLbTargetGroupTargetStructModel{
 		Address:  types.StringNull(),
@@ -91,6 +98,34 @@ type yandexLbTargetGroupModel struct {
 	TargetGroupId types.String   `tfsdk:"target_group_id"`
 	ID            types.String   `tfsdk:"id"`
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
+}
+
+func (m *yandexLbTargetGroupModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexLbTargetGroupModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexLbTargetGroupModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexLbTargetGroupModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexLbTargetGroupModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexLbTargetGroupModel) GetRegionId() types.String {
+	return m.RegionId
+}
+func (m *yandexLbTargetGroupModel) GetTarget() types.Set {
+	return m.Target
+}
+func (m *yandexLbTargetGroupModel) GetTargetGroupId() types.String {
+	return m.TargetGroupId
+}
+func (m *yandexLbTargetGroupModel) GetID() types.String {
+	return m.ID
 }
 
 func NewYandexLbTargetGroupModel() yandexLbTargetGroupModel {

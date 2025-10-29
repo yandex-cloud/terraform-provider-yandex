@@ -29,6 +29,37 @@ type yandexComputeGpuClusterModel struct {
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexComputeGpuClusterModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexComputeGpuClusterModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexComputeGpuClusterModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexComputeGpuClusterModel) GetGpuClusterId() types.String {
+	return m.GpuClusterId
+}
+func (m *yandexComputeGpuClusterModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexComputeGpuClusterModel) GetInterconnectType() types.String {
+	return m.InterconnectType
+}
+func (m *yandexComputeGpuClusterModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexComputeGpuClusterModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexComputeGpuClusterModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexComputeGpuClusterModel) GetZone() types.String {
+	return m.Zone
+}
+
 func NewYandexComputeGpuClusterModel() yandexComputeGpuClusterModel {
 	return yandexComputeGpuClusterModel{
 		CreatedAt:        types.StringNull(),

@@ -29,6 +29,37 @@ type yandexKmsAsymmetricSignatureKeyModel struct {
 	Timeouts                 timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetAsymmetricSignatureKeyId() types.String {
+	return m.AsymmetricSignatureKeyId
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetDeletionProtection() types.Bool {
+	return m.DeletionProtection
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetSignatureAlgorithm() types.String {
+	return m.SignatureAlgorithm
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexKmsAsymmetricSignatureKeyModel() yandexKmsAsymmetricSignatureKeyModel {
 	return yandexKmsAsymmetricSignatureKeyModel{
 		AsymmetricSignatureKeyId: types.StringNull(),

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	oidc "github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
-	oidcsdk "github.com/yandex-cloud/go-sdk/services/iam/v1/workload/oidc"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"

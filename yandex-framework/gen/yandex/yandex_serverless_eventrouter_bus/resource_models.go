@@ -29,6 +29,37 @@ type yandexServerlessEventrouterBusModel struct {
 	Timeouts           timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexServerlessEventrouterBusModel) GetBusId() types.String {
+	return m.BusId
+}
+func (m *yandexServerlessEventrouterBusModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexServerlessEventrouterBusModel) GetCloudId() types.String {
+	return m.CloudId
+}
+func (m *yandexServerlessEventrouterBusModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexServerlessEventrouterBusModel) GetDeletionProtection() types.Bool {
+	return m.DeletionProtection
+}
+func (m *yandexServerlessEventrouterBusModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexServerlessEventrouterBusModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexServerlessEventrouterBusModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexServerlessEventrouterBusModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexServerlessEventrouterBusModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexServerlessEventrouterBusModel() yandexServerlessEventrouterBusModel {
 	return yandexServerlessEventrouterBusModel{
 		BusId:              types.StringNull(),

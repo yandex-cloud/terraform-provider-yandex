@@ -30,6 +30,40 @@ type yandexLoggingGroupModel struct {
 	Timeouts        timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexLoggingGroupModel) GetCloudId() types.String {
+	return m.CloudId
+}
+func (m *yandexLoggingGroupModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexLoggingGroupModel) GetDataStream() types.String {
+	return m.DataStream
+}
+func (m *yandexLoggingGroupModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexLoggingGroupModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexLoggingGroupModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexLoggingGroupModel) GetLogGroupId() types.String {
+	return m.LogGroupId
+}
+func (m *yandexLoggingGroupModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexLoggingGroupModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexLoggingGroupModel) GetRetentionPeriod() types.String {
+	return m.RetentionPeriod
+}
+func (m *yandexLoggingGroupModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexLoggingGroupModel() yandexLoggingGroupModel {
 	return yandexLoggingGroupModel{
 		CloudId:         types.StringNull(),

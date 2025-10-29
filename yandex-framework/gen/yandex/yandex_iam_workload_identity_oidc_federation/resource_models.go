@@ -31,6 +31,43 @@ type yandexIamWorkloadIdentityOidcFederationModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetAudiences() types.List {
+	return m.Audiences
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetDisabled() types.Bool {
+	return m.Disabled
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetEnabled() types.Bool {
+	return m.Enabled
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetFederationId() types.String {
+	return m.FederationId
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetIssuer() types.String {
+	return m.Issuer
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetJwksUrl() types.String {
+	return m.JwksUrl
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetName() types.String {
+	return m.Name
+}
+
 func NewYandexIamWorkloadIdentityOidcFederationModel() yandexIamWorkloadIdentityOidcFederationModel {
 	return yandexIamWorkloadIdentityOidcFederationModel{
 		Audiences:    types.ListNull(types.StringType),

@@ -23,6 +23,28 @@ type yandexIamOauthClientDatasourceModel struct {
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexIamOauthClientDatasourceModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexIamOauthClientDatasourceModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexIamOauthClientDatasourceModel) GetOauthClientId() types.String {
+	return m.OauthClientId
+}
+func (m *yandexIamOauthClientDatasourceModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexIamOauthClientDatasourceModel) GetRedirectUris() types.List {
+	return m.RedirectUris
+}
+func (m *yandexIamOauthClientDatasourceModel) GetScopes() types.List {
+	return m.Scopes
+}
+func (m *yandexIamOauthClientDatasourceModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexIamOauthClientDatasourceModel() yandexIamOauthClientDatasourceModel {
 	return yandexIamOauthClientDatasourceModel{
 		FolderId:      types.StringNull(),

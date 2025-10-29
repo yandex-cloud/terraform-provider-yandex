@@ -28,6 +28,34 @@ type yandexOrganizationmanagerUserSshKeyModel struct {
 	Timeouts       timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetData() types.String {
+	return m.Data
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetExpiresAt() types.String {
+	return m.ExpiresAt
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetFingerprint() types.String {
+	return m.Fingerprint
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetOrganizationId() types.String {
+	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetSubjectId() types.String {
+	return m.SubjectId
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetUserSshKeyId() types.String {
+	return m.UserSshKeyId
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexOrganizationmanagerUserSshKeyModel() yandexOrganizationmanagerUserSshKeyModel {
 	return yandexOrganizationmanagerUserSshKeyModel{
 		CreatedAt:      types.StringNull(),

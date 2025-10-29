@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
-	oidcsdk "github.com/yandex-cloud/go-sdk/services/iam/v1/workload/oidc"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 	globallock "github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
 	accessbinding "github.com/yandex-cloud/terraform-provider-yandex/pkg/iam_access"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"

@@ -29,6 +29,37 @@ type yandexKmsAsymmetricEncryptionKeyModel struct {
 	Timeouts                  timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetAsymmetricEncryptionKeyId() types.String {
+	return m.AsymmetricEncryptionKeyId
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetDeletionProtection() types.Bool {
+	return m.DeletionProtection
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetEncryptionAlgorithm() types.String {
+	return m.EncryptionAlgorithm
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) GetStatus() types.String {
+	return m.Status
+}
+
 func NewYandexKmsAsymmetricEncryptionKeyModel() yandexKmsAsymmetricEncryptionKeyModel {
 	return yandexKmsAsymmetricEncryptionKeyModel{
 		AsymmetricEncryptionKeyId: types.StringNull(),

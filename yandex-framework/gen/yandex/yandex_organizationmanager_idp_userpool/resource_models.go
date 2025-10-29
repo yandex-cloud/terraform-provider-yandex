@@ -34,6 +34,52 @@ type yandexOrganizationmanagerIdpUserpoolModel struct {
 	Timeouts                   timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetBruteforceProtectionPolicy() types.Object {
+	return m.BruteforceProtectionPolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetDefaultSubdomain() types.String {
+	return m.DefaultSubdomain
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetDomains() types.List {
+	return m.Domains
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetOrganizationId() types.String {
+	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetPasswordLifetimePolicy() types.Object {
+	return m.PasswordLifetimePolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetPasswordQualityPolicy() types.Object {
+	return m.PasswordQualityPolicy
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetUserSettings() types.Object {
+	return m.UserSettings
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetUserpoolId() types.String {
+	return m.UserpoolId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetID() types.String {
+	return m.ID
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolModel() yandexOrganizationmanagerIdpUserpoolModel {
 	return yandexOrganizationmanagerIdpUserpoolModel{
 		BruteforceProtectionPolicy: types.ObjectNull(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModelType.AttrTypes),
@@ -194,6 +240,16 @@ type yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel struct 
 	Window   types.String `tfsdk:"window"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) GetAttempts() types.Int64 {
+	return m.Attempts
+}
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) GetBlock() types.String {
+	return m.Block
+}
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) GetWindow() types.String {
+	return m.Window
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel() yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel {
 	return yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel{
 		Attempts: types.Int64Null(),
@@ -341,6 +397,13 @@ type yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel struct {
 	MinDaysCount types.Int64 `tfsdk:"min_days_count"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel) GetMaxDaysCount() types.Int64 {
+	return m.MaxDaysCount
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel) GetMinDaysCount() types.Int64 {
+	return m.MinDaysCount
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel{
 		MaxDaysCount: types.Int64Null(),
@@ -408,6 +471,25 @@ type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel struct {
 	MinLength                types.Int64  `tfsdk:"min_length"`
 	MinLengthByClassSettings types.Object `tfsdk:"min_length_by_class_settings"`
 	RequiredClasses          types.Object `tfsdk:"required_classes"`
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetAllowSimilar() types.Bool {
+	return m.AllowSimilar
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMatchLength() types.Int64 {
+	return m.MatchLength
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMaxLength() types.Int64 {
+	return m.MaxLength
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMinLength() types.Int64 {
+	return m.MinLength
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMinLengthByClassSettings() types.Object {
+	return m.MinLengthByClassSettings
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetRequiredClasses() types.Object {
+	return m.RequiredClasses
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel {
@@ -504,6 +586,16 @@ type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSe
 	Two   types.Int64 `tfsdk:"two"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetOne() types.Int64 {
+	return m.One
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetThree() types.Int64 {
+	return m.Three
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetTwo() types.Int64 {
+	return m.Two
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel{
 		One:   types.Int64Null(),
@@ -576,6 +668,19 @@ type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesMod
 	Lowers   types.Bool `tfsdk:"lowers"`
 	Specials types.Bool `tfsdk:"specials"`
 	Uppers   types.Bool `tfsdk:"uppers"`
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetDigits() types.Bool {
+	return m.Digits
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetLowers() types.Bool {
+	return m.Lowers
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetSpecials() types.Bool {
+	return m.Specials
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetUppers() types.Bool {
+	return m.Uppers
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel {
@@ -657,6 +762,19 @@ type yandexOrganizationmanagerIdpUserpoolUserSettingsModel struct {
 	AllowEditSelfInfo     types.Bool `tfsdk:"allow_edit_self_info"`
 	AllowEditSelfLogin    types.Bool `tfsdk:"allow_edit_self_login"`
 	AllowEditSelfPassword types.Bool `tfsdk:"allow_edit_self_password"`
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelfContacts() types.Bool {
+	return m.AllowEditSelfContacts
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelfInfo() types.Bool {
+	return m.AllowEditSelfInfo
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelfLogin() types.Bool {
+	return m.AllowEditSelfLogin
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelfPassword() types.Bool {
+	return m.AllowEditSelfPassword
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolUserSettingsModel() yandexOrganizationmanagerIdpUserpoolUserSettingsModel {
