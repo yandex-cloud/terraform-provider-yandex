@@ -237,6 +237,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			},
 			"cache_http_headers": {
 				Type:        schema.TypeList,
+				Deprecated:  "This attribute does not affect anything. You can safely delete it.",
 				Description: "List HTTP headers that must be included in responses to clients.",
 				Computed:    true,
 				Optional:    true,

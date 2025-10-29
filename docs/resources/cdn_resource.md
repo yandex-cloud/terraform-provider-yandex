@@ -69,7 +69,7 @@ Optional:
 
 - `allowed_http_methods` (List of String) HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.
 - `browser_cache_settings` (Number) Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.
-- `cache_http_headers` (List of String) List HTTP headers that must be included in responses to clients.
+- `cache_http_headers` (List of String, Deprecated) List HTTP headers that must be included in responses to clients.
 - `cors` (List of String) Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.
 - `custom_host_header` (String) Custom value for the Host header. Your server must be able to process requests with the chosen header.
 - `custom_server_name` (String) Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.

@@ -318,9 +318,6 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	}
 
 	// stringList options
-	if rawOption, ok := d.GetOk("options.0.cache_http_headers"); ok {
-		result.CacheHttpHeaders = cdnStringListOption(rawOption.([]any))
-	}
 	if rawOption, ok := d.GetOk("options.0.cors"); ok {
 		result.Cors = cdnStringListOption(rawOption.([]any))
 	}
@@ -354,7 +351,7 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		result.Slice, result.IgnoreCookie,
 		result.ProxyCacheMethodsSet, result.DisableProxyForceRanges,
 
-		result.CacheHttpHeaders, result.Cors, result.AllowedHttpMethods,
+		result.Cors, result.AllowedHttpMethods,
 
 		result.StaticHeaders, result.StaticRequestHeaders, result.CustomServerName,
 
@@ -746,10 +743,6 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 
 	if options.BrowserCacheSettings != nil {
 		setIfEnabled("browser_cache_settings", options.BrowserCacheSettings.Enabled, options.BrowserCacheSettings.Value)
-	}
-
-	if options.CacheHttpHeaders != nil {
-		setIfEnabled("cache_http_headers", options.CacheHttpHeaders.Enabled, options.CacheHttpHeaders.Value)
 	}
 
 	if options.Slice != nil {

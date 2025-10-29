@@ -61,7 +61,7 @@ Optional:
 
 - `browser_cache_settings` (Number) Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.
 
-- `cache_http_headers` (List of String) List HTTP headers that must be included in responses to clients. List HTTP headers that must be included in responses to clients.
+- `cache_http_headers` (List of String, Deprecated) List HTTP headers that must be included in responses to clients. List HTTP headers that must be included in responses to clients.
 
 - `cors` (List of String) Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received. Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.
 
