@@ -63,15 +63,13 @@ func sweepEventrouterRuleOnce(conf *Config, id string) error {
 }
 
 func TestAccEventrouterRule_yds(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -98,15 +96,13 @@ func TestAccEventrouterRule_yds(t *testing.T) {
 }
 
 func TestAccEventrouterRule_ymq(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -132,15 +128,13 @@ func TestAccEventrouterRule_ymq(t *testing.T) {
 }
 
 func TestAccEventrouterRule_function(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -168,15 +162,13 @@ func TestAccEventrouterRule_function(t *testing.T) {
 }
 
 func TestAccEventrouterRule_container(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -204,15 +196,13 @@ func TestAccEventrouterRule_container(t *testing.T) {
 }
 
 func TestAccEventrouterRule_gatewayWsBroadcast(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -242,15 +232,13 @@ func TestAccEventrouterRule_gatewayWsBroadcast(t *testing.T) {
 }
 
 func TestAccEventrouterRule_logging(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -277,15 +265,13 @@ func TestAccEventrouterRule_logging(t *testing.T) {
 
 func TestAccEventrouterRule_workflow(t *testing.T) {
 	t.Skip("TODO: enable this test when workflow is supported in provider")
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
 	desc := acctest.RandomWithPrefix("tf-rule-desc")
 	labelKey := acctest.RandomWithPrefix("tf-rule-label")
 	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,
@@ -315,8 +301,6 @@ func TestAccEventrouterRule_workflow(t *testing.T) {
 }
 
 func TestAccEventrouterRule_update(t *testing.T) {
-	t.Parallel()
-
 	var rule eventrouter.Rule
 	var ruleUpdated eventrouter.Rule
 	name := acctest.RandomWithPrefix("tf-rule")
@@ -330,7 +314,7 @@ func TestAccEventrouterRule_update(t *testing.T) {
 	labelValueUpdated := acctest.RandomWithPrefix("tf-rule-label-value-1")
 	queueName := acctest.RandomWithPrefix("tf-queue")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterRuleDestroy,

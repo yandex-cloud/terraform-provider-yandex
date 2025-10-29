@@ -70,15 +70,13 @@ func sweepServerlessContainerOnce(conf *Config, id string) error {
 }
 
 func TestAccYandexServerlessContainer_basic(t *testing.T) {
-	t.Parallel()
-
 	var container containers.Container
 	var revision containers.Revision
 	containerName := acctest.RandomWithPrefix("tf-container")
 	containerDesc := acctest.RandomWithPrefix("tf-container-desc")
 	memory := (1 + acctest.RandIntRange(1, 4)) * 128
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexServerlessContainerDestroy,
@@ -90,8 +88,6 @@ func TestAccYandexServerlessContainer_basic(t *testing.T) {
 }
 
 func TestAccYandexServerlessContainer_update(t *testing.T) {
-	t.Parallel()
-
 	var container containers.Container
 	var revision containers.Revision
 	containerName := acctest.RandomWithPrefix("tf-container")
@@ -102,7 +98,7 @@ func TestAccYandexServerlessContainer_update(t *testing.T) {
 	containerDescUpdated := acctest.RandomWithPrefix("tf-container-desc-updated")
 	memoryUpdated := (4 + acctest.RandIntRange(4, 6)) * 128
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexServerlessContainerDestroy,
@@ -155,8 +151,6 @@ func basicYandexServerlessContainerTestStep(containerName string, containerDesc 
 }
 
 func TestAccYandexServerlessContainer_updateAfterRevisionDeployError(t *testing.T) {
-	t.Parallel()
-
 	var containerFirstApply containers.Container
 	var containerSecondApply containers.Container
 	var revision containers.Revision
@@ -177,7 +171,7 @@ func TestAccYandexServerlessContainer_updateAfterRevisionDeployError(t *testing.
 		return sb.String()
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
@@ -208,8 +202,6 @@ func TestAccYandexServerlessContainer_updateAfterRevisionDeployError(t *testing.
 }
 
 func TestAccYandexServerlessContainer_full(t *testing.T) {
-	t.Parallel()
-
 	var container containers.Container
 	var revision containers.Revision
 	params := testYandexServerlessContainerParameters{}
@@ -381,7 +373,7 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		}
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexServerlessContainerDestroy,
@@ -395,8 +387,6 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 }
 
 func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
-	t.Parallel()
-
 	folderID := os.Getenv("YC_FOLDER_ID")
 	var container containers.Container
 	var revision containers.Revision
@@ -588,7 +578,7 @@ func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
 		resource.TestCheckResourceAttr(resourcePath, "log_options.0.min_level", "ERROR"),
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexServerlessContainerDestroy,

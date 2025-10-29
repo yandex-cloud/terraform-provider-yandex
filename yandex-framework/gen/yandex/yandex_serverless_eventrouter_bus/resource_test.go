@@ -70,15 +70,13 @@ func sweepEventrouterBusOnce(conf *provider_config.Config, id string) error {
 }
 
 func TestAccEventrouterBus_UpgradeFromSDKv2(t *testing.T) {
-	t.Parallel()
-
 	var bus eventrouter.Bus
 	name := acctest.RandomWithPrefix("tf-bus")
 	desc := acctest.RandomWithPrefix("tf-bus-desc")
 	labelKey := acctest.RandomWithPrefix("tf-bus-label")
 	labelValue := acctest.RandomWithPrefix("tf-bus-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { test.AccPreCheck(t) },
 		CheckDestroy: testYandexEventrouterBusDestroy,
 		Steps: []resource.TestStep{
@@ -115,15 +113,13 @@ func TestAccEventrouterBus_UpgradeFromSDKv2(t *testing.T) {
 }
 
 func TestAccEventrouterBus_basic(t *testing.T) {
-	t.Parallel()
-
 	var bus eventrouter.Bus
 	name := acctest.RandomWithPrefix("tf-bus")
 	desc := acctest.RandomWithPrefix("tf-bus-desc")
 	labelKey := acctest.RandomWithPrefix("tf-bus-label")
 	labelValue := acctest.RandomWithPrefix("tf-bus-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
 		CheckDestroy:             testYandexEventrouterBusDestroy,
@@ -147,8 +143,6 @@ func TestAccEventrouterBus_basic(t *testing.T) {
 }
 
 func TestAccEventrouterBus_update(t *testing.T) {
-	t.Parallel()
-
 	var bus eventrouter.Bus
 	var busUpdated eventrouter.Bus
 	name := acctest.RandomWithPrefix("tf-bus")
@@ -161,7 +155,7 @@ func TestAccEventrouterBus_update(t *testing.T) {
 	labelKeyUpdated := acctest.RandomWithPrefix("tf-bus-label-1")
 	labelValueUpdated := acctest.RandomWithPrefix("tf-bus-label-value-1")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
 		CheckDestroy:             testYandexEventrouterBusDestroy,

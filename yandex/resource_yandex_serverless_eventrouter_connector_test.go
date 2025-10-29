@@ -63,15 +63,13 @@ func sweepEventrouterConnectorOnce(conf *Config, id string) error {
 }
 
 func TestAccEventrouterConnector_yds(t *testing.T) {
-	t.Parallel()
-
 	var connector eventrouter.Connector
 	name := acctest.RandomWithPrefix("tf-connector")
 	desc := acctest.RandomWithPrefix("tf-connector-desc")
 	labelKey := acctest.RandomWithPrefix("tf-connector-label")
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterConnectorDestroy,
@@ -99,15 +97,13 @@ func TestAccEventrouterConnector_yds(t *testing.T) {
 }
 
 func TestAccEventrouterConnector_ymq(t *testing.T) {
-	t.Parallel()
-
 	var connector eventrouter.Connector
 	name := acctest.RandomWithPrefix("tf-connector")
 	desc := acctest.RandomWithPrefix("tf-connector-desc")
 	labelKey := acctest.RandomWithPrefix("tf-connector-label")
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterConnectorDestroy,
@@ -136,15 +132,13 @@ func TestAccEventrouterConnector_ymq(t *testing.T) {
 }
 
 func TestAccEventrouterConnector_timer(t *testing.T) {
-	t.Parallel()
-
 	var connector eventrouter.Connector
 	name := acctest.RandomWithPrefix("tf-connector")
 	desc := acctest.RandomWithPrefix("tf-connector-desc")
 	labelKey := acctest.RandomWithPrefix("tf-connector-label")
 	labelValue := acctest.RandomWithPrefix("tf-connector-label-value")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterConnectorDestroy,
@@ -171,8 +165,6 @@ func TestAccEventrouterConnector_timer(t *testing.T) {
 }
 
 func TestAccEventrouterConnector_update(t *testing.T) {
-	t.Parallel()
-
 	var connector eventrouter.Connector
 	var connectorUpdated eventrouter.Connector
 	name := acctest.RandomWithPrefix("tf-connector")
@@ -186,7 +178,7 @@ func TestAccEventrouterConnector_update(t *testing.T) {
 	labelValueUpdated := acctest.RandomWithPrefix("tf-connector-label-value-1")
 	queueName := acctest.RandomWithPrefix("tf-queue")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testYandexEventrouterConnectorDestroy,

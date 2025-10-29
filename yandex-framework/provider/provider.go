@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/providervalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -88,7 +89,8 @@ func (v saKeyValidator) ValidateString(ctx context.Context, req validator.String
 
 type Provider struct {
 	emptyFolder bool
-	config      provider_config.Config
+	config      *provider_config.Config
+	configOnce  sync.Once
 }
 
 func NewFrameworkProvider() provider.Provider {
@@ -256,20 +258,27 @@ func setDefaults(config provider_config.State) provider_config.State {
 }
 
 func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	// Add a nil check when handling ProviderData because Terraform
+	// sets that data after it calls the ConfigureProvider RPC.
+	if req.Config.Raw.IsNull() {
+		return
+	}
 	// Unmarshal config
-	p.config = provider_config.Config{}
-	resp.Diagnostics.Append(req.Config.Get(ctx, &p.config.ProviderState)...)
-	p.config.UserAgent = types.StringValue(req.TerraformVersion)
-	p.config.ProviderState = setDefaults(p.config.ProviderState)
-	if p.emptyFolder {
-		p.config.ProviderState.FolderID = types.StringValue("")
-	}
+	p.configOnce.Do(func() {
+		p.config = &provider_config.Config{}
+		resp.Diagnostics.Append(req.Config.Get(ctx, &(*p.config).ProviderState)...)
+		p.config.UserAgent = types.StringValue(req.TerraformVersion)
+		p.config.ProviderState = setDefaults(p.config.ProviderState)
+		if p.emptyFolder {
+			p.config.ProviderState.FolderID = types.StringValue("")
+		}
 
-	if err := p.config.InitAndValidate(ctx, req.TerraformVersion, false); err != nil {
-		resp.Diagnostics.AddError("Failed to configure", err.Error())
-	}
-	resp.ResourceData = &p.config
-	resp.DataSourceData = &p.config
+		if err := p.config.InitAndValidate(ctx, req.TerraformVersion, false); err != nil {
+			resp.Diagnostics.AddError("Failed to configure", err.Error())
+		}
+	})
+	resp.ResourceData = p.config
+	resp.DataSourceData = p.config
 }
 
 func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
@@ -349,5 +358,8 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 }
 
 func (p *Provider) GetConfig() provider_config.Config {
-	return p.config
+	if p.config == nil {
+		return provider_config.Config{}
+	}
+	return *p.config
 }
