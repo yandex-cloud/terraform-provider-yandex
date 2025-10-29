@@ -316,10 +316,10 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 	var updatePaths []string
 
 	if plan.Audiences.IsNull() {
-		plan.Audiences = types.ListNull(types.StringType)
+		plan.Audiences = types.SetNull(types.StringType)
 	}
 	if state.Audiences.IsNull() {
-		state.Audiences = types.ListNull(types.StringType)
+		state.Audiences = types.SetNull(types.StringType)
 	}
 	if !plan.Audiences.Equal(state.Audiences) {
 		updatePaths = append(updatePaths, "audiences")

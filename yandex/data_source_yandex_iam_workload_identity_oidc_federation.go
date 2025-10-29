@@ -56,7 +56,7 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
 			},
 
 			"audiences": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

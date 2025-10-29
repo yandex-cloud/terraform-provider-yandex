@@ -1,0 +1,4 @@
+kind: BUG FIXES
+body: 'iam: fix test assertions for `audiences` in `yandex_iam_workload_identity_oidc_federation`
+  by using set-based checks'
+time: 2025-10-29T13:39:05.893717024Z

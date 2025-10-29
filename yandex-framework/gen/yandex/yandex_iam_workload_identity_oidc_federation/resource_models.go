@@ -16,7 +16,7 @@ import (
 )
 
 type yandexIamWorkloadIdentityOidcFederationModel struct {
-	Audiences    types.List     `tfsdk:"audiences"`
+	Audiences    types.Set      `tfsdk:"audiences"`
 	CreatedAt    types.String   `tfsdk:"created_at"`
 	Description  types.String   `tfsdk:"description"`
 	Disabled     types.Bool     `tfsdk:"disabled"`
@@ -31,7 +31,7 @@ type yandexIamWorkloadIdentityOidcFederationModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
-func (m *yandexIamWorkloadIdentityOidcFederationModel) GetAudiences() types.List {
+func (m *yandexIamWorkloadIdentityOidcFederationModel) GetAudiences() types.Set {
 	return m.Audiences
 }
 func (m *yandexIamWorkloadIdentityOidcFederationModel) GetCreatedAt() types.String {
@@ -70,7 +70,7 @@ func (m *yandexIamWorkloadIdentityOidcFederationModel) GetName() types.String {
 
 func NewYandexIamWorkloadIdentityOidcFederationModel() yandexIamWorkloadIdentityOidcFederationModel {
 	return yandexIamWorkloadIdentityOidcFederationModel{
-		Audiences:    types.ListNull(types.StringType),
+		Audiences:    types.SetNull(types.StringType),
 		CreatedAt:    types.StringNull(),
 		Description:  types.StringNull(),
 		Disabled:     types.BoolNull(),
@@ -87,7 +87,7 @@ func NewYandexIamWorkloadIdentityOidcFederationModel() yandexIamWorkloadIdentity
 
 func yandexIamWorkloadIdentityOidcFederationModelFillUnknown(target yandexIamWorkloadIdentityOidcFederationModel) yandexIamWorkloadIdentityOidcFederationModel {
 	if target.Audiences.IsUnknown() || target.Audiences.IsNull() {
-		target.Audiences = types.ListNull(types.StringType)
+		target.Audiences = types.SetNull(types.StringType)
 	}
 	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
 		target.CreatedAt = types.StringNull()
@@ -127,7 +127,7 @@ func yandexIamWorkloadIdentityOidcFederationModelFillUnknown(target yandexIamWor
 
 var yandexIamWorkloadIdentityOidcFederationModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"audiences":     types.ListType{ElemType: types.StringType},
+		"audiences":     types.SetType{ElemType: types.StringType},
 		"created_at":    types.StringType,
 		"description":   types.StringType,
 		"disabled":      types.BoolType,
@@ -201,12 +201,12 @@ func expandYandexIamWorkloadIdentityOidcFederationModel(ctx context.Context, yan
 	return value
 }
 
-func flattenYandexIamWorkloadIdentityOidcFederationAudiences(ctx context.Context, yandexIamWorkloadIdentityOidcFederationAudiences []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexIamWorkloadIdentityOidcFederationAudiences(ctx context.Context, yandexIamWorkloadIdentityOidcFederationAudiences []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexIamWorkloadIdentityOidcFederationAudiences == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexIamWorkloadIdentityOidcFederationAudiencesValues []attr.Value
 	for _, elem := range yandexIamWorkloadIdentityOidcFederationAudiences {
@@ -214,12 +214,12 @@ func flattenYandexIamWorkloadIdentityOidcFederationAudiences(ctx context.Context
 		yandexIamWorkloadIdentityOidcFederationAudiencesValues = append(yandexIamWorkloadIdentityOidcFederationAudiencesValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexIamWorkloadIdentityOidcFederationAudiencesValues)
+	value, diag := types.SetValue(types.StringType, yandexIamWorkloadIdentityOidcFederationAudiencesValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexIamWorkloadIdentityOidcFederationAudiences(ctx context.Context, yandexIamWorkloadIdentityOidcFederationAudiencesState types.List, diags *diag.Diagnostics) []string {
+func expandYandexIamWorkloadIdentityOidcFederationAudiences(ctx context.Context, yandexIamWorkloadIdentityOidcFederationAudiencesState types.Set, diags *diag.Diagnostics) []string {
 	if yandexIamWorkloadIdentityOidcFederationAudiencesState.IsNull() || yandexIamWorkloadIdentityOidcFederationAudiencesState.IsUnknown() {
 		return nil
 	}

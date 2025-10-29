@@ -7,14 +7,14 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -28,7 +28,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
-			"audiences": schema.ListAttribute{
+			"audiences": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of trusted values for aud claim.",
 				Description: "List of trusted values for aud claim." +
@@ -41,12 +41,12 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 255),
 					),
 				},
