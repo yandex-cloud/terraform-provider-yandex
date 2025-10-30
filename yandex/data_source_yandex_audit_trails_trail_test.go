@@ -19,9 +19,9 @@ func TestAccDataSourceAuditTrailsTrail_storageByID(t *testing.T) {
 	trailConfig := auditTrailsStorageConfig(trailTestName, bucketTestName, saName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create base infrastructure
 			{
@@ -57,9 +57,9 @@ func TestAccDataSourceAuditTrailsTrail_loggingByID(t *testing.T) {
 	trailConfig := auditTrailsLoggingConfig(trailTestName, loggingTestName, saName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create base logging infrastructure
 			{
@@ -89,9 +89,9 @@ func TestAccDataSourceAuditTrailsTrail_dataStreamByID(t *testing.T) {
 	trailConfig := auditTrailsYdsConfig(trailTestName, ydbTestName, streamTestName, saName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create YDB infrastructure
 			{

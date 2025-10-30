@@ -83,9 +83,9 @@ func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 	updatedTrail.FilteringPolicy.DataEventFilters[1].DnsFilter.IncludeNonrecursiveQueries = false
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create base infrastructure
 			{
@@ -145,9 +145,9 @@ func TestAccResourceAuditTrailsTrail_logging(t *testing.T) {
 	updatedTrail.FilteringPolicy.DataEventFilters[2].DnsFilter.IncludeNonrecursiveQueries = true
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create base logging infrastructure
 			{
@@ -190,11 +190,12 @@ func TestAccResourceAuditTrailsTrail_dataStream(t *testing.T) {
 		YdbName:    ydbTestName,
 		StreamName: updatedStreamTestName,
 	}
+	updatedTrail.FilteringPolicy.DataEventFilters[0].DnsFilter.IncludeNonrecursiveQueries = false
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexAuditTrailsTrailAllDestroyed, // delete is called for each resource and checked
 		Steps: []resource.TestStep{
 			// create YDB infrastructure
 			{
@@ -429,7 +430,20 @@ func auditTrailsYdsConfig(trailResourceName, ydbName, streamName, saName string)
 					},
 				},
 			},
-			DataEventFilters: []trailDataEventFilter{},
+			DataEventFilters: []trailDataEventFilter{
+				{
+					Service: "dns",
+					ResourceScope: []trailResourceEntry{
+						{
+							ResourceId:   getExampleFolderID(),
+							ResourceType: "resource-manager.folder",
+						},
+					},
+					DnsFilter: trailDnsFilter{
+						IncludeNonrecursiveQueries: false,
+					},
+				},
+			},
 		},
 	}
 }
@@ -653,7 +667,7 @@ func auditTrailsYdsResourceConfig(ydbName, topicName string) string {
 const ydbResourceTemplate = `
 resource "yandex_ydb_database_serverless" "{{.YdbName}}" {
   name = "{{.YdbName}}"
-  location_id = "ru-central1"
+  location_id = "global"
 }
 `
 
