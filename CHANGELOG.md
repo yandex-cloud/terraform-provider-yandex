@@ -2,6 +2,20 @@
 
 
 
+## 0.169.0 (October 30, 2025)
+##### FEATURES:
+* OrganizationManager: new user and userpool datasources and resources
+* CDN: cdn_resource.options edge_cache_settings by codes
+##### BUG FIXES:
+* redis: fix for every time changed field `acl_options`
+* mongodb: fix empty diff when permission block changes from empty to null
+* iam: fix test assertions for `audiences` in `yandex_iam_workload_identity_oidc_federation` by using set-based checks
+##### ENHANCEMENTS:
+* CDN: resource.disable_cache is deprecated. You can safely delete it
+* CDN: cdn_resource.cache_http_headers marked deprecated
+##### :
+* mongodb: fix empty diff when permission block change empty to null
+
 ## 0.168.0 (October 23, 2025)
 ##### FEATURES:
 * CDN: shielding feature for cdn_resource

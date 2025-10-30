@@ -1,3 +1,0 @@
-arkind: BUG FIXES
-body: 'mongodb: fix empty diff when permission block change empty to null'
-time: 2025-10-15T18:00:11.469554+03:00
