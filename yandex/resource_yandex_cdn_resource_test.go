@@ -3,13 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
@@ -275,7 +275,43 @@ func TestAccCDNResource_updateGroupByName(t *testing.T) {
 	})
 }
 
-func TestAccCDNResource_labels(t *testing.T) {
+func TestAccCDNResource_CName_ForceNew(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	originalCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+	newCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			// Create the CDN resource with the initial CNAME.
+			{
+				Config: testAccCDNResource_basicByName(groupName, originalCName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", originalCName),
+				),
+			},
+			// Attempt to change the CNAME, which should result in an error.
+			{
+				Config: testAccCDNResource_basicByName(groupName, newCName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("yandex_cdn_resource.foobar_resource", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+		},
+	})
+}
+
+// TODO: secondary_hostnames
+
+// TODO: ssl_certificate
+
+func TestAccCDNResource_Labels(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
@@ -342,42 +378,13 @@ func TestAccCDNResource_labels(t *testing.T) {
 	})
 }
 
-func TestAccCDNResource_optionEdgeCacheSettings(t *testing.T) {
-	folderID := getExampleFolderID()
+// TODO: provider
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-	ttl := acctest.RandIntRange(10, 100500)
-
-	var cdnResource cdn.Resource
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCDNResource_optionEdgeCacheSetting(groupName, resourceCName, ttl),
-				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.edge_cache_settings", fmt.Sprintf("%d", ttl)),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCDNResource_optionIgnoreQueryParams(t *testing.T) {
-	folderID := getExampleFolderID()
-
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-
-	var cdnResource cdn.Resource
+func TestAccCDNResource_Shielding(t *testing.T) {
+	t.Parallel()
+	groupName := fmt.Sprintf("tf-og-%s", acctest.RandString(10))
+	cname := fmt.Sprintf("cdn-%s.yandex.net", acctest.RandString(4))
+	locationId := int64(1)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -385,27 +392,30 @@ func TestAccCDNResource_optionIgnoreQueryParams(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionIgnoreQueryParams(groupName, resourceCName),
-				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_query_params", "true"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
-				),
+				Config: testAccCDNResource_shielding(cname, groupName, nil),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
+			},
+			// enabling shielding
+			{
+				Config: testAccCDNResource_shielding(cname, groupName, &locationId),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", fmt.Sprint(locationId)),
+			},
+			// disabling shielding
+			{
+				Config: testAccCDNResource_shielding(cname, groupName, nil),
+				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionIgnoreCookie(t *testing.T) {
-	folderID := getExampleFolderID()
+// Options
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+func TestAccCDNResource_Option_EdgeCacheSettings(t *testing.T) {
+	t.Parallel()
 
-	var cdnResource cdn.Resource
+	groupName := fmt.Sprintf("tfog%s", acctest.RandString(10))
+	cname := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -413,28 +423,82 @@ func TestAccCDNResource_optionIgnoreCookie(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionIgnoreCookie(groupName, resourceCName),
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
 				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ignore_cookie", "true"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, `edge_cache_settings = 40`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "40"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname, `edge_cache_settings_codes { value = 80 }`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "80"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname, `edge_cache_settings_codes { value = 40 }`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(
+					groupName, cname,
+					`edge_cache_settings_codes { 
+						value = 40
+						custom_values = { 
+							"200" = 1200
+							"400" = 0
+						} 
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
+
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.200", "1200"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.400", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, cname, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.#", "0"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionCustomHostHeader(t *testing.T) {
-	folderID := getExampleFolderID()
+func TestAccCDNResource_Option_BrowserCacheSettings(t *testing.T) {
+	t.Parallel()
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-	customHostHeader := fmt.Sprintf("cdn%02d.yandex.net", acctest.RandIntRange(1, 64))
-
-	var cdnResource cdn.Resource
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -442,27 +506,81 @@ func TestAccCDNResource_optionCustomHostHeader(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionCustomHostHeader(groupName, resourceCName, customHostHeader),
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
 				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.custom_host_header", customHostHeader),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.browser_cache_settings", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `browser_cache_settings = 3600`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.browser_cache_settings", "3600"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `browser_cache_settings = 2400`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.browser_cache_settings", "2400"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.browser_cache_settings", "0"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionForwardHostHeader(t *testing.T) {
-	folderID := getExampleFolderID()
+func TestAccCDNResource_Option_QueryParams(t *testing.T) {
+	t.Parallel()
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
-	var cdnResource cdn.Resource
+	t.Run("ignore_query_params", func(t *testing.T) {
+		t.Skip("current provider implementation assumes bug")
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "true"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `ignore_query_params = false`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "true"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+			},
+		})
+	})
+	// TODO: query_params_whitelist, query_params_blacklist
+}
+
+func TestAccCDNResource_Option_Slice(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -470,27 +588,106 @@ func TestAccCDNResource_optionForwardHostHeader(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionForwardHostHeader(groupName, resourceCName, true),
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
 				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.forward_host_header", "true"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "false"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `slice = true`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "true"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `slice = false`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "false"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionStaticHeaders(t *testing.T) {
-	folderID := getExampleFolderID()
+func TestAccCDNResource_Option_CompressionOptions(t *testing.T) {
+	t.Parallel()
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+	t.Run("fetched_compressed", func(t *testing.T) {
+		t.Skip("current provider implementation assumes bug")
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "false"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `fetched_compressed = true`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "true"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "false"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "false"),
+					),
+				},
+			},
+		})
+	})
+	t.Run("gzip_on", func(t *testing.T) {
+		t.Skip("current provider implementation assumes bug")
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "false"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `gzip_on = true`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "true"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.fetched_compressed", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.gzip_on", "false"),
+					),
+				},
+			},
+		})
+	})
+}
 
-	var cdnResource cdn.Resource
+// TODO: RedirectOptions
+
+func TestAccCDNResource_Option_HostOption(t *testing.T) {
+	t.Parallel()
+
+	t.Skip("current provider implementation assumes bug")
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -498,28 +695,56 @@ func TestAccCDNResource_optionStaticHeaders(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionStaticHeaders(groupName, resourceCName),
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
 				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_response_headers.X-Tf-Check-1", "some test value #1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_response_headers.X-Tf-Check-2", "some test value #2"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `forward_host_header = true`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "true"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "google.com"`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "google.com"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "ya.ru"`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "ya.ru"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionStaticRequestHeaders(t *testing.T) {
-	folderID := getExampleFolderID()
+func TestAccCDNResource_Option_StaticHeaders(t *testing.T) {
+	t.Parallel()
 
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-
-	var cdnResource cdn.Resource
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -527,22 +752,228 @@ func TestAccCDNResource_optionStaticRequestHeaders(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCDNResource_optionStaticRequestHeaders(groupName, resourceCName),
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
 				Check: resource.ComposeTestCheckFunc(
-					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_request_headers.X-Tf-Check-1", "some test value #1"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_request_headers.X-Tf-Check-2", "some test value #2"),
-					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`static_response_headers = {
+						"key1" = "value1",
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.%", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.key1", "value1"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`static_response_headers = {
+						"key1" = "value1",
+						"key2" = "value2",
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.%", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.key1", "value1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.key2", "value2"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_response_headers.%", "0"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCDNResource_optionSecureKey(t *testing.T) {
+func TestAccCDNResource_Option_Cors(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.#", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `cors = ["google.com"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.0", "google.com"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `cors = ["google.com", "ya.ru"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.#", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.0", "google.com"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.1", "ya.ru"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.cors.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+// TODO: stale
+
+func TestAccCDNResource_Option_AllowedHttpMethods(t *testing.T) {
+	t.Parallel()
+
+	t.Skip("current provider implementation assumes bug")
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.#", "3"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.0", "GET"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.1", "HEAD"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.2", "OPTIONS"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `allowed_http_methods = ["GET", "POST"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.#", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.0", "GET"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.1", "POST"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `allowed_http_methods = ["GET"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.0", "GET"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.#", "3"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.0", "GET"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.1", "HEAD"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.allowed_http_methods.2", "OPTIONS"),
+				),
+			},
+		},
+	})
+}
+
+// TODO: proxy_cache_methods_set
+// TODO: disable_proxy_force_ranges
+
+func TestAccCDNResource_Option_StaticRequestHeaders(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.%", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`static_request_headers = {
+						"key1" = "value1",
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.%", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.key1", "value1"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`static_request_headers = {
+						"key1" = "value1",
+						"key2" = "value2",
+					}`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.%", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.key1", "value1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.key2", "value2"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.static_request_headers.%", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCDNResource_Option_IgnoreCookie(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_cookie", "true"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `ignore_cookie = false`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_cookie", "false"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_cookie", "true"),
+				),
+			},
+		},
+	})
+}
+
+// TODO: rewrite
+
+func TestAccCDNResource_Option_SecureKey(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
@@ -571,7 +1002,7 @@ func TestAccCDNResource_optionSecureKey(t *testing.T) {
 	})
 }
 
-func TestAccCDNResource_optionIPAddressACL(t *testing.T) {
+func TestAccCDNResource_Option_IPAddressACL(t *testing.T) {
 	folderID := getExampleFolderID()
 
 	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
@@ -690,82 +1121,6 @@ func testCDNResourceExists(resourceName string, cdnResource *cdn.Resource) resou
 	}
 }
 
-func testAccCDNResource_optionEdgeCacheSetting(groupName, resourceCNAME string, edgeCacheSettings int) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		edge_cache_settings = %d
-	}
-}
-`, resourceCNAME, edgeCacheSettings)
-}
-
-func testAccCDNResource_optionIgnoreQueryParams(groupName, resourceCNAME string) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		ignore_query_params = true
-	}
-}
-`, resourceCNAME)
-}
-
-func testAccCDNResource_optionStaticHeaders(groupName, resourceCNAME string) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		static_response_headers = {
-			X-Tf-Check-1 = "some test value #1"
-			X-Tf-Check-2 = "some test value #2"
-		}
-	}
-}
-`, resourceCNAME)
-}
-
-func testAccCDNResource_optionStaticRequestHeaders(groupName, resourceCNAME string) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		static_request_headers = {
-			X-Tf-Check-1 = "some test value #1"
-			X-Tf-Check-2 = "some test value #2"
-		}
-	}
-}
-`, resourceCNAME)
-}
-
-func testAccCDNResource_optionIgnoreCookie(groupName, resourceCNAME string) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		ignore_cookie = true
-	}
-}
-`, resourceCNAME)
-}
-
 func testAccCDNResource_optionSecureKey(groupName, resourceCNAME string) string {
 	return makeGroupResource(groupName) + fmt.Sprintf(`
 resource "yandex_cdn_resource" "foobar_resource" {
@@ -796,34 +1151,6 @@ resource "yandex_cdn_resource" "foobar_resource" {
 	}
 }
 `, resourceCNAME)
-}
-
-func testAccCDNResource_optionCustomHostHeader(groupName, resourceCNAME, customHostHeader string) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		custom_host_header = "%s"
-	}
-}
-`, resourceCNAME, customHostHeader)
-}
-
-func testAccCDNResource_optionForwardHostHeader(groupName, resourceCNAME string, forwardHostHeader bool) string {
-	return makeGroupResource(groupName) + fmt.Sprintf(`
-resource "yandex_cdn_resource" "foobar_resource" {
-	cname = "%s"
-
-	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
-
-	options {
-		forward_host_header = %t
-	}
-}
-`, resourceCNAME, forwardHostHeader)
 }
 
 func testAccCDNResource_basicByName(groupName, resourceCNAME string) string {
@@ -1000,63 +1327,6 @@ resource "yandex_cdn_resource" "foobar_resource" {
 `, resourceCNAME)
 }
 
-func TestAccCDNResource_changeCNameError(t *testing.T) {
-	t.Parallel()
-
-	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
-	originalCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-	newCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			// Create the CDN resource with the initial CNAME.
-			{
-				Config: testAccCDNResource_basicByName(groupName, originalCName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", originalCName),
-				),
-			},
-			// Attempt to change the CNAME, which should result in an error.
-			{
-				Config:      testAccCDNResource_basicByName(groupName, newCName),
-				ExpectError: regexp.MustCompile("cdn resource cname cannot be changed after creation"),
-			},
-		},
-	})
-}
-
-func TestAccCDNResource_shieldingOk(t *testing.T) {
-	t.Parallel()
-	groupName := fmt.Sprintf("tf-og-%s", acctest.RandString(10))
-	cname := fmt.Sprintf("cdn-%s.yandex.net", acctest.RandString(4))
-	locationId := int64(1)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCDNResource_shielding(cname, groupName, nil),
-				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
-			},
-			// enabling shielding
-			{
-				Config: testAccCDNResource_shielding(cname, groupName, &locationId),
-				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", fmt.Sprint(locationId)),
-			},
-			// disabling shielding
-			{
-				Config: testAccCDNResource_shielding(cname, groupName, nil),
-				Check:  resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "shielding", ""),
-			},
-		},
-	})
-}
-
 func testAccCDNResource_shielding(cname string, groupName string, location *int64) string {
 	tmp := makeGroupResource(groupName) + `
 resource "yandex_cdn_resource" "foo" {
@@ -1069,89 +1339,6 @@ resource "yandex_cdn_resource" "foo" {
 		shielding = fmt.Sprintf(`shielding = "%v"`, *location)
 	}
 	return fmt.Sprintf(tmp, cname, shielding)
-}
-
-func TestAccCDNResource_edgeCacheSettings(t *testing.T) {
-	t.Parallel()
-
-	groupName := fmt.Sprintf("tfog%s", acctest.RandString(10))
-	cname := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: makeCDNResourceWithOptions(groupName, cname, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
-					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, cname, `edge_cache_settings = 40`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "40"),
-					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, cname, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
-					resource.TestCheckNoResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(
-					groupName, cname, `edge_cache_settings_codes { value = 80 }`,
-				),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "80"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(
-					groupName, cname, `edge_cache_settings_codes { value = 40 }`,
-				),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(
-					groupName, cname,
-					`edge_cache_settings_codes { 
-						value = 40
-						custom_values = { 
-							"200" = 1200
-							"400" = 0
-						} 
-					}`,
-				),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "0"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.value", "40"),
-
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.%", "2"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.200", "1200"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.0.custom_values.400", "0"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, cname, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings", "86400"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.edge_cache_settings_codes.#", "0"),
-				),
-			},
-		},
-	})
 }
 
 func makeCDNResourceWithOptions(groupName string, cname string, options string) string {

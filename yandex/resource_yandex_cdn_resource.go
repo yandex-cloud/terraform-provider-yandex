@@ -50,24 +50,6 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"cname": {
-				Type:        schema.TypeString,
-				Description: "CDN endpoint CNAME, must be unique among resources.",
-				Computed:    true,
-				Optional:    true,
-
-				ValidateDiagFunc: validation.ToDiagFunc(validation.NoZeroValues),
-			},
-			"provider_type": {
-				Type:             schema.TypeString,
-				Description:      `CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"`,
-				Optional:         true,
-				ForceNew:         true,
-				ValidateDiagFunc: validation.ToDiagFunc(validateCDNProvider),
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					return newValue == ""
-				},
-			},
 			"folder_id": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["folder_id"],
@@ -75,14 +57,24 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
-			"labels": {
-				Type:        schema.TypeMap,
-				Description: common.ResourceDescriptions["labels"],
-				Optional:    true,
+			"cname": {
+				Type:        schema.TypeString,
+				Description: "CDN endpoint CNAME, must be unique among resources.",
+				Required:    true,
+				ForceNew:    true,
 
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				ValidateDiagFunc: validation.ToDiagFunc(validation.NoZeroValues),
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Description: "Last update timestamp. Computed value for read and update operations.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"active": {
 				Type:        schema.TypeBool,
@@ -99,23 +91,7 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"origin_protocol": {
-				Type:        schema.TypeString,
-				Description: "Protocol of origin resource. `http` or `https`.",
-				Optional:    true,
-				Default:     "http",
-			},
-			"created_at": {
-				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["created_at"],
-				Computed:    true,
-			},
-			"updated_at": {
-				Type:        schema.TypeString,
-				Description: "Last update timestamp. Computed value for read and update operations.",
-				Optional:    true,
-				Computed:    true,
-			},
+
 			"origin_group_id": {
 				Type:        schema.TypeString,
 				Description: "The ID of a specific origin group.",
@@ -126,13 +102,13 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 				Description: "The name of a specific origin group.",
 				Optional:    true,
 			},
-			"shielding": {
-				Type: schema.TypeString,
-				Description: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.\n" +
-					"Specify location id to enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding",
-				Optional:         true,
-				ValidateDiagFunc: validation.ToDiagFunc(validateCDNShieldingLocation),
+			"origin_protocol": {
+				Type:        schema.TypeString,
+				Description: "Protocol of origin resource. `http` or `https`.",
+				Optional:    true,
+				Default:     "http",
 			},
+
 			"ssl_certificate": {
 				Type:        schema.TypeSet,
 				Description: "SSL certificate of CDN resource.",
@@ -160,11 +136,38 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 					},
 				},
 			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
 
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"provider_type": {
+				Type:             schema.TypeString,
+				Description:      `CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"`,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validateCDNProvider),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					return newValue == ""
+				},
+			},
 			"provider_cname": {
 				Type:        schema.TypeString,
 				Description: "Provider CNAME of CDN resource, computed value for read and update operations.",
 				Computed:    true,
+			},
+
+			"shielding": {
+				Type: schema.TypeString,
+				Description: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.\n" +
+					"Specify location id to enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding",
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validateCDNShieldingLocation),
 			},
 			"options": {
 				Type:        schema.TypeList,
@@ -232,8 +235,8 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			"browser_cache_settings": {
 				Type:        schema.TypeInt,
 				Description: "Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.",
-				Computed:    true,
 				Optional:    true,
+				Default:     0,
 			},
 			"cache_http_headers": {
 				Type:        schema.TypeList,
@@ -246,6 +249,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+
 			"ignore_query_params": {
 				Type:        schema.TypeBool,
 				Description: "Files with different query parameters are cached as objects with the same key regardless of the parameter value. selected by default.",
@@ -272,12 +276,14 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+
 			"slice": {
 				Type:        schema.TypeBool,
 				Description: "Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.",
-				Computed:    true,
 				Optional:    true,
+				Default:     false,
 			},
+
 			"fetched_compressed": {
 				Type:        schema.TypeBool,
 				Description: "Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN.",
@@ -290,6 +296,8 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+			// TODO: brotli
+
 			"redirect_http_to_https": {
 				Type:        schema.TypeBool,
 				Description: "Set up a redirect from HTTP to HTTPS.",
@@ -302,6 +310,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+
 			"custom_host_header": {
 				Type:        schema.TypeString,
 				Description: "Custom value for the Host header. Your server must be able to process requests with the chosen header.",
@@ -314,12 +323,11 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 			},
+
 			"static_response_headers": {
 				Type:        schema.TypeMap,
 				Description: "Set up a static response header. The header name must be lowercase.",
-
-				Computed: true,
-				Optional: true,
+				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -328,13 +336,13 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			"cors": {
 				Type:        schema.TypeList,
 				Description: "Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.",
-				Computed:    true,
 				Optional:    true,
 
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			// TODO: stale
 			"allowed_http_methods": {
 				Type:        schema.TypeList,
 				Description: "HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.",
@@ -360,7 +368,6 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			"static_request_headers": {
 				Type:        schema.TypeMap,
 				Description: "Set up custom headers that CDN servers will send in requests to origins.",
-				Computed:    true,
 				Optional:    true,
 
 				Elem: &schema.Schema{
@@ -376,9 +383,10 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			"ignore_cookie": {
 				Type:        schema.TypeBool,
 				Description: "Set for ignoring cookie.",
-				Computed:    true,
 				Optional:    true,
+				Default:     true,
 			},
+			// TODO: RewriteOption
 			"secure_key": {
 				Type:        schema.TypeString,
 				Description: "Set secure key for url encoding to protect contect and limit access by IP addresses and time limits.",

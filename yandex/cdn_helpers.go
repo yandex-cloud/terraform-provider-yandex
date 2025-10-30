@@ -75,11 +75,6 @@ func cdnCheckProviderMatching(ctx context.Context, req *cdn.CreateResourceReques
 }
 
 func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData, config *Config) (*cdn.UpdateResourceRequest, error) {
-	if d.HasChange("cname") {
-		// TODO: forceNew
-		return nil, fmt.Errorf("cdn resource cname cannot be changed after creation")
-	}
-
 	request := &cdn.UpdateResourceRequest{
 		ResourceId: d.Id(),
 	}
@@ -111,25 +106,25 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("secondary_hostnames") {
-		request.SecondaryHostnames = prepareCDNResourceSecondaryHostnames(d)
+		request.SecondaryHostnames = expandCDNResourceSecondaryHostnames(d)
 	}
 	if d.HasChange("origin_protocol") {
-		request.OriginProtocol = prepareCDNResourceOriginProtocol(d)
+		request.OriginProtocol = expandCDNResourceOriginProtocol(d)
 	}
 	if d.HasChange("active") {
 		request.Active = wrapperspb.Bool(d.Get("active").(bool))
 	}
 	if d.HasChange("ssl_certificate") {
 		var err error
-		if request.SslCertificate, err = prepareCDNResourceNewSSLCertificate(d); err != nil {
+		if request.SslCertificate, err = expandCDNResourceNewSSLCertificate(d); err != nil {
 			return nil, err
 		}
 	}
 	if d.HasChange("options") {
-		request.Options = prepareCDNResourceOptions(d)
+		request.Options = expandCDNResourceOptions(d)
 	}
 	if d.HasChange("labels") {
-		request.Labels = prepareCDNResourceLabels(d)
+		request.Labels = expandCDNResourceLabels(d)
 		if len(request.Labels) == 0 {
 			request.RemoveLabels = true
 		}
@@ -144,7 +139,7 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 		return nil, fmt.Errorf("Error getting folder ID while creating instance: %s", err)
 	}
 
-	originVariant, err := prepareCDNResourceOriginVariant(ctx, meta, folderID, d)
+	originVariant, err := expandCDNResourceOriginVariant(ctx, meta, folderID, d)
 	if err != nil {
 		return nil, err
 	}
@@ -155,13 +150,13 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 
 	var originProtocol cdn.OriginProtocol
 	if _, ok := d.GetOk("origin_protocol"); ok {
-		originProtocol = prepareCDNResourceOriginProtocol(d)
+		originProtocol = expandCDNResourceOriginProtocol(d)
 	}
 
 	var sslCertificate *cdn.SSLTargetCertificate
 	if _, ok := d.GetOk("ssl_certificate"); ok {
 		var err error
-		if sslCertificate, err = prepareCDNResourceNewSSLCertificate(d); err != nil {
+		if sslCertificate, err = expandCDNResourceNewSSLCertificate(d); err != nil {
 			return nil, err
 		}
 	}
@@ -175,22 +170,22 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 		OriginProtocol: originProtocol,
 
 		Active:             wrapperspb.Bool(d.Get("active").(bool)),
-		SecondaryHostnames: prepareCDNResourceSecondaryHostnames(d),
-		Options:            prepareCDNResourceOptions(d),
-		Labels:             prepareCDNResourceLabels(d),
+		SecondaryHostnames: expandCDNResourceSecondaryHostnames(d),
+		Options:            expandCDNResourceOptions(d),
+		Labels:             expandCDNResourceLabels(d),
 		SslCertificate:     sslCertificate,
 	}
 
 	return result, nil
 }
 
-func prepareCDNResourceSecondaryHostnames(d *schema.ResourceData) *cdn.SecondaryHostnames {
+func expandCDNResourceSecondaryHostnames(d *schema.ResourceData) *cdn.SecondaryHostnames {
 	hostsSet := d.Get("secondary_hostnames").(*schema.Set)
 	hostNames := castSlice[string](hostsSet.List())
 	return &cdn.SecondaryHostnames{Values: hostNames}
 }
 
-func prepareCDNResourceLabels(d *schema.ResourceData) map[string]string {
+func expandCDNResourceLabels(d *schema.ResourceData) map[string]string {
 	labels := make(map[string]string)
 	if rawOption, ok := d.GetOk("labels"); ok {
 		for k, v := range rawOption.(map[string]any) {
@@ -200,7 +195,7 @@ func prepareCDNResourceLabels(d *schema.ResourceData) map[string]string {
 	return labels
 }
 
-func prepareCDNResourceOriginVariant(ctx context.Context, meta *Config, folderID string, d *schema.ResourceData) (*cdn.CreateResourceRequest_Origin, error) {
+func expandCDNResourceOriginVariant(ctx context.Context, meta *Config, folderID string, d *schema.ResourceData) (*cdn.CreateResourceRequest_Origin, error) {
 	if v, ok := d.GetOk("origin_group_id"); ok {
 		groupId, _ := strconv.ParseInt(v.(string), 10, 64)
 		return &cdn.CreateResourceRequest_Origin{
@@ -228,7 +223,7 @@ func prepareCDNResourceOriginVariant(ctx context.Context, meta *Config, folderID
 	return nil, nil
 }
 
-func prepareCDNResourceOriginProtocol(d *schema.ResourceData) cdn.OriginProtocol {
+func expandCDNResourceOriginProtocol(d *schema.ResourceData) cdn.OriginProtocol {
 	switch d.Get("origin_protocol").(string) {
 	case "http":
 		return cdn.OriginProtocol_HTTP
@@ -241,7 +236,7 @@ func prepareCDNResourceOriginProtocol(d *schema.ResourceData) cdn.OriginProtocol
 	}
 }
 
-func prepareCDNResourceNewSSLCertificate_Type(certType string) cdn.SSLCertificateType {
+func expandCDNResourceNewSSLCertificate_Type(certType string) cdn.SSLCertificateType {
 	switch certType {
 	case cdnSSLCertificateTypeNotUsed:
 		return cdn.SSLCertificateType_DONT_USE
@@ -254,7 +249,7 @@ func prepareCDNResourceNewSSLCertificate_Type(certType string) cdn.SSLCertificat
 	}
 }
 
-func prepareCDNResourceNewSSLCertificate(d *schema.ResourceData) (*cdn.SSLTargetCertificate, error) {
+func expandCDNResourceNewSSLCertificate(d *schema.ResourceData) (*cdn.SSLTargetCertificate, error) {
 	certSet, ok := d.Get("ssl_certificate").(*schema.Set)
 	if !ok || certSet.Len() == 0 {
 		return nil, nil
@@ -263,7 +258,7 @@ func prepareCDNResourceNewSSLCertificate(d *schema.ResourceData) (*cdn.SSLTarget
 	certFields := certSet.List()[0].(map[string]any)
 
 	result := &cdn.SSLTargetCertificate{}
-	result.Type = prepareCDNResourceNewSSLCertificate_Type(certFields["type"].(string))
+	result.Type = expandCDNResourceNewSSLCertificate_Type(certFields["type"].(string))
 
 	if result.Type == cdn.SSLCertificateType_CM {
 		cmCertID, exist := certFields["certificate_manager_id"]
@@ -283,7 +278,7 @@ func prepareCDNResourceNewSSLCertificate(d *schema.ResourceData) (*cdn.SSLTarget
 	return result, nil
 }
 
-func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
+func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	if _, ok := d.GetOk("options"); !ok {
 		log.Printf("[DEBUG] empty cdn resource options list")
 		return nil
@@ -294,22 +289,29 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	}
 
 	result := &cdn.ResourceOptions{
-		HostOptions:        prepareCDNResourceOptions_HostOptions(d),
-		QueryParamsOptions: prepareCDNResourceOptions_QueryParamsOptions(d),
-		CompressionOptions: prepareCDNResourceOptions_CompressionOptions(d),
-		RedirectOptions:    prepareCDNResourceOptions_RedirectOptions(d),
-		IpAddressAcl:       prepareCDNResourceOptions_IPAddressACL(d),
-		SecureKey:          prepareCDNResourceOptions_SecureKey(d),
-		EdgeCacheSettings:  prepareCDNResourceOptions_EdgeCacheSettings(d),
+		HostOptions:        expandCDNResourceOptions_HostOptions(d),
+		QueryParamsOptions: expandCDNResourceOptions_QueryParamsOptions(d),
+		CompressionOptions: expandCDNResourceOptions_CompressionOptions(d),
+		RedirectOptions:    expandCDNResourceOptions_RedirectOptions(d),
+		IpAddressAcl:       expandCDNResourceOptions_IPAddressACL(d),
+		SecureKey:          expandCDNResourceOptions_SecureKey(d),
+		EdgeCacheSettings:  expandCDNResourceOptions_EdgeCacheSettings(d),
+
+		Slice:        cdnBoolOption(d.Get("options.0.slice").(bool)),
+		IgnoreCookie: cdnBoolOption(d.Get("options.0.ignore_cookie").(bool)),
+
+		Cors: cdnStringListOption(d.Get("options.0.cors").([]any)),
+
+		StaticHeaders:        cdnStringsMapOption(d.Get("options.0.static_response_headers").(map[string]any)),
+		StaticRequestHeaders: cdnStringsMapOption(d.Get("options.0.static_request_headers").(map[string]any)),
+
+		BrowserCacheSettings: &cdn.ResourceOptions_Int64Option{
+			Enabled: true,
+			Value:   int64(d.Get("options.0.browser_cache_settings").(int)),
+		},
 	}
 
 	// bool options
-	if rawOption, ok := d.GetOk("options.0.slice"); ok {
-		result.Slice = cdnBoolOption(rawOption.(bool))
-	}
-	if rawOption, ok := d.GetOk("options.0.ignore_cookie"); ok {
-		result.IgnoreCookie = cdnBoolOption(rawOption.(bool))
-	}
 	if rawOption, ok := d.GetOk("options.0.proxy_cache_method_set"); ok {
 		result.ProxyCacheMethodsSet = cdnBoolOption(rawOption.(bool))
 	}
@@ -318,54 +320,18 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	}
 
 	// stringList options
-	if rawOption, ok := d.GetOk("options.0.cors"); ok {
-		result.Cors = cdnStringListOption(rawOption.([]any))
-	}
 	if rawOption, ok := d.GetOk("options.0.allowed_http_methods"); ok {
 		result.AllowedHttpMethods = cdnStringListOption(rawOption.([]any))
-	}
-
-	// stringsMap options
-	if rawOption, ok := d.GetOk("options.0.static_response_headers"); ok {
-		result.StaticHeaders = cdnStringsMapOption(rawOption.(map[string]any))
-	}
-	if rawOption, ok := d.GetOk("options.0.static_request_headers"); ok {
-		result.StaticRequestHeaders = cdnStringsMapOption(rawOption.(map[string]any))
 	}
 
 	if rawOption, ok := d.GetOk("options.0.custom_server_name"); ok {
 		result.CustomServerName = cdnStringOption(rawOption.(string))
 	}
 
-	if rawOption, ok := d.GetOk("options.0.browser_cache_settings"); ok {
-		result.BrowserCacheSettings = &cdn.ResourceOptions_Int64Option{
-			Enabled: true,
-			Value:   int64(rawOption.(int)),
-		}
-	}
-
-	fields := []any{
-		result.HostOptions, result.QueryParamsOptions, result.CompressionOptions,
-		result.RedirectOptions, result.IpAddressAcl, result.SecureKey,
-
-		result.Slice, result.IgnoreCookie,
-		result.ProxyCacheMethodsSet, result.DisableProxyForceRanges,
-
-		result.Cors, result.AllowedHttpMethods,
-
-		result.StaticHeaders, result.StaticRequestHeaders, result.CustomServerName,
-
-		result.EdgeCacheSettings, result.BrowserCacheSettings,
-	}
-	for _, v := range fields {
-		if v != nil {
-			return result
-		}
-	}
-	return nil
+	return result
 }
 
-func prepareCDNResourceOptions_EdgeCacheSettings(d *schema.ResourceData) *cdn.ResourceOptions_EdgeCacheSettings {
+func expandCDNResourceOptions_EdgeCacheSettings(d *schema.ResourceData) *cdn.ResourceOptions_EdgeCacheSettings {
 	if _, ok := d.GetOk("options.0.edge_cache_settings_codes"); ok {
 		res := new(cdn.ResourceOptions_CachingTimes)
 		if valueRaw, ok := d.GetOk("options.0.edge_cache_settings_codes.0.value"); ok {
@@ -395,7 +361,7 @@ func prepareCDNResourceOptions_EdgeCacheSettings(d *schema.ResourceData) *cdn.Re
 	return &cdn.ResourceOptions_EdgeCacheSettings{}
 }
 
-func prepareCDNResourceOptions_SecureKey(d *schema.ResourceData) *cdn.ResourceOptions_SecureKeyOption {
+func expandCDNResourceOptions_SecureKey(d *schema.ResourceData) *cdn.ResourceOptions_SecureKeyOption {
 	rawOption, ok := d.GetOk("options.0.secure_key")
 	if !ok {
 		return nil
@@ -413,7 +379,7 @@ func prepareCDNResourceOptions_SecureKey(d *schema.ResourceData) *cdn.ResourceOp
 	}
 }
 
-func prepareCDNResourceOptions_IPAddressACL(d *schema.ResourceData) *cdn.ResourceOptions_IPAddressACLOption {
+func expandCDNResourceOptions_IPAddressACL(d *schema.ResourceData) *cdn.ResourceOptions_IPAddressACLOption {
 	if _, ok := d.GetOk("options.0.ip_address_acl"); !ok {
 		return nil
 	}
@@ -439,7 +405,7 @@ func prepareCDNResourceOptions_IPAddressACL(d *schema.ResourceData) *cdn.Resourc
 	}
 }
 
-func prepareCDNResourceOptions_RedirectOptions(d *schema.ResourceData) *cdn.ResourceOptions_RedirectOptions {
+func expandCDNResourceOptions_RedirectOptions(d *schema.ResourceData) *cdn.ResourceOptions_RedirectOptions {
 	if rawOption, ok := d.GetOk("options.0.redirect_http_to_https"); ok {
 		return &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpToHttps{
@@ -458,7 +424,7 @@ func prepareCDNResourceOptions_RedirectOptions(d *schema.ResourceData) *cdn.Reso
 	return nil
 }
 
-func prepareCDNResourceOptions_CompressionOptions(d *schema.ResourceData) *cdn.ResourceOptions_CompressionOptions {
+func expandCDNResourceOptions_CompressionOptions(d *schema.ResourceData) *cdn.ResourceOptions_CompressionOptions {
 	if rawOption, ok := d.GetOk("options.0.fetched_compressed"); ok {
 		return &cdn.ResourceOptions_CompressionOptions{
 			CompressionVariant: &cdn.ResourceOptions_CompressionOptions_FetchCompressed{
@@ -478,7 +444,7 @@ func prepareCDNResourceOptions_CompressionOptions(d *schema.ResourceData) *cdn.R
 	return nil
 }
 
-func prepareCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.ResourceOptions_QueryParamsOptions {
+func expandCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.ResourceOptions_QueryParamsOptions {
 	if rawOption, ok := d.GetOk("options.0.ignore_query_params"); ok {
 		return &cdn.ResourceOptions_QueryParamsOptions{
 			QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
@@ -511,7 +477,7 @@ func prepareCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.R
 	return nil
 }
 
-func prepareCDNResourceOptions_HostOptions(d *schema.ResourceData) *cdn.ResourceOptions_HostOptions {
+func expandCDNResourceOptions_HostOptions(d *schema.ResourceData) *cdn.ResourceOptions_HostOptions {
 	if rawOption, ok := d.GetOk("options.0.custom_host_header"); ok && rawOption.(string) != "" {
 		return &cdn.ResourceOptions_HostOptions{
 			HostVariant: &cdn.ResourceOptions_HostOptions_Host{
@@ -531,13 +497,12 @@ func prepareCDNResourceOptions_HostOptions(d *schema.ResourceData) *cdn.Resource
 }
 
 func cdnStringListOption(value []any) *cdn.ResourceOptions_StringsListOption {
-	list := castSlice[string](value)
-	if len(list) == 0 {
-		return nil
+	if len(value) == 0 {
+		return new(cdn.ResourceOptions_StringsListOption)
 	}
 	return &cdn.ResourceOptions_StringsListOption{
 		Enabled: true,
-		Value:   list,
+		Value:   castSlice[string](value),
 	}
 }
 
@@ -556,6 +521,9 @@ func cdnBoolOption(value bool) *cdn.ResourceOptions_BoolOption {
 }
 
 func cdnStringsMapOption(rawOption map[string]any) *cdn.ResourceOptions_StringsMapOption {
+	if len(rawOption) == 0 {
+		return new(cdn.ResourceOptions_StringsMapOption)
+	}
 	res := &cdn.ResourceOptions_StringsMapOption{
 		Enabled: true,
 		Value:   make(map[string]string),
