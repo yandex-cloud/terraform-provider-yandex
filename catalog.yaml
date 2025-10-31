@@ -1026,7 +1026,7 @@ Resources:
     #HasF: false
     #HasE: false
   metastore_cluster:
-    Category: "Managed Service for Hive Metastore"
+    Category: "Apache Hive Metastore"
     Type: fw
     HasR: true
     HasD: true

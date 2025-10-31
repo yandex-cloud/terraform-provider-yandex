@@ -1,5 +1,5 @@
 ---
-subcategory: "Managed Service for Hive Metastore"
+subcategory: "Apache Hive Metastore"
 page_title: "Yandex: {{.Name}}"
 description: |-
   Manages Hive Metastore cluster within Yandex Cloud.
