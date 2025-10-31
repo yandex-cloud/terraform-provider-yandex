@@ -23,6 +23,9 @@ var (
 		"130", // gcore
 	}, false)
 
+	validateCDNStale       = validation.StringInSlice([]string{`error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`}, false)
+	validateCDNRewriteFlag = validation.StringInSlice([]string{"LAST", "BREAK", "REDIRECT", "PERMANENT"}, false)
+
 	validateCDNResourceACLPolicyType = validation.StringInSlice(
 		[]string{cdnACLPolicyTypeAllow, cdnACLPolicyTypeDeny},
 		false,
@@ -45,7 +48,7 @@ var (
 			if err := rd.SetNew("options", []any{opts}); err != nil {
 				return err
 			}
-		} else if optsPlan := rd.GetRawConfig().GetAttr("options").AsValueSlice(); len(optsPlan) > 0 && optsPlan[0].GetAttr("edge_cache_settings").IsNull() {
+		} else if optsConfig := rd.GetRawConfig().GetAttr("options").AsValueSlice(); len(optsConfig) > 0 && optsConfig[0].GetAttr("edge_cache_settings").IsNull() {
 			opts := rd.Get("options").([]any)[0].(map[string]any)
 			opts["edge_cache_settings"] = 86400
 			if err := rd.SetNew("options", []any{opts}); err != nil {
@@ -53,6 +56,22 @@ var (
 			}
 		}
 		return nil
+	}
+	customizeDiffCDN_RewriteFlag schema.CustomizeDiffFunc = func(_ context.Context, rd *schema.ResourceDiff, _ any) error {
+		if _, ok := rd.GetOk("options.0.rewrite_pattern"); !ok {
+			return nil
+		}
+		optsConfig := rd.GetRawConfig().GetAttr("options")
+		if optsConfig.LengthInt() == 0 {
+			return nil
+		}
+		flagConfig := optsConfig.AsValueSlice()[0].GetAttr("rewrite_flag")
+		if !flagConfig.IsNull() {
+			return nil
+		}
+		opts := rd.Get("options").([]any)[0].(map[string]any)
+		opts["rewrite_flag"] = "BREAK"
+		return rd.SetNew("options", []any{opts})
 	}
 )
 
@@ -300,7 +319,10 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		Slice:        cdnBoolOption(d.Get("options.0.slice").(bool)),
 		IgnoreCookie: cdnBoolOption(d.Get("options.0.ignore_cookie").(bool)),
 
-		Cors: cdnStringListOption(d.Get("options.0.cors").([]any)),
+		Rewrite: expandCDNResourceOptions_Rewrite(d),
+
+		Cors:  cdnStringListOption(d.Get("options.0.cors").([]any)),
+		Stale: cdnStringListOption(d.Get("options.0.stale").([]any)),
 
 		StaticHeaders:        cdnStringsMapOption(d.Get("options.0.static_response_headers").(map[string]any)),
 		StaticRequestHeaders: cdnStringsMapOption(d.Get("options.0.static_request_headers").(map[string]any)),
@@ -359,6 +381,19 @@ func expandCDNResourceOptions_EdgeCacheSettings(d *schema.ResourceData) *cdn.Res
 		}
 	}
 	return &cdn.ResourceOptions_EdgeCacheSettings{}
+}
+
+func expandCDNResourceOptions_Rewrite(d *schema.ResourceData) *cdn.ResourceOptions_RewriteOption {
+	pattern, ok := d.GetOk("options.0.rewrite_pattern")
+	if !ok {
+		return new(cdn.ResourceOptions_RewriteOption)
+	}
+	flag := d.Get("options.0.rewrite_flag").(string)
+	return &cdn.ResourceOptions_RewriteOption{
+		Enabled: true,
+		Body:    pattern.(string),
+		Flag:    cdn.RewriteFlag(cdn.RewriteFlag_value[flag]),
+	}
 }
 
 func expandCDNResourceOptions_SecureKey(d *schema.ResourceData) *cdn.ResourceOptions_SecureKeyOption {
@@ -720,6 +755,9 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 	if options.Cors != nil {
 		setIfEnabled("cors", options.Cors.Enabled, options.Cors.Value)
 	}
+	if options.Stale != nil {
+		setIfEnabled("stale", options.Stale.Enabled, options.Stale.Value)
+	}
 
 	if options.AllowedHttpMethods != nil {
 		setIfEnabled("allowed_http_methods", options.AllowedHttpMethods.Enabled, options.AllowedHttpMethods.Value)
@@ -747,6 +785,10 @@ func flattenCDNResourceOptions(options *cdn.ResourceOptions) ([]map[string]any, 
 
 	if options.IgnoreCookie != nil {
 		setIfEnabled("ignore_cookie", options.IgnoreCookie.Enabled, options.IgnoreCookie.Value)
+	}
+	if options.Rewrite != nil {
+		setIfEnabled("rewrite_pattern", options.Rewrite.Enabled, options.Rewrite.Body)
+		setIfEnabled("rewrite_flag", options.Rewrite.Enabled, options.Rewrite.Flag.String())
 	}
 
 	if options.SecureKey != nil {

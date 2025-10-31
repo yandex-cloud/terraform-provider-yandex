@@ -833,7 +833,47 @@ func TestAccCDNResource_Option_Cors(t *testing.T) {
 	})
 }
 
-// TODO: stale
+func TestAccCDNResource_Option_Stale(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.#", "0"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `stale = ["error"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.0", "error"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `stale = ["error", "http_404"]`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.#", "2"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.0", "error"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.1", "http_404"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.stale.#", "0"),
+				),
+			},
+		},
+	})
+}
 
 func TestAccCDNResource_Option_AllowedHttpMethods(t *testing.T) {
 	t.Parallel()
@@ -971,7 +1011,61 @@ func TestAccCDNResource_Option_IgnoreCookie(t *testing.T) {
 	})
 }
 
-// TODO: rewrite
+func TestAccCDNResource_Option_Rewrite(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_pattern", ""),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_flag", ""),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, `rewrite_pattern = "foo bar"`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_pattern", "foo bar"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_flag", "BREAK"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`rewrite_pattern = "foo bar"
+					rewrite_flag = "REDIRECT"`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_pattern", "foo bar"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_flag", "REDIRECT"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName,
+					`rewrite_pattern = "bar baz"
+					rewrite_flag = "REDIRECT"`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_pattern", "bar baz"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_flag", "REDIRECT"),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_pattern", ""),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.rewrite_flag", ""),
+				),
+			},
+		},
+	})
+}
 
 func TestAccCDNResource_Option_SecureKey(t *testing.T) {
 	folderID := getExampleFolderID()

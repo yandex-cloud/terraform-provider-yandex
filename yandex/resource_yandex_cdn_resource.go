@@ -45,8 +45,13 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 
 		SchemaVersion: 0,
 		CustomizeDiff: func(ctx context.Context, rd *schema.ResourceDiff, v any) error {
-			err := customizeDiffCDN_EdgeCacheSettings(ctx, rd, v)
-			return err
+			if err := customizeDiffCDN_EdgeCacheSettings(ctx, rd, v); err != nil {
+				return err
+			}
+			if err := customizeDiffCDN_RewriteFlag(ctx, rd, v); err != nil {
+				return err
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -342,7 +347,16 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			// TODO: stale
+			"stale": {
+				Type: schema.TypeList,
+				Description: "List of errors which instruct CDN servers to serve stale content to clients. " +
+					"Possible values: `error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`.",
+				Optional: true,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validation.ToDiagFunc(validateCDNStale),
+				},
+			},
 			"allowed_http_methods": {
 				Type:        schema.TypeList,
 				Description: "HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.",
@@ -386,7 +400,25 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
-			// TODO: RewriteOption
+
+			"rewrite_pattern": {
+				Type: schema.TypeString,
+				Description: "An option for changing or redirecting query paths. " +
+					"The value must have the following format: `<source path> <destination path>`, where both paths are regular expressions which use at least one group. E.g., `/foo/(.*) /bar/$1`.",
+				Optional: true,
+			},
+			"rewrite_flag": {
+				Type: schema.TypeString,
+				Description: "Defines flag for the Rewrite option (default: `BREAK`).\n" +
+					"`LAST` - Stops processing of the current set of ngx_http_rewrite_module directives and starts a search for a new location matching changed URI.\n" +
+					"`BREAK` - Stops processing of the current set of the Rewrite option.\n" +
+					"`REDIRECT` - Returns a temporary redirect with the 302 code; It is used when a replacement string does not start with \"http://\", \"https://\", or \"$scheme\"\n" +
+					"`PERMANENT` - Returns a permanent redirect with the 301 code.",
+				Optional:         true,
+				Computed:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validateCDNRewriteFlag),
+			},
+
 			"secure_key": {
 				Type:        schema.TypeString,
 				Description: "Set secure key for url encoding to protect contect and limit access by IP addresses and time limits.",
