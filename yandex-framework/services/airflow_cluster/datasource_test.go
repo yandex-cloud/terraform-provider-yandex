@@ -43,6 +43,10 @@ func airflowDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) 
 			Count:            1,
 			ResourcePresetID: "c1-m2",
 		},
+		DagProcessor: &airflowComponentParams{
+			Count:            1,
+			ResourcePresetID: "c1-m2",
+		},
 		Worker: airflowWorkerParams{
 			MinCount:         1,
 			MaxCount:         1,
@@ -61,6 +65,8 @@ func airflowDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) 
 			Hour: 2,
 		},
 		AdditionalParams: true,
+		AirflowVersion:   "3.1",
+		ResourceName:     "airflow_cluster",
 	})
 
 	var datasource string
@@ -96,6 +102,8 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "webserver.resource_preset_id", "c1-m2"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "scheduler.count", "1"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "scheduler.resource_preset_id", "c1-m2"),
+		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "dag_processor.count", "1"),
+		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "dag_processor.resource_preset_id", "c1-m2"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "worker.min_count", "1"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "worker.max_count", "1"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "worker.resource_preset_id", "c1-m2"),

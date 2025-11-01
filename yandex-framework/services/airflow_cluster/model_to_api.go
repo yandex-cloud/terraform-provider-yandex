@@ -63,6 +63,9 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		AdminPassword:      clusterModel.AdminPassword.ValueString(),
 		MaintenanceWindow:  common.MaintenanceWindow,
 	}
+	if common.DagProcessor != nil {
+		clusterCreateRequest.Config.DagProcessor = common.DagProcessor
+	}
 
 	return clusterCreateRequest, diags
 }
@@ -82,6 +85,7 @@ type CommonForCreateAndUpdate struct {
 	AirflowConfig     *airflow.AirflowConfig
 	Webserver         *airflow.WebserverConfig
 	Scheduler         *airflow.SchedulerConfig
+	DagProcessor      *airflow.DagProcessorConfig
 	Worker            *airflow.WorkerConfig
 	Triggerer         *airflow.TriggererConfig
 	Dependencies      *airflow.Dependencies
@@ -256,6 +260,17 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "config_spec.scheduler")
 	}
 
+	var dagProcessorConfig *airflow.DagProcessorConfig
+	if !plan.DagProcessor.IsNull() {
+		dagProcessorConfig = &airflow.DagProcessorConfig{
+			Count:     plan.DagProcessor.Count.ValueInt64(),
+			Resources: &airflow.Resources{ResourcePresetId: plan.DagProcessor.ResourcePresetId.ValueString()},
+		}
+		if state != nil && !plan.DagProcessor.Equal(state.DagProcessor) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.dag_processor")
+		}
+	}
+
 	workerConfig := &airflow.WorkerConfig{
 		MinCount:  plan.Worker.MinCount.ValueInt64(),
 		MaxCount:  plan.Worker.MaxCount.ValueInt64(),
@@ -330,6 +345,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		AirflowConfig:      airflowConfig,
 		Webserver:          webserverConfig,
 		Scheduler:          schedulerConfig,
+		DagProcessor:       dagProcessorConfig,
 		Worker:             workerConfig,
 		Triggerer:          triggererConfig,
 		Dependencies: &airflow.Dependencies{
@@ -390,6 +406,9 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		ServiceAccountId:   common.ServiceAccountId,
 		Logging:            common.Logging,
 		MaintenanceWindow:  common.MaintenanceWindow,
+	}
+	if common.DagProcessor != nil {
+		updateClusterRequest.ConfigSpec.DagProcessor = common.DagProcessor
 	}
 
 	return updateClusterRequest, diags

@@ -22,7 +22,6 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 	state.FolderId = types.StringValue(cluster.GetFolderId())
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.GetCreatedAt()))
 	state.Name = types.StringValue(cluster.GetName())
-	state.Health = types.StringValue(cluster.GetHealth().String())
 	state.Status = types.StringValue(cluster.GetStatus().String())
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
 	state.ServiceAccountId = types.StringValue(cluster.ServiceAccountId)
@@ -77,6 +76,7 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 
 	state.Webserver = webserverValueFromAPI(cluster.GetConfig().GetWebserver())
 	state.Scheduler = schedulerValueFromAPI(cluster.GetConfig().GetScheduler())
+	state.DagProcessor = dagProcessorValueFromAPI(cluster.GetConfig().GetDagProcessor())
 	state.Worker = workerValueFromAPI(cluster.GetConfig().GetWorker())
 	state.Triggerer = triggererValueFromAPI(cluster.GetConfig().GetTriggerer())
 	state.AirflowVersion = types.StringValue(cluster.GetConfig().GetAirflowVersion())
@@ -136,6 +136,18 @@ func schedulerValueFromAPI(cfg *airflow.SchedulerConfig) SchedulerValue {
 	}
 
 	return SchedulerValue{
+		Count:            types.Int64Value(cfg.GetCount()),
+		ResourcePresetId: types.StringValue(cfg.GetResources().GetResourcePresetId()),
+		state:            attr.ValueStateKnown,
+	}
+}
+
+func dagProcessorValueFromAPI(cfg *airflow.DagProcessorConfig) DagProcessorValue {
+	if cfg == nil {
+		return NewDagProcessorValueNull()
+	}
+
+	return DagProcessorValue{
 		Count:            types.Int64Value(cfg.GetCount()),
 		ResourcePresetId: types.StringValue(cfg.GetResources().GetResourcePresetId()),
 		state:            attr.ValueStateKnown,

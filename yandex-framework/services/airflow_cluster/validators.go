@@ -2,7 +2,9 @@ package airflow_cluster
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"regexp"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -108,4 +110,51 @@ func (m *maintenanceWindowStructValidator) MarkdownDescription(_ context.Context
 		Check block structure in general for *ANYTIME* and *WEEKLY* maintenance. 
 		Attributes hour and day should be set ONLY for *WEEKLY* maintenance.
 	`
+}
+
+type dagProcessorStructValidator struct{}
+
+func dagProcessorValidator() validator.Object {
+	return &dagProcessorStructValidator{}
+}
+
+func (d *dagProcessorStructValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	var airflowVersion types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("airflow_version"), &airflowVersion)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if airflowVersion.IsNull() || airflowVersion.IsUnknown() {
+		return
+	}
+
+	if strings.HasPrefix(airflowVersion.ValueString(), "2.") {
+		if req.ConfigValue.IsNull() {
+			return
+		}
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"dag_processor not supported",
+			"dag_processor configuration should not be specified for Airflow 2.x",
+		)
+	} else {
+		if !req.ConfigValue.IsNull() {
+			return
+		}
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"dag_processor should be specified",
+			"dag_processor configuration should be specified for Airflow version 3.0 and above",
+		)
+	}
+
+}
+
+func (d *dagProcessorStructValidator) Description(_ context.Context) string {
+	return "dag_processor configuration should only be specified for Airflow 3.0 and above and should not be specified for Airflow 2.x."
+}
+
+func (d *dagProcessorStructValidator) MarkdownDescription(_ context.Context) string {
+	return "dag_processor configuration should only be specified for for Airflow 3.0 and above and should not be specified for Airflow 2.x"
 }

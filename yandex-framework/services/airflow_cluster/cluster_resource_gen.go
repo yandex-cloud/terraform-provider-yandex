@@ -91,6 +91,31 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"dag_processor": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"count": schema.Int64Attribute{
+						Required:            true,
+						Description:         "The number of dag-processor instances in the cluster.",
+						MarkdownDescription: "The number of dag-processor instances in the cluster.",
+					},
+					"resource_preset_id": schema.StringAttribute{
+						Required:            true,
+						Description:         "The identifier of the preset for computational resources available to an instance (CPU, memory etc.).",
+						MarkdownDescription: "The identifier of the preset for computational resources available to an instance (CPU, memory etc.).",
+					},
+				},
+				CustomType: DagProcessorType{
+					ObjectType: types.ObjectType{
+						AttrTypes: DagProcessorValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Configuration of dag-processor instances. Only for airflow version 3.*.",
+				MarkdownDescription: "Configuration of dag-processor instances. Only for airflow version 3.*.",
+				Validators: []validator.Object{
+					dagProcessorValidator(),
+				},
+			},
 			"deb_packages": schema.SetAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -117,14 +142,6 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
-				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.StringAttribute{
@@ -393,11 +410,11 @@ type ClusterModel struct {
 	AirflowVersion        types.String               `tfsdk:"airflow_version"`
 	CodeSync              CodeSyncValue              `tfsdk:"code_sync"`
 	CreatedAt             types.String               `tfsdk:"created_at"`
+	DagProcessor          DagProcessorValue          `tfsdk:"dag_processor"`
 	DebPackages           types.Set                  `tfsdk:"deb_packages"`
 	DeletionProtection    types.Bool                 `tfsdk:"deletion_protection"`
 	Description           types.String               `tfsdk:"description"`
 	FolderId              types.String               `tfsdk:"folder_id"`
-	Health                types.String               `tfsdk:"health"`
 	Id                    types.String               `tfsdk:"id"`
 	Labels                types.Map                  `tfsdk:"labels"`
 	LockboxSecretsBackend LockboxSecretsBackendValue `tfsdk:"lockbox_secrets_backend"`
@@ -1089,6 +1106,385 @@ func (v S3Value) Type(ctx context.Context) attr.Type {
 func (v S3Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"bucket": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = DagProcessorType{}
+
+type DagProcessorType struct {
+	basetypes.ObjectType
+}
+
+func (t DagProcessorType) Equal(o attr.Type) bool {
+	other, ok := o.(DagProcessorType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DagProcessorType) String() string {
+	return "DagProcessorType"
+}
+
+func (t DagProcessorType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	countAttribute, ok := attributes["count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`count is missing from object`)
+
+		return nil, diags
+	}
+
+	countVal, ok := countAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`count expected to be basetypes.Int64Value, was: %T`, countAttribute))
+	}
+
+	resourcePresetIdAttribute, ok := attributes["resource_preset_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`resource_preset_id is missing from object`)
+
+		return nil, diags
+	}
+
+	resourcePresetIdVal, ok := resourcePresetIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`resource_preset_id expected to be basetypes.StringValue, was: %T`, resourcePresetIdAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DagProcessorValue{
+		Count:            countVal,
+		ResourcePresetId: resourcePresetIdVal,
+		state:            attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDagProcessorValueNull() DagProcessorValue {
+	return DagProcessorValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDagProcessorValueUnknown() DagProcessorValue {
+	return DagProcessorValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDagProcessorValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DagProcessorValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DagProcessorValue Attribute Value",
+				"While creating a DagProcessorValue value, a missing attribute value was detected. "+
+					"A DagProcessorValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DagProcessorValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DagProcessorValue Attribute Type",
+				"While creating a DagProcessorValue value, an invalid attribute value was detected. "+
+					"A DagProcessorValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DagProcessorValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DagProcessorValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DagProcessorValue Attribute Value",
+				"While creating a DagProcessorValue value, an extra attribute value was detected. "+
+					"A DagProcessorValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DagProcessorValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDagProcessorValueUnknown(), diags
+	}
+
+	countAttribute, ok := attributes["count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`count is missing from object`)
+
+		return NewDagProcessorValueUnknown(), diags
+	}
+
+	countVal, ok := countAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`count expected to be basetypes.Int64Value, was: %T`, countAttribute))
+	}
+
+	resourcePresetIdAttribute, ok := attributes["resource_preset_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`resource_preset_id is missing from object`)
+
+		return NewDagProcessorValueUnknown(), diags
+	}
+
+	resourcePresetIdVal, ok := resourcePresetIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`resource_preset_id expected to be basetypes.StringValue, was: %T`, resourcePresetIdAttribute))
+	}
+
+	if diags.HasError() {
+		return NewDagProcessorValueUnknown(), diags
+	}
+
+	return DagProcessorValue{
+		Count:            countVal,
+		ResourcePresetId: resourcePresetIdVal,
+		state:            attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDagProcessorValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DagProcessorValue {
+	object, diags := NewDagProcessorValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDagProcessorValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DagProcessorType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDagProcessorValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDagProcessorValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDagProcessorValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDagProcessorValueMust(DagProcessorValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DagProcessorType) ValueType(ctx context.Context) attr.Value {
+	return DagProcessorValue{}
+}
+
+var _ basetypes.ObjectValuable = DagProcessorValue{}
+
+type DagProcessorValue struct {
+	Count            basetypes.Int64Value  `tfsdk:"count"`
+	ResourcePresetId basetypes.StringValue `tfsdk:"resource_preset_id"`
+	state            attr.ValueState
+}
+
+func (v DagProcessorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["count"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["resource_preset_id"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Count.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["count"] = val
+
+		val, err = v.ResourcePresetId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["resource_preset_id"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DagProcessorValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DagProcessorValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DagProcessorValue) String() string {
+	return "DagProcessorValue"
+}
+
+func (v DagProcessorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"count":              basetypes.Int64Type{},
+		"resource_preset_id": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"count":              v.Count,
+			"resource_preset_id": v.ResourcePresetId,
+		})
+
+	return objVal, diags
+}
+
+func (v DagProcessorValue) Equal(o attr.Value) bool {
+	other, ok := o.(DagProcessorValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Count.Equal(other.Count) {
+		return false
+	}
+
+	if !v.ResourcePresetId.Equal(other.ResourcePresetId) {
+		return false
+	}
+
+	return true
+}
+
+func (v DagProcessorValue) Type(ctx context.Context) attr.Type {
+	return DagProcessorType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DagProcessorValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"count":              basetypes.Int64Type{},
+		"resource_preset_id": basetypes.StringType{},
 	}
 }
 

@@ -61,21 +61,6 @@
             }
           },
           {
-            "name": "health",
-            "string": {
-              "computed_optional_required": "computed",
-              "description": "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
-              "plan_modifiers": [
-                {
-                  "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
-                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
-                  }
-                }
-              ]
-            }
-          },
-          {
             "name": "status",
             "string": {
               "computed_optional_required": "computed",
@@ -338,6 +323,36 @@
                   "string": {
                     "computed_optional_required": "required",
                     "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "dag_processor",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "description": "Configuration of dag-processor instances. Only for airflow version 3.*.",
+              "attributes": [
+                {
+                  "name": "count",
+                  "int64": {
+                    "computed_optional_required": "required",
+                    "description": "The number of dag-processor instances in the cluster."
+                  }
+                },
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required",
+                    "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
+                  }
+                }
+              ],
+              "validators": [
+                {
+                  "custom": {
+                    "schema_definition": "dagProcessorValidator()"
                   }
                 }
               ]

@@ -80,10 +80,6 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				MarkdownDescription: "The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.",
 			},
-			"health": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-airflow/api-ref/Cluster/).",
-			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Optional:            true,
@@ -209,6 +205,25 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed:            true,
 				MarkdownDescription: "Configuration of scheduler instances.",
+			},
+			"dag_processor": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"count": schema.Int64Attribute{
+						Computed:            true,
+						MarkdownDescription: "The number of dag-processor instances in the cluster.",
+					},
+					"resource_preset_id": schema.StringAttribute{
+						Computed:            true,
+						MarkdownDescription: "The identifier of the preset for computational resources available to an instance (CPU, memory etc.).",
+					},
+				},
+				CustomType: DagProcessorType{
+					ObjectType: types.ObjectType{
+						AttrTypes: DagProcessorValue{}.AttributeTypes(ctx),
+					},
+				},
+				Computed:            true,
+				MarkdownDescription: "Configuration of dag-processor instances.",
 			},
 			"security_group_ids": schema.SetAttribute{
 				ElementType:         types.StringType,
