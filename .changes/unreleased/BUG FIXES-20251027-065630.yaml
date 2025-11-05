@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: "spark: remove excessive and broken validation for logging config"
+time: 2025-10-27T06:56:30.302645+03:00

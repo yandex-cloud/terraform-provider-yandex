@@ -17,79 +17,87 @@ func FromAPI(ctx context.Context, clusterID string, accessControl *trino.AccessC
 	}
 	var diags diag.Diagnostics
 	if len(accessControl.Catalogs) > 0 {
-		model.Catalogs = make([]*CatalogRule, 0, len(accessControl.Catalogs))
+		catalogObjs := make([]attr.Value, 0, len(accessControl.Catalogs))
 		for _, rule := range accessControl.Catalogs {
 			v, dd := catalogRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Catalogs = append(model.Catalogs, v)
+			catalogObjs = append(catalogObjs, v)
 		}
+		model.Catalogs, _ = types.ListValue(CatalogRuleT, catalogObjs)
 	}
 	if len(accessControl.Schemas) > 0 {
-		model.Schemas = make([]*SchemaRule, 0, len(accessControl.Schemas))
+		schemaObjs := make([]attr.Value, 0, len(accessControl.Schemas))
 		for _, rule := range accessControl.Schemas {
 			v, dd := schemaRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Schemas = append(model.Schemas, v)
+			schemaObjs = append(schemaObjs, v)
 		}
+		model.Schemas, _ = types.ListValue(SchemaRuleT, schemaObjs)
 	}
 	if len(accessControl.Functions) > 0 {
-		model.Functions = make([]*FunctionRule, 0, len(accessControl.Functions))
+		functionObjs := make([]attr.Value, 0, len(accessControl.Functions))
 		for _, rule := range accessControl.Functions {
 			v, dd := functionRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Functions = append(model.Functions, v)
+			functionObjs = append(functionObjs, v)
 		}
+		model.Functions, _ = types.ListValue(FunctionRuleT, functionObjs)
 	}
 	if len(accessControl.Procedures) > 0 {
-		model.Procedures = make([]*ProcedureRule, 0, len(accessControl.Procedures))
+		procedureObjs := make([]attr.Value, 0, len(accessControl.Procedures))
 		for _, rule := range accessControl.Procedures {
 			v, dd := procedureRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Procedures = append(model.Procedures, v)
+			procedureObjs = append(procedureObjs, v)
 		}
+		model.Procedures, _ = types.ListValue(ProcedureRuleT, procedureObjs)
 	}
 	if len(accessControl.Tables) > 0 {
-		model.Tables = make([]*TableRule, 0, len(accessControl.Tables))
+		tableObjs := make([]attr.Value, 0, len(accessControl.Tables))
 		for _, rule := range accessControl.Tables {
 			v, dd := tableRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Tables = append(model.Tables, v)
+			tableObjs = append(tableObjs, v)
 		}
+		model.Tables, _ = types.ListValue(TableRuleT, tableObjs)
 	}
 	if len(accessControl.Queries) > 0 {
-		model.Queries = make([]*QueryRule, 0, len(accessControl.Queries))
+		queryObjs := make([]attr.Value, 0, len(accessControl.Queries))
 		for _, rule := range accessControl.Queries {
 			v, dd := queryRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.Queries = append(model.Queries, v)
+			queryObjs = append(queryObjs, v)
 		}
+		model.Queries, _ = types.ListValue(QueryRuleT, queryObjs)
 	}
 	if len(accessControl.SystemSessionProperties) > 0 {
-		model.SystemSessionProperties = make([]*SystemSessionPropertyRule, 0, len(accessControl.SystemSessionProperties))
+		sysPropObjs := make([]attr.Value, 0, len(accessControl.SystemSessionProperties))
 		for _, rule := range accessControl.SystemSessionProperties {
 			v, dd := systemSessionPropertyRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.SystemSessionProperties = append(model.SystemSessionProperties, v)
+			sysPropObjs = append(sysPropObjs, v)
 		}
+		model.SystemSessionProperties, _ = types.ListValue(SystemSessionPropertyRuleT, sysPropObjs)
 	}
 	if len(accessControl.CatalogSessionProperties) > 0 {
-		model.CatalogSessionProperties = make([]*CatalogSessionPropertyRule, 0, len(accessControl.CatalogSessionProperties))
+		catPropObjs := make([]attr.Value, 0, len(accessControl.CatalogSessionProperties))
 		for _, rule := range accessControl.CatalogSessionProperties {
 			v, dd := catalogSessionPropertyRuleToModel(ctx, rule)
 			diags.Append(dd...)
-			model.CatalogSessionProperties = append(model.CatalogSessionProperties, v)
+			catPropObjs = append(catPropObjs, v)
 		}
+		model.CatalogSessionProperties, _ = types.ListValue(CatalogSessionPropertyRuleT, catPropObjs)
 	}
 	return model, diags
 }
 
-func catalogRuleToModel(ctx context.Context, rule *trino.CatalogAccessRule) (*CatalogRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func catalogRuleToModel(ctx context.Context, rule *trino.CatalogAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(CatalogRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
-	model := &CatalogRule{}
+	model := CatalogRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Users, dd = types.ListValueFrom(ctx, types.StringType, rule.Users)
@@ -99,18 +107,26 @@ func catalogRuleToModel(ctx context.Context, rule *trino.CatalogAccessRule) (*Ca
 	model.Permission, dd = catalogPermissionToModel(rule.Permission)
 	diags.Append(dd...)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, CatalogRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func catalogMatcherToModel(ctx context.Context, matcher *trino.CatalogAccessRuleMatcher) (*CatalogMatcherModel, diag.Diagnostics) {
+func catalogMatcherToModel(ctx context.Context, matcher *trino.CatalogAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(CatalogMatcherT.AttrTypes), diags
 	}
-	ids, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetIds().GetAny())
-	return &CatalogMatcherModel{
+	ids, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetIds().GetAny())
+	diags.Append(dd...)
+	model := CatalogMatcherModel{
 		IDs:        ids,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, CatalogMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func catalogPermissionToModel(p trino.CatalogAccessRule_Permission) (types.String, diag.Diagnostics) {
@@ -128,14 +144,14 @@ func catalogPermissionToModel(p trino.CatalogAccessRule_Permission) (types.Strin
 	}
 }
 
-func schemaRuleToModel(ctx context.Context, rule *trino.SchemaAccessRule) (*SchemaRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func schemaRuleToModel(ctx context.Context, rule *trino.SchemaAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(SchemaRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
 	var d diag.Diagnostic
-	model := &SchemaRule{}
+	model := SchemaRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Schema, dd = schemaMatcherToModel(ctx, rule.Schema)
@@ -147,18 +163,26 @@ func schemaRuleToModel(ctx context.Context, rule *trino.SchemaAccessRule) (*Sche
 	model.Owner, d = schemaOwnerToModel(rule.Owner)
 	diags.Append(d)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, SchemaRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func schemaMatcherToModel(ctx context.Context, matcher *trino.SchemaAccessRuleMatcher) (*NameMatcherModel, diag.Diagnostics) {
+func schemaMatcherToModel(ctx context.Context, matcher *trino.SchemaAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(NameMatcherT.AttrTypes), diags
 	}
-	names, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
-	return &NameMatcherModel{
+	names, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
+	diags.Append(dd...)
+	model := NameMatcherModel{
 		Names:      names,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, NameMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func schemaOwnerToModel(owner trino.SchemaAccessRule_Owner) (types.String, diag.Diagnostic) {
@@ -172,13 +196,13 @@ func schemaOwnerToModel(owner trino.SchemaAccessRule_Owner) (types.String, diag.
 	}
 }
 
-func functionRuleToModel(ctx context.Context, rule *trino.FunctionAccessRule) (*FunctionRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func functionRuleToModel(ctx context.Context, rule *trino.FunctionAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(FunctionRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
-	model := &FunctionRule{}
+	model := FunctionRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Schema, dd = schemaMatcherToModel(ctx, rule.Schema)
@@ -192,18 +216,26 @@ func functionRuleToModel(ctx context.Context, rule *trino.FunctionAccessRule) (*
 	model.Privileges, dd = functionPrivilegesToModel(ctx, rule.Privileges)
 	diags.Append(dd...)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, FunctionRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func functionMatcherToModel(ctx context.Context, matcher *trino.FunctionAccessRuleMatcher) (*NameMatcherModel, diag.Diagnostics) {
+func functionMatcherToModel(ctx context.Context, matcher *trino.FunctionAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(NameMatcherT.AttrTypes), diags
 	}
-	names, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
-	return &NameMatcherModel{
+	names, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
+	diags.Append(dd...)
+	model := NameMatcherModel{
 		Names:      names,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, NameMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func functionPrivilegesToModel(ctx context.Context, privileges []trino.FunctionAccessRule_Privilege) (types.List, diag.Diagnostics) {
@@ -229,13 +261,13 @@ func functionPrivilegesToModel(ctx context.Context, privileges []trino.FunctionA
 	return privs, diags
 }
 
-func procedureRuleToModel(ctx context.Context, rule *trino.ProcedureAccessRule) (*ProcedureRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func procedureRuleToModel(ctx context.Context, rule *trino.ProcedureAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(ProcedureRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
-	model := &ProcedureRule{}
+	model := ProcedureRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Schema, dd = schemaMatcherToModel(ctx, rule.Schema)
@@ -249,18 +281,26 @@ func procedureRuleToModel(ctx context.Context, rule *trino.ProcedureAccessRule) 
 	model.Privileges, dd = procedurePrivilegesToModel(ctx, rule.Privileges)
 	diags.Append(dd...)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, ProcedureRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func procedureMatcherToModel(ctx context.Context, matcher *trino.ProcedureAccessRuleMatcher) (*NameMatcherModel, diag.Diagnostics) {
+func procedureMatcherToModel(ctx context.Context, matcher *trino.ProcedureAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(NameMatcherT.AttrTypes), diags
 	}
-	names, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
-	return &NameMatcherModel{
+	names, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
+	diags.Append(dd...)
+	model := NameMatcherModel{
 		Names:      names,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, NameMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func procedurePrivilegesToModel(ctx context.Context, privileges []trino.ProcedureAccessRule_Privilege) (types.List, diag.Diagnostics) {
@@ -282,14 +322,14 @@ func procedurePrivilegesToModel(ctx context.Context, privileges []trino.Procedur
 	return privs, diags
 }
 
-func systemSessionPropertyRuleToModel(ctx context.Context, rule *trino.SystemSessionPropertyAccessRule) (*SystemSessionPropertyRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func systemSessionPropertyRuleToModel(ctx context.Context, rule *trino.SystemSessionPropertyAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(SystemSessionPropertyRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
 	var d diag.Diagnostic
-	model := &SystemSessionPropertyRule{}
+	model := SystemSessionPropertyRule{}
 	model.Property, dd = propertyMatcherToModel(ctx, rule.Property)
 	diags.Append(dd...)
 	model.Users, dd = types.ListValueFrom(ctx, types.StringType, rule.Users)
@@ -299,17 +339,20 @@ func systemSessionPropertyRuleToModel(ctx context.Context, rule *trino.SystemSes
 	model.Allow, d = systemPropertyAllowToModel(rule.Allow)
 	diags.Append(d)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, SystemSessionPropertyRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func catalogSessionPropertyRuleToModel(ctx context.Context, rule *trino.CatalogSessionPropertyAccessRule) (*CatalogSessionPropertyRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func catalogSessionPropertyRuleToModel(ctx context.Context, rule *trino.CatalogSessionPropertyAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(CatalogSessionPropertyRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
 	var d diag.Diagnostic
-	model := &CatalogSessionPropertyRule{}
+	model := CatalogSessionPropertyRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Property, dd = propertyMatcherToModel(ctx, rule.Property)
@@ -321,18 +364,26 @@ func catalogSessionPropertyRuleToModel(ctx context.Context, rule *trino.CatalogS
 	model.Allow, d = catalogPropertyAllowToModel(rule.Allow)
 	diags.Append(d)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, CatalogSessionPropertyRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func propertyMatcherToModel(ctx context.Context, matcher *trino.PropertyAccessRuleMatcher) (*NameMatcherModel, diag.Diagnostics) {
+func propertyMatcherToModel(ctx context.Context, matcher *trino.PropertyAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(NameMatcherT.AttrTypes), diags
 	}
-	names, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
-	return &NameMatcherModel{
+	names, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
+	diags.Append(dd...)
+	model := NameMatcherModel{
 		Names:      names,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, NameMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func systemPropertyAllowToModel(allow trino.SystemSessionPropertyAccessRule_Allow) (types.String, diag.Diagnostic) {
@@ -346,13 +397,13 @@ func systemPropertyAllowToModel(allow trino.SystemSessionPropertyAccessRule_Allo
 	}
 }
 
-func queryRuleToModel(ctx context.Context, rule *trino.QueryAccessRule) (*QueryRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func queryRuleToModel(ctx context.Context, rule *trino.QueryAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(QueryRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
-	model := &QueryRule{}
+	model := QueryRule{}
 	model.Users, dd = types.ListValueFrom(ctx, types.StringType, rule.Users)
 	diags.Append(dd...)
 	model.Groups, dd = types.ListValueFrom(ctx, types.StringType, rule.Groups)
@@ -362,7 +413,10 @@ func queryRuleToModel(ctx context.Context, rule *trino.QueryAccessRule) (*QueryR
 	model.Privileges, dd = queryPrivilegesToModel(ctx, rule.Privileges)
 	diags.Append(dd...)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, QueryRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func queryPrivilegesToModel(ctx context.Context, privileges []trino.QueryAccessRule_Privilege) (types.List, diag.Diagnostics) {
@@ -388,13 +442,13 @@ func queryPrivilegesToModel(ctx context.Context, privileges []trino.QueryAccessR
 	return privs, diags
 }
 
-func tableRuleToModel(ctx context.Context, rule *trino.TableAccessRule) (*TableRule, diag.Diagnostics) {
-	if rule == nil {
-		return nil, nil
-	}
+func tableRuleToModel(ctx context.Context, rule *trino.TableAccessRule) (types.Object, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if rule == nil {
+		return types.ObjectNull(TableRuleT.AttrTypes), diags
+	}
 	var dd diag.Diagnostics
-	model := &TableRule{}
+	model := TableRule{}
 	model.Catalog, dd = catalogMatcherToModel(ctx, rule.Catalog)
 	diags.Append(dd...)
 	model.Schema, dd = schemaMatcherToModel(ctx, rule.Schema)
@@ -407,22 +461,30 @@ func tableRuleToModel(ctx context.Context, rule *trino.TableAccessRule) (*TableR
 	diags.Append(dd...)
 	model.Privileges, dd = tablePrivilegesToModel(ctx, rule.Privileges)
 	diags.Append(dd...)
-	model.Columns, dd = columnRulesToModel(rule.Columns)
+	model.Columns, dd = columnRulesToModel(ctx, rule.Columns)
 	diags.Append(dd...)
 	model.Filter = stringToModel(rule.Filter)
 	model.Description = stringToModel(rule.Description)
-	return model, diags
+
+	obj, dd := types.ObjectValueFrom(ctx, TableRuleT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
-func tableMatcherToModel(ctx context.Context, matcher *trino.TableAccessRuleMatcher) (*NameMatcherModel, diag.Diagnostics) {
+func tableMatcherToModel(ctx context.Context, matcher *trino.TableAccessRuleMatcher) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	if matcher == nil {
-		return nil, nil
+		return types.ObjectNull(NameMatcherT.AttrTypes), diags
 	}
-	names, diags := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
-	return &NameMatcherModel{
+	names, dd := types.ListValueFrom(ctx, types.StringType, matcher.GetNames().GetAny())
+	diags.Append(dd...)
+	model := NameMatcherModel{
 		Names:      names,
 		NameRegexp: stringToModel(matcher.GetNameRegexp()),
-	}, diags
+	}
+	obj, dd := types.ObjectValueFrom(ctx, NameMatcherT.AttrTypes, model)
+	diags.Append(dd...)
+	return obj, diags
 }
 
 func tablePrivilegesToModel(ctx context.Context, privileges []trino.TableAccessRule_Privilege) (types.List, diag.Diagnostics) {
@@ -454,14 +516,15 @@ func tablePrivilegesToModel(ctx context.Context, privileges []trino.TableAccessR
 	return privs, diags
 }
 
-func columnRulesToModel(columns []*trino.TableAccessRule_Column) ([]*ColumnRule, diag.Diagnostics) {
-	if len(columns) == 0 {
-		return nil, nil
-	}
+func columnRulesToModel(ctx context.Context, columns []*trino.TableAccessRule_Column) (types.List, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	result := make([]*ColumnRule, 0, len(columns))
+	if len(columns) == 0 {
+		return types.ListNull(ColumnRuleT), diags
+	}
+
+	columnObjs := make([]attr.Value, 0, len(columns))
 	for _, col := range columns {
-		columnRule := &ColumnRule{
+		columnRule := ColumnRule{
 			Name: types.StringValue(col.Name),
 			Mask: stringToModel(col.Mask),
 		}
@@ -473,9 +536,14 @@ func columnRulesToModel(columns []*trino.TableAccessRule_Column) ([]*ColumnRule,
 		default:
 			diags.AddError("Invalid column access mode", fmt.Sprintf("Unknown column access mode %v", col.Access))
 		}
-		result = append(result, columnRule)
+		obj, dd := types.ObjectValueFrom(ctx, ColumnRuleT.AttrTypes, columnRule)
+		diags.Append(dd...)
+		columnObjs = append(columnObjs, obj)
 	}
-	return result, diags
+
+	list, dd := types.ListValue(ColumnRuleT, columnObjs)
+	diags.Append(dd...)
+	return list, diags
 }
 
 func catalogPropertyAllowToModel(allow trino.CatalogSessionPropertyAccessRule_Allow) (types.String, diag.Diagnostic) {

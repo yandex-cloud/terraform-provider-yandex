@@ -88,70 +88,70 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogMode
 	// Connector
 	connector := &trino.Connector{}
 	switch {
-	case plan.Postgresql != nil:
+	case !plan.Postgresql.IsNull() && !plan.Postgresql.IsUnknown():
 		postgresql, dd := postgresqlConnectorToAPI(ctx, plan.Postgresql)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Postgresql{Postgresql: postgresql}
 		if state != nil && !plan.Postgresql.Equal(state.Postgresql) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.postgresql")
 		}
-	case plan.Hive != nil:
+	case !plan.Hive.IsNull() && !plan.Hive.IsUnknown():
 		hive, dd := hiveConnectorToAPI(ctx, plan.Hive)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Hive{Hive: hive}
 		if state != nil && !plan.Hive.Equal(state.Hive) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.hive")
 		}
-	case plan.Clickhouse != nil:
+	case !plan.Clickhouse.IsNull() && !plan.Clickhouse.IsUnknown():
 		clickhouse, dd := clickhouseConnectorToAPI(ctx, plan.Clickhouse)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Clickhouse{Clickhouse: clickhouse}
 		if state != nil && !plan.Clickhouse.Equal(state.Clickhouse) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.clickhouse")
 		}
-	case plan.DeltaLake != nil:
+	case !plan.DeltaLake.IsNull() && !plan.DeltaLake.IsUnknown():
 		deltaLake, dd := deltaLakeConnectorToAPI(ctx, plan.DeltaLake)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_DeltaLake{DeltaLake: deltaLake}
 		if state != nil && !plan.DeltaLake.Equal(state.DeltaLake) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.delta_lake")
 		}
-	case plan.Iceberg != nil:
+	case !plan.Iceberg.IsNull() && !plan.Iceberg.IsUnknown():
 		iceberg, dd := icebergConnectorToAPI(ctx, plan.Iceberg)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Iceberg{Iceberg: iceberg}
 		if state != nil && !plan.Iceberg.Equal(state.Iceberg) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.iceberg")
 		}
-	case plan.Hudi != nil:
+	case !plan.Hudi.IsNull() && !plan.Hudi.IsUnknown():
 		hudi, dd := hudiConnectorToAPI(ctx, plan.Hudi)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Hudi{Hudi: hudi}
 		if state != nil && !plan.Hudi.Equal(state.Hudi) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.hudi")
 		}
-	case plan.Oracle != nil:
+	case !plan.Oracle.IsNull() && !plan.Oracle.IsUnknown():
 		oracle, dd := oracleConnectorToAPI(ctx, plan.Oracle)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Oracle{Oracle: oracle}
 		if state != nil && !plan.Oracle.Equal(state.Oracle) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.oracle")
 		}
-	case plan.Sqlserver != nil:
+	case !plan.Sqlserver.IsNull() && !plan.Sqlserver.IsUnknown():
 		sqlserver, dd := sqlserverConnectorToAPI(ctx, plan.Sqlserver)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Sqlserver{Sqlserver: sqlserver}
 		if state != nil && !plan.Sqlserver.Equal(state.Sqlserver) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.sqlserver")
 		}
-	case plan.Tpcds != nil:
+	case !plan.Tpcds.IsNull() && !plan.Tpcds.IsUnknown():
 		tpcds, dd := tpcdsConnectorToAPI(ctx, plan.Tpcds)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Tpcds{Tpcds: tpcds}
 		if state != nil && !plan.Tpcds.Equal(state.Tpcds) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.tpcds")
 		}
-	case plan.Tpch != nil:
+	case !plan.Tpch.IsNull() && !plan.Tpch.IsUnknown():
 		tpch, dd := tpchConnectorToAPI(ctx, plan.Tpch)
 		diags.Append(dd...)
 		connector.Type = &trino.Connector_Tpch{Tpch: tpch}
@@ -173,8 +173,15 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogMode
 	return params, updateMaskPaths, diags
 }
 
-func postgresqlConnectorToAPI(ctx context.Context, postgresql *Postgresql) (*trino.PostgresqlConnector, diag.Diagnostics) {
+func postgresqlConnectorToAPI(ctx context.Context, postgresqlObj types.Object) (*trino.PostgresqlConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var postgresql Postgresql
+	diags.Append(postgresqlObj.As(ctx, &postgresql, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(postgresql.AdditionalProperties.Elements()))
 	diags.Append(postgresql.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -212,8 +219,15 @@ func postgresqlConnectorToAPI(ctx context.Context, postgresql *Postgresql) (*tri
 	return connector, diags
 }
 
-func hiveConnectorToAPI(ctx context.Context, hive *Hive) (*trino.HiveConnector, diag.Diagnostics) {
+func hiveConnectorToAPI(ctx context.Context, hiveObj types.Object) (*trino.HiveConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var hive Hive
+	diags.Append(hiveObj.As(ctx, &hive, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(hive.AdditionalProperties.Elements()))
 	diags.Append(hive.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -262,8 +276,15 @@ func hiveConnectorToAPI(ctx context.Context, hive *Hive) (*trino.HiveConnector, 
 	return connector, diags
 }
 
-func clickhouseConnectorToAPI(ctx context.Context, clickhouse *Clickhouse) (*trino.ClickhouseConnector, diag.Diagnostics) {
+func clickhouseConnectorToAPI(ctx context.Context, clickhouseObj types.Object) (*trino.ClickhouseConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var clickhouse Clickhouse
+	diags.Append(clickhouseObj.As(ctx, &clickhouse, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(clickhouse.AdditionalProperties.Elements()))
 	diags.Append(clickhouse.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -301,8 +322,15 @@ func clickhouseConnectorToAPI(ctx context.Context, clickhouse *Clickhouse) (*tri
 	return connector, diags
 }
 
-func deltaLakeConnectorToAPI(ctx context.Context, deltaLake *DeltaLake) (*trino.DeltaLakeConnector, diag.Diagnostics) {
+func deltaLakeConnectorToAPI(ctx context.Context, deltaLakeObj types.Object) (*trino.DeltaLakeConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var deltaLake DeltaLake
+	diags.Append(deltaLakeObj.As(ctx, &deltaLake, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(deltaLake.AdditionalProperties.Elements()))
 	diags.Append(deltaLake.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -351,8 +379,15 @@ func deltaLakeConnectorToAPI(ctx context.Context, deltaLake *DeltaLake) (*trino.
 	return connector, diags
 }
 
-func icebergConnectorToAPI(ctx context.Context, iceberg *Iceberg) (*trino.IcebergConnector, diag.Diagnostics) {
+func icebergConnectorToAPI(ctx context.Context, icebergObj types.Object) (*trino.IcebergConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var iceberg Iceberg
+	diags.Append(icebergObj.As(ctx, &iceberg, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(iceberg.AdditionalProperties.Elements()))
 	diags.Append(iceberg.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -401,8 +436,15 @@ func icebergConnectorToAPI(ctx context.Context, iceberg *Iceberg) (*trino.Iceber
 	return connector, diags
 }
 
-func hudiConnectorToAPI(ctx context.Context, hudi *Hudi) (*trino.HudiConnector, diag.Diagnostics) {
+func hudiConnectorToAPI(ctx context.Context, hudiObj types.Object) (*trino.HudiConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var hudi Hudi
+	diags.Append(hudiObj.As(ctx, &hudi, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(hudi.AdditionalProperties.Elements()))
 	diags.Append(hudi.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -451,8 +493,15 @@ func hudiConnectorToAPI(ctx context.Context, hudi *Hudi) (*trino.HudiConnector, 
 	return connector, diags
 }
 
-func oracleConnectorToAPI(ctx context.Context, oracle *Oracle) (*trino.OracleConnector, diag.Diagnostics) {
+func oracleConnectorToAPI(ctx context.Context, oracleObj types.Object) (*trino.OracleConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var oracle Oracle
+	diags.Append(oracleObj.As(ctx, &oracle, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(oracle.AdditionalProperties.Elements()))
 	diags.Append(oracle.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -477,8 +526,15 @@ func oracleConnectorToAPI(ctx context.Context, oracle *Oracle) (*trino.OracleCon
 	return connector, diags
 }
 
-func sqlserverConnectorToAPI(ctx context.Context, sqlserver *Sqlserver) (*trino.SQLServerConnector, diag.Diagnostics) {
+func sqlserverConnectorToAPI(ctx context.Context, sqlserverObj types.Object) (*trino.SQLServerConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var sqlserver Sqlserver
+	diags.Append(sqlserverObj.As(ctx, &sqlserver, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(sqlserver.AdditionalProperties.Elements()))
 	diags.Append(sqlserver.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -503,8 +559,15 @@ func sqlserverConnectorToAPI(ctx context.Context, sqlserver *Sqlserver) (*trino.
 	return connector, diags
 }
 
-func tpcdsConnectorToAPI(ctx context.Context, tpcds *Tpcds) (*trino.TPCDSConnector, diag.Diagnostics) {
+func tpcdsConnectorToAPI(ctx context.Context, tpcdsObj types.Object) (*trino.TPCDSConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var tpcds Tpcds
+	diags.Append(tpcdsObj.As(ctx, &tpcds, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(tpcds.AdditionalProperties.Elements()))
 	diags.Append(tpcds.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
@@ -515,8 +578,15 @@ func tpcdsConnectorToAPI(ctx context.Context, tpcds *Tpcds) (*trino.TPCDSConnect
 	return connector, diags
 }
 
-func tpchConnectorToAPI(ctx context.Context, tpch *Tpch) (*trino.TPCHConnector, diag.Diagnostics) {
+func tpchConnectorToAPI(ctx context.Context, tpchObj types.Object) (*trino.TPCHConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	var tpch Tpch
+	diags.Append(tpchObj.As(ctx, &tpch, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	additionalProperties := make(map[string]string, len(tpch.AdditionalProperties.Elements()))
 	diags.Append(tpch.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 

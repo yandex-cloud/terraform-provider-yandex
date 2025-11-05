@@ -218,18 +218,6 @@ func (r *metastoreClusterResource) ValidateConfig(ctx context.Context, req resou
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	if !cluster.Logging.IsNull() && cluster.Logging.Enabled.ValueBool() {
-		// both folder_id and log_group_id are specified or both are not specified
-		if cluster.Logging.FolderId.IsNull() == cluster.Logging.LogGroupId.IsNull() {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("logging"),
-				"Invalid Metastore cluster logging config",
-				"Exactly one of the attributes `folder_id` and `log_group_id` must be specified",
-			)
-			return
-		}
-	}
 }
 
 func refreshState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel, diags *diag.Diagnostics) {

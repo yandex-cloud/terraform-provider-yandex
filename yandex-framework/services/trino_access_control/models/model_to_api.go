@@ -15,70 +15,102 @@ func ToAPI(ctx context.Context, model *AccessControlModel) (*trino.AccessControl
 		return nil, nil
 	}
 	cfg := &trino.AccessControlConfig{}
-	if len(model.Catalogs) > 0 {
-		for _, ruleModel := range model.Catalogs {
-			rule, dd := catalogRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Catalogs.IsNull() && !model.Catalogs.IsUnknown() && len(model.Catalogs.Elements()) > 0 {
+		var catalogObjs []types.Object
+		diags.Append(model.Catalogs.ElementsAs(ctx, &catalogObjs, false)...)
+		for _, ruleObj := range catalogObjs {
+			rule, dd := catalogRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Catalogs = append(cfg.Catalogs, rule)
 		}
 	}
-	if len(model.Schemas) > 0 {
-		for _, ruleModel := range model.Schemas {
-			rule, dd := schemaRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Schemas.IsNull() && !model.Schemas.IsUnknown() && len(model.Schemas.Elements()) > 0 {
+		var schemaObjs []types.Object
+		diags.Append(model.Schemas.ElementsAs(ctx, &schemaObjs, false)...)
+		for _, ruleObj := range schemaObjs {
+			rule, dd := schemaRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Schemas = append(cfg.Schemas, rule)
 		}
 	}
-	if len(model.Functions) > 0 {
-		for _, ruleModel := range model.Functions {
-			rule, dd := functionRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Functions.IsNull() && !model.Functions.IsUnknown() && len(model.Functions.Elements()) > 0 {
+		var functionObjs []types.Object
+		diags.Append(model.Functions.ElementsAs(ctx, &functionObjs, false)...)
+		for _, ruleObj := range functionObjs {
+			rule, dd := functionRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Functions = append(cfg.Functions, rule)
 		}
 	}
-	if len(model.Procedures) > 0 {
-		for _, ruleModel := range model.Procedures {
-			rule, dd := procedureRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Procedures.IsNull() && !model.Procedures.IsUnknown() && len(model.Procedures.Elements()) > 0 {
+		var procedureObjs []types.Object
+		diags.Append(model.Procedures.ElementsAs(ctx, &procedureObjs, false)...)
+		for _, ruleObj := range procedureObjs {
+			rule, dd := procedureRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Procedures = append(cfg.Procedures, rule)
 		}
 	}
-	if len(model.Tables) > 0 {
-		for _, ruleModel := range model.Tables {
-			rule, dd := tableRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Tables.IsNull() && !model.Tables.IsUnknown() && len(model.Tables.Elements()) > 0 {
+		var tableObjs []types.Object
+		diags.Append(model.Tables.ElementsAs(ctx, &tableObjs, false)...)
+		for _, ruleObj := range tableObjs {
+			rule, dd := tableRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Tables = append(cfg.Tables, rule)
 		}
 	}
-	if len(model.Queries) > 0 {
-		for _, ruleModel := range model.Queries {
-			rule, dd := queryRuleModelToAPI(ctx, ruleModel)
+
+	if !model.Queries.IsNull() && !model.Queries.IsUnknown() && len(model.Queries.Elements()) > 0 {
+		var queryObjs []types.Object
+		diags.Append(model.Queries.ElementsAs(ctx, &queryObjs, false)...)
+		for _, ruleObj := range queryObjs {
+			rule, dd := queryRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.Queries = append(cfg.Queries, rule)
 		}
 	}
-	if len(model.SystemSessionProperties) > 0 {
-		for _, ruleModel := range model.SystemSessionProperties {
-			rule, dd := systemSessionPropertyRuleModelToAPI(ctx, ruleModel)
+
+	if !model.SystemSessionProperties.IsNull() && !model.SystemSessionProperties.IsUnknown() && len(model.SystemSessionProperties.Elements()) > 0 {
+		var sysPropObjs []types.Object
+		diags.Append(model.SystemSessionProperties.ElementsAs(ctx, &sysPropObjs, false)...)
+		for _, ruleObj := range sysPropObjs {
+			rule, dd := systemSessionPropertyRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.SystemSessionProperties = append(cfg.SystemSessionProperties, rule)
 		}
 	}
-	if len(model.CatalogSessionProperties) > 0 {
-		for _, ruleModel := range model.CatalogSessionProperties {
-			rule, dd := catalogSessionPropertyRuleModelToAPI(ctx, ruleModel)
+
+	if !model.CatalogSessionProperties.IsNull() && !model.CatalogSessionProperties.IsUnknown() && len(model.CatalogSessionProperties.Elements()) > 0 {
+		var catPropObjs []types.Object
+		diags.Append(model.CatalogSessionProperties.ElementsAs(ctx, &catPropObjs, false)...)
+		for _, ruleObj := range catPropObjs {
+			rule, dd := catalogSessionPropertyRuleModelToAPI(ctx, ruleObj)
 			diags.Append(dd...)
 			cfg.CatalogSessionProperties = append(cfg.CatalogSessionProperties, rule)
 		}
 	}
+
 	return cfg, diags
 }
 
-func catalogRuleModelToAPI(ctx context.Context, model *CatalogRule) (*trino.CatalogAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func catalogRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.CatalogAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model CatalogRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	users, dd := stringListModelToAPI(ctx, model.Users)
@@ -98,11 +130,18 @@ func catalogRuleModelToAPI(ctx context.Context, model *CatalogRule) (*trino.Cata
 	}, diags
 }
 
-func catalogMatcherModelToAPI(ctx context.Context, model *CatalogMatcherModel) (*trino.CatalogAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func catalogMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.CatalogAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model CatalogMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.CatalogAccessRuleMatcher{}
 	switch {
 	case len(model.IDs.Elements()) > 0:
@@ -136,11 +175,18 @@ func catalogPermissionStringToAPI(p string) (trino.CatalogAccessRule_Permission,
 	}
 }
 
-func schemaRuleModelToAPI(ctx context.Context, model *SchemaRule) (*trino.SchemaAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func schemaRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.SchemaAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model SchemaRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	schema, dd := schemaMatcherModelToAPI(ctx, model.Schema)
@@ -163,11 +209,18 @@ func schemaRuleModelToAPI(ctx context.Context, model *SchemaRule) (*trino.Schema
 	}, diags
 }
 
-func schemaMatcherModelToAPI(ctx context.Context, model *NameMatcherModel) (*trino.SchemaAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func schemaMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.SchemaAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model NameMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.SchemaAccessRuleMatcher{}
 	switch {
 	case len(model.Names.Elements()) > 0:
@@ -193,11 +246,18 @@ func schemaOwnerStringToAPI(owner string) (trino.SchemaAccessRule_Owner, diag.Di
 	}
 }
 
-func functionRuleModelToAPI(ctx context.Context, model *FunctionRule) (*trino.FunctionAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func functionRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.FunctionAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model FunctionRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	schema, dd := schemaMatcherModelToAPI(ctx, model.Schema)
@@ -223,11 +283,18 @@ func functionRuleModelToAPI(ctx context.Context, model *FunctionRule) (*trino.Fu
 	}, diags
 }
 
-func functionMatcherModelToAPI(ctx context.Context, model *NameMatcherModel) (*trino.FunctionAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func functionMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.FunctionAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model NameMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.FunctionAccessRuleMatcher{}
 	switch {
 	case len(model.Names.Elements()) > 0:
@@ -265,11 +332,18 @@ func functionPrivilegesModelToAPI(ctx context.Context, privilegesList types.List
 	return result, diags
 }
 
-func procedureRuleModelToAPI(ctx context.Context, model *ProcedureRule) (*trino.ProcedureAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func procedureRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.ProcedureAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model ProcedureRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	schema, dd := schemaMatcherModelToAPI(ctx, model.Schema)
@@ -295,11 +369,18 @@ func procedureRuleModelToAPI(ctx context.Context, model *ProcedureRule) (*trino.
 	}, diags
 }
 
-func procedureMatcherModelToAPI(ctx context.Context, model *NameMatcherModel) (*trino.ProcedureAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func procedureMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.ProcedureAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model NameMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.ProcedureAccessRuleMatcher{}
 	switch {
 	case len(model.Names.Elements()) > 0:
@@ -333,11 +414,18 @@ func procedurePrivilegesModelToAPI(ctx context.Context, privilegesList types.Lis
 	return result, diags
 }
 
-func systemSessionPropertyRuleModelToAPI(ctx context.Context, model *SystemSessionPropertyRule) (*trino.SystemSessionPropertyAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func systemSessionPropertyRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.SystemSessionPropertyAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model SystemSessionPropertyRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	property, dd := propertyMatcherModelToAPI(ctx, model.Property)
 	diags.Append(dd...)
 	users, dd := stringListModelToAPI(ctx, model.Users)
@@ -357,11 +445,18 @@ func systemSessionPropertyRuleModelToAPI(ctx context.Context, model *SystemSessi
 	}, diags
 }
 
-func catalogSessionPropertyRuleModelToAPI(ctx context.Context, model *CatalogSessionPropertyRule) (*trino.CatalogSessionPropertyAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func catalogSessionPropertyRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.CatalogSessionPropertyAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model CatalogSessionPropertyRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	property, dd := propertyMatcherModelToAPI(ctx, model.Property)
@@ -384,11 +479,18 @@ func catalogSessionPropertyRuleModelToAPI(ctx context.Context, model *CatalogSes
 	}, diags
 }
 
-func propertyMatcherModelToAPI(ctx context.Context, model *NameMatcherModel) (*trino.PropertyAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func propertyMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.PropertyAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model NameMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.PropertyAccessRuleMatcher{}
 	switch {
 	case len(model.Names.Elements()) > 0:
@@ -414,11 +516,18 @@ func systemPropertyAllowStringToAPI(allow string) (trino.SystemSessionPropertyAc
 	}
 }
 
-func queryRuleModelToAPI(ctx context.Context, model *QueryRule) (*trino.QueryAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func queryRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.QueryAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model QueryRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	users, dd := stringListModelToAPI(ctx, model.Users)
 	diags.Append(dd...)
 	groups, dd := stringListModelToAPI(ctx, model.Groups)
@@ -463,11 +572,18 @@ func queryPrivilegesModelToAPI(ctx context.Context, privilegesList types.List) (
 	return result, diags
 }
 
-func tableRuleModelToAPI(ctx context.Context, model *TableRule) (*trino.TableAccessRule, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func tableRuleModelToAPI(ctx context.Context, ruleObj types.Object) (*trino.TableAccessRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if ruleObj.IsNull() || ruleObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model TableRule
+	diags.Append(ruleObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	catalog, dd := catalogMatcherModelToAPI(ctx, model.Catalog)
 	diags.Append(dd...)
 	schema, dd := schemaMatcherModelToAPI(ctx, model.Schema)
@@ -480,7 +596,7 @@ func tableRuleModelToAPI(ctx context.Context, model *TableRule) (*trino.TableAcc
 	diags.Append(dd...)
 	privileges, dd := tablePrivilegesModelToAPI(ctx, model.Privileges)
 	diags.Append(dd...)
-	columns, dd := columnRulesModelToAPI(model.Columns)
+	columns, dd := columnRulesModelToAPI(ctx, model.Columns)
 	diags.Append(dd...)
 	filter := model.Filter.ValueString()
 	description := model.Description.ValueString()
@@ -498,11 +614,18 @@ func tableRuleModelToAPI(ctx context.Context, model *TableRule) (*trino.TableAcc
 	}, diags
 }
 
-func tableMatcherModelToAPI(ctx context.Context, model *NameMatcherModel) (*trino.TableAccessRuleMatcher, diag.Diagnostics) {
-	if model == nil {
-		return nil, nil
-	}
+func tableMatcherModelToAPI(ctx context.Context, matcherObj types.Object) (*trino.TableAccessRuleMatcher, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if matcherObj.IsNull() || matcherObj.IsUnknown() {
+		return nil, diags
+	}
+
+	var model NameMatcherModel
+	diags.Append(matcherObj.As(ctx, &model, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	matcher := &trino.TableAccessRuleMatcher{}
 	switch {
 	case len(model.Names.Elements()) > 0:
@@ -546,13 +669,30 @@ func tablePrivilegesModelToAPI(ctx context.Context, privilegesList types.List) (
 	return result, diags
 }
 
-func columnRulesModelToAPI(columns []*ColumnRule) ([]*trino.TableAccessRule_Column, diag.Diagnostics) {
-	if len(columns) == 0 {
-		return nil, nil
-	}
+func columnRulesModelToAPI(ctx context.Context, columnsList types.List) ([]*trino.TableAccessRule_Column, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	result := make([]*trino.TableAccessRule_Column, 0, len(columns))
-	for _, col := range columns {
+	if len(columnsList.Elements()) == 0 {
+		return nil, diags
+	}
+
+	var columnObjs []types.Object
+	diags.Append(columnsList.ElementsAs(ctx, &columnObjs, false)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	result := make([]*trino.TableAccessRule_Column, 0, len(columnObjs))
+	for _, colObj := range columnObjs {
+		if colObj.IsNull() || colObj.IsUnknown() {
+			continue
+		}
+
+		var col ColumnRule
+		diags.Append(colObj.As(ctx, &col, baseOptions)...)
+		if diags.HasError() {
+			continue
+		}
+
 		column := &trino.TableAccessRule_Column{
 			Name: col.Name.ValueString(),
 			Mask: col.Mask.ValueString(),

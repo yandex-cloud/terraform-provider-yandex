@@ -228,17 +228,6 @@ func (r *sparkClusterResource) ValidateConfig(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	if !cluster.Logging.IsNull() {
-		if cluster.Logging.Enabled.ValueBool() && cluster.Logging.FolderId.IsNull() == cluster.Logging.LogGroupId.IsNull() {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("logging"),
-				"Invalid Spark cluster logging configuration",
-				"Exactly one of the attributes `folder_id` and `log_group_id` must be specified",
-			)
-			return
-		}
-	}
 }
 
 func updateState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel) diag.Diagnostics {

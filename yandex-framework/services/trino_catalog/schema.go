@@ -288,16 +288,16 @@ type CatalogModel struct {
 	Labels      types.Map      `tfsdk:"labels"`
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 
-	Clickhouse *Clickhouse `tfsdk:"clickhouse"`
-	DeltaLake  *DeltaLake  `tfsdk:"delta_lake"`
-	Hive       *Hive       `tfsdk:"hive"`
-	Hudi       *Hudi       `tfsdk:"hudi"`
-	Iceberg    *Iceberg    `tfsdk:"iceberg"`
-	Oracle     *Oracle     `tfsdk:"oracle"`
-	Postgresql *Postgresql `tfsdk:"postgresql"`
-	Sqlserver  *Sqlserver  `tfsdk:"sqlserver"`
-	Tpcds      *Tpcds      `tfsdk:"tpcds"`
-	Tpch       *Tpch       `tfsdk:"tpch"`
+	Clickhouse types.Object `tfsdk:"clickhouse"`
+	DeltaLake  types.Object `tfsdk:"delta_lake"`
+	Hive       types.Object `tfsdk:"hive"`
+	Hudi       types.Object `tfsdk:"hudi"`
+	Iceberg    types.Object `tfsdk:"iceberg"`
+	Oracle     types.Object `tfsdk:"oracle"`
+	Postgresql types.Object `tfsdk:"postgresql"`
+	Sqlserver  types.Object `tfsdk:"sqlserver"`
+	Tpcds      types.Object `tfsdk:"tpcds"`
+	Tpch       types.Object `tfsdk:"tpch"`
 }
 
 var baseOptions = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
@@ -308,8 +308,16 @@ type Postgresql struct {
 	OnPremise            types.Object `tfsdk:"on_premise"`
 }
 
-func NewPostgresqlNull() *Postgresql {
-	return &Postgresql{
+var PostgresqlT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"connection_manager":    ConnectionManagerT,
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewPostgresqlNull() Postgresql {
+	return Postgresql{
 		AdditionalProperties: types.MapNull(types.StringType),
 		ConnectionManager:    types.ObjectNull(ConnectionManagerT.AttrTypes),
 		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
@@ -342,6 +350,14 @@ type Hive struct {
 	Metastore            types.Object `tfsdk:"metastore"`
 }
 
+var HiveT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"file_system":           FileSystemT,
+		"metastore":             MetastoreT,
+	},
+}
+
 func (v *Hive) Equal(other *Hive) bool {
 	if (v == nil && other != nil) || (v != nil && other == nil) {
 		return false
@@ -362,8 +378,8 @@ func (v *Hive) Equal(other *Hive) bool {
 	return true
 }
 
-func NewHiveNull() *Hive {
-	return &Hive{
+func NewHiveNull() Hive {
+	return Hive{
 		AdditionalProperties: types.MapNull(types.StringType),
 		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
 		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
@@ -459,8 +475,16 @@ type Clickhouse struct {
 	OnPremise            types.Object `tfsdk:"on_premise"`
 }
 
-func NewClickhouseNull() *Clickhouse {
-	return &Clickhouse{
+var ClickhouseT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"connection_manager":    ConnectionManagerT,
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewClickhouseNull() Clickhouse {
+	return Clickhouse{
 		AdditionalProperties: types.MapNull(types.StringType),
 		ConnectionManager:    types.ObjectNull(ConnectionManagerT.AttrTypes),
 		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
@@ -493,8 +517,16 @@ type DeltaLake struct {
 	Metastore            types.Object `tfsdk:"metastore"`
 }
 
-func NewDeltaLakeNull() *DeltaLake {
-	return &DeltaLake{
+var DeltaLakeT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"file_system":           FileSystemT,
+		"metastore":             MetastoreT,
+	},
+}
+
+func NewDeltaLakeNull() DeltaLake {
+	return DeltaLake{
 		AdditionalProperties: types.MapNull(types.StringType),
 		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
 		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
@@ -527,8 +559,16 @@ type Iceberg struct {
 	Metastore            types.Object `tfsdk:"metastore"`
 }
 
-func NewIcebergNull() *Iceberg {
-	return &Iceberg{
+var IcebergT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"file_system":           FileSystemT,
+		"metastore":             MetastoreT,
+	},
+}
+
+func NewIcebergNull() Iceberg {
+	return Iceberg{
 		AdditionalProperties: types.MapNull(types.StringType),
 		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
 		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
@@ -561,8 +601,16 @@ type Hudi struct {
 	Metastore            types.Object `tfsdk:"metastore"`
 }
 
-func NewHudiNull() *Hudi {
-	return &Hudi{
+var HudiT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"file_system":           FileSystemT,
+		"metastore":             MetastoreT,
+	},
+}
+
+func NewHudiNull() Hudi {
+	return Hudi{
 		AdditionalProperties: types.MapNull(types.StringType),
 		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
 		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
@@ -594,8 +642,15 @@ type Oracle struct {
 	OnPremise            types.Object `tfsdk:"on_premise"`
 }
 
-func NewOracleNull() *Oracle {
-	return &Oracle{
+var OracleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewOracleNull() Oracle {
+	return Oracle{
 		AdditionalProperties: types.MapNull(types.StringType),
 		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
 	}
@@ -622,8 +677,15 @@ type Sqlserver struct {
 	OnPremise            types.Object `tfsdk:"on_premise"`
 }
 
-func NewSqlserverNull() *Sqlserver {
-	return &Sqlserver{
+var SqlserverT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewSqlserverNull() Sqlserver {
+	return Sqlserver{
 		AdditionalProperties: types.MapNull(types.StringType),
 		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
 	}
@@ -649,8 +711,14 @@ type Tpcds struct {
 	AdditionalProperties types.Map `tfsdk:"additional_properties"`
 }
 
-func NewTpcdsNull() *Tpcds {
-	return &Tpcds{
+var TpcdsT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+	},
+}
+
+func NewTpcdsNull() Tpcds {
+	return Tpcds{
 		AdditionalProperties: types.MapNull(types.StringType),
 	}
 }
@@ -671,8 +739,14 @@ type Tpch struct {
 	AdditionalProperties types.Map `tfsdk:"additional_properties"`
 }
 
-func NewTpchNull() *Tpch {
-	return &Tpch{
+var TpchT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+	},
+}
+
+func NewTpchNull() Tpch {
+	return Tpch{
 		AdditionalProperties: types.MapNull(types.StringType),
 	}
 }

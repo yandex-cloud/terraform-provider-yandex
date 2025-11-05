@@ -29,62 +29,60 @@ func CatalogToState(ctx context.Context, catalog *trino.Catalog, state *CatalogM
 
 	switch connector := catalog.Connector.Type.(type) {
 	case *trino.Connector_Postgresql:
-		if state.Postgresql == nil {
-			state.Postgresql = NewPostgresqlNull()
-		}
-		diags.Append(postgresqlToModel(ctx, connector.Postgresql, state.Postgresql)...)
+		postgresqlObject, dd := postgresqlToModelObject(ctx, connector.Postgresql, state.Postgresql)
+		diags.Append(dd...)
+		state.Postgresql = postgresqlObject
 	case *trino.Connector_Hive:
-		if state.Hive == nil {
-			state.Hive = NewHiveNull()
-		}
-		diags.Append(hiveToModel(ctx, connector.Hive, state.Hive)...)
+		hiveObject, dd := hiveToModelObject(ctx, connector.Hive, state.Hive)
+		diags.Append(dd...)
+		state.Hive = hiveObject
 	case *trino.Connector_Hudi:
-		if state.Hudi == nil {
-			state.Hudi = NewHudiNull()
-		}
-		diags.Append(hudiToModel(ctx, connector.Hudi, state.Hudi)...)
+		hudiObject, dd := hudiToModelObject(ctx, connector.Hudi, state.Hudi)
+		diags.Append(dd...)
+		state.Hudi = hudiObject
 	case *trino.Connector_Clickhouse:
-		if state.Clickhouse == nil {
-			state.Clickhouse = NewClickhouseNull()
-		}
-		diags.Append(clickhouseToModel(ctx, connector.Clickhouse, state.Clickhouse)...)
+		clickhouseObject, dd := clickhouseToModelObject(ctx, connector.Clickhouse, state.Clickhouse)
+		diags.Append(dd...)
+		state.Clickhouse = clickhouseObject
 	case *trino.Connector_DeltaLake:
-		if state.DeltaLake == nil {
-			state.DeltaLake = NewDeltaLakeNull()
-		}
-		diags.Append(deltaLakeToModel(ctx, connector.DeltaLake, state.DeltaLake)...)
+		deltaLakeObject, dd := deltaLakeToModelObject(ctx, connector.DeltaLake, state.DeltaLake)
+		diags.Append(dd...)
+		state.DeltaLake = deltaLakeObject
 	case *trino.Connector_Iceberg:
-		if state.Iceberg == nil {
-			state.Iceberg = NewIcebergNull()
-		}
-		diags.Append(icebergToModel(ctx, connector.Iceberg, state.Iceberg)...)
+		icebergObject, dd := icebergToModelObject(ctx, connector.Iceberg, state.Iceberg)
+		diags.Append(dd...)
+		state.Iceberg = icebergObject
 	case *trino.Connector_Oracle:
-		if state.Oracle == nil {
-			state.Oracle = NewOracleNull()
-		}
-		diags.Append(oracleToModel(ctx, connector.Oracle, state.Oracle)...)
+		oracleObject, dd := oracleToModelObject(ctx, connector.Oracle, state.Oracle)
+		diags.Append(dd...)
+		state.Oracle = oracleObject
 	case *trino.Connector_Sqlserver:
-		if state.Sqlserver == nil {
-			state.Sqlserver = NewSqlserverNull()
-		}
-		diags.Append(sqlserverToModel(ctx, connector.Sqlserver, state.Sqlserver)...)
+		sqlserverObject, dd := sqlserverToModelObject(ctx, connector.Sqlserver, state.Sqlserver)
+		diags.Append(dd...)
+		state.Sqlserver = sqlserverObject
 	case *trino.Connector_Tpcds:
-		if state.Tpcds == nil {
-			state.Tpcds = NewTpcdsNull()
-		}
-		diags.Append(tpcdsToModel(ctx, connector.Tpcds, state.Tpcds)...)
+		tpcdsObject, dd := tpcdsToModelObject(ctx, connector.Tpcds, state.Tpcds)
+		diags.Append(dd...)
+		state.Tpcds = tpcdsObject
 	case *trino.Connector_Tpch:
-		if state.Tpch == nil {
-			state.Tpch = NewTpchNull()
-		}
-		diags.Append(tpchToModel(ctx, connector.Tpch, state.Tpch)...)
+		tpchObject, dd := tpchToModelObject(ctx, connector.Tpch, state.Tpch)
+		diags.Append(dd...)
+		state.Tpch = tpchObject
 	}
 
 	return diags
 }
 
-func postgresqlToModel(ctx context.Context, postgresql *trino.PostgresqlConnector, state *Postgresql) diag.Diagnostics {
+func postgresqlToModelObject(ctx context.Context, postgresql *trino.PostgresqlConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Postgresql{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewPostgresqlNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, postgresql.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -102,11 +100,19 @@ func postgresqlToModel(ctx context.Context, postgresql *trino.PostgresqlConnecto
 		state.ConnectionManager = connectionManagerObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, PostgresqlT.AttributeTypes(), state)
 }
 
-func hiveToModel(ctx context.Context, hive *trino.HiveConnector, state *Hive) diag.Diagnostics {
+func hiveToModelObject(ctx context.Context, hive *trino.HiveConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Hive{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewHiveNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, hive.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -130,11 +136,19 @@ func hiveToModel(ctx context.Context, hive *trino.HiveConnector, state *Hive) di
 		state.FileSystem = fileSystemObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, HiveT.AttributeTypes(), state)
 }
 
-func hudiToModel(ctx context.Context, hudi *trino.HudiConnector, state *Hudi) diag.Diagnostics {
+func hudiToModelObject(ctx context.Context, hudi *trino.HudiConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Hudi{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewHudiNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, hudi.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -158,11 +172,19 @@ func hudiToModel(ctx context.Context, hudi *trino.HudiConnector, state *Hudi) di
 		state.FileSystem = fileSystemObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, HudiT.AttributeTypes(), state)
 }
 
-func clickhouseToModel(ctx context.Context, clickhouse *trino.ClickhouseConnector, state *Clickhouse) diag.Diagnostics {
+func clickhouseToModelObject(ctx context.Context, clickhouse *trino.ClickhouseConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Clickhouse{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewClickhouseNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, clickhouse.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -180,11 +202,19 @@ func clickhouseToModel(ctx context.Context, clickhouse *trino.ClickhouseConnecto
 		state.ConnectionManager = connectionManagerObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, ClickhouseT.AttributeTypes(), state)
 }
 
-func deltaLakeToModel(ctx context.Context, deltaLake *trino.DeltaLakeConnector, state *DeltaLake) diag.Diagnostics {
+func deltaLakeToModelObject(ctx context.Context, deltaLake *trino.DeltaLakeConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := DeltaLake{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewDeltaLakeNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, deltaLake.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -208,11 +238,19 @@ func deltaLakeToModel(ctx context.Context, deltaLake *trino.DeltaLakeConnector, 
 		state.FileSystem = fileSystemObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, DeltaLakeT.AttributeTypes(), state)
 }
 
-func icebergToModel(ctx context.Context, iceberg *trino.IcebergConnector, state *Iceberg) diag.Diagnostics {
+func icebergToModelObject(ctx context.Context, iceberg *trino.IcebergConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Iceberg{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewIcebergNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, iceberg.AdditionalProperties)
 	diags.Append(dd...)
 	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
@@ -236,11 +274,19 @@ func icebergToModel(ctx context.Context, iceberg *trino.IcebergConnector, state 
 		state.FileSystem = fileSystemObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, IcebergT.AttributeTypes(), state)
 }
 
-func oracleToModel(ctx context.Context, oracle *trino.OracleConnector, state *Oracle) diag.Diagnostics {
+func oracleToModelObject(ctx context.Context, oracle *trino.OracleConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Oracle{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewOracleNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, oracle.AdditionalProperties)
 	diags.Append(dd...)
 	state.AdditionalProperties = additionalProperties
@@ -252,11 +298,19 @@ func oracleToModel(ctx context.Context, oracle *trino.OracleConnector, state *Or
 		state.OnPremise = obPremiseObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, OracleT.AttributeTypes(), state)
 }
 
-func sqlserverToModel(ctx context.Context, sqlserver *trino.SQLServerConnector, state *Sqlserver) diag.Diagnostics {
+func sqlserverToModelObject(ctx context.Context, sqlserver *trino.SQLServerConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Sqlserver{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewSqlserverNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, sqlserver.AdditionalProperties)
 	diags.Append(dd...)
 	state.AdditionalProperties = additionalProperties
@@ -268,25 +322,41 @@ func sqlserverToModel(ctx context.Context, sqlserver *trino.SQLServerConnector, 
 		state.OnPremise = obPremiseObject
 	}
 
-	return diags
+	return types.ObjectValueFrom(ctx, SqlserverT.AttributeTypes(), state)
 }
 
-func tpcdsToModel(ctx context.Context, tpcds *trino.TPCDSConnector, state *Tpcds) diag.Diagnostics {
+func tpcdsToModelObject(ctx context.Context, tpcds *trino.TPCDSConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Tpcds{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewTpcdsNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, tpcds.AdditionalProperties)
 	diags.Append(dd...)
 	state.AdditionalProperties = additionalProperties
 
-	return diags
+	return types.ObjectValueFrom(ctx, TpcdsT.AttributeTypes(), state)
 }
 
-func tpchToModel(ctx context.Context, tpch *trino.TPCHConnector, state *Tpch) diag.Diagnostics {
+func tpchToModelObject(ctx context.Context, tpch *trino.TPCHConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+
+	state := Tpch{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewTpchNull()
+	}
+
 	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, tpch.AdditionalProperties)
 	diags.Append(dd...)
 	state.AdditionalProperties = additionalProperties
 
-	return diags
+	return types.ObjectValueFrom(ctx, TpchT.AttributeTypes(), state)
 }
 
 func fileSystemToModel(ctx context.Context, state types.Object, apiFileSystem *trino.FileSystem) (types.Object, diag.Diagnostics) {

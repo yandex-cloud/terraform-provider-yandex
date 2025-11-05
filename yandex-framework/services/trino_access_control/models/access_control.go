@@ -2,8 +2,10 @@ package models
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 type CatalogPermission string
@@ -69,16 +71,16 @@ const (
 )
 
 type AccessControlModel struct {
-	ClusterId                types.String                  `tfsdk:"cluster_id"`
-	Catalogs                 []*CatalogRule                `tfsdk:"catalogs"`
-	Schemas                  []*SchemaRule                 `tfsdk:"schemas"`
-	Tables                   []*TableRule                  `tfsdk:"tables"`
-	Functions                []*FunctionRule               `tfsdk:"functions"`
-	Procedures               []*ProcedureRule              `tfsdk:"procedures"`
-	Queries                  []*QueryRule                  `tfsdk:"queries"`
-	SystemSessionProperties  []*SystemSessionPropertyRule  `tfsdk:"system_session_properties"`
-	CatalogSessionProperties []*CatalogSessionPropertyRule `tfsdk:"catalog_session_properties"`
-	Timeouts                 timeouts.Value                `tfsdk:"timeouts"`
+	ClusterId                types.String   `tfsdk:"cluster_id"`
+	Catalogs                 types.List     `tfsdk:"catalogs"`
+	Schemas                  types.List     `tfsdk:"schemas"`
+	Tables                   types.List     `tfsdk:"tables"`
+	Functions                types.List     `tfsdk:"functions"`
+	Procedures               types.List     `tfsdk:"procedures"`
+	Queries                  types.List     `tfsdk:"queries"`
+	SystemSessionProperties  types.List     `tfsdk:"system_session_properties"`
+	CatalogSessionProperties types.List     `tfsdk:"catalog_session_properties"`
+	Timeouts                 timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (a AccessControlModel) Validate() diag.Diagnostics {
@@ -90,80 +92,80 @@ func (a AccessControlModel) Validate() diag.Diagnostics {
 }
 
 func (a AccessControlModel) hasNoRules() bool {
-	return len(a.Catalogs) == 0 &&
-		len(a.Schemas) == 0 &&
-		len(a.Tables) == 0 &&
-		len(a.Functions) == 0 &&
-		len(a.Procedures) == 0 &&
-		len(a.Queries) == 0 &&
-		len(a.SystemSessionProperties) == 0 &&
-		len(a.CatalogSessionProperties) == 0
+	return len(a.Catalogs.Elements()) == 0 &&
+		len(a.Schemas.Elements()) == 0 &&
+		len(a.Tables.Elements()) == 0 &&
+		len(a.Functions.Elements()) == 0 &&
+		len(a.Procedures.Elements()) == 0 &&
+		len(a.Queries.Elements()) == 0 &&
+		len(a.SystemSessionProperties.Elements()) == 0 &&
+		len(a.CatalogSessionProperties.Elements()) == 0
 }
 
 type CatalogRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Permission  types.String         `tfsdk:"permission"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Permission  types.String `tfsdk:"permission"`
+	Description types.String `tfsdk:"description"`
 }
 
 type SchemaRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Schema      *NameMatcherModel    `tfsdk:"schema"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Owner       types.String         `tfsdk:"owner"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Schema      types.Object `tfsdk:"schema"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Owner       types.String `tfsdk:"owner"`
+	Description types.String `tfsdk:"description"`
 }
 
 type TableRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Schema      *NameMatcherModel    `tfsdk:"schema"`
-	Table       *NameMatcherModel    `tfsdk:"table"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Privileges  types.List           `tfsdk:"privileges"`
-	Columns     []*ColumnRule        `tfsdk:"columns"`
-	Filter      types.String         `tfsdk:"filter"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Schema      types.Object `tfsdk:"schema"`
+	Table       types.Object `tfsdk:"table"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Privileges  types.List   `tfsdk:"privileges"`
+	Columns     types.List   `tfsdk:"columns"`
+	Filter      types.String `tfsdk:"filter"`
+	Description types.String `tfsdk:"description"`
 }
 
 type FunctionRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Schema      *NameMatcherModel    `tfsdk:"schema"`
-	Function    *NameMatcherModel    `tfsdk:"function"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Privileges  types.List           `tfsdk:"privileges"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Schema      types.Object `tfsdk:"schema"`
+	Function    types.Object `tfsdk:"function"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Privileges  types.List   `tfsdk:"privileges"`
+	Description types.String `tfsdk:"description"`
 }
 
 type ProcedureRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Schema      *NameMatcherModel    `tfsdk:"schema"`
-	Procedure   *NameMatcherModel    `tfsdk:"procedure"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Privileges  types.List           `tfsdk:"privileges"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Schema      types.Object `tfsdk:"schema"`
+	Procedure   types.Object `tfsdk:"procedure"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Privileges  types.List   `tfsdk:"privileges"`
+	Description types.String `tfsdk:"description"`
 }
 
 type SystemSessionPropertyRule struct {
-	Property    *NameMatcherModel `tfsdk:"property"`
-	Users       types.List        `tfsdk:"users"`
-	Groups      types.List        `tfsdk:"groups"`
-	Allow       types.String      `tfsdk:"allow"`
-	Description types.String      `tfsdk:"description"`
+	Property    types.Object `tfsdk:"property"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Allow       types.String `tfsdk:"allow"`
+	Description types.String `tfsdk:"description"`
 }
 
 type CatalogSessionPropertyRule struct {
-	Catalog     *CatalogMatcherModel `tfsdk:"catalog"`
-	Property    *NameMatcherModel    `tfsdk:"property"`
-	Users       types.List           `tfsdk:"users"`
-	Groups      types.List           `tfsdk:"groups"`
-	Allow       types.String         `tfsdk:"allow"`
-	Description types.String         `tfsdk:"description"`
+	Catalog     types.Object `tfsdk:"catalog"`
+	Property    types.Object `tfsdk:"property"`
+	Users       types.List   `tfsdk:"users"`
+	Groups      types.List   `tfsdk:"groups"`
+	Allow       types.String `tfsdk:"allow"`
+	Description types.String `tfsdk:"description"`
 }
 
 type QueryRule struct {
@@ -188,4 +190,120 @@ type CatalogMatcherModel struct {
 type NameMatcherModel struct {
 	NameRegexp types.String `tfsdk:"name_regexp"`
 	Names      types.List   `tfsdk:"names"`
+}
+
+// Base options for conversion
+var baseOptions = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
+
+// ObjectType definitions
+var CatalogMatcherT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"name_regexp": types.StringType,
+		"ids":         types.ListType{ElemType: types.StringType},
+	},
+}
+
+var NameMatcherT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"name_regexp": types.StringType,
+		"names":       types.ListType{ElemType: types.StringType},
+	},
+}
+
+var ColumnRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"name":   types.StringType,
+		"access": types.StringType,
+		"mask":   types.StringType,
+	},
+}
+
+var CatalogRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"permission":  types.StringType,
+		"description": types.StringType,
+	},
+}
+
+var SchemaRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"schema":      NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"owner":       types.StringType,
+		"description": types.StringType,
+	},
+}
+
+var TableRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"schema":      NameMatcherT,
+		"table":       NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"privileges":  types.ListType{ElemType: types.StringType},
+		"columns":     types.ListType{ElemType: ColumnRuleT},
+		"filter":      types.StringType,
+		"description": types.StringType,
+	},
+}
+
+var FunctionRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"schema":      NameMatcherT,
+		"function":    NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"privileges":  types.ListType{ElemType: types.StringType},
+		"description": types.StringType,
+	},
+}
+
+var ProcedureRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"schema":      NameMatcherT,
+		"procedure":   NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"privileges":  types.ListType{ElemType: types.StringType},
+		"description": types.StringType,
+	},
+}
+
+var QueryRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"users":        types.ListType{ElemType: types.StringType},
+		"groups":       types.ListType{ElemType: types.StringType},
+		"query_owners": types.ListType{ElemType: types.StringType},
+		"privileges":   types.ListType{ElemType: types.StringType},
+		"description":  types.StringType,
+	},
+}
+
+var SystemSessionPropertyRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"property":    NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"allow":       types.StringType,
+		"description": types.StringType,
+	},
+}
+
+var CatalogSessionPropertyRuleT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"catalog":     CatalogMatcherT,
+		"property":    NameMatcherT,
+		"users":       types.ListType{ElemType: types.StringType},
+		"groups":      types.ListType{ElemType: types.StringType},
+		"allow":       types.StringType,
+		"description": types.StringType,
+	},
 }
