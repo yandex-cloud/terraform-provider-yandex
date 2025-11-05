@@ -76,6 +76,7 @@ type CDNOptionsModel struct {
 	QueryParamsBlacklist types.List `tfsdk:"query_params_blacklist"`
 	Cors                 types.List `tfsdk:"cors"`
 	AllowedHTTPMethods   types.List `tfsdk:"allowed_http_methods"`
+	Stale                types.List `tfsdk:"stale"`
 
 	// Map options
 	StaticResponseHeaders types.Map `tfsdk:"static_response_headers"`
@@ -107,12 +108,13 @@ type RewriteModel struct {
 }
 
 // EdgeCacheSettingsModel represents the edge cache settings block
-// cache_time map supports two modes:
-// - Simple: {"*" = 3600} - cache time for all HTTP codes
-// - Advanced: {"200" = 3600, "404" = 300} - cache time per HTTP code
+// Matches master schema edge_cache_settings_codes with value + custom_values
+// - value (SimpleValue): cache time for 200, 206, 301, 302 ONLY (4xx/5xx NOT cached)
+// - custom_values (CustomValues): per-code overrides with higher priority, "any" = all codes
 type EdgeCacheSettingsModel struct {
-	Enabled   types.Bool `tfsdk:"enabled"`    // Controls whether caching is enabled
-	CacheTime types.Map  `tfsdk:"cache_time"` // Map[string]int64: "*" for all codes, or specific codes
+	Enabled      types.Bool  `tfsdk:"enabled"`       // Controls whether caching is enabled
+	Value        types.Int64 `tfsdk:"value"`         // SimpleValue: cache time for success codes (200, 206, 301, 302)
+	CustomValues types.Map   `tfsdk:"custom_values"` // CustomValues: per-code overrides, "any" = all response codes
 }
 
 // BrowserCacheSettingsModel represents the browser cache settings block

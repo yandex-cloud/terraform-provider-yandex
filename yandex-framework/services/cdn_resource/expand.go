@@ -77,16 +77,8 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 	}
 
 	// List options
-	if !opt.CacheHTTPHeaders.IsNull() && !opt.CacheHTTPHeaders.IsUnknown() && len(opt.CacheHTTPHeaders.Elements()) > 0 {
-		var headers []string
-		diags.Append(opt.CacheHTTPHeaders.ElementsAs(ctx, &headers, false)...)
-		if !diags.HasError() && len(headers) > 0 {
-			result.CacheHttpHeaders = &cdn.ResourceOptions_StringsListOption{
-				Enabled: true,
-				Value:   headers,
-			}
-		}
-	}
+	// DEPRECATED: cache_http_headers - removed as it does not affect anything
+	// Kept in schema for backward compatibility, but not sent to API
 
 	if !opt.Cors.IsNull() && !opt.Cors.IsUnknown() && len(opt.Cors.Elements()) > 0 {
 		var corsOrigins []string
@@ -106,6 +98,17 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 			result.AllowedHttpMethods = &cdn.ResourceOptions_StringsListOption{
 				Enabled: true,
 				Value:   methods,
+			}
+		}
+	}
+
+	if !opt.Stale.IsNull() && !opt.Stale.IsUnknown() && len(opt.Stale.Elements()) > 0 {
+		var staleValues []string
+		diags.Append(opt.Stale.ElementsAs(ctx, &staleValues, false)...)
+		if !diags.HasError() && len(staleValues) > 0 {
+			result.Stale = &cdn.ResourceOptions_StringsListOption{
+				Enabled: true,
+				Value:   staleValues,
 			}
 		}
 	}
@@ -358,9 +361,10 @@ func expandRewrite(ctx context.Context, rewriteList types.List, result *cdn.Reso
 }
 
 // expandEdgeCacheSettings converts edge_cache_settings block to API format
-// Handles two modes:
-// 1. cache_time = {"*" = 3600} → DefaultValue variant
-// 2. cache_time = {"200" = 3600, "404" = 300} → Value.CustomValues variant
+// Matches master expandCDNResourceOptions_EdgeCacheSettings logic:
+// - value → SimpleValue (cache 200, 206, 301, 302 ONLY)
+// - custom_values → CustomValues (per-code overrides, "any" = all codes)
+// - Both can be specified, CustomValues has higher priority
 func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
 	if edgeCacheList.IsNull() || edgeCacheList.IsUnknown() || len(edgeCacheList.Elements()) == 0 {
 		return
@@ -373,14 +377,6 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 	}
 
 	edgeCache := edgeCacheModels[0]
-
-	// CRITICAL: Enabled field semantics in Yandex CDN API:
-	// - Enabled=true:  use values_variant (custom cache_time)
-	// - Enabled=false: ignore values_variant, use system default (345600)
-	//
-	// To DISABLE caching, API requires: Enabled=true, cache_time=0
-	// User-facing: enabled=false means "disable caching"
-	// We translate: enabled=false → Enabled=true + DefaultValue=0
 
 	// Determine enabled status (defaults to true if not set)
 	enabled := true
@@ -401,37 +397,36 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 		return
 	}
 
-	// enabled=true, process cache_time
-	if edgeCache.CacheTime.IsNull() || edgeCache.CacheTime.IsUnknown() || len(edgeCache.CacheTime.Elements()) == 0 {
-		// This should not happen due to validator, but handle gracefully
+	// enabled=true, process value and/or custom_values
+	hasValue := !edgeCache.Value.IsNull() && !edgeCache.Value.IsUnknown()
+	hasCustomValues := !edgeCache.CustomValues.IsNull() && !edgeCache.CustomValues.IsUnknown() && len(edgeCache.CustomValues.Elements()) > 0
+
+	if !hasValue && !hasCustomValues {
+		// Neither value nor custom_values specified - don't send anything
 		return
 	}
 
-	cacheTimeMap := make(map[string]int64)
-	diags.Append(edgeCache.CacheTime.ElementsAs(ctx, &cacheTimeMap, false)...)
-	if diags.HasError() {
-		return
+	// NEW API from master (commit 042b2e91):
+	// Use CachingTimes with SimpleValue and/or CustomValues
+	cachingTimes := &cdn.ResourceOptions_CachingTimes{}
+
+	if hasValue {
+		cachingTimes.SimpleValue = edgeCache.Value.ValueInt64()
 	}
 
-	// Check if wildcard "*" is present
-	if defaultValue, hasWildcard := cacheTimeMap["*"]; hasWildcard {
-		// Simple mode: use DefaultValue variant
-		result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
-			Enabled: true,
-			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_DefaultValue{
-				DefaultValue: defaultValue,
-			},
+	if hasCustomValues {
+		customValues := make(map[string]int64)
+		diags.Append(edgeCache.CustomValues.ElementsAs(ctx, &customValues, false)...)
+		if !diags.HasError() {
+			cachingTimes.CustomValues = customValues
 		}
-	} else {
-		// Advanced mode: use Value.CustomValues variant
-		result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
-			Enabled: true,
-			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_Value{
-				Value: &cdn.ResourceOptions_CachingTimes{
-					CustomValues: cacheTimeMap,
-				},
-			},
-		}
+	}
+
+	result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
+		Enabled: true,
+		ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_Value{
+			Value: cachingTimes,
+		},
 	}
 }
 

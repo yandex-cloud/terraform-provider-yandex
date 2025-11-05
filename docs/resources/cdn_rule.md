@@ -68,12 +68,12 @@ Optional:
 
 - `allowed_http_methods` (List of String) HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.
 - `browser_cache_settings` (Block List) Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days. **By default, browser caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = 0`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--browser_cache_settings))
-- `cache_http_headers` (List of String) List HTTP headers that must be included in responses to clients.
+- `cache_http_headers` (List of String, Deprecated) List HTTP headers that must be included in responses to clients.
 - `cors` (List of String) Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.
 - `custom_host_header` (String) Custom value for the Host header. Your server must be able to process requests with the chosen header.
 - `custom_server_name` (String) Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.
 - `disable_proxy_force_ranges` (Boolean) Disabling proxy force ranges.
-- `edge_cache_settings` (Block List) Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = {"*" = 0}`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings))
+- `edge_cache_settings` (Block List) Set the cache expiration time for CDN servers. Content will be cached according to origin cache settings if origin server has caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send cache_time = 0 to API). To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings))
 - `enable_ip_url_signing` (Boolean) Enable access limiting by IP addresses, option available only with setting secure_key.
 - `fetched_compressed` (Boolean) Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN.
 - `forward_host_header` (Boolean) Choose the Forward Host header option if is important to send in the request to the Origin the same Host header as was sent in the request to CDN server.
@@ -89,6 +89,7 @@ Optional:
 - `rewrite` (Block List) An option for changing or redirecting query paths. (see [below for nested schema](#nestedblock--options--rewrite))
 - `secure_key` (String, Sensitive) Set secure key for url encoding to protect content and limit access by IP addresses and time limits.
 - `slice` (Boolean) Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.
+- `stale` (List of String) List of errors which instruct CDN servers to serve stale content to clients. Possible values: `error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`.
 - `static_request_headers` (Map of String) Set up custom headers that CDN servers will send in requests to origins.
 - `static_response_headers` (Map of String) Set up a static response header. The header name must be lowercase.
 
@@ -106,8 +107,9 @@ Optional:
 
 Optional:
 
-- `cache_time` (Map of Number) Cache time in seconds. Use `"*"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{"200" = 3600, "404" = 300}`). Use `{"*" = 0}` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.
-- `enabled` (Boolean) True - caching is enabled with `cache_time` settings. False - caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.
+- `custom_values` (Map of Number) Caching time for responses with specific codes. These settings have higher priority than the `value` field. Use specific HTTP codes like `"200"`, `"404"`, or use `"any"` to specify caching time for all response codes (including 4xx, 5xx). Cannot be used together with `enabled = false`.
+- `enabled` (Boolean) True - caching is enabled with `value` or `custom_values` settings. False - caching is disabled (provider sends cache_time = 0 to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `value` or `custom_values`.
+- `value` (Number) Caching time for responses with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will NOT be cached. Use `0` to disable caching. Use `custom_values` field to specify caching time for other response codes. Cannot be used together with `enabled = false`.
 
 
 <a id="nestedblock--options--ip_address_acl"></a>

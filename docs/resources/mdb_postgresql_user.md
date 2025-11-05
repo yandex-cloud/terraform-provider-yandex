@@ -66,6 +66,7 @@ resource "yandex_vpc_subnet" "foo" {
 
 ### Optional
 
+- `auth_method` (String) Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.
 - `conn_limit` (Number) The maximum number of connections per user. (Default 50).
 - `deletion_protection` (String) The `true` value means that resource is protected from accidental deletion.
 - `generate_password` (Boolean) Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.
@@ -77,7 +78,8 @@ resource "yandex_vpc_subnet" "foo" {
 - `permission` (Block Set) Set of permissions granted to the user. (see [below for nested schema](#nestedblock--permission))
 - `settings` (Map of String) Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
 
-* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:  - `read uncommitted`
+* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+  - `read uncommitted`
   - `read committed`
   - `repeatable read`
   - `serializable`

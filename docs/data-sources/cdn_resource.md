@@ -83,7 +83,7 @@ Read-Only:
 
 - `disable_proxy_force_ranges` (Boolean) Disable proxy force ranges. Disabling proxy force ranges.
 
-- `edge_cache_settings` (Block List) Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = {"*" = 0}`. To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings)) (see [below for nested schema](#nestedblock--options--edge_cache_settings))
+- `edge_cache_settings` (Block List) Set the cache expiration time for CDN servers. Content will be cached according to origin cache settings if origin server has caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send cache_time = 0 to API). To remove the configuration entirely, omit this block. (see [below for nested schema](#nestedblock--options--edge_cache_settings)) (see [below for nested schema](#nestedblock--options--edge_cache_settings))
 
 - `enable_ip_url_signing` (Boolean) Enable IP/URL signing. Enable access limiting by IP addresses, option available only with setting secure_key.
 
@@ -136,9 +136,8 @@ Read-Only:
 
 Read-Only:
 
-- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes. Cache time in seconds. Use `"*"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{"200" = 3600, "404" = 300}`). Use `{"*" = 0}` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.
-
-- `enabled` (Boolean) Enable edge caching. True - caching is enabled with `cache_time` settings. False - caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.
+- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes.
+- `enabled` (Boolean) Enable edge caching. True - caching is enabled with `value` or `custom_values` settings. False - caching is disabled (provider sends cache_time = 0 to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `value` or `custom_values`.
 
 
 

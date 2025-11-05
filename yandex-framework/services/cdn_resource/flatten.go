@@ -72,13 +72,9 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 	}
 
 	// List options - CORRECT SEMANTICS: null when not configured
-	if options.CacheHttpHeaders != nil && options.CacheHttpHeaders.Enabled {
-		listVal, d := types.ListValueFrom(ctx, types.StringType, options.CacheHttpHeaders.Value)
-		diags.Append(d...)
-		opt.CacheHTTPHeaders = listVal
-	} else {
-		opt.CacheHTTPHeaders = types.ListNull(types.StringType)
-	}
+	// DEPRECATED: cache_http_headers - removed as it does not affect anything
+	// Always set to null (not read from API)
+	opt.CacheHTTPHeaders = types.ListNull(types.StringType)
 
 	if options.Cors != nil && options.Cors.Enabled {
 		listVal, d := types.ListValueFrom(ctx, types.StringType, options.Cors.Value)
@@ -94,6 +90,14 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 		opt.AllowedHTTPMethods = listVal
 	} else {
 		opt.AllowedHTTPMethods = types.ListNull(types.StringType)
+	}
+
+	if options.Stale != nil && options.Stale.Enabled {
+		listVal, d := types.ListValueFrom(ctx, types.StringType, options.Stale.Value)
+		diags.Append(d...)
+		opt.Stale = listVal
+	} else {
+		opt.Stale = types.ListNull(types.StringType)
 	}
 
 	// Map options - CORRECT SEMANTICS: null when not configured
@@ -364,8 +368,9 @@ func flattenRewrite(ctx context.Context, rewrite *cdn.ResourceOptions_RewriteOpt
 // planOptionsModel: optional plan options model to preserve disabled blocks
 func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOptions_EdgeCacheSettings, planOptionsModel *CDNOptionsModel, diags *diag.Diagnostics) types.List {
 	edgeCacheAttrTypes := map[string]attr.Type{
-		"enabled":    types.BoolType,
-		"cache_time": types.MapType{ElemType: types.Int64Type},
+		"enabled":       types.BoolType,
+		"value":         types.Int64Type,
+		"custom_values": types.MapType{ElemType: types.Int64Type},
 	}
 
 	// Log what API returned
@@ -384,8 +389,9 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 					// Plan had enabled=false, preserve it in state
 					tflog.Debug(ctx, "EdgeCacheSettings: Plan had enabled=false, preserving in state")
 					edgeCacheModel := EdgeCacheSettingsModel{
-						Enabled:   types.BoolValue(false),
-						CacheTime: types.MapNull(types.Int64Type),
+						Enabled:      types.BoolValue(false),
+						Value:        types.Int64Null(),
+						CustomValues: types.MapNull(types.Int64Type),
 					}
 					edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 						AttrTypes: edgeCacheAttrTypes,
@@ -418,8 +424,9 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 					// Plan had enabled=false, preserve it in state
 					tflog.Debug(ctx, "EdgeCacheSettings: Plan had enabled=false, preserving in state")
 					edgeCacheModel := EdgeCacheSettingsModel{
-						Enabled:   types.BoolValue(false),
-						CacheTime: types.MapNull(types.Int64Type),
+						Enabled:      types.BoolValue(false),
+						Value:        types.Int64Null(),
+						CustomValues: types.MapNull(types.Int64Type),
 					}
 					edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 						AttrTypes: edgeCacheAttrTypes,
@@ -461,11 +468,12 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 		}
 	}
 
-	// If caching is disabled (cache_time=0), return enabled=false without cache_time
+	// If caching is disabled (cache_time=0), return enabled=false without value/custom_values
 	if cachingDisabled {
 		edgeCacheModel := EdgeCacheSettingsModel{
-			Enabled:   types.BoolValue(false),
-			CacheTime: types.MapNull(types.Int64Type),
+			Enabled:      types.BoolValue(false),
+			Value:        types.Int64Null(),
+			CustomValues: types.MapNull(types.Int64Type),
 		}
 		edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 			AttrTypes: edgeCacheAttrTypes,
@@ -479,31 +487,47 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 		Enabled: types.BoolValue(true),
 	}
 
-	// Handle cache_time based on API response
+	// Handle value/custom_values based on API response
+	// NEW API from master (commit 042b2e91):
+	// - SimpleValue: base cache time for 200, 206, 301, 302 (4xx/5xx NOT cached)
+	// - CustomValues: overrides with higher priority, key "any" = all response codes
 	if edgeCache.ValuesVariant != nil {
 		switch v := edgeCache.ValuesVariant.(type) {
 		case *cdn.ResourceOptions_EdgeCacheSettings_DefaultValue:
-			// DefaultValue variant → create cache_time = {"*" = value}
-			cacheTimeMap := map[string]int64{
-				"*": v.DefaultValue,
-			}
-			mapVal, d := types.MapValueFrom(ctx, types.Int64Type, cacheTimeMap)
-			diags.Append(d...)
-			edgeCacheModel.CacheTime = mapVal
+			// Legacy DefaultValue variant from API → return as value (SimpleValue)
+			edgeCacheModel.Value = types.Int64Value(v.DefaultValue)
+			edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
+
 		case *cdn.ResourceOptions_EdgeCacheSettings_Value:
-			// Value variant with CustomValues → create cache_time = map
-			if v.Value != nil && len(v.Value.CustomValues) > 0 {
-				mapVal, d := types.MapValueFrom(ctx, types.Int64Type, v.Value.CustomValues)
-				diags.Append(d...)
-				edgeCacheModel.CacheTime = mapVal
+			// New API with CachingTimes (SimpleValue + CustomValues)
+			if v.Value != nil {
+				// Return SimpleValue as value
+				if v.Value.SimpleValue > 0 {
+					edgeCacheModel.Value = types.Int64Value(v.Value.SimpleValue)
+				} else {
+					edgeCacheModel.Value = types.Int64Null()
+				}
+
+				// Return CustomValues as custom_values
+				if len(v.Value.CustomValues) > 0 {
+					mapVal, d := types.MapValueFrom(ctx, types.Int64Type, v.Value.CustomValues)
+					diags.Append(d...)
+					edgeCacheModel.CustomValues = mapVal
+				} else {
+					edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
+				}
 			} else {
-				edgeCacheModel.CacheTime = types.MapNull(types.Int64Type)
+				edgeCacheModel.Value = types.Int64Null()
+				edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
 			}
+
 		default:
-			edgeCacheModel.CacheTime = types.MapNull(types.Int64Type)
+			edgeCacheModel.Value = types.Int64Null()
+			edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
 		}
 	} else {
-		edgeCacheModel.CacheTime = types.MapNull(types.Int64Type)
+		edgeCacheModel.Value = types.Int64Null()
+		edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
 	}
 
 	edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
@@ -688,8 +712,9 @@ func getCDNOptionsAttrTypes() map[string]attr.Type {
 		"edge_cache_settings": types.ListType{
 			ElemType: types.ObjectType{
 				AttrTypes: map[string]attr.Type{
-					"enabled":    types.BoolType,
-					"cache_time": types.MapType{ElemType: types.Int64Type},
+					"enabled":       types.BoolType,
+					"value":         types.Int64Type,
+					"custom_values": types.MapType{ElemType: types.Int64Type},
 				},
 			},
 		},
@@ -713,6 +738,7 @@ func getCDNOptionsAttrTypes() map[string]attr.Type {
 		"query_params_blacklist": types.ListType{ElemType: types.StringType},
 		"cors":                   types.ListType{ElemType: types.StringType},
 		"allowed_http_methods":   types.ListType{ElemType: types.StringType},
+		"stale":                  types.ListType{ElemType: types.StringType},
 
 		// Map options
 		"static_response_headers": types.MapType{ElemType: types.StringType},

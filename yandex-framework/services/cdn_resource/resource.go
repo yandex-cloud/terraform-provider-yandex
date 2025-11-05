@@ -66,6 +66,11 @@ func (r *cdnResourceResource) UpgradeState(context.Context) map[int64]resource.S
 			// PriorSchema is intentionally nil - we use RawState migration
 			StateUpgrader: upgradeStateV0ToV1,
 		},
+		1: {
+			// PriorSchema is intentionally nil - we use RawState migration
+			// Migrates edge_cache_settings.cache_time: "*" → "any"
+			StateUpgrader: upgradeStateV1ToV2,
+		},
 	}
 }
 
@@ -392,9 +397,9 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 				}
 
 				// List options
-				if (mergedOptions.CacheHTTPHeaders.IsNull() || mergedOptions.CacheHTTPHeaders.IsUnknown()) && !stateOpt.CacheHTTPHeaders.IsNull() {
-					mergedOptions.CacheHTTPHeaders = stateOpt.CacheHTTPHeaders
-				}
+				// DEPRECATED: cache_http_headers - always null, not merged
+				mergedOptions.CacheHTTPHeaders = types.ListNull(types.StringType)
+
 				if (mergedOptions.Cors.IsNull() || mergedOptions.Cors.IsUnknown()) && !stateOpt.Cors.IsNull() {
 					mergedOptions.Cors = stateOpt.Cors
 				}

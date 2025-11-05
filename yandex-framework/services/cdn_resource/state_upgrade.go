@@ -175,3 +175,98 @@ func upgradeStateV0ToV1(ctx context.Context, req resource.UpgradeStateRequest, r
 
 	tflog.Debug(ctx, "Successfully upgraded state from v0 to v1")
 }
+
+// upgradeStateV1ToV2 migrates schema version 1 to version 2
+// Changes:
+// - edge_cache_settings: cache_time (Map) → value (Int64) + custom_values (Map)
+//   - cache_time = {"*" = X} → value = X (SimpleValue for success codes)
+//   - cache_time = {specific codes} → custom_values = {same}
+// This migration is required for full transition to new API matching master
+// (commit 042b2e91: edge_cache_settings with caching by http code)
+func upgradeStateV1ToV2(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+	tflog.Debug(ctx, "Upgrading CDN resource state from v1 to v2")
+
+	// Parse RawState JSON
+	type rawState map[string]interface{}
+	var state rawState
+
+	err := json.Unmarshal(req.RawState.JSON, &state)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Parse Prior State",
+			fmt.Sprintf("Error parsing state JSON: %s", err.Error()),
+		)
+		return
+	}
+
+	tflog.Debug(ctx, "Parsed state for v1→v2 migration")
+
+	// Navigate to options.edge_cache_settings and convert cache_time → value + custom_values
+	if optionsRaw, ok := state["options"].([]interface{}); ok && len(optionsRaw) > 0 {
+		if options, ok := optionsRaw[0].(map[string]interface{}); ok {
+			if edgeCacheRaw, exists := options["edge_cache_settings"]; exists && edgeCacheRaw != nil {
+				if edgeCacheList, ok := edgeCacheRaw.([]interface{}); ok && len(edgeCacheList) > 0 {
+					if edgeCache, ok := edgeCacheList[0].(map[string]interface{}); ok {
+						if cacheTimeRaw, exists := edgeCache["cache_time"]; exists && cacheTimeRaw != nil {
+							if cacheTimeMap, ok := cacheTimeRaw.(map[string]interface{}); ok {
+								tflog.Debug(ctx, "Migrating edge_cache_settings: cache_time → value + custom_values")
+
+								// Check if "*" key exists (legacy format)
+								if starValue, hasStarKey := cacheTimeMap["*"]; hasStarKey {
+									// "*" → value (SimpleValue)
+									edgeCache["value"] = starValue
+									delete(cacheTimeMap, "*")
+
+									// If there are other keys, put them in custom_values
+									if len(cacheTimeMap) > 0 {
+										edgeCache["custom_values"] = cacheTimeMap
+									} else {
+										edgeCache["custom_values"] = nil
+									}
+								} else {
+									// No "*" key → all goes to custom_values
+									edgeCache["value"] = nil
+									edgeCache["custom_values"] = cacheTimeMap
+								}
+
+								// Remove old cache_time field
+								delete(edgeCache, "cache_time")
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Marshal back to JSON
+	upgradedJSON, err := json.Marshal(state)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Marshal Upgraded State",
+			fmt.Sprintf("Error marshaling upgraded state: %s", err.Error()),
+		)
+		return
+	}
+
+	// Unmarshal into tftypes.Value using the new schema
+	schema := CDNResourceSchema(ctx)
+	schemaType := schema.Type().TerraformType(ctx)
+
+	upgradedValue, err := tftypes.ValueFromJSON(upgradedJSON, schemaType)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create State Value",
+			fmt.Sprintf("Error creating state value: %s", err.Error()),
+		)
+		return
+	}
+
+	// Set the new state
+	resp.State = tfsdk.State{
+		Raw:    upgradedValue,
+		Schema: schema,
+	}
+
+	tflog.Debug(ctx, "Successfully upgraded state from v1 to v2")
+}

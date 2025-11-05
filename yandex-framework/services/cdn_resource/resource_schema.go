@@ -27,7 +27,7 @@ import (
 // CDNResourceSchema returns the schema for yandex_cdn_resource
 func CDNResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Version:             1, // Incremented for edge_cache_settings and browser_cache_settings refactoring
+		Version:             2, // v1→v2: Migrate edge_cache_settings.cache_time "*" → "any" (full transition to new API)
 		MarkdownDescription: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
@@ -317,9 +317,10 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 
 				// List options
 				"cache_http_headers": schema.ListAttribute{
-					MarkdownDescription: "List HTTP headers that must be included in responses to clients.",
-					Optional:            true,
-					Computed:            true,
+					MarkdownDescription:   "List HTTP headers that must be included in responses to clients.",
+					DeprecationMessage:    "This attribute does not affect anything. You can safely delete it.",
+					Optional:              true,
+					Computed:              true,
 					PlanModifiers: []planmodifier.List{
 						listplanmodifier.UseStateForUnknown(),
 					},
@@ -360,6 +361,20 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 						listplanmodifier.UseStateForUnknown(),
 					},
 					ElementType: types.StringType,
+				},
+				"stale": schema.ListAttribute{
+					MarkdownDescription: "List of errors which instruct CDN servers to serve stale content to clients. Possible values: `error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`.",
+					Optional:            true,
+					Computed:            true,
+					PlanModifiers: []planmodifier.List{
+						listplanmodifier.UseStateForUnknown(),
+					},
+					ElementType: types.StringType,
+					Validators: []validator.List{
+						listvalidator.ValueStringsAre(
+							stringvalidator.OneOf("error", "http_403", "http_404", "http_429", "http_500", "http_502", "http_503", "http_504", "invalid_header", "timeout", "updating"),
+						),
+					},
 				},
 
 				// Map options
@@ -471,19 +486,27 @@ func RewriteSchema() schema.ListNestedBlock {
 // EdgeCacheSettingsSchema returns the schema for edge_cache_settings block
 func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 	return schema.ListNestedBlock{
-		MarkdownDescription: "Content will be cached according to origin cache settings. Use either `default_value` for simple caching or `custom_values` for per-HTTP-code caching. The value applies for response codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if origin server does not have caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send `cache_time = 0` to API). Alternatively, you can set `enabled = true` with `cache_time = {\"*\" = 0}`. To remove the configuration entirely, omit this block.",
+		MarkdownDescription: "Set the cache expiration time for CDN servers. Content will be cached according to origin cache settings if origin server has caching HTTP headers. **By default, edge caching is enabled in Yandex CDN.** To explicitly disable it, set `enabled = false` (provider will send cache_time = 0 to API). To remove the configuration entirely, omit this block.",
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
 				"enabled": schema.BoolAttribute{
-					MarkdownDescription: "True - caching is enabled with `cache_time` settings. False - caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.",
+					MarkdownDescription: "True - caching is enabled with `value` or `custom_values` settings. False - caching is disabled (provider sends cache_time = 0 to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `value` or `custom_values`.",
 					Optional:            true,
 					Computed:            true,
 					PlanModifiers: []planmodifier.Bool{
 						boolplanmodifier.UseStateForUnknown(),
 					},
 				},
-				"cache_time": schema.MapAttribute{
-					MarkdownDescription: "Cache time in seconds. Use `\"*\"` as key for default cache time for all HTTP codes (200, 201, 204, 206, 301, 302, 303, 304, 307, 308), or specify cache times per HTTP code (e.g., `{\"200\" = 3600, \"404\" = 300}`). Use `{\"*\" = 0}` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.",
+				"value": schema.Int64Attribute{
+					MarkdownDescription: "Caching time for responses with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will NOT be cached. Use `0` to disable caching. Use `custom_values` field to specify caching time for other response codes. Cannot be used together with `enabled = false`.",
+					Optional:            true,
+					Computed:            true,
+					PlanModifiers: []planmodifier.Int64{
+						int64planmodifier.UseStateForUnknown(),
+					},
+				},
+				"custom_values": schema.MapAttribute{
+					MarkdownDescription: "Caching time for responses with specific codes. These settings have higher priority than the `value` field. Use specific HTTP codes like `\"200\"`, `\"404\"`, or use `\"any\"` to specify caching time for all response codes (including 4xx, 5xx). Cannot be used together with `enabled = false`.",
 					ElementType:         types.Int64Type,
 					Optional:            true,
 					Computed:            true,
