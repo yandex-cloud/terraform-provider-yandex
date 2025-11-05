@@ -25,7 +25,7 @@ const (
 	pgRestoreBackupIdEncrypted = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
 )
 
-var postgresql_versions = [...]string{"13", "13-1c", "14", "14-1c", "15", "15-1c", "16", "16-1c", "17", "17-1c", "18"}
+var postgresql_versions = [...]string{"14", "14-1c", "15", "15-1c", "16", "16-1c", "17", "17-1c", "18"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{

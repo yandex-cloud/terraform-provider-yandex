@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'Postgres: added auth_method for user'
+time: 2025-10-31T19:01:19.717694+03:00

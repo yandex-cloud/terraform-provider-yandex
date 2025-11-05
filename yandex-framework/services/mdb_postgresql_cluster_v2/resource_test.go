@@ -167,8 +167,8 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 	t.Parallel()
 
-	version := "13"
-	versionUpdate := "14"
+	version := "14"
+	versionUpdate := "15"
 
 	resources := `
 	  resource_preset_id = "s2.micro"

@@ -1666,6 +1666,16 @@ func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_Poo
 	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
 }
 
+func parsePostgreSQLAuthMethod(s string) (postgresql.AuthMethod, error) {
+	v, ok := postgresql.AuthMethod_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'auth_method' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(postgresql.AuthMethod_value)), s)
+	}
+
+	return postgresql.AuthMethod(v), nil
+}
+
 var mdbPGTristateBooleanName = map[string]*wrappers.BoolValue{
 	"true":        wrapperspb.Bool(true),
 	"false":       wrapperspb.Bool(false),
@@ -1682,12 +1692,21 @@ func mdbPGResolveTristateBoolean(value *wrappers.BoolValue) string {
 	return "false"
 }
 
-func isValidPGPasswordConfiguration(userSpec *postgresql.UserSpec) bool {
+func validatePasswordConfiguration(userSpec *postgresql.UserSpec) error {
 	passwordSpecified := len(userSpec.Password) > 0
 
-	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
 	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
-	return !isBothFieldNotSpecified && !isBothFieldSpecified
+	isAnyFieldSpecified := passwordSpecified || userSpec.GeneratePassword.GetValue()
+	if userSpec.AuthMethod == postgresql.AuthMethod_AUTH_METHOD_IAM {
+		if isAnyFieldSpecified {
+			return fmt.Errorf("%q does not support password or generate_password", userSpec.AuthMethod.String())
+		}
+	}
+	if isBothFieldSpecified {
+		return fmt.Errorf("must specify either password or generate_password")
+
+	}
+	return nil
 }
 
 var mdbPGUserSettingsTransactionIsolationName = map[int]string{

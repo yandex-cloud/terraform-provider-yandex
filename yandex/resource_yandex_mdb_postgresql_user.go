@@ -131,6 +131,17 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"auth_method": {
+				Type:        schema.TypeString,
+				Description: "Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.",
+				Optional:    true,
+				Default:     "AUTH_METHOD_PASSWORD",
+				ValidateFunc: validation.StringInSlice([]string{
+					"AUTH_METHOD_UNSPECIFIED",
+					"AUTH_METHOD_PASSWORD",
+					"AUTH_METHOD_IAM",
+				}, false),
+			},
 		},
 	}
 }
@@ -147,8 +158,9 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	if !isValidPGPasswordConfiguration(userSpec) {
-		return fmt.Errorf("must specify either password or generate_password")
+	err = validatePasswordConfiguration(userSpec)
+	if err != nil {
+		return err
 	}
 
 	request := &postgresql.CreateUserRequest{
@@ -239,6 +251,14 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.GeneratePassword = wrapperspb.Bool(v.(bool))
 	}
 
+	if v, ok := d.GetOk("auth_method"); ok {
+		authMethod, err := parsePostgreSQLAuthMethod(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		user.AuthMethod = authMethod
+	}
+
 	return user, nil
 }
 
@@ -288,6 +308,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	d.Set("settings", settings)
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
 	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.ConnectionManager))
+	d.Set("auth_method", apiUser.AuthMethod.String())
 
 	return nil
 }
@@ -303,8 +324,9 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	if !isValidPGPasswordConfiguration(user) {
-		return fmt.Errorf("must specify either password or generate_password")
+	err = validatePasswordConfiguration(user)
+	if err != nil {
+		return err
 	}
 
 	if d.HasChange("name") {
@@ -319,6 +341,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		"grants":                                       "grants",
 		"conn_limit":                                   "conn_limit",
 		"deletion_protection":                          "deletion_protection",
+		"auth_method":                                  "auth_method",
 		"settings.default_transaction_isolation":       "settings.default_transaction_isolation",
 		"settings.lock_timeout":                        "settings.lock_timeout",
 		"settings.log_min_duration_statement":          "settings.log_min_duration_statement",
@@ -360,6 +383,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		Grants:             user.Grants,
 		Settings:           user.Settings,
 		DeletionProtection: user.DeletionProtection,
+		AuthMethod:         user.AuthMethod,
 		UpdateMask:         &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 

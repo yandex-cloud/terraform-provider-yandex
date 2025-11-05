@@ -48,8 +48,9 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"database_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the database that the permission grants access to.",
 						},
 					},
 				},
@@ -83,6 +84,11 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"auth_method": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLUser().Schema["auth_method"].Description,
+				Computed:    true,
 			},
 		},
 	}
