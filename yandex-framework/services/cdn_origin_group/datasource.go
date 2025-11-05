@@ -119,7 +119,6 @@ func (d *cdnOriginGroupDataSource) Read(ctx context.Context, req datasource.Read
 		FolderId:      folderID,
 		OriginGroupId: originGroupID,
 	})
-
 	if err != nil {
 		if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
 			resp.Diagnostics.AddError(
@@ -149,8 +148,9 @@ func (d *cdnOriginGroupDataSource) Read(ctx context.Context, req datasource.Read
 		state.ProviderType = types.StringNull()
 	}
 
-	// Flatten origins using existing flatten function
-	state.Origins = flattenOrigins(ctx, originGroup.Origins, &resp.Diagnostics)
+	// Flatten origins
+	parentGroupID := strconv.FormatInt(originGroup.Id, 10)
+	state.Origins = flattenOrigins(ctx, originGroup.Origins, parentGroupID, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

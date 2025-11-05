@@ -12,7 +12,7 @@ import (
 )
 
 // flattenOrigins converts API Origins to OriginModel slice
-func flattenOrigins(ctx context.Context, origins []*cdn.Origin, diags *diag.Diagnostics) types.Set {
+func flattenOrigins(ctx context.Context, origins []*cdn.Origin, parentGroupID string, diags *diag.Diagnostics) types.Set {
 	if len(origins) == 0 {
 		return types.SetNull(types.ObjectType{
 			AttrTypes: map[string]attr.Type{
@@ -28,7 +28,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, diags *diag.Diag
 	for _, origin := range origins {
 		model := OriginModel{
 			Source:        types.StringValue(origin.Source),
-			OriginGroupID: types.StringValue(strconv.FormatInt(origin.OriginGroupId, 10)),
+			OriginGroupID: types.StringValue(parentGroupID),
 			Enabled:       types.BoolValue(origin.Enabled),
 			Backup:        types.BoolValue(origin.Backup),
 		}
@@ -59,7 +59,8 @@ func flattenCDNOriginGroup(ctx context.Context, state *CDNOriginGroupModel, orig
 	state.Name = types.StringValue(originGroup.Name)
 	state.ProviderType = types.StringValue(originGroup.ProviderType)
 	state.UseNext = types.BoolValue(originGroup.UseNext)
-	state.Origins = flattenOrigins(ctx, originGroup.Origins, diags)
+	// Use the group ID for all origins
+	state.Origins = flattenOrigins(ctx, originGroup.Origins, state.ID.ValueString(), diags)
 
 	tflog.Debug(ctx, "Flattened CDN origin group", map[string]interface{}{
 		"id":   state.ID.ValueString(),

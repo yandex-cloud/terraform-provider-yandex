@@ -92,9 +92,6 @@ func CDNOriginGroupSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "The ID of the origin group that this origin belongs to.",
 							MarkdownDescription: "The ID of the origin group that this origin belongs to.",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"enabled": schema.BoolAttribute{
 							Optional:            true,
