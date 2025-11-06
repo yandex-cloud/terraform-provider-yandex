@@ -85,10 +85,25 @@ type AccessControlModel struct {
 
 func (a AccessControlModel) Validate() diag.Diagnostics {
 	var diags diag.Diagnostics
+	if a.hasUnknownFields() {
+		// Validate later.
+		return diags
+	}
 	if a.hasNoRules() {
 		diags.Append(diag.NewErrorDiagnostic("Access control is invalid.", "At least one rule should be specified."))
 	}
 	return diags
+}
+
+func (a AccessControlModel) hasUnknownFields() bool {
+	return a.Catalogs.IsUnknown() ||
+		a.Schemas.IsUnknown() ||
+		a.Tables.IsUnknown() ||
+		a.Functions.IsUnknown() ||
+		a.Procedures.IsUnknown() ||
+		a.Queries.IsUnknown() ||
+		a.SystemSessionProperties.IsUnknown() ||
+		a.CatalogSessionProperties.IsUnknown()
 }
 
 func (a AccessControlModel) hasNoRules() bool {
