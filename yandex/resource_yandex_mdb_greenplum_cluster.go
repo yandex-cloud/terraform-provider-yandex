@@ -409,19 +409,25 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"pooling_mode": {
 							Type:        schema.TypeString,
-							Description: "Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.",
+							Description: "Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool).",
 							Optional:    true,
 							Default:     "POOL_MODE_UNSPECIFIED",
 						},
 						"pool_size": {
 							Type:        schema.TypeInt,
-							Description: "Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).",
+							Description: "Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_size).",
 							Optional:    true,
 							Default:     nil,
 						},
 						"pool_client_idle_timeout": {
 							Type:        schema.TypeInt,
-							Description: "Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).",
+							Description: "Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_client_idle_timeout).",
+							Optional:    true,
+							Default:     nil,
+						},
+						"pool_idle_in_transaction_timeout": {
+							Type:        schema.TypeInt,
+							Description: "Value for `pool_idle_in_transaction_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_idle_in_transaction_timeout).",
 							Optional:    true,
 							Default:     nil,
 						},

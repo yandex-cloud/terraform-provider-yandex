@@ -149,6 +149,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "TRANSACTION"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
 
 					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "600"),
 					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "40"),
@@ -214,6 +215,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "SESSION"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "800"),
 					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "300"),
 					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "440"),
 					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.max_threads", "200"),
@@ -260,6 +262,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle_in_transaction.0.ignore_users.#", "0"),
 					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.enable", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.max_age", "8000"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
 				),
 			},
 
@@ -454,9 +457,10 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.micro") +
 		fmt.Sprintf(`
   pooler_config {
-    pooling_mode             = "TRANSACTION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+    pool_idle_in_transaction_timeout = 600
   }
 
   pxf_config {
@@ -499,9 +503,10 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep2(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
-    pooling_mode             = "TRANSACTION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+    pool_idle_in_transaction_timeout = 600
   }
 
   pxf_config {
@@ -535,9 +540,10 @@ func testAccMDBGreenplumClusterConfigStep3(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep4(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
-    pooling_mode             = "SESSION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 800
   }
 
   pxf_config {
@@ -568,9 +574,10 @@ func testAccMDBGreenplumClusterConfigStep4(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep5(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
-    pooling_mode             = "SESSION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 800
   }
 
   pxf_config {
@@ -602,9 +609,10 @@ func testAccMDBGreenplumClusterConfigStep5(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep6(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
-    pooling_mode             = "SESSION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 600
   }
 
   pxf_config {
@@ -680,9 +688,10 @@ func testAccMDBGreenplumClusterConfigStep7(name string, description string) stri
   segment_in_host    = 2
 
   pooler_config {
-    pooling_mode             = "TRANSACTION"
-    pool_size                = 10
-    pool_client_idle_timeout = 28800
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 600
   }
 
   pxf_config {

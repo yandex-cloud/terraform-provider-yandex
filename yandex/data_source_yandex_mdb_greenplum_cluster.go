@@ -329,6 +329,10 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
+						"pool_idle_in_transaction_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			},

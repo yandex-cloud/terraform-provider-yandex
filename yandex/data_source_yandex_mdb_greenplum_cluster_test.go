@@ -167,6 +167,10 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"pooler_config.0.pool_client_idle_timeout",
 			},
 			{
+				"pooler_config.0.pool_idle_in_transaction_timeout",
+				"pooler_config.0.pool_idle_in_transaction_timeout",
+			},
+			{
 				"access.#",
 				"access.#",
 			},
