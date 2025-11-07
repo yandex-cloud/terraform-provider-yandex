@@ -317,10 +317,10 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 
 				// List options
 				"cache_http_headers": schema.ListAttribute{
-					MarkdownDescription:   "List HTTP headers that must be included in responses to clients.",
-					DeprecationMessage:    "This attribute does not affect anything. You can safely delete it.",
-					Optional:              true,
-					Computed:              true,
+					MarkdownDescription: "List HTTP headers that must be included in responses to clients.",
+					DeprecationMessage:  "This attribute does not affect anything. You can safely delete it.",
+					Optional:            true,
+					Computed:            true,
 					PlanModifiers: []planmodifier.List{
 						listplanmodifier.UseStateForUnknown(),
 					},

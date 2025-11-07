@@ -181,6 +181,7 @@ func upgradeStateV0ToV1(ctx context.Context, req resource.UpgradeStateRequest, r
 // - edge_cache_settings: cache_time (Map) → value (Int64) + custom_values (Map)
 //   - cache_time = {"*" = X} → value = X (SimpleValue for success codes)
 //   - cache_time = {specific codes} → custom_values = {same}
+//
 // This migration is required for full transition to new API matching master
 // (commit 042b2e91: edge_cache_settings with caching by http code)
 func upgradeStateV1ToV2(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {

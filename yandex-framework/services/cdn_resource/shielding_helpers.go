@@ -89,6 +89,16 @@ func enableShielding(ctx context.Context, resourceID string, locationID int64, s
 
 // disableShielding deactivates shielding for a CDN resource
 func disableShielding(ctx context.Context, resourceID string, sdk *ycsdk.SDK) error {
+
+	currentShielding, err := getShieldingLocation(ctx, resourceID, sdk)
+	if err != nil {
+		return fmt.Errorf("failed to get current shielding status: %w", err)
+	}
+
+	// If shielding is already disabled (nil), do nothing
+	if currentShielding == nil {
+		return nil
+	}
 	op, err := sdk.WrapOperation(
 		sdk.CDN().Shielding().Deactivate(ctx, &cdn.DeactivateShieldingRequest{
 			ResourceId: resourceID,
