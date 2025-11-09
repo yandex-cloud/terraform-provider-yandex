@@ -158,6 +158,9 @@ func (d *cdnResourceDataSource) Read(ctx context.Context, req datasource.ReadReq
 		state.OriginGroupID = types.StringNull()
 	}
 
+	// Set origin group name
+	state.OriginGroupName = types.StringValue(resource.OriginGroupName)
+
 	// Flatten labels
 	if len(resource.Labels) > 0 {
 		labels, diags := types.MapValueFrom(ctx, types.StringType, resource.Labels)

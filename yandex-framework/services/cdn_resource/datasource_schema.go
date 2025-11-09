@@ -122,10 +122,10 @@ func SSLCertificateDataSourceSchema() schema.SetNestedBlock {
 				"type": schema.StringAttribute{
 					Description: "Type of the SSL certificate. Possible values: " +
 						"`not_used` - do not use SSL, `certificate_manager` - certificate from Yandex Certificate Manager, " +
-						"`lets_encrypt_gcore` - Let's Encrypt certificate.",
+						"`lets_encrypt` - Let's Encrypt certificate.",
 					MarkdownDescription: "Type of the SSL certificate. Possible values: " +
 						"`not_used` - do not use SSL, `certificate_manager` - certificate from Yandex Certificate Manager, " +
-						"`lets_encrypt_gcore` - Let's Encrypt certificate.",
+						"`lets_encrypt` - Let's Encrypt certificate.",
 					Computed: true,
 				},
 				"status": schema.StringAttribute{
