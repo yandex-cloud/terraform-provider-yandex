@@ -476,3 +476,21 @@ func expandBrowserCacheSettings(ctx context.Context, browserCacheList types.List
 		Value:   browserCache.CacheTime.ValueInt64(),
 	}
 }
+
+// expandOriginProtocol converts string protocol value to CDN API OriginProtocol enum
+func expandOriginProtocol(ctx context.Context, protocolValue string, diags *diag.Diagnostics) cdn.OriginProtocol {
+	switch protocolValue {
+	case "http":
+		return cdn.OriginProtocol_HTTP
+	case "https":
+		return cdn.OriginProtocol_HTTPS
+	case "match":
+		return cdn.OriginProtocol_MATCH
+	default:
+		diags.AddError(
+			"Invalid origin_protocol value",
+			fmt.Sprintf("origin_protocol must be 'http', 'https', or 'match', got: %s", protocolValue),
+		)
+		return cdn.OriginProtocol_ORIGIN_PROTOCOL_UNSPECIFIED
+	}
+}

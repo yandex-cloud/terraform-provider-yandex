@@ -98,12 +98,9 @@ func (r *cdnResourceResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Determine origin protocol
-	var originProtocol cdn.OriginProtocol
-	switch plan.OriginProtocol.ValueString() {
-	case "https":
-		originProtocol = cdn.OriginProtocol_HTTPS
-	default:
-		originProtocol = cdn.OriginProtocol_HTTP
+	originProtocol := expandOriginProtocol(ctx, plan.OriginProtocol.ValueString(), &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	// Build create request
@@ -329,6 +326,15 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 			updateReq.Labels = labels
 			hasChanges = true
 		}
+	}
+
+	if !plan.OriginProtocol.Equal(state.OriginProtocol) {
+		originProtocol := expandOriginProtocol(ctx, plan.OriginProtocol.ValueString(), &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		updateReq.OriginProtocol = originProtocol
+		hasChanges = true
 	}
 
 	// Handle options update
@@ -606,16 +612,7 @@ func (r *cdnResourceResource) readResourceToState(ctx context.Context, state *CD
 	state.UpdatedAt = types.StringValue(resource.UpdatedAt.AsTime().Format(time.RFC3339))
 
 	// Origin Protocol - convert enum to string
-	switch resource.OriginProtocol {
-	case cdn.OriginProtocol_HTTP:
-		state.OriginProtocol = types.StringValue("http")
-	case cdn.OriginProtocol_HTTPS:
-		state.OriginProtocol = types.StringValue("https")
-	case cdn.OriginProtocol_MATCH:
-		state.OriginProtocol = types.StringValue("match")
-	default:
-		diags.AddError("Unexpected origin protocol", fmt.Sprintf("Got: %v", resource.OriginProtocol))
-	}
+	state.OriginProtocol = flattenOriginProtocol(ctx, resource.OriginProtocol, diags)
 
 	// Labels - TOP-LEVEL FIELD: SDKv2 always set this field (even empty)
 	// So we must return empty map instead of null for backward compatibility

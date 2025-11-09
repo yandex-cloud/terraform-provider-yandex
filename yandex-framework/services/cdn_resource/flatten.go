@@ -2,6 +2,7 @@ package cdn_resource
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -762,5 +763,23 @@ func getCDNOptionsAttrTypes() map[string]attr.Type {
 				},
 			},
 		},
+	}
+}
+
+// flattenOriginProtocol converts CDN API OriginProtocol enum to string value
+func flattenOriginProtocol(ctx context.Context, apiProtocol cdn.OriginProtocol, diags *diag.Diagnostics) types.String {
+	switch apiProtocol {
+	case cdn.OriginProtocol_HTTP:
+		return types.StringValue("http")
+	case cdn.OriginProtocol_HTTPS:
+		return types.StringValue("https")
+	case cdn.OriginProtocol_MATCH:
+		return types.StringValue("match")
+	default:
+		diags.AddError(
+			"Unexpected origin protocol",
+			fmt.Sprintf("Got unexpected origin_protocol value from API: %v", apiProtocol),
+		)
+		return types.StringNull()
 	}
 }

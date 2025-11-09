@@ -100,10 +100,17 @@ func CDNResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"origin_protocol": schema.StringAttribute{
-				MarkdownDescription: "Protocol of origin resource. `http` or `https`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             stringdefault.StaticString("http"),
+				MarkdownDescription: "Protocol for CDN servers to connect to origin. " +
+					"`http` - always use HTTP, " +
+					"`https` - always use HTTPS, " +
+					"`match` - automatically match the protocol used by the client request " +
+					"(origin must support both HTTP and HTTPS).",
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString("http"),
+				Validators: []validator.String{
+					stringvalidator.OneOf("http", "https", "match"),
+				},
 			},
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: common.ResourceDescriptions["created_at"],

@@ -49,7 +49,7 @@ resource "yandex_cdn_resource" "my_resource" {
 - `options` (Block List) CDN Resource settings and options to tune CDN edge behavior. (see [below for nested schema](#nestedblock--options))
 - `origin_group_id` (String) The ID of a specific origin group.
 - `origin_group_name` (String) The name of a specific origin group.
-- `origin_protocol` (String) Protocol of origin resource. `http` or `https`.
+- `origin_protocol` (String) Protocol for CDN servers to connect to origin. `http` - always use HTTP, `https` - always use HTTPS, `match` - automatically match the protocol used by the client request (origin must support both HTTP and HTTPS).
 - `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
 - `secondary_hostnames` (Set of String) List of secondary hostname strings.
 - `shielding` (String) Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.

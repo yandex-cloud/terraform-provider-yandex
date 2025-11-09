@@ -149,16 +149,7 @@ func (d *cdnResourceDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	// Set origin protocol
-	switch resource.OriginProtocol {
-	case cdn.OriginProtocol_HTTP:
-		state.OriginProtocol = types.StringValue("http")
-	case cdn.OriginProtocol_HTTPS:
-		state.OriginProtocol = types.StringValue("https")
-	case cdn.OriginProtocol_MATCH:
-		state.OriginProtocol = types.StringValue("match")
-	default:
-		state.OriginProtocol = types.StringNull()
-	}
+	state.OriginProtocol = flattenOriginProtocol(ctx, resource.OriginProtocol, &resp.Diagnostics)
 
 	// Set origin group ID
 	if originGroupID := resource.GetOriginGroupId(); originGroupID != 0 {
