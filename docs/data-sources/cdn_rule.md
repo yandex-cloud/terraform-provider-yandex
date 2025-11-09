@@ -92,6 +92,7 @@ Read-Only:
 - `rewrite` (Block List) URL rewrite rules. (see [below for nested schema](#nestedblock--options--rewrite))
 - `secure_key` (String, Sensitive) Secure key for URL signing.
 - `slice` (Boolean) Enable slicing.
+- `stale` (List of String) List of errors for serving stale content.
 - `static_request_headers` (Map of String) Static request headers to origin.
 - `static_response_headers` (Map of String) Static response headers.
 
@@ -109,8 +110,9 @@ Read-Only:
 
 Read-Only:
 
-- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes.
+- `custom_values` (Map of Number) Cache time in seconds for specific HTTP status codes.
 - `enabled` (Boolean) Enable edge caching.
+- `value` (Number) Cache time in seconds for responses with codes 200, 206, 301, 302.
 
 
 <a id="nestedblock--options--ip_address_acl"></a>

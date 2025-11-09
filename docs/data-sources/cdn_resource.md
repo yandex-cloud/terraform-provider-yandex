@@ -56,6 +56,7 @@ output "cdn_origin_group_id" {
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
 - `options` (Block List) CDN resource options configuration. (see [below for nested schema](#nestedblock--options))
 - `origin_group_id` (String) ID of the origin group.
+- `origin_group_name` (String) Name of the origin group.
 - `origin_protocol` (String) Origin protocol. Possible values: `http`, `https`, `match` (match client protocol).
 - `provider_cname` (String) Provider CNAME of the CDN resource.
 - `provider_type` (String) CDN provider type.
@@ -115,6 +116,8 @@ Read-Only:
 
 - `slice` (Boolean) Enable slicing. Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.
 
+- `stale` (List of String) List of errors for serving stale content. List of errors which instruct CDN servers to serve stale content to clients. Possible values: `error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`.
+
 - `static_request_headers` (Map of String) Static request headers to origin. Set up custom headers that CDN servers will send in requests to origins.
 
 - `static_response_headers` (Map of String) Static response headers. Set up a static response header. The header name must be lowercase.
@@ -136,8 +139,11 @@ Read-Only:
 
 Read-Only:
 
-- `cache_time` (Map of Number) Cache time in seconds for different HTTP status codes.
+- `custom_values` (Map of Number) Cache time in seconds for specific HTTP status codes. Caching time for responses with specific codes. These settings have higher priority than the `value` field. Use specific HTTP codes like `"200"`, `"404"`, or use `"any"` to specify caching time for all response codes (including 4xx, 5xx). Cannot be used together with `enabled = false`.
+
 - `enabled` (Boolean) Enable edge caching. True - caching is enabled with `value` or `custom_values` settings. False - caching is disabled (provider sends cache_time = 0 to API). Use `enabled = false` to explicitly disable edge caching (which is enabled by default in Yandex CDN). Cannot be used together with `value` or `custom_values`.
+
+- `value` (Number) Cache time in seconds for responses with codes 200, 206, 301, 302. Caching time for responses with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will NOT be cached. Use `0` to disable caching. Use `custom_values` field to specify caching time for other response codes. Cannot be used together with `enabled = false`.
 
 
 

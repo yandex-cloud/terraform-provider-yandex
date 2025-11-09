@@ -84,6 +84,11 @@ func DataSourceCDNResourceSchema() schema.Schema {
 				MarkdownDescription: "ID of the origin group.",
 				Computed:            true,
 			},
+			"origin_group_name": schema.StringAttribute{
+				Description:         "Name of the origin group.",
+				MarkdownDescription: "Name of the origin group.",
+				Computed:            true,
+			},
 			"shielding": schema.StringAttribute{
 				Description:         "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.",
 				MarkdownDescription: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.",
@@ -251,6 +256,12 @@ func CDNOptionsDataSourceSchema() schema.ListNestedBlock {
 					ElementType:         types.StringType,
 					Computed:            true,
 				},
+				"stale": schema.ListAttribute{
+					Description:         "List of errors for serving stale content.",
+					MarkdownDescription: "List of errors for serving stale content.",
+					ElementType:         types.StringType,
+					Computed:            true,
+				},
 
 				// Map options
 				"static_response_headers": schema.MapAttribute{
@@ -288,9 +299,14 @@ func EdgeCacheSettingsDataSourceSchema() schema.ListNestedBlock {
 					MarkdownDescription: "Enable edge caching.",
 					Computed:            true,
 				},
-				"cache_time": schema.MapAttribute{
-					Description:         "Cache time in seconds for different HTTP status codes.",
-					MarkdownDescription: "Cache time in seconds for different HTTP status codes.",
+				"value": schema.Int64Attribute{
+					Description:         "Cache time in seconds for responses with codes 200, 206, 301, 302.",
+					MarkdownDescription: "Cache time in seconds for responses with codes 200, 206, 301, 302.",
+					Computed:            true,
+				},
+				"custom_values": schema.MapAttribute{
+					Description:         "Cache time in seconds for specific HTTP status codes.",
+					MarkdownDescription: "Cache time in seconds for specific HTTP status codes.",
 					ElementType:         types.Int64Type,
 					Computed:            true,
 				},
