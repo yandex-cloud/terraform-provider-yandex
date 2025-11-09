@@ -25,8 +25,10 @@ resource "yandex_cdn_resource" "my_resource" {
   origin_group_id     = yandex_cdn_origin_group.foo_cdn_group_by_id.id
 
   options {
-    edge_cache_settings = 345600
-    ignore_cookie       = true
+    edge_cache_settings {
+      value = 345600
+    }
+    ignore_cookie = true
     static_request_headers = {
       is-from-cdn = "yes"
     }
