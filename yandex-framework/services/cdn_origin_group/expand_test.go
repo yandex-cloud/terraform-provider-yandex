@@ -55,9 +55,9 @@ func TestExpandOriginParams_AllFields(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name           string
-		origin         *OriginModel
-		expectedSource string
+		name            string
+		origin          *OriginModel
+		expectedSource  string
 		expectedEnabled bool
 		expectedBackup  bool
 	}{
@@ -69,7 +69,7 @@ func TestExpandOriginParams_AllFields(t *testing.T) {
 				Enabled:       types.BoolValue(true),
 				Backup:        types.BoolValue(false),
 			},
-			expectedSource: "primary.example.com:80",
+			expectedSource:  "primary.example.com:80",
 			expectedEnabled: true,
 			expectedBackup:  false,
 		},
@@ -81,7 +81,7 @@ func TestExpandOriginParams_AllFields(t *testing.T) {
 				Enabled:       types.BoolValue(false),
 				Backup:        types.BoolValue(true),
 			},
-			expectedSource: "backup.example.com:443",
+			expectedSource:  "backup.example.com:443",
 			expectedEnabled: false,
 			expectedBackup:  true,
 		},
@@ -93,7 +93,7 @@ func TestExpandOriginParams_AllFields(t *testing.T) {
 				Enabled:       types.BoolValue(true),
 				Backup:        types.BoolValue(false),
 			},
-			expectedSource: "192.168.1.1:8080",
+			expectedSource:  "192.168.1.1:8080",
 			expectedEnabled: true,
 			expectedBackup:  false,
 		},
