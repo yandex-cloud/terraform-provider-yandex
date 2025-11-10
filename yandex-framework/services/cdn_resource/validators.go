@@ -120,11 +120,18 @@ func (v *staticHeadersValidator) ValidateMap(ctx context.Context, req validator.
 		return
 	}
 
-	// Forbidden headers according to CDN standards
-	forbiddenHeaders := []string{
-		"Host", "Content-Length", "Transfer-Encoding",
-		"Connection", "Keep-Alive", "Proxy-Authenticate",
-		"Proxy-Authorization", "TE", "Trailer", "Upgrade",
+	// Forbidden headers according to CDN standards - using map for O(1) lookup
+	forbiddenHeaders := map[string]bool{
+		"host":                true,
+		"content-length":      true,
+		"transfer-encoding":   true,
+		"connection":          true,
+		"keep-alive":          true,
+		"proxy-authenticate":  true,
+		"proxy-authorization": true,
+		"te":                  true,
+		"trailer":             true,
+		"upgrade":             true,
 	}
 
 	headers := make(map[string]string)
@@ -136,15 +143,13 @@ func (v *staticHeadersValidator) ValidateMap(ctx context.Context, req validator.
 	headerNameRegex := regexp.MustCompile(`^[A-Za-z0-9\-]+$`)
 
 	for key := range headers {
-		// Check for forbidden headers
-		for _, forbidden := range forbiddenHeaders {
-			if strings.EqualFold(key, forbidden) {
-				resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-					req.Path,
-					"Forbidden header",
-					fmt.Sprintf("Header '%s' cannot be set as static header", key),
-				))
-			}
+		// Check for forbidden headers - O(1) lookup
+		if forbiddenHeaders[strings.ToLower(key)] {
+			resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
+				req.Path,
+				"Forbidden header",
+				fmt.Sprintf("Header '%s' cannot be set as static header", key),
+			))
 		}
 
 		// Validate header name format
@@ -496,4 +501,74 @@ func (v *gzipOnFetchedCompressedValidator) Description(_ context.Context) string
 
 func (v *gzipOnFetchedCompressedValidator) MarkdownDescription(_ context.Context) string {
 	return "Validates that `gzip_on` and `fetched_compressed` are not both enabled"
+}
+
+// mutuallyExclusiveBoolsValidator validates that two boolean options are not both enabled (generic validator)
+type mutuallyExclusiveBoolsValidator struct {
+	field1Name     string
+	field2Name     string
+	errorSummary   string
+	errorDetail    string
+	field1Accessor func(*CDNOptionsModel) types.Bool
+	field2Accessor func(*CDNOptionsModel) types.Bool
+}
+
+// NewMutuallyExclusiveBoolsValidator creates a generic validator for mutually exclusive boolean fields
+func NewMutuallyExclusiveBoolsValidator(
+	field1Name, field2Name string,
+	field1Accessor, field2Accessor func(*CDNOptionsModel) types.Bool,
+	errorSummary, errorDetail string,
+) validator.List {
+	return &mutuallyExclusiveBoolsValidator{
+		field1Name:     field1Name,
+		field2Name:     field2Name,
+		errorSummary:   errorSummary,
+		errorDetail:    errorDetail,
+		field1Accessor: field1Accessor,
+		field2Accessor: field2Accessor,
+	}
+}
+
+func (v *mutuallyExclusiveBoolsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() || len(req.ConfigValue.Elements()) == 0 {
+		return
+	}
+
+	// Get the single element (MaxItems: 1)
+	var elements []types.Object
+	diags := req.ConfigValue.ElementsAs(ctx, &elements, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() || len(elements) == 0 {
+		return
+	}
+
+	elem := elements[0]
+	if elem.IsNull() || elem.IsUnknown() {
+		return
+	}
+
+	// Extract fields from the element
+	var options CDNOptionsModel
+	diags = elem.As(ctx, &options, basetypes.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get field values using accessors
+	field1 := v.field1Accessor(&options)
+	field2 := v.field2Accessor(&options)
+
+	// Check if both are set to true
+	if !field1.IsNull() && field1.ValueBool() && !field2.IsNull() && field2.ValueBool() {
+		resp.Diagnostics.AddError(v.errorSummary, v.errorDetail)
+	}
+}
+
+func (v *mutuallyExclusiveBoolsValidator) Description(_ context.Context) string {
+	return fmt.Sprintf("Validates that %s and %s are not both enabled", v.field1Name, v.field2Name)
+}
+
+func (v *mutuallyExclusiveBoolsValidator) MarkdownDescription(_ context.Context) string {
+	return fmt.Sprintf("Validates that `%s` and `%s` are not both enabled", v.field1Name, v.field2Name)
 }

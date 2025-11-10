@@ -419,8 +419,20 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 		},
 		Validators: []validator.List{
 			listvalidator.SizeAtMost(1),
-			NewSliceFetchedCompressedValidator(),
-			NewGzipOnFetchedCompressedValidator(),
+			NewMutuallyExclusiveBoolsValidator(
+				"slice", "fetched_compressed",
+				func(o *CDNOptionsModel) types.Bool { return o.Slice },
+				func(o *CDNOptionsModel) types.Bool { return o.FetchedCompressed },
+				"Incompatible CDN options",
+				"slice and fetched_compressed cannot both be enabled simultaneously. Set one of them to false.",
+			),
+			NewMutuallyExclusiveBoolsValidator(
+				"gzip_on", "fetched_compressed",
+				func(o *CDNOptionsModel) types.Bool { return o.GzipOn },
+				func(o *CDNOptionsModel) types.Bool { return o.FetchedCompressed },
+				"Incompatible CDN compression options",
+				"gzip_on and fetched_compressed cannot both be enabled simultaneously. These are mutually exclusive compression methods. Set one of them to false.",
+			),
 		},
 	}
 }

@@ -10,6 +10,55 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
 )
 
+// Helper functions for expand operations to reduce code duplication
+
+// expandBoolOptionIfSet creates BoolOption if the value is not null
+func expandBoolOptionIfSet(value types.Bool) *cdn.ResourceOptions_BoolOption {
+	if value.IsNull() {
+		return nil
+	}
+	return &cdn.ResourceOptions_BoolOption{
+		Enabled: true,
+		Value:   value.ValueBool(),
+	}
+}
+
+// expandStringsListOption creates StringsListOption if the list is not null/unknown and has elements
+func expandStringsListOption(ctx context.Context, list types.List, diags *diag.Diagnostics) *cdn.ResourceOptions_StringsListOption {
+	if list.IsNull() || len(list.Elements()) == 0 {
+		return nil
+	}
+
+	var values []string
+	diags.Append(list.ElementsAs(ctx, &values, false)...)
+	if diags.HasError() || len(values) == 0 {
+		return nil
+	}
+
+	return &cdn.ResourceOptions_StringsListOption{
+		Enabled: true,
+		Value:   values,
+	}
+}
+
+// expandStringsMapOption creates StringsMapOption if the map is not null/unknown and has elements
+func expandStringsMapOption(ctx context.Context, m types.Map, diags *diag.Diagnostics) *cdn.ResourceOptions_StringsMapOption {
+	if m.IsNull() || len(m.Elements()) == 0 {
+		return nil
+	}
+
+	values := make(map[string]string)
+	diags.Append(m.ElementsAs(ctx, &values, false)...)
+	if diags.HasError() || len(values) == 0 {
+		return nil
+	}
+
+	return &cdn.ResourceOptions_StringsMapOption{
+		Enabled: true,
+		Value:   values,
+	}
+}
+
 // ExpandCDNResourceOptions converts Terraform plan options to CDN API ResourceOptions
 // CRITICAL: This function properly handles tristate booleans using types.Bool.IsNull()
 // Exported for reuse in cdn_rule package
@@ -21,34 +70,11 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 	opt := planOptions[0]
 	result := &cdn.ResourceOptions{}
 
-	// Boolean options - CRITICAL: Check IsNull() to distinguish unset from false
-	if !opt.Slice.IsNull() {
-		result.Slice = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
-			Value:   opt.Slice.ValueBool(),
-		}
-	}
-
-	if !opt.IgnoreCookie.IsNull() {
-		result.IgnoreCookie = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
-			Value:   opt.IgnoreCookie.ValueBool(),
-		}
-	}
-
-	if !opt.ProxyCacheMethodsSet.IsNull() {
-		result.ProxyCacheMethodsSet = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
-			Value:   opt.ProxyCacheMethodsSet.ValueBool(),
-		}
-	}
-
-	if !opt.DisableProxyForceRanges.IsNull() && opt.DisableProxyForceRanges.ValueBool() {
-		result.DisableProxyForceRanges = &cdn.ResourceOptions_BoolOption{
-			Enabled: true,
-			Value:   opt.DisableProxyForceRanges.ValueBool(),
-		}
-	}
+	// Boolean options - using helper to reduce duplication
+	result.Slice = expandBoolOptionIfSet(opt.Slice)
+	result.IgnoreCookie = expandBoolOptionIfSet(opt.IgnoreCookie)
+	result.ProxyCacheMethodsSet = expandBoolOptionIfSet(opt.ProxyCacheMethodsSet)
+	result.DisableProxyForceRanges = expandBoolOptionIfSet(opt.DisableProxyForceRanges)
 
 	// Cache settings - nested blocks
 	expandEdgeCacheSettings(ctx, opt.EdgeCacheSettings, result, diags)
@@ -76,65 +102,16 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 		}
 	}
 
-	// List options
+	// List options - using helper to reduce duplication
 	// DEPRECATED: cache_http_headers - removed as it does not affect anything
 	// Kept in schema for backward compatibility, but not sent to API
+	result.Cors = expandStringsListOption(ctx, opt.Cors, diags)
+	result.AllowedHttpMethods = expandStringsListOption(ctx, opt.AllowedHTTPMethods, diags)
+	result.Stale = expandStringsListOption(ctx, opt.Stale, diags)
 
-	if !opt.Cors.IsNull() && !opt.Cors.IsUnknown() && len(opt.Cors.Elements()) > 0 {
-		var corsOrigins []string
-		diags.Append(opt.Cors.ElementsAs(ctx, &corsOrigins, false)...)
-		if !diags.HasError() && len(corsOrigins) > 0 {
-			result.Cors = &cdn.ResourceOptions_StringsListOption{
-				Enabled: true,
-				Value:   corsOrigins,
-			}
-		}
-	}
-
-	if !opt.AllowedHTTPMethods.IsNull() && !opt.AllowedHTTPMethods.IsUnknown() && len(opt.AllowedHTTPMethods.Elements()) > 0 {
-		var methods []string
-		diags.Append(opt.AllowedHTTPMethods.ElementsAs(ctx, &methods, false)...)
-		if !diags.HasError() && len(methods) > 0 {
-			result.AllowedHttpMethods = &cdn.ResourceOptions_StringsListOption{
-				Enabled: true,
-				Value:   methods,
-			}
-		}
-	}
-
-	if !opt.Stale.IsNull() && !opt.Stale.IsUnknown() && len(opt.Stale.Elements()) > 0 {
-		var staleValues []string
-		diags.Append(opt.Stale.ElementsAs(ctx, &staleValues, false)...)
-		if !diags.HasError() && len(staleValues) > 0 {
-			result.Stale = &cdn.ResourceOptions_StringsListOption{
-				Enabled: true,
-				Value:   staleValues,
-			}
-		}
-	}
-
-	// Map options
-	if !opt.StaticResponseHeaders.IsNull() && !opt.StaticResponseHeaders.IsUnknown() && len(opt.StaticResponseHeaders.Elements()) > 0 {
-		headers := make(map[string]string)
-		diags.Append(opt.StaticResponseHeaders.ElementsAs(ctx, &headers, false)...)
-		if !diags.HasError() && len(headers) > 0 {
-			result.StaticHeaders = &cdn.ResourceOptions_StringsMapOption{
-				Enabled: true,
-				Value:   headers,
-			}
-		}
-	}
-
-	if !opt.StaticRequestHeaders.IsNull() && !opt.StaticRequestHeaders.IsUnknown() && len(opt.StaticRequestHeaders.Elements()) > 0 {
-		headers := make(map[string]string)
-		diags.Append(opt.StaticRequestHeaders.ElementsAs(ctx, &headers, false)...)
-		if !diags.HasError() && len(headers) > 0 {
-			result.StaticRequestHeaders = &cdn.ResourceOptions_StringsMapOption{
-				Enabled: true,
-				Value:   headers,
-			}
-		}
-	}
+	// Map options - using helper to reduce duplication
+	result.StaticHeaders = expandStringsMapOption(ctx, opt.StaticResponseHeaders, diags)
+	result.StaticRequestHeaders = expandStringsMapOption(ctx, opt.StaticRequestHeaders, diags)
 
 	// Mutually exclusive options groups
 	expandHostOptions(&opt, result, diags)
@@ -190,7 +167,7 @@ func expandQueryParamsOptions(ctx context.Context, opt *CDNOptionsModel, result 
 				},
 			},
 		}
-	} else if !opt.QueryParamsWhitelist.IsNull() && !opt.QueryParamsWhitelist.IsUnknown() && len(opt.QueryParamsWhitelist.Elements()) > 0 {
+	} else if !opt.QueryParamsWhitelist.IsNull() && len(opt.QueryParamsWhitelist.Elements()) > 0 {
 		var params []string
 		diags.Append(opt.QueryParamsWhitelist.ElementsAs(ctx, &params, false)...)
 		if !diags.HasError() && len(params) > 0 {
@@ -203,7 +180,7 @@ func expandQueryParamsOptions(ctx context.Context, opt *CDNOptionsModel, result 
 				},
 			}
 		}
-	} else if !opt.QueryParamsBlacklist.IsNull() && !opt.QueryParamsBlacklist.IsUnknown() && len(opt.QueryParamsBlacklist.Elements()) > 0 {
+	} else if !opt.QueryParamsBlacklist.IsNull() && len(opt.QueryParamsBlacklist.Elements()) > 0 {
 		var params []string
 		diags.Append(opt.QueryParamsBlacklist.ElementsAs(ctx, &params, false)...)
 		if !diags.HasError() && len(params) > 0 {
@@ -225,8 +202,8 @@ func expandQueryParamsOptions(ctx context.Context, opt *CDNOptionsModel, result 
 // false/null values are NOT sent (for oneof, false means "don't select this variant")
 func expandCompressionOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
 	// Check if values are explicitly set to true
-	fetchedTrue := !opt.FetchedCompressed.IsNull() && !opt.FetchedCompressed.IsUnknown() && opt.FetchedCompressed.ValueBool()
-	gzipTrue := !opt.GzipOn.IsNull() && !opt.GzipOn.IsUnknown() && opt.GzipOn.ValueBool()
+	fetchedTrue := !opt.FetchedCompressed.IsNull() && opt.FetchedCompressed.ValueBool()
+	gzipTrue := !opt.GzipOn.IsNull() && opt.GzipOn.ValueBool()
 
 	if fetchedTrue {
 		// Priority 1: fetched_compressed=true
@@ -257,7 +234,7 @@ func expandCompressionOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions,
 // Unlike compression, redirect supports both true and false values being sent
 // Priority: redirect_http_to_https > redirect_https_to_http
 func expandRedirectOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if !opt.RedirectHttpToHttps.IsNull() && !opt.RedirectHttpToHttps.IsUnknown() {
+	if !opt.RedirectHttpToHttps.IsNull() {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpToHttps{
 				RedirectHttpToHttps: &cdn.ResourceOptions_BoolOption{
@@ -266,7 +243,7 @@ func expandRedirectOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, di
 				},
 			},
 		}
-	} else if !opt.RedirectHttpsToHttp.IsNull() && !opt.RedirectHttpsToHttp.IsUnknown() {
+	} else if !opt.RedirectHttpsToHttp.IsNull() {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpsToHttp{
 				RedirectHttpsToHttp: &cdn.ResourceOptions_BoolOption{
@@ -280,7 +257,7 @@ func expandRedirectOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, di
 
 // expandIPAddressACL converts IP address ACL block to API format
 func expandIPAddressACL(ctx context.Context, aclList types.List, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if aclList.IsNull() || aclList.IsUnknown() || len(aclList.Elements()) == 0 {
+	if aclList.IsNull() || len(aclList.Elements()) == 0 {
 		return
 	}
 
@@ -291,7 +268,7 @@ func expandIPAddressACL(ctx context.Context, aclList types.List, result *cdn.Res
 	}
 
 	acl := aclModels[0]
-	if acl.ExceptedValues.IsNull() || acl.ExceptedValues.IsUnknown() {
+	if acl.ExceptedValues.IsNull() {
 		return
 	}
 
@@ -324,7 +301,7 @@ func expandIPAddressACL(ctx context.Context, aclList types.List, result *cdn.Res
 
 // expandRewrite converts rewrite block to API format
 func expandRewrite(ctx context.Context, rewriteList types.List, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if rewriteList.IsNull() || rewriteList.IsUnknown() || len(rewriteList.Elements()) == 0 {
+	if rewriteList.IsNull() || len(rewriteList.Elements()) == 0 {
 		return
 	}
 
@@ -379,7 +356,7 @@ func expandRewrite(ctx context.Context, rewriteList types.List, result *cdn.Reso
 // - custom_values → CustomValues (per-code overrides, "any" = all codes)
 // - Both can be specified, CustomValues has higher priority
 func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if edgeCacheList.IsNull() || edgeCacheList.IsUnknown() || len(edgeCacheList.Elements()) == 0 {
+	if edgeCacheList.IsNull() || len(edgeCacheList.Elements()) == 0 {
 		return
 	}
 
@@ -393,7 +370,7 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 
 	// Determine enabled status (defaults to true if not set)
 	enabled := true
-	if !edgeCache.Enabled.IsNull() && !edgeCache.Enabled.IsUnknown() {
+	if !edgeCache.Enabled.IsNull() {
 		enabled = edgeCache.Enabled.ValueBool()
 	}
 
@@ -411,8 +388,8 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 	}
 
 	// enabled=true, process value and/or custom_values
-	hasValue := !edgeCache.Value.IsNull() && !edgeCache.Value.IsUnknown()
-	hasCustomValues := !edgeCache.CustomValues.IsNull() && !edgeCache.CustomValues.IsUnknown() && len(edgeCache.CustomValues.Elements()) > 0
+	hasValue := !edgeCache.Value.IsNull()
+	hasCustomValues := !edgeCache.CustomValues.IsNull() && len(edgeCache.CustomValues.Elements()) > 0
 
 	if !hasValue && !hasCustomValues {
 		// Neither value nor custom_values specified - don't send anything
@@ -445,7 +422,7 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 
 // expandBrowserCacheSettings converts browser_cache_settings block to API format
 func expandBrowserCacheSettings(ctx context.Context, browserCacheList types.List, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if browserCacheList.IsNull() || browserCacheList.IsUnknown() || len(browserCacheList.Elements()) == 0 {
+	if browserCacheList.IsNull() || len(browserCacheList.Elements()) == 0 {
 		return
 	}
 
@@ -463,7 +440,7 @@ func expandBrowserCacheSettings(ctx context.Context, browserCacheList types.List
 
 	// Determine enabled status (defaults to true if not set)
 	enabled := true
-	if !browserCache.Enabled.IsNull() && !browserCache.Enabled.IsUnknown() {
+	if !browserCache.Enabled.IsNull() {
 		enabled = browserCache.Enabled.ValueBool()
 	}
 
@@ -479,7 +456,7 @@ func expandBrowserCacheSettings(ctx context.Context, browserCacheList types.List
 	}
 
 	// enabled=true, process cache_time
-	if browserCache.CacheTime.IsNull() || browserCache.CacheTime.IsUnknown() {
+	if browserCache.CacheTime.IsNull() {
 		// This should not happen due to validator, but handle gracefully
 		return
 	}
