@@ -387,3 +387,113 @@ func (v *browserCacheSettingsValidator) Description(_ context.Context) string {
 func (v *browserCacheSettingsValidator) MarkdownDescription(_ context.Context) string {
 	return "Validates `browser_cache_settings`: `cache_time` must be set when `enabled=true`"
 }
+
+// sliceFetchedCompressedValidator validates that slice and fetched_compressed are not both enabled
+type sliceFetchedCompressedValidator struct{}
+
+func NewSliceFetchedCompressedValidator() validator.List {
+	return &sliceFetchedCompressedValidator{}
+}
+
+func (v *sliceFetchedCompressedValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() || len(req.ConfigValue.Elements()) == 0 {
+		return
+	}
+
+	// Get the single element (MaxItems: 1)
+	var elements []types.Object
+	diags := req.ConfigValue.ElementsAs(ctx, &elements, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(elements) == 0 {
+		return
+	}
+
+	elem := elements[0]
+	if elem.IsNull() || elem.IsUnknown() {
+		return
+	}
+
+	// Extract slice and fetched_compressed from the element
+	var options CDNOptionsModel
+	diags = elem.As(ctx, &options, basetypes.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Check if both are set to true
+	if !options.Slice.IsNull() && !options.Slice.IsUnknown() && options.Slice.ValueBool() &&
+		!options.FetchedCompressed.IsNull() && !options.FetchedCompressed.IsUnknown() && options.FetchedCompressed.ValueBool() {
+		resp.Diagnostics.AddError(
+			"Incompatible CDN options",
+			"slice and fetched_compressed cannot both be enabled simultaneously. Set one of them to false.",
+		)
+	}
+}
+
+func (v *sliceFetchedCompressedValidator) Description(_ context.Context) string {
+	return "Validates that slice and fetched_compressed are not both enabled"
+}
+
+func (v *sliceFetchedCompressedValidator) MarkdownDescription(_ context.Context) string {
+	return "Validates that `slice` and `fetched_compressed` are not both enabled"
+}
+
+// gzipOnFetchedCompressedValidator validates that gzip_on and fetched_compressed are not both enabled
+type gzipOnFetchedCompressedValidator struct{}
+
+func NewGzipOnFetchedCompressedValidator() validator.List {
+	return &gzipOnFetchedCompressedValidator{}
+}
+
+func (v *gzipOnFetchedCompressedValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() || len(req.ConfigValue.Elements()) == 0 {
+		return
+	}
+
+	// Get the single element (MaxItems: 1)
+	var elements []types.Object
+	diags := req.ConfigValue.ElementsAs(ctx, &elements, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(elements) == 0 {
+		return
+	}
+
+	elem := elements[0]
+	if elem.IsNull() || elem.IsUnknown() {
+		return
+	}
+
+	// Extract gzip_on and fetched_compressed from the element
+	var options CDNOptionsModel
+	diags = elem.As(ctx, &options, basetypes.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Check if both are set to true
+	if !options.GzipOn.IsNull() && !options.GzipOn.IsUnknown() && options.GzipOn.ValueBool() &&
+		!options.FetchedCompressed.IsNull() && !options.FetchedCompressed.IsUnknown() && options.FetchedCompressed.ValueBool() {
+		resp.Diagnostics.AddError(
+			"Incompatible CDN compression options",
+			"gzip_on and fetched_compressed cannot both be enabled simultaneously. These are mutually exclusive compression methods. Set one of them to false.",
+		)
+	}
+}
+
+func (v *gzipOnFetchedCompressedValidator) Description(_ context.Context) string {
+	return "Validates that gzip_on and fetched_compressed are not both enabled"
+}
+
+func (v *gzipOnFetchedCompressedValidator) MarkdownDescription(_ context.Context) string {
+	return "Validates that `gzip_on` and `fetched_compressed` are not both enabled"
+}

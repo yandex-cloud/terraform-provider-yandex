@@ -222,10 +222,11 @@ func flattenQueryParamsOptions(ctx context.Context, queryOptions *cdn.ResourceOp
 }
 
 // flattenCompressionOptions handles mutually exclusive gzip_on and fetched_compressed
-// IMPORTANT: Returns zero values for inactive fields to work with plan modifiers
-// expand.go will check if ALL fields are zero values before sending to API
+// IMPORTANT: Returns false for inactive field to match user config with coalesce()
+// expand.go only sends options with true value, so false is effectively ignored
 func flattenCompressionOptions(compressionOptions *cdn.ResourceOptions_CompressionOptions, opt *CDNOptionsModel) {
 	// Initialize both to false (zero value for bool)
+	// This matches user configs that use: coalesce(var.option, false)
 	opt.GzipOn = types.BoolValue(false)
 	opt.FetchedCompressed = types.BoolValue(false)
 

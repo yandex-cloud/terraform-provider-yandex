@@ -419,6 +419,8 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 		},
 		Validators: []validator.List{
 			listvalidator.SizeAtMost(1),
+			NewSliceFetchedCompressedValidator(),
+			NewGzipOnFetchedCompressedValidator(),
 		},
 	}
 }

@@ -38,7 +38,7 @@ output "origin_group_name" {
 ### Read-Only
 
 - `id` (String) The ID of the CDN origin group (stored as string).
-- `origin` (Block Set) A set of available origins in the group. (see [below for nested schema](#nestedblock--origin))
+- `origin` (Block List) A list of available origins in the group. (see [below for nested schema](#nestedblock--origin))
 - `provider_type` (String) CDN provider type.
 - `use_next` (Boolean) If `true`, the next origin in group will be used if current origin fails. If `false`, the request will fail.
 

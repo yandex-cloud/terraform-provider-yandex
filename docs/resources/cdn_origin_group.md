@@ -50,7 +50,7 @@ resource "yandex_cdn_origin_group" "my_group" {
 ### Optional
 
 - `folder_id` (String) The ID of the folder that the resource belongs to. If it is not provided, the default provider folder is used.
-- `origin` (Block Set) A set of available origins. An origin group must contain at least one enabled origin. (see [below for nested schema](#nestedblock--origin))
+- `origin` (Block List) A list of available origins. An origin group must contain at least one enabled origin. (see [below for nested schema](#nestedblock--origin))
 - `provider_type` (String) CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore".
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `use_next` (Boolean) If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.

@@ -220,31 +220,44 @@ func expandQueryParamsOptions(ctx context.Context, opt *CDNOptionsModel, result 
 }
 
 // expandCompressionOptions handles mutually exclusive gzip_on and fetched_compressed
+// For oneof fields, only sends option when value is true
+// Priority: fetched_compressed=true > gzip_on=true
+// false/null values are NOT sent (for oneof, false means "don't select this variant")
 func expandCompressionOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if !opt.FetchedCompressed.IsNull() {
+	// Check if values are explicitly set to true
+	fetchedTrue := !opt.FetchedCompressed.IsNull() && !opt.FetchedCompressed.IsUnknown() && opt.FetchedCompressed.ValueBool()
+	gzipTrue := !opt.GzipOn.IsNull() && !opt.GzipOn.IsUnknown() && opt.GzipOn.ValueBool()
+
+	if fetchedTrue {
+		// Priority 1: fetched_compressed=true
 		result.CompressionOptions = &cdn.ResourceOptions_CompressionOptions{
 			CompressionVariant: &cdn.ResourceOptions_CompressionOptions_FetchCompressed{
 				FetchCompressed: &cdn.ResourceOptions_BoolOption{
 					Enabled: true,
-					Value:   opt.FetchedCompressed.ValueBool(),
+					Value:   true,
 				},
 			},
 		}
-	} else if !opt.GzipOn.IsNull() {
+	} else if gzipTrue {
+		// Priority 2: gzip_on=true
 		result.CompressionOptions = &cdn.ResourceOptions_CompressionOptions{
 			CompressionVariant: &cdn.ResourceOptions_CompressionOptions_GzipOn{
 				GzipOn: &cdn.ResourceOptions_BoolOption{
 					Enabled: true,
-					Value:   opt.GzipOn.ValueBool(),
+					Value:   true,
 				},
 			},
 		}
 	}
+	// If both false/null → don't send (API uses defaults)
 }
 
 // expandRedirectOptions handles mutually exclusive redirect options
+// For oneof fields, sends option when explicitly set (non-null) with actual value
+// Unlike compression, redirect supports both true and false values being sent
+// Priority: redirect_http_to_https > redirect_https_to_http
 func expandRedirectOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if !opt.RedirectHttpToHttps.IsNull() {
+	if !opt.RedirectHttpToHttps.IsNull() && !opt.RedirectHttpToHttps.IsUnknown() {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpToHttps{
 				RedirectHttpToHttps: &cdn.ResourceOptions_BoolOption{
@@ -253,7 +266,7 @@ func expandRedirectOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, di
 				},
 			},
 		}
-	} else if !opt.RedirectHttpsToHttp.IsNull() {
+	} else if !opt.RedirectHttpsToHttp.IsNull() && !opt.RedirectHttpsToHttp.IsUnknown() {
 		result.RedirectOptions = &cdn.ResourceOptions_RedirectOptions{
 			RedirectVariant: &cdn.ResourceOptions_RedirectOptions_RedirectHttpsToHttp{
 				RedirectHttpsToHttp: &cdn.ResourceOptions_BoolOption{
