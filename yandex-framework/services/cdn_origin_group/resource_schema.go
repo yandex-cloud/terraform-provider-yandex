@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -75,11 +75,11 @@ func CDNOriginGroupSchema(ctx context.Context) schema.Schema {
 				Delete: true,
 			}),
 
-			"origin": schema.SetNestedBlock{
-				Description:         "A set of available origins. An origin group must contain at least one enabled origin.",
-				MarkdownDescription: "A set of available origins. An origin group must contain at least one enabled origin.",
-				Validators: []validator.Set{
-					setvalidator.SizeAtLeast(1),
+			"origin": schema.ListNestedBlock{
+				Description:         "A list of available origins. An origin group must contain at least one enabled origin.",
+				MarkdownDescription: "A list of available origins. An origin group must contain at least one enabled origin.",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -92,9 +92,6 @@ func CDNOriginGroupSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "The ID of the origin group that this origin belongs to.",
 							MarkdownDescription: "The ID of the origin group that this origin belongs to.",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"enabled": schema.BoolAttribute{
 							Optional:            true,

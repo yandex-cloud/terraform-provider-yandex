@@ -103,9 +103,15 @@ func (r *cdnResourceResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	// Get folder ID (from resource or provider config)
+	folderID := r.getFolderID(&plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Build create request
 	createReq := &cdn.CreateResourceRequest{
-		FolderId: plan.FolderID.ValueString(),
+		FolderId: folderID,
 		Cname:    plan.Cname.ValueString(),
 		Origin: &cdn.CreateResourceRequest_Origin{
 			OriginVariant: &cdn.CreateResourceRequest_Origin_OriginGroupId{
@@ -663,9 +669,16 @@ func (r *cdnResourceResource) resolveOriginGroupID(ctx context.Context, plan *CD
 	}
 
 	if !plan.OriginGroupName.IsNull() && plan.OriginGroupName.ValueString() != "" {
+		// Get folder ID (from resource or provider config)
+		var diags diag.Diagnostics
+		folderID := r.getFolderID(plan, &diags)
+		if diags.HasError() {
+			return 0, fmt.Errorf("folder_id is required but not set")
+		}
+
 		// List origin groups and find by name
 		listReq := &cdn.ListOriginGroupsRequest{
-			FolderId: plan.FolderID.ValueString(),
+			FolderId: folderID,
 		}
 
 		it := r.providerConfig.SDK.CDN().OriginGroup().OriginGroupIterator(ctx, listReq)
@@ -684,4 +697,16 @@ func (r *cdnResourceResource) resolveOriginGroupID(ctx context.Context, plan *CD
 	}
 
 	return 0, fmt.Errorf("either origin_group_id or origin_group_name must be specified")
+}
+
+// getFolderID returns folder ID from model or provider config
+func (r *cdnResourceResource) getFolderID(model *CDNResourceModel, diags *diag.Diagnostics) string {
+	if !model.FolderID.IsNull() && model.FolderID.ValueString() != "" {
+		return model.FolderID.ValueString()
+	}
+	if r.providerConfig.ProviderState.FolderID.ValueString() != "" {
+		return r.providerConfig.ProviderState.FolderID.ValueString()
+	}
+	diags.AddError("folder_id is required", "Please set folder_id in this resource or at provider level")
+	return ""
 }

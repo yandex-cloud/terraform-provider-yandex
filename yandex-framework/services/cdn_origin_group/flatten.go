@@ -11,10 +11,10 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
 )
 
-// flattenOrigins converts API Origins to OriginModel slice
-func flattenOrigins(ctx context.Context, origins []*cdn.Origin, parentGroupID string, diags *diag.Diagnostics) types.Set {
+// flattenOrigins converts API Origins to OriginModel list
+func flattenOrigins(ctx context.Context, origins []*cdn.Origin, parentGroupID string, diags *diag.Diagnostics) types.List {
 	if len(origins) == 0 {
-		return types.SetNull(types.ObjectType{
+		return types.ListNull(types.ObjectType{
 			AttrTypes: map[string]attr.Type{
 				"source":          types.StringType,
 				"origin_group_id": types.StringType,
@@ -35,7 +35,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, parentGroupID st
 		originModels = append(originModels, model)
 	}
 
-	setVal, d := types.SetValueFrom(ctx, types.ObjectType{
+	listVal, d := types.ListValueFrom(ctx, types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"source":          types.StringType,
 			"origin_group_id": types.StringType,
@@ -49,7 +49,7 @@ func flattenOrigins(ctx context.Context, origins []*cdn.Origin, parentGroupID st
 		"count": len(originModels),
 	})
 
-	return setVal
+	return listVal
 }
 
 // flattenCDNOriginGroup converts API OriginGroup to CDNOriginGroupModel

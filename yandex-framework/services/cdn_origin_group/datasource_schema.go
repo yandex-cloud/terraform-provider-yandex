@@ -60,9 +60,9 @@ func DataSourceCDNOriginGroupSchema() schema.Schema {
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"origin": schema.SetNestedBlock{
-				Description:         "A set of available origins in the group.",
-				MarkdownDescription: "A set of available origins in the group.",
+			"origin": schema.ListNestedBlock{
+				Description:         "A list of available origins in the group.",
+				MarkdownDescription: "A list of available origins in the group.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"source": schema.StringAttribute{
