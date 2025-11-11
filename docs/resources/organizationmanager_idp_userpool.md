@@ -3,12 +3,12 @@
 page_title: "yandex_organizationmanager_idp_userpool Resource - yandex"
 subcategory: ""
 description: |-
-  Request to delete a userpool.
+  A userpool is a container for users in the Identity Provider system.
 ---
 
 # yandex_organizationmanager_idp_userpool (Resource)
 
-Request to delete a userpool.
+A userpool is a container for users in the Identity Provider system.
 
 
 
@@ -80,9 +80,9 @@ Optional:
 
 Optional:
 
-- `one` (Number) Whether users can change their own passwords.
-- `three` (Number) Whether users can edit their own contact information.
-- `two` (Number) Whether users can edit their own profile information.
+- `one` (Number) Minimum length for passwords with one character class.
+- `three` (Number) Minimum length for passwords with three character classes.
+- `two` (Number) Minimum length for passwords with two character classes.
 
 
 <a id="nestedatt--password_quality_policy--required_classes"></a>
@@ -90,10 +90,10 @@ Optional:
 
 Optional:
 
-- `digits` (Boolean) Name of the userpool.
-- `lowers` (Boolean) Unique identifier of the userpool.
-- `specials` (Boolean) Description of the userpool.
-- `uppers` (Boolean) ID of the organization this userpool belongs to.
+- `digits` (Boolean) Whether digits are required.
+- `lowers` (Boolean) Whether lowercase letters are required.
+- `specials` (Boolean) Whether special characters are required.
+- `uppers` (Boolean) Whether uppercase letters are required.
 
 
 

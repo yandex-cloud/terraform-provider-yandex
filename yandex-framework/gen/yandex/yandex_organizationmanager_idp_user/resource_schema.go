@@ -23,8 +23,8 @@ import (
 
 func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "Request to delete a user.",
-		MarkdownDescription: "Request to delete a user.",
+		Description:         "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
+		MarkdownDescription: "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
@@ -195,8 +195,8 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						},
 					},
 				},
-				MarkdownDescription: "Password hash.",
-				Description: "Password hash." +
+				MarkdownDescription: "Password hash. Credentials type. Exactly one of credentials type must be specified.",
+				Description: "Password hash. Credentials type. Exactly one of credentials type must be specified." +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hash
 					"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -260,8 +260,8 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						},
 					},
 				},
-				MarkdownDescription: "Password specification.",
-				Description: "Password specification." +
+				MarkdownDescription: "Password specification. Credentials type. Exactly one of credentials type must be specified.",
+				Description: "Password specification. Credentials type. Exactly one of credentials type must be specified." +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_spec
 					"package: yandex.cloud.organizationmanager.v1.idp\n" +

@@ -205,8 +205,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						Attributes: map[string]schema.Attribute{
 
 							"one": schema.Int64Attribute{
-								MarkdownDescription: "Whether users can change their own passwords.",
-								Description: "Whether users can change their own passwords." +
+								MarkdownDescription: "Minimum length for passwords with one character class.",
+								Description: "Minimum length for passwords with one character class." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.one
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -215,8 +215,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 							},
 
 							"three": schema.Int64Attribute{
-								MarkdownDescription: "Whether users can edit their own contact information.",
-								Description: "Whether users can edit their own contact information." +
+								MarkdownDescription: "Minimum length for passwords with three character classes.",
+								Description: "Minimum length for passwords with three character classes." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.three
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -225,8 +225,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 							},
 
 							"two": schema.Int64Attribute{
-								MarkdownDescription: "Whether users can edit their own profile information.",
-								Description: "Whether users can edit their own profile information." +
+								MarkdownDescription: "Minimum length for passwords with two character classes.",
+								Description: "Minimum length for passwords with two character classes." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.two
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -248,8 +248,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						Attributes: map[string]schema.Attribute{
 
 							"digits": schema.BoolAttribute{
-								MarkdownDescription: "Name of the userpool.",
-								Description: "Name of the userpool." +
+								MarkdownDescription: "Whether digits are required.",
+								Description: "Whether digits are required." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.digits
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -258,8 +258,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 							},
 
 							"lowers": schema.BoolAttribute{
-								MarkdownDescription: "Unique identifier of the userpool.",
-								Description: "Unique identifier of the userpool." +
+								MarkdownDescription: "Whether lowercase letters are required.",
+								Description: "Whether lowercase letters are required." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.lowers
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -268,8 +268,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 							},
 
 							"specials": schema.BoolAttribute{
-								MarkdownDescription: "Description of the userpool.",
-								Description: "Description of the userpool." +
+								MarkdownDescription: "Whether special characters are required.",
+								Description: "Whether special characters are required." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.specials
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
@@ -278,8 +278,8 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 							},
 
 							"uppers": schema.BoolAttribute{
-								MarkdownDescription: "ID of the organization this userpool belongs to.",
-								Description: "ID of the organization this userpool belongs to." +
+								MarkdownDescription: "Whether uppercase letters are required.",
+								Description: "Whether uppercase letters are required." +
 									// proto paths: +
 									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.uppers
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
