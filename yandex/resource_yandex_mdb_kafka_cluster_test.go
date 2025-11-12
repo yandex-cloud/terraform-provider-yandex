@@ -26,7 +26,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 )
 
-const currentDefaultKafkaVersion = "3.5"
+const currentDefaultKafkaVersion = "3.6"
 
 const kfResource = "yandex_mdb_kafka_cluster.foo"
 
@@ -1384,7 +1384,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
-					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b"}),
+					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
@@ -1407,7 +1407,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
-					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
+					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
@@ -1901,7 +1901,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	config {
 	  version          = "%s"
 	  brokers_count    = 1
-	  zones            = ["ru-central1-a", "ru-central1-b"]
+	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 	  assign_public_ip = false
 	  schema_registry  = false
       rest_api {
@@ -1985,7 +1985,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 
 	config {
 	  version          = "%s"
-	  brokers_count    = 2
+	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 	  assign_public_ip = false
       schema_registry  = false

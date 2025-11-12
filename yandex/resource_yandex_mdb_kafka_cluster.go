@@ -375,7 +375,6 @@ func resourceYandexMDBKafkaZookeeperResources() *schema.Resource {
 				Description: "Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).",
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -401,7 +400,6 @@ func resourceYandexMDBKafkaKRaftControllerResources() *schema.Resource {
 				Description: "Type of the storage of KRaft-controller hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/storage).",
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 			},
 		},
 	}
