@@ -3,6 +3,7 @@ package yandex_organizationmanager_idp_user_test
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 	"time"
@@ -219,7 +220,8 @@ func testSweepIdpUser(_ string) error {
 
 	organizationID := test.GetExampleOrganizationID()
 	if organizationID == "" {
-		return fmt.Errorf("organization ID is required for sweeping users")
+		log.Printf("[WARN] organization ID is not set, skipping user sweep")
+		return nil
 	}
 
 	// First, we need to get all userpools to iterate through their users

@@ -3,6 +3,7 @@ package yandex_organizationmanager_idp_userpool_test
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 	"time"
@@ -240,7 +241,8 @@ func testSweepIdpUserpool(_ string) error {
 
 	organizationID := test.GetExampleOrganizationID()
 	if organizationID == "" {
-		return fmt.Errorf("organization ID is required for sweeping userpools")
+		log.Printf("[WARN] organization ID is not set, skipping userpool sweep")
+		return nil
 	}
 
 	req := &idp.ListUserpoolsRequest{
