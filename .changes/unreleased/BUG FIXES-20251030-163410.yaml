@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'CDN: fix behaviour for cdn_resource attributes (cname, ignore_cookie, slice, static_headers, cors, browser_cache_settings)'
-time: 2025-10-30T16:34:10.267361+03:00

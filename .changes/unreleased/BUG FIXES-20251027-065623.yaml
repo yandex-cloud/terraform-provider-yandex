@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: "airflow: remove excessive and broken validation for logging config"
-time: 2025-10-27T06:56:23.408522+03:00

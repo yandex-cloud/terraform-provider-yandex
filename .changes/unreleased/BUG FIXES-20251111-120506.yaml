@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'kafka: fix cluster recreation during ZooKeeper to KRaft migration - cluster now updates in-place and change default Kafka version in tests from 3.5 to 3.6 and fix HA test configuration for Kafka 3.6 KRaft-combine mode - use 3 zones instead of 2'
-time: 2025-11-11T12:05:06.000000+03:00

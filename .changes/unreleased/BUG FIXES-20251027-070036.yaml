@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: "trino: change schema type for catalogs and access control models to types.Object without changing the scheme of resources"
-time: 2025-10-27T07:00:36.1858+03:00
