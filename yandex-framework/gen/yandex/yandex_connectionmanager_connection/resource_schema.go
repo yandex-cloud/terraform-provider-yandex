@@ -873,6 +873,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -1435,6 +1436,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("opensearch"),
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -2010,6 +2012,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -2609,6 +2612,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -3171,6 +3175,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -3718,6 +3723,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -4300,6 +4306,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -4879,6 +4886,607 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
+							),
+						},
+					},
+
+					"storedoc": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"auth": schema.SingleNestedAttribute{
+
+								Attributes: map[string]schema.Attribute{
+
+									"auth_source": schema.StringAttribute{
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.auth_source
+											// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.auth_source
+											// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.auth_source
+											"package: yandex.cloud.connectionmanager.v1\n" +
+											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+										},
+									},
+
+									"user_password": schema.SingleNestedAttribute{
+
+										Attributes: map[string]schema.Attribute{
+
+											"password": schema.SingleNestedAttribute{
+
+												Attributes: map[string]schema.Attribute{
+
+													"lockbox_secret_key": schema.StringAttribute{
+														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
+														Description: "Read-only. Do not fill this field in create/update requests." +
+															// proto paths: +
+															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															"package: yandex.cloud.connectionmanager.v1\n" +
+															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+														Optional: true,
+														Computed: true,
+
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.UseStateForUnknown(),
+														},
+													},
+
+													"password_generation_options": schema.SingleNestedAttribute{
+
+														Attributes: map[string]schema.Attribute{
+
+															"cookie": schema.StringAttribute{
+																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
+																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
+																	// proto paths: +
+																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	"package: yandex.cloud.connectionmanager.v1\n" +
+																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"lockbox_password_generation_options": schema.SingleNestedAttribute{
+
+																Attributes: map[string]schema.Attribute{
+
+																	"excluded_punctuation": schema.StringAttribute{
+																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
+																		Description: "a string of punctuation characters to exclude from the default" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.String{
+																			stringplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"include_digits": schema.BoolAttribute{
+																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
+																		Description: "whether at least one 0..9 character is included in the password, true by default" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.Bool{
+																			boolplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"include_lowercase": schema.BoolAttribute{
+																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
+																		Description: "whether at least one a..z character is included in the password, true by default" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.Bool{
+																			boolplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"include_punctuation": schema.BoolAttribute{
+																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
+																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.Bool{
+																			boolplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"include_uppercase": schema.BoolAttribute{
+																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
+																		Description: "whether at least one A..Z character is included in the password, true by default" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.Bool{
+																			boolplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"included_punctuation": schema.StringAttribute{
+																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
+																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.String{
+																			stringplanmodifier.UseStateForUnknown(),
+																		},
+																	},
+
+																	"length": schema.Int64Attribute{
+																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
+																		Description: "password length; by default, a reasonable length will be decided" +
+																			// proto paths: +
+																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			"package: yandex.cloud.connectionmanager.v1\n" +
+																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																		Optional: true,
+																		Computed: true,
+
+																		PlanModifiers: []planmodifier.Int64{
+																			int64planmodifier.UseStateForUnknown(),
+																		},
+																	},
+																},
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	"package: yandex.cloud.connectionmanager.v1\n" +
+																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Object{
+																	objectplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
+														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
+															// proto paths: +
+															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															"package: yandex.cloud.connectionmanager.v1\n" +
+															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+														Optional: true,
+														Computed: true,
+
+														PlanModifiers: []planmodifier.Object{
+															objectplanmodifier.UseStateForUnknown(),
+														},
+													},
+
+													"raw": schema.StringAttribute{
+														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
+														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
+															// proto paths: +
+															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															"package: yandex.cloud.connectionmanager.v1\n" +
+															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+														Optional:  true,
+														Computed:  true,
+														Sensitive: true,
+
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.UseStateForUnknown(),
+														},
+													},
+												},
+												MarkdownDescription: "",
+												Description: "" +
+													// proto paths: +
+													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													"package: yandex.cloud.connectionmanager.v1\n" +
+													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+												Optional: true,
+												Computed: true,
+
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.UseStateForUnknown(),
+												},
+											},
+
+											"user": schema.StringAttribute{
+												MarkdownDescription: "",
+												Description: "" +
+													// proto paths: +
+													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													"package: yandex.cloud.connectionmanager.v1\n" +
+													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+												Optional: true,
+												Computed: true,
+
+												PlanModifiers: []planmodifier.String{
+													stringplanmodifier.UseStateForUnknown(),
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_password
+											"package: yandex.cloud.connectionmanager.v1\n" +
+											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.UseStateForUnknown(),
+										},
+									},
+								},
+								MarkdownDescription: "",
+								Description: "" +
+									// proto paths: +
+									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.auth
+									"package: yandex.cloud.connectionmanager.v1\n" +
+									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Object{
+									objectplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"cluster": schema.SingleNestedAttribute{
+
+								Attributes: map[string]schema.Attribute{
+
+									"hosts": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"health": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.health
+														"package: yandex.cloud.connectionmanager.v1\n" +
+														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.String{
+														stringvalidator.OneOf(converter.MapKeys(connectionmanager.StoreDocCluster_Host_Health_value)...),
+													},
+												},
+
+												"host": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.host
+														"package: yandex.cloud.connectionmanager.v1\n" +
+														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+
+												"port": schema.Int64Attribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.port
+														"package: yandex.cloud.connectionmanager.v1\n" +
+														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.Int64{
+														int64planmodifier.UseStateForUnknown(),
+													},
+												},
+
+												"role": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.role
+														"package: yandex.cloud.connectionmanager.v1\n" +
+														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.String{
+														stringvalidator.OneOf(converter.MapKeys(connectionmanager.StoreDocCluster_Host_Role_value)...),
+													},
+												},
+
+												"type": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.type
+														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.type
+														// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.type
+														"package: yandex.cloud.connectionmanager.v1\n" +
+														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.String{
+														stringvalidator.OneOf(converter.MapKeys(connectionmanager.StoreDocCluster_Host_Type_value)...),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hosts
+											"package: yandex.cloud.connectionmanager.v1\n" +
+											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
+										},
+									},
+
+									"tls_params": schema.SingleNestedAttribute{
+
+										Attributes: map[string]schema.Attribute{
+
+											"disabled": schema.SingleNestedAttribute{
+
+												MarkdownDescription: "",
+												Description: "" +
+													// proto paths: +
+													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													"package: yandex.cloud.connectionmanager.v1\n" +
+													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+												Optional: true,
+												Computed: true,
+
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.UseStateForUnknown(),
+												},
+												Validators: []validator.Object{
+													objectvalidator.ConflictsWith(
+														path.MatchRelative().AtParent().AtName("tls"),
+													),
+												},
+											},
+
+											"tls": schema.SingleNestedAttribute{
+
+												Attributes: map[string]schema.Attribute{
+
+													"ca_certificate": schema.StringAttribute{
+														MarkdownDescription: "",
+														Description: "" +
+															// proto paths: +
+															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															"package: yandex.cloud.connectionmanager.v1\n" +
+															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+														Optional: true,
+														Computed: true,
+
+														PlanModifiers: []planmodifier.String{
+															stringplanmodifier.UseStateForUnknown(),
+														},
+													},
+												},
+												MarkdownDescription: "",
+												Description: "" +
+													// proto paths: +
+													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													"package: yandex.cloud.connectionmanager.v1\n" +
+													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
+												Optional: true,
+												Computed: true,
+
+												PlanModifiers: []planmodifier.Object{
+													objectplanmodifier.UseStateForUnknown(),
+												},
+												Validators: []validator.Object{
+													objectvalidator.ConflictsWith(
+														path.MatchRelative().AtParent().AtName("disabled"),
+													),
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params
+											"package: yandex.cloud.connectionmanager.v1\n" +
+											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Object{
+											objectplanmodifier.UseStateForUnknown(),
+										},
+									},
+								},
+								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
+								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
+									// proto paths: +
+									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.cluster
+									"package: yandex.cloud.connectionmanager.v1\n" +
+									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Object{
+									objectplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"databases": schema.ListAttribute{
+								ElementType:         types.StringType,
+								MarkdownDescription: "",
+								Description: "" +
+									// proto paths: +
+									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.databases
+									"package: yandex.cloud.connectionmanager.v1\n" +
+									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.List{
+									listplanmodifier.UseStateForUnknown(),
+									planmodifiers.NilRelaxedList(),
+								},
+								Validators: []validator.List{
+									listvalidator.ValueStringsAre(),
+								},
+							},
+
+							"managed_cluster_id": schema.StringAttribute{
+								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is mutually\n exclusive with \"cluster\".",
+								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is mutually\n exclusive with \"cluster\"." +
+									// proto paths: +
+									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.managed_cluster_id
+									"package: yandex.cloud.connectionmanager.v1\n" +
+									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						MarkdownDescription: "",
+						Description: "" +
+							// proto paths: +
+							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
+							// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
+							// -> yandex.cloud.connectionmanager.v1.UpdateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
+							"package: yandex.cloud.connectionmanager.v1\n" +
+							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.Object{
+							objectvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("postgresql"),
+								path.MatchRelative().AtParent().AtName("mysql"),
+								path.MatchRelative().AtParent().AtName("mongodb"),
+								path.MatchRelative().AtParent().AtName("clickhouse"),
+								path.MatchRelative().AtParent().AtName("kafka"),
+								path.MatchRelative().AtParent().AtName("redis"),
+								path.MatchRelative().AtParent().AtName("opensearch"),
+								path.MatchRelative().AtParent().AtName("trino"),
+								path.MatchRelative().AtParent().AtName("valkey"),
+								path.MatchRelative().AtParent().AtName("greenplum"),
 							),
 						},
 					},
@@ -5359,6 +5967,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("opensearch"),
 								path.MatchRelative().AtParent().AtName("valkey"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},
@@ -5955,6 +6564,7 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 								path.MatchRelative().AtParent().AtName("opensearch"),
 								path.MatchRelative().AtParent().AtName("trino"),
 								path.MatchRelative().AtParent().AtName("greenplum"),
+								path.MatchRelative().AtParent().AtName("storedoc"),
 							),
 						},
 					},

@@ -25,6 +25,22 @@ type yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel str
 	TcpPort   types.Int64  `tfsdk:"tcp_port"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetHttpPort() types.Int64 {
+	return m.HttpPort
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetShardName() types.String {
+	return m.ShardName
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetTcpPort() types.Int64 {
+	return m.TcpPort
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel() yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel{
 		Health:    types.StringNull(),
@@ -109,6 +125,13 @@ func expandYandexConnectionmanagerConnectionParamsClickhouseClusterHostStructMod
 type yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel struct {
 	Name       types.String `tfsdk:"name"`
 	ShardNames types.List   `tfsdk:"shard_names"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) GetShardNames() types.List {
+	return m.ShardNames
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel() yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel {
@@ -216,6 +239,19 @@ type yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel stru
 	Role   types.String `tfsdk:"role"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel() yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel{
 		Health: types.StringNull(),
@@ -296,6 +332,16 @@ type yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel struct {
 	Port   types.Int64  `tfsdk:"port"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel() yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel{
 		Health: types.StringNull(),
@@ -369,6 +415,22 @@ type yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel struct
 	Port   types.Int64  `tfsdk:"port"`
 	Role   types.String `tfsdk:"role"`
 	Type   types.String `tfsdk:"type"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetType() types.String {
+	return m.Type
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel() yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel {
@@ -459,6 +521,19 @@ type yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel struct {
 	Role   types.String `tfsdk:"role"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel() yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel{
 		Health: types.StringNull(),
@@ -538,6 +613,19 @@ type yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel str
 	Host   types.String `tfsdk:"host"`
 	Port   types.Int64  `tfsdk:"port"`
 	Roles  types.List   `tfsdk:"roles"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) GetRoles() types.List {
+	return m.Roles
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel() yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel {
@@ -660,6 +748,22 @@ type yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel str
 	Role        types.String `tfsdk:"role"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) GetReplicaType() types.String {
+	return m.ReplicaType
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel{
 		Health:      types.StringNull(),
@@ -749,6 +853,22 @@ type yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel struct {
 	ShardName types.String `tfsdk:"shard_name"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetShardName() types.String {
+	return m.ShardName
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisClusterHostStructModel() yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel{
 		Health:    types.StringNull(),
@@ -830,12 +950,133 @@ func expandYandexConnectionmanagerConnectionParamsRedisClusterHostStructModel(ct
 	return value
 }
 
+type yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel struct {
+	Health types.String `tfsdk:"health"`
+	Host   types.String `tfsdk:"host"`
+	Port   types.Int64  `tfsdk:"port"`
+	Role   types.String `tfsdk:"role"`
+	Type   types.String `tfsdk:"type"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) GetType() types.String {
+	return m.Type
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel() yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel {
+	return yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel{
+		Health: types.StringNull(),
+		Host:   types.StringNull(),
+		Port:   types.Int64Null(),
+		Role:   types.StringNull(),
+		Type:   types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel {
+	if target.Health.IsUnknown() || target.Health.IsNull() {
+		target.Health = types.StringNull()
+	}
+	if target.Host.IsUnknown() || target.Host.IsNull() {
+		target.Host = types.StringNull()
+	}
+	if target.Port.IsUnknown() || target.Port.IsNull() {
+		target.Port = types.Int64Null()
+	}
+	if target.Role.IsUnknown() || target.Role.IsNull() {
+		target.Role = types.StringNull()
+	}
+	if target.Type.IsUnknown() || target.Type.IsNull() {
+		target.Type = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"health": types.StringType,
+		"host":   types.StringType,
+		"port":   types.Int64Type,
+		"role":   types.StringType,
+		"type":   types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocClusterHostStruct(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct *connectionmanager.StoreDocCluster_Host,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel{
+		Health: types.StringValue(yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct.GetHealth().String()),
+		Host:   types.StringValue(yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct.GetHost()),
+		Port:   types.Int64Value(int64(yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct.GetPort())),
+		Role:   types.StringValue(yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct.GetRole().String()),
+		Type:   types.StringValue(yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct.GetType().String()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterHostStruct(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState types.Object, diags *diag.Diagnostics) *connectionmanager.StoreDocCluster_Host {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterHostStruct, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel, diags *diag.Diagnostics) *connectionmanager.StoreDocCluster_Host {
+	value := &connectionmanager.StoreDocCluster_Host{}
+	value.SetHealth(connectionmanager.StoreDocCluster_Host_Health(connectionmanager.StoreDocCluster_Host_Health_value[yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.Health.ValueString()]))
+	value.SetHost(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.Host.ValueString())
+	value.SetPort((yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.Port.ValueInt64()))
+	value.SetRole(connectionmanager.StoreDocCluster_Host_Role(connectionmanager.StoreDocCluster_Host_Role_value[yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.Role.ValueString()]))
+	value.SetType(connectionmanager.StoreDocCluster_Host_Type(connectionmanager.StoreDocCluster_Host_Type_value[yandexConnectionmanagerConnectionParamsStoredocClusterHostStructState.Type.ValueString()]))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel struct {
 	Health    types.String `tfsdk:"health"`
 	Host      types.String `tfsdk:"host"`
 	Port      types.Int64  `tfsdk:"port"`
 	Role      types.String `tfsdk:"role"`
 	ShardName types.String `tfsdk:"shard_name"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetPort() types.Int64 {
+	return m.Port
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetRole() types.String {
+	return m.Role
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetShardName() types.String {
+	return m.ShardName
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel() yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel {
@@ -934,6 +1175,46 @@ type yandexConnectionmanagerConnectionModel struct {
 	Params        types.Object   `tfsdk:"params"`
 	UpdatedAt     types.String   `tfsdk:"updated_at"`
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
+}
+
+func (m *yandexConnectionmanagerConnectionModel) GetCanUse() types.Bool {
+	return m.CanUse
+}
+func (m *yandexConnectionmanagerConnectionModel) GetConnectionId() types.String {
+	return m.ConnectionId
+}
+func (m *yandexConnectionmanagerConnectionModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexConnectionmanagerConnectionModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexConnectionmanagerConnectionModel) GetCreatedBy() types.String {
+	return m.CreatedBy
+}
+func (m *yandexConnectionmanagerConnectionModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexConnectionmanagerConnectionModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexConnectionmanagerConnectionModel) GetIsManaged() types.Bool {
+	return m.IsManaged
+}
+func (m *yandexConnectionmanagerConnectionModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexConnectionmanagerConnectionModel) GetLockboxSecret() types.Object {
+	return m.LockboxSecret
+}
+func (m *yandexConnectionmanagerConnectionModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexConnectionmanagerConnectionModel) GetParams() types.Object {
+	return m.Params
+}
+func (m *yandexConnectionmanagerConnectionModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
 }
 
 func NewYandexConnectionmanagerConnectionModel() yandexConnectionmanagerConnectionModel {
@@ -1123,6 +1404,19 @@ type yandexConnectionmanagerConnectionLockboxSecretModel struct {
 	Version       types.String `tfsdk:"version"`
 }
 
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) GetConnectionId() types.String {
+	return m.ConnectionId
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) GetNewestVersion() types.String {
+	return m.NewestVersion
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) GetVersion() types.String {
+	return m.Version
+}
+
 func NewYandexConnectionmanagerConnectionLockboxSecretModel() yandexConnectionmanagerConnectionLockboxSecretModel {
 	return yandexConnectionmanagerConnectionLockboxSecretModel{
 		ConnectionId:  types.StringNull(),
@@ -1206,8 +1500,43 @@ type yandexConnectionmanagerConnectionParamsModel struct {
 	Opensearch types.Object `tfsdk:"opensearch"`
 	Postgresql types.Object `tfsdk:"postgresql"`
 	Redis      types.Object `tfsdk:"redis"`
+	Storedoc   types.Object `tfsdk:"storedoc"`
 	Trino      types.Object `tfsdk:"trino"`
 	Valkey     types.Object `tfsdk:"valkey"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsModel) GetClickhouse() types.Object {
+	return m.Clickhouse
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetGreenplum() types.Object {
+	return m.Greenplum
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetKafka() types.Object {
+	return m.Kafka
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetMongodb() types.Object {
+	return m.Mongodb
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetMysql() types.Object {
+	return m.Mysql
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetOpensearch() types.Object {
+	return m.Opensearch
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetPostgresql() types.Object {
+	return m.Postgresql
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetRedis() types.Object {
+	return m.Redis
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetStoredoc() types.Object {
+	return m.Storedoc
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetTrino() types.Object {
+	return m.Trino
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) GetValkey() types.Object {
+	return m.Valkey
 }
 
 func NewYandexConnectionmanagerConnectionParamsModel() yandexConnectionmanagerConnectionParamsModel {
@@ -1220,6 +1549,7 @@ func NewYandexConnectionmanagerConnectionParamsModel() yandexConnectionmanagerCo
 		Opensearch: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchModelType.AttrTypes),
 		Postgresql: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlModelType.AttrTypes),
 		Redis:      types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisModelType.AttrTypes),
+		Storedoc:   types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocModelType.AttrTypes),
 		Trino:      types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoModelType.AttrTypes),
 		Valkey:     types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyModelType.AttrTypes),
 	}
@@ -1250,6 +1580,9 @@ func yandexConnectionmanagerConnectionParamsModelFillUnknown(target yandexConnec
 	if target.Redis.IsUnknown() || target.Redis.IsNull() {
 		target.Redis = types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisModelType.AttrTypes)
 	}
+	if target.Storedoc.IsUnknown() || target.Storedoc.IsNull() {
+		target.Storedoc = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocModelType.AttrTypes)
+	}
 	if target.Trino.IsUnknown() || target.Trino.IsNull() {
 		target.Trino = types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoModelType.AttrTypes)
 	}
@@ -1269,6 +1602,7 @@ var yandexConnectionmanagerConnectionParamsModelType = types.ObjectType{
 		"opensearch": yandexConnectionmanagerConnectionParamsOpensearchModelType,
 		"postgresql": yandexConnectionmanagerConnectionParamsPostgresqlModelType,
 		"redis":      yandexConnectionmanagerConnectionParamsRedisModelType,
+		"storedoc":   yandexConnectionmanagerConnectionParamsStoredocModelType,
 		"trino":      yandexConnectionmanagerConnectionParamsTrinoModelType,
 		"valkey":     yandexConnectionmanagerConnectionParamsValkeyModelType,
 	},
@@ -1290,6 +1624,7 @@ func flattenYandexConnectionmanagerConnectionParams(ctx context.Context,
 		Opensearch: flattenYandexConnectionmanagerConnectionParamsOpensearch(ctx, yandexConnectionmanagerConnectionParams.GetOpensearch(), converter.ExpandObject(ctx, state.Opensearch, yandexConnectionmanagerConnectionParamsOpensearchModel{}, diags).(yandexConnectionmanagerConnectionParamsOpensearchModel), diags),
 		Postgresql: flattenYandexConnectionmanagerConnectionParamsPostgresql(ctx, yandexConnectionmanagerConnectionParams.GetPostgresql(), converter.ExpandObject(ctx, state.Postgresql, yandexConnectionmanagerConnectionParamsPostgresqlModel{}, diags).(yandexConnectionmanagerConnectionParamsPostgresqlModel), diags),
 		Redis:      flattenYandexConnectionmanagerConnectionParamsRedis(ctx, yandexConnectionmanagerConnectionParams.GetRedis(), converter.ExpandObject(ctx, state.Redis, yandexConnectionmanagerConnectionParamsRedisModel{}, diags).(yandexConnectionmanagerConnectionParamsRedisModel), diags),
+		Storedoc:   flattenYandexConnectionmanagerConnectionParamsStoredoc(ctx, yandexConnectionmanagerConnectionParams.GetStoredoc(), converter.ExpandObject(ctx, state.Storedoc, yandexConnectionmanagerConnectionParamsStoredocModel{}, diags).(yandexConnectionmanagerConnectionParamsStoredocModel), diags),
 		Trino:      flattenYandexConnectionmanagerConnectionParamsTrino(ctx, yandexConnectionmanagerConnectionParams.GetTrino(), converter.ExpandObject(ctx, state.Trino, yandexConnectionmanagerConnectionParamsTrinoModel{}, diags).(yandexConnectionmanagerConnectionParamsTrinoModel), diags),
 		Valkey:     flattenYandexConnectionmanagerConnectionParamsValkey(ctx, yandexConnectionmanagerConnectionParams.GetValkey(), converter.ExpandObject(ctx, state.Valkey, yandexConnectionmanagerConnectionParamsValkeyModel{}, diags).(yandexConnectionmanagerConnectionParamsValkeyModel), diags),
 	})
@@ -1335,6 +1670,9 @@ func expandYandexConnectionmanagerConnectionParamsModel(ctx context.Context, yan
 	if !(yandexConnectionmanagerConnectionParamsState.Redis.IsNull() || yandexConnectionmanagerConnectionParamsState.Redis.IsUnknown() || yandexConnectionmanagerConnectionParamsState.Redis.Equal(types.Object{})) {
 		value.SetRedis(expandYandexConnectionmanagerConnectionParamsRedis(ctx, yandexConnectionmanagerConnectionParamsState.Redis, diags))
 	}
+	if !(yandexConnectionmanagerConnectionParamsState.Storedoc.IsNull() || yandexConnectionmanagerConnectionParamsState.Storedoc.IsUnknown() || yandexConnectionmanagerConnectionParamsState.Storedoc.Equal(types.Object{})) {
+		value.SetStoredoc(expandYandexConnectionmanagerConnectionParamsStoredoc(ctx, yandexConnectionmanagerConnectionParamsState.Storedoc, diags))
+	}
 	if !(yandexConnectionmanagerConnectionParamsState.Trino.IsNull() || yandexConnectionmanagerConnectionParamsState.Trino.IsUnknown() || yandexConnectionmanagerConnectionParamsState.Trino.Equal(types.Object{})) {
 		value.SetTrino(expandYandexConnectionmanagerConnectionParamsTrino(ctx, yandexConnectionmanagerConnectionParamsState.Trino, diags))
 	}
@@ -1352,6 +1690,19 @@ type yandexConnectionmanagerConnectionParamsClickhouseModel struct {
 	Cluster          types.Object `tfsdk:"cluster"`
 	Databases        types.List   `tfsdk:"databases"`
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseModel() yandexConnectionmanagerConnectionParamsClickhouseModel {
@@ -1433,6 +1784,10 @@ type yandexConnectionmanagerConnectionParamsClickhouseAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthModel() yandexConnectionmanagerConnectionParamsClickhouseAuthModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelType.AttrTypes),
@@ -1492,6 +1847,13 @@ func expandYandexConnectionmanagerConnectionParamsClickhouseAuthModel(ctx contex
 type yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel {
@@ -1559,6 +1921,16 @@ type yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordMo
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel {
@@ -1636,6 +2008,13 @@ type yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPa
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -1706,6 +2085,28 @@ type yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPa
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -1807,6 +2208,16 @@ type yandexConnectionmanagerConnectionParamsClickhouseClusterModel struct {
 	Hosts       types.List   `tfsdk:"hosts"`
 	ShardGroups types.List   `tfsdk:"shard_groups"`
 	TlsParams   types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) GetShardGroups() types.List {
+	return m.ShardGroups
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterModel() yandexConnectionmanagerConnectionParamsClickhouseClusterModel {
@@ -1965,6 +2376,13 @@ type yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel stru
 	Tls      types.Object `tfsdk:"tls"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel{
 		Disabled: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelType.AttrTypes),
@@ -2079,6 +2497,10 @@ type yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel s
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -2176,6 +2598,19 @@ type yandexConnectionmanagerConnectionParamsGreenplumModel struct {
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumModel() yandexConnectionmanagerConnectionParamsGreenplumModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthModelType.AttrTypes),
@@ -2255,6 +2690,10 @@ type yandexConnectionmanagerConnectionParamsGreenplumAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthModel() yandexConnectionmanagerConnectionParamsGreenplumAuthModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelType.AttrTypes),
@@ -2314,6 +2753,13 @@ func expandYandexConnectionmanagerConnectionParamsGreenplumAuthModel(ctx context
 type yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel {
@@ -2381,6 +2827,16 @@ type yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordMod
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel {
@@ -2458,6 +2914,13 @@ type yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPas
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -2528,6 +2991,28 @@ type yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPas
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -2628,6 +3113,13 @@ func expandYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassw
 type yandexConnectionmanagerConnectionParamsGreenplumClusterModel struct {
 	CoordinatorHosts types.List   `tfsdk:"coordinator_hosts"`
 	TlsParams        types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) GetCoordinatorHosts() types.List {
+	return m.CoordinatorHosts
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterModel() yandexConnectionmanagerConnectionParamsGreenplumClusterModel {
@@ -2731,6 +3223,13 @@ func expandYandexConnectionmanagerConnectionParamsGreenplumClusterCoordinatorHos
 type yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel {
@@ -2847,6 +3346,10 @@ type yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel st
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -2943,6 +3446,16 @@ type yandexConnectionmanagerConnectionParamsKafkaModel struct {
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaModel() yandexConnectionmanagerConnectionParamsKafkaModel {
 	return yandexConnectionmanagerConnectionParamsKafkaModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthModelType.AttrTypes),
@@ -3014,6 +3527,13 @@ func expandYandexConnectionmanagerConnectionParamsKafkaModel(ctx context.Context
 type yandexConnectionmanagerConnectionParamsKafkaAuthModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Sasl     types.Object `tfsdk:"sasl"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) GetSasl() types.Object {
+	return m.Sasl
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthModel() yandexConnectionmanagerConnectionParamsKafkaAuthModel {
@@ -3133,6 +3653,16 @@ type yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel struct {
 	User                types.String `tfsdk:"user"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) GetSupportedMechanisms() types.List {
+	return m.SupportedMechanisms
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) GetUser() types.String {
+	return m.User
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel {
 	return yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel{
 		Password:            types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelType.AttrTypes),
@@ -3205,6 +3735,16 @@ type yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel struct {
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel {
@@ -3282,6 +3822,13 @@ type yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerat
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -3352,6 +3899,28 @@ type yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerat
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -3491,6 +4060,13 @@ type yandexConnectionmanagerConnectionParamsKafkaClusterModel struct {
 	TlsParams types.Object `tfsdk:"tls_params"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterModel() yandexConnectionmanagerConnectionParamsKafkaClusterModel {
 	return yandexConnectionmanagerConnectionParamsKafkaClusterModel{
 		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelType),
@@ -3592,6 +4168,13 @@ func expandYandexConnectionmanagerConnectionParamsKafkaClusterHosts(ctx context.
 type yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel {
@@ -3708,6 +4291,10 @@ type yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel struct
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -3766,6 +4353,19 @@ type yandexConnectionmanagerConnectionParamsMongodbModel struct {
 	Cluster          types.Object `tfsdk:"cluster"`
 	Databases        types.List   `tfsdk:"databases"`
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbModel() yandexConnectionmanagerConnectionParamsMongodbModel {
@@ -3848,6 +4448,13 @@ type yandexConnectionmanagerConnectionParamsMongodbAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthModel) GetAuthSource() types.String {
+	return m.AuthSource
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthModel() yandexConnectionmanagerConnectionParamsMongodbAuthModel {
 	return yandexConnectionmanagerConnectionParamsMongodbAuthModel{
 		AuthSource:   types.StringNull(),
@@ -3916,6 +4523,13 @@ type yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel struct 
 	User     types.String `tfsdk:"user"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) GetUser() types.String {
+	return m.User
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel {
 	return yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel{
 		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelType.AttrTypes),
@@ -3981,6 +4595,16 @@ type yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel {
@@ -4058,6 +4682,13 @@ type yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPassw
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -4128,6 +4759,28 @@ type yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPassw
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -4228,6 +4881,13 @@ func expandYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswor
 type yandexConnectionmanagerConnectionParamsMongodbClusterModel struct {
 	Hosts     types.List   `tfsdk:"hosts"`
 	TlsParams types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterModel() yandexConnectionmanagerConnectionParamsMongodbClusterModel {
@@ -4331,6 +4991,13 @@ func expandYandexConnectionmanagerConnectionParamsMongodbClusterHosts(ctx contex
 type yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel {
@@ -4447,6 +5114,10 @@ type yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel stru
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -4544,6 +5215,19 @@ type yandexConnectionmanagerConnectionParamsMysqlModel struct {
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlModel() yandexConnectionmanagerConnectionParamsMysqlModel {
 	return yandexConnectionmanagerConnectionParamsMysqlModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthModelType.AttrTypes),
@@ -4623,6 +5307,10 @@ type yandexConnectionmanagerConnectionParamsMysqlAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthModel() yandexConnectionmanagerConnectionParamsMysqlAuthModel {
 	return yandexConnectionmanagerConnectionParamsMysqlAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelType.AttrTypes),
@@ -4682,6 +5370,13 @@ func expandYandexConnectionmanagerConnectionParamsMysqlAuthModel(ctx context.Con
 type yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel {
@@ -4749,6 +5444,16 @@ type yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel s
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel {
@@ -4826,6 +5531,13 @@ type yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswor
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -4896,6 +5608,28 @@ type yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswor
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -4996,6 +5730,13 @@ func expandYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordP
 type yandexConnectionmanagerConnectionParamsMysqlClusterModel struct {
 	Hosts     types.List   `tfsdk:"hosts"`
 	TlsParams types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterModel() yandexConnectionmanagerConnectionParamsMysqlClusterModel {
@@ -5099,6 +5840,13 @@ func expandYandexConnectionmanagerConnectionParamsMysqlClusterHosts(ctx context.
 type yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel {
@@ -5215,6 +5963,10 @@ type yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel struct
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -5311,6 +6063,16 @@ type yandexConnectionmanagerConnectionParamsOpensearchModel struct {
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchModel() yandexConnectionmanagerConnectionParamsOpensearchModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthModelType.AttrTypes),
@@ -5383,6 +6145,10 @@ type yandexConnectionmanagerConnectionParamsOpensearchAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthModel() yandexConnectionmanagerConnectionParamsOpensearchAuthModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelType.AttrTypes),
@@ -5442,6 +6208,13 @@ func expandYandexConnectionmanagerConnectionParamsOpensearchAuthModel(ctx contex
 type yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel {
@@ -5509,6 +6282,16 @@ type yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordMo
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel {
@@ -5586,6 +6369,13 @@ type yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPa
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -5656,6 +6446,28 @@ type yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPa
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -5756,6 +6568,13 @@ func expandYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPass
 type yandexConnectionmanagerConnectionParamsOpensearchClusterModel struct {
 	Hosts     types.List   `tfsdk:"hosts"`
 	TlsParams types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterModel() yandexConnectionmanagerConnectionParamsOpensearchClusterModel {
@@ -5868,6 +6687,13 @@ func expandYandexConnectionmanagerConnectionParamsOpensearchClusterHosts(ctx con
 type yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel {
@@ -5984,6 +6810,10 @@ type yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel s
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -6042,6 +6872,19 @@ type yandexConnectionmanagerConnectionParamsPostgresqlModel struct {
 	Cluster          types.Object `tfsdk:"cluster"`
 	Databases        types.List   `tfsdk:"databases"`
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlModel() yandexConnectionmanagerConnectionParamsPostgresqlModel {
@@ -6123,6 +6966,10 @@ type yandexConnectionmanagerConnectionParamsPostgresqlAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelType.AttrTypes),
@@ -6182,6 +7029,13 @@ func expandYandexConnectionmanagerConnectionParamsPostgresqlAuthModel(ctx contex
 type yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel {
@@ -6249,6 +7103,16 @@ type yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordMo
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel {
@@ -6326,6 +7190,13 @@ type yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPa
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -6396,6 +7267,28 @@ type yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPa
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -6496,6 +7389,13 @@ func expandYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPass
 type yandexConnectionmanagerConnectionParamsPostgresqlClusterModel struct {
 	Hosts     types.List   `tfsdk:"hosts"`
 	TlsParams types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterModel {
@@ -6599,6 +7499,13 @@ func expandYandexConnectionmanagerConnectionParamsPostgresqlClusterHosts(ctx con
 type yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel {
@@ -6715,6 +7622,10 @@ type yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel s
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -6811,6 +7722,16 @@ type yandexConnectionmanagerConnectionParamsRedisModel struct {
 	Databases types.List   `tfsdk:"databases"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) GetDatabases() types.List {
+	return m.Databases
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisModel() yandexConnectionmanagerConnectionParamsRedisModel {
 	return yandexConnectionmanagerConnectionParamsRedisModel{
 		Auth:      types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthModelType.AttrTypes),
@@ -6883,6 +7804,10 @@ type yandexConnectionmanagerConnectionParamsRedisAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisAuthModel() yandexConnectionmanagerConnectionParamsRedisAuthModel {
 	return yandexConnectionmanagerConnectionParamsRedisAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelType.AttrTypes),
@@ -6942,6 +7867,13 @@ func expandYandexConnectionmanagerConnectionParamsRedisAuthModel(ctx context.Con
 type yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel {
@@ -7009,6 +7941,16 @@ type yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel s
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel {
@@ -7086,6 +8028,13 @@ type yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswor
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -7156,6 +8105,28 @@ type yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswor
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -7257,6 +8228,16 @@ type yandexConnectionmanagerConnectionParamsRedisClusterModel struct {
 	Hosts        types.List   `tfsdk:"hosts"`
 	SentinelPort types.Int64  `tfsdk:"sentinel_port"`
 	TlsParams    types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) GetSentinelPort() types.Int64 {
+	return m.SentinelPort
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisClusterModel() yandexConnectionmanagerConnectionParamsRedisClusterModel {
@@ -7367,6 +8348,13 @@ func expandYandexConnectionmanagerConnectionParamsRedisClusterHosts(ctx context.
 type yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel {
@@ -7483,6 +8471,10 @@ type yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel struct
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -7573,9 +8565,876 @@ func expandYandexConnectionmanagerConnectionParamsRedisDatabases(ctx context.Con
 	return yandexConnectionmanagerConnectionParamsRedisDatabasesRes
 }
 
+type yandexConnectionmanagerConnectionParamsStoredocModel struct {
+	Auth             types.Object `tfsdk:"auth"`
+	Cluster          types.Object `tfsdk:"cluster"`
+	Databases        types.List   `tfsdk:"databases"`
+	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocModel() yandexConnectionmanagerConnectionParamsStoredocModel {
+	return yandexConnectionmanagerConnectionParamsStoredocModel{
+		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthModelType.AttrTypes),
+		Cluster:          types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterModelType.AttrTypes),
+		Databases:        types.ListNull(types.StringType),
+		ManagedClusterId: types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocModel) yandexConnectionmanagerConnectionParamsStoredocModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthModelType.AttrTypes)
+	}
+	if target.Cluster.IsUnknown() || target.Cluster.IsNull() {
+		target.Cluster = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterModelType.AttrTypes)
+	}
+	if target.Databases.IsUnknown() || target.Databases.IsNull() {
+		target.Databases = types.ListNull(types.StringType)
+	}
+	if target.ManagedClusterId.IsUnknown() || target.ManagedClusterId.IsNull() {
+		target.ManagedClusterId = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"auth":               yandexConnectionmanagerConnectionParamsStoredocAuthModelType,
+		"cluster":            yandexConnectionmanagerConnectionParamsStoredocClusterModelType,
+		"databases":          types.ListType{ElemType: types.StringType},
+		"managed_cluster_id": types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredoc(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredoc *connectionmanager.StoreDocConnection,
+	state yandexConnectionmanagerConnectionParamsStoredocModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredoc == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocModel{
+		Auth:             flattenYandexConnectionmanagerConnectionParamsStoredocAuth(ctx, yandexConnectionmanagerConnectionParamsStoredoc.GetAuth(), converter.ExpandObject(ctx, state.Auth, yandexConnectionmanagerConnectionParamsStoredocAuthModel{}, diags).(yandexConnectionmanagerConnectionParamsStoredocAuthModel), diags),
+		Cluster:          flattenYandexConnectionmanagerConnectionParamsStoredocCluster(ctx, yandexConnectionmanagerConnectionParamsStoredoc.GetCluster(), converter.ExpandObject(ctx, state.Cluster, yandexConnectionmanagerConnectionParamsStoredocClusterModel{}, diags).(yandexConnectionmanagerConnectionParamsStoredocClusterModel), diags),
+		Databases:        flattenYandexConnectionmanagerConnectionParamsStoredocDatabases(ctx, yandexConnectionmanagerConnectionParamsStoredoc.GetDatabases(), state.Databases, diags),
+		ManagedClusterId: types.StringValue(yandexConnectionmanagerConnectionParamsStoredoc.GetManagedClusterId()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredoc(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocState types.Object, diags *diag.Diagnostics) *connectionmanager.StoreDocConnection {
+	if yandexConnectionmanagerConnectionParamsStoredocState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredoc yandexConnectionmanagerConnectionParamsStoredocModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredoc, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocModel(ctx, yandexConnectionmanagerConnectionParamsStoredoc, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocState yandexConnectionmanagerConnectionParamsStoredocModel, diags *diag.Diagnostics) *connectionmanager.StoreDocConnection {
+	value := &connectionmanager.StoreDocConnection{}
+	value.SetAuth(expandYandexConnectionmanagerConnectionParamsStoredocAuth(ctx, yandexConnectionmanagerConnectionParamsStoredocState.Auth, diags))
+	value.SetCluster(expandYandexConnectionmanagerConnectionParamsStoredocCluster(ctx, yandexConnectionmanagerConnectionParamsStoredocState.Cluster, diags))
+	value.SetDatabases(expandYandexConnectionmanagerConnectionParamsStoredocDatabases(ctx, yandexConnectionmanagerConnectionParamsStoredocState.Databases, diags))
+	value.SetManagedClusterId(yandexConnectionmanagerConnectionParamsStoredocState.ManagedClusterId.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocAuthModel struct {
+	AuthSource   types.String `tfsdk:"auth_source"`
+	UserPassword types.Object `tfsdk:"user_password"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthModel) GetAuthSource() types.String {
+	return m.AuthSource
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocAuthModel() yandexConnectionmanagerConnectionParamsStoredocAuthModel {
+	return yandexConnectionmanagerConnectionParamsStoredocAuthModel{
+		AuthSource:   types.StringNull(),
+		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType.AttrTypes),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocAuthModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocAuthModel) yandexConnectionmanagerConnectionParamsStoredocAuthModel {
+	if target.AuthSource.IsUnknown() || target.AuthSource.IsNull() {
+		target.AuthSource = types.StringNull()
+	}
+	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
+		target.UserPassword = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocAuthModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"auth_source":   types.StringType,
+		"user_password": yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocAuth(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocAuth *connectionmanager.StoreDocAuth,
+	state yandexConnectionmanagerConnectionParamsStoredocAuthModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocAuth == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthModel{
+		AuthSource:   types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuth.GetAuthSource()),
+		UserPassword: flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPassword(ctx, yandexConnectionmanagerConnectionParamsStoredocAuth.GetUserPassword(), converter.ExpandObject(ctx, state.UserPassword, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel{}, diags).(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuth(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthState types.Object, diags *diag.Diagnostics) *connectionmanager.StoreDocAuth {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocAuth yandexConnectionmanagerConnectionParamsStoredocAuthModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocAuthState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuth, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocAuthModel(ctx, yandexConnectionmanagerConnectionParamsStoredocAuth, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthState yandexConnectionmanagerConnectionParamsStoredocAuthModel, diags *diag.Diagnostics) *connectionmanager.StoreDocAuth {
+	value := &connectionmanager.StoreDocAuth{}
+	value.SetAuthSource(yandexConnectionmanagerConnectionParamsStoredocAuthState.AuthSource.ValueString())
+	if !(yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.IsUnknown() || yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.Equal(types.Object{})) {
+		value.SetUserPassword(expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPassword(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel struct {
+	Password types.Object `tfsdk:"password"`
+	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) GetUser() types.String {
+	return m.User
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel {
+	return yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel{
+		Password: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType.AttrTypes),
+		User:     types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"password": yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType,
+		"user":     types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPassword(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword *connectionmanager.UserPasswordAuth,
+	state yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel{
+		Password: flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword.GetPassword(), converter.ExpandObject(ctx, state.Password, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel{}, diags).(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel), diags),
+		User:     types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword.GetUser()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPassword(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState types.Object, diags *diag.Diagnostics) *connectionmanager.UserPasswordAuth {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPassword, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel, diags *diag.Diagnostics) *connectionmanager.UserPasswordAuth {
+	value := &connectionmanager.UserPasswordAuth{}
+	value.SetPassword(expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password, diags))
+	value.SetUser(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.User.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel struct {
+	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
+	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
+	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel {
+	return yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel{
+		LockboxSecretKey:          types.StringNull(),
+		PasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes),
+		Raw:                       types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel {
+	if target.LockboxSecretKey.IsUnknown() || target.LockboxSecretKey.IsNull() {
+		target.LockboxSecretKey = types.StringNull()
+	}
+	if target.PasswordGenerationOptions.IsUnknown() || target.PasswordGenerationOptions.IsNull() {
+		target.PasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"lockbox_secret_key":          types.StringType,
+		"password_generation_options": yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType,
+		"raw":                         types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword *connectionmanager.Password,
+	state yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel{
+		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword.GetLockboxSecretKey()),
+		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
+		Raw:                       state.Raw,
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState types.Object, diags *diag.Diagnostics) *connectionmanager.Password {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel, diags *diag.Diagnostics) *connectionmanager.Password {
+	value := &connectionmanager.Password{}
+	if !(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey.IsUnknown() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey.Equal(types.StringValue(""))) {
+		value.SetLockboxSecretKey(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey.ValueString())
+	}
+	value.SetPasswordGenerationOptions(expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions, diags))
+	value.SetRaw(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.Raw.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel struct {
+	Cookie                           types.String `tfsdk:"cookie"`
+	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	return yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel{
+		Cookie:                           types.StringNull(),
+		LockboxPasswordGenerationOptions: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel {
+	if target.Cookie.IsUnknown() || target.Cookie.IsNull() {
+		target.Cookie = types.StringNull()
+	}
+	if target.LockboxPasswordGenerationOptions.IsUnknown() || target.LockboxPasswordGenerationOptions.IsNull() {
+		target.LockboxPasswordGenerationOptions = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cookie":                              types.StringType,
+		"lockbox_password_generation_options": yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions *connectionmanager.PasswordGenerationOptions,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel{
+		Cookie:                           types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions.GetCookie()),
+		LockboxPasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions.GetLockboxPasswordGenerationOptions(), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState types.Object, diags *diag.Diagnostics) *connectionmanager.PasswordGenerationOptions {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.PasswordGenerationOptions {
+	value := &connectionmanager.PasswordGenerationOptions{}
+	value.SetCookie(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie.ValueString())
+	if !(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsUnknown() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.Equal(types.Object{})) {
+		value.SetLockboxPasswordGenerationOptions(expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel struct {
+	ExcludedPunctuation types.String `tfsdk:"excluded_punctuation"`
+	IncludeDigits       types.Bool   `tfsdk:"include_digits"`
+	IncludeLowercase    types.Bool   `tfsdk:"include_lowercase"`
+	IncludePunctuation  types.Bool   `tfsdk:"include_punctuation"`
+	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
+	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
+	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	return yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
+		ExcludedPunctuation: types.StringNull(),
+		IncludeDigits:       types.BoolNull(),
+		IncludeLowercase:    types.BoolNull(),
+		IncludePunctuation:  types.BoolNull(),
+		IncludeUppercase:    types.BoolNull(),
+		IncludedPunctuation: types.StringNull(),
+		Length:              types.Int64Null(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
+	if target.ExcludedPunctuation.IsUnknown() || target.ExcludedPunctuation.IsNull() {
+		target.ExcludedPunctuation = types.StringNull()
+	}
+	if target.IncludeDigits.IsUnknown() || target.IncludeDigits.IsNull() {
+		target.IncludeDigits = types.BoolNull()
+	}
+	if target.IncludeLowercase.IsUnknown() || target.IncludeLowercase.IsNull() {
+		target.IncludeLowercase = types.BoolNull()
+	}
+	if target.IncludePunctuation.IsUnknown() || target.IncludePunctuation.IsNull() {
+		target.IncludePunctuation = types.BoolNull()
+	}
+	if target.IncludeUppercase.IsUnknown() || target.IncludeUppercase.IsNull() {
+		target.IncludeUppercase = types.BoolNull()
+	}
+	if target.IncludedPunctuation.IsUnknown() || target.IncludedPunctuation.IsNull() {
+		target.IncludedPunctuation = types.StringNull()
+	}
+	if target.Length.IsUnknown() || target.Length.IsNull() {
+		target.Length = types.Int64Null()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"excluded_punctuation": types.StringType,
+		"include_digits":       types.BoolType,
+		"include_lowercase":    types.BoolType,
+		"include_punctuation":  types.BoolType,
+		"include_uppercase":    types.BoolType,
+		"included_punctuation": types.StringType,
+		"length":               types.Int64Type,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions *connectionmanager.LockboxPasswordGenerationOptions,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
+		ExcludedPunctuation: types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetExcludedPunctuation()),
+		IncludeDigits:       types.BoolValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetIncludeDigits().GetValue()),
+		IncludeLowercase:    types.BoolValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetIncludeLowercase().GetValue()),
+		IncludePunctuation:  types.BoolValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetIncludePunctuation().GetValue()),
+		IncludeUppercase:    types.BoolValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetIncludeUppercase().GetValue()),
+		IncludedPunctuation: types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetIncludedPunctuation()),
+		Length:              types.Int64Value(int64(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions.GetLength())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState types.Object, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
+	if yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptions, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
+	value := &connectionmanager.LockboxPasswordGenerationOptions{}
+	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
+	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
+	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
+	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
+	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
+	value.SetLength((yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocClusterModel struct {
+	Hosts     types.List   `tfsdk:"hosts"`
+	TlsParams types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocClusterModel() yandexConnectionmanagerConnectionParamsStoredocClusterModel {
+	return yandexConnectionmanagerConnectionParamsStoredocClusterModel{
+		Hosts:     types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType),
+		TlsParams: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType.AttrTypes),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocClusterModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocClusterModel) yandexConnectionmanagerConnectionParamsStoredocClusterModel {
+	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
+		target.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType)
+	}
+	if target.TlsParams.IsUnknown() || target.TlsParams.IsNull() {
+		target.TlsParams = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocClusterModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"hosts":      types.ListType{ElemType: yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType},
+		"tls_params": yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocCluster(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocCluster *connectionmanager.StoreDocCluster,
+	state yandexConnectionmanagerConnectionParamsStoredocClusterModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocCluster == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocClusterModel{
+		Hosts:     flattenYandexConnectionmanagerConnectionParamsStoredocClusterHosts(ctx, yandexConnectionmanagerConnectionParamsStoredocCluster.GetHosts(), state.Hosts, diags),
+		TlsParams: flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParams(ctx, yandexConnectionmanagerConnectionParamsStoredocCluster.GetTlsParams(), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocCluster(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterState types.Object, diags *diag.Diagnostics) *connectionmanager.StoreDocCluster {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocCluster yandexConnectionmanagerConnectionParamsStoredocClusterModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocCluster, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocClusterModel(ctx, yandexConnectionmanagerConnectionParamsStoredocCluster, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterState yandexConnectionmanagerConnectionParamsStoredocClusterModel, diags *diag.Diagnostics) *connectionmanager.StoreDocCluster {
+	value := &connectionmanager.StoreDocCluster{}
+	value.SetHosts(expandYandexConnectionmanagerConnectionParamsStoredocClusterHosts(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts, diags))
+	value.SetTlsParams(expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParams(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocClusterHosts(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterHosts []*connectionmanager.StoreDocCluster_Host, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterHosts == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType)
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocClusterHostsValues []attr.Value
+	for _, elem := range yandexConnectionmanagerConnectionParamsStoredocClusterHosts {
+		val := flattenYandexConnectionmanagerConnectionParamsStoredocClusterHostStruct(ctx, elem, diags)
+		yandexConnectionmanagerConnectionParamsStoredocClusterHostsValues = append(yandexConnectionmanagerConnectionParamsStoredocClusterHostsValues, val)
+	}
+
+	value, diag := types.ListValue(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType, yandexConnectionmanagerConnectionParamsStoredocClusterHostsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterHosts(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterHostsState types.List, diags *diag.Diagnostics) []*connectionmanager.StoreDocCluster_Host {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.Elements()) == 0 {
+		return []*connectionmanager.StoreDocCluster_Host{}
+	}
+	yandexConnectionmanagerConnectionParamsStoredocClusterHostsRes := make([]*connectionmanager.StoreDocCluster_Host, 0, len(yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.Elements()))
+	yandexConnectionmanagerConnectionParamsStoredocClusterHostsType := make([]yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel, 0, len(yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.Elements()))
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterHostsState.ElementsAs(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterHostsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexConnectionmanagerConnectionParamsStoredocClusterHostsType {
+		yandexConnectionmanagerConnectionParamsStoredocClusterHostsRes = append(yandexConnectionmanagerConnectionParamsStoredocClusterHostsRes, expandYandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel(ctx, elem, diags))
+	}
+	return yandexConnectionmanagerConnectionParamsStoredocClusterHostsRes
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel struct {
+	Disabled types.Object `tfsdk:"disabled"`
+	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel {
+	return yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel{
+		Disabled: types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType.AttrTypes),
+		Tls:      types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType.AttrTypes),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	if target.Tls.IsUnknown() || target.Tls.IsNull() {
+		target.Tls = types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType,
+		"tls":      yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParams(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams *connectionmanager.TLSParams,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel{
+		Disabled: flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams.GetDisabled(), diags),
+		Tls:      flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams.GetTls(), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParams(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState types.Object, diags *diag.Diagnostics) *connectionmanager.TLSParams {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParams, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel, diags *diag.Diagnostics) *connectionmanager.TLSParams {
+	value := &connectionmanager.TLSParams{}
+	if !(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Disabled.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Disabled.IsUnknown() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Disabled.Equal(types.Object{})) {
+		value.SetDisabled(expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Disabled, diags))
+	}
+	if !(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.IsUnknown() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.Equal(types.Object{})) {
+		value.SetTls(expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel struct {
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel() yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel {
+	return yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel{}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel) yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel {
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled *emptypb.Empty,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel{})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledState types.Object, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabled, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledState yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func NewYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel {
+	return yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelFillUnknown(target yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel) yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls(ctx context.Context,
+	yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls *connectionmanager.TLSConfig,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel{
+		CaCertificate: types.StringValue(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState types.Object, diags *diag.Diagnostics) *connectionmanager.TLSConfig {
+	if yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel(ctx, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTls, diags)
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel, diags *diag.Diagnostics) *connectionmanager.TLSConfig {
+	value := &connectionmanager.TLSConfig{}
+	value.SetCaCertificate(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexConnectionmanagerConnectionParamsStoredocDatabases(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocDatabases []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexConnectionmanagerConnectionParamsStoredocDatabases == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexConnectionmanagerConnectionParamsStoredocDatabasesValues []attr.Value
+	for _, elem := range yandexConnectionmanagerConnectionParamsStoredocDatabases {
+		val := types.StringValue(elem)
+		yandexConnectionmanagerConnectionParamsStoredocDatabasesValues = append(yandexConnectionmanagerConnectionParamsStoredocDatabasesValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexConnectionmanagerConnectionParamsStoredocDatabasesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionParamsStoredocDatabases(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocDatabasesState types.List, diags *diag.Diagnostics) []string {
+	if yandexConnectionmanagerConnectionParamsStoredocDatabasesState.IsNull() || yandexConnectionmanagerConnectionParamsStoredocDatabasesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexConnectionmanagerConnectionParamsStoredocDatabasesState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexConnectionmanagerConnectionParamsStoredocDatabasesRes := make([]string, 0, len(yandexConnectionmanagerConnectionParamsStoredocDatabasesState.Elements()))
+	yandexConnectionmanagerConnectionParamsStoredocDatabasesType := make([]types.String, 0, len(yandexConnectionmanagerConnectionParamsStoredocDatabasesState.Elements()))
+	diags.Append(yandexConnectionmanagerConnectionParamsStoredocDatabasesState.ElementsAs(ctx, &yandexConnectionmanagerConnectionParamsStoredocDatabasesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexConnectionmanagerConnectionParamsStoredocDatabasesType {
+		yandexConnectionmanagerConnectionParamsStoredocDatabasesRes = append(yandexConnectionmanagerConnectionParamsStoredocDatabasesRes, elem.ValueString())
+	}
+	return yandexConnectionmanagerConnectionParamsStoredocDatabasesRes
+}
+
 type yandexConnectionmanagerConnectionParamsTrinoModel struct {
 	Auth    types.Object `tfsdk:"auth"`
 	Cluster types.Object `tfsdk:"cluster"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoModel) GetCluster() types.Object {
+	return m.Cluster
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoModel() yandexConnectionmanagerConnectionParamsTrinoModel {
@@ -7643,6 +9502,10 @@ type yandexConnectionmanagerConnectionParamsTrinoAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthModel() yandexConnectionmanagerConnectionParamsTrinoAuthModel {
 	return yandexConnectionmanagerConnectionParamsTrinoAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelType.AttrTypes),
@@ -7702,6 +9565,13 @@ func expandYandexConnectionmanagerConnectionParamsTrinoAuthModel(ctx context.Con
 type yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel {
@@ -7769,6 +9639,16 @@ type yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel s
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel {
@@ -7846,6 +9726,13 @@ type yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswor
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -7916,6 +9803,28 @@ type yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswor
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -8018,6 +9927,13 @@ type yandexConnectionmanagerConnectionParamsTrinoClusterModel struct {
 	TlsParams   types.Object `tfsdk:"tls_params"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) GetCoordinator() types.Object {
+	return m.Coordinator
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterModel() yandexConnectionmanagerConnectionParamsTrinoClusterModel {
 	return yandexConnectionmanagerConnectionParamsTrinoClusterModel{
 		Coordinator: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModelType.AttrTypes),
@@ -8083,6 +9999,13 @@ type yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel struct 
 	Port types.Int64  `tfsdk:"port"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) GetHost() types.String {
+	return m.Host
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) GetPort() types.Int64 {
+	return m.Port
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel() yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel {
 	return yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel{
 		Host: types.StringNull(),
@@ -8146,6 +10069,13 @@ func expandYandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel(c
 type yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel {
@@ -8262,6 +10192,10 @@ type yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel struct
 	CaCertificate types.String `tfsdk:"ca_certificate"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -8320,6 +10254,19 @@ type yandexConnectionmanagerConnectionParamsValkeyModel struct {
 	Cluster          types.Object `tfsdk:"cluster"`
 	Databases        types.List   `tfsdk:"databases"`
 	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetAuth() types.Object {
+	return m.Auth
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetCluster() types.Object {
+	return m.Cluster
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetDatabases() types.List {
+	return m.Databases
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetManagedClusterId() types.String {
+	return m.ManagedClusterId
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyModel() yandexConnectionmanagerConnectionParamsValkeyModel {
@@ -8401,6 +10348,10 @@ type yandexConnectionmanagerConnectionParamsValkeyAuthModel struct {
 	UserPassword types.Object `tfsdk:"user_password"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthModel) GetUserPassword() types.Object {
+	return m.UserPassword
+}
+
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthModel() yandexConnectionmanagerConnectionParamsValkeyAuthModel {
 	return yandexConnectionmanagerConnectionParamsValkeyAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelType.AttrTypes),
@@ -8460,6 +10411,13 @@ func expandYandexConnectionmanagerConnectionParamsValkeyAuthModel(ctx context.Co
 type yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel struct {
 	Password types.Object `tfsdk:"password"`
 	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) GetPassword() types.Object {
+	return m.Password
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) GetUser() types.String {
+	return m.User
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel {
@@ -8527,6 +10485,16 @@ type yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel 
 	LockboxSecretKey          types.String `tfsdk:"lockbox_secret_key"`
 	PasswordGenerationOptions types.Object `tfsdk:"password_generation_options"`
 	Raw                       types.String `tfsdk:"raw"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) GetLockboxSecretKey() types.String {
+	return m.LockboxSecretKey
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) GetPasswordGenerationOptions() types.Object {
+	return m.PasswordGenerationOptions
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) GetRaw() types.String {
+	return m.Raw
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel {
@@ -8604,6 +10572,13 @@ type yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswo
 	LockboxPasswordGenerationOptions types.Object `tfsdk:"lockbox_password_generation_options"`
 }
 
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetCookie() types.String {
+	return m.Cookie
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
+	return m.LockboxPasswordGenerationOptions
+}
+
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel{
 		Cookie:                           types.StringNull(),
@@ -8674,6 +10649,28 @@ type yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswo
 	IncludeUppercase    types.Bool   `tfsdk:"include_uppercase"`
 	IncludedPunctuation types.String `tfsdk:"included_punctuation"`
 	Length              types.Int64  `tfsdk:"length"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetExcludedPunctuation() types.String {
+	return m.ExcludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeDigits() types.Bool {
+	return m.IncludeDigits
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeLowercase() types.Bool {
+	return m.IncludeLowercase
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludePunctuation() types.Bool {
+	return m.IncludePunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludeUppercase() types.Bool {
+	return m.IncludeUppercase
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetIncludedPunctuation() types.String {
+	return m.IncludedPunctuation
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) GetLength() types.Int64 {
+	return m.Length
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
@@ -8775,6 +10772,16 @@ type yandexConnectionmanagerConnectionParamsValkeyClusterModel struct {
 	Hosts        types.List   `tfsdk:"hosts"`
 	SentinelPort types.Int64  `tfsdk:"sentinel_port"`
 	TlsParams    types.Object `tfsdk:"tls_params"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) GetHosts() types.List {
+	return m.Hosts
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) GetSentinelPort() types.Int64 {
+	return m.SentinelPort
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) GetTlsParams() types.Object {
+	return m.TlsParams
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterModel() yandexConnectionmanagerConnectionParamsValkeyClusterModel {
@@ -8885,6 +10892,13 @@ func expandYandexConnectionmanagerConnectionParamsValkeyClusterHosts(ctx context
 type yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel struct {
 	Disabled types.Object `tfsdk:"disabled"`
 	Tls      types.Object `tfsdk:"tls"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) GetDisabled() types.Object {
+	return m.Disabled
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) GetTls() types.Object {
+	return m.Tls
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel {
@@ -8999,6 +11013,10 @@ func expandYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabled
 
 type yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel struct {
 	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel) GetCaCertificate() types.String {
+	return m.CaCertificate
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel {

@@ -1343,6 +1343,135 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 		updatePaths = append(updatePaths, "params.redis.databases")
 	}
 
+	var yandexConnectionmanagerConnectionParamsStoredocState, yandexConnectionmanagerConnectionParamsStoredocPlan yandexConnectionmanagerConnectionParamsStoredocModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Storedoc.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Storedoc.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocAuthState, yandexConnectionmanagerConnectionParamsStoredocAuthPlan yandexConnectionmanagerConnectionParamsStoredocAuthModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthPlan.AuthSource.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthState.AuthSource) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.auth_source")
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.lockbox_secret_key")
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.cookie")
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.Raw) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.raw")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.User) {
+		updatePaths = append(updatePaths, "params.storedoc.auth.user_password.user")
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocClusterState, yandexConnectionmanagerConnectionParamsStoredocClusterPlan yandexConnectionmanagerConnectionParamsStoredocClusterModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts.IsNull() {
+		yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType)
+	}
+	if yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts.IsNull() {
+		yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType)
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts) {
+		updatePaths = append(updatePaths, "params.storedoc.cluster.hosts")
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.CaCertificate) {
+		updatePaths = append(updatePaths, "params.storedoc.cluster.tls_params.tls.ca_certificate")
+	}
+	if yandexConnectionmanagerConnectionParamsStoredocPlan.Databases.IsNull() {
+		yandexConnectionmanagerConnectionParamsStoredocPlan.Databases = types.ListNull(types.StringType)
+	}
+	if yandexConnectionmanagerConnectionParamsStoredocState.Databases.IsNull() {
+		yandexConnectionmanagerConnectionParamsStoredocState.Databases = types.ListNull(types.StringType)
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsStoredocState.Databases) {
+		updatePaths = append(updatePaths, "params.storedoc.databases")
+	}
+	if !yandexConnectionmanagerConnectionParamsStoredocPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsStoredocState.ManagedClusterId) {
+		updatePaths = append(updatePaths, "params.storedoc.managed_cluster_id")
+	}
+
 	var yandexConnectionmanagerConnectionParamsTrinoState, yandexConnectionmanagerConnectionParamsTrinoPlan yandexConnectionmanagerConnectionParamsTrinoModel
 	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Trino.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 	resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Trino.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)

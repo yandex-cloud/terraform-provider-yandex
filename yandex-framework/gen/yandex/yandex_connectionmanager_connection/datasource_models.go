@@ -31,6 +31,46 @@ type yandexConnectionmanagerConnectionDatasourceModel struct {
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetCanUse() types.Bool {
+	return m.CanUse
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetConnectionId() types.String {
+	return m.ConnectionId
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetCreatedBy() types.String {
+	return m.CreatedBy
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetIsManaged() types.Bool {
+	return m.IsManaged
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetLockboxSecret() types.Object {
+	return m.LockboxSecret
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetParams() types.Object {
+	return m.Params
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+
 func NewYandexConnectionmanagerConnectionDatasourceModel() yandexConnectionmanagerConnectionDatasourceModel {
 	return yandexConnectionmanagerConnectionDatasourceModel{
 		CanUse:        types.BoolNull(),
