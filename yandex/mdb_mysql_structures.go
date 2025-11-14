@@ -1138,6 +1138,7 @@ var rolesMap = map[string]mysql.Permission_Privilege{
 	"SHOW_VIEW":               mysql.Permission_SHOW_VIEW,
 	"TRIGGER":                 mysql.Permission_TRIGGER,
 	"UPDATE":                  mysql.Permission_UPDATE,
+	"REFERENCES":              mysql.Permission_REFERENCES,
 }
 
 var revertedRolesMap = map[mysql.Permission_Privilege]string{
@@ -1159,6 +1160,7 @@ var revertedRolesMap = map[mysql.Permission_Privilege]string{
 	mysql.Permission_SHOW_VIEW:               "SHOW_VIEW",
 	mysql.Permission_TRIGGER:                 "TRIGGER",
 	mysql.Permission_UPDATE:                  "UPDATE",
+	mysql.Permission_REFERENCES:              "REFERENCES",
 }
 
 func getRoleNames() string {
