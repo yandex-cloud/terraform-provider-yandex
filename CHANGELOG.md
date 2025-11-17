@@ -2,6 +2,14 @@
 
 
 
+## 0.171.0 (November 17, 2025)
+##### BUG FIXES:
+* mysql: user permission REFERENCES added
+##### ENHANCEMENTS:
+* connectionmanager: add `storedoc` option
+##### WARNING:
+* kubernetes: deprecate `1.30` version, use `1.31` instead
+
 ## 0.170.0 (November 13, 2025)
 ##### FEATURES:
 * airflow: dag-processor configuring has been added for airflow 3.0+
