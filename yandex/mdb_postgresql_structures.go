@@ -1817,7 +1817,12 @@ var mdbPGSettingsFieldsInfo18 = newObjectFieldsInfo().
 		int(config.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig18_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig18_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig18_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo18_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig18_1C{}, []reflect.Type{}).
@@ -1844,7 +1849,12 @@ var mdbPGSettingsFieldsInfo18_1C = newObjectFieldsInfo().
 		int(config.PostgresqlConfig18_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig18_1C_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig18_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig18_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig17{}, []reflect.Type{}).
@@ -1871,7 +1881,12 @@ var mdbPGSettingsFieldsInfo17 = newObjectFieldsInfo().
 		int(config.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig17_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig17_1C{}, []reflect.Type{}).
@@ -1898,7 +1913,12 @@ var mdbPGSettingsFieldsInfo17_1C = newObjectFieldsInfo().
 		int(config.PostgresqlConfig17_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_1C_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig17_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig17_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo16 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig16{}, []reflect.Type{}).
@@ -1925,7 +1945,12 @@ var mdbPGSettingsFieldsInfo16 = newObjectFieldsInfo().
 		int(config.PostgresqlConfig16_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig16_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo16_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig16_1C{}, []reflect.Type{}).
@@ -1952,7 +1977,12 @@ var mdbPGSettingsFieldsInfo16_1C = newObjectFieldsInfo().
 		int(config.PostgresqlConfig16_1C_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
 	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_1C_DebugParallelQuery_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig16_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig16_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo15 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig15{}, []reflect.Type{}).
@@ -1979,7 +2009,12 @@ var mdbPGSettingsFieldsInfo15 = newObjectFieldsInfo().
 		config.PostgresqlConfig15_PasswordEncryption_name,
 		int(config.PostgresqlConfig15_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig15_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig15_1C{}, []reflect.Type{}).
@@ -2006,7 +2041,12 @@ var mdbPGSettingsFieldsInfo15_1C = newObjectFieldsInfo().
 		config.PostgresqlConfig15_1C_PasswordEncryption_name,
 		int(config.PostgresqlConfig15_1C_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig15_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig15_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig14{}, []reflect.Type{}).
@@ -2033,7 +2073,12 @@ var mdbPGSettingsFieldsInfo14 = newObjectFieldsInfo().
 		config.PostgresqlConfig14_PasswordEncryption_name,
 		int(config.PostgresqlConfig14_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig14_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig14_1C{}, []reflect.Type{}).
@@ -2060,7 +2105,12 @@ var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
 		config.PostgresqlConfig14_1C_PasswordEncryption_name,
 		int(config.PostgresqlConfig14_1C_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig14_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig13{}, []reflect.Type{}).
@@ -2086,7 +2136,12 @@ var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
 		config.PostgresqlConfig13_PasswordEncryption_name,
 		int(config.PostgresqlConfig13_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig13_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig13_1C{}, []reflect.Type{}).
@@ -2112,4 +2167,9 @@ var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
 		config.PostgresqlConfig13_1C_PasswordEncryption_name,
 		int(config.PostgresqlConfig13_1C_PASSWORD_ENCRYPTION_MD5.Number()),
 	).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_1C_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare)
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig13_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -362,6 +363,33 @@ func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, valu
 	return fieldsInfo
 }
 
+func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNamesWithEmptySliceValue(field string, values map[int32]string,
+	checkValueFunc func(fieldsInfo *objectFieldsInfo, v interface{}) error, compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new, fieldName string) bool) *objectFieldsInfo {
+
+	def := 0
+	intToStringFunc := makeIntToString(convIValuesToI32(values), def)
+	defaultStringValue, err := intToStringFunc(&def)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{
+		defaultIntValue:    &def,
+		defaultStringValue: defaultStringValue,
+		emptySliceValue:    defaultStringValue,
+		isDefaultSet:       true,
+		intToString:        intToStringFunc,
+		stringToInt:        makeStringToInt(convIValuesToI32(values), &def),
+		isStringable:       true,
+		isNotNullable:      true,
+		skip:               true,
+		checkValueFunc:     checkValueFunc,
+		compareValueFunc:   compareValueFunc,
+	}
+
+	return fieldsInfo
+}
+
 func (fieldsInfo *objectFieldsInfo) addIDefault(field string, def int) *objectFieldsInfo {
 
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{defaultIntValue: &def, isDefaultSet: true}
@@ -595,6 +623,20 @@ func defaultStringOfEnumsCheck(fieldname string) func(*objectFieldsInfo, interfa
 
 func defaultStringCompare(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
 	return old == new
+}
+
+func stringOfEnumSliceCompareWithDefault(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
+	oldIntValues, err := fieldsInfo.stringToIntSlice(fieldname, old)
+	if err != nil {
+		log.Printf("[ERROR] Cannot convert enum values to int slice. Fieldname: %s, value: %s", fieldname, new)
+		return false
+	}
+	newIntValues, err := fieldsInfo.stringToIntSlice(fieldname, new)
+	if err != nil {
+		log.Printf("[ERROR] Cannot convert enum values to int slice. Fieldname: %s, value: %s", fieldname, new)
+		return false
+	}
+	return slices.Equal(oldIntValues, newIntValues)
 }
 
 func stringOfEnumCompareWithDefault(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
