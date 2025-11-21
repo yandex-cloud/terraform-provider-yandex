@@ -64,6 +64,7 @@ DocsCategories:
   # Other services
   - "Client Config"
   - "V2 Resources"
+  - "Cloud Desktops"
 
   # Services for developers
   - "Container Registry"

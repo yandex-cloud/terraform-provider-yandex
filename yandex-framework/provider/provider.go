@@ -21,6 +21,9 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop_group"
+	yandex_cloud_desktops_image "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_image"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
@@ -324,6 +327,8 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_sharded_postgresql_database.NewShardedPostgreSQLDatabaseResource,
 		cloudregistry_ip_permission.NewResource,
 		mdb_sharded_postgresql_shard.NewShardedPostgreSQLShardResource,
+		cloud_desktops_desktop_group.NewResource,
+		cloud_desktops_desktop.NewResource,
 	}, yandex_gen.GetProviderResources()...)
 }
 
@@ -354,6 +359,9 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
 		cloudregistry_ip_permission.NewDataSource,
+		yandex_cloud_desktops_image.NewDataSource,
+		cloud_desktops_desktop_group.NewDatasource,
+		cloud_desktops_desktop.NewDatasource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 

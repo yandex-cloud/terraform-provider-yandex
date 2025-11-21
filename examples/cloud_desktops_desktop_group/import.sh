@@ -1,0 +1,2 @@
+# terraform import yandex_cloud_desktops_desktop_group.<resource Name> "name,folderID,desktopImageID"
+terraform import yandex_cloud_desktops_desktop_group.my_desktop_group "group,fd8go**********trjsd,fd8go**********trjsd"
