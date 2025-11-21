@@ -19,7 +19,7 @@ import (
 func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions, planOptions types.List, diags *diag.Diagnostics) types.List {
 	if options == nil {
 		return types.ListNull(types.ObjectType{
-			AttrTypes: getCDNOptionsAttrTypes(),
+			AttrTypes: GetCDNOptionsAttrTypes(),
 		})
 	}
 
@@ -86,9 +86,16 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 	}
 
 	if options.AllowedHttpMethods != nil && options.AllowedHttpMethods.Enabled {
-		listVal, d := types.ListValueFrom(ctx, types.StringType, options.AllowedHttpMethods.Value)
-		diags.Append(d...)
-		opt.AllowedHTTPMethods = listVal
+		// Check if API returned defaults - treat as "not configured"
+		// This ensures plan consistency: user doesn't specify → plan=null → result=null
+		if isDefaultAllowedHttpMethods(options.AllowedHttpMethods.Value) {
+			opt.AllowedHTTPMethods = types.ListNull(types.StringType)
+		} else {
+			// User explicitly configured non-default values
+			listVal, d := types.ListValueFrom(ctx, types.StringType, options.AllowedHttpMethods.Value)
+			diags.Append(d...)
+			opt.AllowedHTTPMethods = listVal
+		}
 	} else {
 		opt.AllowedHTTPMethods = types.ListNull(types.StringType)
 	}
@@ -129,7 +136,7 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 	flattenRewrite(ctx, options.Rewrite, &opt, diags)
 
 	optionsList, d := types.ListValueFrom(ctx, types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []CDNOptionsModel{opt})
 	diags.Append(d...)
 
@@ -145,6 +152,30 @@ func flattenBoolOption(option *cdn.ResourceOptions_BoolOption) types.Bool {
 		return types.BoolNull()
 	}
 	return types.BoolValue(option.Value)
+}
+
+// isDefaultAllowedHttpMethods checks if API returned default HTTP methods
+// API applies defaults: ["GET", "HEAD", "OPTIONS"] when user doesn't configure this field
+// Returns true if apiValues contains exactly the default set (order-independent)
+func isDefaultAllowedHttpMethods(apiValues []string) bool {
+	// Known API defaults from actual behavior (confirmed via testing)
+	defaults := map[string]bool{
+		"GET":     true,
+		"HEAD":    true,
+		"OPTIONS": true,
+	}
+
+	if len(apiValues) != len(defaults) {
+		return false
+	}
+
+	for _, v := range apiValues {
+		if !defaults[v] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // flattenHostOptions handles mutually exclusive forward_host_header and custom_host_header
@@ -695,7 +726,9 @@ func flattenSSLCertificate(ctx context.Context, cert *cdn.SSLCertificate, diags 
 
 // getCDNOptionsAttrTypes returns the attribute types for CDNOptionsModel
 // This is used for creating types.List from CDNOptionsModel
-func getCDNOptionsAttrTypes() map[string]attr.Type {
+// GetCDNOptionsAttrTypes returns the attribute types for CDNOptionsModel
+// Exported for use by cdn_rule package
+func GetCDNOptionsAttrTypes() map[string]attr.Type {
 	return map[string]attr.Type{
 		// Boolean options
 		"ignore_query_params":        types.BoolType,

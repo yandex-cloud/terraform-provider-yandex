@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdn_resource "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cdn_resource"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -104,11 +105,41 @@ func (r *cdnRuleResource) Create(ctx context.Context, req resource.CreateRequest
 		Options:     options,
 	}
 
+	// Debug logging: log the complete create request
+	tflog.Debug(ctx, "CDN Rule Create Request Details", map[string]interface{}{
+		"resource_id":  request.ResourceId,
+		"name":         request.Name,
+		"rule_pattern": request.RulePattern,
+		"weight":       request.Weight,
+		"options":      fmt.Sprintf("%+v", request.Options),
+	})
+
+	if request.Options != nil {
+		tflog.Debug(ctx, "CDN Rule Create Request - Options Details", map[string]interface{}{
+			"disable_proxy_force_ranges": fmt.Sprintf("%+v", request.Options.DisableProxyForceRanges),
+			"slice":                      fmt.Sprintf("%+v", request.Options.Slice),
+			"ignore_cookie":              fmt.Sprintf("%+v", request.Options.IgnoreCookie),
+			"proxy_cache_methods_set":    fmt.Sprintf("%+v", request.Options.ProxyCacheMethodsSet),
+			"edge_cache_settings":        fmt.Sprintf("%+v", request.Options.EdgeCacheSettings),
+			"browser_cache_settings":     fmt.Sprintf("%+v", request.Options.BrowserCacheSettings),
+			"compression_options":        fmt.Sprintf("%+v", request.Options.CompressionOptions),
+			"redirect_options":           fmt.Sprintf("%+v", request.Options.RedirectOptions),
+			"host_options":               fmt.Sprintf("%+v", request.Options.HostOptions),
+			"query_params_options":       fmt.Sprintf("%+v", request.Options.QueryParamsOptions),
+		})
+	}
+
 	tflog.Debug(ctx, "Calling CDN ResourceRules.Create API")
 	op, err := r.providerConfig.SDK.WrapOperation(
 		r.providerConfig.SDK.CDN().ResourceRules().Create(ctx, request),
 	)
 	if err != nil {
+		tflog.Error(ctx, "CDN Rule Create API call failed", map[string]interface{}{
+			"error":        err.Error(),
+			"resource_id":  request.ResourceId,
+			"name":         request.Name,
+			"rule_pattern": request.RulePattern,
+		})
 		resp.Diagnostics.AddError(
 			"Failed to create CDN rule",
 			fmt.Sprintf("Error requesting API to create CDN rule: %s", err),
@@ -207,6 +238,12 @@ func (r *cdnRuleResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	var state CDNRuleModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexCDNRuleDefaultTimeout)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -230,18 +267,117 @@ func (r *cdnRuleResource) Update(ctx context.Context, req resource.UpdateRequest
 		"name": plan.Name.ValueString(),
 	})
 
-	// Expand options
-	options := expandOptions(ctx, &plan, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
+	// Handle options update
+	// CRITICAL: ResourceOptions uses "replace semantics" (proto analysis confirmed)
+	// When we send Options to API, it REPLACES ALL options completely.
+	// Therefore we MUST merge plan + state to preserve Optional+Computed fields.
+	//
+	// This is the SAME pattern as cdn_resource uses (resource.go:347-497)
+
+	optionsEqual := plan.Options.Equal(state.Options)
+	tflog.Debug(ctx, "CDN rule options comparison", map[string]interface{}{
+		"plan_is_null":  plan.Options.IsNull(),
+		"state_is_null": state.Options.IsNull(),
+		"options_equal": optionsEqual,
+	})
+
+	// Expand options - merge plan + state if changed
+	var options *cdn.ResourceOptions
+	mergedPlan := plan
+
+	if !optionsEqual {
+		tflog.Debug(ctx, "Options changed - merging plan with state for completeness")
+
+		// Unpack plan and state options for merging
+		var planOptionsModels []cdn_resource.CDNOptionsModel
+		var stateOptionsModels []cdn_resource.CDNOptionsModel
+
+		if !plan.Options.IsNull() && len(plan.Options.Elements()) > 0 {
+			resp.Diagnostics.Append(plan.Options.ElementsAs(ctx, &planOptionsModels, false)...)
+		}
+		if !state.Options.IsNull() && len(state.Options.Elements()) > 0 {
+			resp.Diagnostics.Append(state.Options.ElementsAs(ctx, &stateOptionsModels, false)...)
+		}
+
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		// Merge: use plan values where available, fallback to state for null/unknown fields
+		if len(planOptionsModels) > 0 {
+			mergedOptions := planOptionsModels[0]
+
+			// If state has options, fill in null/unknown computed fields from state
+			if len(stateOptionsModels) > 0 {
+				stateOpt := stateOptionsModels[0]
+
+				// For each Optional+Computed field: use plan if not null, otherwise use state
+				// This preserves previously-set values that aren't being changed
+				if (mergedOptions.EdgeCacheSettings.IsNull() || mergedOptions.EdgeCacheSettings.IsUnknown()) && !stateOpt.EdgeCacheSettings.IsNull() {
+					mergedOptions.EdgeCacheSettings = stateOpt.EdgeCacheSettings
+				}
+				if (mergedOptions.BrowserCacheSettings.IsNull() || mergedOptions.BrowserCacheSettings.IsUnknown()) && !stateOpt.BrowserCacheSettings.IsNull() {
+					mergedOptions.BrowserCacheSettings = stateOpt.BrowserCacheSettings
+				}
+				if (mergedOptions.GzipOn.IsNull() || mergedOptions.GzipOn.IsUnknown()) && !stateOpt.GzipOn.IsNull() {
+					mergedOptions.GzipOn = stateOpt.GzipOn
+				}
+				if (mergedOptions.RedirectHttpToHttps.IsNull() || mergedOptions.RedirectHttpToHttps.IsUnknown()) && !stateOpt.RedirectHttpToHttps.IsNull() {
+					mergedOptions.RedirectHttpToHttps = stateOpt.RedirectHttpToHttps
+				}
+				if (mergedOptions.DisableProxyForceRanges.IsNull() || mergedOptions.DisableProxyForceRanges.IsUnknown()) && !stateOpt.DisableProxyForceRanges.IsNull() {
+					mergedOptions.DisableProxyForceRanges = stateOpt.DisableProxyForceRanges
+				}
+				if (mergedOptions.Rewrite.IsNull() || mergedOptions.Rewrite.IsUnknown()) && !stateOpt.Rewrite.IsNull() {
+					mergedOptions.Rewrite = stateOpt.Rewrite
+				}
+				// Add other fields as needed...
+			}
+
+			// Pack merged options back into mergedPlan
+			optionsList, d := types.ListValueFrom(ctx, types.ObjectType{
+				AttrTypes: cdn_resource.GetCDNOptionsAttrTypes(),
+			}, []cdn_resource.CDNOptionsModel{mergedOptions})
+			resp.Diagnostics.Append(d...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			mergedPlan.Options = optionsList
+		}
+
+		// Expand merged options for API request
+		options = expandOptions(ctx, &mergedPlan, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		tflog.Debug(ctx, "Options merged and expanded for API request")
+	} else {
+		tflog.Debug(ctx, "Options unchanged - skipping options update (sending nil)")
+		options = nil
+	}
+
+	// CRITICAL: Name and RulePattern in proto3 UpdateResourceRuleRequest are optional,
+	// BUT empty strings ("") are INVALID and cause Internal errors on server validation.
+	// Proto3 doesn't distinguish "unset" vs "empty string" for regular string fields.
+	// Solution: Fallback to state values if plan contains empty strings.
+	name := plan.Name.ValueString()
+	if name == "" {
+		tflog.Debug(ctx, "Name is empty in plan, using state value")
+		name = state.Name.ValueString()
+	}
+
+	rulePattern := plan.RulePattern.ValueString()
+	if rulePattern == "" {
+		tflog.Debug(ctx, "RulePattern is empty in plan, using state value")
+		rulePattern = state.RulePattern.ValueString()
 	}
 
 	// Update rule
 	updateReq := &cdn.UpdateResourceRuleRequest{
 		ResourceId:  resourceID,
 		RuleId:      ruleID,
-		Name:        plan.Name.ValueString(),
-		RulePattern: plan.RulePattern.ValueString(),
+		Name:        name,        // Always valid (not empty)
+		RulePattern: rulePattern, // Always valid (not empty)
 		Options:     options,
 	}
 
@@ -249,11 +385,43 @@ func (r *cdnRuleResource) Update(ctx context.Context, req resource.UpdateRequest
 	weight := plan.Weight.ValueInt64()
 	updateReq.Weight = &weight
 
+	// Debug logging: log the complete update request
+	tflog.Debug(ctx, "CDN Rule Update Request Details", map[string]interface{}{
+		"resource_id":  updateReq.ResourceId,
+		"rule_id":      updateReq.RuleId,
+		"name":         updateReq.Name,
+		"rule_pattern": updateReq.RulePattern,
+		"weight":       *updateReq.Weight,
+		"options":      fmt.Sprintf("%+v", updateReq.Options),
+	})
+
+	if updateReq.Options != nil {
+		tflog.Debug(ctx, "CDN Rule Update Request - Options Details", map[string]interface{}{
+			"disable_proxy_force_ranges": fmt.Sprintf("%+v", updateReq.Options.DisableProxyForceRanges),
+			"slice":                      fmt.Sprintf("%+v", updateReq.Options.Slice),
+			"ignore_cookie":              fmt.Sprintf("%+v", updateReq.Options.IgnoreCookie),
+			"proxy_cache_methods_set":    fmt.Sprintf("%+v", updateReq.Options.ProxyCacheMethodsSet),
+			"edge_cache_settings":        fmt.Sprintf("%+v", updateReq.Options.EdgeCacheSettings),
+			"browser_cache_settings":     fmt.Sprintf("%+v", updateReq.Options.BrowserCacheSettings),
+			"compression_options":        fmt.Sprintf("%+v", updateReq.Options.CompressionOptions),
+			"redirect_options":           fmt.Sprintf("%+v", updateReq.Options.RedirectOptions),
+			"host_options":               fmt.Sprintf("%+v", updateReq.Options.HostOptions),
+			"query_params_options":       fmt.Sprintf("%+v", updateReq.Options.QueryParamsOptions),
+		})
+	}
+
 	tflog.Debug(ctx, "Calling CDN ResourceRules.Update API")
 	op, err := r.providerConfig.SDK.WrapOperation(
 		r.providerConfig.SDK.CDN().ResourceRules().Update(ctx, updateReq),
 	)
 	if err != nil {
+		tflog.Error(ctx, "CDN Rule Update API call failed", map[string]interface{}{
+			"error":        err.Error(),
+			"resource_id":  updateReq.ResourceId,
+			"rule_id":      updateReq.RuleId,
+			"name":         updateReq.Name,
+			"rule_pattern": updateReq.RulePattern,
+		})
 		resp.Diagnostics.AddError(
 			"Failed to update CDN rule",
 			fmt.Sprintf("Error requesting API to update CDN rule: %s", err),

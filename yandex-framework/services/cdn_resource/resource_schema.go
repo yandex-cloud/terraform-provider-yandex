@@ -363,10 +363,11 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"allowed_http_methods": schema.ListAttribute{
 					MarkdownDescription: "HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.List{
-						listplanmodifier.UseStateForUnknown(),
-					},
+					Validators: []validator.List{
+					listvalidator.ValueStringsAre(
+						stringvalidator.OneOf("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"),
+					),
+				},
 					ElementType: types.StringType,
 				},
 				"stale": schema.ListAttribute{

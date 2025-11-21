@@ -415,9 +415,6 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 				if (mergedOptions.Cors.IsNull() || mergedOptions.Cors.IsUnknown()) && !stateOpt.Cors.IsNull() {
 					mergedOptions.Cors = stateOpt.Cors
 				}
-				if (mergedOptions.AllowedHTTPMethods.IsNull() || mergedOptions.AllowedHTTPMethods.IsUnknown()) && !stateOpt.AllowedHTTPMethods.IsNull() {
-					mergedOptions.AllowedHTTPMethods = stateOpt.AllowedHTTPMethods
-				}
 
 				// Map options
 				if (mergedOptions.StaticResponseHeaders.IsNull() || mergedOptions.StaticResponseHeaders.IsUnknown()) && !stateOpt.StaticResponseHeaders.IsNull() {
