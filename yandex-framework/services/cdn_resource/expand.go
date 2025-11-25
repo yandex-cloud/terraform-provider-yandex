@@ -361,7 +361,7 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 	}
 
 	var edgeCacheModels []EdgeCacheSettingsModel
-	diags.Append(edgeCacheList.ElementsAs(ctx, &edgeCacheModels, false)...)
+	diags.Append(edgeCacheList.ElementsAs(ctx, &edgeCacheModels, true)...)
 	if diags.HasError() || len(edgeCacheModels) == 0 {
 		return
 	}
@@ -390,6 +390,17 @@ func expandEdgeCacheSettings(ctx context.Context, edgeCacheList types.List, resu
 	// enabled=true, process value and/or custom_values
 	hasValue := !edgeCache.Value.IsNull()
 	hasCustomValues := !edgeCache.CustomValues.IsNull() && len(edgeCache.CustomValues.Elements()) > 0
+	hasDefaultValue := !edgeCache.DefaultValue.IsNull() && !edgeCache.DefaultValue.IsUnknown()
+
+	if hasDefaultValue {
+		result.EdgeCacheSettings = &cdn.ResourceOptions_EdgeCacheSettings{
+			Enabled: true,
+			ValuesVariant: &cdn.ResourceOptions_EdgeCacheSettings_DefaultValue{
+				DefaultValue: edgeCache.DefaultValue.ValueInt64(),
+			},
+		}
+		return
+	}
 
 	if !hasValue && !hasCustomValues {
 		// Neither value nor custom_values specified - don't send anything

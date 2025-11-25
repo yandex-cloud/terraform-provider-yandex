@@ -116,6 +116,7 @@ type EdgeCacheSettingsModel struct {
 	Enabled      types.Bool  `tfsdk:"enabled"`       // Controls whether caching is enabled
 	Value        types.Int64 `tfsdk:"value"`         // SimpleValue: cache time for success codes (200, 206, 301, 302)
 	CustomValues types.Map   `tfsdk:"custom_values"` // CustomValues: per-code overrides, "any" = all response codes
+	DefaultValue types.Int64 `tfsdk:"default_value"` // DefaultValue: cache time for success codes (200, 206, 301, 302)
 }
 
 // BrowserCacheSettingsModel represents the browser cache settings block

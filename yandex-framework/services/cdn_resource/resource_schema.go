@@ -364,10 +364,10 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 					MarkdownDescription: "HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.",
 					Optional:            true,
 					Validators: []validator.List{
-					listvalidator.ValueStringsAre(
-						stringvalidator.OneOf("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"),
-					),
-				},
+						listvalidator.ValueStringsAre(
+							stringvalidator.OneOf("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"),
+						),
+					},
 					ElementType: types.StringType,
 				},
 				"stale": schema.ListAttribute{
@@ -534,6 +534,14 @@ func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 					Computed:            true,
 					PlanModifiers: []planmodifier.Map{
 						mapplanmodifier.UseStateForUnknown(),
+					},
+				},
+				"default_value": schema.Int64Attribute{
+					MarkdownDescription: "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
+					Optional:            true,
+					Computed:            true,
+					PlanModifiers: []planmodifier.Int64{
+						int64planmodifier.UseStateForUnknown(),
 					},
 				},
 			},

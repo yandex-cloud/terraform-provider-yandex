@@ -404,6 +404,7 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 		"enabled":       types.BoolType,
 		"value":         types.Int64Type,
 		"custom_values": types.MapType{ElemType: types.Int64Type},
+		"default_value": types.Int64Type,
 	}
 
 	// Log what API returned
@@ -425,6 +426,7 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 						Enabled:      types.BoolValue(false),
 						Value:        types.Int64Null(),
 						CustomValues: types.MapNull(types.Int64Type),
+						DefaultValue: types.Int64Null(),
 					}
 					edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 						AttrTypes: edgeCacheAttrTypes,
@@ -460,6 +462,7 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 						Enabled:      types.BoolValue(false),
 						Value:        types.Int64Null(),
 						CustomValues: types.MapNull(types.Int64Type),
+						DefaultValue: types.Int64Null(),
 					}
 					edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 						AttrTypes: edgeCacheAttrTypes,
@@ -507,6 +510,7 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 			Enabled:      types.BoolValue(false),
 			Value:        types.Int64Null(),
 			CustomValues: types.MapNull(types.Int64Type),
+			DefaultValue: types.Int64Null(),
 		}
 		edgeCacheList, d := types.ListValueFrom(ctx, types.ObjectType{
 			AttrTypes: edgeCacheAttrTypes,
@@ -527,9 +531,9 @@ func flattenEdgeCacheSettings(ctx context.Context, edgeCache *cdn.ResourceOption
 	if edgeCache.ValuesVariant != nil {
 		switch v := edgeCache.ValuesVariant.(type) {
 		case *cdn.ResourceOptions_EdgeCacheSettings_DefaultValue:
-			// Legacy DefaultValue variant from API → return as value (SimpleValue)
-			edgeCacheModel.Value = types.Int64Value(v.DefaultValue)
+			edgeCacheModel.Value = types.Int64Null()
 			edgeCacheModel.CustomValues = types.MapNull(types.Int64Type)
+			edgeCacheModel.DefaultValue = types.Int64Value(v.DefaultValue)
 
 		case *cdn.ResourceOptions_EdgeCacheSettings_Value:
 			// New API with CachingTimes (SimpleValue + CustomValues)
@@ -750,6 +754,7 @@ func GetCDNOptionsAttrTypes() map[string]attr.Type {
 					"enabled":       types.BoolType,
 					"value":         types.Int64Type,
 					"custom_values": types.MapType{ElemType: types.Int64Type},
+					"default_value": types.Int64Type,
 				},
 			},
 		},

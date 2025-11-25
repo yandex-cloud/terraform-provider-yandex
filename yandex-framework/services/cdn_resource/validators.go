@@ -201,7 +201,7 @@ func (v *cdnOptionsValidator) ValidateObject(ctx context.Context, req validator.
 
 	// Extract edge_cache_settings
 	var edgeSettings []EdgeCacheSettingsModel
-	diags := edgeCacheSettingsList.ElementsAs(ctx, &edgeSettings, false)
+	diags := edgeCacheSettingsList.ElementsAs(ctx, &edgeSettings, true)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() || len(edgeSettings) == 0 {
 		return
@@ -266,7 +266,7 @@ func (v *edgeCacheSettingsValidator) ValidateList(ctx context.Context, req valid
 
 	// Get the single element (MaxItems: 1)
 	var elements []types.Object
-	diags := req.ConfigValue.ElementsAs(ctx, &elements, false)
+	diags := req.ConfigValue.ElementsAs(ctx, &elements, true)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -291,25 +291,22 @@ func (v *edgeCacheSettingsValidator) ValidateList(ctx context.Context, req valid
 
 	hasValue := !edgeSettings.Value.IsNull() && !edgeSettings.Value.IsUnknown()
 	hasCustomValues := !edgeSettings.CustomValues.IsNull() && !edgeSettings.CustomValues.IsUnknown() && len(edgeSettings.CustomValues.Elements()) > 0
-	isEnabled := edgeSettings.Enabled.IsNull() || (!edgeSettings.Enabled.IsUnknown() && edgeSettings.Enabled.ValueBool())
+	isEnabled := !edgeSettings.Enabled.IsNull() && !edgeSettings.Enabled.IsUnknown() && edgeSettings.Enabled.ValueBool()
+	hasDefaultValue := !edgeSettings.DefaultValue.IsNull() && !edgeSettings.DefaultValue.IsUnknown()
 
 	// Validation logic:
-	// 1. If enabled=false → value and custom_values should not be set
-	// 2. If enabled=true or not set → at least value or custom_values must be set
-	if !edgeSettings.Enabled.IsNull() && !edgeSettings.Enabled.IsUnknown() && !edgeSettings.Enabled.ValueBool() {
-		// enabled = false
-		if hasValue || hasCustomValues {
-			resp.Diagnostics.AddError(
-				"Invalid edge_cache_settings configuration",
-				"When enabled=false, value and custom_values should not be specified",
-			)
-		}
+	// 1. If enabled=false → value, custom_values or default_value should not be set
+	// 2. If enabled=true or not set → at least value, custom_values or default_value must be set
+	if !isEnabled && (hasValue || hasCustomValues || hasDefaultValue) {
+		resp.Diagnostics.AddError(
+			"Invalid edge_cache_settings configuration",
+			"When enabled=false, value, custom_values or default_value should not be specified",
+		)
 	} else if isEnabled {
-		// enabled = true or not set
-		if !hasValue && !hasCustomValues {
+		if !hasValue && !hasCustomValues && !hasDefaultValue {
 			resp.Diagnostics.AddError(
 				"Invalid edge_cache_settings configuration",
-				"When enabled=true, at least value or custom_values must be specified",
+				"When enabled=true, at least value, custom_values or default_value must be specified",
 			)
 		}
 	}
