@@ -624,6 +624,9 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 	if cluster.Config.GetKafkaUiConfig() != nil {
 		config["kafka_ui"] = flattenKafkaUI(cluster.Config)
 	}
+	if pv := cluster.Config.GetPatchVersion(); pv != "" {
+		config["patch_version"] = pv
+	}
 	config["disk_size_autoscaling"] = flattenKafkaDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
 
 	return []map[string]interface{}{config}, nil

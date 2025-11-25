@@ -329,6 +329,11 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 					},
 				},
 			},
+			"patch_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Patch version of the Kafka server software.",
+			},
 		},
 	}
 }
