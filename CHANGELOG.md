@@ -2,6 +2,12 @@
 
 
 
+## 0.172.0 (November 25, 2025)
+##### FEATURES:
+* cloud_desktops: add cloud_desktops to terraform
+##### BUG FIXES:
+* postgresql: fix infinite changes on plan/apply after shared_preload_libraries deletion
+
 ## 0.171.0 (November 17, 2025)
 ##### BUG FIXES:
 * mysql: user permission REFERENCES added

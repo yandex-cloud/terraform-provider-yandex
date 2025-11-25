@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix infinite changes on plan/apply after shared_preload_libraries deletion'
-time: 2025-11-20T01:25:52.490154+03:00
