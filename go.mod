@@ -42,7 +42,7 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
 	github.com/yandex-cloud/go-genproto v0.37.0
-	github.com/yandex-cloud/go-sdk v0.24.0
+	github.com/yandex-cloud/go-sdk v0.29.0
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.12

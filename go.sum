@@ -783,8 +783,8 @@ github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
 github.com/yandex-cloud/go-genproto v0.37.0 h1:dbuj5qaG5+tIEKMV5fsyKtVILS9QehLcg9C90WwK0JU=
 github.com/yandex-cloud/go-genproto v0.37.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
-github.com/yandex-cloud/go-sdk v0.24.0 h1:zpVKz5WSeexOy16/57aFfQp9YZTaMcJgnEgCITlW6qk=
-github.com/yandex-cloud/go-sdk v0.24.0/go.mod h1:Xwk8HhACGqlr1Tz39LYYhwwHEJz2P0UoEB+u1jCtVYM=
+github.com/yandex-cloud/go-sdk v0.29.0 h1:jemlZEGMLmYMf4tXFjuUBFL9rwyUpePSLG7sVghdSlI=
+github.com/yandex-cloud/go-sdk v0.29.0/go.mod h1:7OuBqG7r0E0xOfm0M1JbAWxTPuaMRX/Mlej/EFXRqy4=
 github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10 h1:ujEwlNJTWfg8O4o5JpL0WRRo9Y7MNet1Y1EdngoPCjk=
 github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10/go.mod h1:O820H0ty4IbDg+sWdRLf8TPwj8kaUvX0oWnJYSR5cUE=
 github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2 h1:a3dLOtBwXUT8n0MshnqI1kndkqCliZW0PgJ1v43b9YY=

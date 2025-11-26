@@ -51,7 +51,6 @@ func resourceYandexDnsZone() *schema.Resource {
 				Description: common.ResourceDescriptions["folder_id"],
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 			},
 
 			"name": {
@@ -189,6 +188,18 @@ func resourceYandexDnsZoneUpdate(d *schema.ResourceData, meta interface{}) error
 		return resourceYandexDnsZoneCreate(d, meta)
 	}
 
+	if d.HasChange("folder_id") {
+		req := &dns.MoveDnsZoneRequest{
+			DnsZoneId:           d.Id(),
+			DestinationFolderId: d.Get("folder_id").(string),
+		}
+
+		err := makeDnsZoneMoveRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	req, err := prepareDnsZoneUpdateRequest(d)
 	if err != nil {
 		return err
@@ -320,6 +331,26 @@ func makeDnsZoneUpdateRequest(req *dns.UpdateDnsZoneRequest, d *schema.ResourceD
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating DnsZone %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeDnsZoneMoveRequest(req *dns.MoveDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	sdk := getSDK(config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().Move(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to move DnsZone %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error moving DnsZone %q: %s", d.Id(), err)
 	}
 
 	return nil
