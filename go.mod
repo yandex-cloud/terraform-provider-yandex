@@ -57,7 +57,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.12
 	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12
 	github.com/yandex-cloud/go-sdk/services/logging v0.0.12
-	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.13
+	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.17
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12
 	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1
 	github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3
