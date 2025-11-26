@@ -7,12 +7,16 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
 func YandexIAMServiceAccountResourceSchema(ctx context.Context) schema.Schema {
@@ -69,6 +73,35 @@ func YandexIAMServiceAccountResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 50),
+				},
+			},
+
+			"labels": schema.MapAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "Resource labels as `` key:value `` pairs. Maximum of 64 per resource.",
+				Description: "Resource labels as `` key:value `` pairs. Maximum of 64 per resource." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.CreateServiceAccountRequest.labels
+					// -> yandex.cloud.iam.v1.ServiceAccount.labels
+					// -> yandex.cloud.iam.v1.UpdateServiceAccountRequest.labels
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/service_account.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
+				},
+				Validators: []validator.Map{
+					mapvalidator.KeysAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(1, 63),
+					),
+					mapvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(0, 63),
+					),
 				},
 			},
 

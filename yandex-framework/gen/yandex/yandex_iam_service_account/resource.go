@@ -153,6 +153,7 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetLabels(expandYandexIAMServiceAccountLabels(ctx, plan.Labels, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -313,6 +314,15 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
+	if !plan.Labels.Equal(state.Labels) {
+		updatePaths = append(updatePaths, "labels")
+	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
@@ -329,6 +339,7 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 		updateReq.SetServiceAccountId(id)
 		updateReq.SetName(plan.Name.ValueString())
 		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexIAMServiceAccountLabels(ctx, plan.Labels, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

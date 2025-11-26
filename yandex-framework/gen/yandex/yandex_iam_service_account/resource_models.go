@@ -19,6 +19,7 @@ type yandexIAMServiceAccountModel struct {
 	CreatedAt        types.String   `tfsdk:"created_at"`
 	Description      types.String   `tfsdk:"description"`
 	FolderId         types.String   `tfsdk:"folder_id"`
+	Labels           types.Map      `tfsdk:"labels"`
 	Name             types.String   `tfsdk:"name"`
 	ServiceAccountId types.String   `tfsdk:"service_account_id"`
 	ID               types.String   `tfsdk:"id"`
@@ -33,6 +34,9 @@ func (m *yandexIAMServiceAccountModel) GetDescription() types.String {
 }
 func (m *yandexIAMServiceAccountModel) GetFolderId() types.String {
 	return m.FolderId
+}
+func (m *yandexIAMServiceAccountModel) GetLabels() types.Map {
+	return m.Labels
 }
 func (m *yandexIAMServiceAccountModel) GetName() types.String {
 	return m.Name
@@ -49,6 +53,7 @@ func NewYandexIAMServiceAccountModel() yandexIAMServiceAccountModel {
 		CreatedAt:        types.StringNull(),
 		Description:      types.StringNull(),
 		FolderId:         types.StringNull(),
+		Labels:           types.MapNull(types.StringType),
 		Name:             types.StringNull(),
 		ServiceAccountId: types.StringNull(),
 		ID:               types.StringNull(),
@@ -64,6 +69,9 @@ func yandexIAMServiceAccountModelFillUnknown(target yandexIAMServiceAccountModel
 	}
 	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
 		target.FolderId = types.StringNull()
+	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
 	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
@@ -82,6 +90,7 @@ var yandexIAMServiceAccountModelType = types.ObjectType{
 		"created_at":         types.StringType,
 		"description":        types.StringType,
 		"folder_id":          types.StringType,
+		"labels":             types.MapType{ElemType: types.StringType},
 		"name":               types.StringType,
 		"service_account_id": types.StringType,
 		"id":                 types.StringType,
@@ -101,6 +110,7 @@ func flattenYandexIAMServiceAccount(ctx context.Context,
 		CreatedAt:        types.StringValue(yandexIAMServiceAccount.GetCreatedAt().AsTime().Format(time.RFC3339)),
 		Description:      types.StringValue(yandexIAMServiceAccount.GetDescription()),
 		FolderId:         types.StringValue(yandexIAMServiceAccount.GetFolderId()),
+		Labels:           flattenYandexIAMServiceAccountLabels(ctx, yandexIAMServiceAccount.GetLabels(), state.Labels, diags),
 		Name:             types.StringValue(yandexIAMServiceAccount.GetName()),
 		ServiceAccountId: types.StringValue(yandexIAMServiceAccount.GetId()),
 		ID:               types.StringValue(yandexIAMServiceAccount.GetId()),
@@ -127,6 +137,7 @@ func expandYandexIAMServiceAccountModel(ctx context.Context, yandexIAMServiceAcc
 	value.SetCreatedAt(converter.ParseTimestamp(yandexIAMServiceAccountState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexIAMServiceAccountState.Description.ValueString())
 	value.SetFolderId(yandexIAMServiceAccountState.FolderId.ValueString())
+	value.SetLabels(expandYandexIAMServiceAccountLabels(ctx, yandexIAMServiceAccountState.Labels, diags))
 	value.SetName(yandexIAMServiceAccountState.Name.ValueString())
 	value.SetId(yandexIAMServiceAccountState.ServiceAccountId.ValueString())
 	value.SetId(yandexIAMServiceAccountState.ServiceAccountId.ValueString())
@@ -134,4 +145,41 @@ func expandYandexIAMServiceAccountModel(ctx context.Context, yandexIAMServiceAcc
 		return nil
 	}
 	return value
+}
+
+func flattenYandexIAMServiceAccountLabels(ctx context.Context, yandexIAMServiceAccountLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
+	if yandexIAMServiceAccountLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.MapNull(types.StringType)
+	}
+	yandexIAMServiceAccountLabelsValues := make(map[string]attr.Value)
+	for k, elem := range yandexIAMServiceAccountLabels {
+		val := types.StringValue(elem)
+		yandexIAMServiceAccountLabelsValues[k] = val
+	}
+
+	value, diag := types.MapValue(types.StringType, yandexIAMServiceAccountLabelsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexIAMServiceAccountLabels(ctx context.Context, yandexIAMServiceAccountLabelsState types.Map, diags *diag.Diagnostics) map[string]string {
+	if yandexIAMServiceAccountLabelsState.IsNull() || yandexIAMServiceAccountLabelsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexIAMServiceAccountLabelsState.Elements()) == 0 {
+		return map[string]string{}
+	}
+	yandexIAMServiceAccountLabelsRes := make(map[string]string)
+	yandexIAMServiceAccountLabelsType := make(map[string]types.String)
+	diags.Append(yandexIAMServiceAccountLabelsState.ElementsAs(ctx, &yandexIAMServiceAccountLabelsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for k, elem := range yandexIAMServiceAccountLabelsType {
+		yandexIAMServiceAccountLabelsRes[k] = elem.ValueString()
+	}
+	return yandexIAMServiceAccountLabelsRes
 }

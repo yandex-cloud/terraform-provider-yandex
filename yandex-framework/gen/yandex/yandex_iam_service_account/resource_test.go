@@ -87,6 +87,8 @@ func TestAccServiceAccount_basic(t *testing.T) {
 						"yandex_iam_service_account.acceptance", "name", accountName),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "description", accountDesc),
+					resource.TestCheckNoResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels"),
 					test.AccCheckCreatedAtAttr("yandex_iam_service_account.acceptance"),
 				),
 			},
@@ -101,13 +103,20 @@ func TestAccServiceAccount_basic(t *testing.T) {
 						"yandex_iam_service_account.acceptance", "name", accountName),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "description", accountDesc2),
+					resource.TestCheckNoResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels"),
 					testAccStoreServiceAccountUniqueID(&uniqueID),
 				),
 			},
-			// The third step explicitly adds the same default folderID to the service account configuration
+			// Next step explicitly adds the same default folderID to the service account configuration
 			// and ensure the service account is not recreated by comparing the value of its ID with the one from the previous step
 			{
-				Config: testAccServiceAccountWithFolderID(folderID, accountName, accountDesc2),
+				Config: fmt.Sprintf(`
+resource "yandex_iam_service_account" "acceptance" {
+  folder_id   = "%v"
+  name        = "%v"
+  description = "%v"
+}`, folderID, accountName, accountDesc2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexIAMServiceAccountNameModified("yandex_iam_service_account.acceptance", accountDesc2),
 					resource.TestCheckResourceAttr(
@@ -116,6 +125,54 @@ func TestAccServiceAccount_basic(t *testing.T) {
 						"yandex_iam_service_account.acceptance", "name", accountName),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "description", accountDesc2),
+					resource.TestCheckNoResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels"),
+					resource.TestCheckResourceAttrPtr(
+						"yandex_iam_service_account.acceptance", "id", &uniqueID),
+				),
+			},
+			{
+				ResourceName:      "yandex_iam_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Next step sets some labels to the service account configuration
+			{
+				Config: fmt.Sprintf(`
+resource "yandex_iam_service_account" "acceptance" {
+  folder_id   = "%v"
+  name        = "%v"
+  description = "%v"
+  labels      = {
+    "k1" = "v1"
+    "k2" = "v2"
+  }
+}`, folderID, accountName, accountDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckYandexIAMServiceAccountNameModified("yandex_iam_service_account.acceptance", accountDesc2),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels.%", "2"),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels.k1", "v1"),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels.k2", "v2"),
+					resource.TestCheckResourceAttrPtr(
+						"yandex_iam_service_account.acceptance", "id", &uniqueID),
+				),
+			},
+			// Next step explicitly removes all labels
+			{
+				Config: fmt.Sprintf(`
+resource "yandex_iam_service_account" "acceptance" {
+  folder_id   = "%v"
+  name        = "%v"
+  description = "%v"
+  labels      = {}
+}`, folderID, accountName, accountDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckYandexIAMServiceAccountNameModified("yandex_iam_service_account.acceptance", accountDesc2),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "labels.%", "0"),
 					resource.TestCheckResourceAttrPtr(
 						"yandex_iam_service_account.acceptance", "id", &uniqueID),
 				),
@@ -222,14 +279,4 @@ resource "yandex_iam_service_account" "acceptance" {
   description = "%v"
 }
 `, name, desc)
-}
-
-func testAccServiceAccountWithFolderID(folderID, name, desc string) string {
-	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "acceptance" {
-  folder_id   = "%v"
-  name        = "%v"
-  description = "%v"
-}
-`, folderID, name, desc)
 }
