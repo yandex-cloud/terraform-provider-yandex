@@ -53,6 +53,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_logging_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_saml_application"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_userpool"
@@ -96,6 +97,7 @@ func init() {
 		yandex_kms_symmetric_key_iam_binding.NewResource,
 		yandex_kms_symmetric_key_iam_member.NewResource,
 		yandex_lb_target_group.NewResource,
+		yandex_organizationmanager_idp_application_oauth_application.NewResource,
 		yandex_organizationmanager_idp_application_saml_application.NewResource,
 		yandex_organizationmanager_idp_user.NewResource,
 		yandex_organizationmanager_idp_userpool.NewResource,

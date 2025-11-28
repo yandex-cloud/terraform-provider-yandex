@@ -10,6 +10,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_federated_credential"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_saml_application"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_userpool"
@@ -23,6 +24,7 @@ func init() {
 		yandex_iam_oauth_client.NewDataSource,
 		yandex_kms_asymmetric_encryption_key.NewDataSource,
 		yandex_kms_asymmetric_signature_key.NewDataSource,
+		yandex_organizationmanager_idp_application_oauth_application.NewDataSource,
 		yandex_organizationmanager_idp_application_saml_application.NewDataSource,
 		yandex_organizationmanager_idp_user.NewDataSource,
 		yandex_organizationmanager_idp_userpool.NewDataSource,

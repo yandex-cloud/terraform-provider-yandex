@@ -813,8 +813,8 @@ github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12 h1:+DGp6z1smxBC+fDJSO+10
 github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12/go.mod h1:X+H2rpukyq5TyGCL2KZQ4yoXDtexi5MFDQNZ3e2hAMQ=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.12 h1:eu24ry+iGdT1EyoCwWEQY7b0l0cT7Od1r/+vVNjHIwI=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.12/go.mod h1:7YmS+7Yxbj5JY4o4RNbQ2P2J5PIZ/bQ21HTgzMYob+k=
-github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.17 h1:vGBbsvGXi1qsB64FS5HhmdCFNh77s5vnWbzq+f+YR8U=
-github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.17/go.mod h1:bR97UtVx0iTdp2sb/9eZN+7yv8gyt9jlLLOAXcWp88M=
+github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.19 h1:32Kqdkh7mtRKUsBQDqwBclvpT3LHD1Z9JLGp4mZdtJY=
+github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.19/go.mod h1:kD/BschRA96vRRFfhfiD/FME+C38tfkK6G2YW1ZPg6c=
 github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12 h1:P0oYVlHoxG48w8gAP/C5F3brZnrMGS1cFSMZg85Rhj0=
 github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12/go.mod h1:xM5Hus5UFV1EC8kQYIJX5LnC+VW930cvxUwpO/4H9jY=
 github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1 h1:fxVRk80vL5ku0tNUrLA5riysQg2HZH1XCcCqxc9G9Ig=
