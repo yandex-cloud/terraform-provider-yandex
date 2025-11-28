@@ -203,6 +203,10 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res := redisConfig{
 		version: cc.Version,
 	}
+	// Fix for Valkey: cc.Redis can be nil for Valkey clusters
+	if cc.Redis == nil || cc.Redis.EffectiveConfig == nil {
+		return res  // Return minimal config for Valkey
+	}
 	c := cc.Redis.EffectiveConfig
 	res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
 	res.timeout = c.GetTimeout().GetValue()
