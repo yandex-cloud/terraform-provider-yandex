@@ -189,6 +189,7 @@ func TestAccResourceAuditTrailsTrail_dataStream(t *testing.T) {
 	updatedTrail.YDSDestination = trailDataStreamDestination{
 		YdbName:    ydbTestName,
 		StreamName: updatedStreamTestName,
+		Codec:      "GZIP",
 	}
 	updatedTrail.FilteringPolicy.DataEventFilters[0].DnsFilter.IncludeNonrecursiveQueries = false
 
@@ -263,9 +264,11 @@ func checkTrail(trail yandexAuditTrailsTrail, dataSourceCheck bool) resource.Tes
 	}
 
 	if dataStreamConfig := trail.YDSDestination; dataStreamConfig != (trailDataStreamDestination{}) {
-		checks = append(checks, resolveAndCheckYdbID(resourceName, trail.YDSDestination.YdbName))
+		checks = append(checks, resolveAndCheckYdbID(resourceName, dataStreamConfig.YdbName))
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName,
 			"data_stream_destination.0.stream_name", dataStreamConfig.StreamName))
+		checks = append(checks, resource.TestCheckResourceAttr(resourceName,
+			"data_stream_destination.0.codec", getCodec(dataStreamConfig)))
 	} else {
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "data_stream_destination.#", "0"))
 	}
@@ -407,6 +410,14 @@ func resolveAndCheckYdbID(trailResource, ydbName string) resource.TestCheckFunc 
 				databaseID, trailDatabaseID)
 		}
 		return nil
+	}
+}
+
+func getCodec(dataStreamDestination trailDataStreamDestination) string {
+	if dataStreamDestination.Codec != "" {
+		return dataStreamDestination.Codec
+	} else {
+		return "RAW"
 	}
 }
 
@@ -708,6 +719,11 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
  data_stream_destination {
     database_id = yandex_ydb_database_serverless.{{.YdbName}}.id
     stream_name = "{{.StreamName}}"
+	{{if .Codec}}
+	{{with .Codec}}
+	codec = "{{.}}"
+	{{end}}
+	{{end}}
  }
  {{end}}
  {{end}}
@@ -781,6 +797,7 @@ type trailLoggingDestination struct {
 type trailDataStreamDestination struct {
 	YdbName    string
 	StreamName string
+	Codec      string
 }
 
 type trailStorageDestination struct {

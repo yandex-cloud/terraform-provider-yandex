@@ -202,6 +202,11 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 							Description: "Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.",
 							Computed:    true,
 						},
+						"codec": {
+							Type:        schema.TypeString,
+							Description: "Codec for compressing events. Allowed values: RAW, GZIP, ZSTD. Default: RAW",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -380,6 +385,7 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 		dataStream := map[string]string{
 			"database_id": dataStreamDestination.GetDatabaseId(),
 			"stream_name": dataStreamDestination.GetStreamName(),
+			"codec":       dataStreamDestination.GetCodec().String(),
 		}
 		result = setAndAppendError(data, "data_stream_destination", []interface{}{dataStream}, result)
 	} else {

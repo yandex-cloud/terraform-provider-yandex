@@ -18,6 +18,7 @@ resource "yandex_audit_trails_trail" "basic_trail" {
   data_stream_destination {
     database_id = "some-database"
     stream_name = "some-stream"
+    codec       = "ZSTD"
   }
 
   filtering_policy {

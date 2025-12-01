@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -155,6 +156,15 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.",
 							Required:    true,
+						},
+						"codec": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "RAW",
+							ValidateDiagFunc: validation.ToDiagFunc(
+								validation.StringInSlice([]string{"RAW", "GZIP", "ZSTD"}, false),
+							),
+							Description: "Codec for compressing events. Allowed values: RAW, GZIP, ZSTD. Default: RAW",
 						},
 					},
 				},
@@ -784,6 +794,7 @@ func packResourceDataIntoDestination(data *schema.ResourceData) *audittrails.Tra
 				DataStream: &audittrails.Trail_DataStream{
 					DatabaseId: data.Get("data_stream_destination.0.database_id").(string),
 					StreamName: data.Get("data_stream_destination.0.stream_name").(string),
+					Codec:      audittrails.Trail_Codec(audittrails.Trail_Codec_value[data.Get("data_stream_destination.0.codec").(string)]),
 				},
 			},
 		}
