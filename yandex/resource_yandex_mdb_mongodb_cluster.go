@@ -1660,6 +1660,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 			},
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		UpdateMask:       &field_mask.FieldMask{Paths: mongodbSpecHelper.GetUpdateMask(d)},
 	}
 	return req, nil
 }
@@ -1751,34 +1752,6 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		updatePath = append(updatePath, dsaSpecPath)
 	}
 
-	if d.HasChange("cluster_config.0.mongod") {
-		configSpecPath := "config_spec.mongodb.mongod.config"
-		updatePath = append(updatePath, configSpecPath)
-	}
-
-	hostTypes := getSetOfHostTypes(d)
-	_, hasMongoInfraHosts := hostTypes["MONGOINFRA"]
-
-	if d.HasChange("cluster_config.0.mongos") {
-		var configSpecPath string
-		if hasMongoInfraHosts {
-			configSpecPath = "config_spec.mongodb.mongoinfra.config_mongos"
-		} else {
-			configSpecPath = "config_spec.mongodb.mongos.config"
-		}
-		updatePath = append(updatePath, configSpecPath)
-	}
-
-	if d.HasChange("cluster_config.0.mongocfg") {
-		var configSpecPath string
-		if hasMongoInfraHosts {
-			configSpecPath = "config_spec.mongodb.mongoinfra.config_mongocfg"
-		} else {
-			configSpecPath = "config_spec.mongodb.mongocfg.config"
-		}
-		updatePath = append(updatePath, configSpecPath)
-	}
-
 	if d.HasChange("maintenance_window") {
 		mw, err := expandMongoDBMaintenanceWindow(d)
 		if err != nil {
@@ -1803,11 +1776,11 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 			updatePath = append(updatePath, "config_spec.access.data_transfer")
 		}
 	}
-	if len(updatePath) == 0 {
+	req.UpdateMask = &field_mask.FieldMask{Paths: append(req.UpdateMask.Paths, updatePath...)}
+
+	if len(req.UpdateMask.Paths) == 0 {
 		return nil
 	}
-
-	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Update(ctx, req))
 	if err != nil {

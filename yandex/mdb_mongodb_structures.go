@@ -22,6 +22,52 @@ type MongodbSpecHelper struct {
 	FlattenMongos              func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
 	FlattenMongocfg            func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
 	Expand                     func(d *schema.ResourceData) *mongodb.MongodbSpec
+	GetUpdateMask              func(d *schema.ResourceData) []string
+}
+
+var mdbMongodbConfigUpdateFieldsMap = map[string]string{
+	"cluster_config.0.mongod":                                                          "config_spec.mongodb.mongod.config",
+	"cluster_config.0.mongod.0.security":                                               "config_spec.mongodb.mongod.config.security",
+	"cluster_config.0.mongod.0.security.0.enable_encryption":                           "config_spec.mongodb.mongod.config.security.enable_encryption",
+	"cluster_config.0.mongod.0.security.0.kmip":                                        "config_spec.mongodb.mongod.config.security.kmip",
+	"cluster_config.0.mongod.0.security.0.kmip.0.server_name":                          "config_spec.mongodb.mongod.config.security.kmip.server_name",
+	"cluster_config.0.mongod.0.security.0.kmip.0.port":                                 "config_spec.mongodb.mongod.config.security.kmip.port",
+	"cluster_config.0.mongod.0.security.0.kmip.0.server_ca":                            "config_spec.mongodb.mongod.config.security.kmip.server_ca",
+	"cluster_config.0.mongod.0.security.0.kmip.0.client_certificate":                   "config_spec.mongodb.mongod.config.security.kmip.client_certificate",
+	"cluster_config.0.mongod.0.security.0.kmip.0.key_identifier":                       "config_spec.mongodb.mongod.config.security.kmip.key_identifier",
+	"cluster_config.0.mongod.0.audit_log":                                              "config_spec.mongodb.mongod.config.audit_log",
+	"cluster_config.0.mongod.0.audit_log.0.filter":                                     "config_spec.mongodb.mongod.config.audit_log.filter",
+	"cluster_config.0.mongod.0.set_parameter":                                          "config_spec.mongodb.mongod.config.set_parameter",
+	"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success":            "config_spec.mongodb.mongod.config.set_parameter.audit_authorization_success",
+	"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control":                    "config_spec.mongodb.mongod.config.set_parameter.enable_flow_control",
+	"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds": "config_spec.mongodb.mongod.config.set_parameter.min_snapshot_history_window_in_seconds",
+	"cluster_config.0.mongod.0.net":                                                    "config_spec.mongodb.mongod.config.net",
+	"cluster_config.0.mongod.0.net.0.max_incoming_connections":                         "config_spec.mongodb.mongod.config.net.max_incoming_connections",
+	"cluster_config.0.mongod.0.net.0.compressors":                                      "config_spec.mongodb.mongod.config.net.compression",
+	"cluster_config.0.mongod.0.storage":                                                "config_spec.mongodb.mongod.config.storage",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger":                                  "config_spec.mongodb.mongod.config.storage.wired_tiger",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb":                  "config_spec.mongodb.mongod.config.storage.wired_tiger.engine_config.cache_size_gb",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor":               "config_spec.mongodb.mongod.config.storage.wired_tiger.collection_config.block_compressor",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression":             "config_spec.mongodb.mongod.config.storage.wired_tiger.index_config.prefix_compression",
+	"cluster_config.0.mongod.0.storage.0.journal":                                      "config_spec.mongodb.mongod.config.storage.journal",
+	"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval":                    "config_spec.mongodb.mongod.config.storage.journal.commit_interval",
+	"cluster_config.0.mongod.0.operation_profiling":                                    "config_spec.mongodb.mongod.config.operation_profiling",
+	"cluster_config.0.mongod.0.operation_profiling.0.mode":                             "config_spec.mongodb.mongod.config.operation_profiling.mode",
+	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold":                "config_spec.mongodb.mongod.config.operation_profiling.slow_op_threshold",
+	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate":              "config_spec.mongodb.mongod.config.operation_profiling.slow_op_sample_rate",
+	"cluster_config.0.mongos":                                                          "config_spec.mongodb.mongos.config",
+	"cluster_config.0.mongos.0.net":                                                    "config_spec.mongodb.mongos.config.net",
+	"cluster_config.0.mongos.0.net.0.max_incoming_connections":                         "config_spec.mongodb.mongos.config.net.max_incoming_connections",
+	"cluster_config.0.mongos.0.net.0.compressors":                                      "config_spec.mongodb.mongos.config.net.compression",
+	"cluster_config.0.mongocfg":                                                        "config_spec.mongodb.mongocfg.config",
+	"cluster_config.0.mongocfg.0.net":                                                  "config_spec.mongodb.mongocfg.config.net",
+	"cluster_config.0.mongocfg.0.net.0.max_incoming_connections":                       "config_spec.mongodb.mongocfg.config.net.max_incoming_connections",
+	"cluster_config.0.mongocfg.0.storage":                                              "config_spec.mongodb.mongocfg.config.storage",
+	"cluster_config.0.mongocfg.0.storage.0.wired_tiger":                                "config_spec.mongodb.mongocfg.config.storage.wired_tiger",
+	"cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb":                "config_spec.mongodb.mongocfg.config.storage.wired_tiger.engine_config.cache_size_gb",
+	"cluster_config.0.mongocfg.0.operation_profiling":                                  "config_spec.mongodb.mongocfg.config.operation_profiling",
+	"cluster_config.0.mongocfg.0.operation_profiling.0.mode":                           "config_spec.mongodb.mongocfg.config.operation_profiling.mode",
+	"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold":              "config_spec.mongodb.mongocfg.config.operation_profiling.slow_op_threshold",
 }
 
 func GetMongodbSpecHelper() *MongodbSpecHelper {
@@ -277,6 +323,16 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 			return []map[string]interface{}{}, nil
 		},
 
+		GetUpdateMask: func(d *schema.ResourceData) []string {
+			updateMask := []string{}
+			for k, v := range mdbMongodbConfigUpdateFieldsMap {
+				if d.HasChange(k) {
+					updateMask = append(updateMask, v)
+				}
+			}
+			return updateMask
+		},
+
 		Expand: func(d *schema.ResourceData) *mongodb.MongodbSpec {
 			configMongod := mongo_config.MongodConfig{}
 			configMongos := mongo_config.MongosConfig{}
@@ -287,23 +343,26 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				if enableEncryption := d.Get("cluster_config.0.mongod.0.security.0.enable_encryption"); enableEncryption != nil {
 					security.SetEnableEncryption(&wrappers.BoolValue{Value: enableEncryption.(bool)})
 				}
-				kmip := mongo_config.MongodConfig_Security_KMIP{}
-				if serverName := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.server_name"); serverName != nil {
-					kmip.SetServerName(serverName.(string))
+				if _, ok := d.GetOk("cluster_config.0.mongod.0.security.0.kmip"); ok {
+					kmip := mongo_config.MongodConfig_Security_KMIP{}
+
+					if serverName := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.server_name"); serverName != nil {
+						kmip.SetServerName(serverName.(string))
+					}
+					if port := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.port"); port != nil {
+						kmip.SetPort(&wrappers.Int64Value{Value: int64(port.(int))})
+					}
+					if serverCa := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.server_ca"); serverCa != nil {
+						kmip.SetServerCa(serverCa.(string))
+					}
+					if clientCertificate := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.client_certificate"); clientCertificate != nil {
+						kmip.SetClientCertificate(clientCertificate.(string))
+					}
+					if keyIdentifier := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.key_identifier"); keyIdentifier != nil {
+						kmip.SetKeyIdentifier(keyIdentifier.(string))
+					}
+					security.SetKmip(&kmip)
 				}
-				if port := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.port"); port != nil {
-					kmip.SetPort(&wrappers.Int64Value{Value: int64(port.(int))})
-				}
-				if serverCa := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.server_ca"); serverCa != nil {
-					kmip.SetServerCa(serverCa.(string))
-				}
-				if clientCertificate := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.client_certificate"); clientCertificate != nil {
-					kmip.SetClientCertificate(clientCertificate.(string))
-				}
-				if keyIdentifier := d.Get("cluster_config.0.mongod.0.security.0.kmip.0.key_identifier"); keyIdentifier != nil {
-					kmip.SetKeyIdentifier(keyIdentifier.(string))
-				}
-				security.SetKmip(&kmip)
 				configMongod.SetSecurity(&security)
 			}
 			if _, ok := d.GetOk("cluster_config.0.mongod.0.audit_log"); ok {
@@ -374,24 +433,27 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					CollectionConfig: &collectionConfigMongod,
 					IndexConfig:      &indexConfigMongod,
 				}
-				storageMongod := mongo_config.MongodConfig_Storage{
-					WiredTiger: &wiredTigerMongod,
-					Journal:    &journalMongod,
+				storageMongod := mongo_config.MongodConfig_Storage{}
+				if _, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger"); ok {
+					storageMongod.WiredTiger = &wiredTigerMongod
+					if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+						engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
+					}
+					if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+						blockCompressorInt := mongo_config.MongodConfig_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+						collectionConfigMongod.SetBlockCompressor(
+							mongo_config.MongodConfig_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+						)
+					}
+					if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+						indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+					}
 				}
-				if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-					engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
-				}
-				if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
-					blockCompressorInt := mongo_config.MongodConfig_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
-					collectionConfigMongod.SetBlockCompressor(
-						mongo_config.MongodConfig_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
-					)
-				}
-				if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
-					indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
-				}
-				if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
-					journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+				if _, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal"); ok {
+					storageMongod.Journal = &journalMongod
+					if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+						journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+					}
 				}
 				configMongod.SetStorage(&storageMongod)
 			}
@@ -434,8 +496,11 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
 				engineConfigMongoCfg := mongo_config.MongoCfgConfig_Storage_WiredTiger_EngineConfig{}
 				wiredTigerMongoCfg := mongo_config.MongoCfgConfig_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
-				storageMongoCfg := mongo_config.MongoCfgConfig_Storage{WiredTiger: &wiredTigerMongoCfg}
+				storageMongoCfg := mongo_config.MongoCfgConfig_Storage{}
 
+				if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger"); ok {
+					storageMongoCfg.WiredTiger = &wiredTigerMongoCfg
+				}
 				if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
 					engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 				}
@@ -454,14 +519,12 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				DiskSizeAutoscaling: dsaMongod,
 			}
 
-			if _, ok := hostTypes["MONGOS"]; ok {
+			if len(hostTypes) > 1 {
 				mongos = &mongodb.MongodbSpec_Mongos{
 					Config:              &configMongos,
 					Resources:           resourcesMongos,
 					DiskSizeAutoscaling: dsaMongos,
 				}
-			}
-			if _, ok := hostTypes["MONGOCFG"]; ok {
 				mongocfg = &mongodb.MongodbSpec_MongoCfg{
 					Config:              &configMongoCfg,
 					Resources:           resourcesMongoCfg,
@@ -470,8 +533,6 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 			}
 			if _, ok := hostTypes["MONGOINFRA"]; ok {
 				mongoinfra = &mongodb.MongodbSpec_MongoInfra{
-					ConfigMongocfg:      &configMongoCfg,
-					ConfigMongos:        &configMongos,
 					Resources:           resourcesMongoInfra,
 					DiskSizeAutoscaling: dsaMongoInfra,
 				}
