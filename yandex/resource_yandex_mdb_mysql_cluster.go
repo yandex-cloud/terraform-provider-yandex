@@ -358,7 +358,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"mysql_config": {
 				Type:             schema.TypeMap,
-				Description:      "MySQL cluster config block.",
+				Description:      "MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).",
 				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo),

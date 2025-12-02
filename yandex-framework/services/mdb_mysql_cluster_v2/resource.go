@@ -328,7 +328,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				CustomType:  mdbcommon.NewSettingsMapType(msAttrProvider),
 				Optional:    true,
 				Computed:    true,
-				Description: "MySQL cluster config.",
+				Description: "MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).",
 				PlanModifiers: []planmodifier.Map{
 					mapplanmodifier.UseStateForUnknown(),
 				},
