@@ -37,13 +37,11 @@ func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, c
 	return db
 }
 
-func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, dbName string) {
+func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbSpec *clickhouse.DatabaseSpec) {
 	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
 		return sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
-			ClusterId: cid,
-			DatabaseSpec: &clickhouse.DatabaseSpec{
-				Name: dbName,
-			},
+			ClusterId:    cid,
+			DatabaseSpec: dbSpec,
 		})
 	})
 

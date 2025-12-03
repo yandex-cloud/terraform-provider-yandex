@@ -7,11 +7,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -82,6 +84,15 @@ func (r *bindingResource) Schema(ctx context.Context,
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"engine": schema.StringAttribute{
+				MarkdownDescription: "Database engine, possible values are: atomic,replicated.",
+				Optional:            true,
+				Computed:            true,
+				Validators:          Database_Engine_validator,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
@@ -96,20 +107,17 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	db := readDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	r.refreshState(ctx, &resp.Diagnostics, &state, cid, dbName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// database not found
-	if db == nil {
+	if state.Id.IsNull() {
 		resp.State.RemoveResource(ctx)
 		return
 	}
-	state.ClusterID = types.StringValue(db.ClusterId)
-	state.Name = types.StringValue(db.Name)
 
-	state.Id = types.StringValue(resourceid.Construct(cid, dbName))
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
@@ -131,13 +139,18 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	dbName := plan.Name.ValueString()
-	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	var dbSpec clickhouse.DatabaseSpec
+	stateToSpec(&plan, &dbSpec)
+	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, &dbSpec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	plan.Id = types.StringValue(resourceid.Construct(cid, dbName))
+	r.refreshState(ctx, &resp.Diagnostics, &plan, cid, dbSpec.GetName())
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -176,13 +189,12 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	db := readDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, dbName)
+	var state Database
+	r.refreshState(ctx, &resp.Diagnostics, &state, clusterId, dbName)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	var state Database
-	state.ClusterID = types.StringValue(db.ClusterId)
-	state.Name = types.StringValue(db.Name)
 
 	state.Timeouts = timeouts.Value{
 		Object: types.ObjectNull(map[string]attr.Type{
@@ -193,4 +205,16 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (r *bindingResource) refreshState(ctx context.Context, diag *diag.Diagnostics, state *Database, clusterId, dbName string) {
+	dbSpec := readDatabase(ctx, r.providerConfig.SDK, diag, clusterId, dbName)
+	if diag.HasError() {
+		return
+	}
+	if dbSpec == nil {
+		state.Id = types.StringNull()
+		return
+	}
+	specToState(dbSpec, state)
 }

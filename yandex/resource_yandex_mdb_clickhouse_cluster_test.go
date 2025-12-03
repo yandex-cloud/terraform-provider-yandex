@@ -24,9 +24,9 @@ import (
 	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
-const chVersion = "24.8"
-const chUpdatedVersion = "25.3"
-const chDowngradeVersion = "25.5"
+const chVersion = "25.3"
+const chUpdatedVersion = "25.8"
+const chDowngradeVersion = "25.10"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -136,9 +136,9 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with anytime maintenance_window
 			{
@@ -349,9 +349,9 @@ func TestAccMDBClickHouseCluster_keeper(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Enable embedded_keeper
 			{
@@ -392,9 +392,9 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	const updateClusterDiskSize = 15
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
@@ -476,9 +476,9 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with cloud storage
 			{
@@ -557,9 +557,9 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
@@ -632,9 +632,9 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with specify user settings
 			{
@@ -1178,9 +1178,9 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 1", rInt, chVersion, configForFirstStep),
@@ -1504,9 +1504,9 @@ func TestAccMDBClickHouseCluster_EncryptedDisk(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBClickHouseClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBClickHouseClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with disk encryption
 			{

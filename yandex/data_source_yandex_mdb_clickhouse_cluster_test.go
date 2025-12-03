@@ -18,9 +18,9 @@ func TestAccDataSourceMDBClickHouseCluster_byID(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucketName, true, rInt),
@@ -41,9 +41,9 @@ func TestAccDataSourceMDBClickHouseCluster_byName(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucketName, false, rInt),
@@ -64,9 +64,9 @@ func TestAccDataSourceMDBClickHouseCluster_diskEncryption(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBClickHouseClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBClickHouseClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMDBClickHouseClusterDiskEncrypted(chName, bucketName, chDesc, rInt, chVersion) + mdbClickHouseClusterByIDConfig,

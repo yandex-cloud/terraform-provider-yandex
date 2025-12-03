@@ -47,13 +47,14 @@ func TestAccMDBClickHouseDatabase_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBClickHouseDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName1, chDBResourceName2}),
+				Config: testAccMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName1}) + testAccMDBClickHouseDatabaseWithEngine(chDBResourceName2, "atomic"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterHasDatabases(chClusterResourceID, []string{chDBResourceName1, chDBResourceName2}),
 				),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(dbResource1, tfjsonpath.New("name"), knownvalue.StringExact(chDBResourceName1)),
 					statecheck.ExpectKnownValue(dbResource2, tfjsonpath.New("name"), knownvalue.StringExact(chDBResourceName2)),
+					statecheck.ExpectKnownValue(dbResource2, tfjsonpath.New("engine"), knownvalue.StringExact("atomic")),
 					makeClickHouseDatabaseResourceIDComparer(dbResource1),
 					makeClickHouseDatabaseResourceIDComparer(dbResource2),
 				},
@@ -61,7 +62,7 @@ func TestAccMDBClickHouseDatabase_basic(t *testing.T) {
 			mdbClickHouseDatabaseImportStep(dbResource1),
 			mdbClickHouseDatabaseImportStep(dbResource2),
 			{
-				Config: testAccDataSourceMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName1}),
+				Config: testAccMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName1}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterHasDatabases(chClusterResourceID, []string{chDBResourceName1}),
 				),
@@ -70,7 +71,7 @@ func TestAccMDBClickHouseDatabase_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccDataSourceMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName3, chDBResourceName4}),
+				Config: testAccMDBClickHouseDatabaseBasicConfig(clusterName, description, []string{chDBResourceName3, chDBResourceName4}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterHasDatabases(chClusterResourceID, []string{chDBResourceName3, chDBResourceName4}),
 				),
@@ -79,20 +80,31 @@ func TestAccMDBClickHouseDatabase_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceMDBClickHouseDatabaseBasicConfig(name, description string, dbNames []string) string {
+func testAccMDBClickHouseDatabaseBasicConfig(name, description string, dbNames []string) string {
 	result := testAccMDBClickHouseClusterConfigMain(name, description)
 	for _, dbName := range dbNames {
 		result = result + fmt.Sprintf(`
+
 	resource "yandex_mdb_clickhouse_database" "%s" {
 		cluster_id = %s
 		name       = "%s"
 	}
-
 	
 	`, dbName, chClusterResourceIDLink, dbName,
 		)
 	}
 	return result
+}
+
+func testAccMDBClickHouseDatabaseWithEngine(dbName string, engine string) string {
+	return fmt.Sprintf(`
+	resource "yandex_mdb_clickhouse_database" "%s" {
+		cluster_id = %s
+		name       = "%s"
+		engine = "%s"
+	}
+	`, dbName, chClusterResourceIDLink, dbName, engine,
+	)
 }
 
 func testAccCheckMDBClickHouseDatabaseResourceIDField(resourceName string) resource.TestCheckFunc {

@@ -62,6 +62,10 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 				MarkdownDescription: "The name of the database.",
 				Required:            true,
 			},
+			"engine": schema.StringAttribute{
+				MarkdownDescription: "Database engine, possible values are: atomic,replicated.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -82,5 +86,6 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	state.ClusterID = types.StringValue(db.ClusterId)
 	state.Name = types.StringValue(db.Name)
 	state.Id = types.StringValue(resourceid.Construct(cid, dbName))
+	state.Engine = getDatabaseEngineName(db.Engine)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
