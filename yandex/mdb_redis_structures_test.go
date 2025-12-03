@@ -729,3 +729,17 @@ func TestSortRedisHostsSharded(t *testing.T) {
 		})
 	}
 }
+
+// TestExtractRedisConfig_NilRedis tests that extractRedisConfig handles nil Redis config
+// This occurs with Valkey clusters where ClusterConfig.Redis is nil
+func TestExtractRedisConfig_NilRedis(t *testing.T) {
+	cc := &redis.ClusterConfig{
+		Version: "7.2-valkey",
+		Redis:   nil, // Valkey clusters may have nil Redis config
+	}
+
+	result := extractRedisConfig(cc)
+
+	require.Equal(t, "7.2-valkey", result.version)
+	require.Equal(t, "", result.maxmemoryPolicy)
+}
