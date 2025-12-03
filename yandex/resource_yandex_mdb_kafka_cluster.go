@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -185,6 +186,13 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 						},
 					},
 				},
+			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key to encrypt cluster disks.",
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 		},
 	}
@@ -889,21 +897,29 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 		return nil, fmt.Errorf("error while expanding maintenance window settings on Kafka Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyId *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyId = &wrapperspb.StringValue{
+			Value: val.(string),
+		}
+	}
+
 	req := kafka.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		ConfigSpec:         configSpec,
-		Labels:             labels,
-		SubnetId:           subnets,
-		TopicSpecs:         topicSpecs,
-		UserSpecs:          userSpecs,
-		SecurityGroupIds:   securityGroupIds,
-		HostGroupIds:       hostGroupIds,
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		MaintenanceWindow:  maintenanceWindow,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		ConfigSpec:          configSpec,
+		Labels:              labels,
+		SubnetId:            subnets,
+		TopicSpecs:          topicSpecs,
+		UserSpecs:           userSpecs,
+		SecurityGroupIds:    securityGroupIds,
+		HostGroupIds:        hostGroupIds,
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		MaintenanceWindow:   maintenanceWindow,
+		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}
 	return &req, nil
 }
@@ -1004,6 +1020,12 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
+	}
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err := d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
 	}
 
 	return d.Set("labels", cluster.Labels)

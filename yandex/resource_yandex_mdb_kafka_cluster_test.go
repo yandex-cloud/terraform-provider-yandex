@@ -52,6 +52,10 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-d" {
 }
 `
 
+const kfDiskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
+`
+
 var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"}
 
 func init() {
@@ -2041,6 +2045,77 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		role       = "ACCESS_ROLE_PRODUCER"
 	  }
 	}
+}
+`, name, desc, currentDefaultKafkaVersion)
+}
+
+// Test that an encrypted Kafka Cluster can be created
+func TestAccMDBKafkaCluster_diskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var cluster kafka.Cluster
+	kfName := acctest.RandomWithPrefix("tf-kafka-disk-encryption")
+	kfResource := "yandex_mdb_kafka_cluster.foo"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBKafkaClusterDestroy, testAccCheckYandexKmsSymmetricKeyAllDestroyed),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBKafkaClusterDiskEncrypted(kfName, "Encrypted Kafka cluster"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBKafkaClusterExists(kfResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(kfResource, "disk_encryption_key_id"),
+				),
+			},
+			mdbKafkaClusterImportStep(kfResource),
+		},
+	})
+}
+
+func testAccMDBKafkaClusterDiskEncrypted(name, desc string) string {
+	return fmt.Sprintf(kfVPCDependencies+kfDiskEncryptionKeyResource+`
+resource "yandex_mdb_kafka_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-kafka-test-net.id
+  subnet_ids  = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+
+  config {
+    version          = "%s"
+    brokers_count    = 1
+    zones            = ["ru-central1-a"]
+    assign_public_ip = false
+    kafka {
+      resources {
+        resource_preset_id = "s2.micro"
+        disk_type_id       = "network-ssd"
+        disk_size          = 16
+      }
+      kafka_config {
+        compression_type = "COMPRESSION_TYPE_ZSTD"
+      }
+    }
+  }
+
+  topic {
+    name               = "test"
+    partitions         = 1
+    replication_factor = 1
+  }
+
+  user {
+    name     = "alice"
+    password = "password"
+    permission {
+      topic_name = "test"
+      role       = "ACCESS_ROLE_PRODUCER"
+    }
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
 }
 `, name, desc, currentDefaultKafkaVersion)
 }

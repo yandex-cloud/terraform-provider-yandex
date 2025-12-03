@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_kafka: add disk_encryption_key_id field support for kafka clusters'
+time: 2025-11-25T14:07:51.80229+05:00

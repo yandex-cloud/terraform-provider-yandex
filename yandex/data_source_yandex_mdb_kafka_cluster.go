@@ -151,6 +151,11 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 					},
 				},
 			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the KMS key to encrypt cluster disks.",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -243,6 +248,12 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	}
 	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
+	}
+
+	if cluster.DiskEncryptionKeyId != nil {
+		if err := d.Set("disk_encryption_key_id", cluster.DiskEncryptionKeyId.GetValue()); err != nil {
+			return err
+		}
 	}
 
 	d.SetId(cluster.Id)
