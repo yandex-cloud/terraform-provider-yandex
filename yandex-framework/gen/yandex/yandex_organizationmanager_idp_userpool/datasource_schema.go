@@ -170,6 +170,69 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						Computed: true,
 					},
 
+					"fixed": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"digits_required": schema.BoolAttribute{
+								MarkdownDescription: "Whether digits are required in the password.",
+								Description: "Whether digits are required in the password." +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.digits_required
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+
+							"lowers_required": schema.BoolAttribute{
+								MarkdownDescription: "Whether lowercase letters are required in the password.",
+								Description: "Whether lowercase letters are required in the password." +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.lowers_required
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+
+							"min_length": schema.Int64Attribute{
+								MarkdownDescription: "Minimum length required for all passwords.",
+								Description: "Minimum length required for all passwords." +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.min_length
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+
+							"specials_required": schema.BoolAttribute{
+								MarkdownDescription: "Whether special characters are required in the password.",
+								Description: "Whether special characters are required in the password." +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.specials_required
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+
+							"uppers_required": schema.BoolAttribute{
+								MarkdownDescription: "Whether uppercase letters are required in the password.",
+								Description: "Whether uppercase letters are required in the password." +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.uppers_required
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+						},
+						MarkdownDescription: "Fixed complexity requirements. Exactly one of complexity requirements must be specified.",
+						Description: "Fixed complexity requirements. Exactly one of complexity requirements must be specified." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed
+							"package: yandex.cloud.organizationmanager.v1.idp\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+						Computed: true,
+					},
+
 					"match_length": schema.Int64Attribute{
 						MarkdownDescription: "Minimum length of substrings to check for similarity to vulnerable sequences.",
 						Description: "Minimum length of substrings to check for similarity to vulnerable sequences." +
@@ -190,107 +253,54 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						Computed: true,
 					},
 
-					"min_length": schema.Int64Attribute{
-						MarkdownDescription: "Minimum password length.",
-						Description: "Minimum password length." +
-							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length
-							"package: yandex.cloud.organizationmanager.v1.idp\n" +
-							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-						Computed: true,
-					},
-
-					"min_length_by_class_settings": schema.SingleNestedAttribute{
+					"smart": schema.SingleNestedAttribute{
 
 						Attributes: map[string]schema.Attribute{
 
-							"one": schema.Int64Attribute{
-								MarkdownDescription: "Minimum length for passwords with one character class.",
-								Description: "Minimum length for passwords with one character class." +
+							"four_classes": schema.Int64Attribute{
+								MarkdownDescription: "For passwords with all four classes of characters",
+								Description: "For passwords with all four classes of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.one
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.four_classes
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
 							},
 
-							"three": schema.Int64Attribute{
-								MarkdownDescription: "Minimum length for passwords with three character classes.",
-								Description: "Minimum length for passwords with three character classes." +
+							"one_class": schema.Int64Attribute{
+								MarkdownDescription: "For passwords with one class of characters",
+								Description: "For passwords with one class of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.three
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.one_class
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
 							},
 
-							"two": schema.Int64Attribute{
-								MarkdownDescription: "Minimum length for passwords with two character classes.",
-								Description: "Minimum length for passwords with two character classes." +
+							"three_classes": schema.Int64Attribute{
+								MarkdownDescription: "For passwords with three classes of characters",
+								Description: "For passwords with three classes of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settingsyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.MinLengthByClassSettings.two
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.three_classes
+									"package: yandex.cloud.organizationmanager.v1.idp\n" +
+									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+								Computed: true,
+							},
+
+							"two_classes": schema.Int64Attribute{
+								MarkdownDescription: "For passwords with two classes of characters",
+								Description: "For passwords with two classes of characters" +
+									// proto paths: +
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.two_classes
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "Minimum length requirements based on character class diversity.\n If not specified, these checks are disabled.",
-						Description: "Minimum length requirements based on character class diversity.\n If not specified, these checks are disabled." +
+						MarkdownDescription: "Smart complexity requirements. Exactly one of complexity requirements must be specified.",
+						Description: "Smart complexity requirements. Exactly one of complexity requirements must be specified." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.min_length_by_class_settings
-							"package: yandex.cloud.organizationmanager.v1.idp\n" +
-							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-						Computed: true,
-					},
-
-					"required_classes": schema.SingleNestedAttribute{
-
-						Attributes: map[string]schema.Attribute{
-
-							"digits": schema.BoolAttribute{
-								MarkdownDescription: "Whether digits are required.",
-								Description: "Whether digits are required." +
-									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.digits
-									"package: yandex.cloud.organizationmanager.v1.idp\n" +
-									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-								Computed: true,
-							},
-
-							"lowers": schema.BoolAttribute{
-								MarkdownDescription: "Whether lowercase letters are required.",
-								Description: "Whether lowercase letters are required." +
-									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.lowers
-									"package: yandex.cloud.organizationmanager.v1.idp\n" +
-									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-								Computed: true,
-							},
-
-							"specials": schema.BoolAttribute{
-								MarkdownDescription: "Whether special characters are required.",
-								Description: "Whether special characters are required." +
-									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.specials
-									"package: yandex.cloud.organizationmanager.v1.idp\n" +
-									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-								Computed: true,
-							},
-
-							"uppers": schema.BoolAttribute{
-								MarkdownDescription: "Whether uppercase letters are required.",
-								Description: "Whether uppercase letters are required." +
-									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classesyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.RequiredClasses.uppers
-									"package: yandex.cloud.organizationmanager.v1.idp\n" +
-									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
-								Computed: true,
-							},
-						},
-						MarkdownDescription: "Character classes required in passwords.",
-						Description: "Character classes required in passwords." +
-							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.required_classes
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,

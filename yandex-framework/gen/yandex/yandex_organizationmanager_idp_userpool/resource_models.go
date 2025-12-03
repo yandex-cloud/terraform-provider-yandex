@@ -465,16 +465,18 @@ func expandYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel(ctx c
 }
 
 type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel struct {
-	AllowSimilar             types.Bool   `tfsdk:"allow_similar"`
-	MatchLength              types.Int64  `tfsdk:"match_length"`
-	MaxLength                types.Int64  `tfsdk:"max_length"`
-	MinLength                types.Int64  `tfsdk:"min_length"`
-	MinLengthByClassSettings types.Object `tfsdk:"min_length_by_class_settings"`
-	RequiredClasses          types.Object `tfsdk:"required_classes"`
+	AllowSimilar types.Bool   `tfsdk:"allow_similar"`
+	Fixed        types.Object `tfsdk:"fixed"`
+	MatchLength  types.Int64  `tfsdk:"match_length"`
+	MaxLength    types.Int64  `tfsdk:"max_length"`
+	Smart        types.Object `tfsdk:"smart"`
 }
 
 func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetAllowSimilar() types.Bool {
 	return m.AllowSimilar
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetFixed() types.Object {
+	return m.Fixed
 }
 func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMatchLength() types.Int64 {
 	return m.MatchLength
@@ -482,24 +484,17 @@ func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMatc
 func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMaxLength() types.Int64 {
 	return m.MaxLength
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMinLength() types.Int64 {
-	return m.MinLength
-}
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMinLengthByClassSettings() types.Object {
-	return m.MinLengthByClassSettings
-}
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetRequiredClasses() types.Object {
-	return m.RequiredClasses
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetSmart() types.Object {
+	return m.Smart
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel{
-		AllowSimilar:             types.BoolNull(),
-		MatchLength:              types.Int64Null(),
-		MaxLength:                types.Int64Null(),
-		MinLength:                types.Int64Null(),
-		MinLengthByClassSettings: types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType.AttrTypes),
-		RequiredClasses:          types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType.AttrTypes),
+		AllowSimilar: types.BoolNull(),
+		Fixed:        types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType.AttrTypes),
+		MatchLength:  types.Int64Null(),
+		MaxLength:    types.Int64Null(),
+		Smart:        types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType.AttrTypes),
 	}
 }
 
@@ -507,32 +502,28 @@ func yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelFillUnknown(t
 	if target.AllowSimilar.IsUnknown() || target.AllowSimilar.IsNull() {
 		target.AllowSimilar = types.BoolNull()
 	}
+	if target.Fixed.IsUnknown() || target.Fixed.IsNull() {
+		target.Fixed = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType.AttrTypes)
+	}
 	if target.MatchLength.IsUnknown() || target.MatchLength.IsNull() {
 		target.MatchLength = types.Int64Null()
 	}
 	if target.MaxLength.IsUnknown() || target.MaxLength.IsNull() {
 		target.MaxLength = types.Int64Null()
 	}
-	if target.MinLength.IsUnknown() || target.MinLength.IsNull() {
-		target.MinLength = types.Int64Null()
-	}
-	if target.MinLengthByClassSettings.IsUnknown() || target.MinLengthByClassSettings.IsNull() {
-		target.MinLengthByClassSettings = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType.AttrTypes)
-	}
-	if target.RequiredClasses.IsUnknown() || target.RequiredClasses.IsNull() {
-		target.RequiredClasses = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType.AttrTypes)
+	if target.Smart.IsUnknown() || target.Smart.IsNull() {
+		target.Smart = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType.AttrTypes)
 	}
 	return target
 }
 
 var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"allow_similar":                types.BoolType,
-		"match_length":                 types.Int64Type,
-		"max_length":                   types.Int64Type,
-		"min_length":                   types.Int64Type,
-		"min_length_by_class_settings": yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType,
-		"required_classes":             yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType,
+		"allow_similar": types.BoolType,
+		"fixed":         yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType,
+		"match_length":  types.Int64Type,
+		"max_length":    types.Int64Type,
+		"smart":         yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType,
 	},
 }
 
@@ -543,12 +534,11 @@ func flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx contex
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel{
-		AllowSimilar:             types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetAllowSimilar()),
-		MatchLength:              types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMatchLength())),
-		MaxLength:                types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMaxLength())),
-		MinLength:                types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMinLength())),
-		MinLengthByClassSettings: flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMinLengthByClassSettings(), diags),
-		RequiredClasses:          flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetRequiredClasses(), diags),
+		AllowSimilar: types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetAllowSimilar()),
+		Fixed:        flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetFixed(), diags),
+		MatchLength:  types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMatchLength())),
+		MaxLength:    types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetMaxLength())),
+		Smart:        flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy.GetSmart(), diags),
 	})
 	diags.Append(diag...)
 	return value
@@ -569,188 +559,213 @@ func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx context
 func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel, diags *diag.Diagnostics) *idp.PasswordQualityPolicy {
 	value := &idp.PasswordQualityPolicy{}
 	value.SetAllowSimilar(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.AllowSimilar.ValueBool())
+	if !(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsUnknown() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.Equal(types.Object{})) {
+		value.SetFixed(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed, diags))
+	}
 	value.SetMatchLength((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MatchLength.ValueInt64()))
 	value.SetMaxLength((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MaxLength.ValueInt64()))
-	value.SetMinLength((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MinLength.ValueInt64()))
-	value.SetMinLengthByClassSettings(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MinLengthByClassSettings, diags))
-	value.SetRequiredClasses(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.RequiredClasses, diags))
+	if !(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsUnknown() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.Equal(types.Object{})) {
+		value.SetSmart(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart, diags))
+	}
 	if diags.HasError() {
 		return nil
 	}
 	return value
 }
 
-type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel struct {
-	One   types.Int64 `tfsdk:"one"`
-	Three types.Int64 `tfsdk:"three"`
-	Two   types.Int64 `tfsdk:"two"`
+type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel struct {
+	DigitsRequired   types.Bool  `tfsdk:"digits_required"`
+	LowersRequired   types.Bool  `tfsdk:"lowers_required"`
+	MinLength        types.Int64 `tfsdk:"min_length"`
+	SpecialsRequired types.Bool  `tfsdk:"specials_required"`
+	UppersRequired   types.Bool  `tfsdk:"uppers_required"`
 }
 
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetOne() types.Int64 {
-	return m.One
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) GetDigitsRequired() types.Bool {
+	return m.DigitsRequired
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetThree() types.Int64 {
-	return m.Three
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) GetLowersRequired() types.Bool {
+	return m.LowersRequired
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) GetTwo() types.Int64 {
-	return m.Two
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) GetMinLength() types.Int64 {
+	return m.MinLength
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) GetSpecialsRequired() types.Bool {
+	return m.SpecialsRequired
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) GetUppersRequired() types.Bool {
+	return m.UppersRequired
 }
 
-func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel {
-	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel{
-		One:   types.Int64Null(),
-		Three: types.Int64Null(),
-		Two:   types.Int64Null(),
+func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel {
+	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel{
+		DigitsRequired:   types.BoolNull(),
+		LowersRequired:   types.BoolNull(),
+		MinLength:        types.Int64Null(),
+		SpecialsRequired: types.BoolNull(),
+		UppersRequired:   types.BoolNull(),
 	}
 }
 
-func yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelFillUnknown(target yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel) yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel {
-	if target.One.IsUnknown() || target.One.IsNull() {
-		target.One = types.Int64Null()
+func yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelFillUnknown(target yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel {
+	if target.DigitsRequired.IsUnknown() || target.DigitsRequired.IsNull() {
+		target.DigitsRequired = types.BoolNull()
 	}
-	if target.Three.IsUnknown() || target.Three.IsNull() {
-		target.Three = types.Int64Null()
+	if target.LowersRequired.IsUnknown() || target.LowersRequired.IsNull() {
+		target.LowersRequired = types.BoolNull()
 	}
-	if target.Two.IsUnknown() || target.Two.IsNull() {
-		target.Two = types.Int64Null()
+	if target.MinLength.IsUnknown() || target.MinLength.IsNull() {
+		target.MinLength = types.Int64Null()
+	}
+	if target.SpecialsRequired.IsUnknown() || target.SpecialsRequired.IsNull() {
+		target.SpecialsRequired = types.BoolNull()
+	}
+	if target.UppersRequired.IsUnknown() || target.UppersRequired.IsNull() {
+		target.UppersRequired = types.BoolNull()
 	}
 	return target
 }
 
-var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType = types.ObjectType{
+var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"one":   types.Int64Type,
-		"three": types.Int64Type,
-		"two":   types.Int64Type,
+		"digits_required":   types.BoolType,
+		"lowers_required":   types.BoolType,
+		"min_length":        types.Int64Type,
+		"specials_required": types.BoolType,
+		"uppers_required":   types.BoolType,
 	},
 }
 
-func flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings(ctx context.Context,
-	yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings *idp.PasswordQualityPolicy_MinLengthByClassSettings,
+func flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed(ctx context.Context,
+	yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed *idp.PasswordQualityPolicy_Fixed,
 	diags *diag.Diagnostics) types.Object {
-	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings == nil {
-		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType.AttrTypes)
+	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed == nil {
+		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType.AttrTypes)
 	}
-	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel{
-		One:   types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings.GetOne())),
-		Three: types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings.GetThree())),
-		Two:   types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings.GetTwo())),
+	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel{
+		DigitsRequired:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed.GetDigitsRequired()),
+		LowersRequired:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed.GetLowersRequired()),
+		MinLength:        types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed.GetMinLength())),
+		SpecialsRequired: types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed.GetSpecialsRequired()),
+		UppersRequired:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed.GetUppersRequired()),
 	})
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState types.Object, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_MinLengthByClassSettings {
-	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.IsUnknown() {
+func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState types.Object, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_Fixed {
+	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.IsUnknown() {
 		return nil
 	}
-	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel
-	diags.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel
+	diags.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 	if diags.HasError() {
 		return nil
 	}
-	return expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettings, diags)
+	return expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixed, diags)
 }
 
-func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsModel, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_MinLengthByClassSettings {
-	value := &idp.PasswordQualityPolicy_MinLengthByClassSettings{}
-	value.SetOne((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.One.ValueInt64()))
-	value.SetThree((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.Three.ValueInt64()))
-	value.SetTwo((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyMinLengthByClassSettingsState.Two.ValueInt64()))
+func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_Fixed {
+	value := &idp.PasswordQualityPolicy_Fixed{}
+	value.SetDigitsRequired(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.DigitsRequired.ValueBool())
+	value.SetLowersRequired(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.LowersRequired.ValueBool())
+	value.SetMinLength((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.MinLength.ValueInt64()))
+	value.SetSpecialsRequired(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.SpecialsRequired.ValueBool())
+	value.SetUppersRequired(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.UppersRequired.ValueBool())
 	if diags.HasError() {
 		return nil
 	}
 	return value
 }
 
-type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel struct {
-	Digits   types.Bool `tfsdk:"digits"`
-	Lowers   types.Bool `tfsdk:"lowers"`
-	Specials types.Bool `tfsdk:"specials"`
-	Uppers   types.Bool `tfsdk:"uppers"`
+type yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel struct {
+	FourClasses  types.Int64 `tfsdk:"four_classes"`
+	OneClass     types.Int64 `tfsdk:"one_class"`
+	ThreeClasses types.Int64 `tfsdk:"three_classes"`
+	TwoClasses   types.Int64 `tfsdk:"two_classes"`
 }
 
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetDigits() types.Bool {
-	return m.Digits
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) GetFourClasses() types.Int64 {
+	return m.FourClasses
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetLowers() types.Bool {
-	return m.Lowers
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) GetOneClass() types.Int64 {
+	return m.OneClass
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetSpecials() types.Bool {
-	return m.Specials
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) GetThreeClasses() types.Int64 {
+	return m.ThreeClasses
 }
-func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) GetUppers() types.Bool {
-	return m.Uppers
-}
-
-func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel {
-	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel{
-		Digits:   types.BoolNull(),
-		Lowers:   types.BoolNull(),
-		Specials: types.BoolNull(),
-		Uppers:   types.BoolNull(),
-	}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) GetTwoClasses() types.Int64 {
+	return m.TwoClasses
 }
 
-func yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelFillUnknown(target yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel) yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel {
-	if target.Digits.IsUnknown() || target.Digits.IsNull() {
-		target.Digits = types.BoolNull()
+func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel {
+	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel{
+		FourClasses:  types.Int64Null(),
+		OneClass:     types.Int64Null(),
+		ThreeClasses: types.Int64Null(),
+		TwoClasses:   types.Int64Null(),
 	}
-	if target.Lowers.IsUnknown() || target.Lowers.IsNull() {
-		target.Lowers = types.BoolNull()
+}
+
+func yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelFillUnknown(target yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel {
+	if target.FourClasses.IsUnknown() || target.FourClasses.IsNull() {
+		target.FourClasses = types.Int64Null()
 	}
-	if target.Specials.IsUnknown() || target.Specials.IsNull() {
-		target.Specials = types.BoolNull()
+	if target.OneClass.IsUnknown() || target.OneClass.IsNull() {
+		target.OneClass = types.Int64Null()
 	}
-	if target.Uppers.IsUnknown() || target.Uppers.IsNull() {
-		target.Uppers = types.BoolNull()
+	if target.ThreeClasses.IsUnknown() || target.ThreeClasses.IsNull() {
+		target.ThreeClasses = types.Int64Null()
+	}
+	if target.TwoClasses.IsUnknown() || target.TwoClasses.IsNull() {
+		target.TwoClasses = types.Int64Null()
 	}
 	return target
 }
 
-var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType = types.ObjectType{
+var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"digits":   types.BoolType,
-		"lowers":   types.BoolType,
-		"specials": types.BoolType,
-		"uppers":   types.BoolType,
+		"four_classes":  types.Int64Type,
+		"one_class":     types.Int64Type,
+		"three_classes": types.Int64Type,
+		"two_classes":   types.Int64Type,
 	},
 }
 
-func flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses(ctx context.Context,
-	yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses *idp.PasswordQualityPolicy_RequiredClasses,
+func flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart(ctx context.Context,
+	yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart *idp.PasswordQualityPolicy_Smart,
 	diags *diag.Diagnostics) types.Object {
-	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses == nil {
-		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType.AttrTypes)
+	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart == nil {
+		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType.AttrTypes)
 	}
-	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel{
-		Digits:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses.GetDigits()),
-		Lowers:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses.GetLowers()),
-		Specials: types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses.GetSpecials()),
-		Uppers:   types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses.GetUppers()),
+	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel{
+		FourClasses:  types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart.GetFourClasses())),
+		OneClass:     types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart.GetOneClass())),
+		ThreeClasses: types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart.GetThreeClasses())),
+		TwoClasses:   types.Int64Value(int64(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart.GetTwoClasses())),
 	})
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState types.Object, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_RequiredClasses {
-	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.IsUnknown() {
+func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState types.Object, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_Smart {
+	if yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.IsUnknown() {
 		return nil
 	}
-	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel
-	diags.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel
+	diags.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 	if diags.HasError() {
 		return nil
 	}
-	return expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClasses, diags)
+	return expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel(ctx, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmart, diags)
 }
 
-func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesModel, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_RequiredClasses {
-	value := &idp.PasswordQualityPolicy_RequiredClasses{}
-	value.SetDigits(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.Digits.ValueBool())
-	value.SetLowers(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.Lowers.ValueBool())
-	value.SetSpecials(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.Specials.ValueBool())
-	value.SetUppers(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyRequiredClassesState.Uppers.ValueBool())
+func expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel, diags *diag.Diagnostics) *idp.PasswordQualityPolicy_Smart {
+	value := &idp.PasswordQualityPolicy_Smart{}
+	value.SetFourClasses((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.FourClasses.ValueInt64()))
+	value.SetOneClass((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.OneClass.ValueInt64()))
+	value.SetThreeClasses((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.ThreeClasses.ValueInt64()))
+	value.SetTwoClasses((yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.TwoClasses.ValueInt64()))
 	if diags.HasError() {
 		return nil
 	}
