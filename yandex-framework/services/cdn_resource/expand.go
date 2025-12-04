@@ -74,7 +74,15 @@ func ExpandCDNResourceOptions(ctx context.Context, planOptions []CDNOptionsModel
 	result.Slice = expandBoolOptionIfSet(opt.Slice)
 	result.IgnoreCookie = expandBoolOptionIfSet(opt.IgnoreCookie)
 	result.ProxyCacheMethodsSet = expandBoolOptionIfSet(opt.ProxyCacheMethodsSet)
-	result.DisableProxyForceRanges = expandBoolOptionIfSet(opt.DisableProxyForceRanges)
+
+	if !opt.DisableProxyForceRanges.IsNull() && opt.DisableProxyForceRanges.ValueBool() {
+		result.DisableProxyForceRanges = &cdn.ResourceOptions_BoolOption{
+			Enabled: true,
+			Value:   true,
+		}
+	} else {
+		result.DisableProxyForceRanges = nil
+	}
 
 	// Cache settings - nested blocks
 	expandEdgeCacheSettings(ctx, opt.EdgeCacheSettings, result, diags)
