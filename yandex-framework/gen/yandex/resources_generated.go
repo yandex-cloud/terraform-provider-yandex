@@ -55,6 +55,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_saml_application"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_saml_signature_certificate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_userpool"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_binding"
@@ -99,6 +100,7 @@ func init() {
 		yandex_lb_target_group.NewResource,
 		yandex_organizationmanager_idp_application_oauth_application.NewResource,
 		yandex_organizationmanager_idp_application_saml_application.NewResource,
+		yandex_organizationmanager_idp_application_saml_signature_certificate.NewResource,
 		yandex_organizationmanager_idp_user.NewResource,
 		yandex_organizationmanager_idp_userpool.NewResource,
 		yandex_organizationmanager_group.NewResource,
