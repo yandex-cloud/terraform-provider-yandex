@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added field `engine` to yandex_mdb_clickhouse_database resources.'
-time: 2025-10-20T06:11:20.072226544+03:00
