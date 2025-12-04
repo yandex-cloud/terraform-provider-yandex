@@ -154,8 +154,6 @@ func flattenGreenplumClusterConfig(c *greenplum.ClusterConfigSet) (map[string]st
 
 	if cf, ok := c.GreenplumConfig.(*greenplum.ClusterConfigSet_GreenplumConfigSet_6); ok {
 		gpConfig = cf.GreenplumConfigSet_6.UserConfig
-	} else if cf, ok := c.GreenplumConfig.(*greenplum.ClusterConfigSet_GreenplumConfigSet_6_22); ok {
-		gpConfig = cf.GreenplumConfigSet_6_22.UserConfig
 	}
 
 	return flattenResourceGenerateMapS(gpConfig, false, mdbGreenplumSettingsFieldsInfo, false, true, nil)
