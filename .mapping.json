@@ -1011,6 +1011,7 @@
   "pkg/converter/map.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/map.go",
   "pkg/converter/memory.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/memory.go",
   "pkg/converter/object.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/object.go",
+  "pkg/converter/string.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/string.go",
   "pkg/converter/time_of_day.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/time_of_day.go",
   "pkg/converter/timestamp.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/timestamp.go",
   "pkg/datasize/datasize.go":"opensource/terraform-provider-yandex-mirror/pkg/datasize/datasize.go",
