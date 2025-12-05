@@ -147,6 +147,19 @@ func CatalogResourceSchema(_ context.Context) schema.Schema {
 				Description:         "Configuration for TPCH connector.",
 				MarkdownDescription: "Configuration for TPCH connector.",
 			},
+			"mysql": schema.SingleNestedAttribute{
+				Validators: []validator.Object{
+					onlyOneOptionValidator("Mysql", "connection_manager", "on_premise"),
+				},
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesSchema(),
+					"connection_manager":    mysqlConnectionManagerSchema(),
+					"on_premise":            onPremiseSchema(),
+				},
+				Optional:            true,
+				Description:         "Configuration for MySQL connector.",
+				MarkdownDescription: "Configuration for MySQL connector.",
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"timeouts": schema.SingleNestedBlock{
@@ -180,6 +193,27 @@ func connectionManagerSchema() schema.SingleNestedAttribute {
 		Optional:            true,
 		Description:         "Configuration for connection manager connection.",
 		MarkdownDescription: "Configuration for connection manager connection.",
+	}
+}
+
+func mysqlConnectionManagerSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Attributes: map[string]schema.Attribute{
+			"connection_id": schema.StringAttribute{
+				Required:            true,
+				Description:         "Connection ID.",
+				MarkdownDescription: "Connection ID.",
+			},
+			"connection_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Additional connection properties.",
+				MarkdownDescription: "Additional connection properties.",
+			},
+		},
+		Optional:            true,
+		Description:         "Configuration for MySQL connection manager connection.",
+		MarkdownDescription: "Configuration for MySQL connection manager connection.",
 	}
 }
 
@@ -293,6 +327,7 @@ type CatalogModel struct {
 	Hive       types.Object `tfsdk:"hive"`
 	Hudi       types.Object `tfsdk:"hudi"`
 	Iceberg    types.Object `tfsdk:"iceberg"`
+	Mysql      types.Object `tfsdk:"mysql"`
 	Oracle     types.Object `tfsdk:"oracle"`
 	Postgresql types.Object `tfsdk:"postgresql"`
 	Sqlserver  types.Object `tfsdk:"sqlserver"`
@@ -761,4 +796,58 @@ func (v *Tpch) Equal(other *Tpch) bool {
 	}
 
 	return true
+}
+
+type Mysql struct {
+	AdditionalProperties types.Map    `tfsdk:"additional_properties"`
+	ConnectionManager    types.Object `tfsdk:"connection_manager"`
+	OnPremise            types.Object `tfsdk:"on_premise"`
+}
+
+var MysqlT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"connection_manager":    MysqlConnectionManagerT,
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewMysqlNull() Mysql {
+	return Mysql{
+		AdditionalProperties: types.MapNull(types.StringType),
+		ConnectionManager:    types.ObjectNull(MysqlConnectionManagerT.AttrTypes),
+		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
+	}
+}
+
+func (v *Mysql) Equal(other *Mysql) bool {
+	if (v == nil && other != nil) || (v != nil && other == nil) {
+		return false
+	}
+
+	if !v.AdditionalProperties.Equal(other.AdditionalProperties) {
+		return false
+	}
+
+	if !v.ConnectionManager.Equal(other.ConnectionManager) {
+		return false
+	}
+
+	if !v.OnPremise.Equal(other.OnPremise) {
+		return false
+	}
+
+	return true
+}
+
+type MysqlConnectionManager struct {
+	ConnectionId         types.String `tfsdk:"connection_id"`
+	ConnectionProperties types.Map    `tfsdk:"connection_properties"`
+}
+
+var MysqlConnectionManagerT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"connection_id":         types.StringType,
+		"connection_properties": types.MapType{ElemType: types.StringType},
+	},
 }

@@ -158,6 +158,13 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogMode
 		if state != nil && !plan.Tpch.Equal(state.Tpch) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.tpch")
 		}
+	case !plan.Mysql.IsNull() && !plan.Mysql.IsUnknown():
+		mysql, dd := mysqlConnectorToAPI(ctx, plan.Mysql)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Mysql{Mysql: mysql}
+		if state != nil && !plan.Mysql.Equal(state.Mysql) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.mysql")
+		}
 	}
 	if diags.HasError() {
 		return nil, nil, diags
@@ -592,6 +599,51 @@ func tpchConnectorToAPI(ctx context.Context, tpchObj types.Object) (*trino.TPCHC
 
 	connector := &trino.TPCHConnector{
 		AdditionalProperties: additionalProperties,
+	}
+
+	return connector, diags
+}
+
+func mysqlConnectorToAPI(ctx context.Context, mysqlObj types.Object) (*trino.MysqlConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var mysql Mysql
+	diags.Append(mysqlObj.As(ctx, &mysql, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(mysql.AdditionalProperties.Elements()))
+	diags.Append(mysql.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.MysqlConnector{
+		Connection:           &trino.MysqlConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !mysql.OnPremise.IsNull() && !mysql.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(mysql.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.MysqlConnection_OnPremise_{
+			OnPremise: &trino.MysqlConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !mysql.ConnectionManager.IsNull() && !mysql.ConnectionManager.IsUnknown():
+		connectionManager := MysqlConnectionManager{}
+		diags.Append(mysql.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.MysqlConnection_ConnectionManager_{
+			ConnectionManager: &trino.MysqlConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
 	}
 
 	return connector, diags

@@ -88,6 +88,16 @@ func CatalogDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The resource name.",
 				MarkdownDescription: "The resource name.",
 			},
+			"mysql": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesDataSourceSchema(),
+					"connection_manager":    mysqlConnectionManagerDataSourceSchema(),
+					"on_premise":            onPremiseDataSourceSchema(),
+				},
+				Computed:            true,
+				Description:         "Configuration for MySQL connector.",
+				MarkdownDescription: "Configuration for MySQL connector.",
+			},
 			"oracle": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesDataSourceSchema(),
@@ -260,5 +270,26 @@ func metastoreDataSourceSchema() schema.SingleNestedAttribute {
 		Computed:            true,
 		Description:         "Metastore configuration.",
 		MarkdownDescription: "Metastore configuration.",
+	}
+}
+
+func mysqlConnectionManagerDataSourceSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Attributes: map[string]schema.Attribute{
+			"connection_id": schema.StringAttribute{
+				Computed:            true,
+				Description:         "Connection ID.",
+				MarkdownDescription: "Connection ID.",
+			},
+			"connection_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "Additional connection properties.",
+				MarkdownDescription: "Additional connection properties.",
+			},
+		},
+		Computed:            true,
+		Description:         "Configuration for MySQL connection manager connection.",
+		MarkdownDescription: "Configuration for MySQL connection manager connection.",
 	}
 }

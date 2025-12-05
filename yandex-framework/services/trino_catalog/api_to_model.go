@@ -68,6 +68,10 @@ func CatalogToState(ctx context.Context, catalog *trino.Catalog, state *CatalogM
 		tpchObject, dd := tpchToModelObject(ctx, connector.Tpch, state.Tpch)
 		diags.Append(dd...)
 		state.Tpch = tpchObject
+	case *trino.Connector_Mysql:
+		mysqlObject, dd := mysqlToModelObject(ctx, connector.Mysql, state.Mysql)
+		diags.Append(dd...)
+		state.Mysql = mysqlObject
 	}
 
 	return diags
@@ -430,6 +434,56 @@ func connectionManagerToModel(ctx context.Context, apiConnectionManager connecti
 	}
 
 	connectionManagerObject, dd := types.ObjectValueFrom(ctx, ConnectionManagerT.AttributeTypes(), connectionManager)
+	diags.Append(dd...)
+	return connectionManagerObject, diags
+}
+
+func mysqlToModelObject(ctx context.Context, mysql *trino.MysqlConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	state := Mysql{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewMysqlNull()
+	}
+
+	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, mysql.AdditionalProperties)
+	diags.Append(dd...)
+	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
+		state.AdditionalProperties = additionalProperties
+	}
+
+	switch connection := mysql.Connection.Type.(type) {
+	case *trino.MysqlConnection_OnPremise_:
+		obPremiseObject, dd := onPremiseToModel(ctx, state.OnPremise, connection.OnPremise)
+		diags.Append(dd...)
+		state.OnPremise = obPremiseObject
+	case *trino.MysqlConnection_ConnectionManager_:
+		connectionManagerObject, dd := mysqlConnectionManagerToModel(ctx, connection.ConnectionManager)
+		diags.Append(dd...)
+		state.ConnectionManager = connectionManagerObject
+	}
+
+	return types.ObjectValueFrom(ctx, MysqlT.AttributeTypes(), state)
+}
+
+type mysqlConnectionManagerAPI interface {
+	GetConnectionId() string
+	GetConnectionProperties() map[string]string
+}
+
+func mysqlConnectionManagerToModel(ctx context.Context, apiConnectionManager mysqlConnectionManagerAPI) (types.Object, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+	connectionProperties, dd := types.MapValueFrom(ctx, types.StringType, apiConnectionManager.GetConnectionProperties())
+	diags.Append(dd...)
+
+	connectionManager := MysqlConnectionManager{
+		ConnectionId:         types.StringValue(apiConnectionManager.GetConnectionId()),
+		ConnectionProperties: connectionProperties,
+	}
+
+	connectionManagerObject, dd := types.ObjectValueFrom(ctx, MysqlConnectionManagerT.AttributeTypes(), connectionManager)
 	diags.Append(dd...)
 	return connectionManagerObject, diags
 }

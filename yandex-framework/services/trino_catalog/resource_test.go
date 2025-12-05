@@ -97,6 +97,7 @@ type trinoCatalogConfigParams struct {
 
 	Oracle    *OracleConnectorConfig
 	Sqlserver *SqlserverConnectorConfig
+	Mysql     *MysqlConnectorConfig
 }
 
 type PostgresqlConnectorConfig struct {
@@ -149,6 +150,11 @@ type OracleConnectorConfig struct {
 }
 
 type SqlserverConnectorConfig struct {
+	OnPremise            *OnPremise
+	AdditionalProperties map[string]string
+}
+
+type MysqlConnectorConfig struct {
 	OnPremise            *OnPremise
 	AdditionalProperties map[string]string
 }
@@ -331,7 +337,7 @@ resource "yandex_trino_catalog" "trino_catalog" {
 			  s3 = {}
 			  {{ end }}
 		  }
-  
+
 		  {{ if .Hudi.AdditionalProperties }}
 		  additional_properties = {
 			  {{ range $key, $val := .Hudi.AdditionalProperties }}
@@ -390,6 +396,27 @@ resource "yandex_trino_catalog" "trino_catalog" {
   {{ end }}
 
 
+	{{ if eq .ConnectorType "mysql" }}
+	mysql = {
+		{{ if .Mysql.OnPremise }}
+    on_premise = {
+      connection_url = "{{ .Mysql.OnPremise.ConnectionURL }}"
+      user_name      = "{{ .Mysql.OnPremise.UserName }}"
+      password       = "{{ .Mysql.OnPremise.Password }}"
+    }
+		{{ end }}
+
+		{{ if .Mysql.AdditionalProperties }}
+		additional_properties = {
+			{{ range $key, $val := .Mysql.AdditionalProperties }}
+			"{{ $key }}" = "{{ $val }}"
+			{{ end }}
+		}
+		{{ end }}
+  }
+  {{ end }}
+
+
   timeouts {
     create = "50m"
     update = "50m"
@@ -433,6 +460,7 @@ func trinoCatalogImportStep(name string) resource.TestStep {
 		ImportStateVerifyIgnore: []string{
 			"postgresql.on_premise.password",
 			"clickhouse.on_premise.password",
+			"mysql.on_premise.password",
 			"oracle.on_premise.password",
 			"sqlserver.on_premise.password",
 			"oracle.on_premise.password",
@@ -702,6 +730,36 @@ func TestAccMDBTrinoCatalog_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "sqlserver.on_premise.user_name", "sqlserver_user"),
 					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "sqlserver.on_premise.password"),
 					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "sqlserver.additional_properties.sqlserver.snapshot-isolation.disabled", "false"),
+				),
+			},
+			// MySQL catalog
+			trinoCatalogImportStep("yandex_trino_catalog.trino_catalog"),
+			{
+				Config: trinoCatalogConfig(t, trinoCatalogConfigParams{
+					RandSuffix:    randSuffix,
+					FolderID:      folderID,
+					CatalogName:   fmt.Sprintf("mysql-catalog-%s", randSuffix),
+					Description:   "MySQL catalog",
+					ConnectorType: "mysql",
+					Mysql: &MysqlConnectorConfig{
+						OnPremise: &OnPremise{
+							ConnectionURL: "jdbc:mysql://localhost:3306/",
+							UserName:      "mysql_user",
+							Password:      "mysql_password",
+						},
+						AdditionalProperties: map[string]string{
+							"mysql.auto-reconnect": "true",
+						},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckTrinoCatalogExists("yandex_trino_catalog.trino_catalog", &catalog),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "name", fmt.Sprintf("mysql-catalog-%s", randSuffix)),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "description", "MySQL catalog"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "mysql.on_premise.connection_url", "jdbc:mysql://localhost:3306/"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "mysql.on_premise.user_name", "mysql_user"),
+					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "mysql.on_premise.password"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "mysql.additional_properties.mysql.auto-reconnect", "true"),
 				),
 			},
 			// TPCDS catalog
