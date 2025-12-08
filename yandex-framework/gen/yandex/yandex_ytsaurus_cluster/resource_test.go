@@ -65,8 +65,7 @@ func sweepYtsaurusClusterOnce(conf *provider_config.Config, id string) error {
 
 func TestAccYtsaurusCluster_full(t *testing.T) {
 	var (
-		clusterName        = test.ResourceName(63)
-		clusterNameUpdated = test.ResourceName(63)
+		clusterName = test.ResourceName(63)
 
 		clusterDesc        = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
 		clusterDescUpdated = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
@@ -83,7 +82,7 @@ func TestAccYtsaurusCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			ytsaurusClusterBaseTestStep(clusterName, clusterDesc, labelKey, labelValue, 1),
 			ytsaurusClusterImportTestStep(),
-			ytsaurusClusterBaseTestStep(clusterNameUpdated, clusterDescUpdated, labelKeyUpdated, labelValueUpdated, 2),
+			ytsaurusClusterBaseTestStep(clusterName, clusterDescUpdated, labelKeyUpdated, labelValueUpdated, 2),
 			ytsaurusClusterImportTestStep(),
 		},
 	})

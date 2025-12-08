@@ -10,7 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
@@ -19,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	ytsaurus "github.com/yandex-cloud/go-genproto/yandex/cloud/ytsaurus/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
@@ -28,6 +33,48 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 		MarkdownDescription: "",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
+
+			"cidr_blocks_whitelist": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"v4_cidr_blocks": schema.ListAttribute{
+						ElementType:         types.StringType,
+						MarkdownDescription: "IPv4 CIDR blocks.",
+						Description: "IPv4 CIDR blocks." +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.cidr_blocks_whitelistyandex.cloud.ytsaurus.v1.CidrBlocks.v4_cidr_blocks
+							// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.cidr_blocks_whitelistyandex.cloud.ytsaurus.v1.CidrBlocks.v4_cidr_blocks
+							// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.cidr_blocks_whitelistyandex.cloud.ytsaurus.v1.CidrBlocks.v4_cidr_blocks
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedList(),
+						},
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(),
+						},
+					},
+				},
+				MarkdownDescription: "CIDRs whitelist.",
+				Description: "CIDRs whitelist." +
+					// proto paths: +
+					// -> yandex.cloud.ytsaurus.v1.Cluster.cidr_blocks_whitelist
+					// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.cidr_blocks_whitelist
+					// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.cidr_blocks_whitelist
+					"package: yandex.cloud.ytsaurus.v1\n" +
+					"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+			},
 
 			"cluster_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the cluster to return.",
@@ -257,6 +304,104 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 				Attributes: map[string]schema.Attribute{
 
+					"client_logging": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"audit_logs_enabled": schema.BoolAttribute{
+								MarkdownDescription: "Enable audit logs.",
+								Description: "Enable audit logs." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.audit_logs_enabled
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.audit_logs_enabled
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.audit_logs_enabled
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"folder_id": schema.StringAttribute{
+								MarkdownDescription: "ID of cloud logging folder. Used default loging group.",
+								Description: "ID of cloud logging folder. Used default loging group." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.folder_id
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.folder_id
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.folder_id
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.ConflictsWith(
+										path.MatchRelative().AtParent().AtName("log_group_id"),
+									),
+								},
+							},
+
+							"log_group_id": schema.StringAttribute{
+								MarkdownDescription: "ID of cloud logging group.",
+								Description: "ID of cloud logging group." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.log_group_id
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.log_group_id
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.log_group_id
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.ConflictsWith(
+										path.MatchRelative().AtParent().AtName("folder_id"),
+									),
+								},
+							},
+
+							"service_account_id": schema.StringAttribute{
+								MarkdownDescription: "ID of Service account used for write logs.",
+								Description: "ID of Service account used for write logs." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.service_account_id
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.service_account_id
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_loggingyandex.cloud.ytsaurus.v1.ClientLogging.service_account_id
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						MarkdownDescription: "Client Cloud logging configuration.",
+						Description: "Client Cloud logging configuration." +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_logging
+							// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_logging
+							// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.client_logging
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+
 					"compute": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 
@@ -269,8 +414,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 
 											"locations": schema.ListAttribute{
 												ElementType:         types.StringType,
-												MarkdownDescription: "ID of the availability zone where the cluster resides.",
-												Description: "ID of the availability zone where the cluster resides." +
+												MarkdownDescription: "",
+												Description: "" +
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.locations
 													// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.locations
@@ -290,8 +435,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 											},
 
 											"size_gb": schema.Int64Attribute{
-												MarkdownDescription: "ID of the folder that the cluster belongs to.",
-												Description: "ID of the folder that the cluster belongs to." +
+												MarkdownDescription: "",
+												Description: "" +
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.size_gb
 													// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.size_gb
@@ -307,8 +452,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 											},
 
 											"type": schema.StringAttribute{
-												MarkdownDescription: "ID of the cluster. Generated at creation time.",
-												Description: "ID of the cluster. Generated at creation time." +
+												MarkdownDescription: "",
+												Description: "" +
 													// proto paths: +
 													// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.type
 													// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.disksyandex.cloud.ytsaurus.v1.ComputeSpec.DiskSpec.type
@@ -438,8 +583,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 											Attributes: map[string]schema.Attribute{
 
 												"size": schema.Int64Attribute{
-													MarkdownDescription: "ID of the cluster. Generated at creation time.",
-													Description: "ID of the cluster. Generated at creation time." +
+													MarkdownDescription: "",
+													Description: "" +
 														// proto paths: +
 														// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.fixedyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.FixedScale.size
 														// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.computeyandex.cloud.ytsaurus.v1.ComputeSpec.scale_policyyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.fixedyandex.cloud.ytsaurus.v1.ComputeSpec.ScalePolicy.FixedScale.size
@@ -501,6 +646,135 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 						PlanModifiers: []planmodifier.List{
 							listplanmodifier.UseStateForUnknown(),
 							planmodifiers.NilRelaxedList(),
+						},
+					},
+
+					"cron": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"clear_tmp": schema.SingleNestedAttribute{
+
+								Attributes: map[string]schema.Attribute{
+
+									"account_usage_ratio_save_per_owner": schema.Float64Attribute{
+										MarkdownDescription: "Per account max space usage ratio.",
+										Description: "Per account max space usage ratio." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_per_owner
+											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_per_owner
+											// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_per_owner
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Float64{
+											float64planmodifier.UseStateForUnknown(),
+										},
+									},
+
+									"account_usage_ratio_save_total": schema.Float64Attribute{
+										MarkdownDescription: "Total max space usage ratio.",
+										Description: "Total max space usage ratio." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_total
+											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_total
+											// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.account_usage_ratio_save_total
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Float64{
+											float64planmodifier.UseStateForUnknown(),
+										},
+									},
+
+									"interval": schema.StringAttribute{
+										MarkdownDescription: "Script starting interval.",
+										Description: "Script starting interval." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.interval
+											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.interval
+											// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.interval
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+											planmodifiers.DurationPlanModifier(),
+										},
+									},
+
+									"max_dir_node_count": schema.Int64Attribute{
+										MarkdownDescription: "Max nodes in every directory.",
+										Description: "Max nodes in every directory." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.max_dir_node_count
+											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.max_dir_node_count
+											// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmpyandex.cloud.ytsaurus.v1.ClearTmpCronSpec.max_dir_node_count
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Int64{
+											int64planmodifier.UseStateForUnknown(),
+										},
+									},
+								},
+								MarkdownDescription: "Cluster regular tmp-account cleaning settings.",
+								Description: "Cluster regular tmp-account cleaning settings." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmp
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmp
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cronyandex.cloud.ytsaurus.v1.CronSpec.clear_tmp
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Object{
+									objectplanmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						MarkdownDescription: "Cluster regular processing settings.",
+						Description: "Cluster regular processing settings." +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.cron
+							// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cron
+							// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.cron
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+
+					"flavor": schema.StringAttribute{
+						MarkdownDescription: "",
+						Description: "" +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.flavor
+							// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.flavor
+							// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.flavor
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.String{
+							stringvalidator.OneOf(converter.MapKeys(ytsaurus.ClusterSpec_Flavor_value)...),
 						},
 					},
 
@@ -645,8 +919,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 
 									"count": schema.Int64Attribute{
-										MarkdownDescription: "ID of the folder that the cluster belongs to.",
-										Description: "ID of the folder that the cluster belongs to." +
+										MarkdownDescription: "",
+										Description: "" +
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.count
 											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.count
@@ -662,8 +936,8 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 									},
 
 									"size_gb": schema.Int64Attribute{
-										MarkdownDescription: "ID of the cluster. Generated at creation time.",
-										Description: "ID of the cluster. Generated at creation time." +
+										MarkdownDescription: "",
+										Description: "" +
 											// proto paths: +
 											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.size_gb
 											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.storageyandex.cloud.ytsaurus.v1.StorageSpec.hddyandex.cloud.ytsaurus.v1.StorageSpec.HddSpec.size_gb

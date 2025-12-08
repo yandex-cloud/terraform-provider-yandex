@@ -160,6 +160,7 @@ func (r *yandexYtsaurusClusterResource) Create(ctx context.Context, req resource
 	createReq.SetSubnetId(plan.SubnetId.ValueString())
 	createReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 	createReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
+	createReq.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, plan.CidrBlocksWhitelist, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -317,6 +318,22 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	defer cancel()
 	var updatePaths []string
 
+	var yandexYtsaurusClusterCidrBlocksWhitelistState, yandexYtsaurusClusterCidrBlocksWhitelistPlan yandexYtsaurusClusterCidrBlocksWhitelistModel
+	resp.Diagnostics.Append(plan.CidrBlocksWhitelist.As(ctx, &yandexYtsaurusClusterCidrBlocksWhitelistPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(state.CidrBlocksWhitelist.As(ctx, &yandexYtsaurusClusterCidrBlocksWhitelistState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks.IsNull() {
+		yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks = types.ListNull(types.StringType)
+	}
+	if yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks.IsNull() {
+		yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks = types.ListNull(types.StringType)
+	}
+	if !yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks.Equal(yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks) {
+		updatePaths = append(updatePaths, "cidr_blocks_whitelist.v4_cidr_blocks")
+	}
 	if !plan.ClusterId.Equal(state.ClusterId) {
 		updatePaths = append(updatePaths, "cluster_id")
 	}
@@ -352,6 +369,25 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		return
 	}
 
+	var yandexYtsaurusClusterSpecClientLoggingState, yandexYtsaurusClusterSpecClientLoggingPlan yandexYtsaurusClusterSpecClientLoggingModel
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.ClientLogging.As(ctx, &yandexYtsaurusClusterSpecClientLoggingPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.ClientLogging.As(ctx, &yandexYtsaurusClusterSpecClientLoggingState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexYtsaurusClusterSpecClientLoggingPlan.AuditLogsEnabled.Equal(yandexYtsaurusClusterSpecClientLoggingState.AuditLogsEnabled) {
+		updatePaths = append(updatePaths, "spec.client_logging.audit_logs_enabled")
+	}
+	if !yandexYtsaurusClusterSpecClientLoggingPlan.FolderId.Equal(yandexYtsaurusClusterSpecClientLoggingState.FolderId) {
+		updatePaths = append(updatePaths, "spec.client_logging.folder_id")
+	}
+	if !yandexYtsaurusClusterSpecClientLoggingPlan.LogGroupId.Equal(yandexYtsaurusClusterSpecClientLoggingState.LogGroupId) {
+		updatePaths = append(updatePaths, "spec.client_logging.log_group_id")
+	}
+	if !yandexYtsaurusClusterSpecClientLoggingPlan.ServiceAccountId.Equal(yandexYtsaurusClusterSpecClientLoggingState.ServiceAccountId) {
+		updatePaths = append(updatePaths, "spec.client_logging.service_account_id")
+	}
 	if yandexYtsaurusClusterSpecPlan.Compute.IsNull() {
 		yandexYtsaurusClusterSpecPlan.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
 	}
@@ -360,6 +396,36 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	}
 	if !yandexYtsaurusClusterSpecPlan.Compute.Equal(yandexYtsaurusClusterSpecState.Compute) {
 		updatePaths = append(updatePaths, "spec.compute")
+	}
+
+	var yandexYtsaurusClusterSpecCronState, yandexYtsaurusClusterSpecCronPlan yandexYtsaurusClusterSpecCronModel
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Cron.As(ctx, &yandexYtsaurusClusterSpecCronPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Cron.As(ctx, &yandexYtsaurusClusterSpecCronState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexYtsaurusClusterSpecCronClearTmpState, yandexYtsaurusClusterSpecCronClearTmpPlan yandexYtsaurusClusterSpecCronClearTmpModel
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecCronPlan.ClearTmp.As(ctx, &yandexYtsaurusClusterSpecCronClearTmpPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexYtsaurusClusterSpecCronState.ClearTmp.As(ctx, &yandexYtsaurusClusterSpecCronClearTmpState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSavePerOwner.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSavePerOwner) {
+		updatePaths = append(updatePaths, "spec.cron.clear_tmp.account_usage_ratio_save_per_owner")
+	}
+	if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSaveTotal.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSaveTotal) {
+		updatePaths = append(updatePaths, "spec.cron.clear_tmp.account_usage_ratio_save_total")
+	}
+	if !yandexYtsaurusClusterSpecCronClearTmpPlan.Interval.Equal(yandexYtsaurusClusterSpecCronClearTmpState.Interval) {
+		updatePaths = append(updatePaths, "spec.cron.clear_tmp.interval")
+	}
+	if !yandexYtsaurusClusterSpecCronClearTmpPlan.MaxDirNodeCount.Equal(yandexYtsaurusClusterSpecCronClearTmpState.MaxDirNodeCount) {
+		updatePaths = append(updatePaths, "spec.cron.clear_tmp.max_dir_node_count")
+	}
+	if !yandexYtsaurusClusterSpecPlan.Flavor.Equal(yandexYtsaurusClusterSpecState.Flavor) {
+		updatePaths = append(updatePaths, "spec.flavor")
 	}
 
 	var yandexYtsaurusClusterSpecOdinState, yandexYtsaurusClusterSpecOdinPlan yandexYtsaurusClusterSpecOdinModel
@@ -470,6 +536,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		updateReq.SetSubnetId(plan.SubnetId.ValueString())
 		updateReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		updateReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
+		updateReq.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, plan.CidrBlocksWhitelist, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

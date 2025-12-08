@@ -274,25 +274,6 @@ Required:
 
 
 
-<a id="nestedatt--oracle"></a>
-### Nested Schema for `oracle`
-
-Optional:
-
-- `additional_properties` (Map of String) Additional properties.
-- `on_premise` (Attributes) Configuration for on-premise connection. (see [below for nested schema](#nestedatt--oracle--on_premise))
-
-<a id="nestedatt--oracle--on_premise"></a>
-### Nested Schema for `oracle.on_premise`
-
-Required:
-
-- `connection_url` (String) Connection to the clickhouse.
-- `password` (String) Password of the clickhouse user.
-- `user_name` (String) Name of the clickhouse user.
-
-
-
 <a id="nestedatt--mysql"></a>
 ### Nested Schema for `mysql`
 
@@ -319,9 +300,28 @@ Optional:
 
 Required:
 
-- `connection_url` (String) Connection to the MySQL database.
-- `password` (String) Password of the MySQL user.
-- `user_name` (String) Name of the MySQL user.
+- `connection_url` (String) Connection to the clickhouse.
+- `password` (String) Password of the clickhouse user.
+- `user_name` (String) Name of the clickhouse user.
+
+
+
+<a id="nestedatt--oracle"></a>
+### Nested Schema for `oracle`
+
+Optional:
+
+- `additional_properties` (Map of String) Additional properties.
+- `on_premise` (Attributes) Configuration for on-premise connection. (see [below for nested schema](#nestedatt--oracle--on_premise))
+
+<a id="nestedatt--oracle--on_premise"></a>
+### Nested Schema for `oracle.on_premise`
+
+Required:
+
+- `connection_url` (String) Connection to the clickhouse.
+- `password` (String) Password of the clickhouse user.
+- `user_name` (String) Name of the clickhouse user.
 
 
 

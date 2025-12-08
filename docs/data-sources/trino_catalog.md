@@ -264,25 +264,6 @@ Read-Only:
 
 
 
-<a id="nestedatt--oracle"></a>
-### Nested Schema for `oracle`
-
-Read-Only:
-
-- `additional_properties` (Map of String) Additional properties.
-- `on_premise` (Attributes) Configuration for on-premise connection. (see [below for nested schema](#nestedatt--oracle--on_premise))
-
-<a id="nestedatt--oracle--on_premise"></a>
-### Nested Schema for `oracle.on_premise`
-
-Read-Only:
-
-- `connection_url` (String) Connection URL.
-- `password` (String, Sensitive) Password of the user.
-- `user_name` (String) Name of the user.
-
-
-
 <a id="nestedatt--mysql"></a>
 ### Nested Schema for `mysql`
 
@@ -307,8 +288,27 @@ Read-Only:
 Read-Only:
 
 - `connection_url` (String) Connection URL.
-- `password` (String, Sensitive) Password of the MySQL user.
-- `user_name` (String) Name of the MySQL user.
+- `password` (String, Sensitive) Password of the user.
+- `user_name` (String) Name of the user.
+
+
+
+<a id="nestedatt--oracle"></a>
+### Nested Schema for `oracle`
+
+Read-Only:
+
+- `additional_properties` (Map of String) Additional properties.
+- `on_premise` (Attributes) Configuration for on-premise connection. (see [below for nested schema](#nestedatt--oracle--on_premise))
+
+<a id="nestedatt--oracle--on_premise"></a>
+### Nested Schema for `oracle.on_premise`
+
+Read-Only:
+
+- `connection_url` (String) Connection URL.
+- `password` (String, Sensitive) Password of the user.
+- `user_name` (String) Name of the user.
 
 
 

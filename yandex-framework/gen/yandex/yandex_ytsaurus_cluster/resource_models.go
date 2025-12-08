@@ -21,6 +21,16 @@ type yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel struct {
 	Type      types.String `tfsdk:"type"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetLocations() types.List {
+	return m.Locations
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetSizeGb() types.Int64 {
+	return m.SizeGb
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetType() types.String {
+	return m.Type
+}
+
 func NewYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel() yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{
 		Locations: types.ListNull(types.StringType),
@@ -131,6 +141,19 @@ type yandexYtsaurusClusterSpecComputeSpecStructModel struct {
 	Name        types.String `tfsdk:"name"`
 	Preset      types.String `tfsdk:"preset"`
 	ScalePolicy types.Object `tfsdk:"scale_policy"`
+}
+
+func (m *yandexYtsaurusClusterSpecComputeSpecStructModel) GetDisks() types.List {
+	return m.Disks
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructModel) GetPreset() types.String {
+	return m.Preset
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructModel) GetScalePolicy() types.Object {
+	return m.ScalePolicy
 }
 
 func NewYandexYtsaurusClusterSpecComputeSpecStructModel() yandexYtsaurusClusterSpecComputeSpecStructModel {
@@ -259,6 +282,13 @@ type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel struct {
 	Fixed types.Object `tfsdk:"fixed"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel) GetAuto() types.Object {
+	return m.Auto
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel) GetFixed() types.Object {
+	return m.Fixed
+}
+
 func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel{
 		Auto:  types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType.AttrTypes),
@@ -328,6 +358,13 @@ type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel struct {
 	MinSize types.Int64 `tfsdk:"min_size"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetMaxSize() types.Int64 {
+	return m.MaxSize
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetMinSize() types.Int64 {
+	return m.MinSize
+}
+
 func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel{
 		MaxSize: types.Int64Null(),
@@ -392,6 +429,10 @@ type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel struct {
 	Size types.Int64 `tfsdk:"size"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel) GetSize() types.Int64 {
+	return m.Size
+}
+
 func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel{
 		Size: types.Int64Null(),
@@ -446,49 +487,109 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixedModel(ctx c
 }
 
 type yandexYtsaurusClusterModel struct {
-	ClusterId        types.String   `tfsdk:"cluster_id"`
-	ID               types.String   `tfsdk:"id"`
-	CreatedAt        types.String   `tfsdk:"created_at"`
-	CreatedBy        types.String   `tfsdk:"created_by"`
-	Description      types.String   `tfsdk:"description"`
-	Endpoints        types.Object   `tfsdk:"endpoints"`
-	FolderId         types.String   `tfsdk:"folder_id"`
-	Health           types.String   `tfsdk:"health"`
-	Labels           types.Map      `tfsdk:"labels"`
-	Name             types.String   `tfsdk:"name"`
-	SecurityGroupIds types.List     `tfsdk:"security_group_ids"`
-	Spec             types.Object   `tfsdk:"spec"`
-	Status           types.String   `tfsdk:"status"`
-	SubnetId         types.String   `tfsdk:"subnet_id"`
-	UpdatedAt        types.String   `tfsdk:"updated_at"`
-	UpdatedBy        types.String   `tfsdk:"updated_by"`
-	ZoneId           types.String   `tfsdk:"zone_id"`
-	Timeouts         timeouts.Value `tfsdk:"timeouts"`
+	CidrBlocksWhitelist types.Object   `tfsdk:"cidr_blocks_whitelist"`
+	ClusterId           types.String   `tfsdk:"cluster_id"`
+	ID                  types.String   `tfsdk:"id"`
+	CreatedAt           types.String   `tfsdk:"created_at"`
+	CreatedBy           types.String   `tfsdk:"created_by"`
+	Description         types.String   `tfsdk:"description"`
+	Endpoints           types.Object   `tfsdk:"endpoints"`
+	FolderId            types.String   `tfsdk:"folder_id"`
+	Health              types.String   `tfsdk:"health"`
+	Labels              types.Map      `tfsdk:"labels"`
+	Name                types.String   `tfsdk:"name"`
+	SecurityGroupIds    types.List     `tfsdk:"security_group_ids"`
+	Spec                types.Object   `tfsdk:"spec"`
+	Status              types.String   `tfsdk:"status"`
+	SubnetId            types.String   `tfsdk:"subnet_id"`
+	UpdatedAt           types.String   `tfsdk:"updated_at"`
+	UpdatedBy           types.String   `tfsdk:"updated_by"`
+	ZoneId              types.String   `tfsdk:"zone_id"`
+	Timeouts            timeouts.Value `tfsdk:"timeouts"`
+}
+
+func (m *yandexYtsaurusClusterModel) GetCidrBlocksWhitelist() types.Object {
+	return m.CidrBlocksWhitelist
+}
+func (m *yandexYtsaurusClusterModel) GetClusterId() types.String {
+	return m.ClusterId
+}
+func (m *yandexYtsaurusClusterModel) GetID() types.String {
+	return m.ID
+}
+func (m *yandexYtsaurusClusterModel) GetCreatedAt() types.String {
+	return m.CreatedAt
+}
+func (m *yandexYtsaurusClusterModel) GetCreatedBy() types.String {
+	return m.CreatedBy
+}
+func (m *yandexYtsaurusClusterModel) GetDescription() types.String {
+	return m.Description
+}
+func (m *yandexYtsaurusClusterModel) GetEndpoints() types.Object {
+	return m.Endpoints
+}
+func (m *yandexYtsaurusClusterModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexYtsaurusClusterModel) GetHealth() types.String {
+	return m.Health
+}
+func (m *yandexYtsaurusClusterModel) GetLabels() types.Map {
+	return m.Labels
+}
+func (m *yandexYtsaurusClusterModel) GetName() types.String {
+	return m.Name
+}
+func (m *yandexYtsaurusClusterModel) GetSecurityGroupIds() types.List {
+	return m.SecurityGroupIds
+}
+func (m *yandexYtsaurusClusterModel) GetSpec() types.Object {
+	return m.Spec
+}
+func (m *yandexYtsaurusClusterModel) GetStatus() types.String {
+	return m.Status
+}
+func (m *yandexYtsaurusClusterModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+func (m *yandexYtsaurusClusterModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
+func (m *yandexYtsaurusClusterModel) GetUpdatedBy() types.String {
+	return m.UpdatedBy
+}
+func (m *yandexYtsaurusClusterModel) GetZoneId() types.String {
+	return m.ZoneId
 }
 
 func NewYandexYtsaurusClusterModel() yandexYtsaurusClusterModel {
 	return yandexYtsaurusClusterModel{
-		ClusterId:        types.StringNull(),
-		ID:               types.StringNull(),
-		CreatedAt:        types.StringNull(),
-		CreatedBy:        types.StringNull(),
-		Description:      types.StringNull(),
-		Endpoints:        types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes),
-		FolderId:         types.StringNull(),
-		Health:           types.StringNull(),
-		Labels:           types.MapNull(types.StringType),
-		Name:             types.StringNull(),
-		SecurityGroupIds: types.ListNull(types.StringType),
-		Spec:             types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
-		Status:           types.StringNull(),
-		SubnetId:         types.StringNull(),
-		UpdatedAt:        types.StringNull(),
-		UpdatedBy:        types.StringNull(),
-		ZoneId:           types.StringNull(),
+		CidrBlocksWhitelist: types.ObjectNull(yandexYtsaurusClusterCidrBlocksWhitelistModelType.AttrTypes),
+		ClusterId:           types.StringNull(),
+		ID:                  types.StringNull(),
+		CreatedAt:           types.StringNull(),
+		CreatedBy:           types.StringNull(),
+		Description:         types.StringNull(),
+		Endpoints:           types.ObjectNull(yandexYtsaurusClusterEndpointsModelType.AttrTypes),
+		FolderId:            types.StringNull(),
+		Health:              types.StringNull(),
+		Labels:              types.MapNull(types.StringType),
+		Name:                types.StringNull(),
+		SecurityGroupIds:    types.ListNull(types.StringType),
+		Spec:                types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
+		Status:              types.StringNull(),
+		SubnetId:            types.StringNull(),
+		UpdatedAt:           types.StringNull(),
+		UpdatedBy:           types.StringNull(),
+		ZoneId:              types.StringNull(),
 	}
 }
 
 func yandexYtsaurusClusterModelFillUnknown(target yandexYtsaurusClusterModel) yandexYtsaurusClusterModel {
+	if target.CidrBlocksWhitelist.IsUnknown() || target.CidrBlocksWhitelist.IsNull() {
+		target.CidrBlocksWhitelist = types.ObjectNull(yandexYtsaurusClusterCidrBlocksWhitelistModelType.AttrTypes)
+	}
 	if target.ClusterId.IsUnknown() || target.ClusterId.IsNull() {
 		target.ClusterId = types.StringNull()
 	}
@@ -545,24 +646,25 @@ func yandexYtsaurusClusterModelFillUnknown(target yandexYtsaurusClusterModel) ya
 
 var yandexYtsaurusClusterModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"cluster_id":         types.StringType,
-		"id":                 types.StringType,
-		"created_at":         types.StringType,
-		"created_by":         types.StringType,
-		"description":        types.StringType,
-		"endpoints":          yandexYtsaurusClusterEndpointsModelType,
-		"folder_id":          types.StringType,
-		"health":             types.StringType,
-		"labels":             types.MapType{ElemType: types.StringType},
-		"name":               types.StringType,
-		"security_group_ids": types.ListType{ElemType: types.StringType},
-		"spec":               yandexYtsaurusClusterSpecModelType,
-		"status":             types.StringType,
-		"subnet_id":          types.StringType,
-		"updated_at":         types.StringType,
-		"updated_by":         types.StringType,
-		"zone_id":            types.StringType,
-		"timeouts":           timeouts.AttributesAll(context.Background()).GetType(),
+		"cidr_blocks_whitelist": yandexYtsaurusClusterCidrBlocksWhitelistModelType,
+		"cluster_id":            types.StringType,
+		"id":                    types.StringType,
+		"created_at":            types.StringType,
+		"created_by":            types.StringType,
+		"description":           types.StringType,
+		"endpoints":             yandexYtsaurusClusterEndpointsModelType,
+		"folder_id":             types.StringType,
+		"health":                types.StringType,
+		"labels":                types.MapType{ElemType: types.StringType},
+		"name":                  types.StringType,
+		"security_group_ids":    types.ListType{ElemType: types.StringType},
+		"spec":                  yandexYtsaurusClusterSpecModelType,
+		"status":                types.StringType,
+		"subnet_id":             types.StringType,
+		"updated_at":            types.StringType,
+		"updated_by":            types.StringType,
+		"zone_id":               types.StringType,
+		"timeouts":              timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -575,24 +677,25 @@ func flattenYandexYtsaurusCluster(ctx context.Context,
 		return types.ObjectNull(yandexYtsaurusClusterModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterModelType.AttrTypes, yandexYtsaurusClusterModel{
-		ClusterId:        types.StringValue(yandexYtsaurusCluster.GetId()),
-		ID:               types.StringValue(yandexYtsaurusCluster.GetId()),
-		CreatedAt:        types.StringValue(yandexYtsaurusCluster.GetCreatedAt().AsTime().Format(time.RFC3339)),
-		CreatedBy:        types.StringValue(yandexYtsaurusCluster.GetCreatedBy()),
-		Description:      types.StringValue(yandexYtsaurusCluster.GetDescription()),
-		Endpoints:        flattenYandexYtsaurusClusterEndpoints(ctx, yandexYtsaurusCluster.GetEndpoints(), diags),
-		FolderId:         types.StringValue(yandexYtsaurusCluster.GetFolderId()),
-		Health:           types.StringValue(yandexYtsaurusCluster.GetHealth().String()),
-		Labels:           flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), state.Labels, diags),
-		Name:             types.StringValue(yandexYtsaurusCluster.GetName()),
-		SecurityGroupIds: flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
-		Spec:             flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
-		Status:           types.StringValue(yandexYtsaurusCluster.GetStatus().String()),
-		SubnetId:         types.StringValue(yandexYtsaurusCluster.GetSubnetId()),
-		UpdatedAt:        types.StringValue(yandexYtsaurusCluster.GetUpdatedAt().AsTime().Format(time.RFC3339)),
-		UpdatedBy:        types.StringValue(yandexYtsaurusCluster.GetUpdatedBy()),
-		ZoneId:           types.StringValue(yandexYtsaurusCluster.GetZoneId()),
-		Timeouts:         to,
+		CidrBlocksWhitelist: flattenYandexYtsaurusClusterCidrBlocksWhitelist(ctx, yandexYtsaurusCluster.GetCidrBlocksWhitelist(), converter.ExpandObject(ctx, state.CidrBlocksWhitelist, yandexYtsaurusClusterCidrBlocksWhitelistModel{}, diags).(yandexYtsaurusClusterCidrBlocksWhitelistModel), diags),
+		ClusterId:           types.StringValue(yandexYtsaurusCluster.GetId()),
+		ID:                  types.StringValue(yandexYtsaurusCluster.GetId()),
+		CreatedAt:           types.StringValue(yandexYtsaurusCluster.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		CreatedBy:           types.StringValue(yandexYtsaurusCluster.GetCreatedBy()),
+		Description:         types.StringValue(yandexYtsaurusCluster.GetDescription()),
+		Endpoints:           flattenYandexYtsaurusClusterEndpoints(ctx, yandexYtsaurusCluster.GetEndpoints(), diags),
+		FolderId:            types.StringValue(yandexYtsaurusCluster.GetFolderId()),
+		Health:              types.StringValue(yandexYtsaurusCluster.GetHealth().String()),
+		Labels:              flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), state.Labels, diags),
+		Name:                types.StringValue(yandexYtsaurusCluster.GetName()),
+		SecurityGroupIds:    flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
+		Spec:                flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
+		Status:              types.StringValue(yandexYtsaurusCluster.GetStatus().String()),
+		SubnetId:            types.StringValue(yandexYtsaurusCluster.GetSubnetId()),
+		UpdatedAt:           types.StringValue(yandexYtsaurusCluster.GetUpdatedAt().AsTime().Format(time.RFC3339)),
+		UpdatedBy:           types.StringValue(yandexYtsaurusCluster.GetUpdatedBy()),
+		ZoneId:              types.StringValue(yandexYtsaurusCluster.GetZoneId()),
+		Timeouts:            to,
 	})
 	diags.Append(diag...)
 	return value
@@ -612,6 +715,7 @@ func expandYandexYtsaurusCluster(ctx context.Context, yandexYtsaurusClusterState
 
 func expandYandexYtsaurusClusterModel(ctx context.Context, yandexYtsaurusClusterState yandexYtsaurusClusterModel, diags *diag.Diagnostics) *ytsaurus.Cluster {
 	value := &ytsaurus.Cluster{}
+	value.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, yandexYtsaurusClusterState.CidrBlocksWhitelist, diags))
 	value.SetId(yandexYtsaurusClusterState.ClusterId.ValueString())
 	value.SetId(yandexYtsaurusClusterState.ClusterId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexYtsaurusClusterState.CreatedAt.ValueString(), diags))
@@ -635,11 +739,123 @@ func expandYandexYtsaurusClusterModel(ctx context.Context, yandexYtsaurusCluster
 	return value
 }
 
+type yandexYtsaurusClusterCidrBlocksWhitelistModel struct {
+	V4CidrBlocks types.List `tfsdk:"v4_cidr_blocks"`
+}
+
+func (m *yandexYtsaurusClusterCidrBlocksWhitelistModel) GetV4CidrBlocks() types.List {
+	return m.V4CidrBlocks
+}
+
+func NewYandexYtsaurusClusterCidrBlocksWhitelistModel() yandexYtsaurusClusterCidrBlocksWhitelistModel {
+	return yandexYtsaurusClusterCidrBlocksWhitelistModel{
+		V4CidrBlocks: types.ListNull(types.StringType),
+	}
+}
+
+func yandexYtsaurusClusterCidrBlocksWhitelistModelFillUnknown(target yandexYtsaurusClusterCidrBlocksWhitelistModel) yandexYtsaurusClusterCidrBlocksWhitelistModel {
+	if target.V4CidrBlocks.IsUnknown() || target.V4CidrBlocks.IsNull() {
+		target.V4CidrBlocks = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexYtsaurusClusterCidrBlocksWhitelistModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"v4_cidr_blocks": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexYtsaurusClusterCidrBlocksWhitelist(ctx context.Context,
+	yandexYtsaurusClusterCidrBlocksWhitelist *ytsaurus.CidrBlocks,
+	state yandexYtsaurusClusterCidrBlocksWhitelistModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterCidrBlocksWhitelist == nil {
+		return types.ObjectNull(yandexYtsaurusClusterCidrBlocksWhitelistModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterCidrBlocksWhitelistModelType.AttrTypes, yandexYtsaurusClusterCidrBlocksWhitelistModel{
+		V4CidrBlocks: flattenYandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks(ctx, yandexYtsaurusClusterCidrBlocksWhitelist.GetV4CidrBlocks(), state.V4CidrBlocks, diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx context.Context, yandexYtsaurusClusterCidrBlocksWhitelistState types.Object, diags *diag.Diagnostics) *ytsaurus.CidrBlocks {
+	if yandexYtsaurusClusterCidrBlocksWhitelistState.IsNull() || yandexYtsaurusClusterCidrBlocksWhitelistState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterCidrBlocksWhitelist yandexYtsaurusClusterCidrBlocksWhitelistModel
+	diags.Append(yandexYtsaurusClusterCidrBlocksWhitelistState.As(ctx, &yandexYtsaurusClusterCidrBlocksWhitelist, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterCidrBlocksWhitelistModel(ctx, yandexYtsaurusClusterCidrBlocksWhitelist, diags)
+}
+
+func expandYandexYtsaurusClusterCidrBlocksWhitelistModel(ctx context.Context, yandexYtsaurusClusterCidrBlocksWhitelistState yandexYtsaurusClusterCidrBlocksWhitelistModel, diags *diag.Diagnostics) *ytsaurus.CidrBlocks {
+	value := &ytsaurus.CidrBlocks{}
+	value.SetV4CidrBlocks(expandYandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks(ctx, yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks(ctx context.Context, yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksValues []attr.Value
+	for _, elem := range yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks {
+		val := types.StringValue(elem)
+		yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksValues = append(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocks(ctx context.Context, yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState types.List, diags *diag.Diagnostics) []string {
+	if yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.IsNull() || yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.IsUnknown() {
+		return nil
+	}
+	if len(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksRes := make([]string, 0, len(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.Elements()))
+	yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksType := make([]types.String, 0, len(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.Elements()))
+	diags.Append(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksState.ElementsAs(ctx, &yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksType {
+		yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksRes = append(yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksRes, elem.ValueString())
+	}
+	return yandexYtsaurusClusterCidrBlocksWhitelistV4CidrBlocksRes
+}
+
 type yandexYtsaurusClusterEndpointsModel struct {
 	ExternalHttpProxyBalancer types.String `tfsdk:"external_http_proxy_balancer"`
 	InternalHttpProxyAlias    types.String `tfsdk:"internal_http_proxy_alias"`
 	InternalRpcProxyAlias     types.String `tfsdk:"internal_rpc_proxy_alias"`
 	Ui                        types.String `tfsdk:"ui"`
+}
+
+func (m *yandexYtsaurusClusterEndpointsModel) GetExternalHttpProxyBalancer() types.String {
+	return m.ExternalHttpProxyBalancer
+}
+func (m *yandexYtsaurusClusterEndpointsModel) GetInternalHttpProxyAlias() types.String {
+	return m.InternalHttpProxyAlias
+}
+func (m *yandexYtsaurusClusterEndpointsModel) GetInternalRpcProxyAlias() types.String {
+	return m.InternalRpcProxyAlias
+}
+func (m *yandexYtsaurusClusterEndpointsModel) GetUi() types.String {
+	return m.Ui
 }
 
 func NewYandexYtsaurusClusterEndpointsModel() yandexYtsaurusClusterEndpointsModel {
@@ -791,26 +1007,66 @@ func expandYandexYtsaurusClusterSecurityGroupIds(ctx context.Context, yandexYtsa
 }
 
 type yandexYtsaurusClusterSpecModel struct {
-	Compute types.List   `tfsdk:"compute"`
-	Odin    types.Object `tfsdk:"odin"`
-	Proxy   types.Object `tfsdk:"proxy"`
-	Storage types.Object `tfsdk:"storage"`
-	Tablet  types.Object `tfsdk:"tablet"`
+	ClientLogging types.Object `tfsdk:"client_logging"`
+	Compute       types.List   `tfsdk:"compute"`
+	Cron          types.Object `tfsdk:"cron"`
+	Flavor        types.String `tfsdk:"flavor"`
+	Odin          types.Object `tfsdk:"odin"`
+	Proxy         types.Object `tfsdk:"proxy"`
+	Storage       types.Object `tfsdk:"storage"`
+	Tablet        types.Object `tfsdk:"tablet"`
+}
+
+func (m *yandexYtsaurusClusterSpecModel) GetClientLogging() types.Object {
+	return m.ClientLogging
+}
+func (m *yandexYtsaurusClusterSpecModel) GetCompute() types.List {
+	return m.Compute
+}
+func (m *yandexYtsaurusClusterSpecModel) GetCron() types.Object {
+	return m.Cron
+}
+func (m *yandexYtsaurusClusterSpecModel) GetFlavor() types.String {
+	return m.Flavor
+}
+func (m *yandexYtsaurusClusterSpecModel) GetOdin() types.Object {
+	return m.Odin
+}
+func (m *yandexYtsaurusClusterSpecModel) GetProxy() types.Object {
+	return m.Proxy
+}
+func (m *yandexYtsaurusClusterSpecModel) GetStorage() types.Object {
+	return m.Storage
+}
+func (m *yandexYtsaurusClusterSpecModel) GetTablet() types.Object {
+	return m.Tablet
 }
 
 func NewYandexYtsaurusClusterSpecModel() yandexYtsaurusClusterSpecModel {
 	return yandexYtsaurusClusterSpecModel{
-		Compute: types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType),
-		Odin:    types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes),
-		Proxy:   types.ObjectNull(yandexYtsaurusClusterSpecProxyModelType.AttrTypes),
-		Storage: types.ObjectNull(yandexYtsaurusClusterSpecStorageModelType.AttrTypes),
-		Tablet:  types.ObjectNull(yandexYtsaurusClusterSpecTabletModelType.AttrTypes),
+		ClientLogging: types.ObjectNull(yandexYtsaurusClusterSpecClientLoggingModelType.AttrTypes),
+		Compute:       types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType),
+		Cron:          types.ObjectNull(yandexYtsaurusClusterSpecCronModelType.AttrTypes),
+		Flavor:        types.StringNull(),
+		Odin:          types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes),
+		Proxy:         types.ObjectNull(yandexYtsaurusClusterSpecProxyModelType.AttrTypes),
+		Storage:       types.ObjectNull(yandexYtsaurusClusterSpecStorageModelType.AttrTypes),
+		Tablet:        types.ObjectNull(yandexYtsaurusClusterSpecTabletModelType.AttrTypes),
 	}
 }
 
 func yandexYtsaurusClusterSpecModelFillUnknown(target yandexYtsaurusClusterSpecModel) yandexYtsaurusClusterSpecModel {
+	if target.ClientLogging.IsUnknown() || target.ClientLogging.IsNull() {
+		target.ClientLogging = types.ObjectNull(yandexYtsaurusClusterSpecClientLoggingModelType.AttrTypes)
+	}
 	if target.Compute.IsUnknown() || target.Compute.IsNull() {
 		target.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
+	}
+	if target.Cron.IsUnknown() || target.Cron.IsNull() {
+		target.Cron = types.ObjectNull(yandexYtsaurusClusterSpecCronModelType.AttrTypes)
+	}
+	if target.Flavor.IsUnknown() || target.Flavor.IsNull() {
+		target.Flavor = types.StringNull()
 	}
 	if target.Odin.IsUnknown() || target.Odin.IsNull() {
 		target.Odin = types.ObjectNull(yandexYtsaurusClusterSpecOdinModelType.AttrTypes)
@@ -829,11 +1085,14 @@ func yandexYtsaurusClusterSpecModelFillUnknown(target yandexYtsaurusClusterSpecM
 
 var yandexYtsaurusClusterSpecModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"compute": types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructModelType},
-		"odin":    yandexYtsaurusClusterSpecOdinModelType,
-		"proxy":   yandexYtsaurusClusterSpecProxyModelType,
-		"storage": yandexYtsaurusClusterSpecStorageModelType,
-		"tablet":  yandexYtsaurusClusterSpecTabletModelType,
+		"client_logging": yandexYtsaurusClusterSpecClientLoggingModelType,
+		"compute":        types.ListType{ElemType: yandexYtsaurusClusterSpecComputeSpecStructModelType},
+		"cron":           yandexYtsaurusClusterSpecCronModelType,
+		"flavor":         types.StringType,
+		"odin":           yandexYtsaurusClusterSpecOdinModelType,
+		"proxy":          yandexYtsaurusClusterSpecProxyModelType,
+		"storage":        yandexYtsaurusClusterSpecStorageModelType,
+		"tablet":         yandexYtsaurusClusterSpecTabletModelType,
 	},
 }
 
@@ -845,11 +1104,14 @@ func flattenYandexYtsaurusClusterSpec(ctx context.Context,
 		return types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecModelType.AttrTypes, yandexYtsaurusClusterSpecModel{
-		Compute: flattenYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpec.GetCompute(), state.Compute, diags),
-		Odin:    flattenYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpec.GetOdin(), converter.ExpandObject(ctx, state.Odin, yandexYtsaurusClusterSpecOdinModel{}, diags).(yandexYtsaurusClusterSpecOdinModel), diags),
-		Proxy:   flattenYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpec.GetProxy(), diags),
-		Storage: flattenYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpec.GetStorage(), diags),
-		Tablet:  flattenYandexYtsaurusClusterSpecTablet(ctx, yandexYtsaurusClusterSpec.GetTablet(), diags),
+		ClientLogging: flattenYandexYtsaurusClusterSpecClientLogging(ctx, yandexYtsaurusClusterSpec.GetClientLogging(), diags),
+		Compute:       flattenYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpec.GetCompute(), state.Compute, diags),
+		Cron:          flattenYandexYtsaurusClusterSpecCron(ctx, yandexYtsaurusClusterSpec.GetCron(), converter.ExpandObject(ctx, state.Cron, yandexYtsaurusClusterSpecCronModel{}, diags).(yandexYtsaurusClusterSpecCronModel), diags),
+		Flavor:        types.StringValue(yandexYtsaurusClusterSpec.GetFlavor().String()),
+		Odin:          flattenYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpec.GetOdin(), converter.ExpandObject(ctx, state.Odin, yandexYtsaurusClusterSpecOdinModel{}, diags).(yandexYtsaurusClusterSpecOdinModel), diags),
+		Proxy:         flattenYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpec.GetProxy(), diags),
+		Storage:       flattenYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpec.GetStorage(), diags),
+		Tablet:        flattenYandexYtsaurusClusterSpecTablet(ctx, yandexYtsaurusClusterSpec.GetTablet(), diags),
 	})
 	diags.Append(diag...)
 	return value
@@ -869,11 +1131,112 @@ func expandYandexYtsaurusClusterSpec(ctx context.Context, yandexYtsaurusClusterS
 
 func expandYandexYtsaurusClusterSpecModel(ctx context.Context, yandexYtsaurusClusterSpecState yandexYtsaurusClusterSpecModel, diags *diag.Diagnostics) *ytsaurus.ClusterSpec {
 	value := &ytsaurus.ClusterSpec{}
+	value.SetClientLogging(expandYandexYtsaurusClusterSpecClientLogging(ctx, yandexYtsaurusClusterSpecState.ClientLogging, diags))
 	value.SetCompute(expandYandexYtsaurusClusterSpecCompute(ctx, yandexYtsaurusClusterSpecState.Compute, diags))
+	value.SetCron(expandYandexYtsaurusClusterSpecCron(ctx, yandexYtsaurusClusterSpecState.Cron, diags))
+	value.SetFlavor(ytsaurus.ClusterSpec_Flavor(ytsaurus.ClusterSpec_Flavor_value[yandexYtsaurusClusterSpecState.Flavor.ValueString()]))
 	value.SetOdin(expandYandexYtsaurusClusterSpecOdin(ctx, yandexYtsaurusClusterSpecState.Odin, diags))
 	value.SetProxy(expandYandexYtsaurusClusterSpecProxy(ctx, yandexYtsaurusClusterSpecState.Proxy, diags))
 	value.SetStorage(expandYandexYtsaurusClusterSpecStorage(ctx, yandexYtsaurusClusterSpecState.Storage, diags))
 	value.SetTablet(expandYandexYtsaurusClusterSpecTablet(ctx, yandexYtsaurusClusterSpecState.Tablet, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterSpecClientLoggingModel struct {
+	AuditLogsEnabled types.Bool   `tfsdk:"audit_logs_enabled"`
+	FolderId         types.String `tfsdk:"folder_id"`
+	LogGroupId       types.String `tfsdk:"log_group_id"`
+	ServiceAccountId types.String `tfsdk:"service_account_id"`
+}
+
+func (m *yandexYtsaurusClusterSpecClientLoggingModel) GetAuditLogsEnabled() types.Bool {
+	return m.AuditLogsEnabled
+}
+func (m *yandexYtsaurusClusterSpecClientLoggingModel) GetFolderId() types.String {
+	return m.FolderId
+}
+func (m *yandexYtsaurusClusterSpecClientLoggingModel) GetLogGroupId() types.String {
+	return m.LogGroupId
+}
+func (m *yandexYtsaurusClusterSpecClientLoggingModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
+func NewYandexYtsaurusClusterSpecClientLoggingModel() yandexYtsaurusClusterSpecClientLoggingModel {
+	return yandexYtsaurusClusterSpecClientLoggingModel{
+		AuditLogsEnabled: types.BoolNull(),
+		FolderId:         types.StringNull(),
+		LogGroupId:       types.StringNull(),
+		ServiceAccountId: types.StringNull(),
+	}
+}
+
+func yandexYtsaurusClusterSpecClientLoggingModelFillUnknown(target yandexYtsaurusClusterSpecClientLoggingModel) yandexYtsaurusClusterSpecClientLoggingModel {
+	if target.AuditLogsEnabled.IsUnknown() || target.AuditLogsEnabled.IsNull() {
+		target.AuditLogsEnabled = types.BoolNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	if target.LogGroupId.IsUnknown() || target.LogGroupId.IsNull() {
+		target.LogGroupId = types.StringNull()
+	}
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
+var yandexYtsaurusClusterSpecClientLoggingModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"audit_logs_enabled": types.BoolType,
+		"folder_id":          types.StringType,
+		"log_group_id":       types.StringType,
+		"service_account_id": types.StringType,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecClientLogging(ctx context.Context,
+	yandexYtsaurusClusterSpecClientLogging *ytsaurus.ClientLogging,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecClientLogging == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecClientLoggingModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecClientLoggingModelType.AttrTypes, yandexYtsaurusClusterSpecClientLoggingModel{
+		AuditLogsEnabled: types.BoolValue(yandexYtsaurusClusterSpecClientLogging.GetAuditLogsEnabled()),
+		FolderId:         types.StringValue(yandexYtsaurusClusterSpecClientLogging.GetFolderId()),
+		LogGroupId:       types.StringValue(yandexYtsaurusClusterSpecClientLogging.GetLogGroupId()),
+		ServiceAccountId: types.StringValue(yandexYtsaurusClusterSpecClientLogging.GetServiceAccountId()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecClientLogging(ctx context.Context, yandexYtsaurusClusterSpecClientLoggingState types.Object, diags *diag.Diagnostics) *ytsaurus.ClientLogging {
+	if yandexYtsaurusClusterSpecClientLoggingState.IsNull() || yandexYtsaurusClusterSpecClientLoggingState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecClientLogging yandexYtsaurusClusterSpecClientLoggingModel
+	diags.Append(yandexYtsaurusClusterSpecClientLoggingState.As(ctx, &yandexYtsaurusClusterSpecClientLogging, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecClientLoggingModel(ctx, yandexYtsaurusClusterSpecClientLogging, diags)
+}
+
+func expandYandexYtsaurusClusterSpecClientLoggingModel(ctx context.Context, yandexYtsaurusClusterSpecClientLoggingState yandexYtsaurusClusterSpecClientLoggingModel, diags *diag.Diagnostics) *ytsaurus.ClientLogging {
+	value := &ytsaurus.ClientLogging{}
+	value.SetAuditLogsEnabled(yandexYtsaurusClusterSpecClientLoggingState.AuditLogsEnabled.ValueBool())
+	if !(yandexYtsaurusClusterSpecClientLoggingState.FolderId.IsNull() || yandexYtsaurusClusterSpecClientLoggingState.FolderId.IsUnknown() || yandexYtsaurusClusterSpecClientLoggingState.FolderId.Equal(types.StringValue(""))) {
+		value.SetFolderId(yandexYtsaurusClusterSpecClientLoggingState.FolderId.ValueString())
+	}
+	if !(yandexYtsaurusClusterSpecClientLoggingState.LogGroupId.IsNull() || yandexYtsaurusClusterSpecClientLoggingState.LogGroupId.IsUnknown() || yandexYtsaurusClusterSpecClientLoggingState.LogGroupId.Equal(types.StringValue(""))) {
+		value.SetLogGroupId(yandexYtsaurusClusterSpecClientLoggingState.LogGroupId.ValueString())
+	}
+	value.SetServiceAccountId(yandexYtsaurusClusterSpecClientLoggingState.ServiceAccountId.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -926,8 +1289,169 @@ func expandYandexYtsaurusClusterSpecCompute(ctx context.Context, yandexYtsaurusC
 	return yandexYtsaurusClusterSpecComputeRes
 }
 
+type yandexYtsaurusClusterSpecCronModel struct {
+	ClearTmp types.Object `tfsdk:"clear_tmp"`
+}
+
+func (m *yandexYtsaurusClusterSpecCronModel) GetClearTmp() types.Object {
+	return m.ClearTmp
+}
+
+func NewYandexYtsaurusClusterSpecCronModel() yandexYtsaurusClusterSpecCronModel {
+	return yandexYtsaurusClusterSpecCronModel{
+		ClearTmp: types.ObjectNull(yandexYtsaurusClusterSpecCronClearTmpModelType.AttrTypes),
+	}
+}
+
+func yandexYtsaurusClusterSpecCronModelFillUnknown(target yandexYtsaurusClusterSpecCronModel) yandexYtsaurusClusterSpecCronModel {
+	if target.ClearTmp.IsUnknown() || target.ClearTmp.IsNull() {
+		target.ClearTmp = types.ObjectNull(yandexYtsaurusClusterSpecCronClearTmpModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexYtsaurusClusterSpecCronModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"clear_tmp": yandexYtsaurusClusterSpecCronClearTmpModelType,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecCron(ctx context.Context,
+	yandexYtsaurusClusterSpecCron *ytsaurus.CronSpec,
+	state yandexYtsaurusClusterSpecCronModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecCron == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecCronModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecCronModelType.AttrTypes, yandexYtsaurusClusterSpecCronModel{
+		ClearTmp: flattenYandexYtsaurusClusterSpecCronClearTmp(ctx, yandexYtsaurusClusterSpecCron.GetClearTmp(), converter.ExpandObject(ctx, state.ClearTmp, yandexYtsaurusClusterSpecCronClearTmpModel{}, diags).(yandexYtsaurusClusterSpecCronClearTmpModel), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecCron(ctx context.Context, yandexYtsaurusClusterSpecCronState types.Object, diags *diag.Diagnostics) *ytsaurus.CronSpec {
+	if yandexYtsaurusClusterSpecCronState.IsNull() || yandexYtsaurusClusterSpecCronState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecCron yandexYtsaurusClusterSpecCronModel
+	diags.Append(yandexYtsaurusClusterSpecCronState.As(ctx, &yandexYtsaurusClusterSpecCron, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecCronModel(ctx, yandexYtsaurusClusterSpecCron, diags)
+}
+
+func expandYandexYtsaurusClusterSpecCronModel(ctx context.Context, yandexYtsaurusClusterSpecCronState yandexYtsaurusClusterSpecCronModel, diags *diag.Diagnostics) *ytsaurus.CronSpec {
+	value := &ytsaurus.CronSpec{}
+	value.SetClearTmp(expandYandexYtsaurusClusterSpecCronClearTmp(ctx, yandexYtsaurusClusterSpecCronState.ClearTmp, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterSpecCronClearTmpModel struct {
+	AccountUsageRatioSavePerOwner types.Float64 `tfsdk:"account_usage_ratio_save_per_owner"`
+	AccountUsageRatioSaveTotal    types.Float64 `tfsdk:"account_usage_ratio_save_total"`
+	Interval                      types.String  `tfsdk:"interval"`
+	MaxDirNodeCount               types.Int64   `tfsdk:"max_dir_node_count"`
+}
+
+func (m *yandexYtsaurusClusterSpecCronClearTmpModel) GetAccountUsageRatioSavePerOwner() types.Float64 {
+	return m.AccountUsageRatioSavePerOwner
+}
+func (m *yandexYtsaurusClusterSpecCronClearTmpModel) GetAccountUsageRatioSaveTotal() types.Float64 {
+	return m.AccountUsageRatioSaveTotal
+}
+func (m *yandexYtsaurusClusterSpecCronClearTmpModel) GetInterval() types.String {
+	return m.Interval
+}
+func (m *yandexYtsaurusClusterSpecCronClearTmpModel) GetMaxDirNodeCount() types.Int64 {
+	return m.MaxDirNodeCount
+}
+
+func NewYandexYtsaurusClusterSpecCronClearTmpModel() yandexYtsaurusClusterSpecCronClearTmpModel {
+	return yandexYtsaurusClusterSpecCronClearTmpModel{
+		AccountUsageRatioSavePerOwner: types.Float64Null(),
+		AccountUsageRatioSaveTotal:    types.Float64Null(),
+		Interval:                      types.StringNull(),
+		MaxDirNodeCount:               types.Int64Null(),
+	}
+}
+
+func yandexYtsaurusClusterSpecCronClearTmpModelFillUnknown(target yandexYtsaurusClusterSpecCronClearTmpModel) yandexYtsaurusClusterSpecCronClearTmpModel {
+	if target.AccountUsageRatioSavePerOwner.IsUnknown() || target.AccountUsageRatioSavePerOwner.IsNull() {
+		target.AccountUsageRatioSavePerOwner = types.Float64Null()
+	}
+	if target.AccountUsageRatioSaveTotal.IsUnknown() || target.AccountUsageRatioSaveTotal.IsNull() {
+		target.AccountUsageRatioSaveTotal = types.Float64Null()
+	}
+	if target.Interval.IsUnknown() || target.Interval.IsNull() {
+		target.Interval = types.StringNull()
+	}
+	if target.MaxDirNodeCount.IsUnknown() || target.MaxDirNodeCount.IsNull() {
+		target.MaxDirNodeCount = types.Int64Null()
+	}
+	return target
+}
+
+var yandexYtsaurusClusterSpecCronClearTmpModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"account_usage_ratio_save_per_owner": types.Float64Type,
+		"account_usage_ratio_save_total":     types.Float64Type,
+		"interval":                           types.StringType,
+		"max_dir_node_count":                 types.Int64Type,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecCronClearTmp(ctx context.Context,
+	yandexYtsaurusClusterSpecCronClearTmp *ytsaurus.ClearTmpCronSpec,
+	state yandexYtsaurusClusterSpecCronClearTmpModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecCronClearTmp == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecCronClearTmpModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecCronClearTmpModelType.AttrTypes, yandexYtsaurusClusterSpecCronClearTmpModel{
+		AccountUsageRatioSavePerOwner: types.Float64Value(float64(yandexYtsaurusClusterSpecCronClearTmp.GetAccountUsageRatioSavePerOwner())),
+		AccountUsageRatioSaveTotal:    types.Float64Value(float64(yandexYtsaurusClusterSpecCronClearTmp.GetAccountUsageRatioSaveTotal())),
+		Interval:                      types.StringValue(converter.GetDuration(yandexYtsaurusClusterSpecCronClearTmp.GetInterval(), state.Interval.ValueString(), diags)),
+		MaxDirNodeCount:               types.Int64Value(int64(yandexYtsaurusClusterSpecCronClearTmp.GetMaxDirNodeCount())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecCronClearTmp(ctx context.Context, yandexYtsaurusClusterSpecCronClearTmpState types.Object, diags *diag.Diagnostics) *ytsaurus.ClearTmpCronSpec {
+	if yandexYtsaurusClusterSpecCronClearTmpState.IsNull() || yandexYtsaurusClusterSpecCronClearTmpState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecCronClearTmp yandexYtsaurusClusterSpecCronClearTmpModel
+	diags.Append(yandexYtsaurusClusterSpecCronClearTmpState.As(ctx, &yandexYtsaurusClusterSpecCronClearTmp, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecCronClearTmpModel(ctx, yandexYtsaurusClusterSpecCronClearTmp, diags)
+}
+
+func expandYandexYtsaurusClusterSpecCronClearTmpModel(ctx context.Context, yandexYtsaurusClusterSpecCronClearTmpState yandexYtsaurusClusterSpecCronClearTmpModel, diags *diag.Diagnostics) *ytsaurus.ClearTmpCronSpec {
+	value := &ytsaurus.ClearTmpCronSpec{}
+	value.SetAccountUsageRatioSavePerOwner((yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSavePerOwner.ValueFloat64()))
+	value.SetAccountUsageRatioSaveTotal((yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSaveTotal.ValueFloat64()))
+	value.SetInterval(converter.ParseDuration(yandexYtsaurusClusterSpecCronClearTmpState.Interval.ValueString(), diags))
+	value.SetMaxDirNodeCount((yandexYtsaurusClusterSpecCronClearTmpState.MaxDirNodeCount.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexYtsaurusClusterSpecOdinModel struct {
 	ChecksTtl types.String `tfsdk:"checks_ttl"`
+}
+
+func (m *yandexYtsaurusClusterSpecOdinModel) GetChecksTtl() types.String {
+	return m.ChecksTtl
 }
 
 func NewYandexYtsaurusClusterSpecOdinModel() yandexYtsaurusClusterSpecOdinModel {
@@ -987,6 +1511,13 @@ func expandYandexYtsaurusClusterSpecOdinModel(ctx context.Context, yandexYtsauru
 type yandexYtsaurusClusterSpecProxyModel struct {
 	Http types.Object `tfsdk:"http"`
 	Rpc  types.Object `tfsdk:"rpc"`
+}
+
+func (m *yandexYtsaurusClusterSpecProxyModel) GetHttp() types.Object {
+	return m.Http
+}
+func (m *yandexYtsaurusClusterSpecProxyModel) GetRpc() types.Object {
+	return m.Rpc
 }
 
 func NewYandexYtsaurusClusterSpecProxyModel() yandexYtsaurusClusterSpecProxyModel {
@@ -1053,6 +1584,10 @@ type yandexYtsaurusClusterSpecProxyHttpModel struct {
 	Count types.Int64 `tfsdk:"count"`
 }
 
+func (m *yandexYtsaurusClusterSpecProxyHttpModel) GetCount() types.Int64 {
+	return m.Count
+}
+
 func NewYandexYtsaurusClusterSpecProxyHttpModel() yandexYtsaurusClusterSpecProxyHttpModel {
 	return yandexYtsaurusClusterSpecProxyHttpModel{
 		Count: types.Int64Null(),
@@ -1108,6 +1643,10 @@ func expandYandexYtsaurusClusterSpecProxyHttpModel(ctx context.Context, yandexYt
 
 type yandexYtsaurusClusterSpecProxyRpcModel struct {
 	Count types.Int64 `tfsdk:"count"`
+}
+
+func (m *yandexYtsaurusClusterSpecProxyRpcModel) GetCount() types.Int64 {
+	return m.Count
 }
 
 func NewYandexYtsaurusClusterSpecProxyRpcModel() yandexYtsaurusClusterSpecProxyRpcModel {
@@ -1166,6 +1705,13 @@ func expandYandexYtsaurusClusterSpecProxyRpcModel(ctx context.Context, yandexYts
 type yandexYtsaurusClusterSpecStorageModel struct {
 	Hdd types.Object `tfsdk:"hdd"`
 	Ssd types.Object `tfsdk:"ssd"`
+}
+
+func (m *yandexYtsaurusClusterSpecStorageModel) GetHdd() types.Object {
+	return m.Hdd
+}
+func (m *yandexYtsaurusClusterSpecStorageModel) GetSsd() types.Object {
+	return m.Ssd
 }
 
 func NewYandexYtsaurusClusterSpecStorageModel() yandexYtsaurusClusterSpecStorageModel {
@@ -1233,6 +1779,13 @@ type yandexYtsaurusClusterSpecStorageHddModel struct {
 	SizeGb types.Int64 `tfsdk:"size_gb"`
 }
 
+func (m *yandexYtsaurusClusterSpecStorageHddModel) GetCount() types.Int64 {
+	return m.Count
+}
+func (m *yandexYtsaurusClusterSpecStorageHddModel) GetSizeGb() types.Int64 {
+	return m.SizeGb
+}
+
 func NewYandexYtsaurusClusterSpecStorageHddModel() yandexYtsaurusClusterSpecStorageHddModel {
 	return yandexYtsaurusClusterSpecStorageHddModel{
 		Count:  types.Int64Null(),
@@ -1297,6 +1850,16 @@ type yandexYtsaurusClusterSpecStorageSsdModel struct {
 	Count  types.Int64  `tfsdk:"count"`
 	SizeGb types.Int64  `tfsdk:"size_gb"`
 	Type   types.String `tfsdk:"type"`
+}
+
+func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetCount() types.Int64 {
+	return m.Count
+}
+func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetSizeGb() types.Int64 {
+	return m.SizeGb
+}
+func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetType() types.String {
+	return m.Type
 }
 
 func NewYandexYtsaurusClusterSpecStorageSsdModel() yandexYtsaurusClusterSpecStorageSsdModel {
@@ -1369,6 +1932,13 @@ func expandYandexYtsaurusClusterSpecStorageSsdModel(ctx context.Context, yandexY
 type yandexYtsaurusClusterSpecTabletModel struct {
 	Count  types.Int64  `tfsdk:"count"`
 	Preset types.String `tfsdk:"preset"`
+}
+
+func (m *yandexYtsaurusClusterSpecTabletModel) GetCount() types.Int64 {
+	return m.Count
+}
+func (m *yandexYtsaurusClusterSpecTabletModel) GetPreset() types.String {
+	return m.Preset
 }
 
 func NewYandexYtsaurusClusterSpecTabletModel() yandexYtsaurusClusterSpecTabletModel {
