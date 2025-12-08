@@ -585,6 +585,14 @@ Resources:
     HasI: false
     #HasF: false
     #HasE: false
+  iam_oauth_client_secret:
+    Category: "Identity and Access Management (IAM)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: false
+    #HasF: false
+    #HasE: false
   iam_service_agent:
     Category: "Identity and Access Management (IAM)"
     Type: sdk

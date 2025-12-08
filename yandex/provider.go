@@ -265,6 +265,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_function":                                         resourceYandexFunction(),
 			"yandex_function_scaling_policy":                          resourceYandexFunctionScalingPolicy(),
 			"yandex_function_trigger":                                 resourceYandexFunctionTrigger(),
+			"yandex_iam_oauth_client_secret":                          resourceYandexIAMOAuthClientSecret(),
 			"yandex_iam_service_account_api_key":                      resourceYandexIAMServiceAccountAPIKey(),
 			"yandex_iam_service_account_iam_policy":                   resourceYandexIAMServiceAccountIAMPolicy(),
 			"yandex_iam_service_account_key":                          resourceYandexIAMServiceAccountKey(),
