@@ -3,16 +3,16 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/genproto/googleapis/type/timeofday"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	mongo_config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config"
-
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"golang.org/x/exp/maps"
+	"google.golang.org/genproto/googleapis/type/timeofday"
 )
 
 type MongodbSpecHelper struct {
@@ -325,9 +325,27 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 
 		GetUpdateMask: func(d *schema.ResourceData) []string {
 			updateMask := []string{}
-			for k, v := range mdbMongodbConfigUpdateFieldsMap {
+
+			keys := maps.Keys(mdbMongodbConfigUpdateFieldsMap)
+			sort.Slice(keys, func(i, j int) bool {
+				return strings.Count(keys[i], ".") < strings.Count(keys[j], ".")
+			})
+
+			nilParents := make(map[string]struct{})
+		loop:
+			for _, k := range keys {
+				for nilParent := range nilParents {
+					if strings.HasPrefix(k, nilParent+".") {
+						continue loop
+					}
+				}
+
+				if _, ok := d.GetOk(k); !ok {
+					nilParents[k] = struct{}{}
+				}
+
 				if d.HasChange(k) {
-					updateMask = append(updateMask, v)
+					updateMask = append(updateMask, mdbMongodbConfigUpdateFieldsMap[k])
 				}
 			}
 			return updateMask
@@ -371,7 +389,7 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					auditLog.SetFilter(filter.(string))
 				}
 				// Note: right now runtime_configuration unsupported, so we should comment this statement
-				//if rt := d.Get("cluster_config.0.mongod.0.audit_log.0.runtime_configuration"); rt != nil {
+				// if rt := d.Get("cluster_config.0.mongod.0.audit_log.0.runtime_configuration"); rt != nil {
 				//	audit_log.SetRuntimeConfiguration(&wrappers.BoolValue{Value: rt.(bool)})
 				//}
 				configMongod.SetAuditLog(&auditLog)

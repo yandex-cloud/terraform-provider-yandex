@@ -572,7 +572,6 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Description: "A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.",
 										MaxItems:    1,
 										Optional:    true,
-										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"filter": {
@@ -593,7 +592,6 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Description: "A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).",
 										MaxItems:    1,
 										Optional:    true,
-										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"audit_authorization_success": {
@@ -619,7 +617,6 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Description: "A set of MongoDB Security settings (see the [security](https://www.mongodb.com/docs/manual/reference/configuration-options/#security-options) option). Available only in enterprise edition.",
 										MaxItems:    1,
 										Optional:    true,
-										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enable_encryption": {
@@ -632,7 +629,6 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Description: "Configuration of the third party key management appliance via the Key Management Interoperability Protocol (KMIP) (see [Encryption tutorial](https://www.mongodb.com/docs/rapid/tutorial/configure-encryption) ). Requires `enable_encryption` to be true. The structure is documented below. Available only in enterprise edition.",
 													MaxItems:    1,
 													Optional:    true,
-													Computed:    true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"server_name": {

@@ -3,6 +3,7 @@ package yandex
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 
@@ -1513,6 +1515,33 @@ func TestAccMDBMongoDBCluster_8_0NotShardedV1(t *testing.T) {
 		},
 	})
 }
+
+// Test function for debug plan changes
+// can use
+//
+//	ConfigPlanChecks: resource.ConfigPlanChecks{
+//		PreApply: []plancheck.PlanCheck{
+//			logPlanCheck{},
+//		},
+//	},
+type logPlanCheck struct{}
+
+func (l logPlanCheck) CheckPlan(ctx context.Context, req plancheck.CheckPlanRequest, resp *plancheck.CheckPlanResponse) {
+	fmt.Println("=== TERRAFORM PLAN ===")
+	for _, rc := range req.Plan.ResourceChanges {
+		fmt.Printf("Resource: %s, Actions: %v\n", rc.Address, rc.Change.Actions)
+		if rc.Change.Before != nil {
+			beforeJSON, _ := json.MarshalIndent(rc.Change.Before, "", "  ")
+			fmt.Printf("Before: %s\n", string(beforeJSON))
+		}
+		if rc.Change.After != nil {
+			afterJSON, _ := json.MarshalIndent(rc.Change.After, "", "  ")
+			fmt.Printf("After: %s\n", string(afterJSON))
+		}
+	}
+	fmt.Println("=== END TERRAFORM PLAN ===")
+}
+
 func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 	t.Parallel()
 
@@ -1718,6 +1747,42 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongocfg.0.operation_profiling.0.mode", "SLOW_OP"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1024"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update mongod, mongos, mongocfg configs
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Mongod": map[string]interface {
+					}{
+						"Net":                nil,
+						"OperationProfiling": nil,
+						"Storage":            nil,
+						"SetParameter":       nil,
+					},
+					"Mongos": map[string]interface{}{
+						"Net": nil,
+					},
+					"MongoCfg": map[string]interface{}{
+						"Net":                nil,
+						"OperationProfiling": nil,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.net.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.#", "0"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
