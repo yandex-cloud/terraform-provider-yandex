@@ -18,8 +18,8 @@ type yandexIamOauthClientModel struct {
 	Name          types.String   `tfsdk:"name"`
 	OauthClientId types.String   `tfsdk:"oauth_client_id"`
 	ID            types.String   `tfsdk:"id"`
-	RedirectUris  types.List     `tfsdk:"redirect_uris"`
-	Scopes        types.List     `tfsdk:"scopes"`
+	RedirectUris  types.Set      `tfsdk:"redirect_uris"`
+	Scopes        types.Set      `tfsdk:"scopes"`
 	Status        types.String   `tfsdk:"status"`
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
@@ -36,10 +36,10 @@ func (m *yandexIamOauthClientModel) GetOauthClientId() types.String {
 func (m *yandexIamOauthClientModel) GetID() types.String {
 	return m.ID
 }
-func (m *yandexIamOauthClientModel) GetRedirectUris() types.List {
+func (m *yandexIamOauthClientModel) GetRedirectUris() types.Set {
 	return m.RedirectUris
 }
-func (m *yandexIamOauthClientModel) GetScopes() types.List {
+func (m *yandexIamOauthClientModel) GetScopes() types.Set {
 	return m.Scopes
 }
 func (m *yandexIamOauthClientModel) GetStatus() types.String {
@@ -52,8 +52,8 @@ func NewYandexIamOauthClientModel() yandexIamOauthClientModel {
 		Name:          types.StringNull(),
 		OauthClientId: types.StringNull(),
 		ID:            types.StringNull(),
-		RedirectUris:  types.ListNull(types.StringType),
-		Scopes:        types.ListNull(types.StringType),
+		RedirectUris:  types.SetNull(types.StringType),
+		Scopes:        types.SetNull(types.StringType),
 		Status:        types.StringNull(),
 	}
 }
@@ -72,10 +72,10 @@ func yandexIamOauthClientModelFillUnknown(target yandexIamOauthClientModel) yand
 		target.ID = types.StringNull()
 	}
 	if target.RedirectUris.IsUnknown() || target.RedirectUris.IsNull() {
-		target.RedirectUris = types.ListNull(types.StringType)
+		target.RedirectUris = types.SetNull(types.StringType)
 	}
 	if target.Scopes.IsUnknown() || target.Scopes.IsNull() {
-		target.Scopes = types.ListNull(types.StringType)
+		target.Scopes = types.SetNull(types.StringType)
 	}
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
@@ -89,8 +89,8 @@ var yandexIamOauthClientModelType = types.ObjectType{
 		"name":            types.StringType,
 		"oauth_client_id": types.StringType,
 		"id":              types.StringType,
-		"redirect_uris":   types.ListType{ElemType: types.StringType},
-		"scopes":          types.ListType{ElemType: types.StringType},
+		"redirect_uris":   types.SetType{ElemType: types.StringType},
+		"scopes":          types.SetType{ElemType: types.StringType},
 		"status":          types.StringType,
 		"timeouts":        timeouts.AttributesAll(context.Background()).GetType(),
 	},
@@ -145,12 +145,12 @@ func expandYandexIamOauthClientModel(ctx context.Context, yandexIamOauthClientSt
 	return value
 }
 
-func flattenYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthClientRedirectUris []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthClientRedirectUris []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexIamOauthClientRedirectUris == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexIamOauthClientRedirectUrisValues []attr.Value
 	for _, elem := range yandexIamOauthClientRedirectUris {
@@ -158,12 +158,12 @@ func flattenYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauth
 		yandexIamOauthClientRedirectUrisValues = append(yandexIamOauthClientRedirectUrisValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexIamOauthClientRedirectUrisValues)
+	value, diag := types.SetValue(types.StringType, yandexIamOauthClientRedirectUrisValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthClientRedirectUrisState types.List, diags *diag.Diagnostics) []string {
+func expandYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthClientRedirectUrisState types.Set, diags *diag.Diagnostics) []string {
 	if yandexIamOauthClientRedirectUrisState.IsNull() || yandexIamOauthClientRedirectUrisState.IsUnknown() {
 		return nil
 	}
@@ -182,12 +182,12 @@ func expandYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthC
 	return yandexIamOauthClientRedirectUrisRes
 }
 
-func flattenYandexIamOauthClientScopes(ctx context.Context, yandexIamOauthClientScopes []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexIamOauthClientScopes(ctx context.Context, yandexIamOauthClientScopes []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexIamOauthClientScopes == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexIamOauthClientScopesValues []attr.Value
 	for _, elem := range yandexIamOauthClientScopes {
@@ -195,12 +195,12 @@ func flattenYandexIamOauthClientScopes(ctx context.Context, yandexIamOauthClient
 		yandexIamOauthClientScopesValues = append(yandexIamOauthClientScopesValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexIamOauthClientScopesValues)
+	value, diag := types.SetValue(types.StringType, yandexIamOauthClientScopesValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexIamOauthClientScopes(ctx context.Context, yandexIamOauthClientScopesState types.List, diags *diag.Diagnostics) []string {
+func expandYandexIamOauthClientScopes(ctx context.Context, yandexIamOauthClientScopesState types.Set, diags *diag.Diagnostics) []string {
 	if yandexIamOauthClientScopesState.IsNull() || yandexIamOauthClientScopesState.IsUnknown() {
 		return nil
 	}

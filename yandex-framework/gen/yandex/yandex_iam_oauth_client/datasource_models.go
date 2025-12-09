@@ -17,8 +17,8 @@ type yandexIamOauthClientDatasourceModel struct {
 	Name          types.String   `tfsdk:"name"`
 	OauthClientId types.String   `tfsdk:"oauth_client_id"`
 	ID            types.String   `tfsdk:"id"`
-	RedirectUris  types.List     `tfsdk:"redirect_uris"`
-	Scopes        types.List     `tfsdk:"scopes"`
+	RedirectUris  types.Set      `tfsdk:"redirect_uris"`
+	Scopes        types.Set      `tfsdk:"scopes"`
 	Status        types.String   `tfsdk:"status"`
 	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
@@ -35,10 +35,10 @@ func (m *yandexIamOauthClientDatasourceModel) GetOauthClientId() types.String {
 func (m *yandexIamOauthClientDatasourceModel) GetID() types.String {
 	return m.ID
 }
-func (m *yandexIamOauthClientDatasourceModel) GetRedirectUris() types.List {
+func (m *yandexIamOauthClientDatasourceModel) GetRedirectUris() types.Set {
 	return m.RedirectUris
 }
-func (m *yandexIamOauthClientDatasourceModel) GetScopes() types.List {
+func (m *yandexIamOauthClientDatasourceModel) GetScopes() types.Set {
 	return m.Scopes
 }
 func (m *yandexIamOauthClientDatasourceModel) GetStatus() types.String {
@@ -51,8 +51,8 @@ func NewYandexIamOauthClientDatasourceModel() yandexIamOauthClientDatasourceMode
 		Name:          types.StringNull(),
 		OauthClientId: types.StringNull(),
 		ID:            types.StringNull(),
-		RedirectUris:  types.ListNull(types.StringType),
-		Scopes:        types.ListNull(types.StringType),
+		RedirectUris:  types.SetNull(types.StringType),
+		Scopes:        types.SetNull(types.StringType),
 		Status:        types.StringNull(),
 	}
 }
@@ -71,10 +71,10 @@ func yandexIamOauthClientDatasourceModelFillUnknown(target yandexIamOauthClientD
 		target.ID = types.StringNull()
 	}
 	if target.RedirectUris.IsUnknown() || target.RedirectUris.IsNull() {
-		target.RedirectUris = types.ListNull(types.StringType)
+		target.RedirectUris = types.SetNull(types.StringType)
 	}
 	if target.Scopes.IsUnknown() || target.Scopes.IsNull() {
-		target.Scopes = types.ListNull(types.StringType)
+		target.Scopes = types.SetNull(types.StringType)
 	}
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
@@ -88,8 +88,8 @@ var yandexIamOauthClientDatasourceModelType = types.ObjectType{
 		"name":            types.StringType,
 		"oauth_client_id": types.StringType,
 		"id":              types.StringType,
-		"redirect_uris":   types.ListType{ElemType: types.StringType},
-		"scopes":          types.ListType{ElemType: types.StringType},
+		"redirect_uris":   types.SetType{ElemType: types.StringType},
+		"scopes":          types.SetType{ElemType: types.StringType},
 		"status":          types.StringType,
 		"timeouts":        timeouts.AttributesAll(context.Background()).GetType(),
 	},

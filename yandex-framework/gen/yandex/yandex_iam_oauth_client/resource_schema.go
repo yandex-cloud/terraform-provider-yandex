@@ -7,11 +7,11 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -105,7 +105,7 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
-			"redirect_uris": schema.ListAttribute{
+			"redirect_uris": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of redirect uries allowed for the oauth client.",
 				Description: "List of redirect uries allowed for the oauth client." +
@@ -118,18 +118,18 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 1000),
 					),
 				},
 			},
 
-			"scopes": schema.ListAttribute{
+			"scopes": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of oauth scopes requested by the oauth client.",
 				Description: "List of oauth scopes requested by the oauth client." +
@@ -142,12 +142,12 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 255),
 					),
 				},

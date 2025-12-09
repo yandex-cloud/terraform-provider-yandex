@@ -71,7 +71,7 @@ func YandexIamOauthClientDatasourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
-			"redirect_uris": schema.ListAttribute{
+			"redirect_uris": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of redirect uries allowed for the oauth client.",
 				Description: "List of redirect uries allowed for the oauth client." +
@@ -82,7 +82,7 @@ func YandexIamOauthClientDatasourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 			},
 
-			"scopes": schema.ListAttribute{
+			"scopes": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of oauth scopes requested by the oauth client.",
 				Description: "List of oauth scopes requested by the oauth client." +

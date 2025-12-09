@@ -310,19 +310,19 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 		updatePaths = append(updatePaths, "oauth_client_id")
 	}
 	if plan.RedirectUris.IsNull() {
-		plan.RedirectUris = types.ListNull(types.StringType)
+		plan.RedirectUris = types.SetNull(types.StringType)
 	}
 	if state.RedirectUris.IsNull() {
-		state.RedirectUris = types.ListNull(types.StringType)
+		state.RedirectUris = types.SetNull(types.StringType)
 	}
 	if !plan.RedirectUris.Equal(state.RedirectUris) {
 		updatePaths = append(updatePaths, "redirect_uris")
 	}
 	if plan.Scopes.IsNull() {
-		plan.Scopes = types.ListNull(types.StringType)
+		plan.Scopes = types.SetNull(types.StringType)
 	}
 	if state.Scopes.IsNull() {
-		state.Scopes = types.ListNull(types.StringType)
+		state.Scopes = types.SetNull(types.StringType)
 	}
 	if !plan.Scopes.Equal(state.Scopes) {
 		updatePaths = append(updatePaths, "scopes")

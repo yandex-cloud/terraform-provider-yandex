@@ -67,6 +67,7 @@
   ".changes/header.tpl.md":"opensource/terraform-provider-yandex-mirror/.changes/header.tpl.md",
   ".changes/unreleased/.gitkeep":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/.gitkeep",
   ".changes/unreleased/BUG FIXES-20251208-170607.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20251208-170607.yaml",
+  ".changes/unreleased/BUG FIXES-20251208-182454.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20251208-182454.yaml",
   ".changes/unreleased/ENHANCEMENTS-20251204-224403.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/ENHANCEMENTS-20251204-224403.yaml",
   ".changes/unreleased/ENHANCEMENTS-20251208-120251.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/ENHANCEMENTS-20251208-120251.yaml",
   ".changes/unreleased/FEATURES-20251121-223057.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20251121-223057.yaml",
