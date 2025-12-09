@@ -26,48 +26,93 @@ type MongodbSpecHelper struct {
 }
 
 var mdbMongodbConfigUpdateFieldsMap = map[string]string{
-	"cluster_config.0.mongod":                                                          "config_spec.mongodb.mongod.config",
-	"cluster_config.0.mongod.0.security":                                               "config_spec.mongodb.mongod.config.security",
-	"cluster_config.0.mongod.0.security.0.enable_encryption":                           "config_spec.mongodb.mongod.config.security.enable_encryption",
-	"cluster_config.0.mongod.0.security.0.kmip":                                        "config_spec.mongodb.mongod.config.security.kmip",
-	"cluster_config.0.mongod.0.security.0.kmip.0.server_name":                          "config_spec.mongodb.mongod.config.security.kmip.server_name",
-	"cluster_config.0.mongod.0.security.0.kmip.0.port":                                 "config_spec.mongodb.mongod.config.security.kmip.port",
-	"cluster_config.0.mongod.0.security.0.kmip.0.server_ca":                            "config_spec.mongodb.mongod.config.security.kmip.server_ca",
-	"cluster_config.0.mongod.0.security.0.kmip.0.client_certificate":                   "config_spec.mongodb.mongod.config.security.kmip.client_certificate",
-	"cluster_config.0.mongod.0.security.0.kmip.0.key_identifier":                       "config_spec.mongodb.mongod.config.security.kmip.key_identifier",
-	"cluster_config.0.mongod.0.audit_log":                                              "config_spec.mongodb.mongod.config.audit_log",
-	"cluster_config.0.mongod.0.audit_log.0.filter":                                     "config_spec.mongodb.mongod.config.audit_log.filter",
-	"cluster_config.0.mongod.0.set_parameter":                                          "config_spec.mongodb.mongod.config.set_parameter",
-	"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success":            "config_spec.mongodb.mongod.config.set_parameter.audit_authorization_success",
-	"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control":                    "config_spec.mongodb.mongod.config.set_parameter.enable_flow_control",
-	"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds": "config_spec.mongodb.mongod.config.set_parameter.min_snapshot_history_window_in_seconds",
-	"cluster_config.0.mongod.0.net":                                                    "config_spec.mongodb.mongod.config.net",
-	"cluster_config.0.mongod.0.net.0.max_incoming_connections":                         "config_spec.mongodb.mongod.config.net.max_incoming_connections",
-	"cluster_config.0.mongod.0.net.0.compressors":                                      "config_spec.mongodb.mongod.config.net.compression",
-	"cluster_config.0.mongod.0.storage":                                                "config_spec.mongodb.mongod.config.storage",
-	"cluster_config.0.mongod.0.storage.0.wired_tiger":                                  "config_spec.mongodb.mongod.config.storage.wired_tiger",
-	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb":                  "config_spec.mongodb.mongod.config.storage.wired_tiger.engine_config.cache_size_gb",
-	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor":               "config_spec.mongodb.mongod.config.storage.wired_tiger.collection_config.block_compressor",
-	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression":             "config_spec.mongodb.mongod.config.storage.wired_tiger.index_config.prefix_compression",
-	"cluster_config.0.mongod.0.storage.0.journal":                                      "config_spec.mongodb.mongod.config.storage.journal",
-	"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval":                    "config_spec.mongodb.mongod.config.storage.journal.commit_interval",
-	"cluster_config.0.mongod.0.operation_profiling":                                    "config_spec.mongodb.mongod.config.operation_profiling",
-	"cluster_config.0.mongod.0.operation_profiling.0.mode":                             "config_spec.mongodb.mongod.config.operation_profiling.mode",
-	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold":                "config_spec.mongodb.mongod.config.operation_profiling.slow_op_threshold",
-	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate":              "config_spec.mongodb.mongod.config.operation_profiling.slow_op_sample_rate",
-	"cluster_config.0.mongos":                                                          "config_spec.mongodb.mongos.config",
-	"cluster_config.0.mongos.0.net":                                                    "config_spec.mongodb.mongos.config.net",
-	"cluster_config.0.mongos.0.net.0.max_incoming_connections":                         "config_spec.mongodb.mongos.config.net.max_incoming_connections",
-	"cluster_config.0.mongos.0.net.0.compressors":                                      "config_spec.mongodb.mongos.config.net.compression",
-	"cluster_config.0.mongocfg":                                                        "config_spec.mongodb.mongocfg.config",
-	"cluster_config.0.mongocfg.0.net":                                                  "config_spec.mongodb.mongocfg.config.net",
-	"cluster_config.0.mongocfg.0.net.0.max_incoming_connections":                       "config_spec.mongodb.mongocfg.config.net.max_incoming_connections",
-	"cluster_config.0.mongocfg.0.storage":                                              "config_spec.mongodb.mongocfg.config.storage",
-	"cluster_config.0.mongocfg.0.storage.0.wired_tiger":                                "config_spec.mongodb.mongocfg.config.storage.wired_tiger",
-	"cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb":                "config_spec.mongodb.mongocfg.config.storage.wired_tiger.engine_config.cache_size_gb",
-	"cluster_config.0.mongocfg.0.operation_profiling":                                  "config_spec.mongodb.mongocfg.config.operation_profiling",
-	"cluster_config.0.mongocfg.0.operation_profiling.0.mode":                           "config_spec.mongodb.mongocfg.config.operation_profiling.mode",
-	"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold":              "config_spec.mongodb.mongocfg.config.operation_profiling.slow_op_threshold",
+	"cluster_config.0.mongod":                                                               "config_spec.mongodb.mongod.config",
+	"cluster_config.0.mongod.0.security":                                                    "config_spec.mongodb.mongod.config.security",
+	"cluster_config.0.mongod.0.security.0.enable_encryption":                                "config_spec.mongodb.mongod.config.security.enable_encryption",
+	"cluster_config.0.mongod.0.security.0.kmip":                                             "config_spec.mongodb.mongod.config.security.kmip",
+	"cluster_config.0.mongod.0.security.0.kmip.0.server_name":                               "config_spec.mongodb.mongod.config.security.kmip.server_name",
+	"cluster_config.0.mongod.0.security.0.kmip.0.port":                                      "config_spec.mongodb.mongod.config.security.kmip.port",
+	"cluster_config.0.mongod.0.security.0.kmip.0.server_ca":                                 "config_spec.mongodb.mongod.config.security.kmip.server_ca",
+	"cluster_config.0.mongod.0.security.0.kmip.0.client_certificate":                        "config_spec.mongodb.mongod.config.security.kmip.client_certificate",
+	"cluster_config.0.mongod.0.security.0.kmip.0.key_identifier":                            "config_spec.mongodb.mongod.config.security.kmip.key_identifier",
+	"cluster_config.0.mongod.0.audit_log":                                                   "config_spec.mongodb.mongod.config.audit_log",
+	"cluster_config.0.mongod.0.audit_log.0.filter":                                          "config_spec.mongodb.mongod.config.audit_log.filter",
+	"cluster_config.0.mongod.0.set_parameter":                                               "config_spec.mongodb.mongod.config.set_parameter",
+	"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success":                 "config_spec.mongodb.mongod.config.set_parameter.audit_authorization_success",
+	"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control":                         "config_spec.mongodb.mongod.config.set_parameter.enable_flow_control",
+	"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds":      "config_spec.mongodb.mongod.config.set_parameter.min_snapshot_history_window_in_seconds",
+	"cluster_config.0.mongod.0.set_parameter.0.flow_control_target_lag_seconds":             "config_spec.mongodb.mongod.config.set_parameter.flow_control_target_lag_seconds",
+	"cluster_config.0.mongod.0.set_parameter.0.flow_control_warn_threshold_seconds":         "config_spec.mongodb.mongod.config.set_parameter.flow_control_warn_threshold_seconds",
+	"cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_delay_ms":      "config_spec.mongodb.mongod.config.set_parameter.migrate_clone_insertion_batch_delay_ms",
+	"cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_size":          "config_spec.mongodb.mongod.config.set_parameter.migrate_clone_insertion_batch_size",
+	"cluster_config.0.mongod.0.set_parameter.0.orphan_cleanup_delay_secs":                   "config_spec.mongodb.mongod.config.set_parameter.orphan_cleanup_delay_secs",
+	"cluster_config.0.mongod.0.set_parameter.0.persisted_chunk_cache_update_max_batch_size": "config_spec.mongodb.mongod.config.set_parameter.persisted_chunk_cache_update_max_batch_size",
+	"cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_size":                    "config_spec.mongodb.mongod.config.set_parameter.range_deleter_batch_size",
+	"cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_delay_ms":                "config_spec.mongodb.mongod.config.set_parameter.range_deleter_batch_delay_ms",
+	"cluster_config.0.mongod.0.set_parameter.0.mirror_reads":                                "config_spec.mongodb.mongod.config.set_parameter.mirror_reads",
+	"cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.sampling_rate":                "config_spec.mongodb.mongod.config.set_parameter.mirror_reads.sampling_rate",
+	"cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.max_time_ms":                  "config_spec.mongodb.mongod.config.set_parameter.mirror_reads.max_time_ms",
+	"cluster_config.0.mongod.0.net":                                                         "config_spec.mongodb.mongod.config.net",
+	"cluster_config.0.mongod.0.net.0.max_incoming_connections":                              "config_spec.mongodb.mongod.config.net.max_incoming_connections",
+	"cluster_config.0.mongod.0.net.0.compressors":                                           "config_spec.mongodb.mongod.config.net.compression",
+	"cluster_config.0.mongod.0.storage":                                                     "config_spec.mongodb.mongod.config.storage",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger":                                       "config_spec.mongodb.mongod.config.storage.wired_tiger",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb":                       "config_spec.mongodb.mongod.config.storage.wired_tiger.engine_config.cache_size_gb",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size":                          "config_spec.mongodb.mongod.config.storage.wired_tiger.engine_config.cache_size",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor":                    "config_spec.mongodb.mongod.config.storage.wired_tiger.collection_config.block_compressor",
+	"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression":                  "config_spec.mongodb.mongod.config.storage.wired_tiger.index_config.prefix_compression",
+	"cluster_config.0.mongod.0.storage.0.journal":                                           "config_spec.mongodb.mongod.config.storage.journal",
+	"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval":                         "config_spec.mongodb.mongod.config.storage.journal.commit_interval",
+	"cluster_config.0.mongod.0.operation_profiling":                                         "config_spec.mongodb.mongod.config.operation_profiling",
+	"cluster_config.0.mongod.0.operation_profiling.0.mode":                                  "config_spec.mongodb.mongod.config.operation_profiling.mode",
+	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold":                     "config_spec.mongodb.mongod.config.operation_profiling.slow_op_threshold",
+	"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate":                   "config_spec.mongodb.mongod.config.operation_profiling.slow_op_sample_rate",
+	"cluster_config.0.mongod.0.oplog":                                                       "config_spec.mongodb.mongod.config.oplog",
+	"cluster_config.0.mongod.0.oplog.0.max_size_percent":                                    "config_spec.mongodb.mongod.config.oplog.max_size_percent",
+	"cluster_config.0.mongod.0.oplog.0.min_retention_hours":                                 "config_spec.mongodb.mongod.config.oplog.min_retention_hours",
+	"cluster_config.0.mongod.0.chaining_allowed":                                            "config_spec.mongodb.mongod.config.chaining_allowed",
+
+	"cluster_config.0.mongos":                                                                                          "config_spec.mongodb.mongos.config",
+	"cluster_config.0.mongos.0.net":                                                                                    "config_spec.mongodb.mongos.config.net",
+	"cluster_config.0.mongos.0.net.0.max_incoming_connections":                                                         "config_spec.mongodb.mongos.config.net.max_incoming_connections",
+	"cluster_config.0.mongos.0.net.0.compressors":                                                                      "config_spec.mongodb.mongos.config.net.compression",
+	"cluster_config.0.mongos.0.set_parameter":                                                                          "config_spec.mongodb.mongos.config.set_parameter",
+	"cluster_config.0.mongos.0.set_parameter.0.audit_authorization_success":                                            "config_spec.mongodb.mongos.config.set_parameter.audit_authorization_success",
+	"cluster_config.0.mongos.0.set_parameter.0.read_hedging_mode":                                                      "config_spec.mongodb.mongos.config.set_parameter.read_hedging_mode",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size":                                   "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_max_size",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size":                                   "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_min_size",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_connecting":                             "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_max_connecting",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_replica_set_matching":                       "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_replica_set_matching",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_host_timeout_ms":                            "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_host_timeout_ms",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_requirement_ms":                     "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_refresh_requirement_ms",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_timeout_ms":                         "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_refresh_timeout_ms",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size_for_config_servers":                "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_max_size_for_config_servers",
+	"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size_for_config_servers":                "config_spec.mongodb.mongos.config.set_parameter.sharding_task_executor_pool_min_size_for_config_servers",
+	"cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup":         "config_spec.mongodb.mongos.config.set_parameter.warm_min_connections_in_sharding_task_executor_pool_on_startup",
+	"cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms": "config_spec.mongodb.mongos.config.set_parameter.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms",
+	"cluster_config.0.mongos.0.audit_log":                                                                              "config_spec.mongodb.mongos.config.audit_log",
+	"cluster_config.0.mongos.0.audit_log.0.filter":                                                                     "config_spec.mongodb.mongos.config.audit_log.filter",
+	"cluster_config.0.mongos.0.chunk_size":                                                                             "config_spec.mongodb.mongos.config.chunk_size",
+
+	"cluster_config.0.mongocfg":                                               "config_spec.mongodb.mongocfg.config",
+	"cluster_config.0.mongocfg.0.net":                                         "config_spec.mongodb.mongocfg.config.net",
+	"cluster_config.0.mongocfg.0.net.0.max_incoming_connections":              "config_spec.mongodb.mongocfg.config.net.max_incoming_connections",
+	"cluster_config.0.mongocfg.0.storage":                                     "config_spec.mongodb.mongocfg.config.storage",
+	"cluster_config.0.mongocfg.0.storage.0.wired_tiger":                       "config_spec.mongodb.mongocfg.config.storage.wired_tiger",
+	"cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb":       "config_spec.mongodb.mongocfg.config.storage.wired_tiger.engine_config.cache_size_gb",
+	"cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size":          "config_spec.mongodb.mongocfg.config.storage.wired_tiger.engine_config.cache_size",
+	"cluster_config.0.mongocfg.0.operation_profiling":                         "config_spec.mongodb.mongocfg.config.operation_profiling",
+	"cluster_config.0.mongocfg.0.operation_profiling.0.mode":                  "config_spec.mongodb.mongocfg.config.operation_profiling.mode",
+	"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold":     "config_spec.mongodb.mongocfg.config.operation_profiling.slow_op_threshold",
+	"cluster_config.0.mongocfg.0.set_parameter":                               "config_spec.mongodb.mongocfg.config.set_parameter",
+	"cluster_config.0.mongocfg.0.set_parameter.0.audit_authorization_success": "config_spec.mongodb.mongocfg.config.set_parameter.audit_authorization_success",
+	"cluster_config.0.mongocfg.0.set_parameter.0.enable_flow_control":         "config_spec.mongodb.mongocfg.config.set_parameter.enable_flow_control",
+	"cluster_config.0.mongocfg.0.oplog":                                       "config_spec.mongodb.mongocfg.config.oplog",
+	"cluster_config.0.mongocfg.0.oplog.0.max_size_percent":                    "config_spec.mongodb.mongocfg.config.oplog.max_size_percent",
+	"cluster_config.0.mongocfg.0.oplog.0.min_retention_hours":                 "config_spec.mongodb.mongocfg.config.oplog.min_retention_hours",
+	"cluster_config.0.mongocfg.0.chaining_allowed":                            "config_spec.mongodb.mongocfg.config.chaining_allowed",
+	"cluster_config.0.mongocfg.0.audit_log":                                   "config_spec.mongodb.mongocfg.config.audit_log",
+	"cluster_config.0.mongocfg.0.audit_log.0.filter":                          "config_spec.mongodb.mongocfg.config.audit_log.filter",
 }
 
 func GetMongodbSpecHelper() *MongodbSpecHelper {
@@ -177,6 +222,40 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					if minSnapshotHistoryWindowInSeconds := setParameter.GetMinSnapshotHistoryWindowInSeconds(); minSnapshotHistoryWindowInSeconds != nil {
 						setParameterData["min_snapshot_history_window_in_seconds"] = minSnapshotHistoryWindowInSeconds.GetValue()
 					}
+					if flowControlTargetLagSeconds := setParameter.GetFlowControlTargetLagSeconds(); flowControlTargetLagSeconds != nil {
+						setParameterData["flow_control_target_lag_seconds"] = flowControlTargetLagSeconds.GetValue()
+					}
+					if flowControlWarnThresholdSeconds := setParameter.GetFlowControlWarnThresholdSeconds(); flowControlWarnThresholdSeconds != nil {
+						setParameterData["flow_control_warn_threshold_seconds"] = flowControlWarnThresholdSeconds.GetValue()
+					}
+					if migrateCloneInsertionBatchDelayMs := setParameter.GetMigrateCloneInsertionBatchDelayMs(); migrateCloneInsertionBatchDelayMs != nil {
+						setParameterData["migrate_clone_insertion_batch_delay_ms"] = migrateCloneInsertionBatchDelayMs.GetValue()
+					}
+					if migrateCloneInsertionBatchSize := setParameter.GetMigrateCloneInsertionBatchSize(); migrateCloneInsertionBatchSize != nil {
+						setParameterData["migrate_clone_insertion_batch_size"] = migrateCloneInsertionBatchSize.GetValue()
+					}
+					if orphanCleanupDelaySecs := setParameter.GetOrphanCleanupDelaySecs(); orphanCleanupDelaySecs != nil {
+						setParameterData["orphan_cleanup_delay_secs"] = orphanCleanupDelaySecs.GetValue()
+					}
+					if persistedChunkCacheUpdateMaxBatchSize := setParameter.GetPersistedChunkCacheUpdateMaxBatchSize(); persistedChunkCacheUpdateMaxBatchSize != nil {
+						setParameterData["persisted_chunk_cache_update_max_batch_size"] = persistedChunkCacheUpdateMaxBatchSize.GetValue()
+					}
+					if rangeDeleterBatchSize := setParameter.GetRangeDeleterBatchSize(); rangeDeleterBatchSize != nil {
+						setParameterData["range_deleter_batch_size"] = rangeDeleterBatchSize.GetValue()
+					}
+					if rangeDeleterBatchDelayMs := setParameter.GetRangeDeleterBatchDelayMs(); rangeDeleterBatchDelayMs != nil {
+						setParameterData["range_deleter_batch_delay_ms"] = rangeDeleterBatchDelayMs.GetValue()
+					}
+					if mirrorReads := setParameter.GetMirrorReads(); mirrorReads != nil {
+						flattenMirrorReads := map[string]interface{}{}
+						if samplingRate := mirrorReads.GetSamplingRate(); samplingRate != nil {
+							flattenMirrorReads["sampling_rate"] = samplingRate.GetValue()
+						}
+						if maxTimeMs := mirrorReads.GetMaxTimeMs(); maxTimeMs != nil {
+							flattenMirrorReads["max_time_ms"] = maxTimeMs.GetValue()
+						}
+						setParameterData["mirror_reads"] = []map[string]interface{}{flattenMirrorReads}
+					}
 					result["set_parameter"] = []map[string]interface{}{setParameterData}
 				}
 
@@ -201,8 +280,11 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
 						flattenWiredTiger := map[string]interface{}{}
 						if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
-							if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
-								flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+							if cacheSizeGb := engineConfig.GetCacheSizeGb(); cacheSizeGb != nil {
+								flattenWiredTiger["cache_size_gb"] = cacheSizeGb.GetValue()
+							}
+							if cacheSize := engineConfig.GetCacheSize(); cacheSize != nil {
+								flattenWiredTiger["cache_size"] = cacheSize.GetValue()
 							}
 						}
 						if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
@@ -242,6 +324,21 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 				}
 
+				if oplog := user_config.GetOplog(); oplog != nil {
+					oplogData := map[string]interface{}{}
+					if maxSizePercent := oplog.GetMaxSizePercent(); maxSizePercent != nil {
+						oplogData["max_size_percent"] = maxSizePercent.GetValue()
+					}
+					if minRetentionHours := oplog.GetMinRetentionHours(); minRetentionHours != nil {
+						oplogData["min_retention_hours"] = minRetentionHours.GetValue()
+					}
+					result["oplog"] = []map[string]interface{}{oplogData}
+				}
+
+				if chainingAllowed := user_config.GetChainingAllowed(); chainingAllowed != nil {
+					result["chaining_allowed"] = chainingAllowed.GetValue()
+				}
+
 				return []map[string]interface{}{result}, nil
 			}
 			return []map[string]interface{}{}, nil
@@ -250,8 +347,10 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 		FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
 			mongodbConfig := c.GetMongodbConfig()
 			userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+			defaultConfig := mongodbConfig.Mongos.GetConfig().GetDefaultConfig()
 			if userConfig == nil {
 				userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+				defaultConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetDefaultConfig()
 			}
 			if userConfig != nil {
 				result := map[string]interface{}{}
@@ -271,6 +370,76 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					}
 					result["net"] = []map[string]interface{}{flattenNet}
 				}
+
+				if setParameter := userConfig.GetSetParameter(); setParameter != nil {
+					setParameterData := map[string]interface{}{}
+					if auditAuthorizationSuccess := setParameter.GetAuditAuthorizationSuccess(); auditAuthorizationSuccess != nil {
+						setParameterData["audit_authorization_success"] = auditAuthorizationSuccess.GetValue()
+					}
+
+					if readHedgingMode := setParameter.GetReadHedgingMode(); readHedgingMode != nil {
+						setParameterData["read_hedging_mode"] = readHedgingMode.GetValue()
+					}
+
+					if shardingTaskExecutorPoolMaxSize := setParameter.GetShardingTaskExecutorPoolMaxSize(); shardingTaskExecutorPoolMaxSize != nil {
+						setParameterData["sharding_task_executor_pool_max_size"] = shardingTaskExecutorPoolMaxSize.GetValue()
+					}
+
+					if shardingTaskExecutorPoolMaxConnecting := setParameter.GetShardingTaskExecutorPoolMaxConnecting(); shardingTaskExecutorPoolMaxConnecting != nil {
+						setParameterData["sharding_task_executor_pool_max_connecting"] = shardingTaskExecutorPoolMaxConnecting.GetValue()
+					}
+
+					if shardingTaskExecutorPoolMinSize := setParameter.GetShardingTaskExecutorPoolMinSize(); shardingTaskExecutorPoolMinSize != nil {
+						setParameterData["sharding_task_executor_pool_min_size"] = shardingTaskExecutorPoolMinSize.GetValue()
+					}
+
+					if shardingTaskExecutorPoolReplicaSetMatching := setParameter.GetShardingTaskExecutorPoolReplicaSetMatching(); shardingTaskExecutorPoolReplicaSetMatching != nil {
+						setParameterData["sharding_task_executor_pool_replica_set_matching"] = shardingTaskExecutorPoolReplicaSetMatching.GetValue()
+					}
+
+					if shardingTaskExecutorPoolHostTimeoutMs := setParameter.GetShardingTaskExecutorPoolHostTimeoutMs(); shardingTaskExecutorPoolHostTimeoutMs != nil {
+						setParameterData["sharding_task_executor_pool_host_timeout_ms"] = shardingTaskExecutorPoolHostTimeoutMs.GetValue()
+					}
+
+					if shardingTaskExecutorPoolRefreshRequirementMs := setParameter.GetShardingTaskExecutorPoolRefreshRequirementMs(); shardingTaskExecutorPoolRefreshRequirementMs != nil {
+						setParameterData["sharding_task_executor_pool_refresh_requirement_ms"] = shardingTaskExecutorPoolRefreshRequirementMs.GetValue()
+					}
+
+					if shardingTaskExecutorPoolRefreshTimeoutMs := setParameter.GetShardingTaskExecutorPoolRefreshTimeoutMs(); shardingTaskExecutorPoolRefreshTimeoutMs != nil {
+						setParameterData["sharding_task_executor_pool_refresh_timeout_ms"] = shardingTaskExecutorPoolRefreshTimeoutMs.GetValue()
+					}
+
+					if shardingTaskExecutorPoolMaxSizeForConfigServers := setParameter.GetShardingTaskExecutorPoolMaxSizeForConfigServers(); shardingTaskExecutorPoolMaxSizeForConfigServers != nil {
+						setParameterData["sharding_task_executor_pool_max_size_for_config_servers"] = shardingTaskExecutorPoolMaxSizeForConfigServers.GetValue()
+					}
+
+					if shardingTaskExecutorPoolMinSizeForConfigServers := setParameter.GetShardingTaskExecutorPoolMinSizeForConfigServers(); shardingTaskExecutorPoolMinSizeForConfigServers != nil {
+						setParameterData["sharding_task_executor_pool_min_size_for_config_servers"] = shardingTaskExecutorPoolMinSizeForConfigServers.GetValue()
+					}
+
+					if warmMinConnectionsInShardingTaskExecutorPoolOnStartup := setParameter.GetWarmMinConnectionsInShardingTaskExecutorPoolOnStartup(); warmMinConnectionsInShardingTaskExecutorPoolOnStartup != nil {
+						setParameterData["warm_min_connections_in_sharding_task_executor_pool_on_startup"] = warmMinConnectionsInShardingTaskExecutorPoolOnStartup.GetValue()
+					}
+
+					if warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs := setParameter.GetWarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs(); warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs != nil {
+						setParameterData["warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms"] = warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs.GetValue()
+					}
+
+					result["set_parameter"] = []map[string]interface{}{setParameterData}
+				}
+
+				if audit_log := userConfig.GetAuditLog(); audit_log != nil {
+					audit_log_data := map[string]interface{}{}
+					if audit_log.GetFilter() != defaultConfig.GetAuditLog().GetFilter() {
+						audit_log_data["filter"] = audit_log.GetFilter()
+					}
+					result["audit_log"] = []map[string]interface{}{audit_log_data}
+				}
+
+				if chunkSize := userConfig.GetChunkSize(); chunkSize != nil {
+					result["chunk_size"] = chunkSize.GetValue()
+				}
+
 				return []map[string]interface{}{result}, nil
 			}
 			return []map[string]interface{}{}, nil
@@ -279,8 +448,10 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 		FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
 			mongodbConfig := c.GetMongodbConfig()
 			userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+			defaultConfig := mongodbConfig.Mongocfg.GetConfig().GetDefaultConfig()
 			if userConfig == nil {
 				userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+				defaultConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetDefaultConfig()
 			}
 			if userConfig != nil {
 				result := map[string]interface{}{}
@@ -298,8 +469,11 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
 						flattenWiredTiger := map[string]interface{}{}
 						if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
-							if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
-								flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+							if cacheSizeGb := engineConfig.GetCacheSizeGb(); cacheSizeGb != nil {
+								flattenWiredTiger["cache_size_gb"] = cacheSizeGb.GetValue()
+							}
+							if cacheSize := engineConfig.GetCacheSize(); cacheSize != nil {
+								flattenWiredTiger["cache_size"] = cacheSize.GetValue()
 							}
 						}
 						flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -316,6 +490,40 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 						flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 					}
 					result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+				}
+
+				if setParameter := userConfig.GetSetParameter(); setParameter != nil {
+					setParameterData := map[string]interface{}{}
+					if setParameter.GetAuditAuthorizationSuccess() != nil {
+						setParameterData["audit_authorization_success"] = setParameter.GetAuditAuthorizationSuccess().GetValue()
+					}
+					if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
+						setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
+					}
+					result["set_parameter"] = []map[string]interface{}{setParameterData}
+				}
+
+				if audit_log := userConfig.GetAuditLog(); audit_log != nil {
+					audit_log_data := map[string]interface{}{}
+					if audit_log.GetFilter() != defaultConfig.GetAuditLog().GetFilter() {
+						audit_log_data["filter"] = audit_log.GetFilter()
+					}
+					result["audit_log"] = []map[string]interface{}{audit_log_data}
+				}
+
+				if oplog := userConfig.GetOplog(); oplog != nil {
+					oplogData := map[string]interface{}{}
+					if maxSizePercent := oplog.GetMaxSizePercent(); maxSizePercent != nil {
+						oplogData["max_size_percent"] = maxSizePercent.GetValue()
+					}
+					if minRetentionHours := oplog.GetMinRetentionHours(); minRetentionHours != nil {
+						oplogData["min_retention_hours"] = minRetentionHours.GetValue()
+					}
+					result["oplog"] = []map[string]interface{}{oplogData}
+				}
+
+				if chainingAllowed := userConfig.GetChainingAllowed(); chainingAllowed != nil {
+					result["chaining_allowed"] = chainingAllowed.GetValue()
 				}
 
 				return []map[string]interface{}{result}, nil
@@ -405,6 +613,40 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				if minSnapshotHistoryWindowInSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"); ok {
 					setParameter.SetMinSnapshotHistoryWindowInSeconds(&wrappers.Int64Value{Value: int64(minSnapshotHistoryWindowInSeconds.(int))})
 				}
+				if flowControlTargetLagSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.flow_control_target_lag_seconds"); ok {
+					setParameter.SetFlowControlTargetLagSeconds(&wrappers.Int64Value{Value: int64(flowControlTargetLagSeconds.(int))})
+				}
+				if flowControlWarnThresholdSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.flow_control_warn_threshold_seconds"); ok {
+					setParameter.SetFlowControlWarnThresholdSeconds(&wrappers.Int64Value{Value: int64(flowControlWarnThresholdSeconds.(int))})
+				}
+				if migrateCloneInsertionBatchDelayMs, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_delay_ms"); ok {
+					setParameter.SetMigrateCloneInsertionBatchDelayMs(&wrappers.Int64Value{Value: int64(migrateCloneInsertionBatchDelayMs.(int))})
+				}
+				if migrateCloneInsertionBatchSize, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_size"); ok {
+					setParameter.SetMigrateCloneInsertionBatchSize(&wrappers.Int64Value{Value: int64(migrateCloneInsertionBatchSize.(int))})
+				}
+				if orphanCleanupDelaySecs, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.orphan_cleanup_delay_secs"); ok {
+					setParameter.SetOrphanCleanupDelaySecs(&wrappers.Int64Value{Value: int64(orphanCleanupDelaySecs.(int))})
+				}
+				if persistedChunkCacheUpdateMaxBatchSize, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.persisted_chunk_cache_update_max_batch_size"); ok {
+					setParameter.SetPersistedChunkCacheUpdateMaxBatchSize(&wrappers.Int64Value{Value: int64(persistedChunkCacheUpdateMaxBatchSize.(int))})
+				}
+				if rangeDeleterBatchSize, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_size"); ok {
+					setParameter.SetRangeDeleterBatchSize(&wrappers.Int64Value{Value: int64(rangeDeleterBatchSize.(int))})
+				}
+				if rangeDeleterBatchDelayMs, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_delay_ms"); ok {
+					setParameter.SetRangeDeleterBatchDelayMs(&wrappers.Int64Value{Value: int64(rangeDeleterBatchDelayMs.(int))})
+				}
+				if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.mirror_reads"); ok {
+					mirrorReads := mongo_config.MongodConfig_SetParameter_MirrorReads{}
+					if samplingRate, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.sampling_rate"); ok {
+						mirrorReads.SetSamplingRate(&wrappers.DoubleValue{Value: samplingRate.(float64)})
+					}
+					if maxTimeMs, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.max_time_ms"); ok {
+						mirrorReads.SetMaxTimeMs(&wrappers.Int64Value{Value: int64(maxTimeMs.(int))})
+					}
+					setParameter.SetMirrorReads(&mirrorReads)
+				}
 				configMongod.SetSetParameter(&setParameter)
 			}
 			if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
@@ -454,8 +696,11 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				storageMongod := mongo_config.MongodConfig_Storage{}
 				if _, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger"); ok {
 					storageMongod.WiredTiger = &wiredTigerMongod
-					if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-						engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
+					if cacheSizeGb, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+						engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSizeGb.(float64)})
+					}
+					if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size"); ok {
+						engineConfigMongod.SetCacheSize(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 					}
 					if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 						blockCompressorInt := mongo_config.MongodConfig_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -475,6 +720,19 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				}
 				configMongod.SetStorage(&storageMongod)
 			}
+			if _, ok := d.GetOk("cluster_config.0.mongod.0.oplog"); ok {
+				oplogMongod := mongo_config.MongodConfig_Oplog{}
+				if maxSizePercent, ok := d.GetOk("cluster_config.0.mongod.0.oplog.0.max_size_percent"); ok {
+					oplogMongod.SetMaxSizePercent(&wrappers.Int64Value{Value: int64(maxSizePercent.(int))})
+				}
+				if minRetentionHours, ok := d.GetOk("cluster_config.0.mongod.0.oplog.0.min_retention_hours"); ok {
+					oplogMongod.SetMinRetentionHours(&wrappers.DoubleValue{Value: minRetentionHours.(float64)})
+				}
+				configMongod.SetOplog(&oplogMongod)
+			}
+			if chainingAllowed, ok := d.GetOk("cluster_config.0.mongod.0.chaining_allowed"); ok {
+				configMongod.SetChainingAllowed(&wrappers.BoolValue{Value: chainingAllowed.(bool)})
+			}
 			if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
 				netMongos := mongo_config.MongosConfig_Network{}
 				if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
@@ -491,6 +749,66 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					netMongos.SetCompression(&compressionMongoS)
 				}
 				configMongos.SetNet(&netMongos)
+			}
+			if _, ok := d.GetOk("cluster_config.0.mongos.0.audit_log"); ok {
+				auditLogMongos := mongo_config.MongosConfig_AuditLog{}
+				if filter, ok := d.GetOk("cluster_config.0.mongos.0.audit_log.0.filter"); ok {
+					auditLogMongos.SetFilter(filter.(string))
+				}
+				configMongos.SetAuditLog(&auditLogMongos)
+			}
+			if _, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter"); ok {
+				setParameterMongos := mongo_config.MongosConfig_SetParameter{}
+				if auditAuthorizationSuccess, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.audit_authorization_success"); ok {
+					setParameterMongos.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: auditAuthorizationSuccess.(bool)})
+				}
+				if readHedgingMode, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.read_hedging_mode"); ok {
+					setParameterMongos.SetReadHedgingMode(&wrappers.StringValue{Value: readHedgingMode.(string)})
+				}
+				if shardingTaskExecutorPoolMaxSize, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolMaxSize(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolMaxSize.(int))})
+				}
+				if shardingTaskExecutorPoolMaxConnecting, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_connecting"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolMaxConnecting(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolMaxConnecting.(int))})
+				}
+				if shardingTaskExecutorPoolMinSize, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolMinSize(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolMinSize.(int))})
+				}
+				if shardingTaskExecutorPoolReplicaSetMatching, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_replica_set_matching"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolReplicaSetMatching(&wrappers.StringValue{Value: shardingTaskExecutorPoolReplicaSetMatching.(string)})
+				}
+				if shardingTaskExecutorPoolHostTimeoutMs, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_host_timeout_ms"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolHostTimeoutMs(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolHostTimeoutMs.(int))})
+				}
+				if shardingTaskExecutorPoolRefreshRequirementMs, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_requirement_ms"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolRefreshRequirementMs(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolRefreshRequirementMs.(int))})
+				}
+				if shardingTaskExecutorPoolRefreshTimeoutMs, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_timeout_ms"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolRefreshTimeoutMs(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolRefreshTimeoutMs.(int))})
+				}
+				if shardingTaskExecutorPoolMaxSizeForConfigServers, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size_for_config_servers"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolMaxSizeForConfigServers(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolMaxSizeForConfigServers.(int))})
+				}
+				if shardingTaskExecutorPoolMinSizeForConfigServers, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size_for_config_servers"); ok {
+					setParameterMongos.SetShardingTaskExecutorPoolMinSizeForConfigServers(&wrappers.Int64Value{Value: int64(shardingTaskExecutorPoolMinSizeForConfigServers.(int))})
+				}
+				if warmMinConnectionsInShardingTaskExecutorPoolOnStartup, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup"); ok {
+					setParameterMongos.SetWarmMinConnectionsInShardingTaskExecutorPoolOnStartup(&wrappers.BoolValue{Value: warmMinConnectionsInShardingTaskExecutorPoolOnStartup.(bool)})
+				}
+				if warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs, ok := d.GetOk("cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms"); ok {
+					setParameterMongos.SetWarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs(&wrappers.Int64Value{Value: int64(warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs.(int))})
+				}
+				configMongos.SetSetParameter(&setParameterMongos)
+			}
+			if chunkSize, ok := d.GetOk("cluster_config.0.mongos.0.chunk_size"); ok {
+				configMongos.SetChunkSize(&wrappers.Int64Value{Value: int64(chunkSize.(int))})
+			}
+			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.audit_log"); ok {
+				auditLogMongoCfg := mongo_config.MongoCfgConfig_AuditLog{}
+				if filter, ok := d.GetOk("cluster_config.0.mongocfg.0.audit_log.0.filter"); ok {
+					auditLogMongoCfg.SetFilter(filter.(string))
+				}
+				configMongoCfg.SetAuditLog(&auditLogMongoCfg)
 			}
 			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
 				netMongoCfg := mongo_config.MongoCfgConfig_Network{}
@@ -511,6 +829,26 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				}
 				configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
 			}
+			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.set_parameter"); ok {
+				setParameterMongoCfg := mongo_config.MongoCfgConfig_SetParameter{}
+				if enableFlowControl, ok := d.GetOk("cluster_config.0.mongocfg.0.set_parameter.0.enable_flow_control"); ok {
+					setParameterMongoCfg.SetEnableFlowControl(&wrappers.BoolValue{Value: enableFlowControl.(bool)})
+				}
+				if auditAuthorizationSuccess, ok := d.GetOk("cluster_config.0.mongocfg.0.set_parameter.0.audit_authorization_success"); ok {
+					setParameterMongoCfg.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: auditAuthorizationSuccess.(bool)})
+				}
+				configMongoCfg.SetSetParameter(&setParameterMongoCfg)
+			}
+			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.oplog"); ok {
+				oplogMongoCfg := mongo_config.MongoCfgConfig_Oplog{}
+				if maxSizePercent, ok := d.GetOk("cluster_config.0.mongocfg.0.oplog.0.max_size_percent"); ok {
+					oplogMongoCfg.SetMaxSizePercent(&wrappers.Int64Value{Value: int64(maxSizePercent.(int))})
+				}
+				if minRetentionHours, ok := d.GetOk("cluster_config.0.mongocfg.0.oplog.0.min_retention_hours"); ok {
+					oplogMongoCfg.SetMinRetentionHours(&wrappers.DoubleValue{Value: minRetentionHours.(float64)})
+				}
+				configMongoCfg.SetOplog(&oplogMongoCfg)
+			}
 			if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
 				engineConfigMongoCfg := mongo_config.MongoCfgConfig_Storage_WiredTiger_EngineConfig{}
 				wiredTigerMongoCfg := mongo_config.MongoCfgConfig_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
@@ -519,10 +857,16 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger"); ok {
 					storageMongoCfg.WiredTiger = &wiredTigerMongoCfg
 				}
-				if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-					engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
+				if cacheSizeGb, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+					engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSizeGb.(float64)})
+				}
+				if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size"); ok {
+					engineConfigMongoCfg.SetCacheSize(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 				}
 				configMongoCfg.SetStorage(&storageMongoCfg)
+			}
+			if chainingAllowed, ok := d.GetOk("cluster_config.0.mongocfg.0.chaining_allowed"); ok {
+				configMongoCfg.SetChainingAllowed(&wrappers.BoolValue{Value: chainingAllowed.(bool)})
 			}
 			hostTypes := getSetOfHostTypes(d)
 			var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)

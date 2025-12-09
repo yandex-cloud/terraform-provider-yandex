@@ -609,6 +609,66 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Description: "The minimum time window in seconds for which the storage engine keeps the snapshot history. For more information, see the [minSnapshotHistoryWindowInSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.minSnapshotHistoryWindowInSeconds) description in the official documentation.",
 													Optional:    true,
 												},
+												"flow_control_target_lag_seconds": {
+													Type:        schema.TypeInt,
+													Description: "The target maximum majority committed lag when running with flow control. For more information, see the [flowControlTargetLagSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.flowControlTargetLagSeconds) description in the official documentation.",
+													Optional:    true,
+												},
+												"flow_control_warn_threshold_seconds": {
+													Type:        schema.TypeInt,
+													Description: "The amount of time to wait to log a warning once the flow control mechanism detects the majority commit point has not moved. For more information, see the [flowControlWarnThresholdSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.flowControlWarnThresholdSeconds) description in the official documentation.",
+													Optional:    true,
+												},
+												"migrate_clone_insertion_batch_delay_ms": {
+													Type:        schema.TypeInt,
+													Description: "Time in milliseconds to wait between batches of insertions during cloning step of the migration process. For more information, see the [migrateCloneInsertionBatchDelayMs](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.migrateCloneInsertionBatchDelayMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"migrate_clone_insertion_batch_size": {
+													Type:        schema.TypeInt,
+													Description: "The maximum number of documents to insert in a single batch during the cloning step of the migration process. For more information, see the [migrateCloneInsertionBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.migrateCloneInsertionBatchSize) description in the official documentation.",
+													Optional:    true,
+												},
+												"orphan_cleanup_delay_secs": {
+													Type:        schema.TypeInt,
+													Description: "Minimum delay before a migrated chunk is deleted from the source shard. For more information, see the [orphanCleanupDelaySecs](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.orphanCleanupDelaySecs) description in the official documentation.",
+													Optional:    true,
+												},
+												"persisted_chunk_cache_update_max_batch_size": {
+													Type:        schema.TypeInt,
+													Description: "Specifies the maximum batch size used for updating the persisted chunk cache. For more information, see the [persistedChunkCacheUpdateMaxBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.persistedChunkCacheUpdateMaxBatchSize) description in the official documentation.",
+													Optional:    true,
+												},
+												"range_deleter_batch_delay_ms": {
+													Type:        schema.TypeInt,
+													Description: "The amount of time in milliseconds to wait before the next batch of deletion during the cleanup stage of chunk migration (or the cleanupOrphaned command). For more information, see the [rangeDeleterBatchDelayMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.rangeDeleterBatchDelayMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"range_deleter_batch_size": {
+													Type:        schema.TypeInt,
+													Description: "The maximum number of documents in each batch to delete during the cleanup stage of chunk migration (or the cleanupOrphaned command). For more information, see the [rangeDeleterBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.rangeDeleterBatchSize) description in the official documentation.",
+													Optional:    true,
+												},
+												"mirror_reads": {
+													Type:        schema.TypeList,
+													Description: "A set of MongoDB Mirror Reads settings (see the [mirrorReads](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) option).",
+													MaxItems:    1,
+													Optional:    true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"sampling_rate": {
+																Type:        schema.TypeFloat,
+																Description: "The sampling rate used to mirror a subset of operations that support mirroring. For more information see [mirrorReads.samplingRate](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) description in the official documentation",
+																Optional:    true,
+															},
+															"max_time_ms": {
+																Type:        schema.TypeInt,
+																Description: "The maximum time in milliseconds for the mirrored reads. For more information see [mirrorReads.maxTimeMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) description in the official documentation",
+																Optional:    true,
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -689,6 +749,26 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 											},
 										},
 									},
+									"oplog": {
+										Type:        schema.TypeList,
+										Description: "A set of oplog settings (see the [oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog) option).",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_size_percent": {
+													Type:        schema.TypeInt,
+													Description: "The maximum size of the oplog, as a percentage of the total storage size. For more information, see the [oplog.oplogSizeMB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.",
+													Optional:    true,
+												},
+												"min_retention_hours": {
+													Type:        schema.TypeFloat,
+													Description: "The minimum number of hours to preserve an oplog entry, where decimal values represent the fractions of an hour. For more information, see the [oplog.minRetentionHours](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.",
+													Optional:    true,
+												},
+											},
+										},
+									},
 									"net": {
 										Type:        schema.TypeList,
 										Description: "A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).",
@@ -734,6 +814,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.",
 																Optional:    true,
 															},
+															"cache_size": {
+																Type:        schema.TypeFloat,
+																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data in percents. For more information, see the [storage.wiredTiger.engineConfig.cacheSize](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizePct) description in the official documentation.",
+																Optional:    true,
+															},
 															"block_compressor": {
 																Type:         schema.TypeString,
 																Description:  "Specifies the default compression for collection data. You can override this on a per-collection basis when creating collections. Available compressors are: none, snappy, zlib, zstd. This setting available only on `mongod` hosts. For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor) description in the official documentation.",
@@ -766,6 +851,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 												},
 											},
 										},
+									},
+									"chaining_allowed": {
+										Type:        schema.TypeBool,
+										Description: "Chained replication setting. For more information, see the [chainingAllowed](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-chainingAllowed) description in the official documentation.",
+										Optional:    true,
 									},
 								},
 							},
@@ -833,11 +923,75 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 																Optional:    true,
 																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.",
 															},
+															"cache_size": {
+																Type:        schema.TypeFloat,
+																Description: "Defines the maximum size of the internal cache that WiredTiger will use for all data in percents. For more information, see the [storage.wiredTiger.engineConfig.cacheSize](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizePct) description in the official documentation.",
+																Optional:    true,
+															},
 														},
 													},
 												},
 											},
 										},
+									},
+									"set_parameter": {
+										Type:        schema.TypeList,
+										Description: "A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).",
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"audit_authorization_success": {
+													Type:        schema.TypeBool,
+													Description: "Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
+												},
+												"enable_flow_control": {
+													Type:        schema.TypeBool,
+													Description: "Enables the flow control. Can be either true or false. For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl) description in the official documentation.",
+													Optional:    true,
+												},
+											},
+										},
+									},
+									"audit_log": {
+										Type:        schema.TypeList,
+										Description: "A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"filter": {
+													Type:        schema.TypeString,
+													Description: "Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
+												},
+											},
+										},
+									},
+									"oplog": {
+										Type:        schema.TypeList,
+										Description: "A set of oplog settings (see the [oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog) option).",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_size_percent": {
+													Type:        schema.TypeInt,
+													Description: "The maximum size of the oplog, as a percentage of the total storage size. For more information, see the [oplog.oplogSizeMB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.",
+													Optional:    true,
+												},
+												"min_retention_hours": {
+													Type:        schema.TypeFloat,
+													Description: "The minimum number of hours to preserve an oplog entry, where decimal values represent the fractions of an hour. For more information, see the [oplog.minRetentionHours](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.",
+													Optional:    true,
+												},
+											},
+										},
+									},
+									"chaining_allowed": {
+										Type:        schema.TypeBool,
+										Description: "Chained replication setting. For more information, see the [chainingAllowed](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-chainingAllowed) description in the official documentation.",
+										Optional:    true,
 									},
 								},
 							},
@@ -875,6 +1029,101 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 												},
 											},
 										},
+									},
+									"audit_log": {
+										Type:        schema.TypeList,
+										Description: "A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"filter": {
+													Type:        schema.TypeString,
+													Description: "Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
+												},
+											},
+										},
+									},
+									"set_parameter": {
+										Type:        schema.TypeList,
+										Description: "A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"audit_authorization_success": {
+													Type:        schema.TypeBool,
+													Description: "Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.",
+													Optional:    true,
+												},
+												"read_hedging_mode": {
+													Type:        schema.TypeString,
+													Description: "Specifies whether mongos supports hedged reads for those read operations whose read preference have enabled the hedged read option. For more information, see the [readHedgingMode](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.readHedgingMode) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_max_size": {
+													Type:        schema.TypeInt,
+													Description: "Maximum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance. For more information, see the [shardingTaskExecutorPoolMaxSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxSize) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_max_connecting": {
+													Type:        schema.TypeInt,
+													Description: "Maximum number of simultaneous initiating connections (including pending connections in setup/refresh state) each TaskExecutor connection pool can have to a mongod instance. For more information, see the [shardingTaskExecutorPoolMaxConnecting](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxConnecting) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_min_size": {
+													Type:        schema.TypeInt,
+													Description: "Minimum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance. For more information, see the [shardingTaskExecutorPoolMinSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMinSize) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_replica_set_matching": {
+													Type:        schema.TypeString,
+													Description: "On a mongos instance, this parameter sets the policy that determines the minimum size limit of its connection pools to nodes within replica sets. For more information, see the [shardingTaskExecutorPoolReplicaSetMatching](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolReplicaSetMatching) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_host_timeout_ms": {
+													Type:        schema.TypeInt,
+													Description: "Maximum time that mongos goes without communication to a host before mongos drops all connections to the host. For more information, see the [shardingTaskExecutorPoolHostTimeoutMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolHostTimeoutMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_refresh_requirement_ms": {
+													Type:        schema.TypeInt,
+													Description: "Maximum time the mongos waits before attempting to heartbeat an idle connection in the pool. For more information, see the [shardingTaskExecutorPoolRefreshRequirementMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolRefreshRequirementMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_refresh_timeout_ms": {
+													Type:        schema.TypeInt,
+													Description: "Maximum time the mongos waits for a heartbeat before timing out the heartbeat. For more information, see the [shardingTaskExecutorPoolRefreshTimeoutMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolRefreshTimeoutMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"warm_min_connections_in_sharding_task_executor_pool_on_startup": {
+													Type:        schema.TypeBool,
+													Description: "Configures a mongos instance to prewarm its connection pool on startup. For more information, see the [warmMinConnectionsInShardingTaskExecutorPoolOnStartup](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.warmMinConnectionsInShardingTaskExecutorPoolOnStartup) description in the official documentation.",
+													Optional:    true,
+												},
+												"warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms": {
+													Type:        schema.TypeInt,
+													Description: "Sets the timeout threshold in milliseconds for a mongos to wait for ShardingTaskExecutorPoolMinSize connections to be established per shard host when using the warmMinConnectionsInShardingTaskExecutorPoolOnStartup parameter. For more information, see the [warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMS) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_max_size_for_config_servers": {
+													Type:        schema.TypeInt,
+													Description: "Optional override for ShardingTaskExecutorPoolMaxSize to set the maximum number of outbound connections each TaskExecutor connection pool can open to a configuration server. For more information, see the [shardingTaskExecutorPoolMaxSizeForConfigServers](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxSizeForConfigServers) description in the official documentation.",
+													Optional:    true,
+												},
+												"sharding_task_executor_pool_min_size_for_config_servers": {
+													Type:        schema.TypeInt,
+													Description: "Optional override for ShardingTaskExecutorPoolMinSize to set the minimum number of outbound connections each TaskExecutor connection pool can open to a configuration server. For more information, see the [shardingTaskExecutorPoolMinSizeForConfigServers](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMinSizeForConfigServers) description in the official documentation.",
+													Optional:    true,
+												},
+											},
+										},
+									},
+									"chunk_size": {
+										Type:        schema.TypeInt,
+										Description: "The size of the chunk, in bytes. For more information, see the [chunkSize](https://www.mongodb.com/docs/manual/tutorial/modify-chunk-size-in-sharded-cluster) description in the official documentation.",
+										Optional:    true,
 									},
 								},
 							},

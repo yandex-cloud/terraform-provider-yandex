@@ -159,6 +159,40 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 				{{if .Mongod.SetParameter.MinSnapshotHistoryWindowInSeconds}}
 				    min_snapshot_history_window_in_seconds = {{.Mongod.SetParameter.MinSnapshotHistoryWindowInSeconds}}
 				{{end}}
+				{{if .Mongod.SetParameter.FlowControlTargetLagSeconds}}
+				    flow_control_target_lag_seconds = {{.Mongod.SetParameter.FlowControlTargetLagSeconds}}
+				{{end}}
+				{{if .Mongod.SetParameter.FlowControlWarnThresholdSeconds}}
+				    flow_control_warn_threshold_seconds = {{.Mongod.SetParameter.FlowControlWarnThresholdSeconds}}
+				{{end}}
+				{{if .Mongod.SetParameter.MigrateCloneInsertionBatchDelayMs}}
+				    migrate_clone_insertion_batch_delay_ms = {{.Mongod.SetParameter.MigrateCloneInsertionBatchDelayMs}}
+				{{end}}
+				{{if .Mongod.SetParameter.MigrateCloneInsertionBatchSize}}
+				    migrate_clone_insertion_batch_size = {{.Mongod.SetParameter.MigrateCloneInsertionBatchSize}}
+				{{end}}
+				{{if .Mongod.SetParameter.OrphanCleanupDelaySecs}}
+				    orphan_cleanup_delay_secs = {{.Mongod.SetParameter.OrphanCleanupDelaySecs}}
+				{{end}}
+				{{if .Mongod.SetParameter.PersistedChunkCacheUpdateMaxBatchSize}}
+				    persisted_chunk_cache_update_max_batch_size = {{.Mongod.SetParameter.PersistedChunkCacheUpdateMaxBatchSize}}
+				{{end}}
+				{{if .Mongod.SetParameter.RangeDeleterBatchDelayMs}}
+				    range_deleter_batch_delay_ms = {{.Mongod.SetParameter.RangeDeleterBatchDelayMs}}
+				{{end}}
+				{{if .Mongod.SetParameter.RangeDeleterBatchSize}}
+				    range_deleter_batch_size = {{.Mongod.SetParameter.RangeDeleterBatchSize}}
+				{{end}}
+				{{if .Mongod.SetParameter.MirrorReads}}
+				  mirror_reads {
+						{{if .Mongod.SetParameter.MirrorReads.SamplingRate}}
+							sampling_rate = {{.Mongod.SetParameter.MirrorReads.SamplingRate}}
+						{{end}}
+						{{if .Mongod.SetParameter.MirrorReads.MaxTimeMs}}
+							max_time_ms = {{.Mongod.SetParameter.MirrorReads.MaxTimeMs}}
+						{{end}}
+					}
+				{{end}}
 			}
 {{end}}
 {{if .Mongod.Net}}
@@ -179,7 +213,13 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	{{if .Mongod.Storage.WiredTiger}}
       wired_tiger {
         block_compressor = "{{.Mongod.Storage.WiredTiger.Compressor}}"
-				prefix_compression = "{{.Mongod.Storage.WiredTiger.PrefixCompression}}"
+    	prefix_compression = "{{.Mongod.Storage.WiredTiger.PrefixCompression}}"
+        {{if .Mongod.Storage.WiredTiger.CacheSizeGb}}
+        	cache_size_gb = "{{.Mongod.Storage.WiredTiger.CacheSizeGb}}"
+        {{end}}
+        {{if .Mongod.Storage.WiredTiger.CacheSize}}
+        	cache_size = "{{.Mongod.Storage.WiredTiger.CacheSize}}"
+        {{end}}
       }
 	{{end}}
 	}
@@ -193,6 +233,15 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 				slow_op_sample_rate = "{{.Mongod.OperationProfiling.OpSampleRate}}"
 	}
 {{end}}
+{{if .Mongod.Oplog}}
+  oplog {
+    {{if .Mongod.Oplog.MaxSizePercent}}max_size_percent = "{{.Mongod.Oplog.MaxSizePercent}}"{{end}}
+    {{if .Mongod.Oplog.MinRetentionHours}}min_retention_hours = "{{.Mongod.Oplog.MinRetentionHours}}"{{end}}
+  }
+{{end}}
+{{if .Mongod.ChainingAllowed}}
+  chaining_allowed = "{{.Mongod.ChainingAllowed}}"
+{{end}}
     }
 {{end}}
 
@@ -204,6 +253,31 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 				{{if .Mongos.Net.Compressors}}
 					compressors = {{.Mongos.Net.Compressors}}
       	{{end}}
+      }
+{{end}}
+{{if .Mongos.AuditLog}}
+      audit_log {
+        filter = "{{escapeQuotations .Mongos.AuditLog.Filter}}"
+      }
+{{end}}
+{{if .Mongos.ChunkSize}}
+      chunk_size = "{{.Mongos.ChunkSize}}"
+{{end}}
+{{if .Mongos.SetParameter}}
+      set_parameter {
+        {{if .Mongos.SetParameter.AuditAuthorizationSuccess}}audit_authorization_success = {{.Mongos.SetParameter.AuditAuthorizationSuccess}}{{end}}
+        {{if .Mongos.SetParameter.ReadHedgingMode}}read_hedging_mode = "{{.Mongos.SetParameter.ReadHedgingMode}}"{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolMaxSize}}sharding_task_executor_pool_max_size = {{.Mongos.SetParameter.ShardingTaskExecutorPoolMaxSize}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolMaxConnecting}}sharding_task_executor_pool_max_connecting = {{.Mongos.SetParameter.ShardingTaskExecutorPoolMaxConnecting}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolMinSize}}sharding_task_executor_pool_min_size = {{.Mongos.SetParameter.ShardingTaskExecutorPoolMinSize}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolReplicaSetMatching}}sharding_task_executor_pool_replica_set_matching = "{{.Mongos.SetParameter.ShardingTaskExecutorPoolReplicaSetMatching}}"{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolHostTimeoutMs}}sharding_task_executor_pool_host_timeout_ms = {{.Mongos.SetParameter.ShardingTaskExecutorPoolHostTimeoutMs}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolRefreshRequirementMs}}sharding_task_executor_pool_refresh_requirement_ms = {{.Mongos.SetParameter.ShardingTaskExecutorPoolRefreshRequirementMs}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolRefreshTimeoutMs}}sharding_task_executor_pool_refresh_timeout_ms = {{.Mongos.SetParameter.ShardingTaskExecutorPoolRefreshTimeoutMs}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolMaxSizeForConfigServers}}sharding_task_executor_pool_max_size_for_config_servers = {{.Mongos.SetParameter.ShardingTaskExecutorPoolMaxSizeForConfigServers}}{{end}}
+        {{if .Mongos.SetParameter.ShardingTaskExecutorPoolMinSizeForConfigServers}}sharding_task_executor_pool_min_size_for_config_servers = {{.Mongos.SetParameter.ShardingTaskExecutorPoolMinSizeForConfigServers}}{{end}}
+        {{if .Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartup}}warm_min_connections_in_sharding_task_executor_pool_on_startup = {{.Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartup}}{{end}}
+        {{if .Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs}}warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms = {{.Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs}}{{end}}
       }
 {{end}}
     }
@@ -223,6 +297,26 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 				{{end}}
         slow_op_threshold = "{{.MongoCfg.OperationProfiling.OpThreshold}}"
       }
+{{end}}
+{{if .MongoCfg.SetParameter}}
+      set_parameter {
+        {{if .MongoCfg.SetParameter.EnableFlowControl}}enable_flow_control = {{.MongoCfg.SetParameter.EnableFlowControl}}{{end}}
+        {{if .MongoCfg.SetParameter.AuditAuthorizationSuccess}}audit_authorization_success = {{.MongoCfg.SetParameter.AuditAuthorizationSuccess}}{{end}}
+      }
+{{end}}
+{{if .MongoCfg.AuditLog}}
+      audit_log {
+        filter = "{{escapeQuotations .MongoCfg.AuditLog.Filter}}"
+      }
+{{end}}
+{{if .MongoCfg.Oplog}}
+      oplog {
+        {{if .MongoCfg.Oplog.MaxSizePercent}}max_size_percent = "{{.MongoCfg.Oplog.MaxSizePercent}}"{{end}}
+        {{if .MongoCfg.Oplog.MinRetentionHours}}min_retention_hours = "{{.MongoCfg.Oplog.MinRetentionHours}}"{{end}}
+      }
+{{end}}
+{{if .MongoCfg.ChainingAllowed}}
+      chaining_allowed = "{{.MongoCfg.ChainingAllowed}}"
 {{end}}
     }
 {{end}}
@@ -1466,8 +1560,21 @@ func TestAccMDBMongoDBCluster_8_0NotShardedV1(t *testing.T) {
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 						"SetParameter": map[string]interface{}{
-							"EnableFlowControl":                 true,
-							"MinSnapshotHistoryWindowInSeconds": 300,
+							"EnableFlowControl":                     true,
+							"AuditAuthorizationSuccess":             true,
+							"MinSnapshotHistoryWindowInSeconds":     300,
+							"FlowControlTargetLagSeconds":           3,
+							"FlowControlWarnThresholdSeconds":       5,
+							"MigrateCloneInsertionBatchDelayMs":     7,
+							"MigrateCloneInsertionBatchSize":        11,
+							"OrphanCleanupDelaySecs":                13,
+							"PersistedChunkCacheUpdateMaxBatchSize": 17,
+							"RangeDeleterBatchDelayMs":              19,
+							"RangeDeleterBatchSize":                 23,
+							"MirrorReads": map[string]interface{}{
+								"SamplingRate": 0.2,
+								"MaxTimeMs":    2500,
+							},
 						},
 						"OperationProfiling": map[string]interface{}{
 							"Mode":         "ALL",
@@ -1509,6 +1616,28 @@ func TestAccMDBMongoDBCluster_8_0NotShardedV1(t *testing.T) {
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.flow_control_target_lag_seconds", "3"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.flow_control_warn_threshold_seconds", "5"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_delay_ms", "7"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.migrate_clone_insertion_batch_size", "11"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.orphan_cleanup_delay_secs", "13"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.persisted_chunk_cache_update_max_batch_size", "17"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_delay_ms", "19"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.range_deleter_batch_size", "23"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.sampling_rate", "0.2"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.mirror_reads.0.max_time_ms", "2500"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "true"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1687,16 +1816,41 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 							"WiredTiger": map[string]interface{}{
 								"Compressor":        "ZLIB",
 								"PrefixCompression": false,
+								"CacheSize":         66.6,
 							},
 							"Journal": map[string]interface{}{
 								"CommitInterval": 404,
 							},
 						},
+						"Oplog": map[string]interface{}{
+							"MaxSizePercent":    35,
+							"MinRetentionHours": 10.5,
+						},
+						"ChainingAllowed": true,
 					},
 					"Mongos": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 1101,
 							"Compressors":    []string{"\"ZLIB\""},
+						},
+						"ChunkSize": 1020,
+						"AuditLog": map[string]interface{}{
+							"Filter": "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}",
+						},
+						"SetParameter": map[string]interface{}{
+							"AuditAuthorizationSuccess":                                   true,
+							"ReadHedgingMode":                                             "off",
+							"ShardingTaskExecutorPoolMaxSize":                             20,
+							"ShardingTaskExecutorPoolMaxConnecting":                       20,
+							"ShardingTaskExecutorPoolMinSize":                             2,
+							"ShardingTaskExecutorPoolReplicaSetMatching":                  "matchPrimaryNode",
+							"ShardingTaskExecutorPoolHostTimeoutMs":                       202,
+							"ShardingTaskExecutorPoolRefreshRequirementMs":                101,
+							"ShardingTaskExecutorPoolRefreshTimeoutMs":                    100,
+							"ShardingTaskExecutorPoolMaxSizeForConfigServers":             100,
+							"ShardingTaskExecutorPoolMinSizeForConfigServers":             100,
+							"WarmMinConnectionsInShardingTaskExecutorPoolOnStartup":       false,
+							"WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs": 100,
 						},
 					},
 					"MongoCfg": map[string]interface{}{
@@ -1707,6 +1861,18 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"Net": map[string]interface{}{
 							"MaxConnections": 1102,
 						},
+						"SetParameter": map[string]interface{}{
+							"EnableFlowControl":         true,
+							"AuditAuthorizationSuccess": true,
+						},
+						"AuditLog": map[string]interface{}{
+							"Filter": "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}",
+						},
+						"Oplog": map[string]interface{}{
+							"MaxSizePercent":    40,
+							"MinRetentionHours": 14.25,
+						},
+						"ChainingAllowed": true,
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -1733,6 +1899,8 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.chaining_allowed", "true"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "1101"),
@@ -1740,6 +1908,38 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongos.0.net.0.compressors.0", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.chunk_size", "1020"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.audit_log.0.filter", "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.audit_authorization_success", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.read_hedging_mode", "off"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size", "20"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_connecting", "20"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size", "2"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_replica_set_matching", "matchPrimaryNode"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_host_timeout_ms", "202"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_requirement_ms", "101"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_refresh_timeout_ms", "100"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms", "100"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_max_size_for_config_servers", "100"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size_for_config_servers", "100"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.audit_log.0.filter", "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "1102"),
@@ -1747,6 +1947,18 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongocfg.0.operation_profiling.0.mode", "SLOW_OP"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1024"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.audit_log.0.filter", "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.oplog.0.max_size_percent", "40"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.oplog.0.min_retention_hours", "14.25"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.chaining_allowed", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.set_parameter.0.enable_flow_control", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.set_parameter.0.audit_authorization_success", "true"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
