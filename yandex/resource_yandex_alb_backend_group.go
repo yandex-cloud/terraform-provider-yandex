@@ -155,9 +155,10 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							},
 						},
 						"enable_proxy_protocol": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Description: "Enables TCP proxy protocol support for upstream backend",
+							Optional:    true,
+							Default:     false,
 						},
 						keepConnectionsOnHostHealthFailureSchemaKey: {
 							Type:        schema.TypeBool,
@@ -258,6 +259,13 @@ func sessionAffinity() *schema.Schema {
 								Description:      "TTL for the cookie (if not set, session cookie will be used).",
 								Optional:         true,
 								DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
+							},
+
+							"path": {
+								Type:         schema.TypeString,
+								Description:  "Path of the HTTP cookie to use with affinity.",
+								Optional:     true,
+								ValidateFunc: validation.StringLenBetween(0, 256),
 							},
 						},
 					},
@@ -449,9 +457,10 @@ func tlsBackend() *schema.Schema {
 					Optional:    true,
 				},
 				"validation_context": {
-					Type:     schema.TypeList,
-					Optional: true,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: "Validation context",
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"trusted_ca_id": {

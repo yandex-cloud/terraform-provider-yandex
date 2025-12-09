@@ -255,6 +255,7 @@ type resourceALBBackendGroupInfo struct {
 	IsEmptyTLS                         bool
 	IsStorageBackend                   bool
 	UseHeaderAffinity                  bool
+	UseCookieAffinity                  bool
 	KeepConnectionsOnHostHealthFailure bool
 
 	BaseTemplate string
@@ -296,6 +297,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		IsEmptyTLS:           false,
 		IsStorageBackend:     false,
 		UseHeaderAffinity:    false,
+		UseCookieAffinity:    false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		TGName:               acctest.RandomWithPrefix("tf-tg"),
 		BGName:               acctest.RandomWithPrefix("tf-bg"),
@@ -787,6 +789,16 @@ resource "yandex_alb_backend_group" "test-bg" {
   session_affinity {
     header {
       header_name = "x-some-header"
+    }
+  }
+  {{ end }}
+
+  {{ if .UseCookieAffinity }}
+  session_affinity {
+    cookie {
+      name = "cookie-name"
+      ttl  = "30s"
+      path = "cookie-path"
     }
   }
   {{ end }}

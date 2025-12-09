@@ -1326,6 +1326,10 @@ func expandALBHTTPSessionAffinity(d *schema.ResourceData) (apploadbalancer.HttpB
 			}
 			cookie.Ttl = ttl
 		}
+
+		if v, ok := d.GetOk("session_affinity.0.cookie.0.path"); ok {
+			cookie.Path = v.(string)
+		}
 		return &apploadbalancer.HttpBackendGroup_Cookie{
 			Cookie: cookie,
 		}, nil
@@ -1362,6 +1366,10 @@ func expandALBGRPCSessionAffinity(d *schema.ResourceData) (apploadbalancer.GrpcB
 
 		if v, ok := d.GetOk("session_affinity.0.cookie.0.name"); ok {
 			cookie.Name = v.(string)
+		}
+
+		if v, ok := d.GetOk("session_affinity.0.cookie.0.path"); ok {
+			cookie.Path = v.(string)
 		}
 		return &apploadbalancer.GrpcBackendGroup_Cookie{
 			Cookie: cookie,
@@ -2357,12 +2365,16 @@ func flattenALBHTTPSessionAffinity(bg *apploadbalancer.HttpBackendGroup) ([]inte
 			},
 		}
 	case bg.GetCookie() != nil:
+		cookieMap := map[string]interface{}{
+			"name": bg.GetCookie().GetName(),
+			"ttl":  formatDuration(bg.GetCookie().GetTtl()),
+		}
+		if path := bg.GetCookie().GetPath(); path != "" {
+			cookieMap["path"] = path
+		}
 		affinityMap = map[string]interface{}{
 			"cookie": []interface{}{
-				map[string]interface{}{
-					"name": bg.GetCookie().GetName(),
-					"ttl":  formatDuration(bg.GetCookie().GetTtl()),
-				},
+				cookieMap,
 			},
 		}
 	default:
@@ -2392,12 +2404,16 @@ func flattenALBGRPCSessionAffinity(bg *apploadbalancer.GrpcBackendGroup) ([]inte
 			},
 		}
 	case bg.GetCookie() != nil:
+		cookieMap := map[string]interface{}{
+			"name": bg.GetCookie().GetName(),
+			"ttl":  formatDuration(bg.GetCookie().GetTtl()),
+		}
+		if path := bg.GetCookie().GetPath(); path != "" {
+			cookieMap["path"] = path
+		}
 		affinityMap = map[string]interface{}{
 			"cookie": []interface{}{
-				map[string]interface{}{
-					"name": bg.GetCookie().GetName(),
-					"ttl":  formatDuration(bg.GetCookie().GetTtl()),
-				},
+				cookieMap,
 			},
 		}
 	default:

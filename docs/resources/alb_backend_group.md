@@ -160,7 +160,7 @@ Optional:
 Optional:
 
 - `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
-- `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--grpc_backend--tls--validation_context))
+- `validation_context` (Block List, Max: 1) Validation context (see [below for nested schema](#nestedblock--grpc_backend--tls--validation_context))
 
 <a id="nestedblock--grpc_backend--tls--validation_context"></a>
 ### Nested Schema for `grpc_backend.tls.validation_context`
@@ -262,7 +262,7 @@ Optional:
 Optional:
 
 - `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
-- `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--http_backend--tls--validation_context))
+- `validation_context` (Block List, Max: 1) Validation context (see [below for nested schema](#nestedblock--http_backend--tls--validation_context))
 
 <a id="nestedblock--http_backend--tls--validation_context"></a>
 ### Nested Schema for `http_backend.tls.validation_context`
@@ -301,6 +301,7 @@ Required:
 
 Optional:
 
+- `path` (String) Path of the HTTP cookie to use with affinity.
 - `ttl` (String) TTL for the cookie (if not set, session cookie will be used).
 
 
@@ -323,7 +324,7 @@ Required:
 
 Optional:
 
-- `enable_proxy_protocol` (Boolean)
+- `enable_proxy_protocol` (Boolean) Enables TCP proxy protocol support for upstream backend
 - `healthcheck` (Block List, Max: 1) Healthcheck specification that will be used by this backend.
 
 ~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified. (see [below for nested schema](#nestedblock--stream_backend--healthcheck))
@@ -402,7 +403,7 @@ Optional:
 Optional:
 
 - `sni` (String) [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
-- `validation_context` (Block List, Max: 1) (see [below for nested schema](#nestedblock--stream_backend--tls--validation_context))
+- `validation_context` (Block List, Max: 1) Validation context (see [below for nested schema](#nestedblock--stream_backend--tls--validation_context))
 
 <a id="nestedblock--stream_backend--tls--validation_context"></a>
 ### Nested Schema for `stream_backend.tls.validation_context`

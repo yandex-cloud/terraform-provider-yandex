@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'alb: added field `path` to resource_yandex_alb_backend_group resource'
+time: 2025-12-09T12:05:10.727482+03:00

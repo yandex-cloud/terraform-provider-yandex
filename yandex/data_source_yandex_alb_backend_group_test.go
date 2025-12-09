@@ -226,6 +226,51 @@ func TestAccDataSourceALBBackendGroup_withSessionAffinityHeader(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceALBBackendGroup_withSessionAffinityCookie(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsDataSource = true
+	BGResource.IsHTTPBackend = true
+	BGResource.UseCookieAffinity = true
+
+	affinityPath := "session_affinity"
+	var bg apploadbalancer.BackendGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &affinityPath, "0.cookie.0.name", func(value string) error {
+							cookieName := bg.GetHttp().GetCookie().GetName()
+							if value != cookieName {
+								return fmt.Errorf("BackendGroup's http backend's cookie affinity doesnt't match. %s != %s", value, cookieName)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &affinityPath, "0.cookie.0.path", func(value string) error {
+							cookiePath := bg.GetHttp().GetCookie().GetPath()
+							if value != cookiePath {
+								return fmt.Errorf("BackendGroup's http backend's cookie affinity path doesnt't match. %s != %s", value, cookiePath)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceALBBackendGroup_fullWithStreamBackend(t *testing.T) {
 	t.Parallel()
 

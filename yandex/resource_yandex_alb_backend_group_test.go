@@ -34,13 +34,19 @@ func init() {
 }
 
 func makeCookie(name string) interface{} {
+	return makeCookiePath(name, "")
+}
+
+func makeCookiePath(name, path string) interface{} {
+	m := map[string]interface{}{
+		"name": name,
+		"ttl":  formatDuration(durationpb.New(1 * time.Minute)),
+	}
+	if path != "" {
+		m["path"] = path
+	}
 	return map[string]interface{}{
-		"cookie": []interface{}{
-			map[string]interface{}{
-				"name": name,
-				"ttl":  formatDuration(durationpb.New(1 * time.Minute)),
-			},
-		},
+		"cookie": []interface{}{m},
 	}
 }
 
@@ -94,12 +100,13 @@ func TestUnitALBBackendGroupFlatternSessionAffinity(t *testing.T) {
 				Cookie: &apploadbalancer.CookieSessionAffinity{
 					Name: cookieName,
 					Ttl:  durationpb.New(1 * time.Minute),
+					Path: "foobar",
 				},
 			},
 		}
 		affinityMap, err = flattenALBHTTPSessionAffinity(bg)
 		require.NoError(t, err)
-		assert.EqualValues(t, []interface{}{makeCookie(cookieName)}, affinityMap)
+		assert.EqualValues(t, []interface{}{makeCookiePath(cookieName, "foobar")}, affinityMap)
 	})
 
 	t.Run("grpc-header-affinity", func(t *testing.T) {
@@ -121,12 +128,13 @@ func TestUnitALBBackendGroupFlatternSessionAffinity(t *testing.T) {
 				Cookie: &apploadbalancer.CookieSessionAffinity{
 					Name: cookieName,
 					Ttl:  durationpb.New(1 * time.Minute),
+					Path: "foobar",
 				},
 			},
 		}
 		affinityMap, err = flattenALBGRPCSessionAffinity(bg)
 		require.NoError(t, err)
-		assert.EqualValues(t, []interface{}{makeCookie(cookieName)}, affinityMap)
+		assert.EqualValues(t, []interface{}{makeCookiePath(cookieName, "foobar")}, affinityMap)
 	})
 
 	t.Run("stream-connection-affinity", func(t *testing.T) {
@@ -163,7 +171,7 @@ func TestUnitALBBackendGroupCreateFromResource(t *testing.T) {
 			"id":   "bgid",
 			"name": "bg-name",
 			"session_affinity": []interface{}{
-				makeCookie("cook-name"),
+				makeCookiePath("cook-name", "foobar"),
 			},
 			"http_backend": makeBackend(),
 		}
@@ -179,6 +187,7 @@ func TestUnitALBBackendGroupCreateFromResource(t *testing.T) {
 		assert.NotNil(t, req.GetHttp())
 		assert.NotNil(t, req.GetHttp().GetCookie())
 		assert.Equal(t, 1*time.Minute, req.GetHttp().GetCookie().GetTtl().AsDuration())
+		assert.Equal(t, req.GetHttp().GetCookie().GetPath(), "foobar")
 	})
 
 	t.Run("http-backend-group-header-affinity", func(t *testing.T) {
@@ -232,7 +241,7 @@ func TestUnitALBBackendGroupCreateFromResource(t *testing.T) {
 			"id":   "bgid",
 			"name": "bg-name",
 			"session_affinity": []interface{}{
-				makeCookie("cook-name"),
+				makeCookiePath("cook-name", "foobar"),
 			},
 			"grpc_backend": makeBackend(),
 		}
@@ -247,6 +256,7 @@ func TestUnitALBBackendGroupCreateFromResource(t *testing.T) {
 		assert.Equal(t, req.GetName(), "bg-name")
 		assert.NotNil(t, req.GetGrpc())
 		assert.NotNil(t, req.GetGrpc().GetCookie())
+		assert.Equal(t, req.GetGrpc().GetCookie().GetPath(), "foobar")
 	})
 
 	t.Run("grpc-backend-group-header-affinity", func(t *testing.T) {
@@ -341,11 +351,12 @@ func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
 
 	bgResource := resourceYandexALBBackendGroup()
 
-	makeCookie := func(name string) interface{} {
+	makeCookie := func(name, path string) interface{} {
 		return map[string]interface{}{
 			"cookie": []interface{}{
 				map[string]interface{}{
 					"name": name,
+					"path": path,
 				},
 			},
 		}
@@ -386,7 +397,7 @@ func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
 			"id":   "bgid",
 			"name": "bg-name",
 			"session_affinity": []interface{}{
-				makeCookie("cook-name"),
+				makeCookie("cook-name", "foo"),
 			},
 			"http_backend": makeBackend(),
 		}
@@ -401,6 +412,7 @@ func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
 		assert.Equal(t, req.GetName(), "bg-name")
 		assert.NotNil(t, req.GetHttp())
 		assert.NotNil(t, req.GetHttp().GetCookie())
+		assert.Equal(t, req.GetHttp().GetCookie().GetPath(), "foo")
 	})
 
 	t.Run("http-backend-group-header-affinity", func(t *testing.T) {
@@ -454,7 +466,7 @@ func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
 			"id":   "bgid",
 			"name": "bg-name",
 			"session_affinity": []interface{}{
-				makeCookie("cook-name"),
+				makeCookie("cook-name", "bar"),
 			},
 			"grpc_backend": makeBackend(),
 		}
@@ -469,6 +481,7 @@ func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
 		assert.Equal(t, req.GetName(), "bg-name")
 		assert.NotNil(t, req.GetGrpc())
 		assert.NotNil(t, req.GetGrpc().GetCookie())
+		assert.Equal(t, req.GetGrpc().GetCookie().GetPath(), "bar")
 	})
 
 	t.Run("grpc-backend-group-header-affinity", func(t *testing.T) {
@@ -703,6 +716,43 @@ func TestAccALBBackendGroup_sessionAffinityHeader(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albBGResource, "session_affinity", "header.0.header_name", albDefaultHeaderAffinity, &backendPath,
+					),
+				),
+			},
+			albBackendGroupImportStep(),
+		},
+	})
+}
+
+func TestAccALBBackendGroup_sessionAffinityCookie(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsHTTPBackend = true
+	BGResource.UseCookieAffinity = true
+
+	var bg apploadbalancer.BackendGroup
+	backendPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBBackendGroupExists(albBGResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testAccCheckALBBackendGroupHTTPBackend(&bg, albDefaultValidationContext),
+					testExistsFirstElementWithAttr(
+						albBGResource, "http_backend", "name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "session_affinity", "cookie.0.name", "cookie-name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "session_affinity", "cookie.0.path", "cookie-path", &backendPath,
 					),
 				),
 			},
