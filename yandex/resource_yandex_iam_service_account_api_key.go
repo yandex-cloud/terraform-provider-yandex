@@ -47,9 +47,9 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 
 			"scope": {
 				Type:        schema.TypeString,
-				Description: "The scope of the key.",
+				Description: "The scope of the key. Use `lifecycle {ignore_changes = [scope]}` directive to avoid false changes on apply.",
 				Optional:    true,
-				Deprecated:  "Attribute `scope` deprecated and will be removed in the next major version of the provider. Use attribute `scopes` instead.",
+				Deprecated:  "Attribute `scope` is deprecated and will be removed in the next major version of the provider. Use attribute `scopes` instead.",
 			},
 
 			"expires_at": {
