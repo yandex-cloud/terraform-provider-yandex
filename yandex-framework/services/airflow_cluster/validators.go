@@ -156,5 +156,45 @@ func (d *dagProcessorStructValidator) Description(_ context.Context) string {
 }
 
 func (d *dagProcessorStructValidator) MarkdownDescription(_ context.Context) string {
-	return "dag_processor configuration should only be specified for for Airflow 3.0 and above and should not be specified for Airflow 2.x"
+	return "dag_processor configuration should only be specified for Airflow 3.0 and above and should not be specified for Airflow 2.x"
+}
+
+type codeSyncStructValidator struct{}
+
+func codeSyncValidator() validator.Object { return &codeSyncStructValidator{} }
+
+func (c *codeSyncStructValidator) ValidateObject(ctx context.Context, request validator.ObjectRequest, response *validator.ObjectResponse) {
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+		return
+	}
+
+	var (
+		s3Value      S3Value
+		gitSyncValue GitSyncValue
+	)
+
+	response.Diagnostics.Append(request.Config.GetAttribute(ctx, request.Path.AtName("s3"), &s3Value)...)
+	response.Diagnostics.Append(request.Config.GetAttribute(ctx, request.Path.AtName("git_sync"), &gitSyncValue)...)
+
+	if response.Diagnostics.HasError() {
+		return
+	}
+
+	if (s3Value.IsNull() && gitSyncValue.IsNull()) ||
+		(!s3Value.IsNull() && !gitSyncValue.IsNull()) {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid code_sync configuration",
+			"The code_sync configuration requires one and only one parameter: 's3' or 'git_sync'.",
+		)
+		return
+	}
+}
+
+func (c *codeSyncStructValidator) Description(_ context.Context) string {
+	return "code_sync configuration must contains one of 's3' or 'git_sync' and only one of them"
+}
+
+func (c *codeSyncStructValidator) MarkdownDescription(_ context.Context) string {
+	return "code_sync configuration must contains one of 's3' or 'git_sync' and only one of them"
 }

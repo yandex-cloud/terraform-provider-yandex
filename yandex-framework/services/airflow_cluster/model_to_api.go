@@ -165,16 +165,39 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "network_spec.security_group_ids")
 	}
 
-	objectValuable, dd := S3Type{}.ValueFromObject(ctx, plan.CodeSync.S3)
-	diags.Append(dd...)
-	if diags.HasError() {
-		return nil, nil, diags
+	var codeSyncConfig *airflow.CodeSyncConfig
+	if !plan.CodeSync.S3.IsNull() {
+		objectValuable, dd := S3Type{}.ValueFromObject(ctx, plan.CodeSync.S3)
+		diags.Append(dd...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+		s3Value := objectValuable.(S3Value)
+		codeSyncConfig = &airflow.CodeSyncConfig{
+			Source: &airflow.CodeSyncConfig_S3{
+				S3: &airflow.S3Config{Bucket: s3Value.Bucket.ValueString()},
+			},
+		}
+
 	}
-	s3Value := objectValuable.(S3Value)
-	codeSyncConfig := &airflow.CodeSyncConfig{
-		Source: &airflow.CodeSyncConfig_S3{
-			S3: &airflow.S3Config{Bucket: s3Value.Bucket.ValueString()},
-		},
+
+	if !plan.CodeSync.GitSync.IsNull() {
+		objectValuable, dd := GitSyncType{}.ValueFromObject(ctx, plan.CodeSync.GitSync)
+		diags.Append(dd...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+		gitSyncValue := objectValuable.(GitSyncValue)
+		codeSyncConfig = &airflow.CodeSyncConfig{
+			Source: &airflow.CodeSyncConfig_GitSync{
+				GitSync: &airflow.GitSyncConfig{
+					Repo:    gitSyncValue.Repo.ValueString(),
+					Branch:  gitSyncValue.Branch.ValueString(),
+					SubPath: gitSyncValue.SubPath.ValueString(),
+					SshKey:  gitSyncValue.SshKey.ValueString(),
+				},
+			},
+		}
 	}
 	if state != nil && !plan.CodeSync.Equal(state.CodeSync) {
 		updateMaskPaths = append(updateMaskPaths, "code_sync")

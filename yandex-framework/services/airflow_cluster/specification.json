@@ -156,7 +156,7 @@
                 {
                   "name": "s3",
                   "single_nested": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "optional",
                     "description": "Currently only Object Storage (S3) is supported as the source of DAG files.",
                     "attributes": [
                       {
@@ -167,6 +167,51 @@
                         }
                       }
                     ]
+                  }
+                },
+                {
+                  "name": "git_sync",
+                  "single_nested": {
+                    "computed_optional_required": "optional",
+                    "description": "Git repository that stores DAG files used in the cluster.",
+                    "attributes": [
+                      {
+                        "name": "repo",
+                        "string": {
+                          "computed_optional_required": "required",
+                          "description": "The URL of the Git repository that stores DAG files used in the cluster."
+                        }
+                      },
+                      {
+                        "name": "branch",
+                        "string": {
+                          "computed_optional_required": "required",
+                          "description": "The name of the branch that stores DAG files used in the cluster."
+                        }
+                      },
+                      {
+                        "name": "sub_path",
+                        "string": {
+                          "computed_optional_required": "required",
+                          "description": "The path to the directory in the repository that stores DAG files used in the cluster."
+                        }
+                      },
+                      {
+                        "name": "ssh_key",
+                        "string": {
+                          "computed_optional_required": "required",
+                          "description": "The SSH key that is used to access the Git repository.",
+                          "sensitive": true
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "validators": [
+                {
+                  "custom": {
+                    "schema_definition": "codeSyncValidator()"
                   }
                 }
               ]

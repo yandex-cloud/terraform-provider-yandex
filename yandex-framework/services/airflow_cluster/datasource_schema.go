@@ -38,7 +38,7 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 					"s3": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"bucket": schema.StringAttribute{
-								Computed:            true,
+								Required:            true,
 								MarkdownDescription: "The name of the Object Storage bucket that stores DAG files used in the cluster.",
 							},
 						},
@@ -47,8 +47,35 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: S3Value{}.AttributeTypes(ctx),
 							},
 						},
-						Computed:            true,
-						MarkdownDescription: "Currently only Object Storage (S3) is supported as the source of DAG files.",
+						Optional:            true,
+						MarkdownDescription: "Object Storage (S3) is supported as the source of DAG files.",
+					},
+					"git_sync": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"repo": schema.StringAttribute{
+								Required:            true,
+								MarkdownDescription: "The URL of the Git repository that stores DAG files used in the cluster.",
+							},
+							"branch": schema.StringAttribute{
+								Required:            true,
+								MarkdownDescription: "The name of the Git branch that stores DAG files used in the cluster.",
+							},
+							"sub_path": schema.StringAttribute{
+								Required:            true,
+								MarkdownDescription: "The path to the directory in the Git repository that stores DAG files used in the cluster.",
+							},
+							"ssh_key": schema.StringAttribute{
+								Required:            true,
+								MarkdownDescription: "The SSH key that will be used to access the Git repository.",
+							},
+						},
+						CustomType: GitSyncType{
+							ObjectType: types.ObjectType{
+								AttrTypes: GitSyncValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						MarkdownDescription: "Git repository is supported as the source of DAG files.",
 					},
 				},
 				CustomType: CodeSyncType{

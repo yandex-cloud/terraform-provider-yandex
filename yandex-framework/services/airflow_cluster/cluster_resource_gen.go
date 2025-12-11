@@ -56,6 +56,39 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"code_sync": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"git_sync": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"branch": schema.StringAttribute{
+								Required:            true,
+								Description:         "The name of the branch that stores DAG files used in the cluster.",
+								MarkdownDescription: "The name of the branch that stores DAG files used in the cluster.",
+							},
+							"repo": schema.StringAttribute{
+								Required:            true,
+								Description:         "The URL of the Git repository that stores DAG files used in the cluster.",
+								MarkdownDescription: "The URL of the Git repository that stores DAG files used in the cluster.",
+							},
+							"ssh_key": schema.StringAttribute{
+								Required:            true,
+								Sensitive:           true,
+								Description:         "The SSH key that is used to access the Git repository.",
+								MarkdownDescription: "The SSH key that is used to access the Git repository.",
+							},
+							"sub_path": schema.StringAttribute{
+								Required:            true,
+								Description:         "The path to the directory in the repository that stores DAG files used in the cluster.",
+								MarkdownDescription: "The path to the directory in the repository that stores DAG files used in the cluster.",
+							},
+						},
+						CustomType: GitSyncType{
+							ObjectType: types.ObjectType{
+								AttrTypes: GitSyncValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "Git repository that stores DAG files used in the cluster.",
+						MarkdownDescription: "Git repository that stores DAG files used in the cluster.",
+					},
 					"s3": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"bucket": schema.StringAttribute{
@@ -69,7 +102,7 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: S3Value{}.AttributeTypes(ctx),
 							},
 						},
-						Required:            true,
+						Optional:            true,
 						Description:         "Currently only Object Storage (S3) is supported as the source of DAG files.",
 						MarkdownDescription: "Currently only Object Storage (S3) is supported as the source of DAG files.",
 					},
@@ -82,6 +115,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Required:            true,
 				Description:         "Parameters of the location and access to the code that will be executed in the cluster.",
 				MarkdownDescription: "Parameters of the location and access to the code that will be executed in the cluster.",
+				Validators: []validator.Object{
+					codeSyncValidator(),
+				},
 			},
 			"created_at": schema.StringAttribute{
 				Computed:            true,
@@ -459,6 +495,24 @@ func (t CodeSyncType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 
 	attributes := in.Attributes()
 
+	gitSyncAttribute, ok := attributes["git_sync"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`git_sync is missing from object`)
+
+		return nil, diags
+	}
+
+	gitSyncVal, ok := gitSyncAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`git_sync expected to be basetypes.ObjectValue, was: %T`, gitSyncAttribute))
+	}
+
 	s3Attribute, ok := attributes["s3"]
 
 	if !ok {
@@ -482,8 +536,9 @@ func (t CodeSyncType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	}
 
 	return CodeSyncValue{
-		S3:    s3Val,
-		state: attr.ValueStateKnown,
+		GitSync: gitSyncVal,
+		S3:      s3Val,
+		state:   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -550,6 +605,24 @@ func NewCodeSyncValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewCodeSyncValueUnknown(), diags
 	}
 
+	gitSyncAttribute, ok := attributes["git_sync"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`git_sync is missing from object`)
+
+		return NewCodeSyncValueUnknown(), diags
+	}
+
+	gitSyncVal, ok := gitSyncAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`git_sync expected to be basetypes.ObjectValue, was: %T`, gitSyncAttribute))
+	}
+
 	s3Attribute, ok := attributes["s3"]
 
 	if !ok {
@@ -573,8 +646,9 @@ func NewCodeSyncValue(attributeTypes map[string]attr.Type, attributes map[string
 	}
 
 	return CodeSyncValue{
-		S3:    s3Val,
-		state: attr.ValueStateKnown,
+		GitSync: gitSyncVal,
+		S3:      s3Val,
+		state:   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -646,16 +720,20 @@ func (t CodeSyncType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = CodeSyncValue{}
 
 type CodeSyncValue struct {
-	S3    basetypes.ObjectValue `tfsdk:"s3"`
-	state attr.ValueState
+	GitSync basetypes.ObjectValue `tfsdk:"git_sync"`
+	S3      basetypes.ObjectValue `tfsdk:"s3"`
+	state   attr.ValueState
 }
 
 func (v CodeSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["git_sync"] = basetypes.ObjectType{
+		AttrTypes: GitSyncValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["s3"] = basetypes.ObjectType{
 		AttrTypes: S3Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -664,7 +742,15 @@ func (v CodeSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.GitSync.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["git_sync"] = val
 
 		val, err = v.S3.ToTerraformValue(ctx)
 
@@ -703,6 +789,27 @@ func (v CodeSyncValue) String() string {
 func (v CodeSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var gitSync basetypes.ObjectValue
+
+	if v.GitSync.IsNull() {
+		gitSync = types.ObjectNull(
+			GitSyncValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.GitSync.IsUnknown() {
+		gitSync = types.ObjectUnknown(
+			GitSyncValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.GitSync.IsNull() && !v.GitSync.IsUnknown() {
+		gitSync = types.ObjectValueMust(
+			GitSyncValue{}.AttributeTypes(ctx),
+			v.GitSync.Attributes(),
+		)
+	}
+
 	var s3 basetypes.ObjectValue
 
 	if v.S3.IsNull() {
@@ -725,6 +832,9 @@ func (v CodeSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"git_sync": basetypes.ObjectType{
+			AttrTypes: GitSyncValue{}.AttributeTypes(ctx),
+		},
 		"s3": basetypes.ObjectType{
 			AttrTypes: S3Value{}.AttributeTypes(ctx),
 		},
@@ -741,7 +851,8 @@ func (v CodeSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"s3": s3,
+			"git_sync": gitSync,
+			"s3":       s3,
 		})
 
 	return objVal, diags
@@ -762,6 +873,10 @@ func (v CodeSyncValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.GitSync.Equal(other.GitSync) {
+		return false
+	}
+
 	if !v.S3.Equal(other.S3) {
 		return false
 	}
@@ -779,9 +894,501 @@ func (v CodeSyncValue) Type(ctx context.Context) attr.Type {
 
 func (v CodeSyncValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"git_sync": basetypes.ObjectType{
+			AttrTypes: GitSyncValue{}.AttributeTypes(ctx),
+		},
 		"s3": basetypes.ObjectType{
 			AttrTypes: S3Value{}.AttributeTypes(ctx),
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = GitSyncType{}
+
+type GitSyncType struct {
+	basetypes.ObjectType
+}
+
+func (t GitSyncType) Equal(o attr.Type) bool {
+	other, ok := o.(GitSyncType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t GitSyncType) String() string {
+	return "GitSyncType"
+}
+
+func (t GitSyncType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	branchAttribute, ok := attributes["branch"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`branch is missing from object`)
+
+		return nil, diags
+	}
+
+	branchVal, ok := branchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`branch expected to be basetypes.StringValue, was: %T`, branchAttribute))
+	}
+
+	repoAttribute, ok := attributes["repo"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`repo is missing from object`)
+
+		return nil, diags
+	}
+
+	repoVal, ok := repoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`repo expected to be basetypes.StringValue, was: %T`, repoAttribute))
+	}
+
+	sshKeyAttribute, ok := attributes["ssh_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ssh_key is missing from object`)
+
+		return nil, diags
+	}
+
+	sshKeyVal, ok := sshKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ssh_key expected to be basetypes.StringValue, was: %T`, sshKeyAttribute))
+	}
+
+	subPathAttribute, ok := attributes["sub_path"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sub_path is missing from object`)
+
+		return nil, diags
+	}
+
+	subPathVal, ok := subPathAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sub_path expected to be basetypes.StringValue, was: %T`, subPathAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return GitSyncValue{
+		Branch:  branchVal,
+		Repo:    repoVal,
+		SshKey:  sshKeyVal,
+		SubPath: subPathVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGitSyncValueNull() GitSyncValue {
+	return GitSyncValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewGitSyncValueUnknown() GitSyncValue {
+	return GitSyncValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewGitSyncValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GitSyncValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing GitSyncValue Attribute Value",
+				"While creating a GitSyncValue value, a missing attribute value was detected. "+
+					"A GitSyncValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GitSyncValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid GitSyncValue Attribute Type",
+				"While creating a GitSyncValue value, an invalid attribute value was detected. "+
+					"A GitSyncValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GitSyncValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GitSyncValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra GitSyncValue Attribute Value",
+				"While creating a GitSyncValue value, an extra attribute value was detected. "+
+					"A GitSyncValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra GitSyncValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	branchAttribute, ok := attributes["branch"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`branch is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	branchVal, ok := branchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`branch expected to be basetypes.StringValue, was: %T`, branchAttribute))
+	}
+
+	repoAttribute, ok := attributes["repo"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`repo is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	repoVal, ok := repoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`repo expected to be basetypes.StringValue, was: %T`, repoAttribute))
+	}
+
+	sshKeyAttribute, ok := attributes["ssh_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ssh_key is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	sshKeyVal, ok := sshKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ssh_key expected to be basetypes.StringValue, was: %T`, sshKeyAttribute))
+	}
+
+	subPathAttribute, ok := attributes["sub_path"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sub_path is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	subPathVal, ok := subPathAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sub_path expected to be basetypes.StringValue, was: %T`, subPathAttribute))
+	}
+
+	if diags.HasError() {
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	return GitSyncValue{
+		Branch:  branchVal,
+		Repo:    repoVal,
+		SshKey:  sshKeyVal,
+		SubPath: subPathVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGitSyncValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GitSyncValue {
+	object, diags := NewGitSyncValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewGitSyncValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t GitSyncType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewGitSyncValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewGitSyncValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewGitSyncValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewGitSyncValueMust(GitSyncValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t GitSyncType) ValueType(ctx context.Context) attr.Value {
+	return GitSyncValue{}
+}
+
+var _ basetypes.ObjectValuable = GitSyncValue{}
+
+type GitSyncValue struct {
+	Branch  basetypes.StringValue `tfsdk:"branch"`
+	Repo    basetypes.StringValue `tfsdk:"repo"`
+	SshKey  basetypes.StringValue `tfsdk:"ssh_key"`
+	SubPath basetypes.StringValue `tfsdk:"sub_path"`
+	state   attr.ValueState
+}
+
+func (v GitSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["branch"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["repo"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ssh_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["sub_path"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Branch.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["branch"] = val
+
+		val, err = v.Repo.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["repo"] = val
+
+		val, err = v.SshKey.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ssh_key"] = val
+
+		val, err = v.SubPath.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sub_path"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v GitSyncValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v GitSyncValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v GitSyncValue) String() string {
+	return "GitSyncValue"
+}
+
+func (v GitSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"branch":   basetypes.StringType{},
+		"repo":     basetypes.StringType{},
+		"ssh_key":  basetypes.StringType{},
+		"sub_path": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"branch":   v.Branch,
+			"repo":     v.Repo,
+			"ssh_key":  v.SshKey,
+			"sub_path": v.SubPath,
+		})
+
+	return objVal, diags
+}
+
+func (v GitSyncValue) Equal(o attr.Value) bool {
+	other, ok := o.(GitSyncValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Branch.Equal(other.Branch) {
+		return false
+	}
+
+	if !v.Repo.Equal(other.Repo) {
+		return false
+	}
+
+	if !v.SshKey.Equal(other.SshKey) {
+		return false
+	}
+
+	if !v.SubPath.Equal(other.SubPath) {
+		return false
+	}
+
+	return true
+}
+
+func (v GitSyncValue) Type(ctx context.Context) attr.Type {
+	return GitSyncType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v GitSyncValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"branch":   basetypes.StringType{},
+		"repo":     basetypes.StringType{},
+		"ssh_key":  basetypes.StringType{},
+		"sub_path": basetypes.StringType{},
 	}
 }
 

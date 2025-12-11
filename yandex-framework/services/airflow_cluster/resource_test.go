@@ -436,8 +436,9 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					MaintenanceWindow: &MaintenanceWindow{
 						Type: "ANYTIME",
 					},
-					AirflowVersion: "3.1",
-					ResourceName:   "airflow_cluster3",
+					DeletionProtection: false,
+					AirflowVersion:     "3.1",
+					ResourceName:       "airflow_cluster3",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAirflowExists("yandex_airflow_cluster.airflow_cluster3", &cluster),
@@ -624,8 +625,9 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					MaintenanceWindow: &MaintenanceWindow{
 						Type: "ANYTIME",
 					},
-					AirflowVersion: "2.10",
-					ResourceName:   "airflow_cluster2",
+					DeletionProtection: false,
+					AirflowVersion:     "2.10",
+					ResourceName:       "airflow_cluster2",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAirflowExists("yandex_airflow_cluster.airflow_cluster2", &cluster),

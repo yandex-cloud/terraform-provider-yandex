@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'airflow: gitsync configuration support for airflow dags source'
+time: 2025-12-09T17:25:25.492258+03:00

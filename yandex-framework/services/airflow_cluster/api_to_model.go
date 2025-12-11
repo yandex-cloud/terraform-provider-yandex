@@ -82,7 +82,7 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 	state.AirflowVersion = types.StringValue(cluster.GetConfig().GetAirflowVersion())
 	state.PythonVersion = types.StringValue(cluster.GetConfig().GetPythonVersion())
 
-	codeSyncConfigObject, diags := codeSyncValueFromAPI(ctx, cluster.GetCodeSync())
+	codeSyncConfigObject, diags := codeSyncValueFromAPI(ctx, cluster.GetCodeSync(), state)
 	if diags.HasError() {
 		return diags
 	}
@@ -179,32 +179,54 @@ func triggererValueFromAPI(cfg *airflow.TriggererConfig) TriggererValue {
 	}
 }
 
-func codeSyncValueFromAPI(ctx context.Context, cfg *airflow.CodeSyncConfig) (CodeSyncValue, diag.Diagnostics) {
+func codeSyncValueFromAPI(ctx context.Context, cfg *airflow.CodeSyncConfig, state *ClusterModel) (CodeSyncValue, diag.Diagnostics) {
 	if cfg == nil || cfg.GetSource() == nil {
 		return NewCodeSyncValueNull(), diag.Diagnostics{}
 	}
 
-	s3Source, ok := cfg.GetSource().(*airflow.CodeSyncConfig_S3)
-	if !ok {
-		d := diag.NewErrorDiagnostic("Failed to parse Airflow cluster value received from Cloud API",
-			"CodeSync source has unexpected type. Please update provider.")
+	switch source := cfg.GetSource().(type) {
+	case *airflow.CodeSyncConfig_S3:
+		s3Value := S3Value{
+			Bucket: types.StringValue(source.S3.GetBucket()),
+			state:  attr.ValueStateKnown,
+		}
+		s3AsObjectValue, diags := s3Value.ToObjectValue(ctx)
+		if diags.HasError() {
+			return NewCodeSyncValueUnknown(), diags
+		}
+		gitAsObjectValue, _ := GitSyncValue{}.ToObjectValue(ctx)
+		return CodeSyncValue{
+			S3:      s3AsObjectValue,
+			GitSync: gitAsObjectValue,
+			state:   attr.ValueStateKnown,
+		}, diag.Diagnostics{}
+
+	case *airflow.CodeSyncConfig_GitSync:
+		gitSyncValue := GitSyncValue{
+			Repo:    types.StringValue(source.GitSync.GetRepo()),
+			Branch:  types.StringValue(source.GitSync.GetBranch()),
+			SubPath: types.StringValue(source.GitSync.GetSubPath()),
+			SshKey:  state.CodeSync.GitSync.Attributes()["ssh_key"].(basetypes.StringValue),
+			state:   attr.ValueStateKnown,
+		}
+		gitAsObjectValue, diags := gitSyncValue.ToObjectValue(ctx)
+		if diags.HasError() {
+			return NewCodeSyncValueUnknown(), diags
+		}
+		s3AsObjectValue, _ := S3Value{}.ToObjectValue(ctx)
+		return CodeSyncValue{
+			S3:      s3AsObjectValue,
+			GitSync: gitAsObjectValue,
+			state:   attr.ValueStateKnown,
+		}, diag.Diagnostics{}
+
+	default:
+		d := diag.NewErrorDiagnostic(
+			"Failed to parse Airflow cluster value received from Cloud API",
+			"CodeSync source has unexpected type. Please update provider.",
+		)
 		return NewCodeSyncValueUnknown(), diag.Diagnostics{d}
 	}
-
-	s3Value := S3Value{
-		Bucket: types.StringValue(s3Source.S3.GetBucket()),
-		state:  attr.ValueStateKnown,
-	}
-
-	s3AsObjectValue, diags := s3Value.ToObjectValue(ctx)
-	if diags.HasError() {
-		return NewCodeSyncValueUnknown(), diags
-	}
-
-	return CodeSyncValue{
-		S3:    s3AsObjectValue,
-		state: attr.ValueStateKnown,
-	}, diag.Diagnostics{}
 }
 
 func nullableStringSliceToSet(ctx context.Context, s []string) (types.Set, diag.Diagnostics) {
