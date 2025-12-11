@@ -16,9 +16,9 @@ func TestAccDataSourceComputeInstanceGroup_byID(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceGroupConfig(igName, saName),
@@ -33,9 +33,9 @@ func TestAccDataSourceComputeInstanceGroup_GpusByID(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceGroupGpusConfig(igName, saName),
@@ -50,9 +50,9 @@ func TestAccDataSourceComputeInstanceGroup_AutoscaleByID(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceGroupAutoscaleConfig(igName, saName),
@@ -67,9 +67,9 @@ func TestAccDataSourceComputeInstanceGroup_InstanceTagsPool(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceGroupInstanceTagsPoolConfig(igName, saName),
@@ -146,6 +146,7 @@ var baseAttrsToTest = []string{
 	"instance_template.0.metadata_options.0.gce_http_token",
 	"instance_template.0.metadata_options.0.aws_v1_http_token",
 	"instance_template.0.boot_disk.0.initialize_params.0.type",
+	"instance_template.0.reserved_instance_pool_id",
 	"instance_template.0.resources.0.core_fraction",
 	"service_account_id",
 	"deploy_policy.#",

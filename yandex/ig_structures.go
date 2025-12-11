@@ -81,6 +81,7 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 	templateMap["platform_id"] = template.GetPlatformId()
 	templateMap["metadata"] = template.GetMetadata()
 	templateMap["service_account_id"] = template.GetServiceAccountId()
+	templateMap["reserved_instance_pool_id"] = template.GetReservedInstancePoolId()
 	templateMap["name"] = template.GetName()
 	templateMap["hostname"] = template.GetHostname()
 
@@ -734,7 +735,7 @@ func expandInstanceGroupDnsRecords(data []interface{}) []*instancegroup.DnsRecor
 
 // revive:disable:var-naming
 func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.InstanceTemplate, error) {
-	var platformId, description, serviceAccount, name, hostname string
+	var platformId, description, serviceAccount, name, hostname, reservedInstancePoolID string
 
 	if v, ok := d.GetOk(prefix + ".platform_id"); ok {
 		platformId = v.(string)
@@ -754,6 +755,10 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 
 	if v, ok := d.GetOk(prefix + ".hostname"); ok {
 		hostname = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".reserved_instance_pool_id"); ok {
+		reservedInstancePoolID = v.(string)
 	}
 
 	resourceSpec, err := expandInstanceGroupResourcesSpec(d, prefix+".resources")
@@ -805,22 +810,23 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 	}
 
 	template := &instancegroup.InstanceTemplate{
-		BootDiskSpec:          bootDiskSpec,
-		Description:           description,
-		Labels:                labels,
-		Metadata:              metadata,
-		NetworkInterfaceSpecs: nicSpecs,
-		PlatformId:            platformId,
-		ResourcesSpec:         resourceSpec,
-		SchedulingPolicy:      schedulingPolicy,
-		SecondaryDiskSpecs:    secondaryDiskSpecs,
-		ServiceAccountId:      serviceAccount,
-		NetworkSettings:       networkSettings,
-		Name:                  name,
-		Hostname:              hostname,
-		PlacementPolicy:       placementPolicy,
-		FilesystemSpecs:       filesystemSpecs,
-		MetadataOptions:       metadataOptions,
+		BootDiskSpec:           bootDiskSpec,
+		Description:            description,
+		Labels:                 labels,
+		Metadata:               metadata,
+		NetworkInterfaceSpecs:  nicSpecs,
+		PlatformId:             platformId,
+		ResourcesSpec:          resourceSpec,
+		SchedulingPolicy:       schedulingPolicy,
+		SecondaryDiskSpecs:     secondaryDiskSpecs,
+		ServiceAccountId:       serviceAccount,
+		NetworkSettings:        networkSettings,
+		Name:                   name,
+		Hostname:               hostname,
+		PlacementPolicy:        placementPolicy,
+		FilesystemSpecs:        filesystemSpecs,
+		MetadataOptions:        metadataOptions,
+		ReservedInstancePoolId: reservedInstancePoolID,
 	}
 
 	return template, nil

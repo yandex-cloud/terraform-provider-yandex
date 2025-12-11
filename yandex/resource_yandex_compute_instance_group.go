@@ -585,6 +585,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+
+						"reserved_instance_pool_id": {
+							Type:        schema.TypeString,
+							Description: "ID of the reserved instance pool that the instance should belong to.",
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -1631,6 +1637,7 @@ func getStaticUpdatePath() []string {
 		"instance_template.network_settings",
 		"instance_template.name",
 		"instance_template.hostname",
+		"instance_template.reserved_instance_pool_id",
 		"variables",
 		"scale_policy",
 		"deploy_policy",

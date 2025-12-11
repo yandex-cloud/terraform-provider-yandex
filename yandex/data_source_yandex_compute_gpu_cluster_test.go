@@ -140,7 +140,7 @@ resource "yandex_compute_gpu_cluster" "foo" {
   name              = "%s"
   description       = "GPU cluster description"
   zone              = "ru-central1-a"
-  interconnect_type = "infiniband"
+  interconnect_type = "INFINIBAND"
 
   labels = {
     my-label = "my-label-value"

@@ -459,6 +459,12 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+
+						"reserved_instance_pool_id": {
+							Type:        schema.TypeString,
+							Description: "ID of the reserved instance pool that the instance should belong to.",
+							Computed:    true,
+						},
 					},
 				},
 			},

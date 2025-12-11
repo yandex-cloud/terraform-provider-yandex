@@ -172,9 +172,9 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigMain(name, saName),
@@ -188,6 +188,33 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 
 }
 
+// TODO(fatalerr): merge into TestAccComputeInstanceGroup_full
+// when Compute API supports it (CLOUD-244271).
+func TestAccComputeInstanceGroup_reservedInstancePoolID(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigReservedPool(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupReservedInstancePool(&ig, "test-reserved-pool"),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
 func TestAccComputeInstanceGroup_Gpus(t *testing.T) {
 	var ig instancegroup.InstanceGroup
 
@@ -195,9 +222,9 @@ func TestAccComputeInstanceGroup_Gpus(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigGpus(name, saName),
@@ -218,9 +245,9 @@ func TestAccComputeInstanceGroup_NetworkSettings(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigNetworkSettings(name, saName),
@@ -241,9 +268,9 @@ func TestAccComputeInstanceGroup_MetadataOptions(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigMetadataOptions(name, saName),
@@ -263,9 +290,9 @@ func TestAccComputeInstanceGroup_Variables(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-test")
 	saName := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigVariables(name, saName),
@@ -305,9 +332,9 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 	fsName2 := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigFull(name, saName, sgName, fsName1, fsName2),
@@ -331,9 +358,9 @@ func TestAccComputeInstanceGroup_autoscale(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigAutoScale(name, saName),
@@ -356,9 +383,9 @@ func TestAccComputeInstanceGroup_TestAutoScale(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigTestAutoScale(name, saName),
@@ -381,9 +408,9 @@ func TestAccComputeInstanceGroup_DeployPolicyStrategy(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigStrategy(name, saName),
@@ -406,9 +433,9 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigWithLabels(name, saName),
@@ -439,9 +466,9 @@ func TestAccComputeInstanceGroup_update2(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigWithTemplateLabels3(name, saName),
@@ -478,9 +505,9 @@ func TestAccComputeInstanceGroup_updateFilesystem(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigMain(name, saName),
@@ -512,9 +539,9 @@ func TestAccComputeInstanceGroup_DeletionProtection(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigDeletionProtection(name, saName, true),
@@ -544,9 +571,9 @@ func TestAccComputeInstanceGroup_createPlacementGroup(t *testing.T) {
 	pgName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName),
@@ -568,9 +595,9 @@ func TestAccComputeInstanceGroup_createAndErasePlacementGroup(t *testing.T) {
 	pgName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName),
@@ -598,9 +625,9 @@ func TestAccComputeInstanceGroup_createAndChangePlacementGroup(t *testing.T) {
 	var pg1, pg2 string
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName1),
@@ -630,9 +657,9 @@ func TestAccComputeInstanceGroup_createEmptyPlacementGroupAndAssignLater(t *test
 	pgName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupNoPlacementGroup(name, saName, pgName),
@@ -661,9 +688,9 @@ func TestAccComputeInstanceGroup_InstanceTagsPool(t *testing.T) {
 	saName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroupConfigInstanceTagsPool(name, saName),
@@ -751,6 +778,88 @@ resource "yandex_compute_instance_group" "group1" {
   scale_policy {
     fixed_scale {
       size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
+}
+
+func testAccComputeInstanceGroupConfigReservedPool(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    reserved_instance_pool_id = "test-reserved-pool"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 0 # Because test-reserved-pool does not exist.
     }
   }
 
@@ -3044,6 +3153,15 @@ func testAccGetPlacementGroupIG(ig *instancegroup.InstanceGroup, pg *string) res
 			return nil
 		}
 		return fmt.Errorf("instance placement_group_id is invalid")
+	}
+}
+
+func testAccCheckComputeInstanceGroupReservedInstancePool(ig *instancegroup.InstanceGroup, expected string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.GetInstanceTemplate().ReservedInstancePoolId != expected {
+			return fmt.Errorf("invalid reserved instance pool id value %q in instance group %s", ig.GetInstanceTemplate().ReservedInstancePoolId, ig.Name)
+		}
+		return nil
 	}
 }
 
