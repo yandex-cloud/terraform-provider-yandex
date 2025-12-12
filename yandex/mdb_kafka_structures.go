@@ -272,6 +272,34 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 	}, nil
 }
 
+func expandKafkaConfig4x(d *schema.ResourceData) (*kafka.KafkaConfig4, error) {
+	kafkaConfig, err := parseKafkaConfig(d)
+	if err != nil {
+		return nil, err
+	}
+	return &kafka.KafkaConfig4{
+		CompressionType:             kafkaConfig.CompressionType,
+		LogFlushIntervalMessages:    kafkaConfig.LogFlushIntervalMessages,
+		LogFlushIntervalMs:          kafkaConfig.LogFlushIntervalMs,
+		LogFlushSchedulerIntervalMs: kafkaConfig.LogFlushSchedulerIntervalMs,
+		LogRetentionBytes:           kafkaConfig.LogRetentionBytes,
+		LogRetentionHours:           kafkaConfig.LogRetentionHours,
+		LogRetentionMinutes:         kafkaConfig.LogRetentionMinutes,
+		LogRetentionMs:              kafkaConfig.LogRetentionMs,
+		LogSegmentBytes:             kafkaConfig.LogSegmentBytes,
+		SocketSendBufferBytes:       kafkaConfig.SocketSendBufferBytes,
+		SocketReceiveBufferBytes:    kafkaConfig.SocketReceiveBufferBytes,
+		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
+		NumPartitions:               kafkaConfig.NumPartitions,
+		DefaultReplicationFactor:    kafkaConfig.DefaultReplicationFactor,
+		MessageMaxBytes:             kafkaConfig.MessageMaxBytes,
+		ReplicaFetchMaxBytes:        kafkaConfig.ReplicaFetchMaxBytes,
+		SslCipherSuites:             kafkaConfig.SslCipherSuites,
+		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
+		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
+	}, nil
+}
+
 type TopicConfig struct {
 	CleanupPolicy      string
 	CompressionType    kafka.CompressionType
@@ -393,6 +421,29 @@ func expandKafkaTopicConfig3x(d *schema.ResourceData, topicConfigPrefix string) 
 	return res, nil
 }
 
+func expandKafkaTopicConfig4x(d *schema.ResourceData, topicConfigPrefix string) (*kafka.TopicConfig4, error) {
+	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPrefix)
+	if err != nil {
+		return nil, err
+	}
+	res := &kafka.TopicConfig4{
+		CleanupPolicy:      kafka.TopicConfig4_CleanupPolicy(kafka.TopicConfig4_CleanupPolicy_value[topicConfig.CleanupPolicy]),
+		CompressionType:    topicConfig.CompressionType,
+		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
+		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
+		FlushMessages:      topicConfig.FlushMessages,
+		FlushMs:            topicConfig.FlushMs,
+		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
+		RetentionBytes:     topicConfig.RetentionBytes,
+		RetentionMs:        topicConfig.RetentionMs,
+		MaxMessageBytes:    topicConfig.MaxMessageBytes,
+		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
+		SegmentBytes:       topicConfig.SegmentBytes,
+	}
+
+	return res, nil
+}
+
 func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	result := &kafka.ConfigSpec{}
 
@@ -423,7 +474,13 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	result.Kafka.Resources = expandKafkaResources(d, "config.0.kafka.0.resources.0")
 
 	version := result.Version
-	if strings.HasPrefix(version, "3") {
+	if strings.HasPrefix(version, "4") {
+		cfg, err := expandKafkaConfig4x(d)
+		if err != nil {
+			return nil, err
+		}
+		result.Kafka.SetKafkaConfig_4(cfg)
+	} else if strings.HasPrefix(version, "3") {
 		cfg, err := expandKafkaConfig3x(d)
 		if err != nil {
 			return nil, err
@@ -438,7 +495,7 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	} else if version == "" {
 		return nil, fmt.Errorf("you must specify version of Kafka")
 	} else {
-		return nil, fmt.Errorf("this version of Kafka not supported by Terraform provider")
+		return nil, fmt.Errorf("this version of Kafka is not supported by Terraform provider")
 	}
 
 	if _, ok := d.GetOk("config.0.zookeeper"); ok {
@@ -575,6 +632,12 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 	}
 	if cluster.Config.Kafka.GetKafkaConfig_3() != nil {
 		kafkaConfig, err = flattenKafkaConfig3Settings(cluster.Config.Kafka.GetKafkaConfig_3())
+		if err != nil {
+			return nil, err
+		}
+	}
+	if cluster.Config.Kafka.GetKafkaConfig_4() != nil {
+		kafkaConfig, err = flattenKafkaConfig4Settings(cluster.Config.Kafka.GetKafkaConfig_4())
 		if err != nil {
 			return nil, err
 		}
@@ -747,6 +810,10 @@ func flattenKafkaConfig3Settings(r *kafka.KafkaConfig3) (map[string]interface{},
 	return flattenKafkaConfigSettings(r)
 }
 
+func flattenKafkaConfig4Settings(r *kafka.KafkaConfig4) (map[string]interface{}, error) {
+	return flattenKafkaConfigSettings(r)
+}
+
 func flattenKafkaResources(d *schema.ResourceData, r *kafka.ConfigSpec) (map[string]interface{}, error) {
 	newKafkaDiskSizeSchemeValue, ok := d.GetOk("config.0.kafka.0.resources.0.disk_size")
 	var newKafkaDiskSize int
@@ -881,6 +948,9 @@ func flattenKafkaTopics(topics []*kafka.Topic) []map[string]interface{} {
 		if d.GetTopicConfig_3() != nil {
 			cfg = flattenKafkaTopicConfig3(d.GetTopicConfig_3())
 		}
+		if d.GetTopicConfig_4() != nil {
+			cfg = flattenKafkaTopicConfig4(d.GetTopicConfig_4())
+		}
 		if len(cfg) != 0 {
 			m["topic_config"] = []map[string]interface{}{cfg}
 		}
@@ -957,6 +1027,16 @@ func flattenKafkaTopicConfig3(topicConfig *kafka.TopicConfig3) map[string]interf
 	result := flattenKafkaTopicConfig(topicConfig)
 
 	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig3_CLEANUP_POLICY_UNSPECIFIED {
+		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
+	}
+
+	return result
+}
+
+func flattenKafkaTopicConfig4(topicConfig *kafka.TopicConfig4) map[string]interface{} {
+	result := flattenKafkaTopicConfig(topicConfig)
+
+	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig4_CLEANUP_POLICY_UNSPECIFIED {
 		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
 	}
 

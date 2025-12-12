@@ -148,7 +148,13 @@ func buildKafkaTopicSpec(d *schema.ResourceData, prefixKey string, version strin
 	}
 
 	if _, ok := d.GetOk(key("topic_config.0")); ok {
-		if strings.HasPrefix(version, "3") {
+		if strings.HasPrefix(version, "4") {
+			cfg, err := expandKafkaTopicConfig4x(d, key("topic_config.0."))
+			if err != nil {
+				return nil, err
+			}
+			topicSpec.SetTopicConfig_4(cfg)
+		} else if strings.HasPrefix(version, "3") {
 			cfg, err := expandKafkaTopicConfig3x(d, key("topic_config.0."))
 			if err != nil {
 				return nil, err
@@ -196,6 +202,9 @@ func resourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("replication_factor", topic.ReplicationFactor.GetValue())
 
 	var cfg map[string]interface{}
+	if topic.GetTopicConfig_4() != nil {
+		cfg = flattenKafkaTopicConfig4(topic.GetTopicConfig_4())
+	}
 	if topic.GetTopicConfig_3() != nil {
 		cfg = flattenKafkaTopicConfig3(topic.GetTopicConfig_3())
 	}
@@ -235,11 +244,19 @@ func resourceYandexMDBKafkaTopicUpdate(d *schema.ResourceData, meta interface{})
 		TopicSpec: topicSpec,
 	}
 
-	var updatePath []string
-	versionPath := "3"
-	if strings.HasPrefix(version, "2") {
+	var versionPath string
+	switch {
+	case strings.HasPrefix(version, "4"):
+		versionPath = "4"
+	case strings.HasPrefix(version, "3"):
+		versionPath = "3"
+	case strings.HasPrefix(version, "2"):
 		versionPath = strings.Replace(version, ".", "_", -1)
+	default:
+		return fmt.Errorf("this version of Kafka is not supported by Terraform provider")
 	}
+
+	var updatePath []string
 	for field, path := range mdbKafkaTopicUpdateFieldsMap {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, strings.Replace(path, "{version}", versionPath, -1))
