@@ -13,16 +13,17 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
-func flattenAccess(ctx context.Context, pgAccess *mysql.Access, diags *diag.Diagnostics) types.Object {
-	if pgAccess == nil {
+func flattenAccess(ctx context.Context, access *mysql.Access, diags *diag.Diagnostics) types.Object {
+	if access == nil {
 		return types.ObjectNull(AccessAttrTypes)
 	}
 
 	obj, d := types.ObjectValueFrom(
 		ctx, AccessAttrTypes, Access{
-			DataLens:     types.BoolValue(pgAccess.DataLens),
-			DataTransfer: types.BoolValue(pgAccess.DataTransfer),
-			WebSql:       types.BoolValue(pgAccess.WebSql),
+			DataLens:     types.BoolValue(access.DataLens),
+			DataTransfer: types.BoolValue(access.DataTransfer),
+			WebSql:       types.BoolValue(access.WebSql),
+			YandexQuery:  types.BoolValue(access.YandexQuery),
 		},
 	)
 	diags.Append(d...)

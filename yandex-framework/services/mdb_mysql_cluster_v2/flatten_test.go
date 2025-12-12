@@ -26,6 +26,7 @@ func TestYandexProvider_MDBMySQLClusterConfigAccessFlattener(t *testing.T) {
 		"data_lens":     types.BoolType,
 		"data_transfer": types.BoolType,
 		"web_sql":       types.BoolType,
+		"yandex_query":  types.BoolType,
 	}
 
 	cases := []struct {
@@ -36,14 +37,16 @@ func TestYandexProvider_MDBMySQLClusterConfigAccessFlattener(t *testing.T) {
 		{
 			testname: "CheckAllAttributes",
 			reqVal: &mysql.Access{
-				WebSql:   true,
-				DataLens: true,
+				WebSql:      true,
+				DataLens:    true,
+				YandexQuery: true,
 			},
 			expectedVal: types.ObjectValueMust(
 				expectedAccessAttrs, map[string]attr.Value{
 					"data_lens":     types.BoolValue(true),
 					"data_transfer": types.BoolValue(false),
 					"web_sql":       types.BoolValue(true),
+					"yandex_query":  types.BoolValue(true),
 				},
 			),
 		},
@@ -345,6 +348,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				Access: &mysql.Access{
 					DataLens:     true,
 					DataTransfer: true,
+					YandexQuery:  true,
 				},
 				PerformanceDiagnostics: &mysql.PerformanceDiagnostics{
 					Enabled:                    true,
@@ -373,6 +377,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 					"data_lens":     types.BoolValue(true),
 					"data_transfer": types.BoolValue(true),
 					"web_sql":       types.BoolValue(false),
+					"yandex_query":  types.BoolValue(true),
 				}),
 				PerformanceDiagnostics: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 					"enabled":                      types.BoolValue(true),

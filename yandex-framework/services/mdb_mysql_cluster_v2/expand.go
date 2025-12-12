@@ -28,6 +28,7 @@ func expandAccess(ctx context.Context, cfgAccess types.Object, diags *diag.Diagn
 		WebSql:       access.WebSql.ValueBool(),
 		DataLens:     access.DataLens.ValueBool(),
 		DataTransfer: access.DataTransfer.ValueBool(),
+		YandexQuery:  access.YandexQuery.ValueBool(),
 	}
 }
 

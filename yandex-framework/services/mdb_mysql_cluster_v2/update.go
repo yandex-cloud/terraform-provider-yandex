@@ -102,6 +102,12 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 				"config_spec.access.data_lens",
 			)
 		}
+		if !pa.YandexQuery.Equal(sa.YandexQuery) {
+			request.UpdateMask.Paths = append(
+				request.UpdateMask.Paths,
+				"config_spec.access.yandex_query",
+			)
+		}
 	}
 
 	if !plan.PerformanceDiagnostics.Equal(state.PerformanceDiagnostics) {

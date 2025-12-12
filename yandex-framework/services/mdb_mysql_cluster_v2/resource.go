@@ -183,6 +183,12 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						Computed:    true,
 						Default:     booldefault.StaticBool(false),
 					},
+					"yandex_query": schema.BoolAttribute{
+						Description: "Allow access for YandexQuery",
+						Optional:    true,
+						Computed:    true,
+						Default:     booldefault.StaticBool(false),
+					},
 				},
 			},
 			"performance_diagnostics": schema.SingleNestedAttribute{

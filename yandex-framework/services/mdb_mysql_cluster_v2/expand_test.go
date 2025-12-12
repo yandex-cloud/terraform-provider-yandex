@@ -22,14 +22,16 @@ var expectedAccessAttrTypes = map[string]attr.Type{
 	"data_lens":     types.BoolType,
 	"web_sql":       types.BoolType,
 	"data_transfer": types.BoolType,
+	"yandex_query":  types.BoolType,
 }
 
-func buildTestAccessObj(dataLens, dataTransfer, webSql *bool) types.Object {
+func buildTestAccessObj(dataLens, dataTransfer, webSql, yandexQuery *bool) types.Object {
 	return types.ObjectValueMust(
 		expectedAccessAttrTypes, map[string]attr.Value{
 			"data_transfer": types.BoolPointerValue(dataTransfer),
 			"data_lens":     types.BoolPointerValue(dataLens),
 			"web_sql":       types.BoolPointerValue(webSql),
+			"yandex_query":  types.BoolPointerValue(yandexQuery),
 		},
 	)
 }
@@ -49,16 +51,17 @@ func TestYandexProvider_MDBMySQLClusterConfigAccessExpand(t *testing.T) {
 	}{
 		{
 			testname: "CheckAllExplicitAttributes",
-			reqVal:   buildTestAccessObj(&trueAttr, &trueAttr, &falseAttr),
+			reqVal:   buildTestAccessObj(&trueAttr, &trueAttr, &falseAttr, &trueAttr),
 			expectedVal: &mysql.Access{
 				DataLens:     trueAttr,
 				DataTransfer: trueAttr,
+				YandexQuery:  trueAttr,
 			},
 			expectedError: false,
 		},
 		{
 			testname: "CheckPartlyAttributes",
-			reqVal:   buildTestAccessObj(&trueAttr, &falseAttr, nil),
+			reqVal:   buildTestAccessObj(&trueAttr, &falseAttr, nil, nil),
 			expectedVal: &mysql.Access{
 				DataLens:     trueAttr,
 				DataTransfer: falseAttr,
@@ -67,7 +70,7 @@ func TestYandexProvider_MDBMySQLClusterConfigAccessExpand(t *testing.T) {
 		},
 		{
 			testname:      "CheckWithoutAttributes",
-			reqVal:        buildTestAccessObj(nil, nil, nil),
+			reqVal:        buildTestAccessObj(nil, nil, nil, nil),
 			expectedVal:   &mysql.Access{},
 			expectedError: false,
 		},
@@ -272,6 +275,7 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 						"web_sql":       types.BoolValue(true),
 						"data_transfer": types.BoolValue(false),
 						"data_lens":     types.BoolValue(true),
+						"yandex_query":  types.BoolValue(true),
 					},
 				),
 				PerformanceDiagnostics: types.ObjectValueMust(
@@ -308,8 +312,9 @@ func TestYandexProvider_MDBMySQLClusterConfigExpand(t *testing.T) {
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
 
 				Access: &mysql.Access{
-					WebSql:   true,
-					DataLens: true,
+					WebSql:      true,
+					DataLens:    true,
+					YandexQuery: true,
 				},
 				PerformanceDiagnostics: &mysql.PerformanceDiagnostics{
 					Enabled:                    true,

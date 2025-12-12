@@ -38,6 +38,7 @@ resource "yandex_mdb_mysql_cluster_v2" "cluster" {
     web_sql       = true
     data_transfer = true
     data_lens     = true
+    yandex_query  = true
   }
 
   maintenance_window = {

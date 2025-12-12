@@ -233,6 +233,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "access.0.yandex_query", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
@@ -1078,6 +1079,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     web_sql = true
     data_lens = true
     data_transfer = true
+    yandex_query = true
   }
 
   backup_window_start {

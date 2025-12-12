@@ -3,7 +3,6 @@ package mdb_mysql_cluster_v2_test
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"log"
 	"reflect"
 	"regexp"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/compare"
@@ -220,6 +221,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 				"data_lens":     knownvalue.Bool(false),
 				"data_transfer": knownvalue.Bool(false),
 				"web_sql":       knownvalue.Bool(false),
+				"yandex_query":  knownvalue.Bool(false),
 			},
 		)),
 		statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(7)),
@@ -244,6 +246,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 			DataLens:     false,
 			DataTransfer: false,
 			WebSql:       false,
+			YandexQuery:  false,
 		}),
 		testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
 			Enabled:                    false,
@@ -322,6 +325,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 							"data_lens":     knownvalue.Bool(false),
 							"data_transfer": knownvalue.Bool(false),
 							"web_sql":       knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
@@ -357,6 +361,7 @@ func TestAccMDBMySQLCluster_basic(t *testing.T) {
 						DataLens:     false,
 						DataTransfer: false,
 						WebSql:       false,
+						YandexQuery:  false,
 					}),
 					testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
 						Enabled:                    false,
@@ -426,12 +431,14 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 		data_transfer = true
 		web_sql = true
 		data_lens = false
+		yandex_query = false
 	`
 
 	accessUpdated := `
 		data_lens = true
 		data_transfer = false
 		web_sql = false
+		yandex_query = true
 	`
 
 	performanceDiagnostics := `
@@ -525,6 +532,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							"data_lens":     knownvalue.Bool(false),
 							"data_transfer": knownvalue.Bool(true),
 							"web_sql":       knownvalue.Bool(true),
+							"yandex_query":  knownvalue.Bool(false),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
@@ -581,6 +589,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						DataLens:     false,
 						DataTransfer: true,
 						WebSql:       true,
+						YandexQuery:  false,
 					}),
 					testAccCheckClusterPerformanceDiagnosticsExact(
 						&cluster,
@@ -662,6 +671,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 							"data_lens":     knownvalue.Bool(true),
 							"data_transfer": knownvalue.Bool(false),
 							"web_sql":       knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(true),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
@@ -719,6 +729,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						DataLens:     true,
 						DataTransfer: false,
 						WebSql:       false,
+						YandexQuery:  true,
 					}),
 					testAccCheckClusterPerformanceDiagnosticsExact(
 						&cluster,
@@ -843,6 +854,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"data_lens":     knownvalue.Bool(false),
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
@@ -885,6 +897,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					DataLens:     false,
 					DataTransfer: false,
 					WebSql:       false,
+					YandexQuery:  false,
 				}),
 				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
 					Enabled:                    false,
@@ -931,6 +944,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"data_lens":     knownvalue.Bool(false),
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
@@ -974,6 +988,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					DataLens:     false,
 					DataTransfer: false,
 					WebSql:       false,
+					YandexQuery:  false,
 				}),
 				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
 					Enabled:                    false,
@@ -1014,6 +1029,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 						"data_lens":     knownvalue.Bool(false),
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
@@ -1049,6 +1065,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 					DataLens:     false,
 					DataTransfer: false,
 					WebSql:       false,
+					YandexQuery:  false,
 				}),
 				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &mysql.PerformanceDiagnostics{
 					Enabled:                    false,

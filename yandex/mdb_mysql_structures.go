@@ -1238,6 +1238,7 @@ func flattenMySQLAccess(a *mysql.Access) ([]interface{}, error) {
 	out["data_lens"] = a.DataLens
 	out["web_sql"] = a.WebSql
 	out["data_transfer"] = a.DataTransfer
+	out["yandex_query"] = a.YandexQuery
 
 	return []interface{}{out}, nil
 }
@@ -1258,6 +1259,9 @@ func expandMySQLAccess(d *schema.ResourceData) *mysql.Access {
 	}
 	if v, ok := d.GetOk("access.0.data_transfer"); ok {
 		out.DataTransfer = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.yandex_query"); ok {
+		out.YandexQuery = v.(bool)
 	}
 
 	return out

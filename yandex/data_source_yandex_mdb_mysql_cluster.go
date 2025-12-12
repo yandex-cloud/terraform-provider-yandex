@@ -327,6 +327,12 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 							Computed:    true,
 							Optional:    true,
 						},
+						"yandex_query": {
+							Type:        schema.TypeBool,
+							Description: accessElem.Schema["yandex_query"].Description,
+							Computed:    true,
+							Optional:    true,
+						},
 					},
 				},
 			},

@@ -88,12 +88,14 @@ type Access struct {
 	DataLens     types.Bool `tfsdk:"data_lens"`
 	WebSql       types.Bool `tfsdk:"web_sql"`
 	DataTransfer types.Bool `tfsdk:"data_transfer"`
+	YandexQuery  types.Bool `tfsdk:"yandex_query"`
 }
 
 var AccessAttrTypes = map[string]attr.Type{
 	"data_lens":     types.BoolType,
 	"web_sql":       types.BoolType,
 	"data_transfer": types.BoolType,
+	"yandex_query":  types.BoolType,
 }
 
 type PerformanceDiagnostics struct {

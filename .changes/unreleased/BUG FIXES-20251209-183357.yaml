@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mysql: cluster `access` and `performance_diagnostics` fields fix'
+time: 2025-12-09T18:33:57.61752+03:00
