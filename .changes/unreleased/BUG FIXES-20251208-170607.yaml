@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'iam: fixed docs example for yandex_iam_oauth_client.scopes'
+time: 2025-12-08T17:06:07.564548+03:00

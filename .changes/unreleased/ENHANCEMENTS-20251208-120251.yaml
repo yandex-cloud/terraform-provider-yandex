@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'ytsaurus: add `cidr_blocks_whitelist` option'
+time: 2025-12-08T12:02:51.868483+03:00
