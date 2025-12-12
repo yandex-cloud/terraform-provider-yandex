@@ -199,6 +199,13 @@
                       }
                     ]
                   }
+                },
+                {
+                  "name": "spark_version",
+                  "string": {
+                    "computed_optional_required": "computed",
+                    "description": "Version of Apache Spark. Format: Major.Minor"
+                  }
                 }
               ]
             }
@@ -656,6 +663,13 @@
                         }
                       }
                     ]
+                  }
+                },
+                {
+                  "name": "spark_version",
+                  "string": {
+                    "computed_optional_required": "computed_optional",
+                    "description": "Version of Apache Spark. Format: Major.Minor"
                   }
                 }
               ]

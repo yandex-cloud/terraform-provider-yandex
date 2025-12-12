@@ -94,6 +94,7 @@ func clusterConfigFromAPI(ctx context.Context, cfg *spark.ClusterConfig) (Config
 		Dependencies:  dependenciesObj,
 		HistoryServer: historyServerObj,
 		Metastore:     metastoreObj,
+		SparkVersion:  types.StringValue(cfg.GetSparkVersion()),
 		state:         attr.ValueStateKnown,
 	}, diags
 }

@@ -173,6 +173,12 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Computational resources.",
 						MarkdownDescription: "Computational resources.",
 					},
+					"spark_version": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Version of Apache Spark. Format: Major.Minor",
+						MarkdownDescription: "Version of Apache Spark. Format: Major.Minor",
+					},
 				},
 				CustomType: ConfigType{
 					ObjectType: types.ObjectType{
@@ -468,6 +474,24 @@ func (t ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`resource_pools expected to be basetypes.ObjectValue, was: %T`, resourcePoolsAttribute))
 	}
 
+	sparkVersionAttribute, ok := attributes["spark_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`spark_version is missing from object`)
+
+		return nil, diags
+	}
+
+	sparkVersionVal, ok := sparkVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`spark_version expected to be basetypes.StringValue, was: %T`, sparkVersionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -477,6 +501,7 @@ func (t ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		HistoryServer: historyServerVal,
 		Metastore:     metastoreVal,
 		ResourcePools: resourcePoolsVal,
+		SparkVersion:  sparkVersionVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -616,6 +641,24 @@ func NewConfigValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`resource_pools expected to be basetypes.ObjectValue, was: %T`, resourcePoolsAttribute))
 	}
 
+	sparkVersionAttribute, ok := attributes["spark_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`spark_version is missing from object`)
+
+		return NewConfigValueUnknown(), diags
+	}
+
+	sparkVersionVal, ok := sparkVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`spark_version expected to be basetypes.StringValue, was: %T`, sparkVersionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewConfigValueUnknown(), diags
 	}
@@ -625,6 +668,7 @@ func NewConfigValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		HistoryServer: historyServerVal,
 		Metastore:     metastoreVal,
 		ResourcePools: resourcePoolsVal,
+		SparkVersion:  sparkVersionVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -701,11 +745,12 @@ type ConfigValue struct {
 	HistoryServer basetypes.ObjectValue `tfsdk:"history_server"`
 	Metastore     basetypes.ObjectValue `tfsdk:"metastore"`
 	ResourcePools basetypes.ObjectValue `tfsdk:"resource_pools"`
+	SparkVersion  basetypes.StringValue `tfsdk:"spark_version"`
 	state         attr.ValueState
 }
 
 func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -722,12 +767,13 @@ func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["resource_pools"] = basetypes.ObjectType{
 		AttrTypes: ResourcePoolsValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["spark_version"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.Dependencies.ToTerraformValue(ctx)
 
@@ -760,6 +806,14 @@ func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["resource_pools"] = val
+
+		val, err = v.SparkVersion.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["spark_version"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -887,6 +941,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"resource_pools": basetypes.ObjectType{
 			AttrTypes: ResourcePoolsValue{}.AttributeTypes(ctx),
 		},
+		"spark_version": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -904,6 +959,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"history_server": historyServer,
 			"metastore":      metastore,
 			"resource_pools": resourcePools,
+			"spark_version":  v.SparkVersion,
 		})
 
 	return objVal, diags
@@ -940,6 +996,10 @@ func (v ConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SparkVersion.Equal(other.SparkVersion) {
+		return false
+	}
+
 	return true
 }
 
@@ -965,6 +1025,7 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"resource_pools": basetypes.ObjectType{
 			AttrTypes: ResourcePoolsValue{}.AttributeTypes(ctx),
 		},
+		"spark_version": basetypes.StringType{},
 	}
 }
 

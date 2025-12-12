@@ -124,7 +124,10 @@ func clusterConfigsAreEqual(ctx context.Context, val1, val2 ConfigValue, diags *
 		return true
 	}
 
-	if val1.ResourcePools.Equal(val2.ResourcePools) && val1.HistoryServer.Equal(val2.HistoryServer) && val1.Metastore.Equal(val2.Metastore) {
+	if val1.ResourcePools.Equal(val2.ResourcePools) &&
+		val1.HistoryServer.Equal(val2.HistoryServer) &&
+		val1.Metastore.Equal(val2.Metastore) &&
+		stringsAreEqual(val1.SparkVersion, val2.SparkVersion) {
 		var dependenciesVal1 Dependencies
 		diags.Append(val1.Dependencies.As(ctx, &dependenciesVal1, datasize.DefaultOpts)...)
 

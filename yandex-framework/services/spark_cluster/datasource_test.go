@@ -39,6 +39,7 @@ func sparkDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 		Labels: map[string]string{
 			"my_label": "my_value",
 		},
+		SparkVersion:              "3.5",
 		DriverResourcePresetID:    "c2-m8",
 		DriverSize:                1,
 		ExecutorResourcePresetID:  "c4-m16",
@@ -58,6 +59,7 @@ func sparkDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 		MaintenanceWindowWeekly:   true,
 		MaintenanceWindowDay:      "TUE",
 		MaintenanceWindowHour:     10,
+		IncludeBlockTimeouts:      true,
 	})
 
 	var datasource string
@@ -89,6 +91,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "description", "datasource-step-01 [created with terraform]"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "labels.my_label", "my_value"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
+		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.spark_version", "3.5"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "1"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),

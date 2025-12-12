@@ -62,6 +62,7 @@ type sparkClusterConfigParams struct {
 	Description               string
 	IncludeBlockLabels        bool
 	Labels                    map[string]string
+	SparkVersion              string
 	DriverResourcePresetID    string
 	DriverSize                int64
 	DriverMinSize             int64
@@ -107,6 +108,8 @@ resource "yandex_spark_cluster" "spark_cluster" {
   {{ end }}
 
   config = {
+    spark_version = "{{ .SparkVersion }}"
+
     resource_pools = {
       driver = {
         resource_preset_id = "{{ .DriverResourcePresetID }}"
@@ -282,20 +285,25 @@ func TestAccSparkCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
-					RandSuffix:               randSuffix,
-					Description:              "acc-basic-step-01 [created with terraform]",
-					DriverResourcePresetID:   "c2-m8",
-					DriverSize:               1,
-					ExecutorResourcePresetID: "c4-m16",
-					ExecutorMinSize:          1,
-					ExecutorMaxSize:          2,
-					LoggingFolderID:          folderID,
+					RandSuffix:                randSuffix,
+					Description:               "acc-basic-step-01 [created with terraform]",
+					SparkVersion:              "3.5",
+					DriverResourcePresetID:    "c2-m8",
+					DriverSize:                1,
+					ExecutorResourcePresetID:  "c4-m16",
+					ExecutorMinSize:           1,
+					ExecutorMaxSize:           2,
+					IncludeBlockHistoryServer: true,
+					HistoryServerEnabled:      true,
+					LoggingFolderID:           folderID,
+					IncludeBlockTimeouts:      true,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSparkExists("yandex_spark_cluster.spark_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.subnet_ids.0"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "name", fmt.Sprintf("spark-%s", randSuffix)),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.spark_version", "3.5"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "1"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
@@ -303,10 +311,14 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.create", "50m"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.update", "50m"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.delete", "50m"),
 				),
 			},
 			sparkClusterImportStep("yandex_spark_cluster.spark_cluster"),
@@ -318,6 +330,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					Labels: map[string]string{
 						"my_label": "my_value",
 					},
+					SparkVersion:              "3.5",
 					DriverResourcePresetID:    "c2-m16",
 					DriverSize:                2,
 					ExecutorResourcePresetID:  "c8-m32",
@@ -347,6 +360,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "description", "acc-step-02 [created with terraform]"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "labels.my_label", "my_value"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.spark_version", "3.5"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m16"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c8-m32"),
@@ -373,6 +387,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					Labels: map[string]string{
 						"my_label_1": "my_value_1",
 					},
+					SparkVersion:              "3.5",
 					DriverResourcePresetID:    "c2-m8",
 					DriverSize:                1,
 					ExecutorResourcePresetID:  "c4-m16",
@@ -387,13 +402,14 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					LoggingFolderID:           folderID,
 					IncludeBlockMaintenance:   true,
 					MaintenanceWindowWeekly:   false,
-					IncludeBlockTimeouts:      false,
+					IncludeBlockTimeouts:      true,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSparkExists("yandex_spark_cluster.spark_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_spark_cluster.spark_cluster", "network.subnet_ids.0"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "name", fmt.Sprintf("spark-%s", randSuffix)),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.spark_version", "3.5"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.resource_preset_id", "c2-m8"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.driver.size", "1"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
@@ -405,6 +421,9 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "ANYTIME"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.create", "50m"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.update", "50m"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.delete", "50m"),
 				),
 			},
 			sparkClusterImportStep("yandex_spark_cluster.spark_cluster"),

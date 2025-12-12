@@ -43,6 +43,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 			HistoryServer: common.Config.HistoryServer,
 			Dependencies:  common.Config.Dependencies,
 			Metastore:     common.Config.Metastore,
+			SparkVersion:  common.Config.SparkVersion,
 		},
 		Network: &spark.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -103,6 +104,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 	var updDriverPoolPreset, updDriverPoolSize bool
 	var updExecutorPoolPreset, updExecutorPoolSize bool
 	var updPip, updDeb bool
+	var updSparkVersion bool
 
 	if !plan.Config.IsNull() {
 
@@ -219,6 +221,8 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 				return nil, nil, diags
 			}
 			updMetastore = !stringsAreEqual(planMetastore.ClusterId, stateMetastore.ClusterId)
+
+			updSparkVersion = !stringsAreEqual(plan.Config.SparkVersion, state.Config.SparkVersion)
 		}
 
 		clusterConfig = &spark.ClusterConfig{
@@ -242,10 +246,11 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			Metastore: &spark.Metastore{
 				ClusterId: planMetastore.ClusterId.ValueString(),
 			},
+			SparkVersion: plan.Config.SparkVersion.ValueString(),
 		}
 	}
 	if state != nil && !clusterConfigsAreEqual(ctx, plan.Config, state.Config, &diags) {
-		if updDriver && updExecutor && updDependencies && updHistoryServer && updMetastore {
+		if updDriver && updExecutor && updDependencies && updHistoryServer && updMetastore && updSparkVersion {
 			updateMaskPaths = append(updateMaskPaths, "config_spec")
 		} else {
 			if updDriver && updExecutor {
@@ -287,6 +292,9 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			}
 			if updMetastore {
 				updateMaskPaths = append(updateMaskPaths, "config_spec.metastore")
+			}
+			if updSparkVersion {
+				updateMaskPaths = append(updateMaskPaths, "config_spec.spark_version")
 			}
 		}
 	}
@@ -416,6 +424,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 			HistoryServer: common.Config.HistoryServer,
 			Dependencies:  common.Config.Dependencies,
 			Metastore:     common.Config.Metastore,
+			SparkVersion:  common.Config.SparkVersion,
 		},
 		NetworkSpec: &spark.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,
