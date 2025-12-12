@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'mdb_greenplum: deprecate `6_22` config version, use `6` instead'
-time: 2025-12-03T10:23:30.79541131Z

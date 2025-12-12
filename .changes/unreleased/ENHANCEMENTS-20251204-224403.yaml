@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mongodb: take update mask recursively in `mdb_mongodb_cluster`'
-time: 2025-12-04T22:44:03.541044774Z
