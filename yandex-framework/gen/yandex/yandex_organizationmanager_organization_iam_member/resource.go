@@ -142,6 +142,11 @@ func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	member := accessbinding.GetResourceIamMemberFromState(ctx, req.Plan, &resp.Diagnostics)
+	if member == nil {
+		resp.Diagnostics.AddError("IAM Member with incorrect member",
+			"Member should be a colon-separated string. If reading existed resource, remove it from state and use terraform import command.")
+		return
+	}
 
 	policyDelta := &accessbinding.PolicyDelta{
 		Deltas: []*access.AccessBindingDelta{
@@ -201,7 +206,7 @@ func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateReques
 		time.Sleep(time.Second * time.Duration(sleep.ValueInt64()))
 	}
 
-	u.refreshMemberState(ctx, req.Plan, &resp.State, resp.Diagnostics)
+	u.refreshMemberState(ctx, req.Plan, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMMemberUpdater) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -213,7 +218,7 @@ func (u *IAMMemberUpdater) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	u.refreshMemberState(ctx, req.State, &resp.State, resp.Diagnostics)
+	u.refreshMemberState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMMemberUpdater) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
@@ -229,7 +234,9 @@ func (u *IAMMemberUpdater) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	member := accessbinding.GetResourceIamMemberFromState(ctx, req.State, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
+	if member == nil {
+		resp.Diagnostics.AddWarning("IAM Member with incorrect member",
+			"Found IAM Member with incorrect member. Resource will be deleted only from state.")
 		return
 	}
 
@@ -275,7 +282,7 @@ func (u *IAMMemberUpdater) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	u.refreshMemberState(ctx, req.State, &resp.State, resp.Diagnostics)
+	u.refreshMemberState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMMemberUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
@@ -372,9 +379,12 @@ func (u *IAMMemberUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 	return nil
 }
 
-func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbinding.Extractable, resp accessbinding.Settable, diag diag.Diagnostics) {
-	member := accessbinding.GetResourceIamMemberFromState(ctx, req, &diag)
-	if diag.HasError() {
+func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbinding.Extractable, resp accessbinding.Settable, diag *diag.Diagnostics) {
+	member := accessbinding.GetResourceIamMemberFromState(ctx, req, diag)
+	if member == nil {
+		diag.AddWarning("IAM Member with incorrect member",
+			"Found IAM Member with incorrect member. Resource will be deleted from state.")
+		resp.RemoveResource(ctx)
 		return
 	}
 
@@ -384,12 +394,7 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 			"member":          accessbinding.CanonicalMember(member),
 			"role":            member.RoleId,
 		})
-		diag.Append(resp.SetAttribute(ctx, path.Root("organization_id"), "")...)
-		diag.Append(resp.SetAttribute(ctx, path.Root("role"), "")...)
-		diag.Append(resp.SetAttribute(ctx, path.Root("member"), "")...)
-		var sleep types.Int64
-		req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
-		diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
+		resp.RemoveResource(ctx)
 	}
 
 	p, err := u.GetResourceIamPolicy(ctx)
@@ -423,6 +428,7 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	}
 
 	if len(roleBindings) == 0 {
+		diag.AddWarning("No bindings found for role", fmt.Sprintf("No bindings found for role: %s. Resource will be removed from state", member.RoleId))
 		tflog.Debug(ctx, "No bindings found for role", map[string]interface{}{
 			"organization_id": u.organizationId,
 			"role":            member.RoleId,
@@ -441,6 +447,7 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	}
 
 	if !memberExists {
+		diag.AddWarning("Member not found in role bindings", fmt.Sprintf("Member %s not found in role (%s) bindings. Resource will be removed from state", canonicalMemberValue, member.RoleId))
 		tflog.Debug(ctx, "Member not found in role bindings", map[string]interface{}{
 			"organization_id": u.organizationId,
 			"member":          canonicalMemberValue,

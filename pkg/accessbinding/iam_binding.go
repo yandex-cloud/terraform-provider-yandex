@@ -89,11 +89,10 @@ func (r *bindingResource) RefreshBindingState(ctx context.Context, req Extractab
 	}
 
 	if len(mBindings) == 0 {
-		diag.AddError(
-			"Unable to Refresh Resource Policies",
-			fmt.Sprintf("An unexpected error occurred while refreshing resource policies"+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err))
+		diag.AddWarning(
+			"Empty resource binding",
+			fmt.Sprintf("Resource binding for role %q not found, removing from state file.", role))
+		resp.RemoveResource(ctx)
 		return
 	}
 

@@ -67,6 +67,7 @@ type Extractable interface {
 
 type Settable interface {
 	SetAttribute(ctx context.Context, path path.Path, val interface{}) diag.Diagnostics
+	RemoveResource(ctx context.Context)
 }
 
 type iamPolicyModifyFunc func(p *Policy) error

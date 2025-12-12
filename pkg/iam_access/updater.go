@@ -2,6 +2,7 @@ package iam_access
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -44,6 +45,7 @@ type Extractable interface {
 
 type Settable interface {
 	SetAttribute(ctx context.Context, path path.Path, val interface{}) diag.Diagnostics
+	RemoveResource(ctx context.Context)
 }
 
 func GetResourceIamBindingsFromState(ctx context.Context, state Extractable, diag *diag.Diagnostics) []*access.AccessBinding {
@@ -70,6 +72,10 @@ func GetResourceIamMemberFromState(ctx context.Context, state Extractable, diag 
 
 	diag.Append(state.GetAttribute(ctx, path.Root("role"), &role)...)
 	diag.Append(state.GetAttribute(ctx, path.Root("member"), &member)...)
+
+	if !strings.ContainsRune(member.ValueString(), ':') {
+		return nil
+	}
 
 	return roleMemberToAccessBinding(role.ValueString(), member.ValueString())
 }

@@ -27,9 +27,9 @@ func TestAccLockboxSecret_basic(t *testing.T) {
 	basicResourceID := ""
 	minimalResource := "yandex_lockbox_secret.minimal_secret"
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexLockboxSecretAllDestroyed,
 		Steps: []resource.TestStep{
 			{
 				// Create secret
@@ -94,9 +94,9 @@ func TestAccLockboxSecret_kms(t *testing.T) {
 	secretResource := "yandex_lockbox_secret.kms_secret"
 	resourceID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexLockboxSecretAllDestroyed,
 		Steps: []resource.TestStep{
 			{
 				// Create secret
@@ -138,9 +138,9 @@ func TestAccLockboxSecret_passwordPayloadSpec(t *testing.T) {
 	basicResource := "yandex_lockbox_secret.basic_secret"
 	basicResourceID := ""
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckYandexLockboxSecretAllDestroyed,
 		Steps: []resource.TestStep{
 			{
 				// Create secret

@@ -144,7 +144,7 @@ func (u *IAMUpdater) Create(ctx context.Context, req resource.CreateRequest, res
 		time.Sleep(time.Second * time.Duration(sleep.ValueInt64()))
 	}
 
-	u.refreshBindingState(ctx, req.Plan, &resp.State, resp.Diagnostics)
+	u.refreshBindingState(ctx, req.Plan, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMUpdater) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -156,7 +156,7 @@ func (u *IAMUpdater) Read(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	u.refreshBindingState(ctx, req.State, &resp.State, resp.Diagnostics)
+	u.refreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMUpdater) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -183,7 +183,7 @@ func (u *IAMUpdater) Update(ctx context.Context, req resource.UpdateRequest, res
 		return
 	}
 
-	u.refreshBindingState(ctx, req.Plan, &resp.State, resp.Diagnostics)
+	u.refreshBindingState(ctx, req.Plan, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMUpdater) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -216,7 +216,7 @@ func (u *IAMUpdater) Delete(ctx context.Context, req resource.DeleteRequest, res
 		return
 	}
 
-	u.refreshBindingState(ctx, req.State, &resp.State, resp.Diagnostics)
+	u.refreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
@@ -306,11 +306,11 @@ func (u *IAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *access
 	return nil
 }
 
-func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.Extractable, resp accessbinding.Settable, diag diag.Diagnostics) {
+func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.Extractable, resp accessbinding.Settable, diag *diag.Diagnostics) {
 	var role types.String
 	diag.Append(req.GetAttribute(ctx, path.Root("role"), &role)...)
 
-	eBindings := accessbinding.GetResourceIamBindingsFromState(ctx, req, &diag)
+	eBindings := accessbinding.GetResourceIamBindingsFromState(ctx, req, diag)
 
 	policy, err := u.GetResourceIamPolicy(ctx)
 	if err != nil {
@@ -341,11 +341,10 @@ func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.
 	}
 
 	if len(mBindings) == 0 {
-		diag.AddError(
-			"Unable to Refresh Resource Policies",
-			fmt.Sprintf("An unexpected error occurred while refreshing resource policies"+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err))
+		diag.AddWarning(
+			"Empty resource binding",
+			fmt.Sprintf("Resource binding for role %q not found, removing from state file.", role))
+		resp.RemoveResource(ctx)
 		return
 	}
 
