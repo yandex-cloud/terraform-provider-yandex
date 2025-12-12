@@ -15,6 +15,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_saml_signature_certificate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_userpool"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_mfa_enforcement"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
@@ -30,6 +31,7 @@ func init() {
 		yandex_organizationmanager_idp_application_saml_signature_certificate.NewDataSource,
 		yandex_organizationmanager_idp_user.NewDataSource,
 		yandex_organizationmanager_idp_userpool.NewDataSource,
+		yandex_organizationmanager_mfa_enforcement.NewDataSource,
 		yandex_organizationmanager_user_ssh_key.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
