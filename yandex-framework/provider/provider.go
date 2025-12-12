@@ -31,6 +31,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_resource_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mongodb_database"
@@ -295,6 +296,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		datasphere_community.NewResource,
 		mdb_clickhouse_database.NewResource,
 		mdb_clickhouse_user.NewResource,
+		mdb_greenplum_cluster_v2.NewResource,
 		mdb_greenplum_resource_group.NewResource,
 		mdb_greenplum_user.NewResource,
 		mdb_mongodb_database.NewResource,
@@ -345,6 +347,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		datasphere_community.NewDataSource,
 		mdb_clickhouse_database.NewDataSource,
 		mdb_clickhouse_user.NewDataSource,
+		mdb_greenplum_cluster_v2.NewDataSource,
 		mdb_greenplum_resource_group.NewDataSource,
 		mdb_greenplum_user.NewDataSource,
 		mdb_mongodb_database.NewDataSource,

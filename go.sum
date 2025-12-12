@@ -813,6 +813,8 @@ github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12 h1:+DGp6z1smxBC+fDJSO+10
 github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12/go.mod h1:X+H2rpukyq5TyGCL2KZQ4yoXDtexi5MFDQNZ3e2hAMQ=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.12 h1:eu24ry+iGdT1EyoCwWEQY7b0l0cT7Od1r/+vVNjHIwI=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.12/go.mod h1:7YmS+7Yxbj5JY4o4RNbQ2P2J5PIZ/bQ21HTgzMYob+k=
+github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.12 h1:RuzYtVprZC4Bu7QbKn1Vwe1Y++NiHU7g0RZ8iaSUE/o=
+github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.12/go.mod h1:ANqv65CYEVEhqwI8gelf4o8AnvjuhDUhE2QNrRIgjAQ=
 github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.20 h1:aKRRDBhA1Uiryd24C/WiYq/P2Rq849FNPlBO5sBgvxE=
 github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.20/go.mod h1:tS1cFwP0RNS7OsyLX8ddTq5vlvEXTETQ4Ccz2B0kGic=
 github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12 h1:P0oYVlHoxG48w8gAP/C5F3brZnrMGS1cFSMZg85Rhj0=
@@ -827,8 +829,8 @@ github.com/yandex-cloud/go-sdk/services/ydb v0.0.12 h1:vavTPCmbSgQ3hNJ37XcAJS+TH
 github.com/yandex-cloud/go-sdk/services/ydb v0.0.12/go.mod h1:80BrAAmMS+cQJ00MUb1CSMcdABdFj9erciwtrjUuHCY=
 github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2 h1:YFttcg0q4wXnirKSCRNU7SQmutw+roj43KWFN71OdA4=
 github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2/go.mod h1:+bFDGTAN2W39/sOee7ES9RldZEI/GfUu43B4mn4xefE=
-github.com/yandex-cloud/go-sdk/v2 v2.27.0 h1:dtgU/LJw6xE+iT295JvHmZt65fx74ljPXffTF20DHtg=
-github.com/yandex-cloud/go-sdk/v2 v2.27.0/go.mod h1:nAzWojX+/ODtyFVhn9UIGPDT/cd6/BicOQWZQ49Sskg=
+github.com/yandex-cloud/go-sdk/v2 v2.30.0 h1:nyau76osz0cQ+KBfUPOoPtgBil0NvF6oCNpe6m2kRzI=
+github.com/yandex-cloud/go-sdk/v2 v2.30.0/go.mod h1:ZJiRRVxMpgq5mb+v6VR7fqr7VkQLph1ZjBmb/zCmEp0=
 github.com/ydb-platform/terraform-provider-ydb v0.0.29 h1:oxqK74cOb7tEAaD5MwX3VcCBgnaCQs6y52j38e/faQk=
 github.com/ydb-platform/terraform-provider-ydb v0.0.29/go.mod h1:yOLQKHyOTtnZMRjdN3Vzlxt/EIJXwUxU0XTaAlrUyeY=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f h1:DQ4V9+FSvJbMFp7qVAfVEW5MHFhB2m0RyJ9KjglYID4=
