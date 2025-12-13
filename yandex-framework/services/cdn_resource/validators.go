@@ -309,6 +309,34 @@ func (v *edgeCacheSettingsValidator) ValidateList(ctx context.Context, req valid
 				"When enabled=true, at least value, custom_values or default_value must be specified",
 			)
 		}
+
+		if hasValue && hasDefaultValue {
+			resp.Diagnostics.AddError(
+				"Invalid edge_cache_settings configuration",
+				"When enabled=true, value and default_value cannot be used together",
+			)
+		}
+
+		if hasCustomValues && hasDefaultValue {
+			resp.Diagnostics.AddError(
+				"Invalid edge_cache_settings configuration",
+				"When enabled=true, custom_values can be used only with value",
+			)
+		}
+
+		if hasValue && edgeSettings.Value.ValueInt64() == 0 {
+			resp.Diagnostics.AddError(
+				"Invalid edge_cache_settings configuration",
+				"When enabled=true, value cannot be 0, because it will disable cache implicitly",
+			)
+		}
+
+		if hasDefaultValue && edgeSettings.DefaultValue.ValueInt64() == 0 {
+			resp.Diagnostics.AddError(
+				"Invalid edge_cache_settings configuration",
+				"When enabled=true, default_value cannot be 0, because it will disable cache implicitly",
+			)
+		}
 	}
 }
 

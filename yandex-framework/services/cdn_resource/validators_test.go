@@ -9,7 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestSliceFetchedCompressedValidator_BothTrue verifies that validation fails when both are true
@@ -18,13 +20,13 @@ func TestSliceFetchedCompressedValidator_BothTrue(t *testing.T) {
 
 	optionsModel := createCDNOptionsModel(types.BoolValue(true), types.BoolValue(true))
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -79,6 +81,7 @@ func createCDNOptionsModel(slice, fetchedCompressed types.Bool) CDNOptionsModel 
 				"enabled":       types.BoolType,
 				"value":         types.Int64Type,
 				"custom_values": types.MapType{ElemType: types.Int64Type},
+				"default_value": types.Int64Type,
 			},
 		}),
 		BrowserCacheSettings: types.ListNull(types.ObjectType{
@@ -109,13 +112,13 @@ func TestSliceFetchedCompressedValidator_SliceTrueCompressedFalse(t *testing.T) 
 
 	optionsModel := createCDNOptionsModel(types.BoolValue(true), types.BoolValue(false))
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -142,13 +145,13 @@ func TestSliceFetchedCompressedValidator_SliceFalseCompressedTrue(t *testing.T) 
 
 	optionsModel := createCDNOptionsModel(types.BoolValue(false), types.BoolValue(true))
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -175,13 +178,13 @@ func TestSliceFetchedCompressedValidator_BothFalse(t *testing.T) {
 
 	optionsModel := createCDNOptionsModel(types.BoolValue(false), types.BoolValue(false))
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -208,13 +211,13 @@ func TestSliceFetchedCompressedValidator_NullValues(t *testing.T) {
 
 	optionsModel := createCDNOptionsModel(types.BoolNull(), types.BoolNull())
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -243,13 +246,13 @@ func TestGzipOnFetchedCompressedValidator_BothTrue(t *testing.T) {
 	optionsModel.GzipOn = types.BoolValue(true)
 	optionsModel.FetchedCompressed = types.BoolValue(true)
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -282,13 +285,13 @@ func TestGzipOnFetchedCompressedValidator_GzipTrueCompressedFalse(t *testing.T) 
 	optionsModel.GzipOn = types.BoolValue(true)
 	optionsModel.FetchedCompressed = types.BoolValue(false)
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -317,13 +320,13 @@ func TestGzipOnFetchedCompressedValidator_GzipFalseCompressedTrue(t *testing.T) 
 	optionsModel.GzipOn = types.BoolValue(false)
 	optionsModel.FetchedCompressed = types.BoolValue(true)
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -352,13 +355,13 @@ func TestGzipOnFetchedCompressedValidator_BothFalse(t *testing.T) {
 	optionsModel.GzipOn = types.BoolValue(false)
 	optionsModel.FetchedCompressed = types.BoolValue(false)
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -387,13 +390,13 @@ func TestGzipOnFetchedCompressedValidator_BothNull(t *testing.T) {
 	optionsModel.GzipOn = types.BoolNull()
 	optionsModel.FetchedCompressed = types.BoolNull()
 
-	optionsValue, diags := types.ObjectValueFrom(ctx, getCDNOptionsAttrTypes(), optionsModel)
+	optionsValue, diags := types.ObjectValueFrom(ctx, GetCDNOptionsAttrTypes(), optionsModel)
 	if diags.HasError() {
 		t.Fatalf("Creating test object produced errors: %v", diags)
 	}
 
 	listValue, diags := types.ListValue(types.ObjectType{
-		AttrTypes: getCDNOptionsAttrTypes(),
+		AttrTypes: GetCDNOptionsAttrTypes(),
 	}, []attr.Value{optionsValue})
 	if diags.HasError() {
 		t.Fatalf("Creating test list produced errors: %v", diags)
@@ -412,4 +415,141 @@ func TestGzipOnFetchedCompressedValidator_BothNull(t *testing.T) {
 	v.ValidateList(ctx, req, resp)
 
 	assert.False(t, resp.Diagnostics.HasError(), "Validation should pass when both values are null")
+}
+
+func TestEdgeCacheSettingsValidator(t *testing.T) {
+	ctx := context.Background()
+
+	testCases := []struct {
+		name         string
+		enable       basetypes.BoolValue
+		value        basetypes.Int64Value
+		defaultValue basetypes.Int64Value
+		customValues basetypes.MapValue
+		diagnostics  []diag.Diagnostic
+	}{
+		{
+			name:         "disable cache with no values",
+			enable:       types.BoolValue(false),
+			value:        types.Int64Null(),
+			defaultValue: types.Int64Unknown(),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics:  []diag.Diagnostic{},
+		},
+		{
+			name:         "disable cache with some value",
+			enable:       types.BoolValue(false),
+			value:        types.Int64Value(100),
+			defaultValue: types.Int64Unknown(),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=false, value, custom_values or default_value should not be specified"),
+			},
+		},
+		{
+			name:         "enable cache without specify usage type",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Null(),
+			defaultValue: types.Int64Unknown(),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, at least value, custom_values or default_value must be specified"),
+			},
+		},
+		{
+			name:         "enable cache with value",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Value(100),
+			defaultValue: types.Int64Unknown(),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics:  []diag.Diagnostic{},
+		},
+		{
+			name:         "enable cache with value which implicitly disabling",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Value(0),
+			defaultValue: types.Int64Unknown(),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, value cannot be 0, because it will disable cache implicitly"),
+			},
+		},
+		{
+			name:         "enable cache with both types of caching",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Value(100),
+			defaultValue: types.Int64Value(100),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, value and default_value cannot be used together"),
+			},
+		},
+		{
+			name:         "enable cache with default value and custom_values",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Value(100),
+			defaultValue: types.Int64Value(100),
+			customValues: types.MapValueMust(types.Int64Type, map[string]attr.Value{
+				"400": types.Int64Value(200),
+			}),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, value and default_value cannot be used together"),
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, custom_values can be used only with value"),
+			},
+		},
+		{
+			name:         "enable cache with default value",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Null(),
+			defaultValue: types.Int64Value(100),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics:  []diag.Diagnostic{},
+		},
+		{
+			name:         "enable cache with default value which implicitly disabling",
+			enable:       types.BoolValue(true),
+			value:        types.Int64Null(),
+			defaultValue: types.Int64Value(0),
+			customValues: types.MapUnknown(types.Int64Type),
+			diagnostics: []diag.Diagnostic{
+				diag.NewErrorDiagnostic("Invalid edge_cache_settings configuration", "When enabled=true, default_value cannot be 0, because it will disable cache implicitly"),
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			edgeCacheSettings := types.ListValueMust(types.ObjectType{
+				AttrTypes: GetEdgeCacheSettingsAttrTypes(),
+			}, []attr.Value{
+				types.ObjectValueMust(GetEdgeCacheSettingsAttrTypes(),
+					map[string]attr.Value{
+						"enabled":       testCase.enable,
+						"value":         testCase.value,
+						"default_value": testCase.defaultValue,
+						"custom_values": testCase.customValues,
+					}),
+			})
+
+			req := validator.ListRequest{
+				Path:        path.Root("edge_cache_settings"),
+				ConfigValue: edgeCacheSettings,
+			}
+
+			resp := &validator.ListResponse{Diagnostics: diag.Diagnostics{}}
+
+			v := NewEdgeCacheSettingsValidator()
+			v.ValidateList(ctx, req, resp)
+
+			if len(testCase.diagnostics) == 0 {
+				assert.False(t, resp.Diagnostics.HasError(), "Expected no errors, but found some")
+			} else {
+				require.True(t, resp.Diagnostics.HasError(), "Expected errors, but no errors actual")
+				require.Equal(t, len(testCase.diagnostics), len(resp.Diagnostics.Errors()), "Count of expected errors does not equal to actual")
+				for _, diagnostic := range testCase.diagnostics {
+					assert.Truef(t, resp.Diagnostics.Contains(diagnostic), "Diagnostic %s: %s does not contains in errors", diagnostic.Summary(), diagnostic.Detail())
+				}
+			}
+		})
+	}
 }

@@ -750,12 +750,7 @@ func GetCDNOptionsAttrTypes() map[string]attr.Type {
 		// Cache settings - nested blocks
 		"edge_cache_settings": types.ListType{
 			ElemType: types.ObjectType{
-				AttrTypes: map[string]attr.Type{
-					"enabled":       types.BoolType,
-					"value":         types.Int64Type,
-					"custom_values": types.MapType{ElemType: types.Int64Type},
-					"default_value": types.Int64Type,
-				},
+				AttrTypes: GetEdgeCacheSettingsAttrTypes(),
 			},
 		},
 		"browser_cache_settings": types.ListType{
@@ -802,6 +797,15 @@ func GetCDNOptionsAttrTypes() map[string]attr.Type {
 				},
 			},
 		},
+	}
+}
+
+func GetEdgeCacheSettingsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":       types.BoolType,
+		"value":         types.Int64Type,
+		"custom_values": types.MapType{ElemType: types.Int64Type},
+		"default_value": types.Int64Type,
 	}
 }
 
