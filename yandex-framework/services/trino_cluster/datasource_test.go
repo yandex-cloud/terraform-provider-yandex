@@ -60,8 +60,12 @@ func trinoDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 			},
 			ExchangeManager: ExchangeManagerParams{},
 		},
-		Version:      "476",
-		TrustedCerts: []string{caCert1},
+		Version:        "476",
+		TrustedCerts:   []string{caCert1},
+		ResourceGroups: resourceGroups2,
+		QueryProperties: map[string]string{
+			"query.max-memory-per-node": "7GB",
+		},
 	})
 
 	var datasource string
@@ -106,5 +110,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "version", "476"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
+		testCheckResourceGroupsEqual("data.yandex_trino_cluster.trino_cluster", "resource_groups_json", resourceGroups2),
+		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7GB"),
 	)
 }

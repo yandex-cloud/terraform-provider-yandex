@@ -2,6 +2,7 @@ package trino_cluster
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -43,11 +44,12 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		Description: common.Description,
 		Labels:      common.Labels,
 		Trino: &trino.TrinoConfigSpec{
-			CoordinatorConfig: common.Coordinator,
-			WorkerConfig:      common.Worker,
-			RetryPolicy:       common.RetryPolicy,
-			Version:           common.Version,
-			Tls:               common.Tls,
+			CoordinatorConfig:  common.Coordinator,
+			WorkerConfig:       common.Worker,
+			RetryPolicy:        common.RetryPolicy,
+			Version:            common.Version,
+			Tls:                common.Tls,
+			ResourceManagement: common.ResourceManagement,
 		},
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -77,7 +79,8 @@ type CommonForCreateAndUpdate struct {
 	RetryPolicy *trino.RetryPolicyConfig
 	Version     string
 
-	MaintenanceWindow *trino.MaintenanceWindow
+	MaintenanceWindow  *trino.MaintenanceWindow
+	ResourceManagement *trino.ResourceManagementConfig
 }
 
 func (c *CommonForCreateAndUpdate) workerConfigForUpdate() *trino.UpdateWorkerConfig {
@@ -320,6 +323,45 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "maintenance_window")
 	}
 
+	// Resource Management configuration
+	resourceManagementConfig := &trino.ResourceManagementConfig{}
+
+	newResourceGroupsModel := ResourceGroups{}
+	if plan.ResourceGroupsJson.ValueString() != "" {
+		if err := json.Unmarshal([]byte(plan.ResourceGroupsJson.ValueString()), &newResourceGroupsModel); err != nil {
+			diags.AddError("Failed to unmarshal Resource Groups", err.Error())
+			return nil, nil, diags
+		}
+	}
+	if !isNullOrUnknown(plan.ResourceGroupsJson) {
+		resourceGroups := newResourceGroupsModel.ToAPI()
+		resourceManagementConfig.ResourceGroups = resourceGroups
+	}
+	if state != nil {
+		equal, dd := resourceGroupsAreEqual(state.ResourceGroupsJson, &newResourceGroupsModel)
+		diags.Append(dd...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+		if !equal {
+			updateMaskPaths = append(updateMaskPaths, "trino.resource_management.resource_groups")
+		}
+	}
+
+	queryProperties := make(map[string]string, len(plan.QueryProperties.Elements()))
+	diags.Append(plan.QueryProperties.ElementsAs(ctx, &queryProperties, false)...)
+	if diags.HasError() {
+		return nil, nil, diags
+	}
+	if !isNullOrUnknown(plan.QueryProperties) {
+		resourceManagementConfig.Query = &trino.QueryConfig{
+			Properties: queryProperties,
+		}
+	}
+	if state != nil && !mapsAreEqual(plan.QueryProperties, state.QueryProperties) {
+		updateMaskPaths = append(updateMaskPaths, "trino.resource_management.query")
+	}
+
 	params := &CommonForCreateAndUpdate{
 		Name:               plan.Name.ValueString(),
 		Description:        plan.Description.ValueString(),
@@ -334,6 +376,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		Tls:                tlsConfig,
 		RetryPolicy:        retrPolicyConfig,
 		Version:            version,
+		ResourceManagement: resourceManagementConfig,
 	}
 
 	return params, updateMaskPaths, diags
@@ -368,11 +411,12 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		Description: common.Description,
 		Labels:      common.Labels,
 		Trino: &trino.UpdateTrinoConfigSpec{
-			CoordinatorConfig: common.coordinatorConfigForUpdate(),
-			WorkerConfig:      common.workerConfigForUpdate(),
-			RetryPolicy:       common.RetryPolicy,
-			Version:           common.Version,
-			Tls:               common.Tls,
+			CoordinatorConfig:  common.coordinatorConfigForUpdate(),
+			WorkerConfig:       common.workerConfigForUpdate(),
+			RetryPolicy:        common.RetryPolicy,
+			Version:            common.Version,
+			Tls:                common.Tls,
+			ResourceManagement: common.ResourceManagement,
 		},
 		NetworkSpec: &trino.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,

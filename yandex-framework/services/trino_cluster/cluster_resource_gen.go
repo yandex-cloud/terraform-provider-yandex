@@ -168,6 +168,17 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The resource name.",
 				MarkdownDescription: "The resource name.",
 			},
+			"query_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Query properties configuration.",
+				MarkdownDescription: "Query properties configuration.",
+			},
+			"resource_groups_json": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Resource groups configuration as a Trino-like json. Note, that some fields are not supported in Managed Trino, refer to documentation for more details. We recommend using `jsonencode()` as it can help sidestep different issues with formatting, whitespace and other nuances inherent to JSON.",
+				MarkdownDescription: "Resource groups configuration as a Trino-like json. Note, that some fields are not supported in Managed Trino, refer to documentation for more details. We recommend using `jsonencode()` as it can help sidestep different issues with formatting, whitespace and other nuances inherent to JSON.",
+			},
 			"retry_policy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": schema.MapAttribute{
@@ -347,6 +358,8 @@ type ClusterModel struct {
 	Logging            LoggingValue           `tfsdk:"logging"`
 	MaintenanceWindow  MaintenanceWindowValue `tfsdk:"maintenance_window"`
 	Name               types.String           `tfsdk:"name"`
+	QueryProperties    types.Map              `tfsdk:"query_properties"`
+	ResourceGroupsJson types.String           `tfsdk:"resource_groups_json"`
 	RetryPolicy        RetryPolicyValue       `tfsdk:"retry_policy"`
 	SecurityGroupIds   types.Set              `tfsdk:"security_group_ids"`
 	ServiceAccountId   types.String           `tfsdk:"service_account_id"`

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -16,6 +17,7 @@ import (
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 )
 
 var (
@@ -23,6 +25,13 @@ var (
 	caCert1 string
 	//go:embed test-data/CA2.pem
 	caCert2 string
+	//go:embed test-data/resource-groups-1.json
+	resourceGroups1 string
+	//go:embed test-data/resource-groups-2.json
+	resourceGroups2 string
+
+	//go:embed test-data/expected-resource-groups-1.json
+	expectedResourceGroups1 string
 )
 
 func infraResources(t *testing.T, randSuffix string) string {
@@ -77,6 +86,8 @@ type trinoClusterConfigParams struct {
 	RetryPolicy        *RetryPolicyParams
 	Version            string
 	TrustedCerts       []string
+	ResourceGroups     string
+	QueryProperties    map[string]string
 }
 
 type MaintenanceWindow struct {
@@ -209,6 +220,20 @@ EOT
 
   {{ end }}
 
+  {{ if .ResourceGroups }}
+  resource_groups_json = <<-EOT
+	{{ .ResourceGroups }}
+  EOT
+  {{ end }}
+
+  {{ if .QueryProperties }}
+  query_properties = {
+    {{ range $key, $val := .QueryProperties}}
+    "{{ $key }}" = "{{ $val }}"
+    {{ end }}
+  }
+  {{ end }}
+
   timeouts {
 		create = "50m"
 		update = "50m"
@@ -252,7 +277,8 @@ func trinoClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"health", // volatile value
+			"health",               // volatile value
+			"resource_groups_json", // json value is can cause problems with import
 		},
 	}
 }
@@ -313,8 +339,13 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							Count: 1,
 						},
 					},
-					Version:      "468",
-					TrustedCerts: []string{caCert1},
+					Version:        "468",
+					TrustedCerts:   []string{caCert1},
+					ResourceGroups: resourceGroups1,
+					QueryProperties: map[string]string{
+						"query.max-memory-per-node": "7GB",
+						"query.max-cpu-time":        "11h",
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -329,6 +360,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
+					testCheckResourceGroupsEqual("yandex_trino_cluster.trino_cluster", "resource_groups_json", expectedResourceGroups1),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7GB"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-cpu-time", "11h"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -363,8 +397,13 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							AdditionalProperties: map[string]string{},
 						},
 					},
-					Version:      "476",
-					TrustedCerts: []string{caCert2},
+					Version:        "476",
+					TrustedCerts:   []string{caCert2},
+					ResourceGroups: resourceGroups2,
+					QueryProperties: map[string]string{
+						"query.max-memory-per-node": "7MB",
+						"query.max-run-time":        "23h",
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -395,6 +434,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.delete", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "476"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert2),
+					testCheckResourceGroupsEqual("yandex_trino_cluster.trino_cluster", "resource_groups_json", resourceGroups2),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7MB"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-run-time", "23h"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -429,9 +471,41 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.#", "0"),
+					resource.TestCheckNoResourceAttr("yandex_trino_cluster.trino_cluster", "resource_groups_json"),
+					resource.TestCheckNoResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
 		},
 	})
+}
+
+func testCheckResourceGroupsEqual(resourceName, attrName, expectedJSON string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found", resourceName)
+		}
+
+		actualJSON := rs.Primary.Attributes[attrName]
+		if actualJSON == "" {
+			return fmt.Errorf("attribute %s not found in resource %s", attrName, resourceName)
+		}
+
+		expectedConfig := &trino_cluster.ResourceGroups{}
+		if err := json.Unmarshal([]byte(expectedJSON), expectedConfig); err != nil {
+			return fmt.Errorf("failed to unmarshal expected JSON: %w", err)
+		}
+
+		actualConfig := &trino_cluster.ResourceGroups{}
+		if err := json.Unmarshal([]byte(actualJSON), actualConfig); err != nil {
+			return fmt.Errorf("failed to unmarshal actual JSON: %w", err)
+		}
+
+		if !expectedConfig.Equal(actualConfig) {
+			return fmt.Errorf("resource_groups_json mismatch:\nexpected: %+v\nactual: %+v", expectedConfig, actualConfig)
+		}
+
+		return nil
+	}
 }

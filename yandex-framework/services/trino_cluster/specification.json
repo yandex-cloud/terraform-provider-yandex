@@ -360,7 +360,11 @@
               "plan_modifiers": [
                 {
                   "custom": {
-                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "imports": [
+                      {
+                        "path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+                      }
+                    ],
                     "schema_definition": "stringplanmodifier.UseStateForUnknown()"
                   }
                 }
@@ -450,6 +454,23 @@
                   }
                 }
               ]
+            }
+          },
+          {
+            "name": "resource_groups_json",
+            "string": {
+              "computed_optional_required": "optional",
+              "description": "Resource groups configuration as a Trino-like json. Note, that some fields are not supported in Managed Trino, refer to documentation for more details. We recommend using `jsonencode()` as it can help sidestep different issues with formatting, whitespace and other nuances inherent to JSON."
+            }
+          },
+          {
+            "name": "query_properties",
+            "map": {
+              "computed_optional_required": "optional",
+              "description": "Query properties configuration.",
+              "element_type": {
+                "string": {}
+              }
             }
           }
         ],

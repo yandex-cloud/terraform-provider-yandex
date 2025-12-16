@@ -264,6 +264,15 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 					workerValidator(),
 				},
 			},
+			"resource_groups_json": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Resource groups configuration as a json.",
+			},
+			"query_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				MarkdownDescription: "Query properties configuration.",
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{

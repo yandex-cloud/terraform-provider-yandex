@@ -1,0 +1,17 @@
+{
+  "rootGroups": [
+    {
+      "name": "test",
+      "softMemoryLimit": "100%",
+      "hardConcurrencyLimit": 50,
+      "maxQueued": 100,
+      "schedulingPolicy": "query_priority"
+    }
+  ],
+  "selectors": [
+    {
+      "group": "test"
+    }
+  ],
+  "cpuQuotaPeriod": "15m"
+}

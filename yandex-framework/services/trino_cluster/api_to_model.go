@@ -2,6 +2,7 @@ package trino_cluster
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -94,6 +95,28 @@ func ClusterToState(ctx context.Context, cluster *trino.Cluster, state *ClusterM
 		return diags
 	}
 	state.MaintenanceWindow = maintenanceWindow
+
+	newResourceGroupsModel := ResourceGroupsFromAPI(cluster.GetTrino().GetResourceManagement().GetResourceGroups())
+	equal, diags := resourceGroupsAreEqual(state.ResourceGroupsJson, newResourceGroupsModel)
+	if diags.HasError() {
+		return diags
+	}
+	if !equal {
+		newResourceGroupsValue, err := json.Marshal(newResourceGroupsModel)
+		if err != nil {
+			diags.AddError("Failed to marshal Resource Groups", err.Error())
+			return diags
+		}
+		state.ResourceGroupsJson = types.StringValue(string(newResourceGroupsValue))
+	}
+
+	queryProperties, diags := types.MapValueFrom(ctx, types.StringType, cluster.GetTrino().GetResourceManagement().GetQuery().GetProperties())
+	if diags.HasError() {
+		return diags
+	}
+	if !mapsAreEqual(state.QueryProperties, queryProperties) {
+		state.QueryProperties = queryProperties
+	}
 
 	return diags
 }
@@ -288,4 +311,25 @@ func maintenanceWindowFromAPI(mw *trino.MaintenanceWindow) (MaintenanceWindowVal
 	}
 
 	return res, diags
+}
+
+func resourceGroupsAreEqual(state types.String, newConfig *ResourceGroups) (bool, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	if newConfig == nil && state.IsNull() {
+		return true, diags
+	}
+	if newConfig == nil || state.IsNull() {
+		return false, diags
+	}
+	if state.ValueString() == "" {
+		return false, diags
+	}
+
+	stateConfig := ResourceGroups{}
+	if err := json.Unmarshal([]byte(state.ValueString()), &stateConfig); err != nil {
+		diags.AddError("Failed to unmarshal Resource Groups", err.Error())
+		return false, diags
+	}
+
+	return stateConfig.Equal(newConfig), diags
 }

@@ -2,6 +2,7 @@ package trino_cluster
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -223,6 +224,20 @@ func (t *trinoClusterResource) ValidateConfig(ctx context.Context, req resource.
 	resp.Diagnostics.Append(req.Config.Get(ctx, &cluster)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if cluster.ResourceGroupsJson.ValueString() != "" {
+		var resourceGroups ResourceGroups
+		err := json.Unmarshal([]byte(cluster.ResourceGroupsJson.ValueString()), &resourceGroups)
+		if err != nil {
+			resp.Diagnostics.AddError("Invalid json for resource groups", err.Error())
+			return
+		}
+		err = resourceGroups.Validate()
+		if err != nil {
+			resp.Diagnostics.AddError("Invalid resource groups", err.Error())
+			return
+		}
 	}
 }
 
