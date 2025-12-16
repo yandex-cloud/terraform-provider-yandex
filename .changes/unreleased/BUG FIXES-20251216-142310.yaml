@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'CloudOrganization: fixed sensitive fields for idp_user'
+time: 2025-12-16T14:23:10.339601+03:00

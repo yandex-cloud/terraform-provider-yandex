@@ -287,7 +287,7 @@ func flattenYandexOrganizationmanagerIdpUserPasswordHash(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes, yandexOrganizationmanagerIdpUserPasswordHashModel{
-		PasswordHash:     state.PasswordHash,
+		PasswordHash:     converter.SetUnknownStringValue(state.PasswordHash),
 		PasswordHashType: state.PasswordHashType,
 	})
 	diags.Append(diag...)
@@ -360,8 +360,8 @@ func flattenYandexOrganizationmanagerIdpUserPasswordSpec(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes, yandexOrganizationmanagerIdpUserPasswordSpecModel{
-		GenerationProof: state.GenerationProof,
-		Password:        state.Password,
+		GenerationProof: converter.SetUnknownStringValue(state.GenerationProof),
+		Password:        converter.SetUnknownStringValue(state.Password),
 	})
 	diags.Append(diag...)
 	return value
