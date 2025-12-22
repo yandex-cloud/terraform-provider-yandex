@@ -46,6 +46,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_sharded_postgresql_shard"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_sharded_postgresql_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/metastore_cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/organizationmanager_mfa_enforcement_audience"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_grant"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_iam_binding"
@@ -310,6 +311,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_redis_user.NewResource,
 		mdb_mysql_cluster_v2.NewMySQLClusterResourceV2,
 		kubernetes_marketplace_helm_release.NewResource,
+		organizationmanager_mfa_enforcement_audience.NewResource,
 		spark_cluster.NewResource,
 		gitlab_instance.NewResource,
 		trino_access_control.NewResource,
