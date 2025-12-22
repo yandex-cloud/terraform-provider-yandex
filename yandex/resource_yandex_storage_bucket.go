@@ -682,6 +682,13 @@ func resourceYandexStorageBucket() *schema.Resource {
 					},
 				},
 			},
+
+			"disabled_statickey_auth": {
+				Type:        schema.TypeBool,
+				Description: "If true, static key authentication in bucket is forbidden. Default is `false`.",
+				Optional:    true,
+			},
+
 			"tags": tagsSchema(),
 		},
 	}
@@ -742,13 +749,15 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 	maxSize := d.Get("max_size").(int)
 	defaultStorageClass := d.Get("default_storage_class").(string)
 	aaf := getAnonymousAccessFlagsSDK(d.Get("anonymous_access_flags"))
+	disabledStaticKeyAuth := d.Get("disabled_statickey_auth").(bool)
 
 	request := &storagepb.CreateBucketRequest{
-		Name:                 bucket,
-		FolderId:             folderID,
-		AnonymousAccessFlags: aaf,
-		MaxSize:              int64(maxSize),
-		DefaultStorageClass:  defaultStorageClass,
+		Name:                  bucket,
+		FolderId:              folderID,
+		AnonymousAccessFlags:  aaf,
+		MaxSize:               int64(maxSize),
+		DefaultStorageClass:   defaultStorageClass,
+		DisabledStatickeyAuth: disabledStaticKeyAuth,
 	}
 
 	var err error
@@ -954,6 +963,9 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 		},
 		"anonymous_access_flags": func(value interface{}) {
 			bucketUpdateRequest.AnonymousAccessFlags = getAnonymousAccessFlagsSDK(value)
+		},
+		"disabled_statickey_auth": func(value interface{}) {
+			bucketUpdateRequest.SetDisabledStatickeyAuth(value.(bool))
 		},
 	}
 
@@ -1191,6 +1203,7 @@ func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interf
 	d.Set("default_storage_class", bucket.GetDefaultStorageClass())
 	d.Set("folder_id", bucket.GetFolderId())
 	d.Set("max_size", bucket.GetMaxSize())
+	d.Set("disabled_statickey_auth", bucket.GetDisabledStatickeyAuth())
 
 	aafValue := make([]map[string]interface{}, 0)
 	if aaf := bucket.AnonymousAccessFlags; aaf != nil {

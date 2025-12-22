@@ -2324,6 +2324,42 @@ func testAccStorageBucketAnonymousAccessFlags(randInt int) string {
 		render()
 }
 
+func testAccStorageBucketDisabledStaticKeyAuth(randInt int, disabled bool) string {
+	disabledStaticKeyAuthStmt := fmt.Sprintf(`disabled_statickey_auth = %t`, disabled)
+
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		addStatement(disabledStaticKeyAuthStmt).
+		render()
+}
+
+func TestAccStorageBucket_DisabledStaticKeyAuth(t *testing.T) {
+	const resourceName = "yandex_storage_bucket.test"
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketDisabledStaticKeyAuth(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "disabled_statickey_auth", "true"),
+				),
+			},
+			{
+				Config: testAccStorageBucketDisabledStaticKeyAuth(rInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "disabled_statickey_auth", "false"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_Logging(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
