@@ -192,11 +192,11 @@ func expandYandexOrganizationmanagerIdpApplicationOauthApplicationModel(ctx cont
 }
 
 type yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel struct {
-	AuthorizedScopes types.List   `tfsdk:"authorized_scopes"`
+	AuthorizedScopes types.Set    `tfsdk:"authorized_scopes"`
 	ClientId         types.String `tfsdk:"client_id"`
 }
 
-func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) GetAuthorizedScopes() types.List {
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) GetAuthorizedScopes() types.Set {
 	return m.AuthorizedScopes
 }
 func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) GetClientId() types.String {
@@ -205,14 +205,14 @@ func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel
 
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel() yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel {
 	return yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel{
-		AuthorizedScopes: types.ListNull(types.StringType),
+		AuthorizedScopes: types.SetNull(types.StringType),
 		ClientId:         types.StringNull(),
 	}
 }
 
 func yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModelFillUnknown(target yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel {
 	if target.AuthorizedScopes.IsUnknown() || target.AuthorizedScopes.IsNull() {
-		target.AuthorizedScopes = types.ListNull(types.StringType)
+		target.AuthorizedScopes = types.SetNull(types.StringType)
 	}
 	if target.ClientId.IsUnknown() || target.ClientId.IsNull() {
 		target.ClientId = types.StringNull()
@@ -222,7 +222,7 @@ func yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModelFill
 
 var yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"authorized_scopes": types.ListType{ElemType: types.StringType},
+		"authorized_scopes": types.SetType{ElemType: types.StringType},
 		"client_id":         types.StringType,
 	},
 }
@@ -264,12 +264,12 @@ func expandYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantMod
 	return value
 }
 
-func flattenYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes {
@@ -277,12 +277,12 @@ func flattenYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAu
 		yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesValues = append(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopes(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesState.IsNull() || yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAuthorizedScopesState.IsUnknown() {
 		return nil
 	}

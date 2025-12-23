@@ -318,38 +318,48 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 		updatePaths = append(updatePaths, "application_id")
 	}
 
-	var yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel
-	resp.Diagnostics.Append(plan.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.ClientGrant.IsNull() || state.ClientGrant.IsNull()) &&
+		!(plan.ClientGrant.IsNull() && state.ClientGrant.IsNull()) {
+		updatePaths = append(updatePaths, "client_grant")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel
+		resp.Diagnostics.Append(plan.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.IsNull() {
-		yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes = types.ListNull(types.StringType)
-	}
-	if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes.IsNull() {
-		yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes = types.ListNull(types.StringType)
-	}
-	if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes) {
-		updatePaths = append(updatePaths, "client_grant.authorized_scopes")
-	}
-	if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.ClientId.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.ClientId) {
-		updatePaths = append(updatePaths, "client_grant.client_id")
+		if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.IsNull() {
+			yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes = types.SetNull(types.StringType)
+		}
+		if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes.IsNull() {
+			yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes = types.SetNull(types.StringType)
+		}
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes) {
+			updatePaths = append(updatePaths, "client_grant.authorized_scopes")
+		}
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.ClientId.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.ClientId) {
+			updatePaths = append(updatePaths, "client_grant.client_id")
+		}
 	}
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 
-	var yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel
-	resp.Diagnostics.Append(plan.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.GroupClaimsSettings.IsNull() || state.GroupClaimsSettings.IsNull()) &&
+		!(plan.GroupClaimsSettings.IsNull() && state.GroupClaimsSettings.IsNull()) {
+		updatePaths = append(updatePaths, "group_claims_settings")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel
+		resp.Diagnostics.Append(plan.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType) {
-		updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType) {
+			updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
+		}
 	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)

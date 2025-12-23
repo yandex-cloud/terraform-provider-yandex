@@ -54,7 +54,7 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceSchema(ctx
 
 				Attributes: map[string]schema.Attribute{
 
-					"authorized_scopes": schema.ListAttribute{
+					"authorized_scopes": schema.SetAttribute{
 						ElementType:         types.StringType,
 						MarkdownDescription: "List of authorized client scopes by the application",
 						Description: "List of authorized client scopes by the application" +

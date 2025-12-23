@@ -7,14 +7,14 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -44,7 +44,6 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationResourceSchema(ctx c
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -66,7 +65,6 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationResourceSchema(ctx c
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
@@ -78,7 +76,7 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationResourceSchema(ctx c
 
 				Attributes: map[string]schema.Attribute{
 
-					"authorized_scopes": schema.ListAttribute{
+					"authorized_scopes": schema.SetAttribute{
 						ElementType:         types.StringType,
 						MarkdownDescription: "List of authorized client scopes by the application",
 						Description: "List of authorized client scopes by the application" +
@@ -91,12 +89,12 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationResourceSchema(ctx c
 						Optional: true,
 						Computed: true,
 
-						PlanModifiers: []planmodifier.List{
-							listplanmodifier.UseStateForUnknown(),
-							planmodifiers.NilRelaxedList(),
+						PlanModifiers: []planmodifier.Set{
+							setplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedSet(),
 						},
-						Validators: []validator.List{
-							listvalidator.ValueStringsAre(
+						Validators: []validator.Set{
+							setvalidator.ValueStringsAre(
 								stringvalidator.LengthBetween(0, 255),
 							),
 						},
