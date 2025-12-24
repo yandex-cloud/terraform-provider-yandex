@@ -21,7 +21,7 @@ type CDNResourceModel struct {
 	OriginGroupID      types.String   `tfsdk:"origin_group_id"`
 	OriginGroupName    types.String   `tfsdk:"origin_group_name"`
 	Shielding          types.String   `tfsdk:"shielding"`
-	SSLCertificate     types.Set      `tfsdk:"ssl_certificate"`
+	SSLCertificate     types.List     `tfsdk:"ssl_certificate"`
 	ProviderCname      types.String   `tfsdk:"provider_cname"`
 	Options            types.List     `tfsdk:"options"`
 }
@@ -42,7 +42,7 @@ type CDNResourceDataSource struct {
 	OriginGroupID      types.String `tfsdk:"origin_group_id"`
 	OriginGroupName    types.String `tfsdk:"origin_group_name"`
 	Shielding          types.String `tfsdk:"shielding"`
-	SSLCertificate     types.Set    `tfsdk:"ssl_certificate"`
+	SSLCertificate     types.List   `tfsdk:"ssl_certificate"`
 	ProviderCname      types.String `tfsdk:"provider_cname"`
 	Options            types.List   `tfsdk:"options"`
 }

@@ -71,6 +71,11 @@ func (r *cdnResourceResource) UpgradeState(context.Context) map[int64]resource.S
 			// Migrates edge_cache_settings.cache_time: "*" → "any"
 			StateUpgrader: upgradeStateV1ToV2,
 		},
+		2: {
+			// PriorSchema is intentionally nil - we use RawState migration
+			// Migrates ssl_certificate Set → List (MaxItems: 1)
+			StateUpgrader: upgradeStateV2ToV3,
+		},
 	}
 }
 
@@ -341,6 +346,45 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 		updateReq.OriginProtocol = originProtocol
 		hasChanges = true
+	}
+
+	// Handle SSL certificate update
+	if !plan.SSLCertificate.Equal(state.SSLCertificate) {
+		var certs []SSLCertificateModel
+		if !plan.SSLCertificate.IsNull() && len(plan.SSLCertificate.Elements()) > 0 {
+			resp.Diagnostics.Append(plan.SSLCertificate.ElementsAs(ctx, &certs, false)...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+		if len(certs) > 0 {
+			cert := certs[0]
+			sslCert := &cdn.SSLTargetCertificate{}
+			switch cert.Type.ValueString() {
+			case "not_used":
+				sslCert.Type = cdn.SSLCertificateType_DONT_USE
+			case "certificate_manager":
+				sslCert.Type = cdn.SSLCertificateType_CM
+				if !cert.CertificateManagerID.IsNull() && cert.CertificateManagerID.ValueString() != "" {
+					sslCert.Data = &cdn.SSLCertificateData{
+						SslCertificateDataVariant: &cdn.SSLCertificateData_Cm{
+							Cm: &cdn.SSLCertificateCMData{
+								Id: cert.CertificateManagerID.ValueString(),
+							},
+						},
+					}
+				}
+			case "lets_encrypt":
+				sslCert.Type = cdn.SSLCertificateType_LETS_ENCRYPT_GCORE
+			default:
+				// Unknown type, do not set change
+				sslCert = nil
+			}
+			if sslCert != nil {
+				updateReq.SslCertificate = sslCert
+				hasChanges = true
+			}
+		}
 	}
 
 	// Handle options update

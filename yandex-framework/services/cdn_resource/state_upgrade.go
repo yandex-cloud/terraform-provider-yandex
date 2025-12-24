@@ -271,3 +271,49 @@ func upgradeStateV1ToV2(ctx context.Context, req resource.UpgradeStateRequest, r
 
 	tflog.Debug(ctx, "Successfully upgraded state from v1 to v2")
 }
+
+// upgradeStateV2ToV3 migrates schema version 2 to version 3
+// Changes:
+// - ssl_certificate: Set → List (MaxItems: 1) to avoid set correlation issues with Computed fields
+// No structural JSON change is required since both list and set are represented as arrays in state.
+// We just re-materialize the prior JSON using the new schema type.
+func upgradeStateV2ToV3(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+	tflog.Debug(ctx, "Upgrading CDN resource state from v2 to v3")
+
+	var raw map[string]interface{}
+	if err := json.Unmarshal(req.RawState.JSON, &raw); err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Parse Prior State",
+			fmt.Sprintf("Error parsing state JSON: %s", err.Error()),
+		)
+		return
+	}
+
+	upgradedJSON, err := json.Marshal(raw)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Marshal Upgraded State",
+			fmt.Sprintf("Error marshaling upgraded state: %s", err.Error()),
+		)
+		return
+	}
+
+	newSchema := CDNResourceSchema(ctx)
+	newType := newSchema.Type().TerraformType(ctx)
+
+	upgradedValue, err := tftypes.ValueFromJSON(upgradedJSON, newType)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create State Value",
+			fmt.Sprintf("Error creating state value: %s", err.Error()),
+		)
+		return
+	}
+
+	resp.State = tfsdk.State{
+		Raw:    upgradedValue,
+		Schema: newSchema,
+	}
+
+	tflog.Debug(ctx, "Successfully upgraded state from v2 to v3")
+}

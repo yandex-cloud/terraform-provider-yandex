@@ -671,9 +671,9 @@ func flattenBrowserCacheSettings(ctx context.Context, browserCache *cdn.Resource
 }
 
 // flattenSSLCertificate converts API SSL certificate to Terraform state
-func flattenSSLCertificate(ctx context.Context, cert *cdn.SSLCertificate, diags *diag.Diagnostics) types.Set {
+func flattenSSLCertificate(ctx context.Context, cert *cdn.SSLCertificate, diags *diag.Diagnostics) types.List {
 	if cert == nil {
-		return types.SetNull(types.ObjectType{
+		return types.ListNull(types.ObjectType{
 			AttrTypes: map[string]attr.Type{
 				"type":                   types.StringType,
 				"status":                 types.StringType,
@@ -716,7 +716,7 @@ func flattenSSLCertificate(ctx context.Context, cert *cdn.SSLCertificate, diags 
 		CertificateManagerID: types.StringValue(cmID),
 	}
 
-	certSet, d := types.SetValueFrom(ctx, types.ObjectType{
+	certList, d := types.ListValueFrom(ctx, types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"type":                   types.StringType,
 			"status":                 types.StringType,
@@ -725,7 +725,7 @@ func flattenSSLCertificate(ctx context.Context, cert *cdn.SSLCertificate, diags 
 	}, []SSLCertificateModel{certModel})
 	diags.Append(d...)
 
-	return certSet
+	return certList
 }
 
 // getCDNOptionsAttrTypes returns the attribute types for CDNOptionsModel

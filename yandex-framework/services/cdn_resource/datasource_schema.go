@@ -113,8 +113,8 @@ func DataSourceCDNResourceSchema() schema.Schema {
 }
 
 // SSLCertificateDataSourceSchema returns the schema for SSL certificate block in data source
-func SSLCertificateDataSourceSchema() schema.SetNestedBlock {
-	return schema.SetNestedBlock{
+func SSLCertificateDataSourceSchema() schema.ListNestedBlock {
+	return schema.ListNestedBlock{
 		Description:         "SSL certificate configuration block.",
 		MarkdownDescription: "SSL certificate configuration block.",
 		NestedObject: schema.NestedBlockObject{

@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -27,7 +26,7 @@ import (
 // CDNResourceSchema returns the schema for yandex_cdn_resource
 func CDNResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Version:             2, // v1→v2: Migrate edge_cache_settings.cache_time "*" → "any" (full transition to new API)
+		Version:             3, // v2→v3: ssl_certificate Set → List (to avoid set correlation issues)
 		MarkdownDescription: "Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).\n\n~> CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: `yc cdn provider activate --folder-id <folder-id> --type gcore`.",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
@@ -167,8 +166,8 @@ func CDNResourceSchema(ctx context.Context) schema.Schema {
 }
 
 // SSLCertificateSchema returns the schema for ssl_certificate block
-func SSLCertificateSchema() schema.SetNestedBlock {
-	return schema.SetNestedBlock{
+func SSLCertificateSchema() schema.ListNestedBlock {
+	return schema.ListNestedBlock{
 		MarkdownDescription: "SSL certificate of CDN resource.",
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
@@ -189,8 +188,8 @@ func SSLCertificateSchema() schema.SetNestedBlock {
 				},
 			},
 		},
-		Validators: []validator.Set{
-			setvalidator.SizeAtMost(1),
+		Validators: []validator.List{
+			listvalidator.SizeAtMost(1),
 		},
 	}
 }
