@@ -374,12 +374,6 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								"pool_discard": types.BoolNull(),
 							}),
 						),
-						Validators: []validator.Object{
-							NewAtLeastIfConfiguredValidator(
-								path.MatchRelative().AtName("pooling_mode"),
-								path.MatchRelative().AtName("pool_discard"),
-							),
-						},
 						Attributes: map[string]schema.Attribute{
 							"pooling_mode": schema.StringAttribute{
 								Description: "Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.)",
