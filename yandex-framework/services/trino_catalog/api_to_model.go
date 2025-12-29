@@ -32,6 +32,10 @@ func CatalogToState(ctx context.Context, catalog *trino.Catalog, state *CatalogM
 		postgresqlObject, dd := postgresqlToModelObject(ctx, connector.Postgresql, state.Postgresql)
 		diags.Append(dd...)
 		state.Postgresql = postgresqlObject
+	case *trino.Connector_Greenplum:
+		greenplumObject, dd := greenplumToModelObject(ctx, connector.Greenplum, state.Greenplum)
+		diags.Append(dd...)
+		state.Greenplum = greenplumObject
 	case *trino.Connector_Hive:
 		hiveObject, dd := hiveToModelObject(ctx, connector.Hive, state.Hive)
 		diags.Append(dd...)
@@ -105,6 +109,36 @@ func postgresqlToModelObject(ctx context.Context, postgresql *trino.PostgresqlCo
 	}
 
 	return types.ObjectValueFrom(ctx, PostgresqlT.AttributeTypes(), state)
+}
+
+func greenplumToModelObject(ctx context.Context, greenplum *trino.GreenplumConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	state := Greenplum{}
+	if !stateObj.IsNull() && !stateObj.IsUnknown() {
+		diags.Append(stateObj.As(ctx, &state, baseOptions)...)
+	} else {
+		state = NewGreenplumNull()
+	}
+
+	additionalProperties, dd := types.MapValueFrom(ctx, types.StringType, greenplum.AdditionalProperties)
+	diags.Append(dd...)
+	if !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
+		state.AdditionalProperties = additionalProperties
+	}
+
+	switch connection := greenplum.Connection.Type.(type) {
+	case *trino.GreenplumConnection_OnPremise_:
+		obPremiseObject, dd := onPremiseToModel(ctx, state.OnPremise, connection.OnPremise)
+		diags.Append(dd...)
+		state.OnPremise = obPremiseObject
+	case *trino.GreenplumConnection_ConnectionManager_:
+		connectionManagerObject, dd := connectionManagerToModel(ctx, connection.ConnectionManager)
+		diags.Append(dd...)
+		state.ConnectionManager = connectionManagerObject
+	}
+
+	return types.ObjectValueFrom(ctx, GreenplumT.AttributeTypes(), state)
 }
 
 func hiveToModelObject(ctx context.Context, hive *trino.HiveConnector, stateObj types.Object) (types.Object, diag.Diagnostics) {

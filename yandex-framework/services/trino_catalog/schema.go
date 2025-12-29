@@ -122,6 +122,19 @@ func CatalogResourceSchema(_ context.Context) schema.Schema {
 				Description:         "Configuration for Postgresql connector.",
 				MarkdownDescription: "Configuration for Postgresql connector.",
 			},
+			"greenplum": schema.SingleNestedAttribute{
+				Validators: []validator.Object{
+					onlyOneOptionValidator("Greenplum", "connection_manager", "on_premise"),
+				},
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesSchema(),
+					"connection_manager":    connectionManagerSchema(),
+					"on_premise":            onPremiseSchema(),
+				},
+				Optional:            true,
+				Description:         "Configuration for Greenplum/Cloudberry connector.",
+				MarkdownDescription: "Configuration for Greenplum/Cloudberry connector.",
+			},
 			"sqlserver": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesSchema(),
@@ -330,6 +343,7 @@ type CatalogModel struct {
 	Mysql      types.Object `tfsdk:"mysql"`
 	Oracle     types.Object `tfsdk:"oracle"`
 	Postgresql types.Object `tfsdk:"postgresql"`
+	Greenplum  types.Object `tfsdk:"greenplum"`
 	Sqlserver  types.Object `tfsdk:"sqlserver"`
 	Tpcds      types.Object `tfsdk:"tpcds"`
 	Tpch       types.Object `tfsdk:"tpch"`
@@ -360,6 +374,48 @@ func NewPostgresqlNull() Postgresql {
 }
 
 func (v *Postgresql) Equal(other *Postgresql) bool {
+	if (v == nil && other != nil) || (v != nil && other == nil) {
+		return false
+	}
+
+	if !v.AdditionalProperties.Equal(other.AdditionalProperties) {
+		return false
+	}
+
+	if !v.ConnectionManager.Equal(other.ConnectionManager) {
+		return false
+	}
+
+	if !v.OnPremise.Equal(other.OnPremise) {
+		return false
+	}
+
+	return true
+}
+
+type Greenplum struct {
+	AdditionalProperties types.Map    `tfsdk:"additional_properties"`
+	ConnectionManager    types.Object `tfsdk:"connection_manager"`
+	OnPremise            types.Object `tfsdk:"on_premise"`
+}
+
+var GreenplumT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"additional_properties": types.MapType{ElemType: types.StringType},
+		"connection_manager":    ConnectionManagerT,
+		"on_premise":            OnPremiseT,
+	},
+}
+
+func NewGreenplumNull() Greenplum {
+	return Greenplum{
+		AdditionalProperties: types.MapNull(types.StringType),
+		ConnectionManager:    types.ObjectNull(ConnectionManagerT.AttrTypes),
+		OnPremise:            types.ObjectNull(OnPremiseT.AttrTypes),
+	}
+}
+
+func (v *Greenplum) Equal(other *Greenplum) bool {
 	if (v == nil && other != nil) || (v != nil && other == nil) {
 		return false
 	}

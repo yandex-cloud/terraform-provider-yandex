@@ -88,6 +88,7 @@ type trinoCatalogConfigParams struct {
 	ConnectorType string
 
 	Postgresql *PostgresqlConnectorConfig
+	Greenplum  *GreenplumConnectorConfig
 	Clickhouse *ClickhouseConnectorConfig
 
 	Hive      *HiveConnectorConfig
@@ -101,6 +102,11 @@ type trinoCatalogConfigParams struct {
 }
 
 type PostgresqlConnectorConfig struct {
+	OnPremise            *OnPremise
+	AdditionalProperties map[string]string
+}
+
+type GreenplumConnectorConfig struct {
 	OnPremise            *OnPremise
 	AdditionalProperties map[string]string
 }
@@ -207,8 +213,28 @@ resource "yandex_trino_catalog" "trino_catalog" {
   }
   {{ end }}
 
+  {{ if eq .ConnectorType "greenplum" }}
+  greenplum = {
+		{{ if .Greenplum.OnPremise }}
+    on_premise = {
+      connection_url = "{{ .Greenplum.OnPremise.ConnectionURL }}"
+      user_name      = "{{ .Greenplum.OnPremise.UserName }}"
+      password       = "{{ .Greenplum.OnPremise.Password }}"
+    }
+		{{ end }}
 
-	{{ if eq .ConnectorType "hive" }}
+		{{ if .Greenplum.AdditionalProperties }}
+		additional_properties = {
+			{{ range $key, $val := .Greenplum.AdditionalProperties }}
+			"{{ $key }}" = "{{ $val }}"
+			{{ end }}
+		}
+		{{ end }}
+  }
+  {{ end }}
+
+
+ {{ if eq .ConnectorType "hive" }}
   hive = {
 		metastore = {
 			uri = "{{ .Hive.MetaStoreURI }}"
@@ -459,6 +485,7 @@ func trinoCatalogImportStep(name string) resource.TestStep {
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
 			"postgresql.on_premise.password",
+			"greenplum.on_premise.password",
 			"clickhouse.on_premise.password",
 			"mysql.on_premise.password",
 			"oracle.on_premise.password",
@@ -640,6 +667,45 @@ func TestAccMDBTrinoCatalog_basic(t *testing.T) {
 					// Connector
 					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "hive.metastore.uri", "thrift://10.10.0.15:9083"),
 					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "hive.file_system.s3.%"),
+				),
+			},
+			// Greenplum catalog
+			trinoCatalogImportStep("yandex_trino_catalog.trino_catalog"),
+			{
+				Config: trinoCatalogConfig(t, trinoCatalogConfigParams{
+					RandSuffix:    randSuffix,
+					FolderID:      folderID,
+					CatalogName:   fmt.Sprintf("greenplum-catalog-%s", randSuffix),
+					Description:   "Greenplum catalog",
+					ConnectorType: "greenplum",
+					Greenplum: &GreenplumConnectorConfig{
+						OnPremise: &OnPremise{
+							ConnectionURL: "jdbc:postgresql://localhost:5432/gpdb",
+							UserName:      "gpadmin",
+							Password:      "gppassword",
+						},
+						AdditionalProperties: map[string]string{
+							"postgresql.fetch-size": "2048",
+						},
+					},
+					Labels: map[string]string{
+						"env":  "test",
+						"type": "greenplum",
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckTrinoCatalogExists("yandex_trino_catalog.trino_catalog", &catalog),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "name", fmt.Sprintf("greenplum-catalog-%s", randSuffix)),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "description", "Greenplum catalog"),
+					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "cluster_id"),
+					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "id"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "labels.env", "test"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "labels.type", "greenplum"),
+					// Connector
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "greenplum.on_premise.connection_url", "jdbc:postgresql://localhost:5432/gpdb"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "greenplum.on_premise.user_name", "gpadmin"),
+					resource.TestCheckResourceAttrSet("yandex_trino_catalog.trino_catalog", "greenplum.on_premise.password"),
+					resource.TestCheckResourceAttr("yandex_trino_catalog.trino_catalog", "greenplum.additional_properties.postgresql.fetch-size", "2048"),
 				),
 			},
 			// Clickhouse catalog
