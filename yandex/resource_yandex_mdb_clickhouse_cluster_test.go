@@ -170,7 +170,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb"}),
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
-					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
+					// testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
@@ -208,7 +208,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb"}),
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
-					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
+					// testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.day", "FRI"),
@@ -254,12 +254,13 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 							"uri":  fmt.Sprintf("%s/%s/test.capnp", StorageEndpointUrl, bucketName),
 						},
 					}),
-					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
-						"test_model": {
-							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
-						},
-					}),
+					// disabled in old resource, extensions will be supported in new resource
+					// testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
+					// 	"test_model": {
+					// 		"type": "ML_MODEL_TYPE_CATBOOST",
+					// 		"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
+					// 	},
+					// }),
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(chResource, "cloud_storage.0.enabled", "true"),
@@ -305,16 +306,17 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 							"uri":  fmt.Sprintf("%s/%s/test.proto", StorageEndpointUrl, bucketName),
 						},
 					}),
-					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
-						"test_model": {
-							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
-						},
-						"test_model2": {
-							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
-						},
-					}),
+					// disabled in old resource, extensions will be supported in new resource
+					// testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
+					// 	"test_model": {
+					// 		"type": "ML_MODEL_TYPE_CATBOOST",
+					// 		"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
+					// 	},
+					// 	"test_model2": {
+					// 		"type": "ML_MODEL_TYPE_CATBOOST",
+					// 		"uri":  fmt.Sprintf("%s/%s/model.bin", StorageEndpointUrl, bucketName),
+					// 	},
+					// }),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -909,17 +911,18 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			Host: "127.0.0.2",
 			Port: &wrappers.Int64Value{Value: 8999},
 		},
-		LogLevel:                                  cfg.ClickhouseConfig_TRACE,
-		MaxConnections:                            &wrappers.Int64Value{Value: 512},
-		MaxConcurrentQueries:                      &wrappers.Int64Value{Value: 100},
-		KeepAliveTimeout:                          &wrappers.Int64Value{Value: 123000},
-		UncompressedCacheSize:                     &wrappers.Int64Value{Value: 8096},
-		MarkCacheSize:                             &wrappers.Int64Value{Value: 8096},
-		MaxTableSizeToDrop:                        &wrappers.Int64Value{Value: 1024},
-		MaxPartitionSizeToDrop:                    &wrappers.Int64Value{Value: 1024},
-		Timezone:                                  "UTC",
-		GeobaseUri:                                "",
-		GeobaseEnabled:                            &wrappers.BoolValue{Value: false},
+		LogLevel:               cfg.ClickhouseConfig_TRACE,
+		MaxConnections:         &wrappers.Int64Value{Value: 512},
+		MaxConcurrentQueries:   &wrappers.Int64Value{Value: 100},
+		KeepAliveTimeout:       &wrappers.Int64Value{Value: 123000},
+		UncompressedCacheSize:  &wrappers.Int64Value{Value: 8096},
+		MarkCacheSize:          &wrappers.Int64Value{Value: 8096},
+		MaxTableSizeToDrop:     &wrappers.Int64Value{Value: 1024},
+		MaxPartitionSizeToDrop: &wrappers.Int64Value{Value: 1024},
+		Timezone:               "UTC",
+		// disabled in old resource, extensions will be supported in new resource
+		// GeobaseUri:                                "",
+		// GeobaseEnabled:                            &wrappers.BoolValue{Value: false},
 		QueryLogRetentionSize:                     &wrappers.Int64Value{Value: 1001},
 		QueryLogRetentionTime:                     &wrappers.Int64Value{Value: 86400000},
 		QueryThreadLogEnabled:                     &wrappers.BoolValue{Value: true},
@@ -1117,17 +1120,18 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			Host: "127.0.0.3",
 			Port: &wrappers.Int64Value{Value: 8998},
 		},
-		LogLevel:                                  cfg.ClickhouseConfig_WARNING,
-		MaxConnections:                            &wrappers.Int64Value{Value: 1024},
-		MaxConcurrentQueries:                      &wrappers.Int64Value{Value: 200},
-		KeepAliveTimeout:                          &wrappers.Int64Value{Value: 246000},
-		UncompressedCacheSize:                     &wrappers.Int64Value{Value: 16192},
-		MarkCacheSize:                             &wrappers.Int64Value{Value: 16192},
-		MaxTableSizeToDrop:                        &wrappers.Int64Value{Value: 2048},
-		MaxPartitionSizeToDrop:                    &wrappers.Int64Value{Value: 2048},
-		Timezone:                                  "UTC",
-		GeobaseUri:                                "",
-		GeobaseEnabled:                            &wrappers.BoolValue{Value: true},
+		LogLevel:               cfg.ClickhouseConfig_WARNING,
+		MaxConnections:         &wrappers.Int64Value{Value: 1024},
+		MaxConcurrentQueries:   &wrappers.Int64Value{Value: 200},
+		KeepAliveTimeout:       &wrappers.Int64Value{Value: 246000},
+		UncompressedCacheSize:  &wrappers.Int64Value{Value: 16192},
+		MarkCacheSize:          &wrappers.Int64Value{Value: 16192},
+		MaxTableSizeToDrop:     &wrappers.Int64Value{Value: 2048},
+		MaxPartitionSizeToDrop: &wrappers.Int64Value{Value: 2048},
+		Timezone:               "UTC",
+		// disabled in old resource, extensions will be supported in new resource
+		// GeobaseUri:                                "",
+		// GeobaseEnabled:                            &wrappers.BoolValue{Value: true},
 		QueryLogRetentionSize:                     &wrappers.Int64Value{Value: 2001},
 		QueryLogRetentionTime:                     &wrappers.Int64Value{Value: 86400000},
 		QueryThreadLogEnabled:                     &wrappers.BoolValue{Value: true},
@@ -1199,8 +1203,6 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_table_size_to_drop", "1024"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_partition_size_to_drop", "1024"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.timezone", "UTC"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_uri", ""),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_enabled", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_size", "1001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_time", "86400000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_enabled", "true"),
@@ -1347,8 +1349,6 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_table_size_to_drop", "2048"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_partition_size_to_drop", "2048"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.timezone", "UTC"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_uri", ""),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_enabled", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_size", "2001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_time", "86400000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_enabled", "true"),
@@ -2505,12 +2505,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test.capnp"
   }
 
-  ml_model {
-    name = "test_model"
-    type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
-  }
-
   maintenance_window {
     type = "ANYTIME"
   }
@@ -2522,7 +2516,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   deletion_protection = false
   backup_retain_period_days = 13
 }
-`, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
+`, name, desc, chVersion, StorageEndpointUrl)
 }
 
 func testAccMDBClickHouseClusterConfigUser(name, desc, bucket string, randInt int) string {
@@ -2808,23 +2802,11 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test.proto"
   }
 
-  ml_model {
-    name = "test_model"
-    type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
-  }
-
-  ml_model {
-    name = "test_model2"
-    type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/model.bin"
-  }
-
   cloud_storage {
     enabled = true
   }
 }
-`, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl)
+`, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
 
 func testAccMDBClickHouseClusterResourceZookeepers(name, desc, bucket string, randInt int, version string, resourcesCluster, resourcesZookeeper *clickhouse.Resources) string {
@@ -3644,8 +3626,6 @@ config {
 		max_table_size_to_drop          = %d
 		max_partition_size_to_drop      = %d
 		timezone                        = "%s"
-		geobase_uri                     = "%s"
-		geobase_enabled                 = %t
 		query_log_retention_size        = %d
 		query_log_retention_time        = %d
 		query_thread_log_enabled        = %t
@@ -3731,8 +3711,6 @@ config {
 		config.MaxTableSizeToDrop.GetValue(),
 		config.MaxPartitionSizeToDrop.GetValue(),
 		config.Timezone,
-		config.GeobaseUri,
-		config.GeobaseEnabled.GetValue(),
 		config.QueryLogRetentionSize.GetValue(),
 		config.QueryLogRetentionTime.GetValue(),
 		config.QueryThreadLogEnabled.GetValue(),
