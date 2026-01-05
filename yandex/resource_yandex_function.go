@@ -547,7 +547,7 @@ func resourceYandexFunctionDiagsFromCreateVersionError(err error) diag.Diagnosti
 		return nil
 	}
 	return diag.Diagnostics{diag.Diagnostic{
-		Severity: diag.Warning,
+		Severity: diag.Error,
 		Summary:  "Failed to create version for Yandex Cloud Function",
 		Detail: "Error while requesting API to create version for Yandex Cloud Function. " +
 			"After resolving following issues apply resource again to create version for Yandex Cloud Function:\n" +
