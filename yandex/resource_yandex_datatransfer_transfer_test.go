@@ -123,9 +123,9 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			//Create DataTransfer transfer and two endpoints
 			{
@@ -366,22 +366,22 @@ func TestAccDataTransferKafkaSourceEndpoint(t *testing.T) {
 	const kafkaSourceEndpointResourceName = "kafka-source"
 	const fullResourceName = "yandex_datatransfer_endpoint.kafka_source"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigKafkaSource(kafkaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigKafkaSource(kafkaSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaSourceEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigKafkaSource("new-kafka-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigKafkaSource("new-kafka-source-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-kafka-source-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
@@ -442,22 +442,22 @@ func TestAccDataTransferKafkaTargetEndpoint(t *testing.T) {
 	const kafkaTargetEndpointResourceName = "kafka-target"
 	const fullResourceName = "yandex_datatransfer_endpoint.kafka_target"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigKafkaTarget(kafkaTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigKafkaTarget(kafkaTargetEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaTargetEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigKafkaTarget("new-kafka-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigKafkaTarget("new-kafka-target-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-kafka-target-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
@@ -515,22 +515,22 @@ func TestAccDataTransferYDBSourceEndpoint(t *testing.T) {
 	const ydbSourceEndpointResourceName = "ydb-source"
 	const fullResourceName = "yandex_datatransfer_endpoint.ydb_source"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigYdbSource(ydbSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdbSource(ydbSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", ydbSourceEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigYdbSource("new-ydb-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdbSource("new-ydb-source-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ydb-source-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
@@ -545,25 +545,32 @@ func TestAccDataTransferYDBSourceEndpoint(t *testing.T) {
 
 func testAccDataTransferConfigYdbSource(name, description string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "ydb_sa_%[1]s" {
-  name        = "ydb-sa-%[1]s"
-  description = "service account for %[1]s ydb endpoint"
+resource "yandex_iam_service_account" "ydb_sa_src_%[2]s" {
+  name        = "ydb-sa-%[2]s"
+  description = "service account for %[2]s ydb endpoint"
+}
+
+resource "yandex_ydb_database_serverless" "ydb_src_%[2]s" {
+  name        = "ydb-db-%[2]s"
+  location_id = "global"
+  description = "ydb db for %[2]s ydb endpoint"
 }
 
 resource "yandex_datatransfer_endpoint" "ydb_source" {
+  depends_on = [yandex_ydb_database_serverless.ydb_src_%[2]s, yandex_iam_service_account.ydb_sa_src_%[2]s]
   name        = "%[1]s"
   description = "%[2]s"
   settings {
     ydb_source {
-      database = "xyz"
-      instance = "my-cute-ydb.yandex.cloud:2135"
+      database = yandex_ydb_database_serverless.ydb_src_%[2]s.database_path
+      instance = yandex_ydb_database_serverless.ydb_src_%[2]s.ydb_full_endpoint
       paths = [
         "path1/a/b/c",
         "path2/a/b/c",
         "path3/a/b/c",
       ]
       security_groups = []
-	  service_account_id = yandex_iam_service_account.ydb_sa_%[1]s.id
+	  service_account_id = yandex_iam_service_account.ydb_sa_src_%[2]s.id
     }
   }
 }
@@ -571,27 +578,26 @@ resource "yandex_datatransfer_endpoint" "ydb_source" {
 }
 
 func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
-	t.Parallel()
 	const ydbTargetEndpointResourceName = "ydb-target"
 	const fullResourceName = "yandex_datatransfer_endpoint.ydb_target"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigYdbTarget(ydbTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdbTarget(ydbTargetEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", ydbTargetEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.ydb_target.0.is_table_column_oriented", "true"),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigYdbTarget("new-ydb-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdbTarget("new-ydb-target-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ydb-target-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.ydb_target.0.is_table_column_oriented", "true"),
 				),
 			},
@@ -607,23 +613,30 @@ func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
 
 func testAccDataTransferConfigYdbTarget(name, description string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "ydb_sa_%[1]s" {
-  name        = "ydb-sa-%[1]s"
-  description = "service account for %[1]s ydb endpoint"
+resource "yandex_iam_service_account" "ydb_sa_dst_%[2]s" {
+  name        = "ydb-sa-%[2]s"
+  description = "service account for %[2]s ydb endpoint"
+}
+
+resource "yandex_ydb_database_serverless" "ydb_dst_%[2]s" {
+  name        = "ydb-db-%[2]s"
+  location_id = "global"
+  description = "ydb db for %[2]s ydb endpoint"
 }
 
 resource "yandex_datatransfer_endpoint" "ydb_target" {
+    depends_on = [yandex_ydb_database_serverless.ydb_dst_%[2]s, yandex_iam_service_account.ydb_sa_dst_%[2]s]
     name        = "%[1]s"
   	description = "%[2]s"
     settings {
         ydb_target {
-          database = "xyz"
-          instance = "my-cute-ydb.yandex.cloud"
+          database = yandex_ydb_database_serverless.ydb_dst_%[2]s.database_path
+          instance = yandex_ydb_database_serverless.ydb_dst_%[2]s.ydb_full_endpoint
           path = "/bushido/logs"
           security_groups = []
           cleanup_policy = "YDB_CLEANUP_POLICY_DROP"
 		  is_table_column_oriented = true
-          service_account_id = yandex_iam_service_account.ydb_sa_%[1]s.id
+          service_account_id = yandex_iam_service_account.ydb_sa_dst_%[2]s.id
         }
     }
 }`, name, description)
@@ -631,22 +644,22 @@ resource "yandex_datatransfer_endpoint" "ydb_target" {
 
 func TestAccDataTransferTransferWithTransformation(t *testing.T) {
 	t.Parallel()
-	const ydsTargetEndpointResourceName = "yds-target-with-transformation"
+	const pgTargetEndpointResourceName = "pg-target-with-transformation"
 	const mysqlSourceEndpointResourceName = "mysql-source-with-transformation"
 	const transferResourceName = "transfer-with-transformation"
 	const fullTransferResourceName = "yandex_datatransfer_transfer.transfer_with_transformation"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataTransferConfigTransferWithTransformation(
-					ydsTargetEndpointResourceName+randomPostfix,
 					mysqlSourceEndpointResourceName+randomPostfix,
+					pgTargetEndpointResourceName+randomPostfix,
 					transferResourceName+randomPostfix,
 					"new_name",
-					"TestAccDataTransfer"+randomPostfix,
+					"acctst-"+randomPostfix,
 					3,
 				),
 				Check: resource.ComposeTestCheckFunc(
@@ -663,11 +676,11 @@ func TestAccDataTransferTransferWithTransformation(t *testing.T) {
 			},
 			{
 				Config: testAccDataTransferConfigTransferWithTransformation(
-					ydsTargetEndpointResourceName+randomPostfix,
 					mysqlSourceEndpointResourceName+randomPostfix,
+					pgTargetEndpointResourceName+randomPostfix,
 					transferResourceName+randomPostfix+"2",
 					"new_name2",
-					"TestAccDataTransfer"+randomPostfix,
+					"acctst-"+randomPostfix,
 					2,
 				),
 				Check: resource.ComposeTestCheckFunc(
@@ -692,8 +705,8 @@ func TestAccDataTransferTransferWithTransformation(t *testing.T) {
 }
 
 func testAccDataTransferConfigTransferWithTransformation(
-	ydsName,
 	mysqlName,
+	pgName,
 	transferName,
 	newName,
 	description string,
@@ -721,34 +734,34 @@ resource "yandex_datatransfer_endpoint" "mysql_source_with_transformation" {
   }
 }
 
-resource "yandex_iam_service_account" "yds_sa_with_transformation" {
-  name        = "yds-sa-%[2]s"
-  description = "service account for %[2]s yds endpoint"
-}
-
-resource "yandex_datatransfer_endpoint" "yds_target_with_transformation" {
-  name      = "%[2]s"
-  settings {
-    yds_target {
-      endpoint           = "endpoint"
-      stream             = "test"
-      database           = "database"
-      service_account_id = yandex_iam_service_account.yds_sa_with_transformation.id
-      serializer {
-        serializer_auto {
-
-        }
-      }
-    }
-  }
+resource "yandex_datatransfer_endpoint" "pg_target_with_transformation" {
+	name      = "%[2]s"
+	settings {
+		postgres_target {
+			connection {
+				on_premise {
+					hosts = [
+					 	"dst hostname"
+					]
+					port = 5432
+				}
+			}
+			database = "postgres"
+			user = "postgres"
+			password {
+				raw = "dst password"
+			}
+			cleanup_policy = "DROP"
+		}
+	}
 }
 
 resource "yandex_datatransfer_transfer" "transfer_with_transformation" {
   name        = "%[3]s"
   description = "%[4]s"
   source_id   = yandex_datatransfer_endpoint.mysql_source_with_transformation.id
-  target_id   = yandex_datatransfer_endpoint.yds_target_with_transformation.id
-  type        = "SNAPSHOT_AND_INCREMENT"
+  target_id   = yandex_datatransfer_endpoint.pg_target_with_transformation.id
+  type        = "SNAPSHOT_ONLY"
   runtime {
     yc_runtime {
       job_count = %[5]d
@@ -789,32 +802,31 @@ resource "yandex_datatransfer_transfer" "transfer_with_transformation" {
     }
   }
 }
-`, ydsName, mysqlName, transferName, description, jobCount, newName)
+`, mysqlName, pgName, transferName, description, jobCount, newName)
 }
 
 func TestAccDataTransferYDSSourceEndpoint(t *testing.T) {
-	t.Parallel()
 	const ydsSourceEndpointResourceName = "yds-source"
 	const fullResourceName = "yandex_datatransfer_endpoint.yds_source"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigYdsSource(ydsSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdsSource(ydsSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", ydsSourceEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.yds_source.0.supported_codecs.0", "YDS_COMPRESSION_CODEC_GZIP"),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.yds_source.0.supported_codecs.1", "YDS_COMPRESSION_CODEC_RAW"),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigYdsSource("new-yds-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdsSource("new-yds-source-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-yds-source-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
@@ -828,25 +840,32 @@ func TestAccDataTransferYDSSourceEndpoint(t *testing.T) {
 
 func testAccDataTransferConfigYdsSource(name, description string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "yds_sa_%[1]s" {
-  name        = "yds-sa-%[1]s"
-  description = "service account for %[1]s yds endpoint"
+resource "yandex_iam_service_account" "yds_sa_src_%[2]s" {
+  name        = "yds-sa-%[2]s"
+  description = "service account for %[2]s yds endpoint"
+}
+
+resource "yandex_ydb_database_serverless" "ydb_yds_src_%[2]s" {
+  name        = "ydb-db-%[2]s"
+  location_id = "global"
+  description = "ydb db for %[2]s yds endpoint"
 }
 
 resource "yandex_datatransfer_endpoint" "yds_source" {
+  depends_on = [yandex_ydb_database_serverless.ydb_yds_src_%[2]s, yandex_iam_service_account.yds_sa_src_%[2]s]
   name        = "%[1]s"
   description = "%[2]s"
   settings {
     yds_source {
-      endpoint           = "endpoint"
-      stream             = "stream"
-      database           = "database"
+	  endpoint           = yandex_ydb_database_serverless.ydb_yds_src_%[2]s.ydb_full_endpoint
+      stream             = "test"
+	  database           = yandex_ydb_database_serverless.ydb_yds_src_%[2]s.database_path
       consumer           = "consumer"
       parser {
         cloud_logging_parser {}
       }
       supported_codecs = ["YDS_COMPRESSION_CODEC_GZIP", "YDS_COMPRESSION_CODEC_RAW"]
-      service_account_id = yandex_iam_service_account.yds_sa_%[1]s.id
+      service_account_id = yandex_iam_service_account.yds_sa_src_%[2]s.id
     }
   }
 }
@@ -854,26 +873,25 @@ resource "yandex_datatransfer_endpoint" "yds_source" {
 }
 
 func TestAccDataTransferYdsTargetEndpoint(t *testing.T) {
-	t.Parallel()
 	const ydsTargetEndpointResourceName = "yds-target"
 	const fullResourceName = "yandex_datatransfer_endpoint.yds_target"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigYdsTarget(ydsTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdsTarget(ydsTargetEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", ydsTargetEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigYdsTarget("new-yds-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigYdsTarget("new-yds-target-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-yds-target-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
@@ -887,20 +905,27 @@ func TestAccDataTransferYdsTargetEndpoint(t *testing.T) {
 
 func testAccDataTransferConfigYdsTarget(name, description string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "yds_sa_%[1]s" {
-  name        = "yds-sa-%[1]s"
-  description = "service account for %[1]s yds endpoint"
+resource "yandex_iam_service_account" "yds_sa_dst_%[2]s" {
+  name        = "yds-sa-%[2]s"
+  description = "service account for %[2]s yds endpoint"
+}
+
+resource "yandex_ydb_database_serverless" "ydb_yds_dst_%[2]s" {
+  name        = "ydb-db-%[2]s"
+  location_id = "global"
+  description = "ydb db for %[2]s yds endpoint"
 }
 
 resource "yandex_datatransfer_endpoint" "yds_target" {
+  depends_on = [yandex_ydb_database_serverless.ydb_yds_dst_%[2]s, yandex_iam_service_account.yds_sa_dst_%[2]s]
   name        = "%[1]s"
   description = "%[2]s"
   settings {
     yds_target {
-      endpoint           = "endpoint"
-      stream             = "stream"
-      database           = "database"
-      service_account_id = yandex_iam_service_account.yds_sa_%[1]s.id
+      endpoint           = yandex_ydb_database_serverless.ydb_yds_dst_%[2]s.ydb_full_endpoint
+      stream             = "test"
+	  database           = yandex_ydb_database_serverless.ydb_yds_dst_%[2]s.database_path
+      service_account_id = yandex_iam_service_account.yds_sa_dst_%[2]s.id
       serializer {
         serializer_auto {
 
@@ -917,22 +942,22 @@ func TestAccDataTransferMetrikaSourceEndpoint(t *testing.T) {
 	const metrikaSourceEndpointResourceName = "metrika-source"
 	const fullResourceName = "yandex_datatransfer_endpoint.metrika_source"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataTransferDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigMetrikaSource(metrikaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigMetrikaSource(metrikaSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", metrikaSourceEndpointResourceName+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 				),
 			},
 			{
-				Config: testAccDataTransferConfigMetrikaSource("new-metrika-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigMetrikaSource("new-metrika-source-name"+randomPostfix, "acctst-"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-metrika-source-name"+randomPostfix),
-					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.0", "1"),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.1", "2"),
 					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.2", "3"),
@@ -971,6 +996,317 @@ resource "yandex_datatransfer_endpoint" "metrika_source" {
       token {
         raw = "my_token"
       }
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferClickHouseSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const clickhouseSourceEndpointResourceName = "clickhouse-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.clickhouse_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigClickHouseSource(clickhouseSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", clickhouseSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.shards.0.name", "shard1"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate", "some_ca_certificate"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigClickHouseSource("new-ch-source-name"+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ch-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.clickhouse_source.0.connection.0.connection_options.0.password"},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigClickHouseSource(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "clickhouse_source" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    clickhouse_source {
+      exclude_tables  = ["test.zoo", "test.zoo2"]
+      include_tables = []
+
+      connection {
+        connection_options {
+            database               = "test_db"
+            user                   = "test_user"
+            password {
+                raw = "src password"
+            }
+			on_premise {
+				native_port = 5432
+                http_port = 5432
+                shards {
+                  name = "shard1"
+                  hosts = ["src host"]
+                }
+				tls_mode {
+                    enabled {
+                        ca_certificate = "some_ca_certificate"
+                    }
+                }
+			}
+        }
+      }
+	  security_groups = []    
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferClickHouseTargetEndpoint(t *testing.T) {
+	t.Parallel()
+	const clickhouseTargetEndpointResourceName = "clickhouse-target"
+	const fullResourceName = "yandex_datatransfer_endpoint.clickhouse_target"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigClickHouseTarget(clickhouseTargetEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", clickhouseTargetEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.0.name", "shard1"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.1.name", "shard2"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.cleanup_policy", "CLICKHOUSE_CLEANUP_POLICY_DISABLED"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.1.shard_name", "shard2"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigClickHouseTarget("new-ch-target-name"+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ch-target-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.0.name", "shard1"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.1.name", "shard2"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.cleanup_policy", "CLICKHOUSE_CLEANUP_POLICY_DISABLED"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.1.shard_name", "shard2"),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.password"},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigClickHouseTarget(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "clickhouse_target" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    clickhouse_target {
+      connection {
+        connection_options {
+            database    = "test_db"
+            user        = "test_user"
+            password {
+                raw = "dst password"
+            }
+			on_premise {
+				native_port = 5432
+                http_port = 5432
+                shards {
+                  name = "shard1"
+                  hosts = ["dst host"]
+                }
+				shards {
+                  name = "shard2"
+                  hosts = ["dst host 2"]
+                }
+				tls_mode {
+                    disabled {}
+                }
+			}
+		}
+	  }		
+	  cleanup_policy = "CLICKHOUSE_CLEANUP_POLICY_DISABLED"
+	  security_groups = []
+	  sharding {
+		custom_mapping {
+			column_name = "id"
+			mapping {
+				column_value {string_value = "1"}
+				shard_name = "shard1"
+			}
+			mapping {
+				column_value {string_value = "2"}
+				shard_name = "shard2"
+			}
+		}
+	  }
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferMongoSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const mongoSourceEndpointResourceName = "mongo-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.mongo_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigMongoSource(mongoSourceEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", mongoSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_source.0.excluded_collections.0.collection_name", "bad_zoo"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_source.0.connection.0.connection_options.0.auth_source", "test_db"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate", "some_ca_certificate"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigMongoSource("new-mongo-source-name"+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-mongo-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.mongo_source.0.connection.0.connection_options.0.password"},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigMongoSource(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "mongo_source" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    mongo_source {
+	  secondary_preferred_mode = false
+      excluded_collections {
+        collection_name = "bad_zoo"
+        database_name = "db"
+      }
+
+      connection {
+        connection_options {
+            auth_source       = "test_db"
+            user              = "test_user"
+            password {
+                raw = "src password"
+            }
+			on_premise {
+			    hosts = ["src host"]
+				port = 5432
+				tls_mode {
+                  enabled {
+                    ca_certificate = "some_ca_certificate"
+                  }
+                }
+			}
+        }
+	  }      
+	  security_groups = []
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferMongoTargetEndpoint(t *testing.T) {
+	t.Parallel()
+	const mongoTargetEndpointResourceName = "mongo-target"
+	const fullResourceName = "yandex_datatransfer_endpoint.mongo_target"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigMongoTarget(mongoTargetEndpointResourceName+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", mongoTargetEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.connection.0.connection_options.0.auth_source", "test_db"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.connection.0.connection_options.0.on_premise.0.port", "5432"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.cleanup_policy", "DROP"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigMongoTarget("new-mongo-target-name"+randomPostfix, "acctst-"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-mongo-target-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "acctst-"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.connection.0.connection_options.0.auth_source", "test_db"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.connection.0.connection_options.0.on_premise.0.port", "5432"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.mongo_target.0.cleanup_policy", "DROP"),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.password"},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigMongoTarget(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "mongo_target" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    mongo_target {
+	  cleanup_policy = "DROP"
+      connection {
+        connection_options {
+            auth_source       = "test_db"
+            user              = "test_user"
+            password {
+                raw = "dst password"
+            }
+			on_premise {
+			    hosts = ["dst host"]
+				port = 5432
+				tls_mode {
+                  disabled {}
+                }
+			}
+        }
+	  }      
+	  security_groups = []
     }
   }
 }
