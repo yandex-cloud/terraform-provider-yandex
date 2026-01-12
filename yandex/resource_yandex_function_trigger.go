@@ -820,19 +820,13 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			timer.Payload = v.(string)
 		}
 
-		if retrySettings != nil || dlqSettings != nil {
-			if invokeType == "function" {
-				timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
-					InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
-				}
-			} else if invokeType == "container" {
-				timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
-					InvokeContainerWithRetry: getInvokeContainerWithRetry(),
-				}
+		if invokeType == "function" {
+			timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
+				InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
 			}
-		} else {
-			timer.Action = &triggers.Trigger_Timer_InvokeFunction{
-				InvokeFunction: getInvokeFunctionOnce(),
+		} else if invokeType == "container" {
+			timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
+				InvokeContainerWithRetry: getInvokeContainerWithRetry(),
 			}
 		}
 
