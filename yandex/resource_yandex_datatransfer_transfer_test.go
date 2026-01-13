@@ -388,6 +388,12 @@ func TestAccDataTransferKafkaSourceEndpoint(t *testing.T) {
 				ResourceName:      fullResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// because values for these fields are null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.kafka_source.0.auth.0.no_auth",
+					"settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.disabled",
+				},
 			},
 		},
 	})
@@ -461,10 +467,16 @@ func TestAccDataTransferKafkaTargetEndpoint(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            fullResourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"settings.0.kafka_target.0.auth.0.sasl.0.password."},
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// sensitive, not saved in state
+					"settings.0.kafka_target.0.auth.0.sasl.0.password.",
+					// because value for this field is null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.kafka_target.0.serializer.0.serializer_json",
+				},
 			},
 		},
 	})
@@ -833,6 +845,11 @@ func TestAccDataTransferYDSSourceEndpoint(t *testing.T) {
 				ResourceName:      fullResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// because value for this field is null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.yds_source.0.parser.0.cloud_logging_parser.",
+				},
 			},
 		},
 	})
@@ -898,6 +915,11 @@ func TestAccDataTransferYdsTargetEndpoint(t *testing.T) {
 				ResourceName:      fullResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// because value for this field is null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.yds_target.0.serializer.0.serializer_auto.",
+				},
 			},
 		},
 	})
@@ -1108,10 +1130,16 @@ func TestAccDataTransferClickHouseTargetEndpoint(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            fullResourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.password"},
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// sensitive
+					"settings.0.clickhouse_target.0.connection.0.connection_options.0.password",
+					// because value for this field is null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled",
+				},
 			},
 		},
 	})
@@ -1273,10 +1301,16 @@ func TestAccDataTransferMongoTargetEndpoint(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            fullResourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.password"},
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// sensitive
+					"settings.0.mongo_target.0.connection.0.connection_options.0.password",
+					// because value for this field is null
+					// it do not affect tf plan, but seems that tf state format changes
+					"settings.0.mongo_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled",
+				},
 			},
 		},
 	})

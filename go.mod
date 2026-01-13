@@ -41,7 +41,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.41.0
+	github.com/yandex-cloud/go-genproto v0.43.0
 	github.com/yandex-cloud/go-sdk v0.29.0
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2
@@ -50,6 +50,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12
+	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.22
 	github.com/yandex-cloud/go-sdk/services/dns v0.0.12
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.12
@@ -57,7 +58,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.12
 	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.12
 	github.com/yandex-cloud/go-sdk/services/logging v0.0.12
-	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.12
+	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.15
 	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.20
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12
 	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1
@@ -65,7 +66,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
-	github.com/yandex-cloud/go-sdk/v2 v2.30.0
+	github.com/yandex-cloud/go-sdk/v2 v2.35.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0

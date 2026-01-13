@@ -28,8 +28,8 @@ import (
 
 func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "A generic empty message that you can re-use to avoid defining duplicated\n empty messages in your APIs. A typical example is to use it as the request\n or the response type of an API method. For instance:\n\n     service Foo {\n       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);\n     }",
-		MarkdownDescription: "A generic empty message that you can re-use to avoid defining duplicated\n empty messages in your APIs. A typical example is to use it as the request\n or the response type of an API method. For instance:\n\n     service Foo {\n       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);\n     }",
+		Description:         "",
+		MarkdownDescription: "",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
@@ -578,8 +578,8 @@ func YandexConnectionmanagerConnectionResourceSchema(ctx context.Context) schema
 												},
 
 												"http_port": schema.Int64Attribute{
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "depends on tls params may vary as http or https",
+													Description: "depends on tls params may vary as http or https" +
 														// proto paths: +
 														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.http_port
 														// -> yandex.cloud.connectionmanager.v1.CreateConnectionRequest.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.http_port
