@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_vpc_security_group_rule: fixed update of `description` and `labels` fields'
+time: 2026-01-13T17:53:57.376234107+02:00

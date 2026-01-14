@@ -55,8 +55,15 @@ func (r securityGroupRuleModel) BodyEqual(o securityGroupRuleModel) bool {
 		r.ToPort.Equal(o.ToPort) &&
 		r.PredefinedTarget.Equal(o.PredefinedTarget) &&
 		r.SecurityGroupID.Equal(o.SecurityGroupID) &&
-		r.V4CidrBlocks.Equal(o.V4CidrBlocks) &&
-		r.V6CidrBlocks.Equal(o.V6CidrBlocks)
+		cidrsEqual(r.V4CidrBlocks, o.V4CidrBlocks) &&
+		cidrsEqual(r.V6CidrBlocks, o.V6CidrBlocks)
+}
+
+func cidrsEqual(r, o types.List) bool {
+	if (r.IsNull() || r.IsUnknown()) == (o.IsNull() || o.IsUnknown()) {
+		return true
+	}
+	return r.Equal(o)
 }
 
 func expandRulePorts(port, fromPort, toPort int64) (*vpc.PortRange, error) {
