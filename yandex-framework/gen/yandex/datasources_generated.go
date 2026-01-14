@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_federated_credential"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key"
@@ -35,6 +36,7 @@ func init() {
 		yandex_organizationmanager_user_ssh_key.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
+		yandex_datatransfer_endpoint.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }

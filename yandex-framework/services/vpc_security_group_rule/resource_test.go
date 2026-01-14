@@ -177,6 +177,24 @@ func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
+			{
+				Config: testVPCSecurityGroupRuleBasicWithV4CidrTarget_withLabels(networkName, sgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &sg1),
+					testAccCheckVPCSecurityGroupRuleExists(sgr1Name, &sg1, &sgr1),
+					resource.TestCheckResourceAttr(sgr1Name, "description", "hello there"),
+					resource.TestCheckResourceAttr(sgr1Name, "direction", "ingress"),
+					resource.TestCheckResourceAttr(sgr1Name, "port", "443"),
+					resource.TestCheckResourceAttr(sgr1Name, "protocol", "TCP"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.#", "2"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.0", "10.0.1.0/24"),
+					resource.TestCheckResourceAttr(sgr1Name, "v4_cidr_blocks.1", "10.0.2.0/24"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.%", "2"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.environment", "test"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.team", "security"),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+				),
+			},
 		},
 	})
 }
@@ -262,6 +280,23 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 				),
 			},
 			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
+			{
+				Config: testVPCSecurityGroupRuleBasicWithSecurityGroupTarget_withLabels(networkName, sgName, sgName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &sg1),
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg2", &sg2),
+					testAccCheckVPCSecurityGroupRuleExists(sgr1Name, &sg1, &sgr1),
+					resource.TestCheckResourceAttr(sgr1Name, "description", "hello there"),
+					resource.TestCheckResourceAttr(sgr1Name, "direction", "ingress"),
+					resource.TestCheckResourceAttr(sgr1Name, "port", "1337"),
+					resource.TestCheckResourceAttr(sgr1Name, "protocol", "UDP"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.%", "2"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.environment", "test"),
+					resource.TestCheckResourceAttr(sgr1Name, "labels.team", "security"),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_id", sg2.GetId),
+					test.AccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
+				),
+			},
 		},
 	})
 }
@@ -311,6 +346,41 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   security_group_binding = yandex_vpc_security_group.sg1.id
   port                   = 443
   protocol               = "TCP"
+}
+
+resource "yandex_vpc_security_group_rule" "sgr2" {
+  security_group_binding = yandex_vpc_security_group.sg1.id
+  protocol               = "ANY"
+  v4_cidr_blocks         = ["0.0.0.0/0"]
+  direction              = "egress"
+}
+`, networkName, sgName, test.GetExampleFolderID())
+}
+
+func testVPCSecurityGroupRuleBasicWithV4CidrTarget_withLabels(networkName, sgName string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_security_group" "sg1" {
+  name        = "%s"
+  description = "description for security group"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  folder_id   = "%s"
+}
+
+resource "yandex_vpc_security_group_rule" "sgr1" {
+  description            = "hello there"
+  direction              = "ingress"
+  v4_cidr_blocks         = ["10.0.1.0/24", "10.0.2.0/24"]
+  security_group_binding = yandex_vpc_security_group.sg1.id
+  port                   = 443
+  protocol               = "TCP"
+  labels = {
+    environment = "test"
+    team        = "security"
+  }
 }
 
 resource "yandex_vpc_security_group_rule" "sgr2" {
@@ -380,6 +450,41 @@ resource "yandex_vpc_security_group_rule" "sgr1" {
   security_group_binding = yandex_vpc_security_group.sg1.id
   port                   = 31337
   protocol               = "UDP"
+}
+`, networkName, sgName, test.GetExampleFolderID(), sgName2, test.GetExampleFolderID())
+}
+
+func testVPCSecurityGroupRuleBasicWithSecurityGroupTarget_withLabels(networkName, sgName, sgName2 string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_security_group" "sg1" {
+  name        = "%s"
+  description = "description for security group"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  folder_id   = "%s"
+}
+
+resource "yandex_vpc_security_group" "sg2" {
+  name        = "%s"
+  description = "description for security group"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  folder_id   = "%s"
+}
+
+resource "yandex_vpc_security_group_rule" "sgr1" {
+  description            = "hello there"
+  direction              = "ingress"
+  security_group_id      = yandex_vpc_security_group.sg2.id
+  security_group_binding = yandex_vpc_security_group.sg1.id
+  port                   = 1337
+  protocol               = "UDP"
+  labels = {
+    environment = "test"
+    team        = "security"
+  }
 }
 `, networkName, sgName, test.GetExampleFolderID(), sgName2, test.GetExampleFolderID())
 }

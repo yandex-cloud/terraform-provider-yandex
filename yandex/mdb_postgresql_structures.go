@@ -290,6 +290,7 @@ func flattenPGAccess(a *postgresql.Access) []interface{} {
 	out["web_sql"] = a.WebSql
 	out["serverless"] = a.Serverless
 	out["data_transfer"] = a.DataTransfer
+	out["yandex_query"] = a.YandexQuery
 
 	return []interface{}{out}
 }
@@ -932,6 +933,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"config.0.access.0.web_sql":                  "config_spec.access.web_sql",
 		"config.0.access.0.serverless":               "config_spec.access.serverless",
 		"config.0.access.0.data_transfer":            "config_spec.access.data_transfer",
+		"config.0.access.0.yandex_query":             "config_spec.access.yandex_query",
 		"config.0.performance_diagnostics.0.enabled": "config_spec.performance_diagnostics.enabled",
 		"config.0.performance_diagnostics.0.sessions_sampling_interval":   "config_spec.performance_diagnostics.sessions_sampling_interval",
 		"config.0.performance_diagnostics.0.statements_sampling_interval": "config_spec.performance_diagnostics.statements_sampling_interval",
@@ -1359,6 +1361,10 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 
 	if v, ok := d.GetOk("config.0.access.0.data_transfer"); ok {
 		out.DataTransfer = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.yandex_query"); ok {
+		out.YandexQuery = v.(bool)
 	}
 	return out
 }

@@ -252,7 +252,6 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_compute_snapshot":                                 resourceYandexComputeSnapshot(),
 			"yandex_compute_snapshot_schedule":                        resourceYandexComputeSnapshotSchedule(),
 			"yandex_dataproc_cluster":                                 resourceYandexDataprocCluster(),
-			"yandex_datatransfer_endpoint":                            resourceYandexDatatransferEndpoint(),
 			"yandex_datatransfer_transfer":                            resourceYandexDatatransferTransfer(),
 			"yandex_dns_recordset":                                    resourceYandexDnsRecordSet(),
 			"yandex_dns_zone":                                         resourceYandexDnsZone(),

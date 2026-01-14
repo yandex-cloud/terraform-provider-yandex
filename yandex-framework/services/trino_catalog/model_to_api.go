@@ -95,6 +95,13 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogMode
 		if state != nil && !plan.Postgresql.Equal(state.Postgresql) {
 			updateMaskPaths = append(updateMaskPaths, "catalog.connector.postgresql")
 		}
+	case !plan.Greenplum.IsNull() && !plan.Greenplum.IsUnknown():
+		greenplum, dd := greenplumConnectorToAPI(ctx, plan.Greenplum)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Greenplum{Greenplum: greenplum}
+		if state != nil && !plan.Greenplum.Equal(state.Greenplum) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.greenplum")
+		}
 	case !plan.Hive.IsNull() && !plan.Hive.IsUnknown():
 		hive, dd := hiveConnectorToAPI(ctx, plan.Hive)
 		diags.Append(dd...)
@@ -216,6 +223,52 @@ func postgresqlConnectorToAPI(ctx context.Context, postgresqlObj types.Object) (
 
 		connector.Connection.Type = &trino.PostgresqlConnection_ConnectionManager_{
 			ConnectionManager: &trino.PostgresqlConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				Database:             connectionManager.Database.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func greenplumConnectorToAPI(ctx context.Context, greenplumObj types.Object) (*trino.GreenplumConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var greenplum Greenplum
+	diags.Append(greenplumObj.As(ctx, &greenplum, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(greenplum.AdditionalProperties.Elements()))
+	diags.Append(greenplum.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.GreenplumConnector{
+		Connection:           &trino.GreenplumConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !greenplum.OnPremise.IsNull() && !greenplum.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(greenplum.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.GreenplumConnection_OnPremise_{
+			OnPremise: &trino.GreenplumConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !greenplum.ConnectionManager.IsNull() && !greenplum.ConnectionManager.IsUnknown():
+		connectionManager := ConnectionManager{}
+		diags.Append(greenplum.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.GreenplumConnection_ConnectionManager_{
+			ConnectionManager: &trino.GreenplumConnection_ConnectionManager{
 				ConnectionId:         connectionManager.ConnectionId.ValueString(),
 				Database:             connectionManager.Database.ValueString(),
 				ConnectionProperties: connectionProperties,

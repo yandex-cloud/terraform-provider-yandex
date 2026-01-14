@@ -291,6 +291,11 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 							Description: accessElem.Schema["data_transfer"].Description,
 							Computed:    true,
 						},
+						"yandex_query": {
+							Type:        schema.TypeBool,
+							Description: accessElem.Schema["yandex_query"].Description,
+							Computed:    true,
+						},
 					},
 				},
 			},

@@ -268,13 +268,13 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	clusterID, username, err := deconstructResourceId(d.Id())
+	clusterId, username, err := deconstructResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	apiUser, err := config.sdk.MDB().PostgreSQL().User().Get(ctx, &postgresql.GetUserRequest{
-		ClusterId: clusterID,
+		ClusterId: clusterId,
 		UserName:  username,
 	})
 	if err != nil {
@@ -286,12 +286,12 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	userPermissions, err := removePgUserOwnerPermissions(meta, clusterID, apiUser.Name, apiUser.Permissions, stateUser.Permissions)
+	userPermissions, err := removePgUserOwnerPermissions(ctx, config, clusterId, apiUser.Name, apiUser.Permissions, stateUser.Permissions)
 	if err != nil {
-		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterID, err)
+		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterId, err)
 	}
 
-	d.Set("cluster_id", clusterID)
+	d.Set("cluster_id", clusterId)
 	d.Set("name", apiUser.Name)
 	d.Set("login", apiUser.Login.GetValue())
 	d.Set("grants", apiUser.Grants)
@@ -368,7 +368,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	clusterID := d.Get("cluster_id").(string)
-	userPermissions, err := addPgUserOwnerPermissions(meta, clusterID, user.Name, user.Permissions)
+	userPermissions, err := addPgUserOwnerPermissions(ctx, config, clusterID, user.Name, user.Permissions)
 	if err != nil {
 		return fmt.Errorf("error while adding owner permissions to user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
@@ -444,43 +444,27 @@ func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interfac
 // However, if the user specifies both fields - owner and permissions - we simply ignore those permissions in the Read
 // function to avoid constant changes in the Terraform plan.
 func removePgUserOwnerPermissions(
-	meta interface{},
-	clusterID string,
+	ctx context.Context,
+	config *Config,
+	clusterId string,
 	username string,
 	apiUserPermissions []*postgresql.Permission,
 	stateUserPermissions []*postgresql.Permission,
 ) ([]*postgresql.Permission, error) {
-	config := meta.(*Config)
-	responses := make([]*postgresql.ListDatabasesResponse, 0)
-
-	nextPageToken := ""
-	for {
-		req := &postgresql.ListDatabasesRequest{
-			ClusterId: clusterID,
-			PageSize:  100,
-		}
-		if nextPageToken != "" {
-			req.SetPageToken(nextPageToken)
-		}
-		resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), req)
-		responses = append(responses, resp)
-
-		if resp.GetNextPageToken() == "" {
-			break
-		}
-		nextPageToken = resp.GetNextPageToken()
-	}
-
-	dbMap := make(map[string]*postgresql.Database)
-	for _, resp := range responses {
-		for _, db := range resp.Databases {
-			dbMap[db.Name] = db
-		}
-	}
 
 	statePermissionsMap := make(map[string]*postgresql.Permission)
 	for _, permission := range stateUserPermissions {
 		statePermissionsMap[permission.DatabaseName] = permission
+	}
+
+	databaseList, err := listPGDatabases(ctx, config, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	dbMap := make(map[string]*postgresql.Database)
+	for _, db := range databaseList {
+		dbMap[db.Name] = db
 	}
 
 	newPerms := []*postgresql.Permission{}
@@ -498,17 +482,20 @@ func isOwnerWithoutPermissions(db *postgresql.Database, statePermissionsMap map[
 }
 
 // Add permissions for databases where user is owner
-func addPgUserOwnerPermissions(meta interface{}, clusterID string, name string, permissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
-	config := meta.(*Config)
+func addPgUserOwnerPermissions(
+	ctx context.Context,
+	config *Config,
+	clusterId string,
+	name string,
+	permissions []*postgresql.Permission,
+) ([]*postgresql.Permission, error) {
+	databaseList, err := listPGDatabases(ctx, config, clusterId)
 
-	resp, err := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
-		ClusterId: clusterID,
-	})
 	if err != nil {
 		return nil, err
 	}
 
-	for _, db := range resp.Databases {
+	for _, db := range databaseList {
 		if db.Owner == name {
 			permissions = append(permissions, &postgresql.Permission{
 				DatabaseName: db.Name,

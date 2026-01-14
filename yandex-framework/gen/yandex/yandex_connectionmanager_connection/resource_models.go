@@ -1972,7 +1972,7 @@ func flattenYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPas
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -2878,7 +2878,7 @@ func flattenYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPass
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -3786,7 +3786,7 @@ func flattenYandexConnectionmanagerConnectionParamsKafkaAuthSaslPassword(ctx con
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -4646,7 +4646,7 @@ func flattenYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswo
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -5495,7 +5495,7 @@ func flattenYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPassword
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -6333,7 +6333,7 @@ func flattenYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPas
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -7154,7 +7154,7 @@ func flattenYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPas
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -7992,7 +7992,7 @@ func flattenYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPassword
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -8863,7 +8863,7 @@ func flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassw
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -9690,7 +9690,7 @@ func flattenYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPassword
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value
@@ -10536,7 +10536,7 @@ func flattenYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswor
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModelType.AttrTypes, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel{
 		LockboxSecretKey:          types.StringValue(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPassword.GetLockboxSecretKey()),
 		PasswordGenerationOptions: flattenYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptions(ctx, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPassword.GetPasswordGenerationOptions(), diags),
-		Raw:                       state.Raw,
+		Raw:                       converter.SetUnknownStringValue(state.Raw),
 	})
 	diags.Append(diag...)
 	return value

@@ -117,6 +117,16 @@ func CatalogDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Configuration for Postgresql connector.",
 				MarkdownDescription: "Configuration for Postgresql connector.",
 			},
+			"greenplum": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"additional_properties": additionalPropertiesDataSourceSchema(),
+					"connection_manager":    connectionManagerDataSourceSchema(),
+					"on_premise":            onPremiseDataSourceSchema(),
+				},
+				Computed:            true,
+				Description:         "Configuration for Greenplum/Cloudberry connector.",
+				MarkdownDescription: "Configuration for Greenplum/Cloudberry connector.",
+			},
 			"sqlserver": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesDataSourceSchema(),

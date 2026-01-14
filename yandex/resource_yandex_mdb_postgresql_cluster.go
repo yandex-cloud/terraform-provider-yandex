@@ -360,6 +360,12 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 						},
+						"yandex_query": {
+							Type:        schema.TypeBool,
+							Description: "Allow access for [YandexQuery](https://yandex.cloud/services/query).",
+							Optional:    true,
+							Default:     false,
+						},
 					},
 				},
 			},
@@ -1700,31 +1706,6 @@ func deletePGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 	}
 
 	return nil
-}
-
-func listPGDatabases(ctx context.Context, config *Config, id string) ([]*postgresql.Database, error) {
-	databases := []*postgresql.Database{}
-	pageToken := ""
-
-	for {
-		resp, err := config.sdk.MDB().PostgreSQL().Database().List(ctx, &postgresql.ListDatabasesRequest{
-			ClusterId: id,
-			PageSize:  defaultMDBPageSize,
-			PageToken: pageToken,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("Error while getting list of databases for PostgreSQL Cluster '%q': %s", id, err)
-		}
-
-		databases = append(databases, resp.Databases...)
-
-		if resp.NextPageToken == "" {
-			break
-		}
-		pageToken = resp.NextPageToken
-	}
-
-	return databases, nil
 }
 
 func addPGHost(ctx context.Context, config *Config, d *schema.ResourceData, host *postgresql.HostSpec) error {

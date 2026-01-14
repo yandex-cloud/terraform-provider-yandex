@@ -371,9 +371,11 @@ func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	if !state.Labels.Equal(plan.Labels) {
-		labels := make(map[string]string, len(state.Labels.Elements()))
-		resp.Diagnostics.Append(state.Labels.ElementsAs(ctx, &labels, false)...)
-		updateRuleReq.SetLabels(labels)
+		if !plan.Labels.IsNull() && !plan.Labels.IsUnknown() {
+			labels := make(map[string]string, len(plan.Labels.Elements()))
+			resp.Diagnostics.Append(plan.Labels.ElementsAs(ctx, &labels, false)...)
+			updateRuleReq.SetLabels(labels)
+		}
 		updateRuleReq.UpdateMask.Paths = append(updateRuleReq.UpdateMask.Paths, "labels")
 	}
 	if resp.Diagnostics.HasError() {
@@ -406,6 +408,7 @@ func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.Upd
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		plan.ID = state.ID
 	}
 
 	if readRuleToState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics) {
