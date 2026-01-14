@@ -143,6 +143,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.serverless", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.yandex_query", "true"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "test_key", "test_value"),
@@ -203,6 +204,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.serverless", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.yandex_query", "false"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "new_key", "new_value"),
@@ -1321,6 +1323,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       serverless    = true
       data_lens     = true
 	  data_transfer = true
+	  yandex_query  = true
     }
   }
 
@@ -1382,6 +1385,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       serverless    = true
       data_lens     = true
 	  data_transfer = true
+	  yandex_query  = true
     }
   }
 
@@ -1445,6 +1449,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       serverless    = false
       data_lens     = false
 	  data_transfer = false
+	  yandex_query  = false
     }
     performance_diagnostics {
 	  enabled                      = %t
@@ -1572,6 +1577,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       serverless    = false
       data_lens     = false
 	  data_transfer = false
+	  yandex_query  = false
     }
     performance_diagnostics {
 	  enabled                      = true
@@ -1694,6 +1700,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 				serverless    = false
 				data_lens     = false
 				data_transfer = false
+				yandex_query  = false
 			}
 			performance_diagnostics {
 			    enabled                      = true
@@ -2047,6 +2054,7 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 			serverless    = true
 			data_lens     = true
 			data_transfer = true
+			yandex_query  = true
 		  }
 		}
 	  

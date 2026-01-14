@@ -360,6 +360,12 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 						},
+						"yandex_query": {
+							Type:        schema.TypeBool,
+							Description: "Allow access for [YandexQuery](https://yandex.cloud/services/query).",
+							Optional:    true,
+							Default:     false,
+						},
 					},
 				},
 			},
