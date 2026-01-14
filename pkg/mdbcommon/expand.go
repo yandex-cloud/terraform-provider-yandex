@@ -3,16 +3,19 @@ package mdbcommon
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -188,19 +191,55 @@ func ExpandInt64Wrapper(ctx context.Context, in types.Int64, diags *diag.Diagnos
 	return w
 }
 
-func ExpandAccess[V any, T accessModel[V]](ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) T {
-	var access Access
-	diags.Append(cfgAccess.As(ctx, &access, basetypes.ObjectAsOptions{
-		UnhandledNullAsEmpty:    true,
-		UnhandledUnknownAsEmpty: true,
-	})...)
-	if diags.HasError() {
-		return nil
+func ExpandAccess[T proto.Message](ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) T {
+	getBool := func(attrs map[string]attr.Value, key string) bool {
+		defer func() {
+			delete(attrs, key)
+		}()
+		v, ok := attrs[key]
+		if !ok {
+			return false
+		}
+		boolValue, ok := v.(types.Bool)
+		if !ok {
+			return false
+		}
+		return boolValue.ValueBool()
 	}
-	ac := T(new(V))
-	ac.SetDataLens(access.DataLens.ValueBool())
-	ac.SetDataTransfer(access.DataTransfer.ValueBool())
-	ac.SetServerless(access.Serverless.ValueBool())
-	ac.SetWebSql(access.WebSql.ValueBool())
+
+	attributes := cfgAccess.Attributes()
+
+	var acZero T
+	ac := reflect.New(reflect.TypeOf(acZero).Elem()).Interface().(T)
+	accessReflect := ac.ProtoReflect()
+
+	descriptor := accessReflect.Descriptor().Fields().ByName("yandex_query")
+	if descriptor != nil {
+		accessReflect.Set(descriptor, protoreflect.ValueOfBool(getBool(attributes, "yandex_query")))
+	}
+	descriptor = accessReflect.Descriptor().Fields().ByName("data_lens")
+	if descriptor != nil {
+		accessReflect.Set(descriptor, protoreflect.ValueOfBool(getBool(attributes, "data_lens")))
+	}
+	descriptor = accessReflect.Descriptor().Fields().ByName("data_transfer")
+	if descriptor != nil {
+		accessReflect.Set(descriptor, protoreflect.ValueOfBool(getBool(attributes, "data_transfer")))
+	}
+	descriptor = accessReflect.Descriptor().Fields().ByName("web_sql")
+	if descriptor != nil {
+		accessReflect.Set(descriptor, protoreflect.ValueOfBool(getBool(attributes, "web_sql")))
+	}
+
+	descriptor = accessReflect.Descriptor().Fields().ByName("serverless")
+	if descriptor != nil {
+		accessReflect.Set(descriptor, protoreflect.ValueOfBool(getBool(attributes, "serverless")))
+	}
+
+	if len(attributes) > 0 {
+		diags.AddError("left unknown keys", fmt.Sprintf("%v", attributes))
+		var s = new(T)
+		return *s
+	}
+
 	return ac
 }

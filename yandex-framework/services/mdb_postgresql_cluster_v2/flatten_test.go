@@ -616,11 +616,12 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_size":          types.Int64Value(10),
 					}),
 					"autofailover": types.BoolValue(true),
-					"access": types.ObjectValueMust(mdbcommon.AccessAttrTypes, map[string]attr.Value{
+					"access": types.ObjectValueMust(accessAttrTypes, map[string]attr.Value{
 						"data_lens":     types.BoolValue(true),
 						"data_transfer": types.BoolValue(true),
 						"serverless":    types.BoolValue(false),
 						"web_sql":       types.BoolValue(false),
+						"yandex_query":  types.BoolValue(false),
 					}),
 					"performance_diagnostics": types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 						"enabled":                      types.BoolValue(true),
@@ -667,7 +668,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_size":          types.Int64Value(15),
 					}),
 					"autofailover":              types.BoolNull(),
-					"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
+					"access":                    types.ObjectNull(accessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),

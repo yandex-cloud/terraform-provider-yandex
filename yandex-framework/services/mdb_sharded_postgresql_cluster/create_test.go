@@ -1,7 +1,6 @@
 package mdb_sharded_postgresql_cluster
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -13,12 +12,13 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
 	expectedConfigAttrs = map[string]attr.Type{
-		"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
+		"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 		"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 		"backup_retain_period_days": types.Int64Type,
 		"sharded_postgresql_config": types.ObjectType{AttrTypes: ShardedPostgreSQLConfigAttrTypes},
@@ -59,7 +59,7 @@ var (
 				expectedBWSAttrs,
 			),
 			"backup_retain_period_days": types.Int64Value(7),
-			"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
+			"access":                    types.ObjectNull(accessAttrTypes),
 			"sharded_postgresql_config": types.ObjectValueMust(
 				ShardedPostgreSQLConfigAttrTypes,
 				map[string]attr.Value{
@@ -174,7 +174,7 @@ func TestYandexProvider_MDBSPQRClusterPrepareCreateRequest(t *testing.T) {
 			continue
 		}
 
-		if !reflect.DeepEqual(req, c.expectedVal) {
+		if !proto.Equal(req, c.expectedVal) {
 			t.Errorf(
 				"Unexpected expand result value %s test:\nexpected %s\nactual %s",
 				c.testname,

@@ -93,7 +93,7 @@ func flattenConfig(ctx context.Context, statePGCfg mdbcommon.SettingsMapValue, c
 		Version:                types.StringValue(c.Version),
 		Resources:              mdbcommon.FlattenResources(ctx, c.Resources, diags),
 		Autofailover:           flattenBoolWrapper(ctx, c.GetAutofailover(), diags),
-		Access:                 mdbcommon.FlattenAccess(ctx, c.Access, diags),
+		Access:                 mdbcommon.FlattenAccess[Access](ctx, c.Access.ProtoReflect(), accessAttrTypes, diags),
 		PerformanceDiagnostics: flattenPerformanceDiagnostics(ctx, c.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.FlattenBackupWindowStart(ctx, c.BackupWindowStart, diags),

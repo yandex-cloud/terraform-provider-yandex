@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -533,7 +534,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
 					"autofailover":              types.BoolNull(),
-					"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
+					"access":                    types.ObjectNull(accessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"postgresql_config":         NewPgSettingsMapNull(),
 					"pooler_config":             types.ObjectNull(expectedPCAttrTypes),
@@ -582,12 +583,13 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"backup_retain_period_days": types.Int64Value(7),
 					"autofailover":              types.BoolValue(true),
 					"access": types.ObjectValueMust(
-						mdbcommon.AccessAttrTypes,
+						accessAttrTypes,
 						map[string]attr.Value{
 							"web_sql":       types.BoolValue(true),
 							"serverless":    types.BoolValue(false),
 							"data_transfer": types.BoolValue(false),
 							"data_lens":     types.BoolValue(true),
+							"yandex_query":  types.BoolValue(true),
 						},
 					),
 					"performance_diagnostics": types.ObjectValueMust(
@@ -628,8 +630,9 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
 				Autofailover:           wrapperspb.Bool(true),
 				Access: &postgresql.Access{
-					WebSql:   true,
-					DataLens: true,
+					WebSql:      true,
+					DataLens:    true,
+					YandexQuery: true,
 				},
 				PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
 					Enabled:                    true,
@@ -676,7 +679,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 			continue
 		}
 
-		if !reflect.DeepEqual(conf, c.expectedVal) {
+		if !proto.Equal(conf, c.expectedVal) {
 			t.Errorf(
 				"Unexpected expand result value %s test:\n expected %s\n actual %s",
 				c.testname,

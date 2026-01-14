@@ -55,7 +55,7 @@ func flattenConfig(ctx context.Context, cfgState Config, c *spqr.ClusterConfig, 
 	}
 
 	cfg := &Config{
-		Access:                 mdbcommon.FlattenAccess(ctx, c.Access, diags),
+		Access:                 mdbcommon.FlattenAccess[Access](ctx, c.Access.ProtoReflect(), accessAttrTypes, diags),
 		BackupRetainPeriodDays: flattenBackupRetainPeriodDays(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      flattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
 		SPQRConfig:             flattenSPQRConfig(ctx, cfgState, c.SpqrConfig, diags),

@@ -61,13 +61,6 @@ type InfraConfig struct {
 	Resources   types.Object               `tfsdk:"resources"`
 }
 
-type Access struct {
-	DataLens     types.Bool `tfsdk:"data_lens"`
-	WebSql       types.Bool `tfsdk:"web_sql"`
-	DataTransfer types.Bool `tfsdk:"data_transfer"`
-	Serverless   types.Bool `tfsdk:"serverless"`
-}
-
 type MaintenanceWindow struct {
 	Type types.String `tfsdk:"type"`
 	Day  types.String `tfsdk:"day"`
@@ -103,11 +96,20 @@ var BackupWindowStartAttrTypes = map[string]attr.Type{
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
-	"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
+	"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"sharded_postgresql_config": types.ObjectType{AttrTypes: ShardedPostgreSQLConfigAttrTypes},
 }
+
+type Access struct {
+	DataLens     bool `tfsdk:"data_lens"`
+	WebSQL       bool `tfsdk:"web_sql"`
+	DataTransfer bool `tfsdk:"data_transfer"`
+	Serverless   bool `tfsdk:"serverless"`
+}
+
+var accessAttrTypes = mdbcommon.AccessAttrTypes(true, true, true, true, false)
 
 var ShardedPostgreSQLConfigAttrTypes = map[string]attr.Type{
 	"common":      mdbcommon.NewSettingsMapType(attrProvider),

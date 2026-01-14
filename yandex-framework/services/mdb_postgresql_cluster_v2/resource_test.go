@@ -228,6 +228,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 							"data_transfer": knownvalue.Bool(false),
 							"web_sql":       knownvalue.Bool(false),
 							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
@@ -304,6 +305,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 							"data_transfer": knownvalue.Bool(false),
 							"web_sql":       knownvalue.Bool(false),
 							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
@@ -418,6 +420,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		web_sql = true
 		serverless = false
 		data_lens = false
+		yandex_query = false
 	`
 
 	accessUpdated := `
@@ -425,6 +428,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		data_lens = true
 		data_transfer = false
 		web_sql = false
+		yandex_query = true
 	`
 
 	performanceDiagnostics := `
@@ -537,6 +541,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"data_transfer": knownvalue.Bool(true),
 							"web_sql":       knownvalue.Bool(true),
 							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
@@ -683,6 +688,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							"data_transfer": knownvalue.Bool(false),
 							"web_sql":       knownvalue.Bool(false),
 							"serverless":    knownvalue.Bool(true),
+							"yandex_query":  knownvalue.Bool(true),
 						},
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
@@ -744,6 +750,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						DataTransfer: false,
 						WebSql:       false,
 						Serverless:   true,
+						YandexQuery:  true,
 					}),
 					testAccCheckClusterPerformanceDiagnosticsExact(
 						&cluster,
@@ -926,6 +933,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
 						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
@@ -1025,6 +1033,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
 						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
@@ -1118,6 +1127,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 						"data_transfer": knownvalue.Bool(false),
 						"web_sql":       knownvalue.Bool(false),
 						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
 					},
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
@@ -2079,6 +2089,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 			serverless    = true
 			data_lens     = true
 			data_transfer = true
+			yandex_query  = true
 		  }
 		}
 	  

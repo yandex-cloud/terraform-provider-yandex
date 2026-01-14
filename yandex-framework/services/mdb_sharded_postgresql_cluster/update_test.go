@@ -53,7 +53,7 @@ func TestYandexProvider_MDBSPQRClusterPrepareUpdateRequestBasic(t *testing.T) {
 				expectedBWSAttrs,
 			),
 			"backup_retain_period_days": types.Int64Value(7),
-			"access":                    types.ObjectNull(mdbcommon.AccessAttrTypes),
+			"access":                    types.ObjectNull(accessAttrTypes),
 			"sharded_postgresql_config": types.ObjectValueMust(
 				ShardedPostgreSQLConfigAttrTypes,
 				map[string]attr.Value{

@@ -475,6 +475,7 @@ func TestYandexProvider_MDBCommonAccessFlattener(t *testing.T) {
 		"data_transfer": types.BoolType,
 		"serverless":    types.BoolType,
 		"web_sql":       types.BoolType,
+		"yandex_query":  types.BoolType,
 	}
 
 	cases := []struct {
@@ -494,6 +495,7 @@ func TestYandexProvider_MDBCommonAccessFlattener(t *testing.T) {
 					"data_transfer": types.BoolValue(false),
 					"serverless":    types.BoolValue(false),
 					"web_sql":       types.BoolValue(true),
+					"yandex_query":  types.BoolValue(false),
 				},
 			),
 		},
@@ -506,7 +508,7 @@ func TestYandexProvider_MDBCommonAccessFlattener(t *testing.T) {
 
 	for _, c := range cases {
 		diags := diag.Diagnostics{}
-		access := FlattenAccess(ctx, c.reqVal, &diags)
+		access := FlattenAccess[testAccess](ctx, c.reqVal.ProtoReflect(), testAccessAttrs, &diags)
 		if diags.HasError() {
 			t.Errorf(
 				"Unexpected flatten diagnostics status %s test: errors: %v",
@@ -525,4 +527,14 @@ func TestYandexProvider_MDBCommonAccessFlattener(t *testing.T) {
 			)
 		}
 	}
+}
+
+var testAccessAttrs = AccessAttrTypes(true, true, true, true, true)
+
+type testAccess struct {
+	DataLens     bool `tfsdk:"data_lens"`
+	YandexQuery  bool `tfsdk:"yandex_query"`
+	WebSQL       bool `tfsdk:"web_sql"`
+	DataTransfer bool `tfsdk:"data_transfer"`
+	Serverless   bool `tfsdk:"serverless"`
 }

@@ -3,6 +3,7 @@ package mdb_sharded_postgresql_cluster
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -559,6 +560,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	if respDiagnostics.HasError() {
 		return
 	}
+	log.Printf("here1 %v", diags.ErrorsCount())
 
 	state.Id = types.StringValue(cluster.Id)
 	state.FolderId = types.StringValue(cluster.FolderId)
@@ -571,8 +573,10 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
+	log.Printf("here2 %v %#v\n%#v", diags.ErrorsCount(), state.Config, cluster.GetConfig().GetAccess())
 	var cfgState Config
 	diags.Append(state.Config.As(ctx, &cfgState, datasize.DefaultOpts)...)
+	log.Printf("here3 %v", diags.ErrorsCount())
 	state.Config = flattenConfig(ctx, cfgState, cluster.GetConfig(), respDiagnostics)
 }
 

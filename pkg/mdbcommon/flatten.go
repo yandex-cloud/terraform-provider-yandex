@@ -2,11 +2,14 @@ package mdbcommon
 
 import (
 	"context"
+	"reflect"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -110,18 +113,37 @@ func FlattenInt64Wrapper(ctx context.Context, pgBrpd *wrapperspb.Int64Value, dia
 	return types.Int64Value(pgBrpd.GetValue())
 }
 
-func FlattenAccess[V any, T accessModel[V]](ctx context.Context, access T, diags *diag.Diagnostics) types.Object {
-	if access == nil {
-		return types.ObjectNull(AccessAttrTypes)
+func FlattenAccess[T any](ctx context.Context, access protoreflect.Message, attrs map[string]attr.Type, diags *diag.Diagnostics) types.Object {
+	if access == nil || !access.IsValid() {
+		return types.ObjectNull(attrs)
+	}
+
+	var zero T
+	tfAccess := reflect.New(reflect.TypeOf(zero)).Elem()
+
+	descriptor := access.Descriptor().Fields().ByName("data_lens")
+	if descriptor != nil && access.Has(descriptor) {
+		tfAccess.FieldByName("DataLens").SetBool(access.Get(descriptor).Bool())
+	}
+	descriptor = access.Descriptor().Fields().ByName("data_transfer")
+	if descriptor != nil && access.Has(descriptor) {
+		tfAccess.FieldByName("DataTransfer").SetBool(access.Get(descriptor).Bool())
+	}
+	descriptor = access.Descriptor().Fields().ByName("serverless")
+	if descriptor != nil && access.Has(descriptor) {
+		tfAccess.FieldByName("Serverless").SetBool(access.Get(descriptor).Bool())
+	}
+	descriptor = access.Descriptor().Fields().ByName("web_sql")
+	if descriptor != nil && access.Has(descriptor) {
+		tfAccess.FieldByName("WebSQL").SetBool(access.Get(descriptor).Bool())
+	}
+	descriptor = access.Descriptor().Fields().ByName("yandex_query")
+	if descriptor != nil && access.Has(descriptor) {
+		tfAccess.FieldByName("YandexQuery").SetBool(access.Get(descriptor).Bool())
 	}
 
 	obj, d := types.ObjectValueFrom(
-		ctx, AccessAttrTypes, Access{
-			DataLens:     types.BoolValue(access.GetDataLens()),
-			DataTransfer: types.BoolValue(access.GetDataTransfer()),
-			Serverless:   types.BoolValue(access.GetServerless()),
-			WebSql:       types.BoolValue(access.GetWebSql()),
-		},
+		ctx, attrs, tfAccess.Interface().(T),
 	)
 	diags.Append(d...)
 

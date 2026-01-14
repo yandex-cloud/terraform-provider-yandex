@@ -11,6 +11,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -635,13 +636,15 @@ func TestYandexProvider_Int64WrapperExpand(t *testing.T) {
 	}
 }
 
-func buildTestAccessObj(dataLens, dataTransfer, webSql, serverless *bool) types.Object {
+func buildTestAccessObj(dataLens, dataTransfer, webSql, serverless, yandexQuery *bool) types.Object {
 	return types.ObjectValueMust(
-		AccessAttrTypes, map[string]attr.Value{
+		testAccessAttrs,
+		map[string]attr.Value{
 			"data_transfer": types.BoolPointerValue(dataTransfer),
 			"data_lens":     types.BoolPointerValue(dataLens),
 			"serverless":    types.BoolPointerValue(serverless),
 			"web_sql":       types.BoolPointerValue(webSql),
+			"yandex_query":  types.BoolPointerValue(yandexQuery),
 		},
 	)
 }
@@ -661,7 +664,7 @@ func TestYandexProvider_MDBCommonAccessExpand(t *testing.T) {
 	}{
 		{
 			testname: "CheckAllExplicitAttributes",
-			reqVal:   buildTestAccessObj(&trueAttr, &trueAttr, &falseAttr, &falseAttr),
+			reqVal:   buildTestAccessObj(&trueAttr, &trueAttr, &falseAttr, &falseAttr, &falseAttr),
 			expectedVal: &postgresql.Access{
 				DataLens:     trueAttr,
 				DataTransfer: trueAttr,
@@ -670,7 +673,7 @@ func TestYandexProvider_MDBCommonAccessExpand(t *testing.T) {
 		},
 		{
 			testname: "CheckPartlyAttributes",
-			reqVal:   buildTestAccessObj(&trueAttr, &falseAttr, nil, nil),
+			reqVal:   buildTestAccessObj(&trueAttr, &falseAttr, nil, nil, nil),
 			expectedVal: &postgresql.Access{
 				DataLens:     trueAttr,
 				DataTransfer: falseAttr,
@@ -679,13 +682,13 @@ func TestYandexProvider_MDBCommonAccessExpand(t *testing.T) {
 		},
 		{
 			testname:      "CheckWithoutAttributes",
-			reqVal:        buildTestAccessObj(nil, nil, nil, nil),
+			reqVal:        buildTestAccessObj(nil, nil, nil, nil, nil),
 			expectedVal:   &postgresql.Access{},
 			expectedError: false,
 		},
 		{
 			testname:      "CheckNullAccess",
-			reqVal:        types.ObjectNull(AccessAttrTypes),
+			reqVal:        types.ObjectNull(testAccessAttrs),
 			expectedVal:   &postgresql.Access{},
 			expectedError: false,
 		},
@@ -701,7 +704,7 @@ func TestYandexProvider_MDBCommonAccessExpand(t *testing.T) {
 
 	for _, c := range cases {
 		diags := diag.Diagnostics{}
-		access := ExpandAccess[postgresql.Access](ctx, c.reqVal, &diags)
+		access := ExpandAccess[*postgresql.Access](ctx, c.reqVal, &diags)
 		if diags.HasError() != c.expectedError {
 			t.Errorf(
 				"Unexpected expansion diagnostics status %s test: expected %t, actual %t with errors: %v",
@@ -713,7 +716,7 @@ func TestYandexProvider_MDBCommonAccessExpand(t *testing.T) {
 			continue
 		}
 
-		if !reflect.DeepEqual(access, c.expectedVal) {
+		if !proto.Equal(access, c.expectedVal) {
 			t.Errorf(
 				"Unexpected expansion result value %s test: expected %s, actual %s",
 				c.testname,

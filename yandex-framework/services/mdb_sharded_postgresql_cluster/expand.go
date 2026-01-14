@@ -16,7 +16,7 @@ import (
 
 func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostics) *spqr.ConfigSpec {
 	return &spqr.ConfigSpec{
-		Access:                 mdbcommon.ExpandAccess[spqr.Access](ctx, configSpec.Access, diags),
+		Access:                 mdbcommon.ExpandAccess[*spqr.Access](ctx, configSpec.Access, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		SpqrSpec:               expandSPQRConfig(ctx, configSpec.SPQRConfig, diags),

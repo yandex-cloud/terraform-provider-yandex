@@ -156,7 +156,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		Version:                configSpec.Version.ValueString(),
 		Resources:              mdbcommon.ExpandResources[postgresql.Resources](ctx, configSpec.Resources, diags),
 		Autofailover:           expandBoolWrapper(ctx, configSpec.Autofailover, diags),
-		Access:                 mdbcommon.ExpandAccess[postgresql.Access](ctx, configSpec.Access, diags),
+		Access:                 mdbcommon.ExpandAccess[*postgresql.Access](ctx, configSpec.Access, diags),
 		PerformanceDiagnostics: expandPerformanceDiagnostics(ctx, configSpec.PerformanceDiagnostics, diags),
 		BackupRetainPeriodDays: expandBackupRetainPeriodDays(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),

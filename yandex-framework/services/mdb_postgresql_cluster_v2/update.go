@@ -149,13 +149,14 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	}
 
 	if !plan.Access.Equal(state.Access) {
-		config.SetAccess(mdbcommon.ExpandAccess[postgresql.Access](ctx, plan.Access, &diags))
+		config.SetAccess(mdbcommon.ExpandAccess[*postgresql.Access](ctx, plan.Access, &diags))
 		updateMaskPaths = append(
 			updateMaskPaths,
 			"config_spec.access.web_sql",
 			"config_spec.access.data_lens",
 			"config_spec.access.data_transfer",
 			"config_spec.access.serverless",
+			"config_spec.access.yandex_query",
 		)
 	}
 

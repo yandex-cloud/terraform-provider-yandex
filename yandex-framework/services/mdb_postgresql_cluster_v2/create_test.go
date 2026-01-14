@@ -2,7 +2,6 @@ package mdb_postgresql_cluster_v2
 
 import (
 	"context"
-	"reflect"
 	"testing"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -24,7 +24,7 @@ var (
 		"version":                   types.StringType,
 		"resources":                 types.ObjectType{AttrTypes: mdbcommon.ResourceType.AttrTypes},
 		"autofailover":              types.BoolType,
-		"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
+		"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: mdbcommon.BackupWindowType.AttrTypes},
 		"backup_retain_period_days": types.Int64Type,
@@ -92,7 +92,7 @@ var (
 			"performance_diagnostics": types.ObjectNull(
 				expectedPDAttrs,
 			),
-			"access": types.ObjectNull(mdbcommon.AccessAttrTypes),
+			"access": types.ObjectNull(accessAttrTypes),
 			"postgresql_config": NewPgSettingsMapValueMust(map[string]attr.Value{
 				"max_connections": types.Int64Value(100),
 			}),
@@ -289,7 +289,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 			continue
 		}
 
-		if !reflect.DeepEqual(req, c.expectedVal) {
+		if !proto.Equal(req, c.expectedVal) {
 			t.Errorf(
 				"Unexpected expand result value %s test:\nexpected %s\nactual %s",
 				c.testname,
@@ -422,7 +422,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareRestoreRequest(t *testing.T) {
 			continue
 		}
 
-		if !reflect.DeepEqual(req, c.expectedVal) {
+		if !proto.Equal(req, c.expectedVal) {
 			t.Errorf(
 				"Unexpected expand result value %s test:\nexpected %s\nactual %s",
 				c.testname,

@@ -70,7 +70,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"version":                   types.StringType,
 	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},
 	"autofailover":              types.BoolType,
-	"access":                    types.ObjectType{AttrTypes: mdbcommon.AccessAttrTypes},
+	"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
@@ -78,6 +78,8 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }
+
+var accessAttrTypes = mdbcommon.AccessAttrTypes(true, true, true, true, true)
 
 type PerformanceDiagnostics struct {
 	Enabled                    types.Bool  `tfsdk:"enabled"`
@@ -129,4 +131,12 @@ type Restore struct {
 	BackupId      types.String `tfsdk:"backup_id"`
 	TimeInclusive types.Bool   `tfsdk:"time_inclusive"`
 	Time          types.String `tfsdk:"time"`
+}
+
+type Access struct {
+	DataLens     bool `tfsdk:"data_lens"`
+	YandexQuery  bool `tfsdk:"yandex_query"`
+	WebSQL       bool `tfsdk:"web_sql"`
+	DataTransfer bool `tfsdk:"data_transfer"`
+	Serverless   bool `tfsdk:"serverless"`
 }
