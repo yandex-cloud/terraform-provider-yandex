@@ -142,12 +142,8 @@ func CDNResourceSchema(ctx context.Context) schema.Schema {
 			"shielding": schema.StringAttribute{
 				MarkdownDescription: "Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.\nSpecify location id to enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding",
 				Optional:            true,
-				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("1", "130"),
-				},
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"provider_cname": schema.StringAttribute{
