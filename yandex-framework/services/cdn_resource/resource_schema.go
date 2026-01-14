@@ -177,6 +177,9 @@ func SSLCertificateSchema() schema.ListNestedBlock {
 				"status": schema.StringAttribute{
 					MarkdownDescription: "SSL certificate status.",
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 				},
 				"certificate_manager_id": schema.StringAttribute{
 					MarkdownDescription: "Certificate Manager ID.",
@@ -295,11 +298,17 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 					MarkdownDescription: "Custom value for the Host header. Your server must be able to process requests with the chosen header.",
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 				},
 				"custom_server_name": schema.StringAttribute{
 					MarkdownDescription: "Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.",
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 					Validators: []validator.String{
 						stringvalidator.RegexMatches(
 							regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`),
@@ -311,6 +320,9 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 					MarkdownDescription: "Set secure key for url encoding to protect content and limit access by IP addresses and time limits.",
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 					Sensitive:           true,
 					Validators: []validator.String{
 						stringvalidator.LengthBetween(6, 32),
