@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -510,18 +510,10 @@ func BrowserCacheSettingsSchema() schema.ListNestedBlock {
 				"enabled": schema.BoolAttribute{
 					MarkdownDescription: "True - browser caching is enabled with `cache_time` setting. False - browser caching is disabled (provider sends `cache_time = 0` to API). Use `enabled = false` to explicitly disable browser caching (which is enabled by default in Yandex CDN). Cannot be used together with `cache_time`.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Bool{
-						boolplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"cache_time": schema.Int64Attribute{
 					MarkdownDescription: "Cache time in seconds for browsers. Must be between 0 and 31536000 (1 year). Use `0` to explicitly disable caching. Required when `enabled = true`, must not be set when `enabled = false`.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Int64{
-						int64planmodifier.UseStateForUnknown(),
-					},
 					Validators: []validator.Int64{
 						int64validator.Between(0, 31536000),
 					},
