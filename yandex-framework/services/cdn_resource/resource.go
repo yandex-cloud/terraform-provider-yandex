@@ -570,11 +570,18 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	// Save plan options before readResourceToState modifies plan
+	// Create new state model from plan to preserve timeouts and ID
+	newState := CDNResourceModel{
+		ID:       plan.ID,
+		Timeouts: plan.Timeouts,
+	}
+
+	// Save plan options before reading
 	originalPlanOptions := plan.Options
 
-	// Read updated resource
-	if !r.readResourceToState(ctx, &plan, originalPlanOptions, &resp.Diagnostics) {
+	// Read updated resource into new state (not plan!)
+	// This prevents "Provider produced inconsistent result" error for computed fields like updated_at
+	if !r.readResourceToState(ctx, &newState, originalPlanOptions, &resp.Diagnostics) {
 		resp.Diagnostics.AddError(
 			"Failed to read updated resource",
 			"Resource was updated but could not be read",
@@ -582,7 +589,7 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &newState)...)
 }
 
 func (r *cdnResourceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
