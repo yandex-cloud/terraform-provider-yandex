@@ -267,10 +267,6 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"disable_proxy_force_ranges": schema.BoolAttribute{
 					MarkdownDescription: "Disabling proxy force ranges.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Bool{
-						boolplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"ignore_cookie": schema.BoolAttribute{
 					MarkdownDescription: "Set for ignoring cookie.",
@@ -486,19 +482,11 @@ func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 				"value": schema.Int64Attribute{
 					MarkdownDescription: "Caching time for responses with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will NOT be cached. Use `0` to disable caching. Use `custom_values` field to specify caching time for other response codes. Cannot be used together with `enabled = false`.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Int64{
-						int64planmodifier.UseStateForUnknown(),
-					},
 				},
 				"custom_values": schema.MapAttribute{
 					MarkdownDescription: "Caching time for responses with specific codes. These settings have higher priority than the `value` field. Use specific HTTP codes like `\"200\"`, `\"404\"`, or use `\"any\"` to specify caching time for all response codes (including 4xx, 5xx). Cannot be used together with `enabled = false`.",
 					ElementType:         types.Int64Type,
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Map{
-						mapplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"default_value": schema.Int64Attribute{
 					MarkdownDescription: "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
