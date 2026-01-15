@@ -307,6 +307,17 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		return nil
 	}
 
+	bcs := &cdn.ResourceOptions_Int64Option{
+		Enabled: false,
+		Value:   0,
+	}
+	if v := int64(d.Get("options.0.browser_cache_settings").(int)); v != 0 {
+		bcs = &cdn.ResourceOptions_Int64Option{
+			Enabled: true,
+			Value:   v,
+		}
+	}
+
 	result := &cdn.ResourceOptions{
 		HostOptions:        expandCDNResourceOptions_HostOptions(d),
 		QueryParamsOptions: expandCDNResourceOptions_QueryParamsOptions(d),
@@ -327,10 +338,7 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		StaticHeaders:        cdnStringsMapOption(d.Get("options.0.static_response_headers").(map[string]any)),
 		StaticRequestHeaders: cdnStringsMapOption(d.Get("options.0.static_request_headers").(map[string]any)),
 
-		BrowserCacheSettings: &cdn.ResourceOptions_Int64Option{
-			Enabled: true,
-			Value:   int64(d.Get("options.0.browser_cache_settings").(int)),
-		},
+		BrowserCacheSettings: bcs,
 	}
 
 	// bool options
