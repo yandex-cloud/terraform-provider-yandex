@@ -1,3 +1,0 @@
-kind: FEATURES
-body: "postgresql: added `yandex_query` option to access config for mdb_postgresql_cluster_v2"
-time: 2026-01-14T15:42:30.231062+03:00
