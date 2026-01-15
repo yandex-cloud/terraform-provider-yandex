@@ -283,10 +283,6 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"enable_ip_url_signing": schema.BoolAttribute{
 					MarkdownDescription: "Enable access limiting by IP addresses, option available only with setting secure_key.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Bool{
-						boolplanmodifier.UseStateForUnknown(),
-					},
 				},
 
 				// String options
@@ -297,10 +293,6 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"custom_server_name": schema.StringAttribute{
 					MarkdownDescription: "Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.UseStateForUnknown(),
-					},
 					Validators: []validator.String{
 						stringvalidator.RegexMatches(
 							regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`),
@@ -326,29 +318,17 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 					MarkdownDescription: "List HTTP headers that must be included in responses to clients.",
 					DeprecationMessage:  "This attribute does not affect anything. You can safely delete it.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.List{
-						listplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 				},
 				"query_params_whitelist": schema.ListAttribute{
 					MarkdownDescription: "Files with the specified query parameters are cached as objects with different keys, files with other parameters are cached as objects with the same key.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.List{
-						listplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 				},
 				"query_params_blacklist": schema.ListAttribute{
 					MarkdownDescription: "Files with the specified query parameters are cached as objects with the same key, files with other parameters are cached as objects with different keys.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.List{
-						listplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 				},
 				"cors": schema.ListAttribute{
 					MarkdownDescription: "Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.",
@@ -372,11 +352,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"stale": schema.ListAttribute{
 					MarkdownDescription: "List of errors which instruct CDN servers to serve stale content to clients. Possible values: `error`, `http_403`, `http_404`, `http_429`, `http_500`, `http_502`, `http_503`, `http_504`, `invalid_header`, `timeout`, `updating`.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.List{
-						listplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 					Validators: []validator.List{
 						listvalidator.ValueStringsAre(
 							stringvalidator.OneOf("error", "http_403", "http_404", "http_429", "http_500", "http_502", "http_503", "http_504", "invalid_header", "timeout", "updating"),
@@ -388,11 +364,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"static_response_headers": schema.MapAttribute{
 					MarkdownDescription: "Set up a static response header. The header name must be lowercase.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Map{
-						mapplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 					Validators: []validator.Map{
 						NewStaticHeadersValidator(),
 					},
@@ -400,11 +372,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"static_request_headers": schema.MapAttribute{
 					MarkdownDescription: "Set up custom headers that CDN servers will send in requests to origins.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Map{
-						mapplanmodifier.UseStateForUnknown(),
-					},
-					ElementType: types.StringType,
+					ElementType:         types.StringType,
 					Validators: []validator.Map{
 						NewStaticHeadersValidator(),
 					},
@@ -539,10 +507,6 @@ func EdgeCacheSettingsSchema() schema.ListNestedBlock {
 				"default_value": schema.Int64Attribute{
 					MarkdownDescription: "Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Int64{
-						int64planmodifier.UseStateForUnknown(),
-					},
 				},
 			},
 		},
