@@ -226,7 +226,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 					},
 					"disk_size": schema.Int64Attribute{
 						Required:            true,
-						MarkdownDescription: "Size of the disk in bytes.",
+						MarkdownDescription: "Volume of the storage available to a host, in gigabytes.",
 					},
 					"disk_type_id": schema.StringAttribute{
 						Optional: true,
@@ -484,7 +484,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				Attributes: map[string]schema.Attribute{
 					"disk_size_limit": schema.Int64Attribute{
 						Required:            true,
-						MarkdownDescription: "Limit of disk size after autoscaling in bytes.",
+						MarkdownDescription: "Limit of disk size after autoscaling (GiB).",
 					},
 					"planned_usage_threshold": schema.Int64Attribute{
 						Optional: true,
