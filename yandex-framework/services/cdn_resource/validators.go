@@ -597,3 +597,63 @@ func (v *mutuallyExclusiveBoolsValidator) Description(_ context.Context) string 
 func (v *mutuallyExclusiveBoolsValidator) MarkdownDescription(_ context.Context) string {
 	return fmt.Sprintf("Validates that `%s` and `%s` are not both enabled", v.field1Name, v.field2Name)
 }
+
+// hostHeadersValidator validates that custom_host_header and forward_host_header are not both enabled
+type hostHeadersValidator struct{}
+
+func NewHostHeadersValidator() validator.List {
+	return &hostHeadersValidator{}
+}
+
+func (v *hostHeadersValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() || len(req.ConfigValue.Elements()) == 0 {
+		return
+	}
+
+	// Get the single element (MaxItems: 1)
+	var elements []types.Object
+	diags := req.ConfigValue.ElementsAs(ctx, &elements, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(elements) == 0 {
+		return
+	}
+
+	elem := elements[0]
+	if elem.IsNull() || elem.IsUnknown() {
+		return
+	}
+
+	// Extract custom_host_header and forward_host_header from the element
+	var options CDNOptionsModel
+	diags = elem.As(ctx, &options, basetypes.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Check if both are set/enabled
+	// forward_host_header is bool
+	isForwardEnabled := !options.ForwardHostHeader.IsNull() && !options.ForwardHostHeader.IsUnknown() && options.ForwardHostHeader.ValueBool()
+
+	// custom_host_header is string
+	isCustomSet := !options.CustomHostHeader.IsNull() && !options.CustomHostHeader.IsUnknown() && options.CustomHostHeader.ValueString() != ""
+
+	if isForwardEnabled && isCustomSet {
+		resp.Diagnostics.AddError(
+			"Incompatible CDN options",
+			"custom_host_header and forward_host_header cannot both be enabled simultaneously. Unset one of them.",
+		)
+	}
+}
+
+func (v *hostHeadersValidator) Description(_ context.Context) string {
+	return "Validates that custom_host_header and forward_host_header are not both enabled"
+}
+
+func (v *hostHeadersValidator) MarkdownDescription(_ context.Context) string {
+	return "Validates that `custom_host_header` and `forward_host_header` are not both enabled"
+}

@@ -126,7 +126,7 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 	}
 
 	// Mutually exclusive options groups
-	flattenHostOptions(options.HostOptions, &opt)
+	flattenHostOptions(options.HostOptions, &opt, planOptionsModel, diags)
 	flattenQueryParamsOptions(ctx, options.QueryParamsOptions, &opt, diags)
 	flattenCompressionOptions(options.CompressionOptions, &opt)
 	flattenRedirectOptions(options.RedirectOptions, &opt)
@@ -181,35 +181,67 @@ func isDefaultAllowedHttpMethods(apiValues []string) bool {
 // flattenHostOptions handles mutually exclusive forward_host_header and custom_host_header
 // IMPORTANT: Returns zero values for inactive fields to work with plan modifiers
 // expand.go will check if ALL fields are zero values before sending to API
-func flattenHostOptions(hostOptions *cdn.ResourceOptions_HostOptions, opt *CDNOptionsModel) {
+func flattenHostOptions(hostOptions *cdn.ResourceOptions_HostOptions, opt *CDNOptionsModel, planOptions *CDNOptionsModel, diags *diag.Diagnostics) {
 	if hostOptions == nil {
-		// No host options configured → zero values for both
-		opt.ForwardHostHeader = types.BoolValue(false)
-		opt.CustomHostHeader = types.StringValue("")
+		// No host options configured → both null (matches schema Optional+Computed=false)
+
+		// CRITICAL: Check plan for false/empty values to preserve user intent and avoid consistency errors
+		if planOptions != nil && !planOptions.ForwardHostHeader.IsNull() && !planOptions.ForwardHostHeader.ValueBool() {
+			opt.ForwardHostHeader = types.BoolValue(false)
+		} else {
+			opt.ForwardHostHeader = types.BoolNull()
+		}
+
+		if planOptions != nil && !planOptions.CustomHostHeader.IsNull() && planOptions.CustomHostHeader.ValueString() == "" {
+			opt.CustomHostHeader = types.StringValue("")
+		} else {
+			opt.CustomHostHeader = types.StringNull()
+		}
 		return
 	}
 
 	switch variant := hostOptions.HostVariant.(type) {
 	case *cdn.ResourceOptions_HostOptions_ForwardHostHeader:
-		// forward_host_header is active → set its value, custom_host_header gets zero value
+		// forward_host_header is active
 		if variant.ForwardHostHeader != nil && variant.ForwardHostHeader.Enabled {
 			opt.ForwardHostHeader = types.BoolValue(variant.ForwardHostHeader.Value)
 		} else {
 			opt.ForwardHostHeader = types.BoolValue(false)
 		}
-		opt.CustomHostHeader = types.StringValue("") // Inactive field → zero value
+		// custom_host_header is inactive
+		// Preserve plan value if it's empty string
+		if planOptions != nil && !planOptions.CustomHostHeader.IsNull() && planOptions.CustomHostHeader.ValueString() == "" {
+			opt.CustomHostHeader = types.StringValue("")
+		} else {
+			opt.CustomHostHeader = types.StringNull()
+		}
 	case *cdn.ResourceOptions_HostOptions_Host:
-		// custom_host_header is active → set its value, forward_host_header gets zero value
+		// custom_host_header is active
 		if variant.Host != nil && variant.Host.Enabled {
 			opt.CustomHostHeader = types.StringValue(variant.Host.Value)
 		} else {
 			opt.CustomHostHeader = types.StringValue("")
 		}
-		opt.ForwardHostHeader = types.BoolValue(false) // Inactive field → zero value
+		// forward_host_header is inactive
+		// Preserve plan value if it's false
+		if planOptions != nil && !planOptions.ForwardHostHeader.IsNull() && !planOptions.ForwardHostHeader.ValueBool() {
+			opt.ForwardHostHeader = types.BoolValue(false)
+		} else {
+			opt.ForwardHostHeader = types.BoolNull()
+		}
 	default:
-		// Unknown variant → zero values for both
-		opt.ForwardHostHeader = types.BoolValue(false)
-		opt.CustomHostHeader = types.StringValue("")
+		// Unknown variant → both null (or preserve plan)
+		if planOptions != nil && !planOptions.ForwardHostHeader.IsNull() && !planOptions.ForwardHostHeader.ValueBool() {
+			opt.ForwardHostHeader = types.BoolValue(false)
+		} else {
+			opt.ForwardHostHeader = types.BoolNull()
+		}
+
+		if planOptions != nil && !planOptions.CustomHostHeader.IsNull() && planOptions.CustomHostHeader.ValueString() == "" {
+			opt.CustomHostHeader = types.StringValue("")
+		} else {
+			opt.CustomHostHeader = types.StringNull()
+		}
 	}
 }
 

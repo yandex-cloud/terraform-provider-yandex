@@ -255,10 +255,6 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"forward_host_header": schema.BoolAttribute{
 					MarkdownDescription: "Choose the Forward Host header option if is important to send in the request to the Origin the same Host header as was sent in the request to CDN server.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.Bool{
-						boolplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"proxy_cache_methods_set": schema.BoolAttribute{
 					MarkdownDescription: "Allows caching for GET, HEAD and POST requests.",
@@ -297,10 +293,6 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"custom_host_header": schema.StringAttribute{
 					MarkdownDescription: "Custom value for the Host header. Your server must be able to process requests with the chosen header.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"custom_server_name": schema.StringAttribute{
 					MarkdownDescription: "Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.",
@@ -323,7 +315,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 					PlanModifiers: []planmodifier.String{
 						stringplanmodifier.UseStateForUnknown(),
 					},
-					Sensitive:           true,
+					Sensitive: true,
 					Validators: []validator.String{
 						stringvalidator.LengthBetween(6, 32),
 					},
@@ -441,6 +433,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"Incompatible CDN compression options",
 				"gzip_on and fetched_compressed cannot both be enabled simultaneously. These are mutually exclusive compression methods. Set one of them to false.",
 			),
+			NewHostHeadersValidator(),
 		},
 	}
 }
