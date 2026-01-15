@@ -303,11 +303,7 @@ func CDNOptionsSchema() schema.ListNestedBlock {
 				"secure_key": schema.StringAttribute{
 					MarkdownDescription: "Set secure key for url encoding to protect content and limit access by IP addresses and time limits.",
 					Optional:            true,
-					Computed:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.UseStateForUnknown(),
-					},
-					Sensitive: true,
+					Sensitive:           true,
 					Validators: []validator.String{
 						stringvalidator.LengthBetween(6, 32),
 					},
