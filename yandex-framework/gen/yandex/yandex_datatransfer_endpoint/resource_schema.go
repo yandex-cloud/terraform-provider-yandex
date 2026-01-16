@@ -137,7 +137,6 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},

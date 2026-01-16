@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'datatransfer: fix endpoint recreation on rename'
+time: 2026-01-16T09:45:16.499206353Z
