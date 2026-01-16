@@ -108,7 +108,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	shardedPostgreSQLAPI.CreateShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardspec)
+	shardedPostgreSQLAPI.CreateShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardspec, struct{}{})
 	if resp.Diagnostics.HasError() {
 		return
 	}

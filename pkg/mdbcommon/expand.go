@@ -161,6 +161,22 @@ func ExpandStringWrapper(_ context.Context, s types.String, _ *diag.Diagnostics)
 	return wrapperspb.String(s.ValueString())
 }
 
+func ExpandInt64Wrapper(_ context.Context, in types.Int64, _ *diag.Diagnostics) *wrapperspb.Int64Value {
+	if in.IsNull() || in.IsUnknown() {
+		return nil
+	}
+
+	return wrapperspb.Int64(in.ValueInt64())
+}
+
+func ExpandDoubleWrapper(_ context.Context, d types.Float64, _ *diag.Diagnostics) *wrapperspb.DoubleValue {
+	if d.IsNull() || d.IsUnknown() {
+		return nil
+	}
+
+	return wrapperspb.Double(d.ValueFloat64())
+}
+
 func ExpandSecurityGroupIds(ctx context.Context, sg types.Set, diags *diag.Diagnostics) []string {
 	var securityGroupIds []string
 	if !(sg.IsUnknown() || sg.IsNull()) {
@@ -178,17 +194,6 @@ func ExpandFolderId(ctx context.Context, f types.String, providerConfig *config.
 	folderID, d := validate.FolderID(f, providerConfig)
 	diags.Append(d)
 	return folderID
-}
-
-func ExpandInt64Wrapper(ctx context.Context, in types.Int64, diags *diag.Diagnostics) *wrapperspb.Int64Value {
-	var w *wrapperspb.Int64Value
-	if !in.IsNull() && !in.IsUnknown() {
-		w = &wrapperspb.Int64Value{
-			Value: in.ValueInt64(),
-		}
-	}
-
-	return w
 }
 
 func ExpandAccess[T proto.Message](ctx context.Context, cfgAccess types.Object, diags *diag.Diagnostics) T {

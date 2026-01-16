@@ -40,7 +40,7 @@ func (r *ShardedPostgreSQLAPI) ReadShard(ctx context.Context, sdk *ycsdk.SDK, di
 	return nil
 }
 
-func (r *ShardedPostgreSQLAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardSpec *spqr.ShardSpec) {
+func (r *ShardedPostgreSQLAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardSpec *spqr.ShardSpec, opts struct{}) {
 	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
 		return sdk.MDB().SPQR().Cluster().AddShard(ctx, &spqr.AddClusterShardRequest{
 			ClusterId: cid,

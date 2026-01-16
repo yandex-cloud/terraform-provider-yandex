@@ -218,7 +218,7 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 	}
 }
 
-func (p *ShardedPostgreSQLAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*spqr.HostSpec) {
+func (p *ShardedPostgreSQLAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*spqr.HostSpec, opts struct{}) {
 	panic("never should be called")
 }
 

@@ -35,25 +35,27 @@ type ProtoHostWithShard interface {
 }
 
 // HostApiService is an interface that defines methods for API operations involving hosts.
-// It is parameterized with types `ProtoHost`, `ProtoHostSpec`, and `UpdateSpec`
-type HostApiService[ProtoHost any, ProtoHostSpec any, UpdateSpec any] interface {
+// It is parameterized with types `ProtoHost`, `ProtoHostSpec`, `UpdateSpec`, and `Options`.
+// Each implementation determines the structure and semantics of the `Options` type.
+type HostApiService[ProtoHost any, ProtoHostSpec any, UpdateSpec any, Options any] interface {
 	ListHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) []ProtoHost
-	CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []ProtoHostSpec)
+	CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []ProtoHostSpec, opts Options)
 	UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*UpdateSpec)
 	DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string)
 }
 
 // HostApiService is an interface that defines methods for API operations involving hosts with shards.
-// It is parameterized with types `ProtoHost`, `ProtoHostSpec`, and `UpdateSpec`
-type HostApiServiceWithShards[ProtoHost any, ProtoHostSpec any, UpdateSpec any] interface {
-	HostApiService[ProtoHost, ProtoHostSpec, UpdateSpec]
-	CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []ProtoHostSpec)
+// It is parameterized with types `ProtoHost`, `ProtoHostSpec`, `UpdateSpec`, and `Options`.
+// Each implementation determines the structure and semantics of the `Options` type.
+type HostApiServiceWithShards[ProtoHost any, ProtoHostSpec any, UpdateSpec any, Options any] interface {
+	HostApiService[ProtoHost, ProtoHostSpec, UpdateSpec, Options]
+	CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []ProtoHostSpec, opts Options)
 	DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string)
 }
 
 // CmpHostService is an interface for implementing common parsing methods for host models.
 // T - Represents the host model within Terraform, likely detailing configuration and state as defined in Terraform templates.
-// PortoHost - Refers to the protobuf type returned by a listHosts API call. It represents how hosts are structured in API communications.
+// ProtoHost - Refers to the protobuf type returned by a listHosts API call. It represents how hosts are structured in API communications.
 // ProtoHostSpec - Is the protobuf type used for creating a host. It specifies the properties and configurations needed for API host creation.
 // UpdateSpec - The protobuf type used for updating hosts, detailing the necessary changes.
 type CmpHostService[T Host, ProtoHost any, ProtoHostSpec any, UpdateSpec any] interface {
@@ -116,13 +118,14 @@ func CreateClusterHosts[T Host, H any, HS any, U any](ctx context.Context,
 // 7) Update existing hosts
 // 8) Delete shards
 // 9) Delete remaining hosts
-func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard, U any](
+func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard, U any, O any](
 	ctx context.Context,
 	sdk *ycsdk.SDK,
 	diagnostics *diag.Diagnostics,
 	utilsHostService CmpHostService[T, H, HS, U],
-	hostsApiService HostApiServiceWithShards[H, HS, U],
+	hostsApiService HostApiServiceWithShards[H, HS, U, O],
 	cid string,
+	opts O,
 	plan, state types.Map,
 ) {
 	entityIdToPlanHost := make(map[string]T)
@@ -163,13 +166,13 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 		for _, host := range hosts {
 			specs = append(specs, utilsHostService.ConvertToProto(host))
 		}
-		hostsApiService.CreateShard(ctx, sdk, diagnostics, cid, shardName, specs)
+		hostsApiService.CreateShard(ctx, sdk, diagnostics, cid, shardName, specs, opts)
 		if diagnostics.HasError() {
 			return
 		}
 	}
 
-	hostsApiService.CreateHosts(ctx, sdk, diagnostics, cid, toCreate)
+	hostsApiService.CreateHosts(ctx, sdk, diagnostics, cid, toCreate, opts)
 	if diagnostics.HasError() {
 		return
 	}
@@ -202,13 +205,14 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 // 3) Create remaining hosts
 // 4) Update existing hosts
 // 5) Delete remaining hosts
-func UpdateClusterHosts[T Host, H any, HS any, U any](
+func UpdateClusterHosts[T Host, H any, HS any, U any, O any](
 	ctx context.Context,
 	sdk *ycsdk.SDK,
 	diagnostics *diag.Diagnostics,
 	utilsHostService CmpHostService[T, H, HS, U],
-	hostsApiService HostApiService[H, HS, U],
+	hostsApiService HostApiService[H, HS, U, O],
 	cid string,
+	opts O,
 	plan, state types.Map,
 ) {
 	entityIdToPlanHost := make(map[string]T)
@@ -234,7 +238,7 @@ func UpdateClusterHosts[T Host, H any, HS any, U any](
 		"deleted": len(toDelete),
 	})
 
-	hostsApiService.CreateHosts(ctx, sdk, diagnostics, cid, toCreate)
+	hostsApiService.CreateHosts(ctx, sdk, diagnostics, cid, toCreate, opts)
 	if diagnostics.HasError() {
 		return
 	}
@@ -449,12 +453,12 @@ func ModifyStateDependsPlan[T Host, H any, HS any, U any](
 // 1. Map hosts from api to hosts in state by fqdn
 // 2. Map hosts from api to hosts in state without fqdn by equal attributes
 // 3. Add hosts from api to state if not mapped
-func ReadHosts[T Host, H ProtoHost, HS any, U any](
+func ReadHosts[T Host, H ProtoHost, HS any, U any, O any](
 	ctx context.Context,
 	sdk *ycsdk.SDK, // The SDK instance to interact with the relevant API.
 	diags *diag.Diagnostics,
 	utilsHostService CmpHostService[T, H, HS, U], // A service utility for comparative host operations involving generic types.
-	hostsApiService HostApiService[H, HS, U], // The API service used to manage hosts, facilitating operations on host data.
+	hostsApiService HostApiService[H, HS, U, O], // The API service used to manage hosts, facilitating operations on host data.
 	stateHosts basetypes.MapValue, // A map representing the state of hosts, used for validation and updates.
 	cid string,
 ) map[string]T {

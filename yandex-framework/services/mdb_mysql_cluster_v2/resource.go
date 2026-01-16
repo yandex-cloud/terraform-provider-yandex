@@ -562,6 +562,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		mysqlHostService,
 		&mysqlApi,
 		plan.Id.ValueString(),
+		struct{}{},
 		plan.HostSpecs,
 		state.HostSpecs,
 	)

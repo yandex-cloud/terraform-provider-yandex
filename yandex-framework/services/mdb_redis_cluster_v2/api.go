@@ -188,7 +188,7 @@ func (r *RedisAPI) EnableShardingRedis(ctx context.Context, sdk *ycsdk.SDK, diag
 	}
 }
 
-func (r *RedisAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []*redis.HostSpec) {
+func (r *RedisAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []*redis.HostSpec, opts struct{}) {
 	op, err := sdk.WrapOperation(
 		sdk.MDB().Redis().Cluster().AddShard(ctx, &redis.AddClusterShardRequest{
 			ClusterId: cid,
@@ -238,7 +238,7 @@ func (r *RedisAPI) RebalanceCluster(ctx context.Context, sdk *ycsdk.SDK, diag *d
 	}
 }
 
-func (r *RedisAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*redis.HostSpec) {
+func (r *RedisAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*redis.HostSpec, opts struct{}) {
 	for _, spec := range specs {
 		op, err := sdk.WrapOperation(
 			sdk.MDB().Redis().Cluster().AddHosts(ctx, &redis.AddClusterHostsRequest{

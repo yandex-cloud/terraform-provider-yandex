@@ -729,13 +729,14 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	mdbcommon.UpdateClusterHostsWithShards[Host, *redis.Host, *redis.HostSpec, redis.UpdateHostSpec](
+	mdbcommon.UpdateClusterHostsWithShards[Host, *redis.Host, *redis.HostSpec, redis.UpdateHostSpec, struct{}](
 		ctx,
 		r.providerConfig.SDK,
 		&resp.Diagnostics,
 		redisHostService,
 		&redisAPI,
 		plan.ID.ValueString(),
+		struct{}{},
 		plan.HostSpecs,
 		state.HostSpecs,
 	)

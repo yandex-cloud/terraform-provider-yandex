@@ -29,6 +29,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kubernetes_marketplace_helm_release"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_greenplum_cluster_v2"
@@ -333,6 +334,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_sharded_postgresql_shard.NewShardedPostgreSQLShardResource,
 		cloud_desktops_desktop_group.NewResource,
 		cloud_desktops_desktop.NewResource,
+		mdb_clickhouse_cluster_v2.NewClickHouseClusterResourceV2,
 	}, yandex_gen.GetProviderResources()...)
 }
 
@@ -367,6 +369,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		yandex_cloud_desktops_image.NewDataSource,
 		cloud_desktops_desktop_group.NewDatasource,
 		cloud_desktops_desktop.NewDatasource,
+		// mdb_clickhouse_cluster_v2.NewDataSource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 

@@ -62,6 +62,12 @@ func FlattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics)
 	return obj
 }
 
+func FlattenListString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.List {
+	obj, d := types.ListValueFrom(ctx, types.StringType, ss)
+	diags.Append(d...)
+	return obj
+}
+
 func FlattenMapString(ctx context.Context, ms map[string]string, diags *diag.Diagnostics) types.Map {
 	obj, d := types.MapValueFrom(ctx, types.StringType, ms)
 	diags.Append(d...)

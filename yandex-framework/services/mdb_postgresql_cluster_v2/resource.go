@@ -664,6 +664,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		postgresqlHostService,
 		&postgresqlApi,
 		plan.Id.ValueString(),
+		struct{}{},
 		plan.HostSpecs,
 		state.HostSpecs,
 	)

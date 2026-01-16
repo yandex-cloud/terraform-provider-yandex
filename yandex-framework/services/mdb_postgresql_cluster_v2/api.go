@@ -93,7 +93,7 @@ func (p *PostgresqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags
 	return hosts
 }
 
-func (p *PostgresqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*postgresql.HostSpec) {
+func (p *PostgresqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*postgresql.HostSpec, opts struct{}) {
 	for _, spec := range specs {
 		op, err := sdk.WrapOperation(
 			sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, &postgresql.AddClusterHostsRequest{
