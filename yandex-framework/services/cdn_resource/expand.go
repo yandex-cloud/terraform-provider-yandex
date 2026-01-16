@@ -41,16 +41,24 @@ func expandStringsListOption(ctx context.Context, list types.List, diags *diag.D
 	}
 }
 
-// expandStringsMapOption creates StringsMapOption if the map is not null/unknown and has elements
+// expandStringsMapOption creates StringsMapOption from a Terraform map
+// - null or empty map: returns Enabled: false to explicitly disable/clear headers
+// - map with values: returns Enabled: true with the values
 func expandStringsMapOption(ctx context.Context, m types.Map, diags *diag.Diagnostics) *cdn.ResourceOptions_StringsMapOption {
+	// Both null AND empty map mean "disable/clear headers"
+	// Send Enabled: false to explicitly disable the option
 	if m.IsNull() || len(m.Elements()) == 0 {
-		return nil
+		return &cdn.ResourceOptions_StringsMapOption{
+			Enabled: false,
+		}
 	}
 
 	values := make(map[string]string)
 	diags.Append(m.ElementsAs(ctx, &values, false)...)
 	if diags.HasError() || len(values) == 0 {
-		return nil
+		return &cdn.ResourceOptions_StringsMapOption{
+			Enabled: false,
+		}
 	}
 
 	return &cdn.ResourceOptions_StringsMapOption{

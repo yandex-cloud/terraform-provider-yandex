@@ -108,13 +108,22 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 		opt.Stale = types.ListNull(types.StringType)
 	}
 
-	// Map options - CORRECT SEMANTICS: null when not configured
+	// Map options - respect plan's type (null vs empty map)
+	// When API returns disabled, check plan to determine if state should be null or empty map
 	if options.StaticHeaders != nil && options.StaticHeaders.Enabled {
 		mapVal, d := types.MapValueFrom(ctx, types.StringType, options.StaticHeaders.Value)
 		diags.Append(d...)
 		opt.StaticResponseHeaders = mapVal
 	} else {
-		opt.StaticResponseHeaders = types.MapNull(types.StringType)
+		// API returned disabled/nil - check what plan expected
+		if planOptionsModel != nil && !planOptionsModel.StaticResponseHeaders.IsNull() {
+			// Plan had a non-null value (could be empty map {})
+			// Return empty map to match plan's type
+			opt.StaticResponseHeaders = types.MapValueMust(types.StringType, map[string]attr.Value{})
+		} else {
+			// Plan was null - return null
+			opt.StaticResponseHeaders = types.MapNull(types.StringType)
+		}
 	}
 
 	if options.StaticRequestHeaders != nil && options.StaticRequestHeaders.Enabled {
@@ -122,7 +131,15 @@ func FlattenCDNResourceOptions(ctx context.Context, options *cdn.ResourceOptions
 		diags.Append(d...)
 		opt.StaticRequestHeaders = mapVal
 	} else {
-		opt.StaticRequestHeaders = types.MapNull(types.StringType)
+		// API returned disabled/nil - check what plan expected
+		if planOptionsModel != nil && !planOptionsModel.StaticRequestHeaders.IsNull() {
+			// Plan had a non-null value (could be empty map {})
+			// Return empty map to match plan's type
+			opt.StaticRequestHeaders = types.MapValueMust(types.StringType, map[string]attr.Value{})
+		} else {
+			// Plan was null - return null
+			opt.StaticRequestHeaders = types.MapNull(types.StringType)
+		}
 	}
 
 	// Mutually exclusive options groups

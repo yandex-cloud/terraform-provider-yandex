@@ -460,13 +460,9 @@ func (r *cdnResourceResource) Update(ctx context.Context, req resource.UpdateReq
 					mergedOptions.Cors = stateOpt.Cors
 				}
 
-				// Map options
-				if (mergedOptions.StaticResponseHeaders.IsNull() || mergedOptions.StaticResponseHeaders.IsUnknown()) && !stateOpt.StaticResponseHeaders.IsNull() {
-					mergedOptions.StaticResponseHeaders = stateOpt.StaticResponseHeaders
-				}
-				if (mergedOptions.StaticRequestHeaders.IsNull() || mergedOptions.StaticRequestHeaders.IsUnknown()) && !stateOpt.StaticRequestHeaders.IsNull() {
-					mergedOptions.StaticRequestHeaders = stateOpt.StaticRequestHeaders
-				}
+				// Map options - DO NOT merge, user explicitly controls these
+				// Null in plan means "delete/disable", not "preserve state"
+				// If user wants to keep state value, they should specify it in config
 
 				// Mutually exclusive groups - these should be in plan, but just in case
 				// For mutually exclusive groups, ALL fields must be null/unknown to fallback to state
