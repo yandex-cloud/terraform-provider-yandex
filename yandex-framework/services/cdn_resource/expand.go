@@ -23,16 +23,24 @@ func expandBoolOptionIfSet(value types.Bool) *cdn.ResourceOptions_BoolOption {
 	}
 }
 
-// expandStringsListOption creates StringsListOption if the list is not null/unknown and has elements
+// expandStringsListOption creates StringsListOption from a Terraform list
+// - null or empty list: returns Enabled: false to explicitly disable/clear the option
+// - list with values: returns Enabled: true with the values
 func expandStringsListOption(ctx context.Context, list types.List, diags *diag.Diagnostics) *cdn.ResourceOptions_StringsListOption {
+	// Both null AND empty list mean "disable/clear the option"
+	// Send Enabled: false to explicitly disable
 	if list.IsNull() || len(list.Elements()) == 0 {
-		return nil
+		return &cdn.ResourceOptions_StringsListOption{
+			Enabled: false,
+		}
 	}
 
 	var values []string
 	diags.Append(list.ElementsAs(ctx, &values, false)...)
 	if diags.HasError() || len(values) == 0 {
-		return nil
+		return &cdn.ResourceOptions_StringsListOption{
+			Enabled: false,
+		}
 	}
 
 	return &cdn.ResourceOptions_StringsListOption{
