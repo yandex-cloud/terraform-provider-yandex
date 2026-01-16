@@ -1847,11 +1847,15 @@ func expandYandexYtsaurusClusterSpecStorageHddModel(ctx context.Context, yandexY
 }
 
 type yandexYtsaurusClusterSpecStorageSsdModel struct {
-	Count  types.Int64  `tfsdk:"count"`
-	SizeGb types.Int64  `tfsdk:"size_gb"`
-	Type   types.String `tfsdk:"type"`
+	Changelogs types.Object `tfsdk:"changelogs"`
+	Count      types.Int64  `tfsdk:"count"`
+	SizeGb     types.Int64  `tfsdk:"size_gb"`
+	Type       types.String `tfsdk:"type"`
 }
 
+func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetChangelogs() types.Object {
+	return m.Changelogs
+}
 func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetCount() types.Int64 {
 	return m.Count
 }
@@ -1864,13 +1868,17 @@ func (m *yandexYtsaurusClusterSpecStorageSsdModel) GetType() types.String {
 
 func NewYandexYtsaurusClusterSpecStorageSsdModel() yandexYtsaurusClusterSpecStorageSsdModel {
 	return yandexYtsaurusClusterSpecStorageSsdModel{
-		Count:  types.Int64Null(),
-		SizeGb: types.Int64Null(),
-		Type:   types.StringNull(),
+		Changelogs: types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdChangelogsModelType.AttrTypes),
+		Count:      types.Int64Null(),
+		SizeGb:     types.Int64Null(),
+		Type:       types.StringNull(),
 	}
 }
 
 func yandexYtsaurusClusterSpecStorageSsdModelFillUnknown(target yandexYtsaurusClusterSpecStorageSsdModel) yandexYtsaurusClusterSpecStorageSsdModel {
+	if target.Changelogs.IsUnknown() || target.Changelogs.IsNull() {
+		target.Changelogs = types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdChangelogsModelType.AttrTypes)
+	}
 	if target.Count.IsUnknown() || target.Count.IsNull() {
 		target.Count = types.Int64Null()
 	}
@@ -1885,9 +1893,10 @@ func yandexYtsaurusClusterSpecStorageSsdModelFillUnknown(target yandexYtsaurusCl
 
 var yandexYtsaurusClusterSpecStorageSsdModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"count":   types.Int64Type,
-		"size_gb": types.Int64Type,
-		"type":    types.StringType,
+		"changelogs": yandexYtsaurusClusterSpecStorageSsdChangelogsModelType,
+		"count":      types.Int64Type,
+		"size_gb":    types.Int64Type,
+		"type":       types.StringType,
 	},
 }
 
@@ -1898,9 +1907,10 @@ func flattenYandexYtsaurusClusterSpecStorageSsd(ctx context.Context,
 		return types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecStorageSsdModelType.AttrTypes, yandexYtsaurusClusterSpecStorageSsdModel{
-		Count:  types.Int64Value(int64(yandexYtsaurusClusterSpecStorageSsd.GetCount())),
-		SizeGb: types.Int64Value(int64(yandexYtsaurusClusterSpecStorageSsd.GetSizeGb())),
-		Type:   types.StringValue(yandexYtsaurusClusterSpecStorageSsd.GetType()),
+		Changelogs: flattenYandexYtsaurusClusterSpecStorageSsdChangelogs(ctx, yandexYtsaurusClusterSpecStorageSsd.GetChangelogs(), diags),
+		Count:      types.Int64Value(int64(yandexYtsaurusClusterSpecStorageSsd.GetCount())),
+		SizeGb:     types.Int64Value(int64(yandexYtsaurusClusterSpecStorageSsd.GetSizeGb())),
+		Type:       types.StringValue(yandexYtsaurusClusterSpecStorageSsd.GetType()),
 	})
 	diags.Append(diag...)
 	return value
@@ -1920,9 +1930,71 @@ func expandYandexYtsaurusClusterSpecStorageSsd(ctx context.Context, yandexYtsaur
 
 func expandYandexYtsaurusClusterSpecStorageSsdModel(ctx context.Context, yandexYtsaurusClusterSpecStorageSsdState yandexYtsaurusClusterSpecStorageSsdModel, diags *diag.Diagnostics) *ytsaurus.StorageSpec_SsdSpec {
 	value := &ytsaurus.StorageSpec_SsdSpec{}
+	value.SetChangelogs(expandYandexYtsaurusClusterSpecStorageSsdChangelogs(ctx, yandexYtsaurusClusterSpecStorageSsdState.Changelogs, diags))
 	value.SetCount((yandexYtsaurusClusterSpecStorageSsdState.Count.ValueInt64()))
 	value.SetSizeGb((yandexYtsaurusClusterSpecStorageSsdState.SizeGb.ValueInt64()))
 	value.SetType(yandexYtsaurusClusterSpecStorageSsdState.Type.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterSpecStorageSsdChangelogsModel struct {
+	SizeGb types.Int64 `tfsdk:"size_gb"`
+}
+
+func (m *yandexYtsaurusClusterSpecStorageSsdChangelogsModel) GetSizeGb() types.Int64 {
+	return m.SizeGb
+}
+
+func NewYandexYtsaurusClusterSpecStorageSsdChangelogsModel() yandexYtsaurusClusterSpecStorageSsdChangelogsModel {
+	return yandexYtsaurusClusterSpecStorageSsdChangelogsModel{
+		SizeGb: types.Int64Null(),
+	}
+}
+
+func yandexYtsaurusClusterSpecStorageSsdChangelogsModelFillUnknown(target yandexYtsaurusClusterSpecStorageSsdChangelogsModel) yandexYtsaurusClusterSpecStorageSsdChangelogsModel {
+	if target.SizeGb.IsUnknown() || target.SizeGb.IsNull() {
+		target.SizeGb = types.Int64Null()
+	}
+	return target
+}
+
+var yandexYtsaurusClusterSpecStorageSsdChangelogsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"size_gb": types.Int64Type,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecStorageSsdChangelogs(ctx context.Context,
+	yandexYtsaurusClusterSpecStorageSsdChangelogs *ytsaurus.StorageSpec_SsdSpec_Changelogs,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecStorageSsdChangelogs == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecStorageSsdChangelogsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecStorageSsdChangelogsModelType.AttrTypes, yandexYtsaurusClusterSpecStorageSsdChangelogsModel{
+		SizeGb: types.Int64Value(int64(yandexYtsaurusClusterSpecStorageSsdChangelogs.GetSizeGb())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecStorageSsdChangelogs(ctx context.Context, yandexYtsaurusClusterSpecStorageSsdChangelogsState types.Object, diags *diag.Diagnostics) *ytsaurus.StorageSpec_SsdSpec_Changelogs {
+	if yandexYtsaurusClusterSpecStorageSsdChangelogsState.IsNull() || yandexYtsaurusClusterSpecStorageSsdChangelogsState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecStorageSsdChangelogs yandexYtsaurusClusterSpecStorageSsdChangelogsModel
+	diags.Append(yandexYtsaurusClusterSpecStorageSsdChangelogsState.As(ctx, &yandexYtsaurusClusterSpecStorageSsdChangelogs, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecStorageSsdChangelogsModel(ctx, yandexYtsaurusClusterSpecStorageSsdChangelogs, diags)
+}
+
+func expandYandexYtsaurusClusterSpecStorageSsdChangelogsModel(ctx context.Context, yandexYtsaurusClusterSpecStorageSsdChangelogsState yandexYtsaurusClusterSpecStorageSsdChangelogsModel, diags *diag.Diagnostics) *ytsaurus.StorageSpec_SsdSpec_Changelogs {
+	value := &ytsaurus.StorageSpec_SsdSpec_Changelogs{}
+	value.SetSizeGb((yandexYtsaurusClusterSpecStorageSsdChangelogsState.SizeGb.ValueInt64()))
 	if diags.HasError() {
 		return nil
 	}
