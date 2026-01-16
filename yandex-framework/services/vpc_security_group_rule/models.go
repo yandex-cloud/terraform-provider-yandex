@@ -60,7 +60,7 @@ func (r securityGroupRuleModel) BodyEqual(o securityGroupRuleModel) bool {
 }
 
 func cidrsEqual(r, o types.List) bool {
-	if (r.IsNull() || r.IsUnknown()) == (o.IsNull() || o.IsUnknown()) {
+	if (r.IsNull() || r.IsUnknown()) && (o.IsNull() || o.IsUnknown()) {
 		return true
 	}
 	return r.Equal(o)
