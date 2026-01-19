@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -64,7 +65,14 @@ func ExpandListShard(ctx context.Context, m types.Map, cid string, diags *diag.D
 		return nil
 	}
 
-	for shardName, shard := range shards {
+	shardNames := make([]string, 0, len(shards))
+	for name := range shards {
+		shardNames = append(shardNames, name)
+	}
+	sort.Strings(shardNames)
+
+	for _, shardName := range shardNames {
+		shard := shards[shardName]
 		result = append(result, &clickhouse.ShardSpec{
 			Name: shardName,
 			ConfigSpec: &clickhouse.ShardConfigSpec{
