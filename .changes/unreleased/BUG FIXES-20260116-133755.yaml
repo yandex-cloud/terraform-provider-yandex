@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'yandex_vpc_security_group_rule: fixed update of cidr block properties'
-time: 2026-01-16T13:37:55.090419096+02:00
