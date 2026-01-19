@@ -686,7 +686,7 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 				Computed:            true,
 			},
 			"log_processors_profiles": schema.BoolAttribute{
-				MarkdownDescription: "Enabled or disable logging of processors level profiling data to the the system.log_processors_profiles table.",
+				MarkdownDescription: "Enabled or disable logging of processors level profiling data to the the system.processors_profile_log table.",
 				Optional:            true,
 				Computed:            true,
 			},

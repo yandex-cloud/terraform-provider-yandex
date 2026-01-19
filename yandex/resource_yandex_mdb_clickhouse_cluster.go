@@ -603,7 +603,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 									"http_max_field_value_size":                           {Type: schema.TypeInt, Optional: true, Computed: true, Description: "Maximum length of field value in HTTP header."},
 									"async_insert_use_adaptive_busy_timeout":              {Type: schema.TypeBool, Optional: true, Computed: true, Description: "If it is set to true, use adaptive busy timeout for asynchronous inserts."},
 									"log_queries_probability":                             {Type: schema.TypeFloat, Optional: true, Computed: true, Description: "Log queries with the specified probability."},
-									"log_processors_profiles":                             {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enabled or disable logging of processors level profiling data to the the system.log_processors_profiles table."},
+									"log_processors_profiles":                             {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Enabled or disable logging of processors level profiling data to the the system.processors_profile_log table."},
 									"use_query_cache":                                     {Type: schema.TypeBool, Optional: true, Computed: true, Description: "If turned on, SELECT queries may utilize the query cache."},
 									"enable_reads_from_query_cache":                       {Type: schema.TypeBool, Optional: true, Computed: true, Description: "If turned on, results of SELECT queries are retrieved from the query cache."},
 									"enable_writes_to_query_cache":                        {Type: schema.TypeBool, Optional: true, Computed: true, Description: "If turned on, results of SELECT queries are stored in the query cache."},

@@ -715,7 +715,7 @@ If the parameter is set to 0 (default), no hops is allowed.`,
 				Optional:            true,
 			},
 			"log_processors_profiles": schema.BoolAttribute{
-				MarkdownDescription: "Enabled or disable logging of processors level profiling data to the the system.log_processors_profiles table.",
+				MarkdownDescription: "Enabled or disable logging of processors level profiling data to the the system.processors_profile_log table.",
 				Optional:            true,
 			},
 			"use_query_cache": schema.BoolAttribute{
