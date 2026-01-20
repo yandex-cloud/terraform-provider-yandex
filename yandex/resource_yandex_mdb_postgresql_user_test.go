@@ -37,6 +37,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "unspecified"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_password_encryption", "USER_PASSWORD_ENCRYPTION_MD5"),
 					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": int64(350)}),
@@ -109,6 +110,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "conn_limit", "0"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "generate_password", "true"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "user_password_encryption", "USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameCharlie),
@@ -480,6 +482,7 @@ resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
 	generate_password = true
+	user_password_encryption = "USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256"
     
 	login      = false
 	conn_limit = 0

@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -37,8 +36,7 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"login": {
 				Type:        schema.TypeBool,
 				Description: resourceYandexMDBPostgreSQLUser().Schema["login"].Description,
-				Optional:    true,
-				Default:     true,
+				Computed:    true,
 			},
 			"permission": {
 				Type:        schema.TypeSet,
@@ -50,7 +48,7 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 						"database_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The name of the database that the permission grants access to.",
+							Description: resourceYandexMDBPostgreSQLUser().Schema["permission"].Elem.(*schema.Resource).Schema["database_name"].Description,
 						},
 					},
 				},
@@ -58,24 +56,20 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"conn_limit": {
 				Type:        schema.TypeInt,
 				Description: resourceYandexMDBPostgreSQLUser().Schema["conn_limit"].Description,
-				Optional:    true,
+				Computed:    true,
 			},
 			"settings": {
-				Type:             schema.TypeMap,
-				Description:      resourceYandexMDBPostgreSQLUser().Schema["settings"].Description,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
-				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				Type:        schema.TypeMap,
+				Description: resourceYandexMDBPostgreSQLUser().Schema["settings"].Description,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"deletion_protection": {
-				Type:         schema.TypeString,
-				Description:  common.ResourceDescriptions["deletion_protection"],
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 			"connection_manager": {
 				Type:        schema.TypeMap,
@@ -88,6 +82,11 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 			"auth_method": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLUser().Schema["auth_method"].Description,
+				Computed:    true,
+			},
+			"user_password_encryption": {
+				Type:        schema.TypeString,
+				Description: resourceYandexMDBPostgreSQLUser().Schema["user_password_encryption"].Description,
 				Computed:    true,
 			},
 		},

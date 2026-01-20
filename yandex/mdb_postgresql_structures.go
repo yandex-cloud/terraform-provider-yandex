@@ -1682,6 +1682,15 @@ func parsePostgreSQLAuthMethod(s string) (postgresql.AuthMethod, error) {
 	return postgresql.AuthMethod(v), nil
 }
 
+func parsePostgreSQLUserPasswordEncryption(s string) (postgresql.UserPasswordEncryption, error) {
+	v, ok := postgresql.UserPasswordEncryption_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'user_password_encryption' must be one of %s, not `%s`", getJoinedKeys(allowedUserPasswordEncryptionValues), s)
+	}
+
+	return postgresql.UserPasswordEncryption(v), nil
+}
+
 var mdbPGTristateBooleanName = map[string]*wrappers.BoolValue{
 	"true":        wrapperspb.Bool(true),
 	"false":       wrapperspb.Bool(false),
@@ -1715,6 +1724,43 @@ func validatePasswordConfiguration(userSpec *postgresql.UserSpec) error {
 	return nil
 }
 
+func validateUserPasswordEncryptionForCreate(d *schema.ResourceData) error {
+	if v, ok := d.GetOk("user_password_encryption"); ok {
+		userPasswordEncryption, err := parsePostgreSQLUserPasswordEncryption(v.(string))
+		if err != nil {
+			return err
+		}
+		if userPasswordEncryption == postgresql.UserPasswordEncryption_USER_PASSWORD_ENCRYPTION_UNSPECIFIED {
+			return fmt.Errorf(
+				"value for 'user_password_encryption' must be one of %s, not `%s`",
+				getJoinedKeys(allowedUserPasswordEncryptionValues),
+				userPasswordEncryption.String(),
+			)
+		}
+	}
+
+	return nil
+}
+
+func validateUserPasswordEncryptionForUpdate(d *schema.ResourceData, user *postgresql.UserSpec) error {
+	isUserPasswordEncryptionHasChanges := d.HasChange("user_password_encryption")
+
+	if isUserPasswordEncryptionHasChanges &&
+		user.UserPasswordEncryption == postgresql.UserPasswordEncryption_USER_PASSWORD_ENCRYPTION_UNSPECIFIED {
+		return fmt.Errorf(
+			"value for 'user_password_encryption' must be one of %s, not `%s`",
+			getJoinedKeys(allowedUserPasswordEncryptionValues),
+			user.UserPasswordEncryption.String(),
+		)
+	}
+
+	if isUserPasswordEncryptionHasChanges && !d.HasChange("password") {
+		return fmt.Errorf("user_password_encryption can not be changed without password change")
+	}
+
+	return nil
+}
+
 var mdbPGUserSettingsTransactionIsolationName = map[int]string{
 	int(postgresql.UserSettings_TRANSACTION_ISOLATION_UNSPECIFIED):      "unspecified",
 	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED): "read uncommitted",
@@ -1742,6 +1788,11 @@ var mdbPGUserSettingsPoolModeName = map[int]string{
 	int(postgresql.UserSettings_STATEMENT):                "statement",
 	int(postgresql.UserSettings_TRANSACTION):              "transaction",
 	int(postgresql.UserSettings_SESSION):                  "session",
+}
+
+var allowedUserPasswordEncryptionValues = []string{
+	"USER_PASSWORD_ENCRYPTION_MD5",
+	"USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256",
 }
 
 var mdbPGUserSettingsPgauditName = map[string]postgresql.PGAuditSettings_PGAuditSettingsLog{

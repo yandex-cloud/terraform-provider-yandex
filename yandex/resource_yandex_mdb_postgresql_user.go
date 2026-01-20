@@ -142,6 +142,17 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 					"AUTH_METHOD_IAM",
 				}, false),
 			},
+			"user_password_encryption": {
+				Type:        schema.TypeString,
+				Description: "Password-based authentication method for user.\nPossible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.\nThe default is password_encryption setting for cluster.",
+				Optional:    true,
+				Computed:    true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"USER_PASSWORD_ENCRYPTION_UNSPECIFIED",
+					"USER_PASSWORD_ENCRYPTION_MD5",
+					"USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256",
+				}, false),
+			},
 		},
 	}
 }
@@ -159,6 +170,11 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta interfac
 	}
 
 	err = validatePasswordConfiguration(userSpec)
+	if err != nil {
+		return err
+	}
+
+	err = validateUserPasswordEncryptionForCreate(d)
 	if err != nil {
 		return err
 	}
@@ -259,6 +275,14 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.AuthMethod = authMethod
 	}
 
+	if v, ok := d.GetOk("user_password_encryption"); ok {
+		userPasswordEncryption, err := parsePostgreSQLUserPasswordEncryption(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		user.UserPasswordEncryption = userPasswordEncryption
+	}
+
 	return user, nil
 }
 
@@ -309,6 +333,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
 	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.ConnectionManager))
 	d.Set("auth_method", apiUser.AuthMethod.String())
+	d.Set("user_password_encryption", apiUser.UserPasswordEncryption.String())
 
 	return nil
 }
@@ -329,6 +354,11 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	err = validateUserPasswordEncryptionForUpdate(d, user)
+	if err != nil {
+		return err
+	}
+
 	if d.HasChange("name") {
 		return fmt.Errorf("can't change name of an existing user")
 	}
@@ -342,6 +372,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		"conn_limit":                                   "conn_limit",
 		"deletion_protection":                          "deletion_protection",
 		"auth_method":                                  "auth_method",
+		"user_password_encryption":                     "user_password_encryption",
 		"settings.default_transaction_isolation":       "settings.default_transaction_isolation",
 		"settings.lock_timeout":                        "settings.lock_timeout",
 		"settings.log_min_duration_statement":          "settings.log_min_duration_statement",
@@ -374,17 +405,18 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	request := &postgresql.UpdateUserRequest{
-		ClusterId:          clusterID,
-		UserName:           user.Name,
-		Password:           user.Password,
-		Permissions:        userPermissions,
-		ConnLimit:          user.ConnLimit.GetValue(),
-		Login:              user.Login,
-		Grants:             user.Grants,
-		Settings:           user.Settings,
-		DeletionProtection: user.DeletionProtection,
-		AuthMethod:         user.AuthMethod,
-		UpdateMask:         &fieldmaskpb.FieldMask{Paths: updatePath},
+		ClusterId:              clusterID,
+		UserName:               user.Name,
+		Password:               user.Password,
+		Permissions:            userPermissions,
+		ConnLimit:              user.ConnLimit.GetValue(),
+		Login:                  user.Login,
+		Grants:                 user.Grants,
+		Settings:               user.Settings,
+		DeletionProtection:     user.DeletionProtection,
+		AuthMethod:             user.AuthMethod,
+		UserPasswordEncryption: user.UserPasswordEncryption,
+		UpdateMask:             &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
