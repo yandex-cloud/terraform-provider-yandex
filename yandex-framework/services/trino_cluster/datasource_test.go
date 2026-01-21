@@ -100,6 +100,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "maintenance_window.type", "WEEKLY"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "maintenance_window.day", "MON"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "maintenance_window.hour", "2"),
+		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "private_access", "false"),
 
 		// Additional parameters
 		resource.TestCheckResourceAttrSet("data.yandex_trino_cluster.trino_cluster", "security_group_ids.0"),

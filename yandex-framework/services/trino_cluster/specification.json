@@ -140,6 +140,16 @@
             }
           },
           {
+            "name": "private_access",
+            "bool": {
+              "computed_optional_required": "computed_optional",
+              "description": "Enables access to the cluster only via private endpoint.",
+              "default": {
+                "static": false
+              }
+            }
+          },
+          {
             "name": "deletion_protection",
             "bool": {
               "computed_optional_required": "computed_optional",

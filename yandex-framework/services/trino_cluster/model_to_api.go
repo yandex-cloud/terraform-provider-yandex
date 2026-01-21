@@ -54,6 +54,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
 			SecurityGroupIds: common.SecurityGroupIds,
+			PrivateAccess:    common.PrivateAccess,
 		},
 		DeletionProtection: common.DeletionProtection,
 		ServiceAccountId:   common.ServiceAccountId,
@@ -69,6 +70,7 @@ type CommonForCreateAndUpdate struct {
 	Description        string
 	Labels             map[string]string
 	SecurityGroupIds   []string
+	PrivateAccess      *trino.PrivateAccessConfig
 	DeletionProtection bool
 	ServiceAccountId   string
 	Logging            *trino.LoggingConfig
@@ -145,6 +147,13 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 	}
 	if state != nil && !setsAreEqual(plan.SecurityGroupIds, state.SecurityGroupIds) {
 		updateMaskPaths = append(updateMaskPaths, "network_spec.security_group_ids")
+	}
+
+	privateAccess := &trino.PrivateAccessConfig{
+		Enabled: plan.PrivateAccess.ValueBool(),
+	}
+	if state != nil && !plan.PrivateAccess.Equal(state.PrivateAccess) {
+		updateMaskPaths = append(updateMaskPaths, "network_spec.private_access")
 	}
 
 	var loggingConfig *trino.LoggingConfig
@@ -367,6 +376,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		Description:        plan.Description.ValueString(),
 		Labels:             labels,
 		SecurityGroupIds:   securityGroupIds,
+		PrivateAccess:      privateAccess,
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		ServiceAccountId:   plan.ServiceAccountId.ValueString(),
 		Logging:            loggingConfig,
@@ -420,6 +430,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		},
 		NetworkSpec: &trino.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,
+			PrivateAccess:    common.PrivateAccess,
 		},
 		DeletionProtection: common.DeletionProtection,
 		ServiceAccountId:   common.ServiceAccountId,

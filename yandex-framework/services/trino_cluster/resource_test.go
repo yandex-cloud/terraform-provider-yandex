@@ -85,6 +85,7 @@ type trinoClusterConfigParams struct {
 	AdditionalParams   bool
 	RetryPolicy        *RetryPolicyParams
 	Version            string
+	PrivateAccess      bool
 	TrustedCerts       []string
 	ResourceGroups     string
 	QueryProperties    map[string]string
@@ -149,6 +150,7 @@ resource "yandex_trino_cluster" "trino_cluster" {
     {{ end }}
   }
   deletion_protection = {{ .DeletionProtection }}
+  private_access      = {{ .PrivateAccess }}
 
   {{ if .Version }}
   version = "{{ .Version }}"
@@ -346,6 +348,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 						"query.max-memory-per-node": "7GB",
 						"query.max-cpu-time":        "11h",
 					},
+					PrivateAccess: false,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -363,6 +366,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					testCheckResourceGroupsEqual("yandex_trino_cluster.trino_cluster", "resource_groups_json", expectedResourceGroups1),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7GB"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-cpu-time", "11h"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "private_access", "false"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),

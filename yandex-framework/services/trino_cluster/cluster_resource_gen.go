@@ -168,6 +168,13 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The resource name.",
 				MarkdownDescription: "The resource name.",
 			},
+			"private_access": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Enables access to the cluster only via private endpoint.",
+				MarkdownDescription: "Enables access to the cluster only via private endpoint.",
+				Default:             booldefault.StaticBool(false),
+			},
 			"query_properties": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -358,6 +365,7 @@ type ClusterModel struct {
 	Logging            LoggingValue           `tfsdk:"logging"`
 	MaintenanceWindow  MaintenanceWindowValue `tfsdk:"maintenance_window"`
 	Name               types.String           `tfsdk:"name"`
+	PrivateAccess      types.Bool             `tfsdk:"private_access"`
 	QueryProperties    types.Map              `tfsdk:"query_properties"`
 	ResourceGroupsJson types.String           `tfsdk:"resource_groups_json"`
 	RetryPolicy        RetryPolicyValue       `tfsdk:"retry_policy"`

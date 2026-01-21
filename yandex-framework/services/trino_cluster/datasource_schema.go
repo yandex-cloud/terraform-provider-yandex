@@ -181,6 +181,10 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				MarkdownDescription: "The list of security groups applied to resource or their components.",
 			},
+			"private_access": schema.BoolAttribute{
+				Computed:            true,
+				MarkdownDescription: "Enables access to the cluster only via private endpoint.",
+			},
 			"service_account_id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "[Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource. For more information, see [documentation](https://yandex.cloud/docs/managed-trino/concepts/impersonation).",

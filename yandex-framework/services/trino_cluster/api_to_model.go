@@ -60,6 +60,8 @@ func ClusterToState(ctx context.Context, cluster *trino.Cluster, state *ClusterM
 		state.SecurityGroupIds = securityGroupIds
 	}
 
+	state.PrivateAccess = types.BoolValue(cluster.GetNetwork().GetPrivateAccess().GetEnabled())
+
 	state.Coordinator = coordinatorValueFromAPI(cluster.GetTrino().GetCoordinatorConfig())
 
 	worker, diags := workerValueFromAPI(ctx, cluster.GetTrino().GetWorkerConfig())
