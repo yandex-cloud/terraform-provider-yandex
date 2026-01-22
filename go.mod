@@ -33,6 +33,7 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.10.0
 	github.com/hashicorp/vault v0.10.4
 	github.com/jen20/awspolicyequivalence v1.1.0
+	github.com/jhump/protoreflect v1.15.1
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	github.com/miniscruff/changie v1.18.0
 	github.com/mitchellh/go-homedir v1.1.0
@@ -116,6 +117,7 @@ require (
 	github.com/bombsimon/wsl/v3 v3.4.0 // indirect
 	github.com/breml/bidichk v0.2.4 // indirect
 	github.com/breml/errchkjson v0.3.1 // indirect
+	github.com/bufbuild/protocompile v0.4.0 // indirect
 	github.com/butuzov/ireturn v0.2.0 // indirect
 	github.com/butuzov/mirror v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

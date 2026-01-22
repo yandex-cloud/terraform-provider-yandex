@@ -12,6 +12,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
@@ -68,9 +69,10 @@ func ConfigForSweepers() (*provider_config.Config, error) {
 		},
 	}
 
-	err = conf.InitAndValidate(context.Background(), "", true)
-	if err != nil {
-		return nil, err
+	diags := diag.Diagnostics{}
+	diags.Append(conf.InitAndValidate(context.Background(), "", true, diag.Diagnostics{})...)
+	if diags.HasError() {
+		return nil, fmt.Errorf(diags.Errors()[0].Detail())
 	}
 
 	return conf, nil

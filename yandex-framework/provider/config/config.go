@@ -9,11 +9,14 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mitchellh/go-homedir"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/iamkey"
@@ -25,8 +28,11 @@ import (
 	iamkeyv2 "github.com/yandex-cloud/go-sdk/v2/pkg/iamkey"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/options"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/storage/s3"
+	"github.com/yandex-cloud/terraform-provider-yandex/version"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
@@ -92,17 +98,19 @@ type Config struct {
 }
 
 // Client configures and returns a fully initialized Yandex Cloud SDK
-func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, sweeper bool) error {
+func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, sweeper bool, diags diag.Diagnostics) diag.Diagnostics {
 	ctx = requestid.ContextWithClientTraceID(ctx, uuid.New().String())
 
 	credentials, err := c.Credentials(ctx)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
 	}
 
 	credentialsV2, err := c.CredentialsV2(ctx)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
 	}
 
 	yandexSDKConfig := &ycsdk.Config{
@@ -126,7 +134,6 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		requestIDInterceptor,
 	}
 
-	// Support deep API logging in case user has requested it.
 	if os.Getenv("TF_ENABLE_API_LOGGING") != "" {
 		log.Print("[INFO] API logging has been requested, turning on")
 		interceptors = append(interceptors, logging.NewAPILoggingUnaryInterceptor())
@@ -137,7 +144,8 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		retry.WithThrottlingMode(retry.ThrottlingModeTemporary),
 	)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
 	}
 
 	grpcOptions := []grpc.DialOption{
@@ -149,7 +157,8 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 
 	c.SDK, err = ycsdk.Build(ctx, *yandexSDKConfig, grpcOptions...)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
 	}
 
 	opts := []options.Option{
@@ -165,7 +174,13 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 	}
 	c.SDKv2, err = ycsdkv2.Build(ctx, opts...)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
+	}
+
+	diags.Append(c.initYcTool(ctx, terraformVersion, version.ProviderVersion)...)
+	if diags.HasError() {
+		return diags
 	}
 
 	yqSDKConfig := &yqsdk.Config{
@@ -180,10 +195,100 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 
 	c.YqSdk, err = yqsdk.NewYQSDK(ctx, *yqSDKConfig)
 	if err != nil {
-		return err
+		diags.AddError("Failed to configure", err.Error())
+		return diags
 	}
 
-	return c.initializeDefaultS3Client(ctx)
+	err = c.initializeDefaultS3Client(ctx)
+	if err != nil {
+		diags.AddError("Failed to configure", err.Error())
+		return diags
+	}
+
+	return diags
+}
+
+func (c *Config) initYcTool(ctx context.Context, terraformVersion string, providerVersion string) diag.Diagnostics {
+	const (
+		toolName = "yc-terraform"
+		tfUrl    = "https://www.terraform.io"
+	)
+	diags := diag.Diagnostics{}
+
+	iamToken, err := c.getIAMToken(ctx)
+	if err != nil {
+		diags.AddError("cannot get iam token", err.Error())
+		return diags
+	}
+
+	userAgent := fmt.Sprintf("Terraform/%s (%s) terraform-provider-yc/%s (%s; %s)",
+		terraformVersion,
+		tfUrl,
+		providerVersion,
+		runtime.GOOS,
+		runtime.GOARCH,
+	)
+
+	client, err := NewVersionControlClient(iamToken, userAgent)
+	if err != nil {
+		tflog.Error(ctx, fmt.Sprintf("failed to create version control client: %v", err))
+		return nil
+	}
+	defer client.Close()
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	res, err := client.Init(ctx, &InitRequest{
+		Version:  version.ProviderVersion,
+		ToolName: toolName,
+	})
+
+	if err != nil {
+		if st, ok := status.FromError(err); ok {
+			switch st.Code() {
+			case codes.DeadlineExceeded:
+				diags.AddWarning(
+					fmt.Sprintf(
+						"Cannot connect to YC tool initialization service. "+
+							"Network connectivity to the service is required for provider version control.\n",
+					),
+					"",
+				)
+
+				return diags
+			case codes.FailedPrecondition:
+				diags.AddError(
+					fmt.Sprintf(
+						"version v%s of the terraform-provider-yandex is blocked.\n"+
+							"Please use another version: update your provider or downgrade.\n\n",
+						version.ProviderVersion),
+					"",
+				)
+
+				return diags
+			default:
+				tflog.Error(ctx, fmt.Sprintf("Cannot initialize provider via YCVC: %v", err))
+				return nil
+			}
+		}
+
+		tflog.Error(ctx, fmt.Sprintf("Cannot initialize provider via YCVC: %v", err))
+		return nil
+	}
+
+	if res != nil && res.DeprecationWarning != nil {
+		diags.AddWarning(
+			fmt.Sprintf(
+				"version v%s of the terraform-provider-yandex is deprecated and will soon no longer be in use.\n"+
+					"Please use another version: update your provider or downgrade.\n",
+				version.ProviderVersion),
+			"",
+		)
+		return diags
+	}
+
+	return nil
 }
 
 func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {

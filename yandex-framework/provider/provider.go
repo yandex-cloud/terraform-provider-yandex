@@ -281,10 +281,9 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 			p.config.ProviderState.FolderID = types.StringValue("")
 		}
 
-		if err := p.config.InitAndValidate(ctx, req.TerraformVersion, false); err != nil {
-			resp.Diagnostics.AddError("Failed to configure", err.Error())
-		}
+		resp.Diagnostics.Append(p.config.InitAndValidate(ctx, req.TerraformVersion, false, resp.Diagnostics)...)
 	})
+
 	resp.ResourceData = p.config
 	resp.DataSourceData = p.config
 }
