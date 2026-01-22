@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'clickhouse: fix deprecated version in `yandex_mdb_clickhouse_cluster_v2`'
+time: 2026-01-22T02:21:27.285358966Z

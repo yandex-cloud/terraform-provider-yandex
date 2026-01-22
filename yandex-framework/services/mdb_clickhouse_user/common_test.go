@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	chVersion               = "24.8"
+	chVersion               = "25.8"
 	chClusterResourceID     = "yandex_mdb_clickhouse_cluster.sewage"
 	chClusterResourceIDLink = "yandex_mdb_clickhouse_cluster.sewage.id"
 	chDBResourceName1       = "pepperoni"

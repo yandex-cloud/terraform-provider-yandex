@@ -35,7 +35,7 @@ var (
 			"labels":                    types.MapNull(types.StringType),
 			"environment":               types.StringValue("PRESTABLE"),
 			"network_id":                types.StringValue("test-network"),
-			"version":                   types.StringValue("24.8"),
+			"version":                   types.StringValue("25.8"),
 			"maintenance_window":        types.ObjectNull(models.MaintenanceWindowAttrTypes),
 			"clickhouse":                types.ObjectNull(models.ClickhouseAttrTypes),
 			"zookeeper":                 types.ObjectNull(models.ZookeeperAttrTypes),
@@ -621,7 +621,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 				},
 				ServiceAccountId: "",
 				ConfigSpec: &clickhouse.ConfigSpec{
-					Version:                "24.8",
+					Version:                "25.8",
 					Clickhouse:             nil,
 					Zookeeper:              nil,
 					BackupWindowStart:      &timeofday.TimeOfDay{},

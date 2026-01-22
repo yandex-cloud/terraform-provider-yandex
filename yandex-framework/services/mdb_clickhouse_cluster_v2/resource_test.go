@@ -1382,9 +1382,9 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
     test_key = "test_value"
   }
 
-  version        			= "%s"
-  service_account_id 		= "${yandex_iam_service_account.sa.id}"
+  service_account_id = "${yandex_iam_service_account.sa.id}"
 
+  version = "%s"
   clickhouse = {
 	  resources = {
 		resource_preset_id = "s2.micro"
@@ -1424,7 +1424,6 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
 
   version = "%s"
-
   clickhouse = {
 	  # resources
 	  %s
@@ -1482,6 +1481,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
 
+  version = "%s"
   clickhouse = {
 	# clickhouse config
 	%s
@@ -1508,6 +1508,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 }
 `,
 		name,
+		chVersion,
 		buildClickhouseConfigHCL(config),
 		maintenanceWindowAnytime,
 	)
