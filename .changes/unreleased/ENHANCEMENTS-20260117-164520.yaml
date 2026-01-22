@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: fix description for `log_processors_profiles` attribute to
-  reference correct system table'
-time: 2026-01-17T16:45:20.254838936Z

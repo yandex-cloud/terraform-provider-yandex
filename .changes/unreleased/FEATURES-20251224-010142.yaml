@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'trino: add `private_access` field to trino_cluster resource'
-time: 2025-12-24T01:01:42.704097+03:00
