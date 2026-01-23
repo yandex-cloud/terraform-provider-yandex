@@ -1115,7 +1115,7 @@ func AccessControlImprovementsSchema() schema.SingleNestedAttribute {
 		},
 		Attributes: map[string]schema.Attribute{
 			"select_from_system_db_requires_grant": schema.BoolAttribute{
-				Description: "Sets whether **SELECT * FROM system.<table>** requires any grants and can be executed by any user. If set to true then this query requires **GRANT SELECT ON system.<table>** just as for non-system tables.",
+				Description: "Sets whether `SELECT * FROM system.<table>` requires any grants and can be executed by any user. If set to true then this query requires `GRANT SELECT ON system.<table>` just as for non-system tables.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -1123,7 +1123,7 @@ func AccessControlImprovementsSchema() schema.SingleNestedAttribute {
 				},
 			},
 			"select_from_information_schema_requires_grant": schema.BoolAttribute{
-				Description: "Sets whether **SELECT * FROM information_schema.<table>** requires any grants and can be executed by any user. If set to true, then this query requires **GRANT SELECT ON information_schema.<table>**, just as for ordinary tables.",
+				Description: "Sets whether `SELECT * FROM information_schema.<table>` requires any grants and can be executed by any user. If set to true, then this query requires `GRANT SELECT ON information_schema.<table>`, just as for ordinary tables.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
