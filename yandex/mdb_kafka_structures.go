@@ -26,6 +26,14 @@ const (
 	Topic_CLEANUP_POLICY_COMPACT_AND_DELETE TopicCleanupPolicy = 3
 )
 
+type TopicMessageTimestampType int32
+
+const (
+	Topic_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED     TopicMessageTimestampType = 0
+	Topic_MESSAGE_TIMESTAMP_TYPE_CREATE_TIME     TopicMessageTimestampType = 1
+	Topic_MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME TopicMessageTimestampType = 2
+)
+
 const kafkaConfigPath = "config.0.kafka.0.kafka_config.0"
 
 // Enum value maps for TopicCleanupPolicy.
@@ -41,6 +49,20 @@ var (
 		"CLEANUP_POLICY_DELETE":             1,
 		"CLEANUP_POLICY_COMPACT":            2,
 		"CLEANUP_POLICY_COMPACT_AND_DELETE": 3,
+	}
+)
+
+// Enum value maps for TopicMessageTimestampType.
+var (
+	Topic_MessageTimestampType_name = map[int32]string{
+		0: "MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED",
+		1: "MESSAGE_TIMESTAMP_TYPE_CREATE_TIME",
+		2: "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME",
+	}
+	Topic_MessageTimestampType_value = map[string]int32{
+		"MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED":     0,
+		"MESSAGE_TIMESTAMP_TYPE_CREATE_TIME":     1,
+		"MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME": 2,
 	}
 )
 
@@ -104,6 +126,15 @@ func parseKafkaTopicCleanupPolicy(e string) (TopicCleanupPolicy, error) {
 			getJoinedKeys(getEnumValueMapKeysExt(Topic_CleanupPolicy_value, true)), e)
 	}
 	return TopicCleanupPolicy(v), nil
+}
+
+func parseKafkaTopicMessageTimestampType(e string) (TopicMessageTimestampType, error) {
+	v, ok := Topic_MessageTimestampType_value[e]
+	if !ok || e == "MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED" {
+		return 0, fmt.Errorf("value for 'message_timestamp_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeysExt(Topic_MessageTimestampType_value, true)), e)
+	}
+	return TopicMessageTimestampType(v), nil
 }
 
 func parseIntKafkaConfigParam(d *schema.ResourceData, paramName string, retErr *error) *wrappers.Int64Value {
@@ -301,18 +332,19 @@ func expandKafkaConfig4x(d *schema.ResourceData) (*kafka.KafkaConfig4, error) {
 }
 
 type TopicConfig struct {
-	CleanupPolicy      string
-	CompressionType    kafka.CompressionType
-	DeleteRetentionMs  *wrappers.Int64Value
-	FileDeleteDelayMs  *wrappers.Int64Value
-	FlushMessages      *wrappers.Int64Value
-	FlushMs            *wrappers.Int64Value
-	MinCompactionLagMs *wrappers.Int64Value
-	RetentionBytes     *wrappers.Int64Value
-	RetentionMs        *wrappers.Int64Value
-	MaxMessageBytes    *wrappers.Int64Value
-	MinInsyncReplicas  *wrappers.Int64Value
-	SegmentBytes       *wrappers.Int64Value
+	CleanupPolicy        string
+	CompressionType      kafka.CompressionType
+	DeleteRetentionMs    *wrappers.Int64Value
+	FileDeleteDelayMs    *wrappers.Int64Value
+	FlushMessages        *wrappers.Int64Value
+	FlushMs              *wrappers.Int64Value
+	MinCompactionLagMs   *wrappers.Int64Value
+	RetentionBytes       *wrappers.Int64Value
+	RetentionMs          *wrappers.Int64Value
+	MaxMessageBytes      *wrappers.Int64Value
+	MinInsyncReplicas    *wrappers.Int64Value
+	SegmentBytes         *wrappers.Int64Value
+	MessageTimestampType string
 }
 
 func parseIntTopicConfigParam(d *schema.ResourceData, paramPath string, retErr *error) *wrappers.Int64Value {
@@ -356,6 +388,14 @@ func parseKafkaTopicConfig(d *schema.ResourceData, topicConfigPrefix string) (*T
 		res.CompressionType = value
 	}
 
+	if messageTimestampType := d.Get(key("message_timestamp_type")).(string); messageTimestampType != "" {
+		_, err := parseKafkaTopicMessageTimestampType(messageTimestampType)
+		if err != nil {
+			return nil, err
+		}
+		res.MessageTimestampType = messageTimestampType
+	}
+
 	var retErr error
 	res.DeleteRetentionMs = parseIntTopicConfigParam(d, key("delete_retention_ms"), &retErr)
 	res.FileDeleteDelayMs = parseIntTopicConfigParam(d, key("file_delete_delay_ms"), &retErr)
@@ -381,18 +421,19 @@ func expandKafkaTopicConfig2_8(d *schema.ResourceData, topicConfigPrefix string)
 		return nil, err
 	}
 	res := &kafka.TopicConfig2_8{
-		CleanupPolicy:      kafka.TopicConfig2_8_CleanupPolicy(kafka.TopicConfig2_8_CleanupPolicy_value[topicConfig.CleanupPolicy]),
-		CompressionType:    topicConfig.CompressionType,
-		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
-		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
-		FlushMessages:      topicConfig.FlushMessages,
-		FlushMs:            topicConfig.FlushMs,
-		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
-		RetentionBytes:     topicConfig.RetentionBytes,
-		RetentionMs:        topicConfig.RetentionMs,
-		MaxMessageBytes:    topicConfig.MaxMessageBytes,
-		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
-		SegmentBytes:       topicConfig.SegmentBytes,
+		CleanupPolicy:        kafka.TopicConfig2_8_CleanupPolicy(kafka.TopicConfig2_8_CleanupPolicy_value[topicConfig.CleanupPolicy]),
+		CompressionType:      topicConfig.CompressionType,
+		DeleteRetentionMs:    topicConfig.DeleteRetentionMs,
+		FileDeleteDelayMs:    topicConfig.FileDeleteDelayMs,
+		FlushMessages:        topicConfig.FlushMessages,
+		FlushMs:              topicConfig.FlushMs,
+		MinCompactionLagMs:   topicConfig.MinCompactionLagMs,
+		RetentionBytes:       topicConfig.RetentionBytes,
+		RetentionMs:          topicConfig.RetentionMs,
+		MaxMessageBytes:      topicConfig.MaxMessageBytes,
+		MinInsyncReplicas:    topicConfig.MinInsyncReplicas,
+		SegmentBytes:         topicConfig.SegmentBytes,
+		MessageTimestampType: kafka.MessageTimestampType(kafka.MessageTimestampType_value[topicConfig.MessageTimestampType]),
 	}
 
 	return res, nil
@@ -404,18 +445,19 @@ func expandKafkaTopicConfig3x(d *schema.ResourceData, topicConfigPrefix string) 
 		return nil, err
 	}
 	res := &kafka.TopicConfig3{
-		CleanupPolicy:      kafka.TopicConfig3_CleanupPolicy(kafka.TopicConfig3_CleanupPolicy_value[topicConfig.CleanupPolicy]),
-		CompressionType:    topicConfig.CompressionType,
-		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
-		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
-		FlushMessages:      topicConfig.FlushMessages,
-		FlushMs:            topicConfig.FlushMs,
-		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
-		RetentionBytes:     topicConfig.RetentionBytes,
-		RetentionMs:        topicConfig.RetentionMs,
-		MaxMessageBytes:    topicConfig.MaxMessageBytes,
-		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
-		SegmentBytes:       topicConfig.SegmentBytes,
+		CleanupPolicy:        kafka.TopicConfig3_CleanupPolicy(kafka.TopicConfig3_CleanupPolicy_value[topicConfig.CleanupPolicy]),
+		CompressionType:      topicConfig.CompressionType,
+		DeleteRetentionMs:    topicConfig.DeleteRetentionMs,
+		FileDeleteDelayMs:    topicConfig.FileDeleteDelayMs,
+		FlushMessages:        topicConfig.FlushMessages,
+		FlushMs:              topicConfig.FlushMs,
+		MinCompactionLagMs:   topicConfig.MinCompactionLagMs,
+		RetentionBytes:       topicConfig.RetentionBytes,
+		RetentionMs:          topicConfig.RetentionMs,
+		MaxMessageBytes:      topicConfig.MaxMessageBytes,
+		MinInsyncReplicas:    topicConfig.MinInsyncReplicas,
+		SegmentBytes:         topicConfig.SegmentBytes,
+		MessageTimestampType: kafka.MessageTimestampType(kafka.MessageTimestampType_value[topicConfig.MessageTimestampType]),
 	}
 
 	return res, nil
@@ -427,18 +469,19 @@ func expandKafkaTopicConfig4x(d *schema.ResourceData, topicConfigPrefix string) 
 		return nil, err
 	}
 	res := &kafka.TopicConfig4{
-		CleanupPolicy:      kafka.TopicConfig4_CleanupPolicy(kafka.TopicConfig4_CleanupPolicy_value[topicConfig.CleanupPolicy]),
-		CompressionType:    topicConfig.CompressionType,
-		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
-		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
-		FlushMessages:      topicConfig.FlushMessages,
-		FlushMs:            topicConfig.FlushMs,
-		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
-		RetentionBytes:     topicConfig.RetentionBytes,
-		RetentionMs:        topicConfig.RetentionMs,
-		MaxMessageBytes:    topicConfig.MaxMessageBytes,
-		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
-		SegmentBytes:       topicConfig.SegmentBytes,
+		CleanupPolicy:        kafka.TopicConfig4_CleanupPolicy(kafka.TopicConfig4_CleanupPolicy_value[topicConfig.CleanupPolicy]),
+		CompressionType:      topicConfig.CompressionType,
+		DeleteRetentionMs:    topicConfig.DeleteRetentionMs,
+		FileDeleteDelayMs:    topicConfig.FileDeleteDelayMs,
+		FlushMessages:        topicConfig.FlushMessages,
+		FlushMs:              topicConfig.FlushMs,
+		MinCompactionLagMs:   topicConfig.MinCompactionLagMs,
+		RetentionBytes:       topicConfig.RetentionBytes,
+		RetentionMs:          topicConfig.RetentionMs,
+		MaxMessageBytes:      topicConfig.MaxMessageBytes,
+		MinInsyncReplicas:    topicConfig.MinInsyncReplicas,
+		SegmentBytes:         topicConfig.SegmentBytes,
+		MessageTimestampType: kafka.MessageTimestampType(kafka.MessageTimestampType_value[topicConfig.MessageTimestampType]),
 	}
 
 	return res, nil
@@ -1020,6 +1063,10 @@ func flattenKafkaTopicConfig2_8(topicConfig *kafka.TopicConfig2_8) map[string]in
 		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
 	}
 
+	if topicConfig.GetMessageTimestampType() != kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED {
+		result["message_timestamp_type"] = topicConfig.GetMessageTimestampType().String()
+	}
+
 	return result
 }
 
@@ -1030,6 +1077,10 @@ func flattenKafkaTopicConfig3(topicConfig *kafka.TopicConfig3) map[string]interf
 		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
 	}
 
+	if topicConfig.GetMessageTimestampType() != kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED {
+		result["message_timestamp_type"] = topicConfig.GetMessageTimestampType().String()
+	}
+
 	return result
 }
 
@@ -1038,6 +1089,10 @@ func flattenKafkaTopicConfig4(topicConfig *kafka.TopicConfig4) map[string]interf
 
 	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig4_CLEANUP_POLICY_UNSPECIFIED {
 		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
+	}
+
+	if topicConfig.GetMessageTimestampType() != kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED {
+		result["message_timestamp_type"] = topicConfig.GetMessageTimestampType().String()
 	}
 
 	return result

@@ -723,6 +723,12 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: ConvertableToInt(),
 			},
+			"message_timestamp_type": {
+				Type:         schema.TypeString,
+				Description:  "Define whether the timestamp in the message is message create time or log append time. Possible values: LOG_APPEND_TIME or CREATE_TIME.",
+				Optional:     true,
+				ValidateFunc: validateParsableValue(parseKafkaTopicMessageTimestampType),
+			},
 			"preallocate": {
 				Type:        schema.TypeBool,
 				Description: "True if we should preallocate the file on disk when creating a new log segment.",

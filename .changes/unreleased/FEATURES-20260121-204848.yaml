@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_kafka: add `message_timestamp_type` support for Kafka topic configuration'
+time: 2026-01-21T20:48:48Z
