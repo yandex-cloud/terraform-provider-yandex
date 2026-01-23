@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
@@ -68,7 +69,7 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	// Update Resource State
 	prevState := state
-	r.refreshResourceState(ctx, &prevState, &state, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &state, r.providerConfig.SDK, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -124,7 +125,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// Update state
 	prevState := plan
-	r.refreshResourceState(ctx, &prevState, &plan, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &plan, r.providerConfig.SDK, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -290,7 +291,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Update state
 	prevState := plan
-	r.refreshResourceState(ctx, &prevState, &plan, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &plan, r.providerConfig.SDK, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -463,14 +464,14 @@ func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func (r *clusterResource) refreshResourceState(ctx context.Context, prevState, state *models.Cluster, diags *diag.Diagnostics) {
+func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := state.Id.ValueString()
-	cluster := clickhouseApi.GetCluster(ctx, r.providerConfig.SDK, diags, cid)
+	cluster := clickhouseApi.GetCluster(ctx, sdk, diags, cid)
 	if diags.HasError() {
 		return
 	}
 
-	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDK, diags, clickhouseHostService, &clickhouseApi, state.HostSpecs, cid)
+	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, sdk, diags, clickhouseHostService, &clickhouseApi, state.HostSpecs, cid)
 
 	var d diag.Diagnostics
 	state.HostSpecs, d = types.MapValueFrom(ctx, models.HostType, entityIdToApiHosts)
@@ -480,6 +481,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, prevState, s
 	}
 
 	state.Id = types.StringValue(cluster.Id)
+	state.ClusterId = state.Id
 	state.FolderId = types.StringValue(cluster.FolderId)
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.GetCreatedAt()))
 	state.Name = types.StringValue(cluster.Name)
@@ -517,15 +519,15 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, prevState, s
 	state.EmbeddedKeeper = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.EmbeddedKeeper, diags)
 	state.BackupRetainPeriodDays = mdbcommon.FlattenInt64Wrapper(ctx, cluster.Config.BackupRetainPeriodDays, diags)
 
-	currentFormatSchemas := clickhouseApi.ListFormatSchemas(ctx, r.providerConfig.SDK, diags, cid)
+	currentFormatSchemas := clickhouseApi.ListFormatSchemas(ctx, sdk, diags, cid)
 	state.FormatSchema = models.FlattenListFormatSchema(ctx, currentFormatSchemas, diags)
 
-	currentMlModels := clickhouseApi.ListMlModels(ctx, r.providerConfig.SDK, diags, cid)
+	currentMlModels := clickhouseApi.ListMlModels(ctx, sdk, diags, cid)
 	state.MLModel = models.FlattenListMLModel(ctx, currentMlModels, diags)
 
-	currentShards := clickhouseApi.ListShards(ctx, r.providerConfig.SDK, diags, cid)
+	currentShards := clickhouseApi.ListShards(ctx, sdk, diags, cid)
 	state.Shards = models.FlattenListShard(ctx, currentShards, diags)
 
-	currentShardGroups := clickhouseApi.ListShardGroups(ctx, r.providerConfig.SDK, diags, cid)
+	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
 	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
 }

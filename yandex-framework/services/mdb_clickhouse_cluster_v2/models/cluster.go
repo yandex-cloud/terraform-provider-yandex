@@ -8,6 +8,7 @@ import (
 
 type Cluster struct {
 	Id                  types.String `tfsdk:"id"`
+	ClusterId           types.String `tfsdk:"cluster_id"`
 	FolderId            types.String `tfsdk:"folder_id"`
 	CreatedAt           types.String `tfsdk:"created_at"`
 	Name                types.String `tfsdk:"name"`
@@ -45,6 +46,7 @@ type Cluster struct {
 
 var ClusterAttrTypes = map[string]attr.Type{
 	"id":                        types.StringType,
+	"cluster_id":                types.StringType,
 	"folder_id":                 types.StringType,
 	"created_at":                types.StringType,
 	"name":                      types.StringType,

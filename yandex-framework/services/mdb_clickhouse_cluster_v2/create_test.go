@@ -28,6 +28,7 @@ var (
 		models.ClusterAttrTypes,
 		map[string]attr.Value{
 			"id":                        types.StringValue(clusterId),
+			"cluster_id":                types.StringValue(clusterId),
 			"folder_id":                 types.StringValue("test-folder-1"),
 			"created_at":                types.StringNull(),
 			"name":                      types.StringValue("test-cluster"),
@@ -68,6 +69,7 @@ var (
 		models.ClusterAttrTypes,
 		map[string]attr.Value{
 			"id":          types.StringValue(clusterId),
+			"cluster_id":  types.StringValue(clusterId),
 			"folder_id":   types.StringValue("test-folder-2"),
 			"created_at":  types.StringNull(),
 			"name":        types.StringValue("test-cluster"),

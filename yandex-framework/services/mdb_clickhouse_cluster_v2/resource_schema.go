@@ -41,6 +41,13 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"cluster_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the ClickHouse cluster. This ID is assigned by MDB at creation time.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"name": schema.StringAttribute{
 				Description: "Name of the ClickHouse cluster. Provided by the client when the cluster is created.",
 				Required:    true,

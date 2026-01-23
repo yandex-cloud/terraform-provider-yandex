@@ -372,7 +372,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		yandex_cloud_desktops_image.NewDataSource,
 		cloud_desktops_desktop_group.NewDatasource,
 		cloud_desktops_desktop.NewDatasource,
-		// mdb_clickhouse_cluster_v2.NewDataSource,
+		mdb_clickhouse_cluster_v2.NewDataSource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 

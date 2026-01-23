@@ -2,352 +2,39 @@
 subcategory: "Managed Service for ClickHouse"
 page_title: "Yandex: yandex_mdb_clickhouse_cluster_v2"
 description: |-
-  Manages a ClickHouse cluster within Yandex Cloud.
+  Get information about a Yandex Managed ClickHouse cluster.
 ---
 
-# yandex_mdb_clickhouse_cluster_v2 (Resource)
+# yandex_mdb_clickhouse_cluster_v2 (Data Source)
 
-Manages a ClickHouse cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/). [How to connect to the DB](https://yandex.cloud/en/docs/managed-clickhouse/quickstart#connect). To connect, use port 9440. The port number is not configurable.
+Get information about a Yandex Managed ClickHouse cluster. For more information,
+see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
 
 ## Example usage
 
 ```terraform
 //
-// Create a new MDB Clickhouse Cluster.
+// Get information about existing MDB Clickhouse Cluster.
 //
-resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
-    name        = "test"
-    environment = "PRESTABLE"
-    network_id  = yandex_vpc_network.foo.id
-
-    clickhouse = {
-        resources = {
-            resource_preset_id = "s2.micro"
-            disk_type_id       = "network-ssd"
-            disk_size          = 32
-        }
-
-        config = {
-            log_level                       = "TRACE"
-            max_connections                 = 100
-            max_concurrent_queries          = 50
-            keep_alive_timeout              = 3000
-            uncompressed_cache_size         = 8589934592
-            max_table_size_to_drop          = 53687091200
-            max_partition_size_to_drop      = 53687091200
-            timezone                        = "UTC"
-            geobase_uri                     = ""
-            query_log_retention_size        = 1073741824
-            query_log_retention_time        = 2592000
-            query_thread_log_enabled        = true
-            query_thread_log_retention_size = 536870912
-            query_thread_log_retention_time = 2592000
-            part_log_retention_size         = 536870912
-            part_log_retention_time         = 2592000
-            metric_log_enabled              = true
-            metric_log_retention_size       = 536870912
-            metric_log_retention_time       = 2592000
-            trace_log_enabled               = true
-            trace_log_retention_size        = 536870912
-            trace_log_retention_time        = 2592000
-            text_log_enabled                = true
-            text_log_retention_size         = 536870912
-            text_log_retention_time         = 2592000
-            text_log_level                  = "TRACE"
-            background_pool_size            = 16
-            background_schedule_pool_size   = 16
-
-            merge_tree = {
-                replicated_deduplication_window                           = 100
-                replicated_deduplication_window_seconds                   = 604800
-                parts_to_delay_insert                                     = 150
-                parts_to_throw_insert                                     = 300
-                max_replicated_merges_in_queue                            = 16
-                number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
-                max_bytes_to_merge_at_min_space_in_pool                   = 1048576
-                max_bytes_to_merge_at_max_space_in_pool                   = 161061273600
-            }
-
-            kafka = {
-                security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-                sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
-                sasl_username     = "user1"
-                sasl_password     = "pass1"
-            }
-
-            rabbitmq = {
-                username = "rabbit_user"
-                password = "rabbit_pass"
-            }
-
-            compression = [
-                {
-                    method              = "LZ4"
-                    min_part_size       = 1024
-                    min_part_size_ratio = 0.5
-                },
-                {
-                    method              = "ZSTD"
-                    min_part_size       = 2048
-                    min_part_size_ratio = 0.7
-                },
-            ]
-
-            graphite_rollup = [
-                {
-                    name = "rollup1"
-                    patterns = [{
-                        regexp   = "abc"
-                        function = "func1"
-                        retention = [{
-                            age       = 1000
-                            precision = 3
-                        }]
-                    }]
-                },
-                {
-                    name = "rollup2"
-                    patterns = [{
-                        function = "func2"
-                        retention = [{
-                            age       = 2000
-                            precision = 5
-                        }]
-                    }]
-                }
-            ]
-        }
-    }
-
-    hosts = {
-        "h1" = {
-            type      = "CLICKHOUSE"
-            zone      = "ru-central1-a"
-            subnet_id = yandex_vpc_subnet.foo.id
-        }
-    }
-
-    format_schema {
-        name = "test_schema"
-        type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
-        uri  = "https://storage.yandexcloud.net/ch-data/schema.proto"
-    }
-
-    service_account_id = "your_service_account_id"
-
-    cloud_storage = {
-        enabled = false
-    }
-
-    maintenance_window {
-        type = "ANYTIME"
-    }
+data "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
+  name = "test"
 }
 
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
-}
-```
-
-```terraform
-//
-// Create a new MDB High Availability Clickhouse Cluster.
-//
-resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
-  name        = "ha"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-
-  clickhouse = {
-    resources = {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 16
-    }
-  }
-
-  zookeeper = {
-    resources = {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 10
-    }
-  }
-
-  hosts = {
-    "ka" = {
-      type      = "KEEPER"
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.foo.id
-    }
-    "kb" = {
-      type      = "KEEPER"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.bar.id
-    }
-    "kd" = {
-      type      = "KEEPER"
-      zone      = "ru-central1-d"
-      subnet_id = yandex_vpc_subnet.baz.id
-    }
-    "ca" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.foo.id
-    }
-    "cb" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.bar.id
-    }
-  }
-
-  cloud_storage = {
-    enabled = false
-  }
-
-  maintenance_window {
-    type = "ANYTIME"
-  }
-}
-
-// Auxiliary resources
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-d"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.3.0.0/24"]
-}
-```
-
-```terraform
-//
-// Create a new MDB Sharded Clickhouse Cluster.
-//
-resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
-  name        = "sharded"
-  environment = "PRODUCTION"
-  network_id  = yandex_vpc_network.foo.id
-
-  clickhouse = {
-    resources = {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 16
-    }
-  }
-
-  zookeeper = {
-    resources = {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 10
-    }
-  }
-
-  shards = {
-    "shard1" = {
-      weight = 110
-    }
-    "shard2" = {
-      weight = 300
-    }
-  }
-
-  hosts = {
-    "c1a" = {
-      type       = "CLICKHOUSE"
-      zone       = "ru-central1-a"
-      subnet_id  = yandex_vpc_subnet.foo.id
-      shard_name = "shard1"
-    }
-    "c1b" = {
-      type       = "CLICKHOUSE"
-      zone       = "ru-central1-b"
-      subnet_id  = yandex_vpc_subnet.bar.id
-      shard_name = "shard1"
-    }
-    "c2a" = {
-      type       = "CLICKHOUSE"
-      zone       = "ru-central1-b"
-      subnet_id  = yandex_vpc_subnet.bar.id
-      shard_name = "shard2"
-    }
-    "c2d" = {
-      type       = "CLICKHOUSE"
-      zone       = "ru-central1-d"
-      subnet_id  = yandex_vpc_subnet.baz.id
-      shard_name = "shard2"
-    }
-  }
-
-  shard_group {
-    name        = "single_shard_group"
-    description = "Cluster configuration that contain only shard1"
-    shard_names = [
-      "shard1",
-    ]
-  }
-
-  cloud_storage = {
-    enabled = false
-  }
-
-  maintenance_window {
-    type = "ANYTIME"
-  }
-}
-
-// Auxiliary resources
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-d"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.3.0.0/24"]
+output "network_id" {
+  value = data.yandex_mdb_clickhouse_cluster_v2.my_cluster.network_id
 }
 ```
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
 
-### Required
-
-- `environment` (String) Deployment environment of the ClickHouse cluster.
-- `hosts` (Attributes Map) A host configuration of the ClickHouse cluster. (see [below for nested schema](#nestedatt--hosts))
-- `name` (String) Name of the ClickHouse cluster. Provided by the client when the cluster is created.
-- `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
-
 ### Optional
+
+- `cluster_id` (String) ID of the ClickHouse cluster. This ID is assigned by MDB at creation time.
+- `name` (String) Name of the ClickHouse cluster. Provided by the client when the cluster is created.
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
+### Read-Only
 
 - `access` (Attributes) Access policy to the ClickHouse cluster. (see [below for nested schema](#nestedatt--access))
 - `admin_password` (String, Sensitive) A password used to authorize as user `admin` when `sql_user_management` enabled.
@@ -356,54 +43,43 @@ resource "yandex_vpc_subnet" "baz" {
 - `clickhouse` (Attributes) Configuration of the ClickHouse subcluster. (see [below for nested schema](#nestedatt--clickhouse))
 - `cloud_storage` (Attributes) Cloud Storage settings. (see [below for nested schema](#nestedatt--cloud_storage))
 - `copy_schema_on_new_hosts` (Boolean) Whether to copy schema on new ClickHouse hosts.
+- `created_at` (String) The creation timestamp of the resource.
 - `deletion_protection` (Boolean) The `true` value means that resource is protected from accidental deletion.
 - `description` (String) The resource description.
 - `disk_encryption_key_id` (String) ID of the KMS key for cluster disk encryption.
 - `embedded_keeper` (Boolean) Whether to use ClickHouse Keeper as a coordination system.
+- `environment` (String) Deployment environment of the ClickHouse cluster.
 - `folder_id` (String) The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `format_schema` (Block Set) A set of `protobuf` or `capnproto` format schemas. (see [below for nested schema](#nestedblock--format_schema))
+- `hosts` (Attributes Map) A host configuration of the ClickHouse cluster. (see [below for nested schema](#nestedatt--hosts))
+- `id` (String) The resource identifier.
 - `labels` (Map of String) A set of key/value label pairs which assigned to resource.
-- `maintenance_window` (Block, Optional) Maintenance window settings. (see [below for nested schema](#nestedblock--maintenance_window))
+- `maintenance_window` (Block, Read-only) Maintenance window settings. (see [below for nested schema](#nestedblock--maintenance_window))
 - `ml_model` (Block Set) A group of machine learning models. (see [below for nested schema](#nestedblock--ml_model))
+- `network_id` (String) The `VPC Network ID` of subnets which resource attached to.
 - `security_group_ids` (Set of String) The list of security groups applied to resource or their components.
 - `service_account_id` (String) [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
 - `shard_group` (Block List) A group of clickhouse shards. (see [below for nested schema](#nestedblock--shard_group))
 - `shards` (Attributes Map) A shards of the ClickHouse cluster. (see [below for nested schema](#nestedatt--shards))
 - `sql_database_management` (Boolean) Grants `admin` user database management permission.
 - `sql_user_management` (Boolean) Enables `admin` user with user management permission.
-- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 - `version` (String) Version of the ClickHouse server software.
 - `zookeeper` (Attributes) Configuration of the ZooKeeper subcluster. (see [below for nested schema](#nestedatt--zookeeper))
 
-### Read-Only
-
-- `cluster_id` (String) ID of the ClickHouse cluster. This ID is assigned by MDB at creation time.
-- `created_at` (String) The creation timestamp of the resource.
-- `id` (String) The resource identifier.
-
-<a id="nestedatt--hosts"></a>
-### Nested Schema for `hosts`
-
-Required:
-
-- `type` (String) The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.
-- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
 
 Optional:
 
-- `assign_public_ip` (Boolean) Whether the host should get a public IP address.
-- `shard_name` (String) The name of the shard to which the host belongs.
-- `subnet_id` (String) ID of the subnet where the host is located.
-
-Read-Only:
-
-- `fqdn` (String) The fully qualified domain name of the host.
+- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 
 
 <a id="nestedatt--access"></a>
 ### Nested Schema for `access`
 
-Optional:
+Read-Only:
 
 - `data_lens` (Boolean) Allow access for DataLens.
 - `data_transfer` (Boolean) Allow access for DataTransfer.
@@ -416,7 +92,7 @@ Optional:
 <a id="nestedatt--backup_window_start"></a>
 ### Nested Schema for `backup_window_start`
 
-Optional:
+Read-Only:
 
 - `hours` (Number) The hour at which backup will be started (UTC).
 - `minutes` (Number) The minute at which backup will be started (UTC).
@@ -425,28 +101,15 @@ Optional:
 <a id="nestedatt--clickhouse"></a>
 ### Nested Schema for `clickhouse`
 
-Required:
-
-- `resources` (Attributes) Resources allocated to hosts. (see [below for nested schema](#nestedatt--clickhouse--resources))
-
-Optional:
+Read-Only:
 
 - `config` (Attributes) Configuration of the ClickHouse subcluster. (see [below for nested schema](#nestedatt--clickhouse--config))
-
-<a id="nestedatt--clickhouse--resources"></a>
-### Nested Schema for `clickhouse.resources`
-
-Required:
-
-- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
-- `disk_type_id` (String) Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
-- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
-
+- `resources` (Attributes) Resources allocated to hosts. (see [below for nested schema](#nestedatt--clickhouse--resources))
 
 <a id="nestedatt--clickhouse--config"></a>
 ### Nested Schema for `clickhouse.config`
 
-Optional:
+Read-Only:
 
 - `access_control_improvements` (Attributes) Access control settings. (see [below for nested schema](#nestedatt--clickhouse--config--access_control_improvements))
 - `async_insert_threads` (Number) Maximum number of threads to parse and insert data in background.
@@ -530,7 +193,7 @@ Optional:
 <a id="nestedatt--clickhouse--config--access_control_improvements"></a>
 ### Nested Schema for `clickhouse.config.access_control_improvements`
 
-Optional:
+Read-Only:
 
 - `select_from_information_schema_requires_grant` (Boolean) Sets whether `SELECT * FROM information_schema.<table>` requires any grants and can be executed by any user. If set to true, then this query requires `GRANT SELECT ON information_schema.<table>`, just as for ordinary tables.
 - `select_from_system_db_requires_grant` (Boolean) Sets whether `SELECT * FROM system.<table>` requires any grants and can be executed by any user. If set to true then this query requires `GRANT SELECT ON system.<table>` just as for non-system tables.
@@ -539,21 +202,18 @@ Optional:
 <a id="nestedatt--clickhouse--config--compression"></a>
 ### Nested Schema for `clickhouse.config.compression`
 
-Required:
+Read-Only:
 
+- `level` (Number) Compression level for `ZSTD` method.
 - `method` (String) Compression method. Two methods are available: `LZ4` and `zstd`.
 - `min_part_size` (Number) Min part size: Minimum size (in bytes) of a data part in a table. ClickHouse only applies the rule to tables with data parts greater than or equal to the Min part size value.
 - `min_part_size_ratio` (Number) Min part size ratio: Minimum table part size to total table size ratio. ClickHouse only applies the rule to tables in which this ratio is greater than or equal to the Min part size ratio value.
-
-Optional:
-
-- `level` (Number) Compression level for `ZSTD` method.
 
 
 <a id="nestedatt--clickhouse--config--custom_macros"></a>
 ### Nested Schema for `clickhouse.config.custom_macros`
 
-Required:
+Read-Only:
 
 - `name` (String) Name of the macro.
 - `value` (String) Value of the macro.
@@ -562,12 +222,9 @@ Required:
 <a id="nestedatt--clickhouse--config--graphite_rollup"></a>
 ### Nested Schema for `clickhouse.config.graphite_rollup`
 
-Required:
+Read-Only:
 
 - `name` (String) Graphite rollup configuration name.
-
-Optional:
-
 - `path_column_name` (String) The name of the column storing the metric name (Graphite sensor). Default value: Path.
 - `patterns` (Attributes List) Set of thinning rules. (see [below for nested schema](#nestedatt--clickhouse--config--graphite_rollup--patterns))
 - `time_column_name` (String) The name of the column storing the time of measuring the metric. Default value: Time.
@@ -577,19 +234,16 @@ Optional:
 <a id="nestedatt--clickhouse--config--graphite_rollup--patterns"></a>
 ### Nested Schema for `clickhouse.config.graphite_rollup.patterns`
 
-Required:
+Read-Only:
 
 - `function` (String) Aggregation function name.
-
-Optional:
-
 - `regexp` (String) Regular expression that the metric name must match.
 - `retention` (Attributes List) Retain parameters. (see [below for nested schema](#nestedatt--clickhouse--config--graphite_rollup--version_column_name--retention))
 
 <a id="nestedatt--clickhouse--config--graphite_rollup--version_column_name--retention"></a>
 ### Nested Schema for `clickhouse.config.graphite_rollup.version_column_name.retention`
 
-Required:
+Read-Only:
 
 - `age` (Number) Minimum data age in seconds.
 - `precision` (Number) Accuracy of determining the age of the data in seconds.
@@ -600,19 +254,16 @@ Required:
 <a id="nestedatt--clickhouse--config--jdbc_bridge"></a>
 ### Nested Schema for `clickhouse.config.jdbc_bridge`
 
-Required:
+Read-Only:
 
 - `host` (String) Host of jdbc bridge.
-
-Optional:
-
 - `port` (Number) Port of jdbc bridge. Default value: 9019.
 
 
 <a id="nestedatt--clickhouse--config--kafka"></a>
 ### Nested Schema for `clickhouse.config.kafka`
 
-Optional:
+Read-Only:
 
 - `auto_offset_reset` (String) Action when no initial offset: 'smallest','earliest','largest','latest','error'.
 - `debug` (String) A comma-separated list of debug contexts to enable.
@@ -628,7 +279,7 @@ Optional:
 <a id="nestedatt--clickhouse--config--merge_tree"></a>
 ### Nested Schema for `clickhouse.config.merge_tree`
 
-Optional:
+Read-Only:
 
 - `check_sample_column_is_correct` (Boolean) Enables the check at table creation that the sampling column type is correct. Default value: true.
 - `cleanup_delay_period` (Number) Minimum period to clean old queue logs, blocks hashes and parts.
@@ -670,7 +321,7 @@ Optional:
 <a id="nestedatt--clickhouse--config--query_cache"></a>
 ### Nested Schema for `clickhouse.config.query_cache`
 
-Optional:
+Read-Only:
 
 - `max_entries` (Number) The maximum number of SELECT query results stored in the cache. Default value: 1024.
 - `max_entry_size_in_bytes` (Number) The maximum size in bytes SELECT query results may have to be saved in the cache. Default value: 1048576 (1 MiB).
@@ -681,20 +332,17 @@ Optional:
 <a id="nestedatt--clickhouse--config--query_masking_rules"></a>
 ### Nested Schema for `clickhouse.config.query_masking_rules`
 
-Required:
-
-- `regexp` (String) RE2 compatible regular expression.
-
-Optional:
+Read-Only:
 
 - `name` (String) Name for the rule.
+- `regexp` (String) RE2 compatible regular expression.
 - `replace` (String) Substitution string for sensitive data. Default value: six asterisks.
 
 
 <a id="nestedatt--clickhouse--config--rabbitmq"></a>
 ### Nested Schema for `clickhouse.config.rabbitmq`
 
-Optional:
+Read-Only:
 
 - `password` (String, Sensitive) RabbitMQ user password.
 - `username` (String) RabbitMQ username.
@@ -702,18 +350,25 @@ Optional:
 
 
 
+<a id="nestedatt--clickhouse--resources"></a>
+### Nested Schema for `clickhouse.resources`
+
+Read-Only:
+
+- `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
+- `disk_type_id` (String) Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+- `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
+
+
 
 <a id="nestedatt--cloud_storage"></a>
 ### Nested Schema for `cloud_storage`
 
-Required:
-
-- `enabled` (Boolean) Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
-
-Optional:
+Read-Only:
 
 - `data_cache_enabled` (Boolean) Enables temporary storage in the cluster repository of data requested from the object repository.
 - `data_cache_max_size` (Number) Defines the maximum amount of memory (in bytes) allocated in the cluster storage for temporary storage of data requested from the object storage.
+- `enabled` (Boolean) Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
 - `move_factor` (Number) Sets the minimum free space ratio in the cluster storage. If the free space is lower than this value, the data is transferred to Yandex Object Storage. Acceptable values are 0 to 1, inclusive.
 - `prefer_not_to_merge` (Boolean) Disables merging of data parts in `Yandex Object Storage`.
 
@@ -721,30 +376,40 @@ Optional:
 <a id="nestedblock--format_schema"></a>
 ### Nested Schema for `format_schema`
 
-Required:
+Read-Only:
 
 - `name` (String) The name of the format schema.
 - `type` (String) Type of the format schema.
 - `uri` (String) Format schema file URL. You can only use format schemas stored in Yandex Object Storage.
 
 
+<a id="nestedatt--hosts"></a>
+### Nested Schema for `hosts`
+
+Read-Only:
+
+- `assign_public_ip` (Boolean) Whether the host should get a public IP address.
+- `fqdn` (String) The fully qualified domain name of the host.
+- `shard_name` (String) The name of the shard to which the host belongs.
+- `subnet_id` (String) ID of the subnet where the host is located.
+- `type` (String) The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.
+- `zone` (String) The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+
+
 <a id="nestedblock--maintenance_window"></a>
 ### Nested Schema for `maintenance_window`
 
-Required:
-
-- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
-
-Optional:
+Read-Only:
 
 - `day` (String) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
 - `hour` (Number) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+- `type` (String) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
 
 
 <a id="nestedblock--ml_model"></a>
 ### Nested Schema for `ml_model`
 
-Required:
+Read-Only:
 
 - `name` (String) The name of the ml model.
 - `type` (String) Type of the model.
@@ -754,20 +419,17 @@ Required:
 <a id="nestedblock--shard_group"></a>
 ### Nested Schema for `shard_group`
 
-Required:
+Read-Only:
 
+- `description` (String) MarkdownDescription of the shard group.
 - `name` (String) The name of the shard group, used as cluster name in Distributed tables.
 - `shard_names` (List of String) List of shards names that belong to the shard group.
-
-Optional:
-
-- `description` (String) Description of the shard group.
 
 
 <a id="nestedatt--shards"></a>
 ### Nested Schema for `shards`
 
-Optional:
+Read-Only:
 
 - `resources` (Attributes) Resources allocated to hosts. (see [below for nested schema](#nestedatt--shards--resources))
 - `weight` (Number) The weight of shard.
@@ -775,7 +437,7 @@ Optional:
 <a id="nestedatt--shards--resources"></a>
 ### Nested Schema for `shards.resources`
 
-Optional:
+Read-Only:
 
 - `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
 - `disk_type_id` (String) Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
@@ -783,37 +445,25 @@ Optional:
 
 
 
-<a id="nestedatt--timeouts"></a>
-### Nested Schema for `timeouts`
-
-Optional:
-
-- `create` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
-- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
-- `update` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
-
-
 <a id="nestedatt--zookeeper"></a>
 ### Nested Schema for `zookeeper`
 
-Required:
+Read-Only:
 
 - `resources` (Attributes) Resources allocated to hosts. (see [below for nested schema](#nestedatt--zookeeper--resources))
 
 <a id="nestedatt--zookeeper--resources"></a>
 ### Nested Schema for `zookeeper.resources`
 
-Required:
+Read-Only:
 
 - `disk_size` (Number) Volume of the storage available to a host, in gigabytes.
 - `disk_type_id` (String) Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
 - `resource_preset_id` (String) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 
-## Import
+## Argument Reference
 
-The resource can be imported by using their `resource ID`. For getting the resource ID you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or [YC CLI](https://yandex.cloud/docs/cli/quickstart).
+One of the following arguments are required:
 
-```shell
-# terraform import yandex_mdb_clickhouse_cluster_v2.<resource Name> <resource Id>
-terraform import yandex_mdb_clickhouse_cluster_v2.my_cluster cluster_id
-```
+* `cluster_id` - The ID of the ClickHouse cluster.
+* `name` - The name of the ClickHouse cluster.
