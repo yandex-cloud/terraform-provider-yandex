@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: fix table reference format in `select_from_information_schema_requires_grant`
-  and `select_from_system_db_requires_grant` descriptions'
-time: 2026-01-22T17:23:44.500744929Z
