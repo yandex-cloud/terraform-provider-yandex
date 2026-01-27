@@ -28,6 +28,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_transfer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_zone_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_function_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
@@ -140,6 +141,7 @@ func init() {
 		yandex_datasphere_community_iam_binding.NewResource,
 		yandex_datasphere_project_iam_binding.NewResource,
 		yandex_datatransfer_endpoint.NewResource,
+		yandex_datatransfer_transfer.NewResource,
 		yandex_dns_zone_iam_binding.NewResource,
 		yandex_lockbox_secret_iam_binding.NewResource,
 		yandex_lockbox_secret_iam_member.NewResource,

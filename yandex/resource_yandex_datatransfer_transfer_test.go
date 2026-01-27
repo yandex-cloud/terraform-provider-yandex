@@ -149,6 +149,7 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
 					resource.TestCheckResourceAttrSet(transferResourceName, "source_id"),
 					resource.TestCheckResourceAttrSet(transferResourceName, "target_id"),
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", dontActivateMode),
 				),
 			},
 			// Update transfer name, expect that description stays the same
@@ -157,9 +158,10 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(transferResourceName, "name", "new-transfer-name"+randomPostfix),
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", dontActivateMode),
 				),
 			},
-			// Update endpoints, set back old transfer name
+			// Update endpoints, set back old transfer name - no re-creation expected
 			{
 				Config: testAccDataTransferConfigMain(
 					defaultTemplateParams.
@@ -180,26 +182,28 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 
 					resource.TestCheckResourceAttr(transferResourceName, "name", defaultTemplateParams.TransferName),
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", dontActivateMode),
 				),
 			},
+			// change on_create_activate_mode to sync_activate (no re-creation expected)
+			{
+				Config: testAccDataTransferConfigMain(
+					defaultTemplateParams.withActivateMode(syncActivateMode), // nothing will happen because transfer is already created
+				),
+				Check: resource.ComposeTestCheckFunc(
+					// actually this does not change anything, it matters only during creation
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", syncActivateMode),
+				),
+			},
+			// create transfer with different on_create_activate_mode values (re-creation expected due to another transfer type)
 			{
 				Config: testAccDataTransferConfigMain(
 					defaultTemplateParams.
 						withTransferType("SNAPSHOT_AND_INCREMENT").
-						withActivateMode(dontActivateMode),
+						withActivateMode(asyncActivateMode), // ok, we will start failing activation, but will not wait for it
 				),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", internalMessageActivateMode),
-				),
-			},
-			{
-				Config: testAccDataTransferConfigMain(
-					defaultTemplateParams.
-						withTransferType("SNAPSHOT_AND_INCREMENT").
-						withActivateMode(asyncActivateMode),
-				),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", internalMessageActivateMode),
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", asyncActivateMode),
 				),
 			},
 			dataTransferSourceEndpointImportStep(),
@@ -261,7 +265,7 @@ var defaultTemplateParams = dataTransferTerraformTemplateParams{
 	TransferName:                       "datatransfer-transfer" + randomPostfix,
 	TransferDescription:                "transfer description",
 	TransferType:                       "SNAPSHOT_ONLY",
-	TransferActivateMode:               syncActivateMode,
+	TransferActivateMode:               dontActivateMode, // because this transfer uses fake dbs, activation will fail
 	CleanupPolicy:                      "DROP",
 }
 
@@ -789,7 +793,6 @@ resource "yandex_datatransfer_transfer" "transfer_with_transformation" {
         columns {
           exclude_columns = ["col1"]
         }
-		tables {}
       }
     }
     transformers {

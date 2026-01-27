@@ -51,7 +51,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12
-	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.22
+	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.25
 	github.com/yandex-cloud/go-sdk/services/dns v0.0.12
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.12

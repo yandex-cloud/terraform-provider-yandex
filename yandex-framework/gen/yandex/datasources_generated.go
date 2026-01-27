@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_transfer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_federated_credential"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key"
@@ -37,6 +38,7 @@ func init() {
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_datatransfer_endpoint.NewDataSource,
+		yandex_datatransfer_transfer.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }
