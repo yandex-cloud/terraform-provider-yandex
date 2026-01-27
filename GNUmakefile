@@ -100,6 +100,7 @@ install-yfm:
 	npm i @diplodoc/cli -g
 
 generate-docs:
+	rm -rf templates-[0-9]*
 	go run tools/cmd/generate-docs/generate_docs.go ./templates ./docs
 
 affected-lint-provider-docs:
@@ -117,6 +118,6 @@ publish-website: generate-docs
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
 
-generate: generate-public generate-docs
+generate: generate-public-api-desc generate-public generate-docs
 
 .PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs generate
