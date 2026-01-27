@@ -62,7 +62,7 @@ resource "yandex_vpc_subnet" "foo" {
 ### Required
 
 - `cluster_id` (String) The ID of the PostgreSQL cluster.
-- `name` (String) The name of the user.
+- `name` (String) The name of the PostgreSQL user.
 
 ### Optional
 

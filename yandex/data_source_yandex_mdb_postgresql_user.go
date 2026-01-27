@@ -13,12 +13,12 @@ func dataSourceYandexMDBPostgreSQLUser() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
 				Type:        schema.TypeString,
-				Description: "The ID of the PostgreSQL cluster.",
+				Description: resourceYandexMDBPostgreSQLUser().Schema["cluster_id"].Description,
 				Required:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The name of the PostgreSQL user.",
+				Description: resourceYandexMDBPostgreSQLUser().Schema["name"].Description,
 				Required:    true,
 			},
 			"password": {

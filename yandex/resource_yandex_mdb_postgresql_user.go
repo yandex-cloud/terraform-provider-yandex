@@ -55,7 +55,7 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The name of the user.",
+				Description: "The name of the PostgreSQL user.",
 				Required:    true,
 			},
 			"password": {

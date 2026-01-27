@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -19,53 +18,48 @@ func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["name"],
+				Description: resourceYandexMDBPostgreSQLDatabase().Schema["name"].Description,
 				Required:    true,
 			},
 			"owner": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLDatabase().Schema["owner"].Description,
 				Computed:    true,
-				Optional:    true,
 			},
 			"lc_collate": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLDatabase().Schema["lc_collate"].Description,
 				Computed:    true,
-				Optional:    true,
 			},
 			"lc_type": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLDatabase().Schema["lc_type"].Description,
 				Computed:    true,
-				Optional:    true,
 			},
 			"template_db": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLDatabase().Schema["template_db"].Description,
 				Computed:    true,
-				Optional:    true,
 			},
 			"extension": {
 				Type:        schema.TypeSet,
 				Description: resourceYandexMDBPostgreSQLDatabase().Schema["extension"].Description,
+				Computed:    true,
 				Set:         pgExtensionHash,
-				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
-							Description: "Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).",
-							Required:    true,
+							Description: resourceYandexMDBPostgreSQLDatabase().Schema["extension"].Elem.(*schema.Resource).Schema["name"].Description,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"deletion_protection": {
-				Type:         schema.TypeString,
-				Description:  common.ResourceDescriptions["deletion_protection"],
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Computed:    true,
 			},
 		},
 	}

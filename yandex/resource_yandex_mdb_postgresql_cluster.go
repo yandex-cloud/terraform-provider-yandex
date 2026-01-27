@@ -52,7 +52,7 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["name"],
+				Description: "The name of PostgreSQL cluster.",
 				Required:    true,
 			},
 			"environment": {
@@ -175,7 +175,7 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			},
 			"disk_encryption_key_id": {
 				Type:        schema.TypeString,
-				Description: "ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.",
+				Description: common.ResourceDescriptions["disk_encryption_key_id"],
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,

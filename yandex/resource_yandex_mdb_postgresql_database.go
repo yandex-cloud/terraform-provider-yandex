@@ -51,7 +51,7 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: common.ResourceDescriptions["name"],
+				Description: "The name of the PostgreSQL database.",
 				Required:    true,
 			},
 			"owner": {
