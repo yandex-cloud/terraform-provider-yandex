@@ -1,0 +1,4 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: fix import state for user by setting `generate_password` to
+  false'
+time: 2026-01-27T08:52:16.192439987Z

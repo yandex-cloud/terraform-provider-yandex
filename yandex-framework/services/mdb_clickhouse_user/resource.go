@@ -257,6 +257,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 			"update": types.StringType,
 		}),
 	}
+	state.GeneratePassword = types.BoolValue(false)
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
