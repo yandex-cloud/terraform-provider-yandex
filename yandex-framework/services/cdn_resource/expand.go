@@ -182,7 +182,7 @@ func expandHostOptions(opt *CDNOptionsModel, result *cdn.ResourceOptions, diags 
 
 // expandQueryParamsOptions handles mutually exclusive query params options
 func expandQueryParamsOptions(ctx context.Context, opt *CDNOptionsModel, result *cdn.ResourceOptions, diags *diag.Diagnostics) {
-	if !opt.IgnoreQueryParams.IsNull() {
+	if !opt.IgnoreQueryParams.IsNull() && opt.IgnoreQueryParams.ValueBool() {
 		result.QueryParamsOptions = &cdn.ResourceOptions_QueryParamsOptions{
 			QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
 				IgnoreQueryString: &cdn.ResourceOptions_BoolOption{
