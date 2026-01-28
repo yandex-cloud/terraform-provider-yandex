@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
 )
 
@@ -21,8 +22,8 @@ func init() {
 func TestAccSmartcaptchaCaptcha_basic(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-sc")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSmartcaptchaCaptchaBasic(name),
@@ -37,6 +38,43 @@ func TestAccSmartcaptchaCaptcha_basic(t *testing.T) {
 				ResourceName:      "yandex_smartcaptcha_captcha.this",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSmartcaptchaCaptcha_UpgradeFromSDKv2(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-yc-sc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckFolderDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.150.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testAccSmartcaptchaCaptchaBasic(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "name", name),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "complexity", "HARD"),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "pre_check_type", "SLIDER"),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "challenge_type", "IMAGE_TEXT"),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+				Config:                   testAccSmartcaptchaCaptchaBasic(name),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})

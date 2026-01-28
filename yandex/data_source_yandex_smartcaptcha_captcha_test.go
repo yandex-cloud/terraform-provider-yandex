@@ -11,8 +11,8 @@ import (
 func TestAccDataSourceSmartcaptchaCaptcha_byID(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-sc")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceCaptchaConfig(name, true),
@@ -25,8 +25,8 @@ func TestAccDataSourceSmartcaptchaCaptcha_byID(t *testing.T) {
 func TestAccDataSourceSmartcaptchaCaptcha_byName(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-sc")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceCaptchaConfig(name, false),

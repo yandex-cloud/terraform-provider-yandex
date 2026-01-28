@@ -230,7 +230,6 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_sws_advanced_rate_limiter_profile":                dataSourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
 			"yandex_sws_waf_profile":                                  dataSourceYandexSmartwebsecurityWafWafProfile(),
 			"yandex_sws_waf_rule_set_descriptor":                      dataSourceYandexSmartwebsecurityWafRuleSetDescriptor(),
-			"yandex_smartcaptcha_captcha":                             dataSourceYandexSmartcaptchaCaptcha(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -323,7 +322,6 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_sws_security_profile":                             resourceYandexSmartwebsecuritySecurityProfile(),
 			"yandex_sws_advanced_rate_limiter_profile":                resourceYandexSmartwebsecurityAdvancedRateLimiterAdvancedRateLimiterProfile(),
 			"yandex_sws_waf_profile":                                  resourceYandexSmartwebsecurityWafWafProfile(),
-			"yandex_smartcaptcha_captcha":                             resourceYandexSmartcaptchaCaptcha(),
 		},
 	}
 

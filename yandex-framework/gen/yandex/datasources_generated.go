@@ -19,6 +19,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_userpool"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_mfa_enforcement"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
@@ -39,6 +40,7 @@ func init() {
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_datatransfer_endpoint.NewDataSource,
 		yandex_datatransfer_transfer.NewDataSource,
+		yandex_smartcaptcha_captcha.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }

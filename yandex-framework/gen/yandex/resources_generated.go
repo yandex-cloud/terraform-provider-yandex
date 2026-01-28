@@ -73,6 +73,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_eventrouter_bus"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
@@ -149,6 +150,7 @@ func init() {
 		yandex_serverless_container_iam_binding.NewResource,
 		yandex_serverless_eventrouter_bus.NewResource,
 		yandex_function_iam_binding.NewResource,
+		yandex_smartcaptcha_captcha.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
 	}
 }
