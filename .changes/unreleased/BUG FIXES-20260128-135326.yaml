@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'opensearch: fix operation status while errors'
+time: 2026-01-28T13:53:26.192828+03:00

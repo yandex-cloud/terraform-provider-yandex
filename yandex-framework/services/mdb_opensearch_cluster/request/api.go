@@ -9,17 +9,13 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
-	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const (
-	defaultMDBPageSize      = 1000
-	operationsRetryCount    = 5
-	operationsRetryInterval = 2 * time.Minute
+	defaultMDBPageSize = 1000
 )
 
 func GetCusterByID(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *opensearch.Cluster {
@@ -113,7 +109,7 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, 
 }
 
 func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Cluster Delete", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Cluster Delete", func() (*operation.Operation, error) {
 		op, err := sdk.MDB().OpenSearch().Cluster().Delete(ctx, &opensearch.DeleteClusterRequest{
 			ClusterId: cid,
 		})
@@ -135,43 +131,43 @@ func UpdateClusterSpec(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnost
 		return
 	}
 
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Cluster Update", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Cluster Update", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().Update(ctx, req)
 	}))
 }
 
 func AddOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.AddOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Add OpenSearch nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Add OpenSearch nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().AddOpenSearchNodeGroup(ctx, req)
 	}))
 }
 
 func UpdateOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Update OpenSearch nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Update OpenSearch nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().UpdateOpenSearchNodeGroup(ctx, req)
 	}))
 }
 
 func DeleteOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.DeleteOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Delete OpenSearch nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Delete OpenSearch nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().DeleteOpenSearchNodeGroup(ctx, req)
 	}))
 }
 
 func AddDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.AddDashboardsNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Add Dashboards nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Add Dashboards nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().AddDashboardsNodeGroup(ctx, req)
 	}))
 }
 
 func UpdateDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateDashboardsNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Update Dashboards nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Update Dashboards nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().UpdateDashboardsNodeGroup(ctx, req)
 	}))
 }
 
 func DeleteDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.DeleteDashboardsNodeGroupRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Delete Dashboards nodegroup", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Delete Dashboards nodegroup", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().DeleteDashboardsNodeGroup(ctx, req)
 	}))
 }
@@ -192,7 +188,7 @@ func GetAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostic
 }
 
 func UpdateAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateAuthSettingsRequest) {
-	diags.Append(waitOperationWithRetry(ctx, sdk, "Update Auth Settings", func() (*operation.Operation, error) {
+	diags.Append(waitOperation(ctx, sdk, "Update Auth Settings", func() (*operation.Operation, error) {
 		return sdk.MDB().OpenSearch().Cluster().UpdateAuthSettings(ctx, req)
 	}))
 }
@@ -219,49 +215,16 @@ func PrepareAndExecute[T any, V any](
 	return diag.Diagnostics{}
 }
 
-func waitOperationWithRetry(ctx context.Context, sdk *ycsdk.SDK, caller string, action func() (*operation.Operation, error)) diag.Diagnostic {
-	var err error
-	for retryCount := 0; retryCount < operationsRetryCount; retryCount++ {
-		var op *sdkoperation.Operation
-		op, err = retry.ConflictingOperation(ctx, sdk, action)
-		if err != nil {
-			return diag.NewErrorDiagnostic(
-				"Failed to Wait for operation",
-				fmt.Sprintf("Error while requesting API for %s: %s", caller, err.Error()),
-			)
-		}
+func waitOperation(ctx context.Context, sdk *ycsdk.SDK, caller string, action func() (*operation.Operation, error)) diag.Diagnostic {
+	op, err := retry.ConflictingOperation(ctx, sdk, action)
 
+	if err == nil {
 		err = op.Wait(ctx)
-		if shouldRetry(op, err) {
-			time.Sleep(operationsRetryInterval)
-			continue
-		}
-		_, err = op.Response()
-		if shouldRetry(op, err) {
-			time.Sleep(operationsRetryInterval)
-			continue
-		}
-		break
 	}
 
 	if err != nil {
-		return diag.NewErrorDiagnostic(
-			"Failed to Wait for operation",
-			fmt.Sprintf("Error while waiting for %s: %s", caller, err.Error()),
-		)
+		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", caller), err.Error())
 	}
 
 	return nil
-}
-
-func shouldRetry(op *sdkoperation.Operation, err error) bool {
-	if err != nil {
-		status, ok := status.FromError(err)
-		if ok && status.Code() == codes.Internal {
-			return true
-		}
-		return false
-	}
-
-	return op.Failed()
 }
