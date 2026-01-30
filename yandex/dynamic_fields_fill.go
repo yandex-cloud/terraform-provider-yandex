@@ -45,6 +45,25 @@ func generateMapSchemaDiffSuppressFunc(fieldsInfo *objectFieldsInfo) func(k, old
 		return new == old
 	}
 }
+
+func generateMapSchemaDiffSuppressFuncV2(fieldsInfo *objectFieldsInfo) func(k, old, new string, d *schema.ResourceData) bool {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		ph := strings.Split(k, ".")
+		field := ph[len(ph)-1]
+
+		if fieldsInfo == nil {
+			return new == old
+		}
+
+		cvf := fieldsInfo.compareValueFunc(field)
+		if cvf != nil {
+			return cvf(old, new)
+		}
+
+		return new == old
+	}
+}
+
 func checkSuppress(fieldsInfo *objectFieldsInfo, field, old, new string, t reflect.Type) bool {
 	fi := fieldsInfo.getType(t, field)
 	if fi.valueType == schema.TypeInvalid {

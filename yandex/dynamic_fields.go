@@ -397,9 +397,16 @@ func (fieldsInfo *objectFieldsInfo) addIDefault(field string, def int) *objectFi
 	return fieldsInfo
 }
 
-func (fieldsInfo *objectFieldsInfo) addFieldInfoManually(field string, skip bool) *objectFieldsInfo {
+func (fieldsInfo *objectFieldsInfo) addFieldInfoManually(
+	field string,
+	skip bool,
+	compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool,
+	checkValueFunc func(fieldsInfo *objectFieldsInfo, v interface{}) error,
+) *objectFieldsInfo {
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		skip: skip,
+		skip:             skip,
+		compareValueFunc: compareValueFunc,
+		checkValueFunc:   checkValueFunc,
 	}
 
 	return fieldsInfo

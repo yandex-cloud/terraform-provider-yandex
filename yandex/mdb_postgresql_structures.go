@@ -374,6 +374,24 @@ func flattenPGUserConnectionManager(cm *postgresql.ConnectionManager) map[string
 	return map[string]string{"connection_id": cm.ConnectionId}
 }
 
+func flattenPGUserPgAudit(userSettings *postgresql.UserSettings) (string, error) {
+	if userSettings == nil || userSettings.Pgaudit == nil || userSettings.Pgaudit.Log == nil || len(userSettings.Pgaudit.Log) == 0 {
+		return "", nil
+	}
+
+	pgAuditLogSettings := make([]string, 0)
+	for _, log := range userSettings.Pgaudit.Log {
+		pgAuditLogSettings = append(pgAuditLogSettings, mdbPGUserSettingsPgauditEnumToStringMap[log])
+	}
+
+	pgAuditJson, err := json.Marshal(map[string]any{"log": pgAuditLogSettings})
+	if err != nil {
+		return "", err
+	}
+
+	return string(pgAuditJson), nil
+}
+
 type pgHostInfo struct {
 	name string
 	fqdn string
@@ -1161,6 +1179,9 @@ func expandPGUserGrants(gs []interface{}) ([]string, error) {
 }
 
 func expandPgAuditSettings(as string) (*postgresql.PGAuditSettings, error) {
+	if as == "" {
+		return nil, nil
+	}
 	var auditSettings PGAuditSettings
 	err := json.Unmarshal([]byte(as), &auditSettings)
 	if err != nil {
@@ -1169,7 +1190,15 @@ func expandPgAuditSettings(as string) (*postgresql.PGAuditSettings, error) {
 
 	asl := make([]postgresql.PGAuditSettings_PGAuditSettingsLog, 0)
 	for _, log := range auditSettings.Log {
-		asl = append(asl, mdbPGUserSettingsPgauditName[strings.ToLower(log)])
+		setting, found := mdbPGUserSettingsPgauditStringToEnumMap[strings.ToLower(log)]
+		if !found {
+			return nil, fmt.Errorf("unsupported PostgreSQL audit settings log type: %v", log)
+		}
+		asl = append(asl, setting)
+	}
+
+	if len(asl) == 0 {
+		return nil, nil
 	}
 
 	return &postgresql.PGAuditSettings{Log: asl}, nil
@@ -1795,7 +1824,7 @@ var allowedUserPasswordEncryptionValues = []string{
 	"USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256",
 }
 
-var mdbPGUserSettingsPgauditName = map[string]postgresql.PGAuditSettings_PGAuditSettingsLog{
+var mdbPGUserSettingsPgauditStringToEnumMap = map[string]postgresql.PGAuditSettings_PGAuditSettingsLog{
 	"read":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_READ,
 	"write":    postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_WRITE,
 	"function": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_FUNCTION,
@@ -1805,9 +1834,19 @@ var mdbPGUserSettingsPgauditName = map[string]postgresql.PGAuditSettings_PGAudit
 	"misc_set": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC_SET,
 }
 
+var mdbPGUserSettingsPgauditEnumToStringMap = map[postgresql.PGAuditSettings_PGAuditSettingsLog]string{
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_READ:     "read",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_WRITE:    "write",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_FUNCTION: "function",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_ROLE:     "role",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_DDL:      "ddl",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC:     "misc",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC_SET: "misc_set",
+}
+
 var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(postgresql.UserSettings{}, []reflect.Type{reflect.TypeOf(&postgresql.PGAuditSettings{})}).
-	addFieldInfoManually("pgaudit", true).
+	addType(postgresql.UserSettings{}, []reflect.Type{reflect.TypeFor[*postgresql.PGAuditSettings]()}).
+	addFieldInfoManually("pgaudit", true, pgAuditCompare, pgAuditCheck).
 	addIDefault("log_min_duration_statement", -1).
 	addEnumHumanNames("default_transaction_isolation", mdbPGUserSettingsTransactionIsolationName,
 		postgresql.UserSettings_TransactionIsolation_name).
@@ -1817,6 +1856,40 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 		postgresql.UserSettings_LogStatement_name).
 	addEnumHumanNames("pool_mode", mdbPGUserSettingsPoolModeName,
 		postgresql.UserSettings_PoolingMode_name)
+
+func pgAuditCompare(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
+	oldPgAudit, err := expandPgAuditSettings(old)
+	if err != nil {
+		return false
+	}
+
+	newPgAudit, err := expandPgAuditSettings(new)
+	if err != nil {
+		return false
+	}
+
+	if oldPgAudit == nil && newPgAudit == nil {
+		return true
+	}
+
+	return reflect.DeepEqual(oldPgAudit, newPgAudit)
+}
+
+func pgAuditCheck(fieldsInfo *objectFieldsInfo, v any) error {
+	s, ok := v.(string)
+	if ok {
+		if s == "" {
+			return nil
+		}
+		_, err := expandPgAuditSettings(s)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return fmt.Errorf("pgAuditCheck: Unsupported type for value %v", v)
+}
 
 func getMdbPGSettingsFieldsInfo(version string) (*objectFieldsInfo, error) {
 	switch version {

@@ -102,10 +102,11 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Computed:    true,
 			},
 			"settings": {
-				Type:         schema.TypeMap,
-				Description:  "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:\n  - `read uncommitted`\n  - `read committed`\n  - `repeatable read`\n  - `serializable`\n\n* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n  - `on`\n  - `off`\n  - `local`\n  - `remote write`\n  - `remote apply`\n\n* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n* `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n  - `none`\n  - `ddl`\n  - `mod`\n  - `all`\n\n* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n  - `session`\n  - `transaction`\n  - `statement`\n\n* `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n* `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n* `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n* `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n* `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.\n\n* `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `\"{\\\"log\\\": [\\\"READ\\\", \\\"WRITE\\\"]}\"`\n\n",
-				Optional:     true,
-				ValidateFunc: generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				Type:             schema.TypeMap,
+				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n  - `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:\n    - `read uncommitted`\n    - `read committed`\n    - `repeatable read`\n    - `serializable`\n\n  - `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n  - `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n  - `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n    - `on`\n    - `off`\n    - `local`\n    - `remote write`\n    - `remote apply`\n\n  - `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n  - `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n    - `none`\n    - `ddl`\n    - `mod`\n    - `all`\n\n  - `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n    - `session`\n    - `transaction`\n    - `statement`\n\n  - `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n  - `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n  - `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n  - `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n  - `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.\n\n  - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `\"{\\\"log\\\": [\\\"READ\\\", \\\"WRITE\\\"]}\"`\n\n",
+				Optional:         true,
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFuncV2(mdbPGUserSettingsFieldsInfo),
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -157,7 +158,7 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 	}
 }
 
-func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -233,7 +234,7 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 	}
 
 	if v, ok := d.GetOkExists("grants"); ok {
-		gs, err := expandPGUserGrants(v.([]interface{}))
+		gs, err := expandPGUserGrants(v.([]any))
 		if err != nil {
 			return nil, err
 		}
@@ -286,7 +287,7 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 	return user, nil
 }
 
-func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta any) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
@@ -328,6 +329,16 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	pgAudit, err := flattenPGUserPgAudit(apiUser.Settings)
+	if err != nil {
+		return err
+	}
+	if pgAudit != "" {
+		if settings == nil {
+			settings = make(map[string]string)
+		}
+		settings["pgaudit"] = pgAudit
+	}
 
 	d.Set("settings", settings)
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
@@ -338,7 +349,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
@@ -438,7 +449,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	return resourceYandexMDBPostgreSQLUserRead(d, meta)
 }
 
-func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta any) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
