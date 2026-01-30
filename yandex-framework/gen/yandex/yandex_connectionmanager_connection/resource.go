@@ -156,6 +156,9 @@ func (r *yandexConnectionmanagerConnectionResource) Create(ctx context.Context, 
 	createReq.SetDescription(plan.Description.ValueString())
 	createReq.SetLabels(expandYandexConnectionmanagerConnectionLabels(ctx, plan.Labels, &diags))
 	createReq.SetParams(expandYandexConnectionmanagerConnectionParams(ctx, plan.Params, &diags))
+	if !(plan.LockboxSecretSpec.IsNull() || plan.LockboxSecretSpec.IsUnknown() || plan.LockboxSecretSpec.Equal(types.Object{})) {
+		createReq.SetLockboxSecretSpec(expandYandexConnectionmanagerConnectionLockboxSecretSpec(ctx, plan.LockboxSecretSpec, &diags))
+	}
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

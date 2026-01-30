@@ -1161,20 +1161,21 @@ func expandYandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel(c
 }
 
 type yandexConnectionmanagerConnectionModel struct {
-	CanUse        types.Bool     `tfsdk:"can_use"`
-	ConnectionId  types.String   `tfsdk:"connection_id"`
-	ID            types.String   `tfsdk:"id"`
-	CreatedAt     types.String   `tfsdk:"created_at"`
-	CreatedBy     types.String   `tfsdk:"created_by"`
-	Description   types.String   `tfsdk:"description"`
-	FolderId      types.String   `tfsdk:"folder_id"`
-	IsManaged     types.Bool     `tfsdk:"is_managed"`
-	Labels        types.Map      `tfsdk:"labels"`
-	LockboxSecret types.Object   `tfsdk:"lockbox_secret"`
-	Name          types.String   `tfsdk:"name"`
-	Params        types.Object   `tfsdk:"params"`
-	UpdatedAt     types.String   `tfsdk:"updated_at"`
-	Timeouts      timeouts.Value `tfsdk:"timeouts"`
+	CanUse            types.Bool     `tfsdk:"can_use"`
+	ConnectionId      types.String   `tfsdk:"connection_id"`
+	ID                types.String   `tfsdk:"id"`
+	CreatedAt         types.String   `tfsdk:"created_at"`
+	CreatedBy         types.String   `tfsdk:"created_by"`
+	Description       types.String   `tfsdk:"description"`
+	FolderId          types.String   `tfsdk:"folder_id"`
+	IsManaged         types.Bool     `tfsdk:"is_managed"`
+	Labels            types.Map      `tfsdk:"labels"`
+	LockboxSecret     types.Object   `tfsdk:"lockbox_secret"`
+	LockboxSecretSpec types.Object   `tfsdk:"lockbox_secret_spec"`
+	Name              types.String   `tfsdk:"name"`
+	Params            types.Object   `tfsdk:"params"`
+	UpdatedAt         types.String   `tfsdk:"updated_at"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (m *yandexConnectionmanagerConnectionModel) GetCanUse() types.Bool {
@@ -1207,6 +1208,9 @@ func (m *yandexConnectionmanagerConnectionModel) GetLabels() types.Map {
 func (m *yandexConnectionmanagerConnectionModel) GetLockboxSecret() types.Object {
 	return m.LockboxSecret
 }
+func (m *yandexConnectionmanagerConnectionModel) GetLockboxSecretSpec() types.Object {
+	return m.LockboxSecretSpec
+}
 func (m *yandexConnectionmanagerConnectionModel) GetName() types.String {
 	return m.Name
 }
@@ -1219,19 +1223,20 @@ func (m *yandexConnectionmanagerConnectionModel) GetUpdatedAt() types.String {
 
 func NewYandexConnectionmanagerConnectionModel() yandexConnectionmanagerConnectionModel {
 	return yandexConnectionmanagerConnectionModel{
-		CanUse:        types.BoolNull(),
-		ConnectionId:  types.StringNull(),
-		ID:            types.StringNull(),
-		CreatedAt:     types.StringNull(),
-		CreatedBy:     types.StringNull(),
-		Description:   types.StringNull(),
-		FolderId:      types.StringNull(),
-		IsManaged:     types.BoolNull(),
-		Labels:        types.MapNull(types.StringType),
-		LockboxSecret: types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes),
-		Name:          types.StringNull(),
-		Params:        types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes),
-		UpdatedAt:     types.StringNull(),
+		CanUse:            types.BoolNull(),
+		ConnectionId:      types.StringNull(),
+		ID:                types.StringNull(),
+		CreatedAt:         types.StringNull(),
+		CreatedBy:         types.StringNull(),
+		Description:       types.StringNull(),
+		FolderId:          types.StringNull(),
+		IsManaged:         types.BoolNull(),
+		Labels:            types.MapNull(types.StringType),
+		LockboxSecret:     types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes),
+		LockboxSecretSpec: types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretSpecModelType.AttrTypes),
+		Name:              types.StringNull(),
+		Params:            types.ObjectNull(yandexConnectionmanagerConnectionParamsModelType.AttrTypes),
+		UpdatedAt:         types.StringNull(),
 	}
 }
 
@@ -1266,6 +1271,9 @@ func yandexConnectionmanagerConnectionModelFillUnknown(target yandexConnectionma
 	if target.LockboxSecret.IsUnknown() || target.LockboxSecret.IsNull() {
 		target.LockboxSecret = types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretModelType.AttrTypes)
 	}
+	if target.LockboxSecretSpec.IsUnknown() || target.LockboxSecretSpec.IsNull() {
+		target.LockboxSecretSpec = types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretSpecModelType.AttrTypes)
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -1280,20 +1288,21 @@ func yandexConnectionmanagerConnectionModelFillUnknown(target yandexConnectionma
 
 var yandexConnectionmanagerConnectionModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"can_use":        types.BoolType,
-		"connection_id":  types.StringType,
-		"id":             types.StringType,
-		"created_at":     types.StringType,
-		"created_by":     types.StringType,
-		"description":    types.StringType,
-		"folder_id":      types.StringType,
-		"is_managed":     types.BoolType,
-		"labels":         types.MapType{ElemType: types.StringType},
-		"lockbox_secret": yandexConnectionmanagerConnectionLockboxSecretModelType,
-		"name":           types.StringType,
-		"params":         yandexConnectionmanagerConnectionParamsModelType,
-		"updated_at":     types.StringType,
-		"timeouts":       timeouts.AttributesAll(context.Background()).GetType(),
+		"can_use":             types.BoolType,
+		"connection_id":       types.StringType,
+		"id":                  types.StringType,
+		"created_at":          types.StringType,
+		"created_by":          types.StringType,
+		"description":         types.StringType,
+		"folder_id":           types.StringType,
+		"is_managed":          types.BoolType,
+		"labels":              types.MapType{ElemType: types.StringType},
+		"lockbox_secret":      yandexConnectionmanagerConnectionLockboxSecretModelType,
+		"lockbox_secret_spec": yandexConnectionmanagerConnectionLockboxSecretSpecModelType,
+		"name":                types.StringType,
+		"params":              yandexConnectionmanagerConnectionParamsModelType,
+		"updated_at":          types.StringType,
+		"timeouts":            timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -1306,20 +1315,21 @@ func flattenYandexConnectionmanagerConnection(ctx context.Context,
 		return types.ObjectNull(yandexConnectionmanagerConnectionModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionModelType.AttrTypes, yandexConnectionmanagerConnectionModel{
-		CanUse:        types.BoolValue(yandexConnectionmanagerConnection.GetCanUse().GetValue()),
-		ConnectionId:  types.StringValue(yandexConnectionmanagerConnection.GetId()),
-		ID:            types.StringValue(yandexConnectionmanagerConnection.GetId()),
-		CreatedAt:     types.StringValue(yandexConnectionmanagerConnection.GetCreatedAt().AsTime().Format(time.RFC3339)),
-		CreatedBy:     types.StringValue(yandexConnectionmanagerConnection.GetCreatedBy()),
-		Description:   types.StringValue(yandexConnectionmanagerConnection.GetDescription()),
-		FolderId:      types.StringValue(yandexConnectionmanagerConnection.GetFolderId()),
-		IsManaged:     types.BoolValue(yandexConnectionmanagerConnection.GetIsManaged()),
-		Labels:        flattenYandexConnectionmanagerConnectionLabels(ctx, yandexConnectionmanagerConnection.GetLabels(), state.Labels, diags),
-		LockboxSecret: flattenYandexConnectionmanagerConnectionLockboxSecret(ctx, yandexConnectionmanagerConnection.GetLockboxSecret(), diags),
-		Name:          types.StringValue(yandexConnectionmanagerConnection.GetName()),
-		Params:        flattenYandexConnectionmanagerConnectionParams(ctx, yandexConnectionmanagerConnection.GetParams(), converter.ExpandObject(ctx, state.Params, yandexConnectionmanagerConnectionParamsModel{}, diags).(yandexConnectionmanagerConnectionParamsModel), diags),
-		UpdatedAt:     types.StringValue(yandexConnectionmanagerConnection.GetUpdatedAt().AsTime().Format(time.RFC3339)),
-		Timeouts:      to,
+		CanUse:            types.BoolValue(yandexConnectionmanagerConnection.GetCanUse().GetValue()),
+		ConnectionId:      types.StringValue(yandexConnectionmanagerConnection.GetId()),
+		ID:                types.StringValue(yandexConnectionmanagerConnection.GetId()),
+		CreatedAt:         types.StringValue(yandexConnectionmanagerConnection.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		CreatedBy:         types.StringValue(yandexConnectionmanagerConnection.GetCreatedBy()),
+		Description:       types.StringValue(yandexConnectionmanagerConnection.GetDescription()),
+		FolderId:          types.StringValue(yandexConnectionmanagerConnection.GetFolderId()),
+		IsManaged:         types.BoolValue(yandexConnectionmanagerConnection.GetIsManaged()),
+		Labels:            flattenYandexConnectionmanagerConnectionLabels(ctx, yandexConnectionmanagerConnection.GetLabels(), state.Labels, diags),
+		LockboxSecret:     flattenYandexConnectionmanagerConnectionLockboxSecret(ctx, yandexConnectionmanagerConnection.GetLockboxSecret(), diags),
+		LockboxSecretSpec: flattenYandexConnectionmanagerConnectionLockboxSecretSpec(ctx, yandexConnectionmanagerConnection.GetLockboxSecretSpec(), diags),
+		Name:              types.StringValue(yandexConnectionmanagerConnection.GetName()),
+		Params:            flattenYandexConnectionmanagerConnectionParams(ctx, yandexConnectionmanagerConnection.GetParams(), converter.ExpandObject(ctx, state.Params, yandexConnectionmanagerConnectionParamsModel{}, diags).(yandexConnectionmanagerConnectionParamsModel), diags),
+		UpdatedAt:         types.StringValue(yandexConnectionmanagerConnection.GetUpdatedAt().AsTime().Format(time.RFC3339)),
+		Timeouts:          to,
 	})
 	diags.Append(diag...)
 	return value
@@ -1350,6 +1360,9 @@ func expandYandexConnectionmanagerConnectionModel(ctx context.Context, yandexCon
 	value.SetLabels(expandYandexConnectionmanagerConnectionLabels(ctx, yandexConnectionmanagerConnectionState.Labels, diags))
 	if !(yandexConnectionmanagerConnectionState.LockboxSecret.IsNull() || yandexConnectionmanagerConnectionState.LockboxSecret.IsUnknown() || yandexConnectionmanagerConnectionState.LockboxSecret.Equal(types.Object{})) {
 		value.SetLockboxSecret(expandYandexConnectionmanagerConnectionLockboxSecret(ctx, yandexConnectionmanagerConnectionState.LockboxSecret, diags))
+	}
+	if !(yandexConnectionmanagerConnectionState.LockboxSecretSpec.IsNull() || yandexConnectionmanagerConnectionState.LockboxSecretSpec.IsUnknown() || yandexConnectionmanagerConnectionState.LockboxSecretSpec.Equal(types.Object{})) {
+		value.SetLockboxSecretSpec(expandYandexConnectionmanagerConnectionLockboxSecretSpec(ctx, yandexConnectionmanagerConnectionState.LockboxSecretSpec, diags))
 	}
 	value.SetName(yandexConnectionmanagerConnectionState.Name.ValueString())
 	value.SetParams(expandYandexConnectionmanagerConnectionParams(ctx, yandexConnectionmanagerConnectionState.Params, diags))
@@ -1485,6 +1498,67 @@ func expandYandexConnectionmanagerConnectionLockboxSecretModel(ctx context.Conte
 	value.SetId(yandexConnectionmanagerConnectionLockboxSecretState.ConnectionId.ValueString())
 	value.SetNewestVersion(yandexConnectionmanagerConnectionLockboxSecretState.NewestVersion.ValueString())
 	value.SetVersion(yandexConnectionmanagerConnectionLockboxSecretState.Version.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexConnectionmanagerConnectionLockboxSecretSpecModel struct {
+	FolderId types.String `tfsdk:"folder_id"`
+}
+
+func (m *yandexConnectionmanagerConnectionLockboxSecretSpecModel) GetFolderId() types.String {
+	return m.FolderId
+}
+
+func NewYandexConnectionmanagerConnectionLockboxSecretSpecModel() yandexConnectionmanagerConnectionLockboxSecretSpecModel {
+	return yandexConnectionmanagerConnectionLockboxSecretSpecModel{
+		FolderId: types.StringNull(),
+	}
+}
+
+func yandexConnectionmanagerConnectionLockboxSecretSpecModelFillUnknown(target yandexConnectionmanagerConnectionLockboxSecretSpecModel) yandexConnectionmanagerConnectionLockboxSecretSpecModel {
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	return target
+}
+
+var yandexConnectionmanagerConnectionLockboxSecretSpecModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"folder_id": types.StringType,
+	},
+}
+
+func flattenYandexConnectionmanagerConnectionLockboxSecretSpec(ctx context.Context,
+	yandexConnectionmanagerConnectionLockboxSecretSpec *connectionmanager.LockboxSecretSpec,
+	diags *diag.Diagnostics) types.Object {
+	if yandexConnectionmanagerConnectionLockboxSecretSpec == nil {
+		return types.ObjectNull(yandexConnectionmanagerConnectionLockboxSecretSpecModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexConnectionmanagerConnectionLockboxSecretSpecModelType.AttrTypes, yandexConnectionmanagerConnectionLockboxSecretSpecModel{
+		FolderId: types.StringValue(yandexConnectionmanagerConnectionLockboxSecretSpec.GetFolderId()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexConnectionmanagerConnectionLockboxSecretSpec(ctx context.Context, yandexConnectionmanagerConnectionLockboxSecretSpecState types.Object, diags *diag.Diagnostics) *connectionmanager.LockboxSecretSpec {
+	if yandexConnectionmanagerConnectionLockboxSecretSpecState.IsNull() || yandexConnectionmanagerConnectionLockboxSecretSpecState.IsUnknown() {
+		return nil
+	}
+	var yandexConnectionmanagerConnectionLockboxSecretSpec yandexConnectionmanagerConnectionLockboxSecretSpecModel
+	diags.Append(yandexConnectionmanagerConnectionLockboxSecretSpecState.As(ctx, &yandexConnectionmanagerConnectionLockboxSecretSpec, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexConnectionmanagerConnectionLockboxSecretSpecModel(ctx, yandexConnectionmanagerConnectionLockboxSecretSpec, diags)
+}
+
+func expandYandexConnectionmanagerConnectionLockboxSecretSpecModel(ctx context.Context, yandexConnectionmanagerConnectionLockboxSecretSpecState yandexConnectionmanagerConnectionLockboxSecretSpecModel, diags *diag.Diagnostics) *connectionmanager.LockboxSecretSpec {
+	value := &connectionmanager.LockboxSecretSpec{}
+	value.SetFolderId(yandexConnectionmanagerConnectionLockboxSecretSpecState.FolderId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

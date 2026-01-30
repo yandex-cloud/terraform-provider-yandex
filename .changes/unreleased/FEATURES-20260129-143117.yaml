@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'connection_manager: add lockbox_secret_spec block into yandex_connectionmanager_connection'
+time: 2026-01-29T14:31:17.636026475+03:00

@@ -12,13 +12,13 @@ import (
 
 func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "",
-		MarkdownDescription: "",
+		Description:         "A Connection resource represents a configured connection to a database or service.",
+		MarkdownDescription: "A Connection resource represents a configured connection to a database or service.",
 		Attributes: map[string]schema.Attribute{
 
 			"can_use": schema.BoolAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Whether the current user can use this connection. Filled only when `with_can_use` has been requested in ListConnectionRequest.",
+				Description: "Whether the current user can use this connection. Filled only when `with_can_use` has been requested in ListConnectionRequest." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.can_use
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -27,8 +27,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"connection_id": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "ID of the connection to retrieve.",
+				Description: "ID of the connection to retrieve." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.id
 					// -> yandex.cloud.connectionmanager.v1.GetConnectionRequest.connection_id
@@ -39,8 +39,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "ID of the connection to retrieve.",
+				Description: "ID of the connection to retrieve." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.id
 					// -> yandex.cloud.connectionmanager.v1.GetConnectionRequest.connection_id
@@ -51,8 +51,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"created_at": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Creation timestamp.",
+				Description: "Creation timestamp." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.created_at
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -61,8 +61,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"created_by": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "ID of the subject which created the connection.",
+				Description: "ID of the subject which created the connection." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.created_by
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -71,8 +71,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"description": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Description of the connection.",
+				Description: "Description of the connection." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.description
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -81,8 +81,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"folder_id": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "ID of the folder that the connection belongs to.",
+				Description: "ID of the folder that the connection belongs to." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.folder_id
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -92,8 +92,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"is_managed": schema.BoolAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Whether this connection is managed by the system (e.g. an MDB cluster).",
+				Description: "Whether this connection is managed by the system (e.g. an MDB cluster)." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.is_managed
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -103,8 +103,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 
 			"labels": schema.MapAttribute{
 				ElementType:         types.StringType,
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Connection labels as `key:value` pairs.",
+				Description: "Connection labels as `key:value` pairs." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.labels
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -117,8 +117,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 				Attributes: map[string]schema.Attribute{
 
 					"connection_id": schema.StringAttribute{
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "ID of the Lockbox secret.",
+						Description: "ID of the Lockbox secret." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.id
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -127,8 +127,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 					},
 
 					"id": schema.StringAttribute{
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "ID of the Lockbox secret.",
+						Description: "ID of the Lockbox secret." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.id
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -138,8 +138,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 					},
 
 					"newest_version": schema.StringAttribute{
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "The newest available version of the Lockbox secret.",
+						Description: "The newest available version of the Lockbox secret." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.newest_version
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -148,8 +148,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 					},
 
 					"version": schema.StringAttribute{
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Lockbox secret version.",
+						Description: "Lockbox secret version." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.version
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -157,8 +157,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						Computed: true,
 					},
 				},
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Reference to the Lockbox secret containing connection credentials.",
+				Description: "Reference to the Lockbox secret containing connection credentials." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -166,9 +166,33 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 				Computed: true,
 			},
 
+			"lockbox_secret_spec": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"folder_id": schema.StringAttribute{
+						MarkdownDescription: "ID of the folder where the Lockbox secret will be created. If omitted, the secret will be created in the connection's folder.",
+						Description: "ID of the folder where the Lockbox secret will be created. If omitted, the secret will be created in the connection's folder." +
+							// proto paths: +
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret_specyandex.cloud.connectionmanager.v1.LockboxSecretSpec.folder_id
+							"package: yandex.cloud.connectionmanager.v1\n" +
+							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
+						Optional: true,
+						Computed: true,
+					},
+				},
+				MarkdownDescription: "Specification for creating a new Lockbox secret.",
+				Description: "Specification for creating a new Lockbox secret." +
+					// proto paths: +
+					// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret_spec
+					"package: yandex.cloud.connectionmanager.v1\n" +
+					"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
+				Computed: true,
+			},
+
 			"name": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Name of the connection.",
+				Description: "Name of the connection." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.name
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -542,8 +566,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "ClickHouse database connection parameters.",
+						Description: "ClickHouse database connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -867,8 +891,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Greenplum data warehouse connection parameters.",
+						Description: "Greenplum data warehouse connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplum
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -1193,8 +1217,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Apache Kafka message broker connection parameters.",
+						Description: "Apache Kafka message broker connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafka
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -1538,8 +1562,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "MongoDB database connection parameters.",
+						Description: "MongoDB database connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodb
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -1863,8 +1887,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "MySQL database connection parameters.",
+						Description: "MySQL database connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysql
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -2178,8 +2202,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "OpenSearch search engine connection parameters.",
+						Description: "OpenSearch search engine connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearch
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -2513,8 +2537,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "PostgreSQL database connection parameters.",
+						Description: "PostgreSQL database connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresql
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -2848,8 +2872,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Redis in-memory data store connection parameters.",
+						Description: "Redis in-memory data store connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redis
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -3193,8 +3217,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "StoreDoc document store connection parameters.",
+						Description: "StoreDoc document store connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -3475,8 +3499,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Trino distributed SQL query engine connection parameters.",
+						Description: "Trino distributed SQL query engine connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trino
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -3820,8 +3844,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								Computed: true,
 							},
 						},
-						MarkdownDescription: "",
-						Description: "" +
+						MarkdownDescription: "Valkey in-memory data store connection parameters.",
+						Description: "Valkey in-memory data store connection parameters." +
 							// proto paths: +
 							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkey
 							"package: yandex.cloud.connectionmanager.v1\n" +
@@ -3829,8 +3853,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						Computed: true,
 					},
 				},
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Connection parameters specific to the database or service type.",
+				Description: "Connection parameters specific to the database or service type." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.params
 					"package: yandex.cloud.connectionmanager.v1\n" +
@@ -3839,8 +3863,8 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 			},
 
 			"updated_at": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Last update timestamp.",
+				Description: "Last update timestamp." +
 					// proto paths: +
 					// -> yandex.cloud.connectionmanager.v1.Connection.updated_at
 					"package: yandex.cloud.connectionmanager.v1\n" +
