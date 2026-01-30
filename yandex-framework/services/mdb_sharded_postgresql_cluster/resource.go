@@ -47,7 +47,6 @@ func NewShardedPostgreSQLClusterResource() resource.Resource {
 }
 
 func (r *clusterResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	// TODO we are open for better ideas
 	resp.TypeName = req.ProviderTypeName + "_mdb_sharded_postgresql_cluster"
 }
 
@@ -96,7 +95,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"folder_id":  defaultschema.FolderId(),
 			"network_id": defaultschema.NetworkId(),
 			"environment": schema.StringAttribute{
-				MarkdownDescription: "Deployment environment of the PostgreSQL cluster.",
+				MarkdownDescription: "Deployment environment of the Sharded PostgreSQL cluster.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -104,7 +103,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			},
 			"labels": defaultschema.Labels(),
 			"hosts": schema.MapNestedAttribute{
-				MarkdownDescription: "A host configuration of the PostgreSQL cluster.",
+				MarkdownDescription: "A host configuration of the Sharded PostgreSQL cluster.",
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -145,13 +144,12 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"deletion_protection": defaultschema.DeletionProtection(),
 			"security_group_ids":  defaultschema.SecurityGroupIds(),
 			"maintenance_window": schema.SingleNestedAttribute{
-				MarkdownDescription: "Maintenance policy of the PostgreSQL cluster.",
+				MarkdownDescription: "Maintenance policy of the Sharded PostgreSQL cluster.",
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.Object{
 					objectplanmodifier.UseStateForUnknown(),
 				},
-				// TODO: add validators
 				Attributes: map[string]schema.Attribute{
 					"type": schema.StringAttribute{
 						MarkdownDescription: "Type of maintenance window. Can be either ANYTIME or WEEKLY. A day and hour of window need to be specified with weekly window.",

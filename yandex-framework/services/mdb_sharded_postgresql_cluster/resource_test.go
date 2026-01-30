@@ -28,9 +28,7 @@ import (
 
 const (
 	defaultMDBPageSize                             = 1000
-	yandexMDBShardedPostgreSQLClusterCreateTimeout = 30 * time.Minute // TODO refactor
 	yandexMDBShardedPostgreSQLClusterDeleteTimeout = 15 * time.Minute
-	yandexMDBShardedPostgreSQLClusterUpdateTimeout = 60 * time.Minute
 )
 
 func init() {
@@ -57,13 +55,13 @@ func testSweepMDBShardedPostgreSQLCluster(_ string) error {
 		PageSize: defaultMDBPageSize,
 	})
 	if err != nil {
-		return fmt.Errorf("error getting PostgreSQL clusters: %s", err)
+		return fmt.Errorf("error getting Sharded PostgreSQL clusters: %s", err)
 	}
 
 	result := &multierror.Error{}
 	for _, c := range resp.Clusters {
 		if !sweepMDBShardedPostgreSQLCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep PostgreSQL cluster %q", c.Id))
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Sharded PostgreSQL cluster %q", c.Id))
 		}
 	}
 
@@ -71,7 +69,7 @@ func testSweepMDBShardedPostgreSQLCluster(_ string) error {
 }
 
 func sweepMDBShardedPostgreSQLCluster(conf *config.Config, id string) bool {
-	return testhelpers.SweepWithRetry(sweepMDBShardedPostgreSQLClusterOnce, conf, "PostgreSQL cluster", id)
+	return testhelpers.SweepWithRetry(sweepMDBShardedPostgreSQLClusterOnce, conf, "Sharded PostgreSQL cluster", id)
 }
 
 func sweepMDBShardedPostgreSQLClusterOnce(conf *config.Config, id string) error {
@@ -283,7 +281,7 @@ func TestAccMDBShardedPostgreSQLCluster_full(t *testing.T) {
 	`
 
 	backupRetainPeriodDays := 7
-	backupRetainPeriodDaysUpdated := 7 // FIXME: actually update it, but now it's broken in api
+	backupRetainPeriodDaysUpdated := 14
 
 	backupWindowStart := `
 		hours = 5
