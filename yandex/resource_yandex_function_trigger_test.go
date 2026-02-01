@@ -544,7 +544,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "%s"
   member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
   role        = "editor"
-  sleep_after = 30
+  sleep_after = 60
 }
 
 resource "yandex_serverless_container" "tf-test" {
@@ -804,7 +804,7 @@ resource "yandex_function_trigger" "test-trigger" {
     id                 = yandex_function.tf-test.id
     service_account_id = yandex_iam_service_account.test-account.id
   }
-} 
+}
 `, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
 }
 
@@ -813,7 +813,7 @@ func testYandexFunctionTriggerContainerRegistry(name string, batchCutoffSeconds,
 resource "yandex_container_registry" "my_registry" {
 	name = "my-registry"
 }
-	
+
 resource "yandex_iam_service_account" "test-account" {
   name = "%s-acc"
 }

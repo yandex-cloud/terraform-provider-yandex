@@ -494,6 +494,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 			triggerTypeLogGroup: {
 				Type:          schema.TypeList,
+				Description:   "Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.",
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
@@ -501,24 +502,27 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_group_ids": {
-							Type:     schema.TypeSet,
-							Required: true,
-							ForceNew: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-							MinItems: 1,
+							Type:        schema.TypeSet,
+							Description: "Log group IDs for Yandex Cloud Functions Trigger.",
+							Required:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							MinItems:    1,
 						},
 
 						"batch_cutoff": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Batch Duration in seconds for Yandex Cloud Functions Trigger.",
+							Required:    true,
+							ForceNew:    true,
 						},
 
 						"batch_size": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Description: "Batch Size for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+							ForceNew:    true,
 						},
 					},
 				},
@@ -820,19 +824,13 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			timer.Payload = v.(string)
 		}
 
-		if retrySettings != nil || dlqSettings != nil {
-			if invokeType == "function" {
-				timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
-					InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
-				}
-			} else if invokeType == "container" {
-				timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
-					InvokeContainerWithRetry: getInvokeContainerWithRetry(),
-				}
+		if invokeType == "function" {
+			timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
+				InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
 			}
-		} else {
-			timer.Action = &triggers.Trigger_Timer_InvokeFunction{
-				InvokeFunction: getInvokeFunctionOnce(),
+		} else if invokeType == "container" {
+			timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
+				InvokeContainerWithRetry: getInvokeContainerWithRetry(),
 			}
 		}
 
