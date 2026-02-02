@@ -2,6 +2,14 @@
 
 
 
+## 0.183.0 (February 2, 2026)
+##### FEATURES:
+* connection_manager: add lockbox_secret_spec block into yandex_connectionmanager_connection
+##### BUG FIXES:
+* serverless: fix timer trigger creation
+* opensearch: fix operation status while errors
+* postgresql: fix yandex_mdb_postgresql_user changes on pgaudit management
+
 ## 0.182.0 (January 29, 2026)
 ##### FEATURES:
 * datatransfer: add `yandex_datatransfer_transfer` resource and data-source
