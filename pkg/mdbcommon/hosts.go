@@ -44,6 +44,15 @@ type HostApiService[ProtoHost any, ProtoHostSpec any, UpdateSpec any, Options an
 	DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string)
 }
 
+// BatchShardsOperations is an optional interface that can be implemented alongside HostApiServiceWithShards
+// to enable efficient batch creation and deletion of shards.
+// It is parameterized with types `ProtoHostSpec` and `Options`.
+// If not implemented, the system will fall back to sequential shard operations.
+type BatchShardsOperations[ProtoHostSpec any, Options any] interface {
+	CreateShards(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, hostSpecsByShardName map[string][]ProtoHostSpec, opts Options)
+	DeleteShards(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, shardNames []string)
+}
+
 // HostApiService is an interface that defines methods for API operations involving hosts with shards.
 // It is parameterized with types `ProtoHost`, `ProtoHostSpec`, `UpdateSpec`, and `Options`.
 // Each implementation determines the structure and semantics of the `Options` type.
@@ -161,14 +170,34 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 		"deleted": len(toDelete),
 	})
 
-	for shardName, hosts := range toCreateShards {
-		var specs []HS
-		for _, host := range hosts {
-			specs = append(specs, utilsHostService.ConvertToProto(host))
-		}
-		hostsApiService.CreateShard(ctx, sdk, diagnostics, cid, shardName, specs, opts)
-		if diagnostics.HasError() {
-			return
+	// Create shards - use batch operation if available
+	if len(toCreateShards) > 0 {
+		if batchOperations, ok := hostsApiService.(BatchShardsOperations[HS, O]); ok {
+			tflog.Debug(ctx, "using batch shard creation")
+			shardsSpecs := make(map[string][]HS)
+			for shardName, hosts := range toCreateShards {
+				var hostSpecs []HS
+				for _, host := range hosts {
+					hostSpecs = append(hostSpecs, utilsHostService.ConvertToProto(host))
+				}
+				shardsSpecs[shardName] = hostSpecs
+			}
+			batchOperations.CreateShards(ctx, sdk, diagnostics, cid, shardsSpecs, opts)
+			if diagnostics.HasError() {
+				return
+			}
+		} else {
+			tflog.Debug(ctx, "using sequential shard creation")
+			for shardName, hosts := range toCreateShards {
+				var hostSpecs []HS
+				for _, host := range hosts {
+					hostSpecs = append(hostSpecs, utilsHostService.ConvertToProto(host))
+				}
+				hostsApiService.CreateShard(ctx, sdk, diagnostics, cid, shardName, hostSpecs, opts)
+				if diagnostics.HasError() {
+					return
+				}
+			}
 		}
 	}
 
@@ -182,12 +211,29 @@ func UpdateClusterHostsWithShards[T HostWithShard, H any, HS ProtoHostWithShard,
 		return
 	}
 
-	for shardName := range toDeleteShards {
-		hostsApiService.DeleteShard(ctx, sdk, diagnostics, cid, shardName)
-		if diagnostics.HasError() {
-			return
+	// Delete shards - use batch operation if available
+	if len(toDeleteShards) > 0 {
+		if batchOptions, ok := hostsApiService.(BatchShardsOperations[HS, O]); ok {
+			tflog.Debug(ctx, "using batch shard deletion")
+			shardNames := make([]string, 0, len(toDeleteShards))
+			for shardName := range toDeleteShards {
+				shardNames = append(shardNames, shardName)
+			}
+			batchOptions.DeleteShards(ctx, sdk, diagnostics, cid, shardNames)
+			if diagnostics.HasError() {
+				return
+			}
+		} else {
+			tflog.Debug(ctx, "using sequential shard deletion")
+			for shardName := range toDeleteShards {
+				hostsApiService.DeleteShard(ctx, sdk, diagnostics, cid, shardName)
+				if diagnostics.HasError() {
+					return
+				}
+			}
 		}
 	}
+
 	hostsApiService.DeleteHosts(ctx, sdk, diagnostics, cid, toDelete)
 	if diagnostics.HasError() {
 		return

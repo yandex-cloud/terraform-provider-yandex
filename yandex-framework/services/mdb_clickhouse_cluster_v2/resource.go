@@ -214,9 +214,9 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	opts := ClickHouseOpts{
-		HasCoordinator:        len(stateKeeperHostSpecs.Elements()) > 0,
-		CopySchema:            copySchema,
-		MapShardNameShardSpec: mapShardNameShardSpec,
+		HasCoordinator:           len(stateKeeperHostSpecs.Elements()) > 0,
+		CopySchema:               copySchema,
+		PlanShardSpecByShardName: mapShardNameShardSpec,
 	}
 
 	// Update ZooKeeper/Keeper hosts

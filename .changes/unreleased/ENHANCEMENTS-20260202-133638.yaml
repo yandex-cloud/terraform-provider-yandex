@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'mdb_clickhouse: add support for batch shard operations in cluster management'
+time: 2026-02-02T13:36:38.709944763Z

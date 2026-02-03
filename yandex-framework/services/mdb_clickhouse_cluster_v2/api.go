@@ -22,9 +22,9 @@ var clickhouseApi = ClickHouseAPI{}
 type ClickHouseAPI struct{}
 
 type ClickHouseOpts struct {
-	CopySchema            bool
-	HasCoordinator        bool
-	MapShardNameShardSpec map[string]*clickhouse.ShardConfigSpec
+	CopySchema               bool
+	HasCoordinator           bool
+	PlanShardSpecByShardName map[string]*clickhouse.ShardConfigSpec
 }
 
 // Cluster
@@ -350,7 +350,7 @@ func (c *ClickHouseAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 		CopySchema: &wrappers.BoolValue{Value: opts.CopySchema},
 	}
 
-	if shardSpec, ok := opts.MapShardNameShardSpec[shardName]; ok {
+	if shardSpec, ok := opts.PlanShardSpecByShardName[shardName]; ok {
 		request.ConfigSpec = shardSpec
 	}
 
@@ -367,8 +367,54 @@ func (c *ClickHouseAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 
 	if err = op.Wait(ctx); err != nil {
 		diags.AddError(
-			"Failed to create hosts",
+			"Failed to create shard",
 			fmt.Sprintf("Error while waiting for operation %q to create shard ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+		)
+		return
+	}
+}
+
+func (c *ClickHouseAPI) CreateShards(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, hostSpecsByShardName map[string][]*clickhouse.HostSpec, opts ClickHouseOpts) {
+	if len(hostSpecsByShardName) == 0 {
+		return
+	}
+
+	var hostSpecs []*clickhouse.HostSpec
+	var shardSpecs []*clickhouse.ShardSpec
+	for shardName, shardHostSpecs := range hostSpecsByShardName {
+		shardSpec := &clickhouse.ShardSpec{
+			Name: shardName,
+		}
+		if shardConfigSpec, ok := opts.PlanShardSpecByShardName[shardName]; ok {
+			shardSpec.ConfigSpec = shardConfigSpec
+		}
+
+		hostSpecs = append(hostSpecs, shardHostSpecs...)
+		shardSpecs = append(shardSpecs, shardSpec)
+	}
+
+	request := &clickhouse.AddClusterShardsRequest{
+		ClusterId:  cid,
+		ShardSpecs: shardSpecs,
+		HostSpecs:  hostSpecs,
+		CopySchema: &wrappers.BoolValue{Value: opts.CopySchema},
+	}
+
+	op, err := sdk.WrapOperation(
+		sdk.MDB().Clickhouse().Cluster().AddShards(ctx, request),
+	)
+	if err != nil {
+		diags.AddError(
+			"Failed to create shards",
+			fmt.Sprintf("Error while requesting API to create shards ClickHouse cluster %q: %s", cid, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to create shards",
+			fmt.Sprintf("Error while waiting for operation %q to create shards ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
 		)
 		return
 	}
@@ -414,6 +460,30 @@ func (c *ClickHouseAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 		diags.AddError(
 			"Failed to delete shard",
 			fmt.Sprintf("Error while waiting for operation %q to delete shard ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+		)
+		return
+	}
+}
+
+func (c *ClickHouseAPI) DeleteShards(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardNames []string) {
+	op, err := sdk.WrapOperation(
+		sdk.MDB().Clickhouse().Cluster().DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
+			ClusterId:  cid,
+			ShardNames: shardNames,
+		}),
+	)
+	if err != nil {
+		diags.AddError(
+			"Failed to delete shards",
+			fmt.Sprintf("Error while requesting API to delete shards ClickHouse cluster %q: %s", cid, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to delete shards",
+			fmt.Sprintf("Error while waiting for operation %q to delete shards ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
 		)
 		return
 	}
