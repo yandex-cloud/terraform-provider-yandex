@@ -60,6 +60,14 @@ var yandexContainerRepositoryModelType = types.ObjectType{
 	},
 }
 
+// timeoutsBlockAllAttrTypes is the attr types for timeouts.BlockAll (create, read, update, delete).
+var timeoutsBlockAllAttrTypes = map[string]attr.Type{
+	"create": types.StringType,
+	"read":   types.StringType,
+	"update": types.StringType,
+	"delete": types.StringType,
+}
+
 func flattenYandexContainerRepository(ctx context.Context,
 	yandexContainerRepository *containerregistry.Repository,
 	state yandexContainerRepositoryModel,
@@ -68,11 +76,17 @@ func flattenYandexContainerRepository(ctx context.Context,
 	if yandexContainerRepository == nil {
 		return types.ObjectNull(yandexContainerRepositoryModelType.AttrTypes)
 	}
+	// Preserve timeouts as null when they were absent in state/plan to avoid
+	// "Provider produced inconsistent result: .timeouts: was absent, but now present."
+	timeoutsOut := to
+	if to.IsNull() || to.IsUnknown() {
+		timeoutsOut = timeouts.Value{Object: types.ObjectNull(timeoutsBlockAllAttrTypes)}
+	}
 	value, diag := types.ObjectValueFrom(ctx, yandexContainerRepositoryModelType.AttrTypes, yandexContainerRepositoryModel{
 		Name:         types.StringValue(yandexContainerRepository.GetName()),
 		RepositoryId: types.StringValue(yandexContainerRepository.GetId()),
 		ID:           types.StringValue(yandexContainerRepository.GetId()),
-		Timeouts:     to,
+		Timeouts:     timeoutsOut,
 	})
 	diags.Append(diag...)
 	return value
