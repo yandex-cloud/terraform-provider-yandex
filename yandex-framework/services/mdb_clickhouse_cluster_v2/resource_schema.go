@@ -776,6 +776,30 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"query_metric_log_enabled": schema.BoolAttribute{
+				Description: "Enables or disables query_metric_log system table.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"query_metric_log_retention_size": schema.Int64Attribute{
+				Description: "The maximum size that query_metric_log can grow to before old data will be removed. If set to **0**, automatic removal of query_metric_log data based on size is disabled.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"query_metric_log_retention_time": schema.Int64Attribute{
+				Description: "The maximum time that query_metric_log records will be retained before removal. If set to **0**, automatic removal of query_metric_log data based on time is disabled.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 			"access_control_improvements": AccessControlImprovementsSchema(),
 			"text_log_level": schema.StringAttribute{
 				Description: "Logging level for text_log system table.",

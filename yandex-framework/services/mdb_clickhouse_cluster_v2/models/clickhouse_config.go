@@ -65,6 +65,9 @@ type ClickhouseConfig struct {
 	ErrorLogEnabled                           types.Bool    `tfsdk:"error_log_enabled"`
 	ErrorLogRetentionSize                     types.Int64   `tfsdk:"error_log_retention_size"`
 	ErrorLogRetentionTime                     types.Int64   `tfsdk:"error_log_retention_time"`
+	QueryMetricLogEnabled                     types.Bool    `tfsdk:"query_metric_log_enabled"`
+	QueryMetricLogRetentionSize               types.Int64   `tfsdk:"query_metric_log_retention_size"`
+	QueryMetricLogRetentionTime               types.Int64   `tfsdk:"query_metric_log_retention_time"`
 	AccessControlImprovements                 types.Object  `tfsdk:"access_control_improvements"`
 	MaxConnections                            types.Int64   `tfsdk:"max_connections"`
 	MaxConcurrentQueries                      types.Int64   `tfsdk:"max_concurrent_queries"`
@@ -146,6 +149,9 @@ var ClickhouseConfigAttrTypes = map[string]attr.Type{
 	"error_log_enabled":                             types.BoolType,
 	"error_log_retention_size":                      types.Int64Type,
 	"error_log_retention_time":                      types.Int64Type,
+	"query_metric_log_enabled":                      types.BoolType,
+	"query_metric_log_retention_size":               types.Int64Type,
+	"query_metric_log_retention_time":               types.Int64Type,
 	"access_control_improvements":                   types.ObjectType{AttrTypes: AccessControlImprovementsAttrTypes},
 	"max_connections":                               types.Int64Type,
 	"max_concurrent_queries":                        types.Int64Type,
@@ -233,6 +239,9 @@ func FlattenClickHouseConfig(ctx context.Context, state *Cluster, config *clickh
 			ErrorLogEnabled:                           mdbcommon.FlattenBoolWrapper(ctx, config.ErrorLogEnabled, diags),
 			ErrorLogRetentionSize:                     mdbcommon.FlattenInt64Wrapper(ctx, config.ErrorLogRetentionSize, diags),
 			ErrorLogRetentionTime:                     mdbcommon.FlattenInt64Wrapper(ctx, config.ErrorLogRetentionTime, diags),
+			QueryMetricLogEnabled:                     mdbcommon.FlattenBoolWrapper(ctx, config.QueryMetricLogEnabled, diags),
+			QueryMetricLogRetentionSize:               mdbcommon.FlattenInt64Wrapper(ctx, config.QueryMetricLogRetentionSize, diags),
+			QueryMetricLogRetentionTime:               mdbcommon.FlattenInt64Wrapper(ctx, config.QueryMetricLogRetentionTime, diags),
 			AccessControlImprovements:                 flattenAccessControlImprovements(ctx, config.AccessControlImprovements, diags),
 			MaxConnections:                            mdbcommon.FlattenInt64Wrapper(ctx, config.MaxConnections, diags),
 			MaxConcurrentQueries:                      mdbcommon.FlattenInt64Wrapper(ctx, config.MaxConcurrentQueries, diags),
@@ -340,6 +349,9 @@ func ExpandClickHouseConfig(ctx context.Context, c types.Object, diags *diag.Dia
 		ErrorLogEnabled:                           mdbcommon.ExpandBoolWrapper(ctx, config.ErrorLogEnabled, diags),
 		ErrorLogRetentionSize:                     mdbcommon.ExpandInt64Wrapper(ctx, config.ErrorLogRetentionSize, diags),
 		ErrorLogRetentionTime:                     mdbcommon.ExpandInt64Wrapper(ctx, config.ErrorLogRetentionTime, diags),
+		QueryMetricLogEnabled:                     mdbcommon.ExpandBoolWrapper(ctx, config.QueryMetricLogEnabled, diags),
+		QueryMetricLogRetentionSize:               mdbcommon.ExpandInt64Wrapper(ctx, config.QueryMetricLogRetentionSize, diags),
+		QueryMetricLogRetentionTime:               mdbcommon.ExpandInt64Wrapper(ctx, config.QueryMetricLogRetentionTime, diags),
 		AccessControlImprovements:                 expandAccessControlImprovements(ctx, config.AccessControlImprovements, diags),
 		MaxConnections:                            mdbcommon.ExpandInt64Wrapper(ctx, config.MaxConnections, diags),
 		MaxConcurrentQueries:                      mdbcommon.ExpandInt64Wrapper(ctx, config.MaxConcurrentQueries, diags),

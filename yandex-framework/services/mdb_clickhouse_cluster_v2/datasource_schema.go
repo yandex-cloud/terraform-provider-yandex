@@ -460,6 +460,18 @@ func DataSourceClickHouseConfigSchema() schema.SingleNestedAttribute {
 				MarkdownDescription: "The maximum time that error_log records will be retained before removal. If set to **0**, automatic removal of error_log data based on time is disabled.",
 				Computed:            true,
 			},
+			"query_metric_log_enabled": schema.BoolAttribute{
+				Description: "Enables or disables query_metric_log system table.",
+				Computed:    true,
+			},
+			"query_metric_log_retention_size": schema.Int64Attribute{
+				Description: "The maximum size that query_metric_log can grow to before old data will be removed. If set to **0**, automatic removal of query_metric_log data based on size is disabled.",
+				Computed:    true,
+			},
+			"query_metric_log_retention_time": schema.Int64Attribute{
+				Description: "The maximum time that query_metric_log records will be retained before removal. If set to **0**, automatic removal of query_metric_log data based on time is disabled.",
+				Computed:    true,
+			},
 			"access_control_improvements": DataSourceAccessControlImprovementsSchema(),
 			"text_log_level": schema.StringAttribute{
 				MarkdownDescription: "Logging level for text_log system table.",

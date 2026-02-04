@@ -146,6 +146,9 @@ var (
 							"error_log_enabled":                             types.BoolValue(true),
 							"error_log_retention_size":                      types.Int64Value(512),
 							"error_log_retention_time":                      types.Int64Value(256),
+							"query_metric_log_enabled":                      types.BoolValue(true),
+							"query_metric_log_retention_size":               types.Int64Value(256),
+							"query_metric_log_retention_time":               types.Int64Value(512),
 							"access_control_improvements": types.ObjectValueMust(
 								models.AccessControlImprovementsAttrTypes,
 								map[string]attr.Value{
@@ -718,6 +721,9 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 							ErrorLogEnabled:                           wrapperspb.Bool(true),
 							ErrorLogRetentionSize:                     wrapperspb.Int64(512),
 							ErrorLogRetentionTime:                     wrapperspb.Int64(256),
+							QueryMetricLogEnabled:                     wrapperspb.Bool(true),
+							QueryMetricLogRetentionSize:               wrapperspb.Int64(256),
+							QueryMetricLogRetentionTime:               wrapperspb.Int64(512),
 							AccessControlImprovements: &clickhouseConfig.ClickhouseConfig_AccessControlImprovements{
 								SelectFromSystemDbRequiresGrant:          wrapperspb.Bool(true),
 								SelectFromInformationSchemaRequiresGrant: wrapperspb.Bool(false),

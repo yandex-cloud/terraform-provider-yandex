@@ -478,6 +478,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 		ErrorLogEnabled:                           &wrappers.BoolValue{Value: true},
 		ErrorLogRetentionSize:                     &wrappers.Int64Value{Value: 1014},
 		ErrorLogRetentionTime:                     &wrappers.Int64Value{Value: 86400000},
+		QueryMetricLogEnabled:                     &wrappers.BoolValue{Value: true},
+		QueryMetricLogRetentionSize:               &wrappers.Int64Value{Value: 1015},
+		QueryMetricLogRetentionTime:               &wrappers.Int64Value{Value: 90000000},
 		TotalMemoryTrackerSampleProbability:       &wrappers.DoubleValue{Value: 0.123},
 		AsyncInsertThreads:                        &wrappers.Int64Value{Value: 4},
 		BackupThreads:                             &wrappers.Int64Value{Value: 2},
@@ -685,6 +688,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 		ErrorLogEnabled:                           &wrappers.BoolValue{Value: false},
 		ErrorLogRetentionSize:                     &wrappers.Int64Value{Value: 2014},
 		ErrorLogRetentionTime:                     &wrappers.Int64Value{Value: 86400000},
+		QueryMetricLogEnabled:                     &wrappers.BoolValue{Value: false},
+		QueryMetricLogRetentionSize:               &wrappers.Int64Value{Value: 2015},
+		QueryMetricLogRetentionTime:               &wrappers.Int64Value{Value: 80000000},
 		TotalMemoryTrackerSampleProbability:       &wrappers.DoubleValue{Value: 0.321},
 		AsyncInsertThreads:                        &wrappers.Int64Value{Value: 8},
 		BackupThreads:                             &wrappers.Int64Value{Value: 4},
@@ -781,6 +787,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_enabled", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_retention_size", "1014"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_retention_size", "1015"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_retention_time", "90000000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.total_memory_tracker_sample_probability", "0.123"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.async_insert_threads", "4"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.backup_threads", "2"),
@@ -950,6 +959,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_enabled", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_retention_size", "2014"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.error_log_retention_time", "86400000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_enabled", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_retention_size", "2015"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.config.query_metric_log_retention_time", "80000000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.total_memory_tracker_sample_probability", "0.321"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.async_insert_threads", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.backup_threads", "4"),
@@ -2202,6 +2214,9 @@ config = {
 	error_log_enabled                       	  = %t
 	error_log_retention_size                	  = %d
 	error_log_retention_time                	  = %d
+	query_metric_log_enabled                      = %t
+	query_metric_log_retention_size               = %d
+	query_metric_log_retention_time               = %d
 	text_log_level                          	  = "%s"
 	background_pool_size                    	  = %d
 	background_schedule_pool_size           	  = %d
@@ -2302,6 +2317,9 @@ config = {
 		config.ErrorLogEnabled.GetValue(),
 		config.ErrorLogRetentionSize.GetValue(),
 		config.ErrorLogRetentionTime.GetValue(),
+		config.QueryMetricLogEnabled.GetValue(),
+		config.QueryMetricLogRetentionSize.GetValue(),
+		config.QueryMetricLogRetentionTime.GetValue(),
 		config.TextLogLevel.String(),
 		config.BackgroundPoolSize.GetValue(),
 		config.BackgroundSchedulePoolSize.GetValue(),
