@@ -1017,14 +1017,6 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
-  mdb_sqlserver_cluster:
-    Category: "Managed Service for SQLServer"
-    Type: sdk
-    HasR: true
-    HasD: true
-    HasI: true
-    #HasF: false
-    #HasE: false
   message_queue:
     Category: "Message Queue"
     Type: sdk

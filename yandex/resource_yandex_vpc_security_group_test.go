@@ -29,7 +29,6 @@ func getYandexVPCSecurityGroupSweeperDeps() []string {
 		"yandex_mdb_greenplum_cluster",
 		"yandex_mdb_redis_cluster",
 		"yandex_mdb_kafka_cluster",
-		"yandex_mdb_sqlserver_cluster",
 		"yandex_mdb_kafka_cluster",
 	}
 }
