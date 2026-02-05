@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: add `query_metric_log_enabled`, `query_metric_log_retention_size`,
-  and `query_metric_log_retention_time` options'
-time: 2026-02-03T18:48:32.572788139Z

@@ -2,6 +2,11 @@
 
 
 
+## 0.184.0 (February 5, 2026)
+##### ENHANCEMENTS:
+* mdb_clickhouse: add support for batch shard operations in cluster management
+* mdb_clickhouse: add `query_metric_log_enabled`, `query_metric_log_retention_size`, and `query_metric_log_retention_time` options
+
 ## 0.183.0 (February 2, 2026)
 ##### FEATURES:
 * connection_manager: add lockbox_secret_spec block into yandex_connectionmanager_connection
