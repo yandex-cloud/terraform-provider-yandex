@@ -199,7 +199,6 @@ func (r *yandexOrganizationmanagerIdpUserResource) Create(ctx context.Context, r
 	tflog.Debug(ctx, fmt.Sprintf("Create user response: %s", validate.ProtoDump(createRes)))
 
 	plan.UserId = types.StringValue(createRes.Id)
-
 	reqApi := &idp.GetUserRequest{}
 	reqApi.SetUserId(plan.UserId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read user request: %s", validate.ProtoDump(reqApi)))

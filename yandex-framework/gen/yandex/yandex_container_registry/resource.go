@@ -187,7 +187,6 @@ func (r *yandexContainerRegistryResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("Create registry response: %s", validate.ProtoDump(createRes)))
 
 	plan.RegistryId = types.StringValue(createRes.Id)
-
 	reqApi := &containerregistry.GetRegistryRequest{}
 	reqApi.SetRegistryId(plan.RegistryId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read registry request: %s", validate.ProtoDump(reqApi)))

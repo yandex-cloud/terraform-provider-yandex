@@ -190,7 +190,6 @@ func (r *yandexComputeDiskPlacementGroupResource) Create(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Create disk_placement_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.DiskPlacementGroupId = types.StringValue(createRes.Id)
-
 	reqApi := &compute.GetDiskPlacementGroupRequest{}
 	reqApi.SetDiskPlacementGroupId(plan.DiskPlacementGroupId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read disk_placement_group request: %s", validate.ProtoDump(reqApi)))

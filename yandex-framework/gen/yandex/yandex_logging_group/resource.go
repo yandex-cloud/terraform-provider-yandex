@@ -190,7 +190,6 @@ func (r *yandexLoggingGroupResource) Create(ctx context.Context, req resource.Cr
 	tflog.Debug(ctx, fmt.Sprintf("Create log_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.LogGroupId = types.StringValue(createRes.Id)
-
 	reqApi := &logging.GetLogGroupRequest{}
 	reqApi.SetLogGroupId(plan.LogGroupId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read log_group request: %s", validate.ProtoDump(reqApi)))

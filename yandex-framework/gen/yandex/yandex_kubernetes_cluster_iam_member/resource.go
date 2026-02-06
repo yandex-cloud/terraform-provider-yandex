@@ -48,6 +48,14 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Allows creation and management of a single binding within IAM policy for an existing `cluster`.",
 		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The ID of this resource.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"role": schema.StringAttribute{
 				MarkdownDescription: "The role that should be assigned. Only one yandex_kubernetes_cluster_iam_member can be used per role.",
 				Required:            true,
@@ -112,7 +120,7 @@ func (r *IAMMemberUpdater) ImportState(ctx context.Context, req resource.ImportS
 	if len(idParts) != 3 {
 		resp.Diagnostics.AddError(
 			"Invalid import ID",
-			"Expected import ID in format 'cluster_id role member'",
+			"Expected import ID in format 'cluster_id,role,member'",
 		)
 		return
 	}
@@ -130,6 +138,7 @@ func (r *IAMMemberUpdater) ImportState(ctx context.Context, req resource.ImportS
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("cluster_id"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("role"), idParts[1])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("member"), idParts[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0]+"/"+idParts[1]+"/"+idParts[2])...)
 }
 
 func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -463,4 +472,5 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	var sleep types.Int64
 	req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
 	diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
+	diag.Append(resp.SetAttribute(ctx, path.Root("id"), u.clusterId+"/"+member.RoleId+"/"+canonicalMemberValue)...)
 }

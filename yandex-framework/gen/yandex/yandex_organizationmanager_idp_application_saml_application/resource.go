@@ -193,7 +193,6 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Create(
 	tflog.Debug(ctx, fmt.Sprintf("Create application response: %s", validate.ProtoDump(createRes)))
 
 	plan.ApplicationId = types.StringValue(createRes.Id)
-
 	reqApi := &saml.GetApplicationRequest{}
 	reqApi.SetApplicationId(plan.ApplicationId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read application request: %s", validate.ProtoDump(reqApi)))
@@ -320,49 +319,64 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Update(
 		updatePaths = append(updatePaths, "application_id")
 	}
 
-	var yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel
-	resp.Diagnostics.Append(plan.AttributeMapping.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.AttributeMapping.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.AttributeMapping.IsNull() || state.AttributeMapping.IsNull()) &&
+		!(plan.AttributeMapping.IsNull() && state.AttributeMapping.IsNull()) {
+		updatePaths = append(updatePaths, "attribute_mapping")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel
+		resp.Diagnostics.Append(plan.AttributeMapping.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.AttributeMapping.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModelType)
-	}
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModelType)
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes) {
-		updatePaths = append(updatePaths, "attribute_mapping.attributes")
-	}
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModelType)
+		}
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModelType)
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.Attributes.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.Attributes) {
+			updatePaths = append(updatePaths, "attribute_mapping.attributes")
+		}
 
-	var yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.NameId.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.NameId.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+		if (yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.NameId.IsNull() || yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.NameId.IsNull()) &&
+			!(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.NameId.IsNull() && yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.NameId.IsNull()) {
+			updatePaths = append(updatePaths, "attribute_mapping.name_id")
+		} else {
+			var yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingPlan.NameId.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingState.NameId.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan.Format.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Format) {
-		updatePaths = append(updatePaths, "attribute_mapping.name_id.format")
+			if !yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdPlan.Format.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Format) {
+				updatePaths = append(updatePaths, "attribute_mapping.name_id.format")
+			}
+		}
 	}
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 
-	var yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState, yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel
-	resp.Diagnostics.Append(plan.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.GroupClaimsSettings.IsNull() || state.GroupClaimsSettings.IsNull()) &&
+		!(plan.GroupClaimsSettings.IsNull() && state.GroupClaimsSettings.IsNull()) {
+		updatePaths = append(updatePaths, "group_claims_settings")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState, yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel
+		resp.Diagnostics.Append(plan.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeName.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeName) {
-		updatePaths = append(updatePaths, "group_claims_settings.group_attribute_name")
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupDistributionType) {
-		updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeName.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeName) {
+			updatePaths = append(updatePaths, "group_claims_settings.group_attribute_name")
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupDistributionType) {
+			updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
+		}
 	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
@@ -377,47 +391,57 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Update(
 		updatePaths = append(updatePaths, "name")
 	}
 
-	var yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState, yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel
-	resp.Diagnostics.Append(plan.SecuritySettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.SecuritySettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
+	if (plan.SecuritySettings.IsNull() || state.SecuritySettings.IsNull()) &&
+		!(plan.SecuritySettings.IsNull() && state.SecuritySettings.IsNull()) {
+		updatePaths = append(updatePaths, "security_settings")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState, yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel
+		resp.Diagnostics.Append(plan.SecuritySettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.SecuritySettings.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan.SignatureCertificateId.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState.SignatureCertificateId) {
+			updatePaths = append(updatePaths, "security_settings.signature_certificate_id")
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan.SignatureMode.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState.SignatureMode) {
+			updatePaths = append(updatePaths, "security_settings.signature_mode")
+		}
 	}
 
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan.SignatureCertificateId.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState.SignatureCertificateId) {
-		updatePaths = append(updatePaths, "security_settings.signature_certificate_id")
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsPlan.SignatureMode.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsState.SignatureMode) {
-		updatePaths = append(updatePaths, "security_settings.signature_mode")
-	}
+	if (plan.ServiceProvider.IsNull() || state.ServiceProvider.IsNull()) &&
+		!(plan.ServiceProvider.IsNull() && state.ServiceProvider.IsNull()) {
+		updatePaths = append(updatePaths, "service_provider")
+	} else {
+		var yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState, yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel
+		resp.Diagnostics.Append(plan.ServiceProvider.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.ServiceProvider.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	var yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState, yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel
-	resp.Diagnostics.Append(plan.ServiceProvider.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.ServiceProvider.As(ctx, &yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModelType)
-	}
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModelType)
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls) {
-		updatePaths = append(updatePaths, "service_provider.acs_urls")
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.EntityId.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.EntityId) {
-		updatePaths = append(updatePaths, "service_provider.entity_id")
-	}
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModelType)
-	}
-	if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls.IsNull() {
-		yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModelType)
-	}
-	if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls) {
-		updatePaths = append(updatePaths, "service_provider.slo_urls")
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModelType)
+		}
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModelType)
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.AcsUrls.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.AcsUrls) {
+			updatePaths = append(updatePaths, "service_provider.acs_urls")
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.EntityId.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.EntityId) {
+			updatePaths = append(updatePaths, "service_provider.entity_id")
+		}
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModelType)
+		}
+		if yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls.IsNull() {
+			yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls = types.ListNull(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModelType)
+		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderPlan.SloUrls.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderState.SloUrls) {
+			updatePaths = append(updatePaths, "service_provider.slo_urls")
+		}
 	}
 	if len(updatePaths) != 0 {
 

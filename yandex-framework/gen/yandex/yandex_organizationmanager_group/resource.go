@@ -187,7 +187,6 @@ func (r *yandexOrganizationmanagerGroupResource) Create(ctx context.Context, req
 	tflog.Debug(ctx, fmt.Sprintf("Create group response: %s", validate.ProtoDump(createRes)))
 
 	plan.GroupId = types.StringValue(createRes.Id)
-
 	reqApi := &organizationmanager.GetGroupRequest{}
 	reqApi.SetGroupId(plan.GroupId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read group request: %s", validate.ProtoDump(reqApi)))

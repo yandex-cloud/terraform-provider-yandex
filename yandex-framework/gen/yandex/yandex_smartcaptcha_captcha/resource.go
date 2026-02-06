@@ -161,6 +161,9 @@ func (r *yandexSmartcaptchaCaptchaResource) Create(ctx context.Context, req reso
 	createReq.SetSecurityRules(expandYandexSmartcaptchaCaptchaSecurityRule(ctx, plan.SecurityRule, &diags))
 	createReq.SetDeletionProtection(plan.DeletionProtection.ValueBool())
 	createReq.SetOverrideVariants(expandYandexSmartcaptchaCaptchaOverrideVariant(ctx, plan.OverrideVariant, &diags))
+	createReq.SetDisallowDataProcessing(plan.DisallowDataProcessing.ValueBool())
+	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetLabels(expandYandexSmartcaptchaCaptchaLabels(ctx, plan.Labels, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -338,6 +341,21 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
+	if !plan.Description.Equal(state.Description) {
+		updatePaths = append(updatePaths, "description")
+	}
+	if !plan.DisallowDataProcessing.Equal(state.DisallowDataProcessing) {
+		updatePaths = append(updatePaths, "disallow_data_processing")
+	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
+	if !plan.Labels.Equal(state.Labels) {
+		updatePaths = append(updatePaths, "labels")
+	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
@@ -386,6 +404,9 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 		updateReq.SetSecurityRules(expandYandexSmartcaptchaCaptchaSecurityRule(ctx, plan.SecurityRule, &diags))
 		updateReq.SetDeletionProtection(plan.DeletionProtection.ValueBool())
 		updateReq.SetOverrideVariants(expandYandexSmartcaptchaCaptchaOverrideVariant(ctx, plan.OverrideVariant, &diags))
+		updateReq.SetDisallowDataProcessing(plan.DisallowDataProcessing.ValueBool())
+		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexSmartcaptchaCaptchaLabels(ctx, plan.Labels, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

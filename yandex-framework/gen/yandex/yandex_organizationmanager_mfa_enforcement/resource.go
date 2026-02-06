@@ -161,7 +161,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Create(ctx context.Con
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(setCorrectEnumForCreate(createReq, &plan)...)
+	resp.Diagnostics.Append(setCorrectEnumForCreate(ctx, r.providerConfig, createReq, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -195,7 +195,6 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Create(ctx context.Con
 	tflog.Debug(ctx, fmt.Sprintf("Create mfa_enforcement response: %s", validate.ProtoDump(createRes)))
 
 	plan.MfaEnforcementId = types.StringValue(createRes.Id)
-
 	reqApi := &organizationmanager.GetMfaEnforcementRequest{}
 	reqApi.SetMfaEnforcementId(plan.MfaEnforcementId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read mfa_enforcement request: %s", validate.ProtoDump(reqApi)))
@@ -358,7 +357,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Update(ctx context.Con
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(setCorrectEnumForUpdate(updateReq, &plan, &state)...)
+	resp.Diagnostics.Append(setCorrectEnumForUpdate(ctx, r.providerConfig, updateReq, &plan, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

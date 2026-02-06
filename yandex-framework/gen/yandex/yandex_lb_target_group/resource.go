@@ -190,7 +190,6 @@ func (r *yandexLbTargetGroupResource) Create(ctx context.Context, req resource.C
 	tflog.Debug(ctx, fmt.Sprintf("Create target_group response: %s", validate.ProtoDump(createRes)))
 
 	plan.TargetGroupId = types.StringValue(createRes.Id)
-
 	reqApi := &loadbalancer.GetTargetGroupRequest{}
 	reqApi.SetTargetGroupId(plan.TargetGroupId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read target_group request: %s", validate.ProtoDump(reqApi)))

@@ -39,10 +39,9 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
-	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.49.0
+	github.com/yandex-cloud/go-genproto v0.51.0
 	github.com/yandex-cloud/go-sdk v0.29.0
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2
@@ -269,6 +268,7 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
+	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect

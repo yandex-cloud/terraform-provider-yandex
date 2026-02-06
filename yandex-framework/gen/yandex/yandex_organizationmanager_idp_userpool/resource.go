@@ -194,7 +194,6 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Create(ctx context.Contex
 	tflog.Debug(ctx, fmt.Sprintf("Create userpool response: %s", validate.ProtoDump(createRes)))
 
 	plan.UserpoolId = types.StringValue(createRes.Id)
-
 	reqApi := &idp.GetUserpoolRequest{}
 	reqApi.SetUserpoolId(plan.UserpoolId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read userpool request: %s", validate.ProtoDump(reqApi)))
@@ -317,21 +316,26 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	defer cancel()
 	var updatePaths []string
 
-	var yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel
-	resp.Diagnostics.Append(plan.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.BruteforceProtectionPolicy.IsNull() || state.BruteforceProtectionPolicy.IsNull()) &&
+		!(plan.BruteforceProtectionPolicy.IsNull() && state.BruteforceProtectionPolicy.IsNull()) {
+		updatePaths = append(updatePaths, "bruteforce_protection_policy")
+	} else {
+		var yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel
+		resp.Diagnostics.Append(plan.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Attempts.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Attempts) {
-		updatePaths = append(updatePaths, "bruteforce_protection_policy.attempts")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Block.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Block) {
-		updatePaths = append(updatePaths, "bruteforce_protection_policy.block")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Window.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Window) {
-		updatePaths = append(updatePaths, "bruteforce_protection_policy.window")
+		if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Attempts.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Attempts) {
+			updatePaths = append(updatePaths, "bruteforce_protection_policy.attempts")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Block.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Block) {
+			updatePaths = append(updatePaths, "bruteforce_protection_policy.block")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan.Window.Equal(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState.Window) {
+			updatePaths = append(updatePaths, "bruteforce_protection_policy.window")
+		}
 	}
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
@@ -349,98 +353,123 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		updatePaths = append(updatePaths, "name")
 	}
 
-	var yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel
-	resp.Diagnostics.Append(plan.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
+	if (plan.PasswordLifetimePolicy.IsNull() || state.PasswordLifetimePolicy.IsNull()) &&
+		!(plan.PasswordLifetimePolicy.IsNull() && state.PasswordLifetimePolicy.IsNull()) {
+		updatePaths = append(updatePaths, "password_lifetime_policy")
+	} else {
+		var yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel
+		resp.Diagnostics.Append(plan.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if !yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan.MaxDaysCount.Equal(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState.MaxDaysCount) {
+			updatePaths = append(updatePaths, "password_lifetime_policy.max_days_count")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan.MinDaysCount.Equal(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState.MinDaysCount) {
+			updatePaths = append(updatePaths, "password_lifetime_policy.min_days_count")
+		}
 	}
 
-	if !yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan.MaxDaysCount.Equal(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState.MaxDaysCount) {
-		updatePaths = append(updatePaths, "password_lifetime_policy.max_days_count")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan.MinDaysCount.Equal(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState.MinDaysCount) {
-		updatePaths = append(updatePaths, "password_lifetime_policy.min_days_count")
+	if (plan.PasswordQualityPolicy.IsNull() || state.PasswordQualityPolicy.IsNull()) &&
+		!(plan.PasswordQualityPolicy.IsNull() && state.PasswordQualityPolicy.IsNull()) {
+		updatePaths = append(updatePaths, "password_quality_policy")
+	} else {
+		var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel
+		resp.Diagnostics.Append(plan.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.AllowSimilar.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.AllowSimilar) {
+			updatePaths = append(updatePaths, "password_quality_policy.allow_similar")
+		}
+
+		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) &&
+			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) {
+			updatePaths = append(updatePaths, "password_quality_policy.fixed")
+		} else {
+			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.DigitsRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.DigitsRequired) {
+				updatePaths = append(updatePaths, "password_quality_policy.fixed.digits_required")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.LowersRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.LowersRequired) {
+				updatePaths = append(updatePaths, "password_quality_policy.fixed.lowers_required")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.MinLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.MinLength) {
+				updatePaths = append(updatePaths, "password_quality_policy.fixed.min_length")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.SpecialsRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.SpecialsRequired) {
+				updatePaths = append(updatePaths, "password_quality_policy.fixed.specials_required")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.UppersRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.UppersRequired) {
+				updatePaths = append(updatePaths, "password_quality_policy.fixed.uppers_required")
+			}
+		}
+		if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.MatchLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MatchLength) {
+			updatePaths = append(updatePaths, "password_quality_policy.match_length")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.MaxLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MaxLength) {
+			updatePaths = append(updatePaths, "password_quality_policy.max_length")
+		}
+
+		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) &&
+			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) {
+			updatePaths = append(updatePaths, "password_quality_policy.smart")
+		} else {
+			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.FourClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.FourClasses) {
+				updatePaths = append(updatePaths, "password_quality_policy.smart.four_classes")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.OneClass.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.OneClass) {
+				updatePaths = append(updatePaths, "password_quality_policy.smart.one_class")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.ThreeClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.ThreeClasses) {
+				updatePaths = append(updatePaths, "password_quality_policy.smart.three_classes")
+			}
+			if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.TwoClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.TwoClasses) {
+				updatePaths = append(updatePaths, "password_quality_policy.smart.two_classes")
+			}
+		}
 	}
 
-	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel
-	resp.Diagnostics.Append(plan.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if (plan.UserSettings.IsNull() || state.UserSettings.IsNull()) &&
+		!(plan.UserSettings.IsNull() && state.UserSettings.IsNull()) {
+		updatePaths = append(updatePaths, "user_settings")
+	} else {
+		var yandexOrganizationmanagerIdpUserpoolUserSettingsState, yandexOrganizationmanagerIdpUserpoolUserSettingsPlan yandexOrganizationmanagerIdpUserpoolUserSettingsModel
+		resp.Diagnostics.Append(plan.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.AllowSimilar.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.AllowSimilar) {
-		updatePaths = append(updatePaths, "password_quality_policy.allow_similar")
-	}
-
-	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.DigitsRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.DigitsRequired) {
-		updatePaths = append(updatePaths, "password_quality_policy.fixed.digits_required")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.LowersRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.LowersRequired) {
-		updatePaths = append(updatePaths, "password_quality_policy.fixed.lowers_required")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.MinLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.MinLength) {
-		updatePaths = append(updatePaths, "password_quality_policy.fixed.min_length")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.SpecialsRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.SpecialsRequired) {
-		updatePaths = append(updatePaths, "password_quality_policy.fixed.specials_required")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan.UppersRequired.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState.UppersRequired) {
-		updatePaths = append(updatePaths, "password_quality_policy.fixed.uppers_required")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.MatchLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MatchLength) {
-		updatePaths = append(updatePaths, "password_quality_policy.match_length")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.MaxLength.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.MaxLength) {
-		updatePaths = append(updatePaths, "password_quality_policy.max_length")
-	}
-
-	var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.FourClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.FourClasses) {
-		updatePaths = append(updatePaths, "password_quality_policy.smart.four_classes")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.OneClass.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.OneClass) {
-		updatePaths = append(updatePaths, "password_quality_policy.smart.one_class")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.ThreeClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.ThreeClasses) {
-		updatePaths = append(updatePaths, "password_quality_policy.smart.three_classes")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan.TwoClasses.Equal(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState.TwoClasses) {
-		updatePaths = append(updatePaths, "password_quality_policy.smart.two_classes")
-	}
-
-	var yandexOrganizationmanagerIdpUserpoolUserSettingsState, yandexOrganizationmanagerIdpUserpoolUserSettingsPlan yandexOrganizationmanagerIdpUserpoolUserSettingsModel
-	resp.Diagnostics.Append(plan.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(state.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfContacts.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfContacts) {
-		updatePaths = append(updatePaths, "user_settings.allow_edit_self_contacts")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfInfo.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfInfo) {
-		updatePaths = append(updatePaths, "user_settings.allow_edit_self_info")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfLogin.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfLogin) {
-		updatePaths = append(updatePaths, "user_settings.allow_edit_self_login")
-	}
-	if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfPassword.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfPassword) {
-		updatePaths = append(updatePaths, "user_settings.allow_edit_self_password")
+		if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfContacts.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfContacts) {
+			updatePaths = append(updatePaths, "user_settings.allow_edit_self_contacts")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfInfo.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfInfo) {
+			updatePaths = append(updatePaths, "user_settings.allow_edit_self_info")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfLogin.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfLogin) {
+			updatePaths = append(updatePaths, "user_settings.allow_edit_self_login")
+		}
+		if !yandexOrganizationmanagerIdpUserpoolUserSettingsPlan.AllowEditSelfPassword.Equal(yandexOrganizationmanagerIdpUserpoolUserSettingsState.AllowEditSelfPassword) {
+			updatePaths = append(updatePaths, "user_settings.allow_edit_self_password")
+		}
 	}
 	if !plan.UserpoolId.Equal(state.UserpoolId) {
 		updatePaths = append(updatePaths, "userpool_id")

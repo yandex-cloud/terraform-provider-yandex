@@ -1,15 +1,10 @@
 ---
-subcategory: "Cloud Billing"
-page_title: "Yandex: yandex_billing_cloud_binding"
-description: |-
-  Retrieve Yandex Billing cloud to billing account bind details.
+subcategory: "Billing"
 ---
 
-# yandex_billing_cloud_binding (Data Source)
+# yandex_billing_cloud_binding (DataSource)
 
 
-
-Use this data source to get cloud to billing account bind details. For more information, see [Cloud binding](https://yandex.cloud/docs/billing/operations/pin-cloud).
 
 ## Example usage
 
@@ -27,10 +22,10 @@ output "bound_cloud_id" {
 }
 ```
 
+## Arguments & Attributes Reference
 
-## Argument Reference
+- `billing_account_id` (**Required**)(String). The ID of billing account to bind cloud to.
+- `cloud_id` (**Required**)(String). Service Instance ID.
+- `id` (*Read-Only*) (String). The resource identifier.
 
-The following arguments are supported:
 
-* `billing_account_id` - (Required) ID of the billing account.
-* `cloud_id` - (Required) ID of the cloud.

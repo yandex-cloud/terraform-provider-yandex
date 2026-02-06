@@ -185,7 +185,6 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialResource) Create(ctx contex
 	tflog.Debug(ctx, fmt.Sprintf("Create federated_credential response: %s", validate.ProtoDump(createRes)))
 
 	plan.FederatedCredentialId = types.StringValue(createRes.Id)
-
 	reqApi := &workload.GetFederatedCredentialRequest{}
 	reqApi.SetFederatedCredentialId(plan.FederatedCredentialId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential request: %s", validate.ProtoDump(reqApi)))

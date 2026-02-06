@@ -191,7 +191,6 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Create
 	tflog.Debug(ctx, fmt.Sprintf("Create application response: %s", validate.ProtoDump(createRes)))
 
 	plan.ApplicationId = types.StringValue(createRes.Id)
-
 	reqApi := &oauth.GetApplicationRequest{}
 	reqApi.SetApplicationId(plan.ApplicationId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read application request: %s", validate.ProtoDump(reqApi)))

@@ -24,7 +24,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop_group"
 	yandex_cloud_desktops_image "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_image"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_ip_permission"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_registry_ip_permission"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
@@ -333,7 +333,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_sharded_postgresql_cluster.NewShardedPostgreSQLClusterResource,
 		mdb_sharded_postgresql_user.NewShardedPostgreSQLUserResource,
 		mdb_sharded_postgresql_database.NewShardedPostgreSQLDatabaseResource,
-		cloudregistry_ip_permission.NewResource,
+		cloudregistry_registry_ip_permission.NewResource,
 		mdb_sharded_postgresql_shard.NewShardedPostgreSQLShardResource,
 		cloud_desktops_desktop_group.NewResource,
 		cloud_desktops_desktop.NewResource,
@@ -368,7 +368,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		trino_access_control.NewDatasource,
 		trino_cluster.NewDatasource,
 		trino_catalog.NewDatasource,
-		cloudregistry_ip_permission.NewDataSource,
+		cloudregistry_registry_ip_permission.NewDataSource,
 		yandex_cloud_desktops_image.NewDataSource,
 		cloud_desktops_desktop_group.NewDatasource,
 		cloud_desktops_desktop.NewDatasource,

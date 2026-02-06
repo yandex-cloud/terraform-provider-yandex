@@ -239,8 +239,8 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 									},
 
 									"subnet_id": schema.StringAttribute{
-										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.subnet_id
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.subnet_id
@@ -786,8 +786,8 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 									},
 
 									"subnet_id": schema.StringAttribute{
-										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.subnet_id
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.subnet_id

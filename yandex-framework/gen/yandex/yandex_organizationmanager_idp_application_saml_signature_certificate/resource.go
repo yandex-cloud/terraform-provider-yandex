@@ -186,7 +186,6 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateResource
 	tflog.Debug(ctx, fmt.Sprintf("Create signature_certificate response: %s", validate.ProtoDump(createRes)))
 
 	plan.SignatureCertificateId = types.StringValue(createRes.Id)
-
 	reqApi := &saml.GetSignatureCertificateRequest{}
 	reqApi.SetSignatureCertificateId(plan.SignatureCertificateId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read signature_certificate request: %s", validate.ProtoDump(reqApi)))

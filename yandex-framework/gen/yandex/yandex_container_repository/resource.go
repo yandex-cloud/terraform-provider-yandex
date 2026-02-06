@@ -183,7 +183,6 @@ func (r *yandexContainerRepositoryResource) Create(ctx context.Context, req reso
 	tflog.Debug(ctx, fmt.Sprintf("Create repository response: %s", validate.ProtoDump(createRes)))
 
 	plan.RepositoryId = types.StringValue(createRes.Id)
-
 	reqApi := &containerregistry.GetRepositoryRequest{}
 	reqApi.SetRepositoryId(plan.RepositoryId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read repository request: %s", validate.ProtoDump(reqApi)))

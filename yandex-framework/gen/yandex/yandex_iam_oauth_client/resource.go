@@ -184,7 +184,6 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 	tflog.Debug(ctx, fmt.Sprintf("Create o_auth_client response: %s", validate.ProtoDump(createRes)))
 
 	plan.OauthClientId = types.StringValue(createRes.Id)
-
 	reqApi := &iam.GetOAuthClientRequest{}
 	reqApi.SetOauthClientId(plan.OauthClientId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client request: %s", validate.ProtoDump(reqApi)))

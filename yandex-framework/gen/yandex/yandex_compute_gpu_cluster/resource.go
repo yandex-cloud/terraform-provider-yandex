@@ -190,7 +190,6 @@ func (r *yandexComputeGpuClusterResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("Create gpu_cluster response: %s", validate.ProtoDump(createRes)))
 
 	plan.GpuClusterId = types.StringValue(createRes.Id)
-
 	reqApi := &compute.GetGpuClusterRequest{}
 	reqApi.SetGpuClusterId(plan.GpuClusterId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read gpu_cluster request: %s", validate.ProtoDump(reqApi)))

@@ -192,7 +192,6 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Create(ctx context.Con
 	tflog.Debug(ctx, fmt.Sprintf("Create federation response: %s", validate.ProtoDump(createRes)))
 
 	plan.FederationId = types.StringValue(createRes.Id)
-
 	reqApi := &oidc.GetFederationRequest{}
 	reqApi.SetFederationId(plan.FederationId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read federation request: %s", validate.ProtoDump(reqApi)))

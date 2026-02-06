@@ -189,7 +189,6 @@ func (r *yandexResourcemanagerFolderResource) Create(ctx context.Context, req re
 	tflog.Debug(ctx, fmt.Sprintf("Create folder response: %s", validate.ProtoDump(createRes)))
 
 	plan.FolderId = types.StringValue(createRes.Id)
-
 	reqApi := &resourcemanager.GetFolderRequest{}
 	reqApi.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
 	tflog.Debug(ctx, fmt.Sprintf("Read folder request: %s", validate.ProtoDump(reqApi)))

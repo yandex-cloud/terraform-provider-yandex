@@ -38,6 +38,14 @@ ifeq ($(wildcard $(TFGEN_MK)),)
 	    @echo "tfgen.mk not found, skipping tfgen operations"
 endif
 
+TFDOCGEN_MK := ./tools/tfdocgen/tfdocgen.mk
+-include $(TFDOCGEN_MK)
+
+ifeq ($(wildcard $(TFDOCGEN_MK)),)
+    generate-docs:
+	    @echo "tfdocgen.mk not found, skipping tfdocgen operations"
+endif
+
 default: build
 
 ##build and local-build generate the same user-agent
@@ -98,10 +106,6 @@ changie-lint:
 
 install-yfm:
 	npm i @diplodoc/cli -g
-
-generate-docs:
-	rm -rf templates-[0-9]*
-	go run tools/cmd/generate-docs/generate_docs.go ./templates ./docs
 
 affected-lint-provider-docs:
 	@sh -c "'$(CURDIR)//scripts/affectedocs.sh'"

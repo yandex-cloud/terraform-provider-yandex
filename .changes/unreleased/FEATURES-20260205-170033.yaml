@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'general: add id field for iam_member and iam_binding resources'
+time: 2026-02-05T17:00:33.833927+03:00

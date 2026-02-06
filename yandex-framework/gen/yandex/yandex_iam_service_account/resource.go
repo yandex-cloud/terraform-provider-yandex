@@ -188,7 +188,6 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("Create service_account response: %s", validate.ProtoDump(createRes)))
 
 	plan.ServiceAccountId = types.StringValue(createRes.Id)
-
 	reqApi := &iam.GetServiceAccountRequest{}
 	reqApi.SetServiceAccountId(plan.ServiceAccountId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read service_account request: %s", validate.ProtoDump(reqApi)))

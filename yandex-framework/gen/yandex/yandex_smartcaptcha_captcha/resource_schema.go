@@ -9,11 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -187,23 +189,40 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 			},
 
 			"description": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Optional description of the captcha.",
+				Description: "Optional description of the captcha." +
 					// proto paths: +
 					// -> yandex.cloud.smartcaptcha.v1.Captcha.description
+					// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.description
+					// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.description
 					"package: yandex.cloud.smartcaptcha.v1\n" +
 					"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 512),
+				},
 			},
 
 			"disallow_data_processing": schema.BoolAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "If true, Yandex team won't be able to read internal data.",
+				Description: "If true, Yandex team won't be able to read internal data." +
 					// proto paths: +
 					// -> yandex.cloud.smartcaptcha.v1.Captcha.disallow_data_processing
+					// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.disallow_data_processing
+					// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.disallow_data_processing
 					"package: yandex.cloud.smartcaptcha.v1\n" +
 					"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"folder_id": schema.StringAttribute{
@@ -228,13 +247,31 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 			"labels": schema.MapAttribute{
 				ElementType:         types.StringType,
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Resource labels as `key:value` pairs.",
+				Description: "Resource labels as `key:value` pairs." +
 					// proto paths: +
 					// -> yandex.cloud.smartcaptcha.v1.Captcha.labels
+					// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.labels
+					// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.labels
 					"package: yandex.cloud.smartcaptcha.v1\n" +
 					"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
+				},
+				Validators: []validator.Map{
+					mapvalidator.KeysAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(1, 63),
+					),
+					mapvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(0, 63),
+					),
+				},
 			},
 
 			"name": schema.StringAttribute{

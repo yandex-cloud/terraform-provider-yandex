@@ -192,7 +192,6 @@ func (r *yandexComputeFilesystemResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("Create filesystem response: %s", validate.ProtoDump(createRes)))
 
 	plan.FilesystemId = types.StringValue(createRes.Id)
-
 	reqApi := &compute.GetFilesystemRequest{}
 	reqApi.SetFilesystemId(plan.FilesystemId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read filesystem request: %s", validate.ProtoDump(reqApi)))

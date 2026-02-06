@@ -174,8 +174,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 			},
 
 			"type": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Type of the transfer. One of SNAPSHOT_ONLY, INCREMENT_ONLY,\n SNAPSHOT_AND_INCREMENT",
+				Description: "Type of the transfer. One of SNAPSHOT_ONLY, INCREMENT_ONLY,\n SNAPSHOT_AND_INCREMENT" +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.type
 					// -> yandex.cloud.datatransfer.v1.Transfer.type
@@ -194,8 +194,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 			},
 
 			"warning": schema.StringAttribute{
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Error description if transfer has any errors.",
+				Description: "Error description if transfer has any errors." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.Transfer.warning
 					"package: yandex.cloud.datatransfer.v1\n" +
@@ -230,8 +230,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 								Attributes: map[string]schema.Attribute{
 
 									"job_count": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Number of workers in parallel replication.",
+										Description: "Number of workers in parallel replication." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
 											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
@@ -254,8 +254,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 											Attributes: map[string]schema.Attribute{
 
 												"job_count": schema.Int64Attribute{
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Number of workers.",
+													Description: "Number of workers." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
 														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
@@ -271,8 +271,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 
 												"process_count": schema.Int64Attribute{
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Number of threads.",
+													Description: "Number of threads." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
 														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
@@ -288,8 +288,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Parallel snapshot parameters",
+										Description: "Parallel snapshot parameters" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
 											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
@@ -324,8 +324,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 						},
 					},
 				},
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Replication runtime parameters for the transfer",
+				Description: "Replication runtime parameters for the transfer" +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtime
 					// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime
@@ -352,8 +352,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 								Attributes: map[string]schema.Attribute{
 
 									"job_count": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Number of workers in parallel replication.",
+										Description: "Number of workers in parallel replication." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
 											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
@@ -376,8 +376,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 											Attributes: map[string]schema.Attribute{
 
 												"job_count": schema.Int64Attribute{
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Number of workers.",
+													Description: "Number of workers." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
 														// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
@@ -393,8 +393,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 
 												"process_count": schema.Int64Attribute{
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Number of threads.",
+													Description: "Number of threads." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
 														// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
@@ -410,8 +410,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Parallel snapshot parameters",
+										Description: "Parallel snapshot parameters" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
 											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
@@ -446,8 +446,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 						},
 					},
 				},
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Runtime parameters for the transfer",
+				Description: "Runtime parameters for the transfer" +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtime
 					// -> yandex.cloud.datatransfer.v1.Transfer.runtime
@@ -613,8 +613,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Convert column values to strings",
+										Description: "Convert column values to strings" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_string
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_string
@@ -770,8 +770,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Set up a list of table columns to transfer",
+										Description: "Set up a list of table columns to transfer" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columns
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columns
@@ -901,8 +901,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "This filter only applies to transfers with queues (Logbroker or Apache Kafka®)\n as a data source. When running a transfer, only the strings meeting the\n specified criteria remain in a changefeed.",
+										Description: "This filter only applies to transfers with queues (Logbroker or Apache Kafka®)\n as a data source. When running a transfer, only the strings meeting the\n specified criteria remain in a changefeed." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rows
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rows
@@ -1078,8 +1078,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Mask field transformer allows you to hash data",
+										Description: "Mask field transformer allows you to hash data" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_field
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_field
@@ -1236,8 +1236,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Set rules for renaming tables by specifying the current names of the tables in\n the source and new names for these tables in the target",
+										Description: "Set rules for renaming tables by specifying the current names of the tables in\n the source and new names for these tables in the target" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tables
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tables
@@ -1350,8 +1350,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Override primary keys.",
+										Description: "Override primary keys." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_key
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_key
@@ -1545,8 +1545,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Set the number of shards for particular tables and a list of columns whose\n values will be used for calculating a hash to determine a shard.",
+										Description: "Set the number of shards for particular tables and a list of columns whose\n values will be used for calculating a hash to determine a shard." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformer
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformer
@@ -1676,8 +1676,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Splits the X table into multiple tables (X_1, X_2, ..., X_n) based on data.",
+										Description: "Splits the X table into multiple tables (X_1, X_2, ..., X_n) based on data." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer
 											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer
@@ -1694,8 +1694,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 									},
 								},
 							},
-							MarkdownDescription: "Transformers are set as a list.\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list.",
-							Description: "Transformers are set as a list.\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list." +
+							MarkdownDescription: "A list of transformers. You can specify exactly 1 transformer in each element of\n list\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list.",
+							Description: "A list of transformers. You can specify exactly 1 transformer in each element of\n list\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list." +
 								// proto paths: +
 								// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformers
 								// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformers
@@ -1710,8 +1710,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 						},
 					},
 				},
-				MarkdownDescription: "",
-				Description: "" +
+				MarkdownDescription: "Transformation for the transfer.",
+				Description: "Transformation for the transfer." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformation
 					// -> yandex.cloud.datatransfer.v1.Transfer.transformation

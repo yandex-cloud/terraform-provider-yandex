@@ -189,7 +189,6 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Create(ctx context.Context
 	tflog.Debug(ctx, fmt.Sprintf("Create user_ssh_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.UserSshKeyId = types.StringValue(createRes.Id)
-
 	reqApi := &organizationmanager.GetUserSshKeyRequest{}
 	reqApi.SetUserSshKeyId(plan.UserSshKeyId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key request: %s", validate.ProtoDump(reqApi)))

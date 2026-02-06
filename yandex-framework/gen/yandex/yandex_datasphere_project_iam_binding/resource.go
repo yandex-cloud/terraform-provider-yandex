@@ -45,6 +45,11 @@ func (u *IAMUpdater) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Allows creation and management of a single binding within IAM policy for an existing `project`.",
 		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The ID of this resource.",
+				Optional:            true,
+				Computed:            true,
+			},
 			"role": schema.StringAttribute{
 				MarkdownDescription: "The role that should be assigned. Only one yandex_datasphere_project_iam_binding can be used per role.",
 				Required:            true,
@@ -108,6 +113,7 @@ func (r *IAMUpdater) ImportState(ctx context.Context, req resource.ImportStateRe
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("project_id"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("role"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0]+"/"+idParts[1])...)
 }
 
 func (u *IAMUpdater) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -356,6 +362,7 @@ func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.
 	var sleep types.Int64
 	req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
 	diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
+	diag.Append(resp.SetAttribute(ctx, path.Root("id"), u.projectId+"/"+role.ValueString())...)
 }
 
 func (u *IAMUpdater) iamPolicyReadModifySet(ctx context.Context, updater accessbinding.ResourceIamUpdater, modify iamPolicyModifyFunc) error {

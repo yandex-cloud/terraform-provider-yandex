@@ -191,7 +191,6 @@ func (r *yandexKMSSymmetricKeyResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("Create symmetric_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.SymmetricKeyId = types.StringValue(createRes.Id)
-
 	reqApi := &kms.GetSymmetricKeyRequest{}
 	reqApi.SetKeyId(plan.SymmetricKeyId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read symmetric_key request: %s", validate.ProtoDump(reqApi)))

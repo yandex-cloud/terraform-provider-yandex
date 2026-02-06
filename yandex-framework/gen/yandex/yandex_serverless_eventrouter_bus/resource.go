@@ -189,7 +189,6 @@ func (r *yandexServerlessEventrouterBusResource) Create(ctx context.Context, req
 	tflog.Debug(ctx, fmt.Sprintf("Create bus response: %s", validate.ProtoDump(createRes)))
 
 	plan.BusId = types.StringValue(createRes.Id)
-
 	reqApi := &eventrouter.GetBusRequest{}
 	reqApi.SetBusId(plan.BusId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read bus request: %s", validate.ProtoDump(reqApi)))

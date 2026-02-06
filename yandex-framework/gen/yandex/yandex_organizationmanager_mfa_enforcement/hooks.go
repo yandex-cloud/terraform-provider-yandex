@@ -1,8 +1,11 @@
 package yandex_organizationmanager_mfa_enforcement
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -18,12 +21,12 @@ var mapUpdateStatus = map[string]organizationmanager.UpdateMfaEnforcementRequest
 	organizationmanager.MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_INACTIVE.String():    organizationmanager.UpdateMfaEnforcementRequest_STATUS_INACTIVE,
 }
 
-func setCorrectEnumForCreate(req *organizationmanager.CreateMfaEnforcementRequest, plan *yandexOrganizationmanagerMfaEnforcementModel) diag.Diagnostics {
+func setCorrectEnumForCreate(_ context.Context, _ *config.Config, req *organizationmanager.CreateMfaEnforcementRequest, plan *yandexOrganizationmanagerMfaEnforcementModel) diag.Diagnostics {
 	req.SetStatus(mapCreateStatus[plan.Status.ValueString()])
 	return nil
 }
 
-func setCorrectEnumForUpdate(req *organizationmanager.UpdateMfaEnforcementRequest, plan, state *yandexOrganizationmanagerMfaEnforcementModel) diag.Diagnostics {
+func setCorrectEnumForUpdate(_ context.Context, _ *config.Config, req *organizationmanager.UpdateMfaEnforcementRequest, plan, state *yandexOrganizationmanagerMfaEnforcementModel) diag.Diagnostics {
 	if !plan.Status.Equal(state.Status) {
 		if req.UpdateMask == nil {
 			req.SetUpdateMask(&field_mask.FieldMask{Paths: []string{"status"}})

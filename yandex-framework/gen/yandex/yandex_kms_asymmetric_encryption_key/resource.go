@@ -190,7 +190,6 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Create(ctx context.Context, r
 	tflog.Debug(ctx, fmt.Sprintf("Create asymmetric_encryption_key response: %s", validate.ProtoDump(createRes)))
 
 	plan.AsymmetricEncryptionKeyId = types.StringValue(createRes.Id)
-
 	reqApi := &asymmetricencryption.GetAsymmetricEncryptionKeyRequest{}
 	reqApi.SetKeyId(plan.AsymmetricEncryptionKeyId.ValueString())
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_encryption_key request: %s", validate.ProtoDump(reqApi)))

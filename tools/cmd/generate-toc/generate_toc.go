@@ -35,7 +35,7 @@ func main() {
 	}
 
 	toc := TocItem{
-		Title: "Yandex Cloud Provider {{ version }}",
+		Title: "Yandex Cloud Provider",
 		Href:  "index.md",
 	}
 

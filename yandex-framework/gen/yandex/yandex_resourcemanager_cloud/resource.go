@@ -189,7 +189,6 @@ func (r *yandexResourcemanagerCloudResource) Create(ctx context.Context, req res
 	tflog.Debug(ctx, fmt.Sprintf("Create cloud response: %s", validate.ProtoDump(createRes)))
 
 	plan.CloudId = types.StringValue(createRes.Id)
-
 	reqApi := &resourcemanager.GetCloudRequest{}
 	reqApi.SetCloudId(converter.GetCloudID(plan.CloudId.ValueString(), r.providerConfig, &diags))
 	tflog.Debug(ctx, fmt.Sprintf("Read cloud request: %s", validate.ProtoDump(reqApi)))
