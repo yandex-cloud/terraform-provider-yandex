@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -314,5 +315,16 @@ func (r *yandexOrganizationmanagerIdpUserpoolDomainResource) Delete(ctx context.
 }
 
 func (r *yandexOrganizationmanagerIdpUserpoolDomainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state yandexOrganizationmanagerIdpUserpoolDomainModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if !plan.Timeouts.Equal(state.Timeouts) {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("timeouts"), &plan.Timeouts)...)
+	}
 	return
 }
