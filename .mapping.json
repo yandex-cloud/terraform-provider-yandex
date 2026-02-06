@@ -1039,6 +1039,8 @@
   "pkg/globallock/mutex.go":"opensource/terraform-provider-yandex-mirror/pkg/globallock/mutex.go",
   "pkg/iam_access/updater.go":"opensource/terraform-provider-yandex-mirror/pkg/iam_access/updater.go",
   "pkg/iam_access/utils.go":"opensource/terraform-provider-yandex-mirror/pkg/iam_access/utils.go",
+  "pkg/iam_policy/updater.go":"opensource/terraform-provider-yandex-mirror/pkg/iam_policy/updater.go",
+  "pkg/iam_policy/utils.go":"opensource/terraform-provider-yandex-mirror/pkg/iam_policy/utils.go",
   "pkg/logging/log_payload_middleware.go":"opensource/terraform-provider-yandex-mirror/pkg/logging/log_payload_middleware.go",
   "pkg/logging/log_payload_options.go":"opensource/terraform-provider-yandex-mirror/pkg/logging/log_payload_options.go",
   "pkg/logging/logging.go":"opensource/terraform-provider-yandex-mirror/pkg/logging/logging.go",
