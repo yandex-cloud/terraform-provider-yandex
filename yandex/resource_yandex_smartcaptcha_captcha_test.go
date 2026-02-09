@@ -32,6 +32,9 @@ func TestAccSmartcaptchaCaptcha_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "complexity", "HARD"),
 					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "pre_check_type", "SLIDER"),
 					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "challenge_type", "IMAGE_TEXT"),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "disallow_data_processing", "false"),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "description", "description"),
+					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "labels.key", "value"),
 				),
 			},
 			{
@@ -59,7 +62,7 @@ func TestAccSmartcaptchaCaptcha_UpgradeFromSDKv2(t *testing.T) {
 						Source:            "yandex-cloud/yandex",
 					},
 				},
-				Config: testAccSmartcaptchaCaptchaBasic(name),
+				Config: testAccSmartcaptchaCaptchaBasicMigration(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "name", name),
 					resource.TestCheckResourceAttr("yandex_smartcaptcha_captcha.this", "complexity", "HARD"),
@@ -69,7 +72,7 @@ func TestAccSmartcaptchaCaptcha_UpgradeFromSDKv2(t *testing.T) {
 			},
 			{
 				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
-				Config:                   testAccSmartcaptchaCaptchaBasic(name),
+				Config:                   testAccSmartcaptchaCaptchaBasicMigration(name),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -78,6 +81,33 @@ func TestAccSmartcaptchaCaptcha_UpgradeFromSDKv2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccSmartcaptchaCaptchaBasicMigration(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_smartcaptcha_captcha" "this" {
+  name = "%s"
+  deletion_protection = false
+  complexity = "HARD"
+  pre_check_type = "SLIDER"
+  challenge_type = "IMAGE_TEXT"
+  allowed_sites = ["example.com", "example.ru"]
+  override_variant {
+    uuid = "yyy"
+    description = "override variant 2"
+
+    complexity = "HARD"
+    pre_check_type = "CHECKBOX"
+    challenge_type = "KALEIDOSCOPE"
+  }
+  security_rule {
+    name = "rule3"
+    priority = 99999
+    description = "Empty condition rule"
+    override_variant_uuid = "yyy"
+  }
+}
+`, targetName)
 }
 
 func testAccSmartcaptchaCaptchaBasic(targetName string) string {
@@ -89,6 +119,11 @@ resource "yandex_smartcaptcha_captcha" "this" {
   pre_check_type = "SLIDER"
   challenge_type = "IMAGE_TEXT"
   allowed_sites = ["example.com", "example.ru"]
+  labels = {
+	key = "value"
+  }
+  disallow_data_processing = false
+  description = "description"
   override_variant {
     uuid = "yyy"
     description = "override variant 2"

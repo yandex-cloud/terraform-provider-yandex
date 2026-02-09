@@ -54,6 +54,11 @@ resource "yandex_smartcaptcha_captcha" "this" {
 	pre_check_type = "SLIDER"
 	challenge_type = "IMAGE_TEXT"
 	allowed_sites = ["example.com", "example.ru"]
+	labels = {
+		key = "value"
+	}
+	disallow_data_processing = false
+	description = "description"
 	override_variant {
 		uuid = "yyy"
 		description = "override variant 2"
