@@ -31,7 +31,10 @@ data "yandex_vpc_route_table" "my_rt" {
 - `name` (String). The resource name.
 - `network_id` (**Required**)(String). ID of the network this route table belongs to.
 - `route_table_id` (String). Route table ID.
-- `static_route` [Block]. A list of static route records for the route table.~> Only one of `next_hop_address` or `gateway_id` should be specified.
+- `static_route` [Block]. A list of static route records for the route table.
+
+~> Only one of `next_hop_address` or `gateway_id` should be specified.
+
   - `destination_prefix` (String). Route prefix in CIDR notation.
   - `gateway_id` (String). ID of the gateway used ad next hop.
   - `next_hop_address` (String). Address of the next hop.

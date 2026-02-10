@@ -75,10 +75,17 @@ resource "yandex_storage_bucket_grant" "my_bucket_grant" {
 ## Arguments & Attributes Reference
 
 - `access_key` (String). The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
-- `acl` (String). The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
+- `acl` (String). The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
+
+~> To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
+
 - `bucket` (**Required**)(String). The name of the bucket.
 - `secret_key` (String). The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.
-- `grant` [Block]. An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.All permissions for a single grantee must be specified in a single `grant` block.~> To manage `grant` argument, service account with `storage.admin` role should be used.
+- `grant` [Block]. An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+All permissions for a single grantee must be specified in a single `grant` block.
+
+~> To manage `grant` argument, service account with `storage.admin` role should be used.
+
   - `id` (String). Canonical user id to grant for. Used only when type is `CanonicalUser`.
   - `permissions` (**Required**)(Set Of String). List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.
   - `type` (**Required**)(String). Type of grantee to apply for. Valid values are `CanonicalUser` and `Group`.

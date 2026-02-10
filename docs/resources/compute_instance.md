@@ -90,7 +90,10 @@ resource "yandex_vpc_subnet" "foo" {
   - `device_name` (String). Name of the device representing the filesystem on the instance.
   - `filesystem_id` (**Required**)(String). ID of the filesystem that should be attached.
   - `mode` (String). Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.
-- `local_disk` [Block]. List of local disks that are attached to the instance.~> Local disks are not available for all users by default.
+- `local_disk` [Block]. List of local disks that are attached to the instance.
+
+~> Local disks are not available for all users by default.
+
   - `device_name` (*Read-Only*) (String). The name of the local disk device.
   - `size_bytes` (**Required**)(Number). Size of the disk, specified in bytes.
 - `metadata_options` [Block]. Options allow user to configure access to instance's metadata.
@@ -126,7 +129,14 @@ resource "yandex_vpc_subnet" "foo" {
     - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
     - `ttl` (Number). DNS record TTL in seconds.
 - `placement_policy` [Block]. The placement policy configuration.
-  - `host_affinity_rules` (List Of Object). List of host affinity rules.~> Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:placement_policy {    placement_group_id = ""    host_affinity_rules = []}
+  - `host_affinity_rules` (List Of Object). List of host affinity rules.
+
+~> Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:
+
+placement_policy {
+    placement_group_id = ""
+    host_affinity_rules = []
+}
     - `key` . 
     - `op` . 
     - `values` . 
@@ -139,7 +149,9 @@ resource "yandex_vpc_subnet" "foo" {
   - `memory` (**Required**)(Number). Memory size in GB.
 - `scheduling_policy` [Block]. Scheduling policy configuration.
   - `preemptible` (Bool). Specifies if the instance is preemptible. Defaults to `false`.
-- `secondary_disk` [Block]. A set of disks to attach to the instance. The structure is documented below.~> The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to `true` in order to update this structure.
+- `secondary_disk` [Block]. A set of disks to attach to the instance. The structure is documented below.
+
+~> The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to `true` in order to update this structure.
   - `auto_delete` (Bool). Whether the disk is auto-deleted when the instance is deleted. The default value is `false`.
   - `device_name` (String). Name that can be used to access an attached disk under `/dev/disk/by-id/`.
   - `disk_id` (**Required**)(String). ID of the disk that is attached to the instance.

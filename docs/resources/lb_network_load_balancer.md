@@ -51,7 +51,10 @@ resource "yandex_lb_network_load_balancer" "my_nlb" {
 - `type` (String). Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
 - `attached_target_group` [Block]. An AttachedTargetGroup resource.
   - `target_group_id` (**Required**)(String). ID of the target group.
-  - `healthcheck` [Block]. A HealthCheck resource.~> One of `http_options` or `tcp_options` should be specified.
+  - `healthcheck` [Block]. A HealthCheck resource.
+
+~> One of `http_options` or `tcp_options` should be specified.
+
     - `healthy_threshold` (Number). Number of successful health checks required in order to set the `HEALTHY` status for the target.
     - `interval` (Number). The interval between health checks. The default is 2 seconds.
     - `name` (**Required**)(String). Name of the health check. The name must be unique for each target group that attached to a single load balancer.
@@ -62,7 +65,10 @@ resource "yandex_lb_network_load_balancer" "my_nlb" {
       - `port` (**Required**)(Number). Port to use for HTTP health checks.
     - `tcp_options` [Block]. Options for TCP health check.
       - `port` (**Required**)(Number). Port to use for TCP health checks.
-- `listener` [Block]. Listener specification that will be used by a network load balancer.~> One of `external_address_spec` or `internal_address_spec` should be specified.
+- `listener` [Block]. Listener specification that will be used by a network load balancer.
+
+~> One of `external_address_spec` or `internal_address_spec` should be specified.
+
   - `name` (**Required**)(String). Name of the listener. The name must be unique for each listener on a single load balancer.
   - `port` (**Required**)(Number). Port for incoming traffic.
   - `protocol` (String). Protocol for incoming traffic. TCP or UDP and the default is TCP.

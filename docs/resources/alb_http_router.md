@@ -39,7 +39,10 @@ resource "yandex_alb_http_router" "tf-router" {
         - `remote_ip` (String). 
         - `header` [Block]. 
           - `name` (**Required**)(String). 
-          - `value` [Block]. The `path` and `fqmn` blocks.~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+          - `value` [Block]. The `path` and `fqmn` blocks.
+
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+
             - `exact` (String). Match exactly.
             - `prefix` (String). Match prefix.
             - `regex` (String). Match regex.

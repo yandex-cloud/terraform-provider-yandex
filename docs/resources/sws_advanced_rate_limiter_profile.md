@@ -46,7 +46,10 @@ resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
 - `id` (String). 
 - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
 - `name` (String). The resource name.
-- `advanced_rate_limiter_rule` [Block]. List of rules.~> Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
+- `advanced_rate_limiter_rule` [Block]. List of rules.
+
+~> Exactly one rule specifier: `static_quota` or `dynamic_quota` should be specified.
+
   - `description` (String). Description of the rule. 0-512 characters long.
   - `dry_run` (Bool). This allows you to evaluate backend capabilities and find the optimum limit values. Requests will not be blocked in this mode.
   - `name` (String). Name of the rule. The name is unique within the ARL profile. 1-50 characters long.
@@ -55,7 +58,10 @@ resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
     - `action` (String). Action in case of exceeding this quota. Possible values: `DENY`.
     - `limit` (Number). Desired maximum number of requests per period.
     - `period` (Number). Period of time in seconds.
-    - `characteristic` [Block]. List of characteristics.~> Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
+    - `characteristic` [Block]. List of characteristics.
+
+~> Exactly one characteristic specifier: `simple_characteristic` or `key_characteristic` should be specified.
+
       - `case_insensitive` (Bool). Determines case-sensitive or case-insensitive keys matching.
       - `key_characteristic` [Block]. Characteristic based on key match in the Query params, HTTP header, and HTTP cookie attributes. See [Rules](https://yandex.cloud/docs/smartwebsecurity/concepts/arl#requests-counting) for more details.
         - `type` (String). Type of key characteristic. Possible values: `COOKIE_KEY`, `HEADER_KEY`, `QUERY_KEY`.

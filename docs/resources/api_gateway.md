@@ -97,6 +97,7 @@ EOT
 - `spec` (**Required**)(String). The OpenAPI specification for Yandex Cloud API Gateway.
 - `status` (*Read-Only*) (String). Status of the Yandex Cloud API Gateway.
 - `user_domains` (*Read-Only*) (Set Of String). ~> **DEPRECATED** Use `custom_domains` instead. Set of user domains attached to Yandex Cloud API Gateway.
+
 - `variables` (Map Of String). A set of values for variables in gateway specification.
 - `canary` [Block]. Canary release settings of gateway.
   - `variables` (Map Of String). A list of values for variables in gateway specification of canary release.

@@ -41,7 +41,10 @@ data "yandex_sws_security_profile" "by-name" {
 - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
 - `name` (String). The resource name.
 - `security_profile_id` (String). ID of the security profile.
-- `security_rule` [Block]. List of security rules.~> Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be specified.
+- `security_rule` [Block]. List of security rules.
+
+~> Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be specified.
+
   - `description` (String). Optional description of the rule. 0-512 characters long.
   - `dry_run` (Bool). This mode allows you to test your security profile or a single rule.
   - `name` (String). Name of the rule. The name is unique within the security profile. 1-50 characters long.

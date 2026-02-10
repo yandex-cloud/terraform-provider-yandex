@@ -33,12 +33,18 @@ resource "yandex_alb_virtual_host" "my-vhost" {
 - `http_router_id` (**Required**)(String). The ID of the HTTP router to which the virtual host belongs.
 - `id` (String). 
 - `name` (**Required**)(String). The resource name.
-- `modify_request_headers` [Block]. Apply the following modifications to the Request/Response header.~> Only one type of actions `append` or `replace` or `remove` should be specified.
+- `modify_request_headers` [Block]. Apply the following modifications to the Request/Response header.
+
+~> Only one type of actions `append` or `replace` or `remove` should be specified.
+
   - `append` (String). Append string to the header value.
   - `name` (**Required**)(String). Name of the header to modify.
   - `remove` (Bool). If set, remove the header.
   - `replace` (String). New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
-- `modify_response_headers` [Block]. Apply the following modifications to the Request/Response header.~> Only one type of actions `append` or `replace` or `remove` should be specified.
+- `modify_response_headers` [Block]. Apply the following modifications to the Request/Response header.
+
+~> Only one type of actions `append` or `replace` or `remove` should be specified.
+
   - `append` (String). Append string to the header value.
   - `name` (**Required**)(String). Name of the header to modify.
   - `remove` (Bool). If set, remove the header.
@@ -50,16 +56,28 @@ resource "yandex_alb_virtual_host" "my-vhost" {
   - `requests_per_ip` [Block]. Rate limit configuration applied separately for each set of requests grouped by client IP address
     - `per_minute` (Number). Limit value specified with per minute time unit
     - `per_second` (Number). Limit value specified with per second time unit
-- `route` [Block]. A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.~> Exactly one type of routes `http_route` or `grpc_route` should be specified.
+- `route` [Block]. A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.
+
+~> Exactly one type of routes `http_route` or `grpc_route` should be specified.
+
   - `disable_security_profile` (Bool). Disables security profile for the route
   - `name` (String). Name of the route.
-  - `grpc_route` [Block]. gRPC route resource.~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
+  - `grpc_route` [Block]. gRPC route resource.
+
+~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.
+
     - `grpc_match` [Block]. Checks `/` prefix by default.
-      - `fqmn` [Block]. The `path` and `fqmn` blocks.~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+      - `fqmn` [Block]. The `path` and `fqmn` blocks.
+
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+
         - `exact` (String). Match exactly.
         - `prefix` (String). Match prefix.
         - `regex` (String). Match regex.
-    - `grpc_route_action` [Block]. gRPC route action resource.~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+    - `grpc_route_action` [Block]. gRPC route action resource.
+
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+
       - `auto_host_rewrite` (Bool). If set, will automatically rewrite host.
       - `backend_group_id` (**Required**)(String). Backend group to route requests.
       - `host_rewrite` (String). Host rewrite specifier.
@@ -74,17 +92,26 @@ resource "yandex_alb_virtual_host" "my-vhost" {
           - `per_second` (Number). Limit value specified with per second time unit
     - `grpc_status_response_action` [Block]. gRPC status response action resource.
       - `status` (String). The status of the response. Supported values are: ok, invalid_argumet, not_found, permission_denied, unauthenticated, unimplemented, internal, unavailable.
-  - `http_route` [Block]. HTTP route resource.~> Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
+  - `http_route` [Block]. HTTP route resource.
+
+~> Exactly one type of actions `http_route_action` or `redirect_action` or `direct_response_action` should be specified.
+
     - `direct_response_action` [Block]. Direct response action resource.
       - `body` (String). Response body text.
       - `status` (Number). HTTP response status. Should be between `100` and `599`.
     - `http_match` [Block]. Checks `/` prefix by default.
       - `http_method` (Set Of String). List of methods (strings).
-      - `path` [Block]. The `path` and `fqmn` blocks.~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+      - `path` [Block]. The `path` and `fqmn` blocks.
+
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+
         - `exact` (String). Match exactly.
         - `prefix` (String). Match prefix.
         - `regex` (String). Match regex.
-    - `http_route_action` [Block]. HTTP route action resource.~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+    - `http_route_action` [Block]. HTTP route action resource.
+
+~> Only one type of host rewrite specifiers `host_rewrite` or `auto_host_rewrite` should be specified.
+
       - `auto_host_rewrite` (Bool). If set, will automatically rewrite host.
       - `backend_group_id` (**Required**)(String). Backend group to route requests.
       - `host_rewrite` (String). Host rewrite specifier.
@@ -102,7 +129,10 @@ resource "yandex_alb_virtual_host" "my-vhost" {
       - `regex_rewrite` [Block]. Replacement for path substrings that match the pattern
         - `regex` (String). RE2 regular expression
         - `substitute` (String). The string which should be used to substitute matched substrings
-    - `redirect_action` [Block]. Redirect action resource.~> Only one type of paths `replace_path` or `replace_prefix` should be specified.
+    - `redirect_action` [Block]. Redirect action resource.
+
+~> Only one type of paths `replace_path` or `replace_prefix` should be specified.
+
       - `remove_query` (Bool). If set, remove query part.
       - `replace_host` (String). Replaces hostname.
       - `replace_path` (String). Replace path.
@@ -120,7 +150,10 @@ resource "yandex_alb_virtual_host" "my-vhost" {
           - `remote_ip` (String). 
           - `header` [Block]. 
             - `name` (**Required**)(String). 
-            - `value` [Block]. The `path` and `fqmn` blocks.~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+            - `value` [Block]. The `path` and `fqmn` blocks.
+
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+
               - `exact` (String). Match exactly.
               - `prefix` (String). Match prefix.
               - `regex` (String). Match regex.
@@ -134,7 +167,10 @@ resource "yandex_alb_virtual_host" "my-vhost" {
         - `remote_ip` (String). 
         - `header` [Block]. 
           - `name` (**Required**)(String). 
-          - `value` [Block]. The `path` and `fqmn` blocks.~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+          - `value` [Block]. The `path` and `fqmn` blocks.
+
+~> Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+
             - `exact` (String). Match exactly.
             - `prefix` (String). Match prefix.
             - `regex` (String). Match regex.

@@ -59,7 +59,10 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
   - `port` (Number). Port for incoming traffic.
   - `target_group_ids` (**Required**)(List Of String). References target groups for the backend.
   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
-  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+
+~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+
     - `healthcheck_port` (Number). Optional alternative port for health checking.
     - `healthy_threshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
     - `interval` (**Required**)(String). Interval between health checks.
@@ -81,19 +84,28 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
     - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
     - `panic_threshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
     - `strict_locality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
-  - `tls` [Block]. TLS specification that will be used by this backend.~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+  - `tls` [Block]. TLS specification that will be used by this backend.
+
+~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+
     - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
     - `validation_context` [Block]. Validation context
       - `trusted_ca_bytes` (String). PEM-encoded trusted CA certificate chain.
       - `trusted_ca_id` (String). Trusted CA certificate ID in the Certificate Manager.
-- `http_backend` [Block]. HTTP backend specification that will be used by the ALB Backend Group.~> Only one of `target_group_ids` or `storage_bucket` should be specified.
+- `http_backend` [Block]. HTTP backend specification that will be used by the ALB Backend Group.
+
+~> Only one of `target_group_ids` or `storage_bucket` should be specified.
+
   - `http2` (Bool). Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.
   - `name` (**Required**)(String). Name of the backend.
   - `port` (Number). Port for incoming traffic.
   - `storage_bucket` (String). Name of bucket which should be used as a backend.
   - `target_group_ids` (List Of String). References target groups for the backend.
   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
-  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+
+~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+
     - `healthcheck_port` (Number). Optional alternative port for health checking.
     - `healthy_threshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
     - `interval` (**Required**)(String). Interval between health checks.
@@ -115,12 +127,18 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
     - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
     - `panic_threshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
     - `strict_locality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
-  - `tls` [Block]. TLS specification that will be used by this backend.~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+  - `tls` [Block]. TLS specification that will be used by this backend.
+
+~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+
     - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
     - `validation_context` [Block]. Validation context
       - `trusted_ca_bytes` (String). PEM-encoded trusted CA certificate chain.
       - `trusted_ca_id` (String). Trusted CA certificate ID in the Certificate Manager.
-- `session_affinity` [Block]. Session affinity mode determines how incoming requests are grouped into one session.~> Only one type(`connection` or `cookie` or `header`) of session affinity should be specified.
+- `session_affinity` [Block]. Session affinity mode determines how incoming requests are grouped into one session.
+
+~> Only one type(`connection` or `cookie` or `header`) of session affinity should be specified.
+
   - `connection` [Block]. Requests received from the same IP are combined into a session. Stream backend groups only support session affinity by client IP address.
     - `source_ip` (Bool). Source IP address to use with affinity.
   - `cookie` [Block]. Requests with the same cookie value and the specified file name are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups.
@@ -136,7 +154,10 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
   - `port` (Number). Port for incoming traffic.
   - `target_group_ids` (**Required**)(List Of String). References target groups for the backend.
   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
-  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+  - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+
+~> Only one of `stream_healthcheck` or `http_healthcheck` or `grpc_healthcheck` should be specified.
+
     - `healthcheck_port` (Number). Optional alternative port for health checking.
     - `healthy_threshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
     - `interval` (**Required**)(String). Interval between health checks.
@@ -158,7 +179,10 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
     - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
     - `panic_threshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
     - `strict_locality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
-  - `tls` [Block]. TLS specification that will be used by this backend.~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+  - `tls` [Block]. TLS specification that will be used by this backend.
+
+~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+
     - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
     - `validation_context` [Block]. Validation context
       - `trusted_ca_bytes` (String). PEM-encoded trusted CA certificate chain.
