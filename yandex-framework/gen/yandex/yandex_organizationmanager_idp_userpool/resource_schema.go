@@ -51,7 +51,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 							int64planmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0 + 1),
+							int64validator.Between(1, 100),
 						},
 					},
 
@@ -252,7 +252,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 							int64planmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0),
+							int64validator.Between(0, 730),
 						},
 					},
 
@@ -272,7 +272,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 							int64planmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0),
+							int64validator.Between(0, 730),
 						},
 					},
 				},
@@ -367,7 +367,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 									int64planmodifier.UseStateForUnknown(),
 								},
 								Validators: []validator.Int64{
-									int64validator.AtLeast(0),
+									int64validator.Between(0, 1000),
 								},
 							},
 
@@ -442,7 +442,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 							int64planmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0),
+							int64validator.Between(0, 1000),
 						},
 					},
 
@@ -462,7 +462,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 							int64planmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0),
+							int64validator.Between(0, 1000),
 						},
 					},
 
@@ -486,7 +486,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 									int64planmodifier.UseStateForUnknown(),
 								},
 								Validators: []validator.Int64{
-									int64validator.AtLeast(0),
+									int64validator.Between(0, 1000),
 								},
 							},
 
@@ -506,7 +506,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 									int64planmodifier.UseStateForUnknown(),
 								},
 								Validators: []validator.Int64{
-									int64validator.AtLeast(0),
+									int64validator.Between(0, 1000),
 								},
 							},
 
@@ -526,7 +526,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 									int64planmodifier.UseStateForUnknown(),
 								},
 								Validators: []validator.Int64{
-									int64validator.AtLeast(0),
+									int64validator.Between(0, 1000),
 								},
 							},
 
@@ -546,7 +546,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 									int64planmodifier.UseStateForUnknown(),
 								},
 								Validators: []validator.Int64{
-									int64validator.AtLeast(0),
+									int64validator.Between(0, 1000),
 								},
 							},
 						},

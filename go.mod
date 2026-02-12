@@ -45,7 +45,7 @@ require (
 	github.com/yandex-cloud/go-sdk v0.29.0
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2
-	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.12
+	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.33
 	github.com/yandex-cloud/go-sdk/services/compute v1.0.15
 	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12
@@ -67,7 +67,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.29
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
-	github.com/yandex-cloud/go-sdk/v2 v2.45.0
+	github.com/yandex-cloud/go-sdk/v2 v2.49.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0

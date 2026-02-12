@@ -4,6 +4,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
@@ -36,6 +37,7 @@ func init() {
 		yandex_organizationmanager_idp_userpool.NewDataSource,
 		yandex_organizationmanager_mfa_enforcement.NewDataSource,
 		yandex_organizationmanager_user_ssh_key.NewDataSource,
+		yandex_cloudregistry_lifecycle_policy.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_datatransfer_endpoint.NewDataSource,
