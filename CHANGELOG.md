@@ -2,6 +2,10 @@
 
 
 
+## 0.186.0 (February 12, 2026)
+##### ENHANCEMENTS:
+* mdb_clickhouse: add ConfigValidators to prevent conflicting `clickhouse.resources` and `shards[*].resources` configuration
+
 ## 0.185.0 (February 9, 2026)
 ##### FEATURES:
 * general: update docs format
