@@ -961,27 +961,6 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 func ResourcesSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
 		Description: "Resources allocated to hosts.",
-		Required:    true,
-		Attributes: map[string]schema.Attribute{
-			"resource_preset_id": schema.StringAttribute{
-				Description: "The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).",
-				Required:    true,
-			},
-			"disk_size": schema.Int64Attribute{
-				Description: "Volume of the storage available to a host, in gigabytes.",
-				Required:    true,
-			},
-			"disk_type_id": schema.StringAttribute{
-				Description: "Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).",
-				Required:    true,
-			},
-		},
-	}
-}
-
-func ShardResourcesSchema() schema.SingleNestedAttribute {
-	return schema.SingleNestedAttribute{
-		Description: "Resources allocated to hosts.",
 		Optional:    true,
 		Computed:    true,
 		PlanModifiers: []planmodifier.Object{
@@ -1025,7 +1004,7 @@ func ShardsSchema() schema.MapNestedAttribute {
 						int64planmodifier.UseStateForUnknown(),
 					},
 				},
-				"resources": ShardResourcesSchema(),
+				"resources": ResourcesSchema(),
 			},
 		},
 	}

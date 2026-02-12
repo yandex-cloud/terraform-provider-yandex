@@ -26,7 +26,6 @@ import (
 
 const chVersion = "25.3"
 const chUpdatedVersion = "25.8"
-const chDowngradeVersion = "25.10"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -591,12 +590,12 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Downgrade ClickHouse version and cluster resources
 			{
-				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chDowngradeVersion, secondStep),
+				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, secondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "version", chDowngradeVersion),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", secondStep.ResourcePresetId),
 					testAccCheckMDBClickHouseClusterHasResources(&r, secondStep.ResourcePresetId, secondStep.DiskTypeId, secondStep.DiskSize),
 
@@ -605,7 +604,7 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Add host, creates implicit ZooKeeper subclusters
 			{
-				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chDowngradeVersion, thirdStepCluster, thirdStepZookeeper),
+				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, thirdStepCluster, thirdStepZookeeper),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
 					resource.TestCheckResourceAttr(chResource, "name", chName),

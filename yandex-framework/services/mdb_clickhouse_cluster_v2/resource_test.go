@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -29,9 +30,8 @@ const (
 	yandexMDBClickHouseClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBClickHouseClusterUpdateTimeout = 60 * time.Minute
 
-	chVersion          = "25.3"
-	chUpdatedVersion   = "25.10"
-	chDowngradeVersion = "25.8"
+	chVersion        = "25.3"
+	chUpdatedVersion = "25.8"
 
 	chResourceKeeper       = "yandex_mdb_clickhouse_cluster_v2.keeper"
 	chResourceCloudStorage = "yandex_mdb_clickhouse_cluster_v2.cloud"
@@ -239,25 +239,33 @@ func TestAccMDBClickHouseCluster_resources(t *testing.T) {
 	chName := acctest.RandomWithPrefix("tf-clickhouse-cluster-resources")
 	folderID := test.GetExampleFolderID()
 
-	clickHouseFirstStep := &clickhouse.Resources{
+	firstShardName := "shard1"
+
+	clickHouseFirstResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.micro",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         10737418240,
 	}
 
-	clickHouseSecondStep := &clickhouse.Resources{
+	clickHouseSecondResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.small",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         21474836480,
 	}
 
-	zookeeperFirstStep := &clickhouse.Resources{
+	clickHouseThirdResources := &clickhouse.Resources{
+		ResourcePresetId: "s2.micro",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         21474836480,
+	}
+
+	zookeeperFirstResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.micro",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         10737418240,
 	}
 
-	zookeeperSecondStep := &clickhouse.Resources{
+	zookeeperSecondResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.small",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         21474836480,
@@ -270,38 +278,63 @@ func TestAccMDBClickHouseCluster_resources(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, chVersion, clickHouseFirstStep, zookeeperFirstStep),
+				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseFirstResources, zookeeperFirstResources, nil),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstStep.ResourcePresetId, clickHouseFirstStep.DiskTypeId, clickHouseFirstStep.DiskSize),
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources.ResourcePresetId, zookeeperFirstResources.DiskTypeId, zookeeperFirstResources.DiskSize),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Update ClickHouse version only
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, chUpdatedVersion, clickHouseFirstStep, zookeeperFirstStep),
+				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chUpdatedVersion, clickHouseFirstResources, zookeeperFirstResources, nil),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstStep.ResourcePresetId, clickHouseFirstStep.DiskTypeId, clickHouseFirstStep.DiskSize),
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources.ResourcePresetId, zookeeperFirstResources.DiskTypeId, zookeeperFirstResources.DiskSize),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// Downgrade ClickHouse version and cluster resources
+			// Update first shard and zookeeper resources. Changing the resource management shard-mode.
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, chDowngradeVersion, clickHouseSecondStep, zookeeperSecondStep),
+				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, nil, zookeeperSecondResources, clickHouseSecondResources),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "version", chDowngradeVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseSecondStep.ResourcePresetId, clickHouseSecondStep.DiskTypeId, clickHouseSecondStep.DiskSize),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondStep.ResourcePresetId, zookeeperSecondStep.DiskTypeId, zookeeperSecondStep.DiskSize),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseSecondResources.ResourcePresetId, clickHouseSecondResources.DiskTypeId, clickHouseSecondResources.DiskSize),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseSecondResources.ResourcePresetId, clickHouseSecondResources.DiskTypeId, clickHouseSecondResources.DiskSize),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources.ResourcePresetId, zookeeperSecondResources.DiskTypeId, zookeeperSecondResources.DiskSize),
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Plan should fail when both clickhouse.resources and shards[*].resources are set
+			{
+				Config:      testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseSecondResources, zookeeperSecondResources, clickHouseSecondResources),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`(?i)Invalid Attribute Combination|cannot be configured together|These attributes cannot be configured together`),
+			},
+			// Downgrade ClickHouse version and cluster resources. Changing the resource management cluster-mode.
+			{
+				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseThirdResources, zookeeperSecondResources, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseThirdResources.ResourcePresetId, clickHouseThirdResources.DiskTypeId, clickHouseThirdResources.DiskSize),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseThirdResources.ResourcePresetId, clickHouseThirdResources.DiskTypeId, clickHouseThirdResources.DiskSize),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources.ResourcePresetId, zookeeperSecondResources.DiskTypeId, zookeeperSecondResources.DiskSize),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1093,11 +1126,11 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	t.Parallel()
 
-	var r clickhouse.Cluster
+	var cluster clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse-sharded")
 	folderID := test.GetExampleFolderID()
 
-	firstShardsWithShardGroups := `
+	shardsWithShardGroupsFirstStep := `
 hosts = {
 	"h1" = {
 		type      = "CLICKHOUSE"
@@ -1142,7 +1175,12 @@ shard_group	{
 }
 `
 
-	secondShardsWithShardGroups := `
+	firstShardResourcesSecondStep := &clickhouse.Resources{
+		ResourcePresetId: "s2.small",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         21474836480,
+	}
+	shardsWithShardGroupsSecondStep := fmt.Sprintf(`
 hosts = {
 	"h1" = {
 		type      = "CLICKHOUSE"
@@ -1163,6 +1201,8 @@ hosts = {
 shards = {
 	shard1 = {
 		weight = 110
+		# resources
+		%s
 	}
 	shard3 = {
 		weight = 330
@@ -1184,7 +1224,9 @@ shard_group {
 		"shard1",
 	]
 }
-`
+`,
+		buildResourcesHCL(firstShardResourcesSecondStep),
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -1193,9 +1235,9 @@ shard_group {
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseCluster_sharded(chName, firstShardsWithShardGroups),
+				Config: testAccMDBClickHouseCluster_sharded(chName, shardsWithShardGroupsFirstStep),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
+					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &cluster, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
 
@@ -1207,8 +1249,8 @@ shard_group {
 					resource.TestCheckResourceAttrSet(chResourceSharded, "hosts.h2.fqdn"),
 					resource.TestCheckResourceAttr(chResourceSharded, "hosts.h2.assign_public_ip", "false"),
 
-					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard2"}),
-					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
+					testAccCheckMDBClickHouseClusterHasShards(&cluster, []string{"shard1", "shard2"}),
+					testAccCheckMDBClickHouseClusterHasShardGroups(&cluster, map[string][]string{
 						"test_group":   {"shard1", "shard2"},
 						"test_group_2": {"shard1"},
 					}),
@@ -1218,9 +1260,9 @@ shard_group {
 			mdbClickHouseClusterImportStep(chResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBClickHouseCluster_sharded(chName, secondShardsWithShardGroups),
+				Config: testAccMDBClickHouseCluster_sharded(chName, shardsWithShardGroupsSecondStep),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
+					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &cluster, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
 
@@ -1232,8 +1274,10 @@ shard_group {
 					resource.TestCheckResourceAttrSet(chResourceSharded, "hosts.h3.fqdn"),
 					resource.TestCheckResourceAttr(chResourceSharded, "hosts.h3.assign_public_ip", "true"),
 
-					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard3"}),
-					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, firstShardResourcesSecondStep.ResourcePresetId, firstShardResourcesSecondStep.DiskTypeId, firstShardResourcesSecondStep.DiskSize),
+
+					testAccCheckMDBClickHouseClusterHasShards(&cluster, []string{"shard1", "shard3"}),
+					testAccCheckMDBClickHouseClusterHasShardGroups(&cluster, map[string][]string{
 						"test_group":   {"shard1", "shard3"},
 						"test_group_3": {"shard1"},
 					}),
@@ -1382,7 +1426,7 @@ func TestAccMDBClickHouseCluster_encrypted_disk(t *testing.T) {
 // Test HCL configs
 
 func testAccMDBClickHouseCluster_basic(name string, bucket string, randInt int, changeableConf string) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           	  = "%s"
   description    	  = "ClickHouse basic tests"
@@ -1397,13 +1441,6 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   service_account_id = "${yandex_iam_service_account.sa.id}"
 
   version = "%s"
-  clickhouse = {
-	  resources = {
-		resource_preset_id = "s2.micro"
-		disk_type_id       = "network-ssd"
-		disk_size          = 10
-	  }
-  }
 
   hosts = {
     "ha" = {
@@ -1421,14 +1458,10 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		chVersion,
 		changeableConf,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
-func testAccMDBClickHouseCluster_resources(name, version string, clickHouseResources, zookeeperResources *clickhouse.Resources) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+func testAccMDBClickHouseCluster_resources(name, firstShardName, version string, clickHouseResources, zookeeperResources, shardResources *clickhouse.Resources) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
   description    = "Cluster resources ans version"
@@ -1463,10 +1496,19 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
     }
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	%s = {
+		weight = 11
+		# resources
+		%s
+	}
   }
 
   # maintenance_window
@@ -1477,16 +1519,14 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		version,
 		buildResourcesHCL(clickHouseResources),
 		buildResourcesHCL(zookeeperResources),
+		firstShardName,
+		buildResourcesHCL(shardResources),
 		maintenanceWindowAnytime,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
   description    = "ClickHouse config"
@@ -1524,27 +1564,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		buildClickhouseConfigHCL(config),
 		maintenanceWindowAnytime,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 func testAccMDBClickHouseCluster_sharded(name, shards string) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "bar" {
   name           = "%s"
   description    = "ClickHouse Sharded Cluster Terraform Test"
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
-
-  clickhouse = {
-	resources = {
-		resource_preset_id = "s2.micro"
-		disk_type_id       = "network-ssd"
-		disk_size          = 10
-	}
-  }
 
   # hosts, shards, shard groups
   %s
@@ -1557,14 +1585,10 @@ resource "yandex_mdb_clickhouse_cluster_v2" "bar" {
 		shards,
 		maintenanceWindowAnytime,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 func testAccMDBClickHouseCluster_keeper(name, desc string) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
   name           = "%s"
   description    = "%s"
@@ -1596,14 +1620,10 @@ resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
 		desc,
 		maintenanceWindowAnytime,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 func testAccMDBClickHouseCluster_cloud_storage(name, desc, bucket, cloudStorage string, randInt int) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "cloud" {
   name           = "%s"
   description    = "%s"
@@ -1638,14 +1658,10 @@ resource "yandex_mdb_clickhouse_cluster_v2" "cloud" {
 		maintenanceWindowAnytime,
 		cloudStorage,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 func testAccMDBClickHouseCluster_encrypted_disk(name string) string {
-	hcl := fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
@@ -1679,10 +1695,6 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		name,
 		maintenanceWindowAnytime,
 	)
-
-	fmt.Println(hcl)
-
-	return hcl
 }
 
 // Utils
@@ -1698,6 +1710,32 @@ func testAccCheckMDBClickHouseClusterHasResources(r *clickhouse.Cluster, resourc
 		}
 		if rs.DiskSize != diskSize {
 			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseShardHasResources(r *clickhouse.Cluster, shardName string, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+
+		shard, err := config.SDK.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+			ClusterId: r.Id,
+			ShardName: shardName,
+		})
+		if err != nil {
+			return err
+		}
+
+		shardResources := shard.Config.Clickhouse.Resources
+		if shardResources.ResourcePresetId != resourcePresetID {
+			return fmt.Errorf("Expected resource preset id '%s', got '%s'", resourcePresetID, shardResources.ResourcePresetId)
+		}
+		if shardResources.DiskTypeId != diskType {
+			return fmt.Errorf("Expected disk type '%s', got '%s'", diskType, shardResources.DiskTypeId)
+		}
+		if shardResources.DiskSize != diskSize {
+			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, shardResources.DiskSize)
 		}
 		return nil
 	}

@@ -1,0 +1,4 @@
+kind: ENHANCEMENTS
+body: 'mdb_clickhouse: add ConfigValidators to prevent conflicting `clickhouse.resources`
+  and `shards[*].resources` configuration'
+time: 2026-02-09T10:33:31.28144606Z

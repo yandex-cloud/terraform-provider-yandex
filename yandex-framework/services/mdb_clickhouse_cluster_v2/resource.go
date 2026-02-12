@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -319,145 +320,76 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
+// YC API behavior: updating clickhouse.resources rewrites ALL shard resources, and updating
+// shard resources may change the observed clickhouse.resources.
+// With UseStateForUnknown this may cause "inconsistent result after apply".
+// Here we "unpin" the opposite branch by setting it to Unknown in the plan:
+// - clickhouse.resources changed => shards[*].resources  = Unknown
+// - shards[*].resources changed  => clickhouse.resources = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() {
+	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() || req.State.Raw.IsNull() {
 		return
 	}
 
-	var cfg models.Cluster
-	var plan models.Cluster
-
-	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	var config, plan, state models.Cluster
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	cfgClusterRes, cfgResSet := getClusterClickHouseResources(ctx, cfg, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() || !cfgResSet {
-		return
-	}
-
-	// Create: state is null
-	if req.State.Raw.IsNull() {
-		r.validateShardOverridesMatchClusterResources(ctx, cfg, cfgClusterRes, &resp.Diagnostics)
-		return
-	}
-
-	// Update: stete is not null
-	var state models.Cluster
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	stateClusterRes, stateKnown := getClusterClickHouseResources(ctx, state, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() || !stateKnown {
-		return
-	}
-
-	if cfgClusterRes.Equal(stateClusterRes) {
-		return
-	}
-
-	r.validateShardOverridesMatchClusterResources(ctx, cfg, cfgClusterRes, &resp.Diagnostics)
+	configCHRes, configCHResSet := getClusterClickHouseResources(ctx, config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	override := map[string]struct{}{}
-	cfgShards := map[string]models.Shard{}
-	resp.Diagnostics.Append(cfg.Shards.ElementsAs(ctx, &cfgShards, false)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	for name, s := range cfgShards {
-		if !s.Resources.IsNull() && !s.Resources.IsUnknown() {
-			override[name] = struct{}{}
-		}
-	}
-
-	planShards := map[string]models.Shard{}
-	resp.Diagnostics.Append(plan.Shards.ElementsAs(ctx, &planShards, false)...)
+	configShardsRes, configShardsResSet := getShardResources(ctx, config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	for shardName, ps := range planShards {
-		if _, ok := override[shardName]; !ok {
-			// non-override shard: The API will still make resources = cluster resources
-			ps.Resources = cfgClusterRes
-			planShards[shardName] = ps
-		}
-	}
-
-	newShardMap, d := types.MapValueFrom(ctx, types.ObjectType{AttrTypes: models.ShardAttrTypes}, planShards)
-	resp.Diagnostics.Append(d...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	plan.Shards = newShardMap
-	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
-}
-
-func (r *clusterResource) validateShardOverridesMatchClusterResources(
-	ctx context.Context,
-	cfg models.Cluster,
-	cfgClusterRes types.Object,
-	diags *diag.Diagnostics,
-) {
-	if cfg.Shards.IsNull() || cfg.Shards.IsUnknown() {
-		return
-	}
-
-	cfgShards := map[string]models.Shard{}
-	diags.Append(cfg.Shards.ElementsAs(ctx, &cfgShards, false)...)
-	if diags.HasError() {
-		return
-	}
-
-	for shardName, shard := range cfgShards {
-		if shard.Resources.IsNull() || shard.Resources.IsUnknown() {
-			continue
-		}
-		if !shard.Resources.Equal(cfgClusterRes) {
-			diags.AddError(
-				"Incompatible update",
-				fmt.Sprintf(
-					`You are changing clickhouse.resources, but shards[%q].resources is set in configuration and differs.
-
-API behavior: updating clickhouse.resources rewrites resources of ALL shards.
-Therefore this update cannot be applied consistently.
-
-Fix:
-- remove shards[%q].resources override, OR
-- remove clickhouse.resources override, OR
-- set shards[%q].resources equal to clickhouse.resources.`,
-					shardName, shardName, shardName,
-				),
-			)
+	// clickhouse subcluster change resources management mode
+	if configCHResSet {
+		stateCHRes, stateCHResKnown := getClusterClickHouseResources(ctx, state, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() || !stateCHResKnown {
 			return
 		}
+
+		if !configCHRes.Equal(stateCHRes) {
+			setShardsResourcesUnknown(ctx, &plan, resp)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+		return
+	}
+
+	// shards change resources management mode
+	if configShardsResSet {
+		if shardOverridesChanged(ctx, configShardsRes, state, &resp.Diagnostics) {
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(
+					ctx,
+					path.Root("clickhouse").AtName("resources"),
+					types.ObjectUnknown(models.ResourcesAttrTypes),
+				)...,
+			)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+		return
 	}
 }
 
-func getClusterClickHouseResources(ctx context.Context, c models.Cluster, diags *diag.Diagnostics) (types.Object, bool) {
-	if c.ClickHouse.IsNull() || c.ClickHouse.IsUnknown() {
-		return types.ObjectNull(models.ResourcesAttrTypes), false
+func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("clickhouse").AtName("resources"),
+			path.MatchRoot("shards").AtAnyMapKey().AtName("resources"),
+		),
 	}
-
-	var ch models.Clickhouse
-	diags.Append(c.ClickHouse.As(ctx, &ch, datasize.DefaultOpts)...)
-	if diags.HasError() {
-		return types.ObjectNull(models.ResourcesAttrTypes), false
-	}
-
-	if ch.Resources.IsNull() || ch.Resources.IsUnknown() {
-		return ch.Resources, false
-	}
-
-	return ch.Resources, true
 }
 
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -530,4 +462,99 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
 	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
+}
+
+func getShardResources(
+	ctx context.Context,
+	cluster models.Cluster,
+	diags *diag.Diagnostics,
+) (map[string]types.Object, bool) {
+	if cluster.Shards.IsNull() || cluster.Shards.IsUnknown() {
+		return nil, false
+	}
+
+	configShards := map[string]models.Shard{}
+	diags.Append(cluster.Shards.ElementsAs(ctx, &configShards, false)...)
+	if diags.HasError() {
+		return nil, false
+	}
+
+	overrides := make(map[string]types.Object)
+	for name, s := range configShards {
+		if s.Resources.IsNull() || s.Resources.IsUnknown() {
+			continue
+		}
+		overrides[name] = s.Resources
+	}
+
+	return overrides, len(overrides) > 0
+}
+
+func shardOverridesChanged(
+	ctx context.Context,
+	configOverrides map[string]types.Object,
+	state models.Cluster,
+	diags *diag.Diagnostics,
+) bool {
+	if state.Shards.IsNull() || state.Shards.IsUnknown() {
+		return true
+	}
+
+	stateShards := map[string]models.Shard{}
+	diags.Append(state.Shards.ElementsAs(ctx, &stateShards, false)...)
+	if diags.HasError() {
+		return true
+	}
+
+	for shardName, cfgRes := range configOverrides {
+		st, ok := stateShards[shardName]
+		if !ok || st.Resources.IsNull() || st.Resources.IsUnknown() || !cfgRes.Equal(st.Resources) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func setShardsResourcesUnknown(ctx context.Context, plan *models.Cluster, resp *resource.ModifyPlanResponse) {
+	if plan.Shards.IsNull() || plan.Shards.IsUnknown() {
+		return
+	}
+
+	planShards := map[string]types.Object{}
+	resp.Diagnostics.Append(plan.Shards.ElementsAs(ctx, &planShards, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for shardName := range planShards {
+		resp.Diagnostics.Append(
+			resp.Plan.SetAttribute(
+				ctx,
+				path.Root("shards").AtMapKey(shardName).AtName("resources"),
+				types.ObjectUnknown(models.ResourcesAttrTypes),
+			)...,
+		)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+}
+
+func getClusterClickHouseResources(ctx context.Context, cluster models.Cluster, diags *diag.Diagnostics) (types.Object, bool) {
+	if cluster.ClickHouse.IsNull() || cluster.ClickHouse.IsUnknown() {
+		return types.ObjectNull(models.ResourcesAttrTypes), false
+	}
+
+	var ch models.Clickhouse
+	diags.Append(cluster.ClickHouse.As(ctx, &ch, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return types.ObjectNull(models.ResourcesAttrTypes), false
+	}
+
+	if ch.Resources.IsNull() || ch.Resources.IsUnknown() {
+		return ch.Resources, false
+	}
+
+	return ch.Resources, true
 }

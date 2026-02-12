@@ -133,7 +133,7 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.Cluster, 
 			return config, updateMaskPaths
 		}
 
-		if !planClickHouse.Resources.Equal(stateClickHouse.Resources) {
+		if !planClickHouse.Resources.IsUnknown() && !planClickHouse.Resources.Equal(stateClickHouse.Resources) {
 			updateMaskPaths = append(
 				updateMaskPaths,
 				"config_spec.clickhouse.resources",
