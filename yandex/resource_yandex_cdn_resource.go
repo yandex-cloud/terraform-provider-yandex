@@ -51,6 +51,9 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 			if err := customizeDiffCDN_RewriteFlag(ctx, rd, v); err != nil {
 				return err
 			}
+			if err := customizeDiffCDN_QueryParams(ctx, rd, v); err != nil {
+				return err
+			}
 			return nil
 		},
 
@@ -260,6 +263,8 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Description: "Files with different query parameters are cached as objects with the same key regardless of the parameter value. selected by default.",
 				Computed:    true,
 				Optional:    true,
+
+				ConflictsWith: []string{"options.0.query_params_whitelist", "options.0.query_params_blacklist"},
 			},
 			"query_params_whitelist": {
 				Type:        schema.TypeList,
@@ -270,6 +275,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				ConflictsWith: []string{"options.0.ignore_query_params", "options.0.query_params_blacklist"},
 			},
 			"query_params_blacklist": {
 				Type:        schema.TypeList,
@@ -280,6 +286,7 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				ConflictsWith: []string{"options.0.ignore_query_params", "options.0.query_params_whitelist"},
 			},
 
 			"slice": {

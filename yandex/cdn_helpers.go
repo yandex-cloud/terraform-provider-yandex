@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty/gocty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
@@ -71,6 +72,37 @@ var (
 		}
 		opts := rd.Get("options").([]any)[0].(map[string]any)
 		opts["rewrite_flag"] = "BREAK"
+		return rd.SetNew("options", []any{opts})
+	}
+
+	customizeDiffCDN_QueryParams schema.CustomizeDiffFunc = func(_ context.Context, rd *schema.ResourceDiff, _ any) error {
+		optsConfig := rd.GetRawConfig().GetAttr("options")
+		if optsConfig.LengthInt() != 1 {
+			return nil
+		}
+
+		ignoreQueryParamsCfg := optsConfig.AsValueSlice()[0].GetAttr("ignore_query_params")
+		queryParamsWhitelistCfg := optsConfig.AsValueSlice()[0].GetAttr("query_params_whitelist")
+		queryParamsBlacklistCfg := optsConfig.AsValueSlice()[0].GetAttr("query_params_blacklist")
+		var (
+			ignoreQueryParamsPlan    = false
+			queryParamsWhitelistPlan = []string{}
+			queryParamsBlacklistPlan = []string{}
+		)
+		switch {
+		case !ignoreQueryParamsCfg.IsNull():
+			ignoreQueryParamsPlan = ignoreQueryParamsCfg.True()
+		case !queryParamsWhitelistCfg.IsNull():
+			gocty.FromCtyValue(queryParamsWhitelistCfg, &queryParamsWhitelistPlan)
+		case !queryParamsBlacklistCfg.IsNull():
+			gocty.FromCtyValue(queryParamsBlacklistCfg, &queryParamsBlacklistPlan)
+		default:
+			ignoreQueryParamsPlan = true
+		}
+		opts := rd.Get("options").([]any)[0].(map[string]any)
+		opts["ignore_query_params"] = ignoreQueryParamsPlan
+		opts["query_params_whitelist"] = queryParamsWhitelistPlan
+		opts["query_params_blacklist"] = queryParamsBlacklistPlan
 		return rd.SetNew("options", []any{opts})
 	}
 )
@@ -488,14 +520,6 @@ func expandCDNResourceOptions_CompressionOptions(d *schema.ResourceData) *cdn.Re
 }
 
 func expandCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.ResourceOptions_QueryParamsOptions {
-	if rawOption, ok := d.GetOk("options.0.ignore_query_params"); ok {
-		return &cdn.ResourceOptions_QueryParamsOptions{
-			QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
-				IgnoreQueryString: cdnBoolOption(rawOption.(bool)),
-			},
-		}
-	}
-
 	if rawOption, ok := d.GetOk("options.0.query_params_whitelist"); ok {
 		option := cdnStringListOption(rawOption.([]any))
 		if option != nil {
@@ -517,7 +541,12 @@ func expandCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.Re
 			}
 		}
 	}
-	return nil
+	rawOption := d.Get("options.0.ignore_query_params")
+	return &cdn.ResourceOptions_QueryParamsOptions{
+		QueryParamsVariant: &cdn.ResourceOptions_QueryParamsOptions_IgnoreQueryString{
+			IgnoreQueryString: cdnBoolOption(rawOption.(bool)),
+		},
+	}
 }
 
 func expandCDNResourceOptions_HostOptions(d *schema.ResourceData) *cdn.ResourceOptions_HostOptions {

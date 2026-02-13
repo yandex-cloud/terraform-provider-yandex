@@ -466,12 +466,12 @@ func TestAccCDNResource_Option_EdgeCacheSettings(t *testing.T) {
 			{
 				Config: makeCDNResourceWithOptions(
 					groupName, cname,
-					`edge_cache_settings_codes { 
+					`edge_cache_settings_codes {
 						value = 40
-						custom_values = { 
+						custom_values = {
 							"200" = 1200
 							"400" = 0
-						} 
+						}
 					}`,
 				),
 				Check: resource.ComposeTestCheckFunc(
@@ -536,11 +536,9 @@ func TestAccCDNResource_Option_BrowserCacheSettings(t *testing.T) {
 func TestAccCDNResource_Option_QueryParams(t *testing.T) {
 	t.Parallel()
 
-	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
-
-	t.Run("ignore_query_params", func(t *testing.T) {
-		t.Skip("current provider implementation assumes bug")
+	t.Run("empty_config", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
 		resource.ParallelTest(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -554,6 +552,18 @@ func TestAccCDNResource_Option_QueryParams(t *testing.T) {
 						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
 					),
 				},
+			},
+		})
+	})
+
+	t.Run("ignore_query_params", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
 				{
 					Config: makeCDNResourceWithOptions(groupName, resourceCName, `ignore_query_params = false`),
 					Check: resource.ComposeTestCheckFunc(
@@ -573,7 +583,85 @@ func TestAccCDNResource_Option_QueryParams(t *testing.T) {
 			},
 		})
 	})
-	// TODO: query_params_whitelist, query_params_blacklist
+
+	t.Run("whitelist", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `query_params_whitelist = ["a"]`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "1"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.0", "a"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `query_params_whitelist = ["a", "b"]`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "2"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.0", "a"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.1", "b"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "true"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+			},
+		})
+	})
+
+	t.Run("blacklist", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `query_params_blacklist = ["a"]`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "1"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.0", "a"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `query_params_blacklist = ["a", "b"]`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "2"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.0", "a"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.1", "b"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.ignore_query_params", "true"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_whitelist.#", "0"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.query_params_blacklist.#", "0"),
+					),
+				},
+			},
+		})
+	})
 }
 
 func TestAccCDNResource_Option_Slice(t *testing.T) {

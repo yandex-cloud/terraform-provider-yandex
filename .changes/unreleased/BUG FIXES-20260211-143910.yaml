@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'CDN: Fix query params (Issue #368)'
+time: 2026-02-11T14:39:10.753385+03:00
