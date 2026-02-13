@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'metastore: add `yandex_metastore_cluster_iam_binding` resource'
+time: 2026-01-23T14:01:38.962787454+03:00

@@ -20,7 +20,8 @@ import (
 )
 
 const (
-	pgResource                 = "yandex_mdb_postgresql_cluster.foo"
+	pgResourceType             = "yandex_mdb_postgresql_cluster"
+	pgResourceFoo              = pgResourceType + ".foo"
 	pgRestoreBackupId          = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
 	pgRestoreBackupIdEncrypted = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
 )
@@ -28,8 +29,8 @@ const (
 var postgresql_versions = [...]string{"14", "14-1c", "15", "15-1c", "16", "16-1c", "17", "17-1c", "18"}
 
 func init() {
-	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_postgresql_cluster",
+	resource.AddTestSweepers(pgResourceType, &resource.Sweeper{
+		Name: pgResourceType,
 		F:    testSweepMDBPostgreSQLCluster,
 	})
 }
@@ -118,7 +119,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
-	clusterResource := pgResource
+	clusterResource := pgResourceFoo
 	pgDesc := "PostgreSQL Cluster Terraform Test"
 	pgDesc2 := "PostgreSQL Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
@@ -156,7 +157,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "12"),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
 					testAccPGGetHostNames(clusterResource, hostNames),
-					resource.TestCheckNoResourceAttr(pgResource, "disk_encryption_key_id"),
+					resource.TestCheckNoResourceAttr(pgResourceFoo, "disk_encryption_key_id"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -499,7 +500,7 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 	t.Parallel()
 
 	var cluster postgresql.Cluster
-	clusterResource := pgResource
+	clusterResource := pgResourceFoo
 	clusterName := acctest.RandomWithPrefix("postgresql-restored-cluster")
 	folderId := getExampleFolderID()
 
@@ -530,7 +531,7 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "12"),
-					resource.TestCheckNoResourceAttr(pgResource, "disk_encryption_key_id"),
+					resource.TestCheckNoResourceAttr(pgResourceFoo, "disk_encryption_key_id"),
 				),
 			},
 			// Uncheck deletion_protection
@@ -564,11 +565,11 @@ func TestAccMDBPostgreSQLCluster_diskEncryption_create(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterDiskEncrypted(clusterName, pgDesc, "PRESTABLE", version, 10),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
-					resource.TestCheckResourceAttrSet(pgResource, "disk_encryption_key_id"),
+					testAccCheckMDBPGClusterExists(pgResourceFoo, &cluster, 1),
+					resource.TestCheckResourceAttrSet(pgResourceFoo, "disk_encryption_key_id"),
 				),
 			},
-			mdbPGClusterImportStep(pgResource),
+			mdbPGClusterImportStep(pgResourceFoo),
 		},
 	})
 }
@@ -590,8 +591,8 @@ func TestAccMDBPostgreSQLCluster_dropDiskEncryption(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigRestoreDropEncryption(clusterName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
-					resource.TestCheckNoResourceAttr(pgResource, "disk_encryption_key_id"),
+					testAccCheckMDBPGClusterExists(pgResourceFoo, &cluster, 1),
+					resource.TestCheckNoResourceAttr(pgResourceFoo, "disk_encryption_key_id"),
 				),
 			},
 		},
@@ -615,8 +616,8 @@ func TestAccMDBPostgreSQLCluster_addDiskEncryption(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigRestoreAddEncryption(clusterName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
-					resource.TestCheckResourceAttrSet(pgResource, "disk_encryption_key_id"),
+					testAccCheckMDBPGClusterExists(pgResourceFoo, &cluster, 1),
+					resource.TestCheckResourceAttrSet(pgResourceFoo, "disk_encryption_key_id"),
 				),
 			},
 		},
@@ -627,7 +628,7 @@ func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_mdb_postgresql_cluster" {
+		if rs.Type != pgResourceType {
 			continue
 		}
 

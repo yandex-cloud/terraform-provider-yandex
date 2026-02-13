@@ -13,7 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/compare"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -26,10 +25,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"google.golang.org/genproto/googleapis/type/timeofday"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -86,67 +83,10 @@ var (
 	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c", "16-1c", "17-1c"} //nolint:unused
 )
 
-func init() {
-	resource.AddTestSweepers("yandex_mdb_postgresql_cluster_v2", &resource.Sweeper{
-		Name: "yandex_mdb_postgresql_cluster_v2",
-		F:    testSweepMDBPostgreSQLCluster,
-	})
-}
-
 // TestMain - add sweepers flag to the go test command
 // important for sweepers run.
 func TestMain(m *testing.M) {
 	resource.TestMain(m)
-}
-
-func testSweepMDBPostgreSQLCluster(_ string) error {
-	conf, err := test.ConfigForSweepers()
-	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
-	}
-
-	resp, err := conf.SDK.MDB().PostgreSQL().Cluster().List(context.Background(), &postgresql.ListClustersRequest{
-		FolderId: conf.ProviderState.FolderID.ValueString(),
-		PageSize: defaultMDBPageSize,
-	})
-	if err != nil {
-		return fmt.Errorf("error getting PostgreSQL clusters: %s", err)
-	}
-
-	result := &multierror.Error{}
-	for _, c := range resp.Clusters {
-		if !sweepMDBPostgreSQLCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep PostgreSQL cluster %q", c.Id))
-		}
-	}
-
-	return result.ErrorOrNil()
-}
-
-func sweepMDBPostgreSQLCluster(conf *config.Config, id string) bool {
-	return test.SweepWithRetry(sweepMDBPostgreSQLClusterOnce, conf, "PostgreSQL cluster", id)
-}
-
-func sweepMDBPostgreSQLClusterOnce(conf *config.Config, id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), yandexMDBPostgreSQLClusterDeleteTimeout)
-	defer cancel()
-
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-
-	op, err := conf.SDK.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
-		ClusterId:          id,
-		DeletionProtection: false,
-		UpdateMask:         &mask,
-	})
-	err = test.HandleSweepOperation(ctx, conf, op, err)
-	if err != nil && !strings.EqualFold(test.ErrorMessage(err), "no changes detected") {
-		return err
-	}
-
-	op, err = conf.SDK.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
-		ClusterId: id,
-	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
 }
 
 func mdbPGClusterImportStep(name string) resource.TestStep {

@@ -4,6 +4,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_airflow_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
@@ -26,6 +27,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_registry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
@@ -54,6 +56,16 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_logging_group"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_clickhouse_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_greenplum_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_kafka_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_sharded_postgresql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_metastore_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
@@ -75,6 +87,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_eventrouter_bus"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_spark_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
@@ -85,6 +99,7 @@ func init() {
 		yandex_container_registry_iam_binding.NewResource,
 		yandex_container_repository.NewResource,
 		yandex_container_repository_iam_binding.NewResource,
+		yandex_dataproc_cluster_iam_binding.NewResource,
 		yandex_iam_workload_identity_oidc_federation.NewResource,
 		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,
 		yandex_iam_workload_identity_federated_credential.NewResource,
@@ -104,6 +119,15 @@ func init() {
 		yandex_kms_symmetric_key_iam_binding.NewResource,
 		yandex_kms_symmetric_key_iam_member.NewResource,
 		yandex_lb_target_group.NewResource,
+		yandex_mdb_mongodb_cluster_iam_binding.NewResource,
+		yandex_mdb_mysql_cluster_iam_binding.NewResource,
+		yandex_mdb_postgresql_cluster_iam_binding.NewResource,
+		yandex_mdb_clickhouse_cluster_iam_binding.NewResource,
+		yandex_mdb_greenplum_cluster_iam_binding.NewResource,
+		yandex_mdb_kafka_cluster_iam_binding.NewResource,
+		yandex_mdb_opensearch_cluster_iam_binding.NewResource,
+		yandex_mdb_redis_cluster_iam_binding.NewResource,
+		yandex_mdb_sharded_postgresql_cluster_iam_binding.NewResource,
 		yandex_organizationmanager_idp_application_oauth_application.NewResource,
 		yandex_organizationmanager_idp_application_saml_application.NewResource,
 		yandex_organizationmanager_idp_application_saml_signature_certificate.NewResource,
@@ -123,6 +147,7 @@ func init() {
 		yandex_resourcemanager_folder_iam_binding.NewResource,
 		yandex_resourcemanager_folder_iam_member.NewResource,
 		yandex_ydb_database_iam_binding.NewResource,
+		yandex_airflow_cluster_iam_binding.NewResource,
 		yandex_cm_certificate_iam_binding.NewResource,
 		yandex_cm_certificate_iam_member.NewResource,
 		yandex_cloudregistry_lifecycle_policy.NewResource,
@@ -149,10 +174,13 @@ func init() {
 		yandex_lockbox_secret_iam_binding.NewResource,
 		yandex_lockbox_secret_iam_member.NewResource,
 		yandex_logging_group.NewResource,
+		yandex_metastore_cluster_iam_binding.NewResource,
 		yandex_serverless_container_iam_binding.NewResource,
 		yandex_serverless_eventrouter_bus.NewResource,
 		yandex_function_iam_binding.NewResource,
 		yandex_smartcaptcha_captcha.NewResource,
+		yandex_spark_cluster_iam_binding.NewResource,
+		yandex_trino_cluster_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
 	}
 }

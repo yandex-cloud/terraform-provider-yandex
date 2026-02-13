@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
@@ -40,7 +41,7 @@ func TestAccComputeGpuCluster_basicIamMember(t *testing.T) {
 				Config: testAccComputeGpuCluster_basic(gpuClusterName, role, userID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGpuClusterExists("yandex_compute_gpu_cluster.foobar", &gpuCluster),
-					test.TestAccCheckIamBindingExists(ctx, func() test.BindingsGetter {
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 						return cfg.SDK.Compute().GpuCluster()
 					}, &gpuCluster, role, []string{"system:" + userID}),

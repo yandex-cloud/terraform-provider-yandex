@@ -158,7 +158,7 @@ func mdbPostgreSQLUserImportStep(name string) resource.TestStep {
 }
 
 func testAccLoadPostgreSQLUser(s *terraform.State, username string) (*postgresql.User, error) {
-	rs, ok := s.RootModule().Resources[pgResource]
+	rs, ok := s.RootModule().Resources[pgResourceFoo]
 
 	if !ok {
 		return nil, fmt.Errorf("resource %q not found", pgUserResourceNameAlice)

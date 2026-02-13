@@ -16,9 +16,11 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
-const greenplumResource = "yandex_mdb_greenplum_cluster.foo"
-
-const greenplumSANamePrefix = "sa-for-"
+const (
+	greenplumResourceType = "yandex_mdb_greenplum_cluster"
+	greenplumResourceFoo  = greenplumResourceType + ".foo"
+	greenplumSANamePrefix = "sa-for-"
+)
 
 func buildGreenplumSAResourceName(greenplumName string) string {
 	// terraform resource name
@@ -30,8 +32,8 @@ func buildGreenplumSAName(greenplumName string) string {
 }
 
 func init() {
-	resource.AddTestSweepers("yandex_mdb_greenplum_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_greenplum_cluster",
+	resource.AddTestSweepers(greenplumResourceType, &resource.Sweeper{
+		Name: greenplumResourceType,
 		F:    testSweepMDBGreenplumCluster,
 	})
 }
@@ -132,54 +134,54 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep1(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
-					resource.TestCheckResourceAttr(greenplumResource, "name", clusterName),
-					resource.TestCheckResourceAttr(greenplumResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(greenplumResource, "description", clusterDescription),
-					testAccCheckCreatedAtAttr(greenplumResource),
-					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
-					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
-					resource.TestCheckResourceAttrSet(greenplumResource, "service_account_id"),
-					resource.TestCheckResourceAttr(greenplumResource, "logging.0.enabled", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "logging.0.command_center_enabled", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "logging.0.greenplum_enabled", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "logging.0.pooler_enabled", "true"),
-					resource.TestCheckResourceAttrSet(greenplumResource, "logging.0.folder_id"),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "name", clusterName),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "description", clusterDescription),
+					testAccCheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "false"),
+					resource.TestCheckResourceAttrSet(greenplumResourceFoo, "service_account_id"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.command_center_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.greenplum_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.pooler_enabled", "true"),
+					resource.TestCheckResourceAttrSet(greenplumResourceFoo, "logging.0.folder_id"),
 
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "TRANSACTION"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "28800"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pooling_mode", "TRANSACTION"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
 
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "600"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "40"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.max_threads", "100"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_allow_core_thread_timeout", "false"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_core_size", "8"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_queue_capacity", "600"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_max_size", "128"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xmx", "2048"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xms", "1024"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.connection_timeout", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.upload_timeout", "40"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.max_threads", "100"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_allow_core_thread_timeout", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_core_size", "8"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_queue_capacity", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_max_size", "128"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xmx", "2048"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xms", "1024"),
 
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "395"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_slot_wal_keep_size", "1048576"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_per_segment", "0"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_per_query", "0"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_files_per_query", "100000"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_prepared_transactions", "500"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "false"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_statement_mem", "2147483648"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.log_statement", "2"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_add_column_inherits_table_setting", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_enable_global_deadlock_detector", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_global_deadlock_detector_period", "120"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_connections", "395"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_slot_wal_keep_size", "1048576"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_per_segment", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_per_query", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_files_per_query", "100000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_prepared_transactions", "500"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_compression", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_statement_mem", "2147483648"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.log_statement", "2"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_add_column_inherits_table_setting", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_enable_global_deadlock_detector", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_global_deadlock_detector_period", "120"),
 
-					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
-					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.disk_size", "24"),
-					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.disk_type_id", "network-ssd"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.disk_size", "24"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.disk_type_id", "network-ssd"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.disk_size", "24"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.disk_type_id", "network-ssd"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.disk_size", "24"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.disk_type_id", "network-ssd"),
 				),
 			},
 
@@ -187,99 +189,99 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep2(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
-					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.resource_preset_id", "s2.small"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
 				),
 			},
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 			// Update name and description of the cluster
 			{
 				Config: testAccMDBGreenplumClusterConfigStep3(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(greenplumResource, "name", clusterNameUpdated),
-					resource.TestCheckResourceAttr(greenplumResource, "description", clusterDescriptionUpdated),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "name", clusterNameUpdated),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "description", clusterDescriptionUpdated),
 				),
 			},
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 			// Update pooler_config, pxf_config and greenplum_config
 			{
 				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "400"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_global_deadlock_detector_period", "300"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_connections", "400"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_compression", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_global_deadlock_detector_period", "300"),
 
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "SESSION"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "28800"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "800"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "300"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "440"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.max_threads", "200"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_allow_core_thread_timeout", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_core_size", "4"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_max_size", "48"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xmx", "1536"),
-					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xms", "1024"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pooling_mode", "SESSION"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.connection_timeout", "300"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.upload_timeout", "440"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.max_threads", "200"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_allow_core_thread_timeout", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_core_size", "4"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_max_size", "48"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xmx", "1536"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xms", "1024"),
 				),
 			},
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 			// Update deletion_protection
 			{
 				Config: testAccMDBGreenplumClusterConfigStep5(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
-					testAccCheckCreatedAtAttr(greenplumResource),
-					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "true"),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					testAccCheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "true"),
 				),
 			},
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 			// Add access, background_activities and backup_window_start fields
 			{
 				Config: testAccMDBGreenplumClusterConfigStep6(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.yandex_query", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "backup_window_start.0.minutes", "15"),
-					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.day", "SAT"),
-					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.hour", "12"),
-					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.start_time", "12:34"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.analyze_timeout", "7200"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.analyze_and_vacuum.0.vacuum_timeout", "7300"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.enable", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.max_age", "6000"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.ignore_users.0", "manager"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle.0.ignore_users.1", "developer"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle_in_transaction.0.enable", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_idle_in_transaction.0.ignore_users.#", "0"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.enable", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "background_activities.0.query_killer_long_running.0.max_age", "8000"),
-					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "backup_window_start.0.minutes", "15"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "maintenance_window.0.hour", "12"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.start_time", "12:34"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.analyze_timeout", "7200"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.vacuum_timeout", "7300"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.max_age", "6000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.ignore_users.0", "manager"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.ignore_users.1", "developer"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle_in_transaction.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle_in_transaction.0.ignore_users.#", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_long_running.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_long_running.0.max_age", "8000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
 				),
 			},
 
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 			{
 				Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 7),
-					testAccCheckCreatedAtAttr(greenplumResource),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_in_host", "2"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "false"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
-					resource.TestCheckResourceAttr(greenplumResource, "access.0.yandex_query", "false"),
+					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 7),
+					testAccCheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_in_host", "2"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "false"),
 				),
 			},
-			mdbGreenplumClusterImportStep(greenplumResource),
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
 		},
 	})
 }
@@ -290,7 +292,7 @@ func testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "yandex_mdb_greenplum_cluster" {
+		if rs.Type == greenplumResourceType {
 			_, err := config.sdk.MDB().Greenplum().Cluster().Get(config.Context(), &greenplum.GetClusterRequest{
 				ClusterId: rs.Primary.ID,
 			})
@@ -312,11 +314,11 @@ func testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckMDBGreenplumClusterExists(n string, masterHosts int, segmentHosts int) resource.TestCheckFunc {
+func testAccCheckMDBGreenplumClusterExists(resourceName string, resource *greenplum.Cluster, masterHosts int, segmentHosts int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
+		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
@@ -334,6 +336,10 @@ func testAccCheckMDBGreenplumClusterExists(n string, masterHosts int, segmentHos
 
 		if found.Id != rs.Primary.ID {
 			return fmt.Errorf("Greenplum Cluster not found")
+		}
+
+		if resource != nil {
+			*resource = *found
 		}
 
 		resp, err := config.sdk.MDB().Greenplum().Cluster().ListMasterHosts(context.Background(), &greenplum.ListClusterHostsRequest{

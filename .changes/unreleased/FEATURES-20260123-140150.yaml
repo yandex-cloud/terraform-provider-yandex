@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'postgresql: add `yandex_mdb_postgresql_cluster_iam_binding` resource'
+time: 2026-01-23T14:01:50.703690951+03:00

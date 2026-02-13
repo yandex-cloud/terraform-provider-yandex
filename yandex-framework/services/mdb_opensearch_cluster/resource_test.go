@@ -6,11 +6,9 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -23,77 +21,18 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	pc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/plancheck"
-	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
-	openSearchResourcePrefix                = "yandex_mdb_opensearch_cluster."
-	yandexMDBOpenSearchClusterDeleteTimeout = 30 * time.Minute
+	openSearchResourceType   = "yandex_mdb_opensearch_cluster"
+	openSearchResourcePrefix = openSearchResourceType + "."
 )
-
-func init() {
-	resource.AddTestSweepers("yandex_mdb_opensearch_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_opensearch_cluster",
-		F:    testSweepMDBOpenSearchCluster,
-	})
-}
 
 // TestMain - add sweepers flag to the go test command
 // important for sweepers run.
 func TestMain(m *testing.M) {
 	resource.TestMain(m)
-}
-
-func testSweepMDBOpenSearchCluster(_ string) error {
-	conf, err := test.ConfigForSweepers()
-	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
-	}
-
-	resp, err := conf.SDK.MDB().OpenSearch().Cluster().List(
-		context.Background(),
-		&opensearch.ListClustersRequest{
-			FolderId: conf.ProviderState.FolderID.ValueString(),
-		})
-	if err != nil {
-		return fmt.Errorf("error getting OpenSearch clusters: %s", err)
-	}
-
-	result := &multierror.Error{}
-	for _, c := range resp.Clusters {
-		if !sweepMDBOpenSearchCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep OpenSearch cluster %q", c.Id))
-		}
-	}
-
-	return result.ErrorOrNil()
-}
-
-func sweepMDBOpenSearchCluster(conf *config.Config, id string) bool {
-	return test.SweepWithRetry(sweepMDBOpenSearchClusterOnce, conf, "OpenSearch cluster", id)
-}
-
-func sweepMDBOpenSearchClusterOnce(conf *config.Config, id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), yandexMDBOpenSearchClusterDeleteTimeout)
-	defer cancel()
-
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.SDK.MDB().OpenSearch().Cluster().Update(ctx, &opensearch.UpdateClusterRequest{
-		ClusterId:          id,
-		DeletionProtection: false,
-		UpdateMask:         &mask,
-	})
-	err = test.HandleSweepOperation(ctx, conf, op, err)
-	if err != nil && !strings.EqualFold(test.ErrorMessage(err), "no changes detected") {
-		return err
-	}
-
-	op, err = conf.SDK.MDB().OpenSearch().Cluster().Delete(ctx, &opensearch.DeleteClusterRequest{
-		ClusterId: id,
-	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
 }
 
 func mdbOpenSearchClusterImportStep(name string) resource.TestStep {
@@ -634,7 +573,7 @@ func testAccCheckMDBOpenSearchClusterDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*provider.Provider).GetConfig()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_mdb_opensearch_cluster" {
+		if rs.Type != openSearchResourceType {
 			continue
 		}
 

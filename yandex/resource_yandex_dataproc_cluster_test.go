@@ -27,6 +27,8 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
 )
 
+const dataprocResourceType = "yandex_dataproc_cluster"
+
 var testDataprocZone = "ru-central1-b"
 
 func init() {
@@ -34,8 +36,8 @@ func init() {
 	if ok {
 		testDataprocZone = zone
 	}
-	resource.AddTestSweepers("yandex_dataproc_cluster", &resource.Sweeper{
-		Name: "yandex_dataproc_cluster",
+	resource.AddTestSweepers(dataprocResourceType, &resource.Sweeper{
+		Name: dataprocResourceType,
 		F:    testSweepDataprocCluster,
 	})
 }
@@ -1173,7 +1175,7 @@ func testAccCheckDataprocClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_dataproc_cluster" {
+		if rs.Type != dataprocResourceType {
 			continue
 		}
 

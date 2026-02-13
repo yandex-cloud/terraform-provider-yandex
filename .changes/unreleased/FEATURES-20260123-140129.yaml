@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'dataproc: add `yandex_dataproc_cluster_iam_binding` resource'
+time: 2026-01-23T14:01:29.150640508+03:00

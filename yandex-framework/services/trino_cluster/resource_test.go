@@ -20,6 +20,10 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 )
 
+const (
+	trinoResourceType = "yandex_trino_cluster"
+)
+
 var (
 	//go:embed test-data/CA1.pem
 	caCert1 string
@@ -33,6 +37,10 @@ var (
 	//go:embed test-data/expected-resource-groups-1.json
 	expectedResourceGroups1 string
 )
+
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
 
 func infraResources(t *testing.T, randSuffix string) string {
 	type params struct {
@@ -257,7 +265,7 @@ func testAccCheckTrinoClusterDestroy(s *terraform.State) error {
 	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_trino_cluster" {
+		if rs.Type != trinoResourceType {
 			continue
 		}
 

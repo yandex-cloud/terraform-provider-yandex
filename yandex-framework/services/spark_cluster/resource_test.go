@@ -17,6 +17,14 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
+const (
+	sparkResourceType = "yandex_spark_cluster"
+)
+
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func infraResources(t *testing.T, randSuffix string) string {
 	type params struct {
 		RandSuffix string
@@ -215,7 +223,7 @@ func testAccCheckSparkClusterDestroy(s *terraform.State) error {
 	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_spark_cluster" {
+		if rs.Type != sparkResourceType {
 			continue
 		}
 

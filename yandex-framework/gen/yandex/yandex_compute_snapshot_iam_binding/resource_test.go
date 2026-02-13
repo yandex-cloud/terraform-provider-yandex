@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,7 +48,7 @@ func TestAccComputeSnapshot_basicIamMember(t *testing.T) {
 				Config: testAccComputeSnapshot_basic(snapshotName, diskName, "my-value-for-tag", role, userID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSnapshotExists("yandex_compute_snapshot.foobar", &snapshot),
-					test.TestAccCheckIamBindingExists(ctx, func() test.BindingsGetter {
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 						return cfg.SDK.Compute().Snapshot()
 					}, &snapshot, role, []string{"system:" + userID}),

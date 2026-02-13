@@ -6,11 +6,8 @@ import (
 	"log"
 	"reflect"
 	"regexp"
-	"strings"
 	"testing"
-	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -20,78 +17,20 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
-	defaultMDBPageSize                             = 1000
-	yandexMDBShardedPostgreSQLClusterDeleteTimeout = 15 * time.Minute
-)
+	defaultMDBPageSize = 1000
 
-func init() {
-	resource.AddTestSweepers("yandex_mdb_sharded_postgresql_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_sharded_postgresql_cluster",
-		F:    testSweepMDBShardedPostgreSQLCluster,
-	})
-}
+	yandexMDBShardedPostgreSQLClusterResourceType = "yandex_mdb_sharded_postgresql_cluster"
+)
 
 // TestMain - add sweepers flag to the go test command
 // important for sweepers run.
 func TestMain(m *testing.M) {
 	resource.TestMain(m)
-}
-
-func testSweepMDBShardedPostgreSQLCluster(_ string) error {
-	conf, err := testhelpers.ConfigForSweepers()
-	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
-	}
-
-	resp, err := conf.SDK.MDB().SPQR().Cluster().List(context.Background(), &spqr.ListClustersRequest{
-		FolderId: conf.ProviderState.FolderID.ValueString(),
-		PageSize: defaultMDBPageSize,
-	})
-	if err != nil {
-		return fmt.Errorf("error getting Sharded PostgreSQL clusters: %s", err)
-	}
-
-	result := &multierror.Error{}
-	for _, c := range resp.Clusters {
-		if !sweepMDBShardedPostgreSQLCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep Sharded PostgreSQL cluster %q", c.Id))
-		}
-	}
-
-	return result.ErrorOrNil()
-}
-
-func sweepMDBShardedPostgreSQLCluster(conf *config.Config, id string) bool {
-	return testhelpers.SweepWithRetry(sweepMDBShardedPostgreSQLClusterOnce, conf, "Sharded PostgreSQL cluster", id)
-}
-
-func sweepMDBShardedPostgreSQLClusterOnce(conf *config.Config, id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), yandexMDBShardedPostgreSQLClusterDeleteTimeout)
-	defer cancel()
-
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-
-	op, err := conf.SDK.MDB().SPQR().Cluster().Update(ctx, &spqr.UpdateClusterRequest{
-		ClusterId:          id,
-		DeletionProtection: false,
-		UpdateMask:         &mask,
-	})
-	err = testhelpers.HandleSweepOperation(ctx, conf, op, err)
-	if err != nil && !strings.EqualFold(testhelpers.ErrorMessage(err), "no changes detected") {
-		return err
-	}
-
-	op, err = conf.SDK.MDB().SPQR().Cluster().Delete(ctx, &spqr.DeleteClusterRequest{
-		ClusterId: id,
-	})
-	return testhelpers.HandleSweepOperation(ctx, conf, op, err)
 }
 
 func TestAccMDBShardedPostgreSQLCluster_basic(t *testing.T) {
@@ -759,7 +698,7 @@ func testAccCheckMDBShardedPostgreSQLClusterDestroy(s *terraform.State) error {
 	config := testhelpers.AccProvider.(*provider.Provider).GetConfig()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_mdb_sharded_postgresql_cluster" {
+		if rs.Type != yandexMDBShardedPostgreSQLClusterResourceType {
 			continue
 		}
 

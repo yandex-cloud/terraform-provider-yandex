@@ -25,7 +25,7 @@ func TestAccMDBMySQLDatabase_full(t *testing.T) {
 				Config: testAccMDBMySQLDatabaseConfigStep1(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlDatabaseResourceName1, "name", "testdb1"),
-					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb1"}),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResourceFoo, []string{"testdb1"}),
 				),
 			},
 			mdbMySQLDatabaseImportStep(mysqlDatabaseResourceName1),
@@ -33,7 +33,7 @@ func TestAccMDBMySQLDatabase_full(t *testing.T) {
 				Config: testAccMDBMySQLDatabaseConfigStep2(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlDatabaseResourceName2, "name", "testdb2"),
-					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb1", "testdb2"}),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResourceFoo, []string{"testdb1", "testdb2"}),
 				),
 			},
 			mdbMySQLDatabaseImportStep(mysqlDatabaseResourceName2),

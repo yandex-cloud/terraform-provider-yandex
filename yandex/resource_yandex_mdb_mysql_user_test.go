@@ -26,7 +26,7 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				Config: testAccMDBMySQLUserConfigStep1(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "name", "john"),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_questions_per_hour", "42"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "global_permissions.#", "5"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
@@ -39,7 +39,7 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				Config: testAccMDBMySQLUserConfigStep2(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "name", "john"),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_questions_per_hour", "10"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_updates_per_hour", "20"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_limits.0.max_connections_per_hour", "30"),
@@ -55,7 +55,7 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				Config: testAccMDBMySQLUserConfigStep3(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlUserResourceMary, "name", "mary"),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
 						"mary": {MockPermission{"new_testdb", []string{"ALTER", "CREATE", "INSERT", "DROP", "DELETE"}}},
 					}),
@@ -70,7 +70,7 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				Config: testAccMDBMySQLUserConfigStep4(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mysqlUserResourceJane, "name", "jane"),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
 						"jane": {MockPermission{"new_testdb", []string{"ALL"}}},
 					}),

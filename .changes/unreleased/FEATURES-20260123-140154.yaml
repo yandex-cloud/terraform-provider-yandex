@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'sharded_postgresql: add `yandex_mdb_sharded_postgresql_cluster_iam_binding` resource'
+time: 2026-01-23T14:01:54.367412231+03:00

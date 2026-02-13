@@ -79,7 +79,7 @@ func mdbPostgreSQLDatabaseImportStep(name string) resource.TestStep {
 }
 
 func testAccLoadPostgreSQLDatabase(s *terraform.State, dbname string) (*postgresql.Database, error) {
-	rs, ok := s.RootModule().Resources[pgResource]
+	rs, ok := s.RootModule().Resources[pgResourceFoo]
 
 	if !ok {
 		return nil, fmt.Errorf("resource %q not found", pgDatabaseResourceName)

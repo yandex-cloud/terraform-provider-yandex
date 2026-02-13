@@ -17,6 +17,12 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func infraResources(t *testing.T, randSuffix string) string {
 	type params struct {
 		RandSuffix string
@@ -211,7 +217,7 @@ func testAccCheckAirflowClusterDestroy(s *terraform.State) error {
 	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_airflow_cluster" {
+		if rs.Type != airflowResourceType {
 			continue
 		}
 

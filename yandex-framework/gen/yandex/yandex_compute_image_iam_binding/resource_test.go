@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
@@ -43,7 +44,7 @@ func TestAccComputeImage_basicIamMember(t *testing.T) {
 				Config: testAccComputeImageWithIAM_basic("image-test-"+acctest.RandString(8), role, userID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists("yandex_compute_image.foobar", &image),
-					test.TestAccCheckIamBindingExists(ctx, func() test.BindingsGetter {
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 						return cfg.SDK.Compute().Image()
 					}, &image, role, []string{"system:" + userID}),

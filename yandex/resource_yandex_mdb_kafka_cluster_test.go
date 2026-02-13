@@ -26,11 +26,13 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 )
 
-const currentDefaultKafkaVersion = "3.6"
+const (
+	currentDefaultKafkaVersion = "3.6"
 
-const kfResource = "yandex_mdb_kafka_cluster.foo"
+	kfResourceType = "yandex_mdb_kafka_cluster"
+	kfResourceFoo  = kfResourceType + ".foo"
 
-const kfVPCDependencies = `
+	kfVPCDependencies = `
 resource "yandex_vpc_network" "mdb-kafka-test-net" {}
 
 resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-a" {
@@ -52,15 +54,16 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-d" {
 }
 `
 
-const kfDiskEncryptionKeyResource = `
+	kfDiskEncryptionKeyResource = `
 resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 `
+)
 
 var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"}
 
 func init() {
-	resource.AddTestSweepers("yandex_mdb_kafka_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_kafka_cluster",
+	resource.AddTestSweepers(kfResourceType, &resource.Sweeper{
+		Name: kfResourceType,
 		F:    testSweepMDBKafkaCluster,
 	})
 }
@@ -1298,60 +1301,60 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 			{
 				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "name", kfName),
-					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
-					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
-					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "false"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "false"),
+					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
+					resource.TestCheckResourceAttr(kfResourceFoo, "name", kfName),
+					resource.TestCheckResourceAttr(kfResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(kfResourceFoo, "description", kfDesc),
+					resource.TestCheckResourceAttr(kfResourceFoo, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.version", currentDefaultKafkaVersion),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "false"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "false"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
-					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
-					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
+					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "final"}),
+					testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256}),
-					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 777216),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{
+					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResourceFoo, "raw_events", 777216),
+					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_COMPACT_AND_DELETE,
 						MaxMessageBytes: &wrappers.Int64Value{Value: 777216},
 						SegmentBytes:    &wrappers.Int64Value{Value: 134217728},
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
-					testAccCheckCreatedAtAttr(kfResource),
+					testAccCheckCreatedAtAttr(kfResourceFoo),
 				),
 			},
-			mdbKafkaClusterImportStep(kfResource),
+			mdbKafkaClusterImportStep(kfResourceFoo),
 			// Change some options
 			{
 				Config: testAccMDBKafkaClusterConfigUpdated(kfName, kfDescUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "name", kfName),
-					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
-					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.schema_registry", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
+					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
+					resource.TestCheckResourceAttr(kfResourceFoo, "name", kfName),
+					resource.TestCheckResourceAttr(kfResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(kfResourceFoo, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.access.0.data_transfer", "false"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.schema_registry", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
-					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
+					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "new_topic"}),
+					testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256, kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512}),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{
+					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_DELETE,
 						MaxMessageBytes: &wrappers.Int64Value{Value: 554432},
 						SegmentBytes:    &wrappers.Int64Value{Value: 268435456},
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
-					testAccCheckCreatedAtAttr(kfResource),
+					testAccCheckCreatedAtAttr(kfResourceFoo),
 				),
 			},
 		},
@@ -1377,49 +1380,49 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 			{
 				Config: testAccMDBKafkaClusterConfigMainHA(kfName, kfDesc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "name", kfName),
-					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
-					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
+					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
+					resource.TestCheckResourceAttr(kfResourceFoo, "name", kfName),
+					resource.TestCheckResourceAttr(kfResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(kfResourceFoo, "description", kfDesc),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.version", currentDefaultKafkaVersion),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
-					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
-					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
+					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "final"}),
+					testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256}),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
-					testAccCheckCreatedAtAttr(kfResource),
+					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
+					testAccCheckCreatedAtAttr(kfResourceFoo),
 				),
 			},
-			mdbKafkaClusterImportStep(kfResource),
+			mdbKafkaClusterImportStep(kfResourceFoo),
 			// Change some options
 			{
 				Config: testAccMDBKafkaClusterConfigUpdatedHA(kfName, kfDescUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "name", kfName),
-					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
-					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
-					resource.TestCheckResourceAttr(kfResource, "config.0.rest_api.0.enabled", "true"),
-					resource.TestCheckResourceAttr(kfResource, "config.0.kafka_ui.0.enabled", "true"),
+					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
+					resource.TestCheckResourceAttr(kfResourceFoo, "name", kfName),
+					resource.TestCheckResourceAttr(kfResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(kfResourceFoo, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.version", currentDefaultKafkaVersion),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
-					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
-					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
+					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "new_topic"}),
+					testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, nil),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
-					testAccCheckCreatedAtAttr(kfResource),
+					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
+					testAccCheckCreatedAtAttr(kfResourceFoo),
 				),
 			},
 		},
@@ -1459,7 +1462,7 @@ func testAccCheckMDBKafkaClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "yandex_mdb_kafka_cluster" {
+		if rs.Type != kfResourceType {
 			continue
 		}
 

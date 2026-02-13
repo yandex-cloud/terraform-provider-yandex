@@ -19,14 +19,15 @@ import (
 )
 
 const (
-	mysqlResource              = "yandex_mdb_mysql_cluster.foo"
+	mysqlResourceType          = "yandex_mdb_mysql_cluster"
+	mysqlResourceFoo           = mysqlResourceType + ".foo"
 	msRestoreBackupId          = "c9qnlqr37bgp53r9pbek:mdbel77v1so5qiu199ua"
 	msRestoreBackupIdEncrypted = "c9qpn7idf2pvl1077h8j:mdbq3r80r4hbj8uu26sd"
 )
 
 func init() {
-	resource.AddTestSweepers("yandex_mdb_mysql_cluster", &resource.Sweeper{
-		Name: "yandex_mdb_mysql_cluster",
+	resource.AddTestSweepers(mysqlResourceType, &resource.Sweeper{
+		Name: mysqlResourceType,
 		F:    testSweepMDBMySQLCluster,
 	})
 }
@@ -126,60 +127,60 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
-					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "description", mysqlDesc),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "false"),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResourceFoo, []string{"testdb"}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}},
 					}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 3, 22),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "test_key", "test_value"),
-					testAccCheckCreatedAtAttr(mysqlResource),
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
-					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
-					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "true"),
+					testAccCheckCreatedAtAttr(mysqlResourceFoo),
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResourceFoo, 1),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "deletion_protection", "true"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "SAT"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "12"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.hour", "12"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.sql_mode", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.innodb_print_all_deadlocks", "true"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "12"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "backup_retain_period_days", "12"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.disk_size_limit", "0"),
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.planned_usage_threshold", "0"),
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.emergency_usage_threshold", "0"),
-					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResource, 0, 0, 0),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.disk_size_limit", "0"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.planned_usage_threshold", "0"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.emergency_usage_threshold", "0"),
+					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResourceFoo, 0, 0, 0),
 
-					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
-					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
+					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResourceFoo, true, 300, 400),
+					testAccMDBMysqlGetHostNames(mysqlResourceFoo, hostNames),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// uncheck 'deletion_protection'
 			{
 				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "false"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "deletion_protection", "false"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// check 'deletion_protection'
 			{
 				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "true"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "deletion_protection", "true"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// trigger deletion by changing environment
 			{
 				Config:      testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRODUCTION", true),
@@ -189,66 +190,66 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "false"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "deletion_protection", "false"),
 				),
 			},
 			// Change some options
 			{
 				Config: testAccMDBMySQLClusterVersionUpdate(mysqlName, mysqlDesc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "version", "8.0"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "version", "8.0"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Change some options
 			{
 				Config: testAccMDBMySQLClusterConfigUpdated(mysqlName, mysqlDesc2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
-					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "description", mysqlDesc2),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "true"),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResourceFoo, []string{"testdb", "new_testdb"}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResourceFoo, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
 						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}},
 					}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
 					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(mysqlResource),
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
-					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "2"),
+					testAccCheckCreatedAtAttr(mysqlResourceFoo),
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResourceFoo, 1),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "security_group_ids.#", "2"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "user.0.connection_limits.0.max_questions_per_hour", "10"),
-					resource.TestCheckResourceAttr(mysqlResource, "user.0.global_permissions.#", "2"),
-					resource.TestCheckResourceAttr(mysqlResource, "user.0.authentication_plugin", "SHA256_PASSWORD"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "user.0.connection_limits.0.max_questions_per_hour", "10"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "user.0.global_permissions.#", "2"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "user.0.authentication_plugin", "SHA256_PASSWORD"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "access.0.web_sql", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_lens", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_transfer", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "access.0.yandex_query", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
-					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "access.0.yandex_query", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.max_connections", "10"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "mysql_config.innodb_print_all_deadlocks", "true"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "WED"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.day", "WED"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.hour", "22"),
 
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.disk_size_limit", "40"),
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
-					resource.TestCheckResourceAttr(mysqlResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
-					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResource, 40, 70, 90),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.disk_size_limit", "40"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
+					testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(mysqlResourceFoo, 40, 70, 90),
 
-					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "13"),
-					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "backup_retain_period_days", "13"),
+					testAccMDBMysqlCompareHostNames(mysqlResourceFoo, hostNames),
 				),
 			},
 		},
@@ -272,94 +273,94 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 			{
 				Config: testAccMDBMysqlClusterHA(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
 
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.2.fqdn"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResourceFoo, 3),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.0.fqdn"),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.1.fqdn"),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.2.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Add new host 2 cc
 			{
 				Config: testAccMDBMysqlClusterHA2(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
 
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.zone", "ru-central1-a"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.zone", "ru-central1-b"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-d"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-d"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
-					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResourceFoo, 4),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.2.zone", "ru-central1-d"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.3.zone", "ru-central1-d"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.3.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
+					testAccMDBMysqlGetHostNames(mysqlResourceFoo, hostNames),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Configure cascade replica
 			{
 				Config: testAccMDBMysqlClusterHANamedWithCascade(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.replication_source"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.replication_source_name", "nb"),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.replication_source"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "na"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.0.replication_source"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.replication_source_name", "nb"),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "host.1.replication_source"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.replication_source_name", "na"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Change public IP for 2 hosts
 			{
 				Config: testAccMDBMysqlClusterHANamedChangePublicIP(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
-					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.3.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
+					testAccMDBMysqlCompareHostNames(mysqlResourceFoo, hostNames),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Change backup priority for 2 hosts
 			{
 				Config: testAccMDBMysqlClusterWithBackupPriorities(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.backup_priority", "10"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.backup_priority", "5"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.backup_priority", "10"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.backup_priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 			// Change host priority for 2 hosts
 			{
 				Config: testAccMDBMysqlClusterWithPriorities(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.priority", "10"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.priority", "5"),
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.priority", "10"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 		},
 	},
 	)
@@ -417,11 +418,11 @@ func TestAccMDBMySQLCluster_EncryptedDisk(t *testing.T) {
 			{
 				Config: testAccMDBMySQLClusterDiskEncrypted(mysqlName, "Encrypted MySQL cluster"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
-					resource.TestCheckResourceAttrSet(mysqlResource, "disk_encryption_key_id"),
+					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
+					resource.TestCheckResourceAttrSet(mysqlResourceFoo, "disk_encryption_key_id"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+			mdbMysqlClusterImportStep(mysqlResourceFoo),
 		},
 	})
 }
@@ -478,7 +479,7 @@ func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "yandex_mdb_mysql_cluster" {
+		if rs.Type != mysqlResourceType {
 			continue
 		}
 
