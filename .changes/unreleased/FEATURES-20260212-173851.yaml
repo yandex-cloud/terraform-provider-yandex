@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: added support for disk size autoscaling'
+time: 2026-02-12T17:38:51.924506+05:30

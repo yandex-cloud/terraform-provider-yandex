@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -320,12 +320,12 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
-// YC API behavior: updating clickhouse.resources rewrites ALL shard resources, and updating
-// shard resources may change the observed clickhouse.resources.
+// YC API behavior: updating clickhouse.<resources|disk_size_autoscaling> rewrites ALL shard resources/disk_size_autoscaling, and updating
+// shard resources/disk_size_autoscaling may change the observed clickhouse.<resources|disk_size_autoscaling>.
 // With UseStateForUnknown this may cause "inconsistent result after apply".
 // Here we "unpin" the opposite branch by setting it to Unknown in the plan:
-// - clickhouse.resources changed => shards[*].resources  = Unknown
-// - shards[*].resources changed  => clickhouse.resources = Unknown
+// - clickhouse.<resources|disk_size_autoscaling> changed => shards[*].<resources|disk_size_autoscaling>  = Unknown
+// - shards[*].<resources|disk_size_autoscaling> changed  => clickhouse.<resources|disk_size_autoscaling> = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() || req.State.Raw.IsNull() {
 		return
@@ -339,46 +339,75 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 		return
 	}
 
-	configCHRes, configCHResSet := getClusterClickHouseResources(ctx, config, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// resources
+	resourcesAttrName := "resources"
+	configCHRes, configCHResSet := models.GetClickHouseResources(ctx, config, &resp.Diagnostics)
+	configShardsRes, configShardsResSet := getShardOverrides(ctx, config, &resp.Diagnostics, models.ShardResourcesGetter)
 
-	configShardsRes, configShardsResSet := getShardResources(ctx, config, &resp.Diagnostics)
+	// disk_size_autoscaling
+	diskSizeAutoscalingAttrName := "disk_size_autoscaling"
+	configCHDsa, configCHDsaSet := models.GetClickHouseDiskSizeAutoscaling(ctx, config, &resp.Diagnostics)
+	configShardsDsa, configShardsDsaSet := getShardOverrides(ctx, config, &resp.Diagnostics, models.ShardDiskSizeAutoscalingGetter)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// clickhouse subcluster change resources management mode
 	if configCHResSet {
-		stateCHRes, stateCHResKnown := getClusterClickHouseResources(ctx, state, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() || !stateCHResKnown {
+		stateCHRes, stateCHResSet := models.GetClickHouseResources(ctx, state, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() || !stateCHResSet {
 			return
 		}
 
 		if !configCHRes.Equal(stateCHRes) {
-			setShardsResourcesUnknown(ctx, &plan, resp)
-			if resp.Diagnostics.HasError() {
-				return
-			}
+			setShardsAttrUnknown(ctx, &plan, resourcesAttrName, models.ResourcesAttrTypes, resp)
 		}
+	}
+
+	// clickhouse subcluster change disk size autoscaling settings management mode
+	if configCHDsaSet {
+		stateCHDsa, stateCHDsaSet := models.GetClickHouseDiskSizeAutoscaling(ctx, state, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() || !stateCHDsaSet {
+			return
+		}
+
+		if !configCHDsa.Equal(stateCHDsa) {
+			setShardsAttrUnknown(ctx, &plan, diskSizeAutoscalingAttrName, models.DiskSizeAutoscalingAttrTypes, resp)
+		}
+	}
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// shards change resources management mode
 	if configShardsResSet {
-		if shardOverridesChanged(ctx, configShardsRes, state, &resp.Diagnostics) {
+		if shardOverridesChanged(ctx, configShardsRes, state, &resp.Diagnostics, models.ShardResourcesGetter) {
 			resp.Diagnostics.Append(
 				resp.Plan.SetAttribute(
 					ctx,
-					path.Root("clickhouse").AtName("resources"),
+					path.Root("clickhouse").AtName(resourcesAttrName),
 					types.ObjectUnknown(models.ResourcesAttrTypes),
 				)...,
 			)
-			if resp.Diagnostics.HasError() {
-				return
-			}
 		}
+	}
+
+	// shards change disk size autoscaling settings management mode
+	if configShardsDsaSet {
+		if shardOverridesChanged(ctx, configShardsDsa, state, &resp.Diagnostics, models.ShardDiskSizeAutoscalingGetter) {
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(
+					ctx,
+					path.Root("clickhouse").AtName(diskSizeAutoscalingAttrName),
+					types.ObjectUnknown(models.DiskSizeAutoscalingAttrTypes),
+				)...,
+			)
+		}
+	}
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
 }
@@ -388,6 +417,10 @@ func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.Confi
 		resourcevalidator.Conflicting(
 			path.MatchRoot("clickhouse").AtName("resources"),
 			path.MatchRoot("shards").AtAnyMapKey().AtName("resources"),
+		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("clickhouse").AtName("disk_size_autoscaling"),
+			path.MatchRoot("shards").AtAnyMapKey().AtName("disk_size_autoscaling"),
 		),
 	}
 }
@@ -464,37 +497,12 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
 }
 
-func getShardResources(
-	ctx context.Context,
-	cluster models.Cluster,
-	diags *diag.Diagnostics,
-) (map[string]types.Object, bool) {
-	if cluster.Shards.IsNull() || cluster.Shards.IsUnknown() {
-		return nil, false
-	}
-
-	configShards := map[string]models.Shard{}
-	diags.Append(cluster.Shards.ElementsAs(ctx, &configShards, false)...)
-	if diags.HasError() {
-		return nil, false
-	}
-
-	overrides := make(map[string]types.Object)
-	for name, s := range configShards {
-		if s.Resources.IsNull() || s.Resources.IsUnknown() {
-			continue
-		}
-		overrides[name] = s.Resources
-	}
-
-	return overrides, len(overrides) > 0
-}
-
 func shardOverridesChanged(
 	ctx context.Context,
 	configOverrides map[string]types.Object,
 	state models.Cluster,
 	diags *diag.Diagnostics,
+	getter func(models.Shard) types.Object,
 ) bool {
 	if state.Shards.IsNull() || state.Shards.IsUnknown() {
 		return true
@@ -506,9 +514,13 @@ func shardOverridesChanged(
 		return true
 	}
 
-	for shardName, cfgRes := range configOverrides {
+	for shardName, configObject := range configOverrides {
 		st, ok := stateShards[shardName]
-		if !ok || st.Resources.IsNull() || st.Resources.IsUnknown() || !cfgRes.Equal(st.Resources) {
+		if !ok {
+			return true
+		}
+		currentObject := getter(st)
+		if currentObject.IsNull() || currentObject.IsUnknown() || !configObject.Equal(currentObject) {
 			return true
 		}
 	}
@@ -516,7 +528,13 @@ func shardOverridesChanged(
 	return false
 }
 
-func setShardsResourcesUnknown(ctx context.Context, plan *models.Cluster, resp *resource.ModifyPlanResponse) {
+func setShardsAttrUnknown(
+	ctx context.Context,
+	plan *models.Cluster,
+	attrName string,
+	attrTypes map[string]attr.Type,
+	resp *resource.ModifyPlanResponse,
+) {
 	if plan.Shards.IsNull() || plan.Shards.IsUnknown() {
 		return
 	}
@@ -531,8 +549,8 @@ func setShardsResourcesUnknown(ctx context.Context, plan *models.Cluster, resp *
 		resp.Diagnostics.Append(
 			resp.Plan.SetAttribute(
 				ctx,
-				path.Root("shards").AtMapKey(shardName).AtName("resources"),
-				types.ObjectUnknown(models.ResourcesAttrTypes),
+				path.Root("shards").AtMapKey(shardName).AtName(attrName),
+				types.ObjectUnknown(attrTypes),
 			)...,
 		)
 		if resp.Diagnostics.HasError() {
@@ -541,20 +559,30 @@ func setShardsResourcesUnknown(ctx context.Context, plan *models.Cluster, resp *
 	}
 }
 
-func getClusterClickHouseResources(ctx context.Context, cluster models.Cluster, diags *diag.Diagnostics) (types.Object, bool) {
-	if cluster.ClickHouse.IsNull() || cluster.ClickHouse.IsUnknown() {
-		return types.ObjectNull(models.ResourcesAttrTypes), false
+func getShardOverrides(
+	ctx context.Context,
+	cluster models.Cluster,
+	diags *diag.Diagnostics,
+	getter func(models.Shard) types.Object,
+) (map[string]types.Object, bool) {
+	if cluster.Shards.IsNull() || cluster.Shards.IsUnknown() {
+		return nil, false
 	}
 
-	var ch models.Clickhouse
-	diags.Append(cluster.ClickHouse.As(ctx, &ch, datasize.DefaultOpts)...)
+	shards := map[string]models.Shard{}
+	diags.Append(cluster.Shards.ElementsAs(ctx, &shards, false)...)
 	if diags.HasError() {
-		return types.ObjectNull(models.ResourcesAttrTypes), false
+		return nil, false
 	}
 
-	if ch.Resources.IsNull() || ch.Resources.IsUnknown() {
-		return ch.Resources, false
+	overrides := make(map[string]types.Object)
+	for name, s := range shards {
+		v := getter(s)
+		if v.IsNull() || v.IsUnknown() {
+			continue
+		}
+		overrides[name] = v
 	}
 
-	return ch.Resources, true
+	return overrides, len(overrides) > 0
 }

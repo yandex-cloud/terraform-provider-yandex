@@ -23,6 +23,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -233,7 +234,7 @@ format_schema {
 	})
 }
 
-// Test that a ClickHouse Cluster version and resources could be updated simultaneously.
+// Test that a ClickHouse Cluster version, resources and autoscaling settings could be updated simultaneously.
 func TestAccMDBClickHouseCluster_resources(t *testing.T) {
 	var cluster clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse-cluster-resources")
@@ -259,16 +260,46 @@ func TestAccMDBClickHouseCluster_resources(t *testing.T) {
 		DiskSize:         21474836480,
 	}
 
+	clickHouseFirstAutoscalingSettings := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(21474836480),
+		PlannedUsageThreshold:   wrapperspb.Int64(20),
+		EmergencyUsageThreshold: wrapperspb.Int64(30),
+	}
+
+	clickHouseSecondAutoscalingSettings := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(32212254720),
+		PlannedUsageThreshold:   wrapperspb.Int64(40),
+		EmergencyUsageThreshold: wrapperspb.Int64(50),
+	}
+
+	clickHouseThirdAutoscalingSettings := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(42949672960),
+		PlannedUsageThreshold:   wrapperspb.Int64(80),
+		EmergencyUsageThreshold: wrapperspb.Int64(85),
+	}
+
 	zookeeperFirstResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.micro",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         10737418240,
 	}
 
+	zookeeperFirstAutoscalingSettings := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(32212254720),
+		PlannedUsageThreshold:   wrapperspb.Int64(50),
+		EmergencyUsageThreshold: wrapperspb.Int64(55),
+	}
+
 	zookeeperSecondResources := &clickhouse.Resources{
 		ResourcePresetId: "s2.small",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         21474836480,
+	}
+
+	zookeeperSecondAutoscalingSettings := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(42949672960),
+		PlannedUsageThreshold:   wrapperspb.Int64(60),
+		EmergencyUsageThreshold: wrapperspb.Int64(65),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -278,63 +309,117 @@ func TestAccMDBClickHouseCluster_resources(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseFirstResources, zookeeperFirstResources, nil),
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chVersion,
+					clickHouseFirstResources, zookeeperFirstResources, nil,
+					clickHouseFirstAutoscalingSettings, zookeeperFirstAutoscalingSettings, nil,
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
-					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources.ResourcePresetId, zookeeperFirstResources.DiskTypeId, zookeeperFirstResources.DiskSize),
+
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources),
+
+					testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(&cluster, clickHouseFirstAutoscalingSettings),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasDiskSizeAutoscaling(&cluster, zookeeperFirstAutoscalingSettings),
+					testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(&cluster, firstShardName, clickHouseFirstAutoscalingSettings),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Update ClickHouse version only
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chUpdatedVersion, clickHouseFirstResources, zookeeperFirstResources, nil),
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chUpdatedVersion,
+					clickHouseFirstResources, zookeeperFirstResources, nil,
+					clickHouseFirstAutoscalingSettings, zookeeperFirstAutoscalingSettings, nil,
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
-					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources.ResourcePresetId, clickHouseFirstResources.DiskTypeId, clickHouseFirstResources.DiskSize),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources.ResourcePresetId, zookeeperFirstResources.DiskTypeId, zookeeperFirstResources.DiskSize),
+
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseFirstResources),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperFirstResources),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseFirstResources),
+
+					testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(&cluster, clickHouseFirstAutoscalingSettings),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasDiskSizeAutoscaling(&cluster, zookeeperFirstAutoscalingSettings),
+					testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(&cluster, firstShardName, clickHouseFirstAutoscalingSettings),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// Update first shard and zookeeper resources. Changing the resource management shard-mode.
+			// Update first shard and zookeeper resources/autoscaling. Changing the resource/autoscaling management shard-mode.
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, nil, zookeeperSecondResources, clickHouseSecondResources),
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chVersion,
+					nil, zookeeperSecondResources, clickHouseSecondResources,
+					nil, zookeeperSecondAutoscalingSettings, clickHouseSecondAutoscalingSettings,
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseSecondResources.ResourcePresetId, clickHouseSecondResources.DiskTypeId, clickHouseSecondResources.DiskSize),
-					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseSecondResources.ResourcePresetId, clickHouseSecondResources.DiskTypeId, clickHouseSecondResources.DiskSize),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources.ResourcePresetId, zookeeperSecondResources.DiskTypeId, zookeeperSecondResources.DiskSize),
+
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseSecondResources),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseSecondResources),
+
+					testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(&cluster, clickHouseSecondAutoscalingSettings),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasDiskSizeAutoscaling(&cluster, zookeeperSecondAutoscalingSettings),
+					testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(&cluster, firstShardName, clickHouseSecondAutoscalingSettings),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Plan should fail when both clickhouse.resources and shards[*].resources are set
 			{
-				Config:      testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseSecondResources, zookeeperSecondResources, clickHouseSecondResources),
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chVersion,
+					clickHouseSecondResources, zookeeperSecondResources, clickHouseSecondResources,
+					nil, zookeeperFirstAutoscalingSettings, clickHouseSecondAutoscalingSettings,
+				),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`(?i)Invalid Attribute Combination|cannot be configured together|These attributes cannot be configured together`),
 			},
-			// Downgrade ClickHouse version and cluster resources. Changing the resource management cluster-mode.
+			// Plan should fail when both clickhouse.disk_size_autoscaling and shards[*].disk_size_autoscaling are set
 			{
-				Config: testAccMDBClickHouseCluster_resources(chName, firstShardName, chVersion, clickHouseThirdResources, zookeeperSecondResources, nil),
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chVersion,
+					nil, zookeeperSecondResources, clickHouseSecondResources,
+					clickHouseFirstAutoscalingSettings, zookeeperFirstAutoscalingSettings, clickHouseSecondAutoscalingSettings,
+				),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`(?i)Invalid Attribute Combination|cannot be configured together|These attributes cannot be configured together`),
+			},
+			// Downgrade ClickHouse version and cluster resources/autoscaling. Changing the resource/autoscaling management cluster-mode.
+			{
+				Config: testAccMDBClickHouseCluster_resources(
+					chName, firstShardName, chVersion,
+					clickHouseThirdResources, zookeeperSecondResources, nil,
+					clickHouseThirdAutoscalingSettings, zookeeperSecondAutoscalingSettings, nil,
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 4),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseThirdResources.ResourcePresetId, clickHouseThirdResources.DiskTypeId, clickHouseThirdResources.DiskSize),
-					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseThirdResources.ResourcePresetId, clickHouseThirdResources.DiskTypeId, clickHouseThirdResources.DiskSize),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources.ResourcePresetId, zookeeperSecondResources.DiskTypeId, zookeeperSecondResources.DiskSize),
+
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, clickHouseThirdResources),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&cluster, zookeeperSecondResources),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, clickHouseThirdResources),
+
+					testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(&cluster, clickHouseThirdAutoscalingSettings),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasDiskSizeAutoscaling(&cluster, zookeeperSecondAutoscalingSettings),
+					testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(&cluster, firstShardName, clickHouseThirdAutoscalingSettings),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1175,10 +1260,16 @@ shard_group	{
 }
 `
 
+	firstShardName := "shard1"
 	firstShardResourcesSecondStep := &clickhouse.Resources{
 		ResourcePresetId: "s2.small",
 		DiskTypeId:       "network-ssd",
 		DiskSize:         21474836480,
+	}
+	firstShardDiskSizeAutoscalingSecondStep := &clickhouse.DiskSizeAutoscaling{
+		DiskSizeLimit:           wrapperspb.Int64(42949672960),
+		PlannedUsageThreshold:   wrapperspb.Int64(50),
+		EmergencyUsageThreshold: wrapperspb.Int64(60),
 	}
 	shardsWithShardGroupsSecondStep := fmt.Sprintf(`
 hosts = {
@@ -1199,9 +1290,11 @@ hosts = {
 }
 
 shards = {
-	shard1 = {
+	%s = {
 		weight = 110
 		# resources
+		%s
+		# disk_size_autoscaling
 		%s
 	}
 	shard3 = {
@@ -1225,7 +1318,9 @@ shard_group {
 	]
 }
 `,
+		firstShardName,
 		buildResourcesHCL(firstShardResourcesSecondStep),
+		buildDiskSizeAutoscalingHCL(firstShardDiskSizeAutoscalingSecondStep),
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -1274,7 +1369,11 @@ shard_group {
 					resource.TestCheckResourceAttrSet(chResourceSharded, "hosts.h3.fqdn"),
 					resource.TestCheckResourceAttr(chResourceSharded, "hosts.h3.assign_public_ip", "true"),
 
-					testAccCheckMDBClickHouseClusterHasResources(&cluster, firstShardResourcesSecondStep.ResourcePresetId, firstShardResourcesSecondStep.DiskTypeId, firstShardResourcesSecondStep.DiskSize),
+					testAccCheckMDBClickHouseClusterHasResources(&cluster, firstShardResourcesSecondStep),
+					testAccCheckMDBClickHouseShardHasResources(&cluster, firstShardName, firstShardResourcesSecondStep),
+
+					testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(&cluster, firstShardDiskSizeAutoscalingSecondStep),
+					testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(&cluster, firstShardName, firstShardDiskSizeAutoscalingSecondStep),
 
 					testAccCheckMDBClickHouseClusterHasShards(&cluster, []string{"shard1", "shard3"}),
 					testAccCheckMDBClickHouseClusterHasShardGroups(&cluster, map[string][]string{
@@ -1460,7 +1559,11 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	)
 }
 
-func testAccMDBClickHouseCluster_resources(name, firstShardName, version string, clickHouseResources, zookeeperResources, shardResources *clickhouse.Resources) string {
+func testAccMDBClickHouseCluster_resources(
+	name, firstShardName, version string,
+	clickHouseResources, zookeeperResources, shardResources *clickhouse.Resources,
+	clickHouseAutoscalingSettings, zookeeperAutoscalingSettings, shardAutoscalingSettings *clickhouse.DiskSizeAutoscaling,
+) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
@@ -1472,10 +1575,14 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   clickhouse = {
 	  # resources
 	  %s
+	  # disk_size_autoscaling
+	  %s
   }
 	
   zookeeper = {
 	# resources
+	%s
+	# disk_size_autoscaling
 	%s
   }
 
@@ -1508,6 +1615,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		weight = 11
 		# resources
 		%s
+		# disk_size_autoscaling
+		%s
 	}
   }
 
@@ -1518,10 +1627,13 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		name,
 		version,
 		buildResourcesHCL(clickHouseResources),
+		buildDiskSizeAutoscalingHCL(clickHouseAutoscalingSettings),
 		buildResourcesHCL(zookeeperResources),
+		buildDiskSizeAutoscalingHCL(zookeeperAutoscalingSettings),
 		firstShardName,
 		buildResourcesHCL(shardResources),
-		maintenanceWindowAnytime,
+		buildDiskSizeAutoscalingHCL(shardAutoscalingSettings),
+		maintenanceWindowWeekly,
 	)
 }
 
@@ -1583,7 +1695,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "bar" {
 `,
 		name,
 		shards,
-		maintenanceWindowAnytime,
+		maintenanceWindowWeekly,
 	)
 }
 
@@ -1699,23 +1811,21 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
 // Utils
 
-func testAccCheckMDBClickHouseClusterHasResources(r *clickhouse.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+func testAccCheckMDBClickHouseClusterHasDiskSizeAutoscaling(cluster *clickhouse.Cluster, targetDsa *clickhouse.DiskSizeAutoscaling) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs := r.Config.Clickhouse.Resources
-		if rs.ResourcePresetId != resourcePresetID {
-			return fmt.Errorf("Expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
-		}
-		if rs.DiskTypeId != diskType {
-			return fmt.Errorf("Expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
-		}
-		if rs.DiskSize != diskSize {
-			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
-		}
-		return nil
+		currentDsa := cluster.Config.Clickhouse.DiskSizeAutoscaling
+		return diskSizeAutoscalingEquals(currentDsa, targetDsa)
 	}
 }
 
-func testAccCheckMDBClickHouseShardHasResources(r *clickhouse.Cluster, shardName string, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+func testAccCheckMDBClickHouseZooKeeperSubclusterHasDiskSizeAutoscaling(cluster *clickhouse.Cluster, targetDsa *clickhouse.DiskSizeAutoscaling) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		currentDsa := cluster.Config.Zookeeper.DiskSizeAutoscaling
+		return diskSizeAutoscalingEquals(currentDsa, targetDsa)
+	}
+}
+
+func testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(r *clickhouse.Cluster, shardName string, targetDsa *clickhouse.DiskSizeAutoscaling) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
@@ -1727,34 +1837,66 @@ func testAccCheckMDBClickHouseShardHasResources(r *clickhouse.Cluster, shardName
 			return err
 		}
 
-		shardResources := shard.Config.Clickhouse.Resources
-		if shardResources.ResourcePresetId != resourcePresetID {
-			return fmt.Errorf("Expected resource preset id '%s', got '%s'", resourcePresetID, shardResources.ResourcePresetId)
-		}
-		if shardResources.DiskTypeId != diskType {
-			return fmt.Errorf("Expected disk type '%s', got '%s'", diskType, shardResources.DiskTypeId)
-		}
-		if shardResources.DiskSize != diskSize {
-			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, shardResources.DiskSize)
-		}
-		return nil
+		currentDsa := shard.Config.Clickhouse.DiskSizeAutoscaling
+		return diskSizeAutoscalingEquals(currentDsa, targetDsa)
 	}
 }
 
-func testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(r *clickhouse.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs := r.Config.Zookeeper.Resources
-		if rs.ResourcePresetId != resourcePresetID {
-			return fmt.Errorf("Expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
-		}
-		if rs.DiskTypeId != diskType {
-			return fmt.Errorf("Expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
-		}
-		if rs.DiskSize != diskSize {
-			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
-		}
-		return nil
+func diskSizeAutoscalingEquals(firstDsa, secondDsa *clickhouse.DiskSizeAutoscaling) error {
+	if firstDsa.DiskSizeLimit.Value != secondDsa.DiskSizeLimit.Value {
+		return fmt.Errorf("Expected disk size limit '%d', got '%d'", secondDsa.DiskSizeLimit.Value, firstDsa.DiskSizeLimit.Value)
 	}
+	if firstDsa.PlannedUsageThreshold.Value != secondDsa.PlannedUsageThreshold.Value {
+		return fmt.Errorf("Expected planned usage threshold '%d', got '%d'", secondDsa.PlannedUsageThreshold.Value, firstDsa.PlannedUsageThreshold.Value)
+	}
+	if firstDsa.EmergencyUsageThreshold.Value != secondDsa.EmergencyUsageThreshold.Value {
+		return fmt.Errorf("Expected emergency threshold '%d', got '%d'", secondDsa.EmergencyUsageThreshold.Value, firstDsa.EmergencyUsageThreshold.Value)
+	}
+	return nil
+}
+
+func testAccCheckMDBClickHouseClusterHasResources(cluster *clickhouse.Cluster, targetResources *clickhouse.Resources) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		currentResources := cluster.Config.Clickhouse.Resources
+		return resourcesEquals(currentResources, targetResources)
+	}
+}
+
+func testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(cluster *clickhouse.Cluster, targetResources *clickhouse.Resources) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		currentResources := cluster.Config.Zookeeper.Resources
+		return resourcesEquals(currentResources, targetResources)
+	}
+}
+
+func testAccCheckMDBClickHouseShardHasResources(r *clickhouse.Cluster, shardName string, targetResources *clickhouse.Resources) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+
+		shard, err := config.SDK.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+			ClusterId: r.Id,
+			ShardName: shardName,
+		})
+		if err != nil {
+			return err
+		}
+
+		currentResources := shard.Config.Clickhouse.Resources
+		return resourcesEquals(currentResources, targetResources)
+	}
+}
+
+func resourcesEquals(firstResources, secondResources *clickhouse.Resources) error {
+	if firstResources.ResourcePresetId != secondResources.ResourcePresetId {
+		return fmt.Errorf("Expected resource preset id '%s', got '%s'", secondResources.ResourcePresetId, firstResources.ResourcePresetId)
+	}
+	if firstResources.DiskTypeId != secondResources.DiskTypeId {
+		return fmt.Errorf("Expected disk type '%s', got '%s'", secondResources.DiskTypeId, firstResources.DiskTypeId)
+	}
+	if firstResources.DiskSize != secondResources.DiskSize {
+		return fmt.Errorf("Expected disk size '%d', got '%d'", secondResources.DiskSize, firstResources.DiskSize)
+	}
+	return nil
 }
 
 func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []string) resource.TestCheckFunc {
@@ -2193,6 +2335,23 @@ resources = {
 		resources.ResourcePresetId,
 		resources.DiskTypeId,
 		utils.ToGigabytes(resources.DiskSize))
+}
+
+func buildDiskSizeAutoscalingHCL(dsa *clickhouse.DiskSizeAutoscaling) string {
+	if dsa == nil {
+		return ""
+	}
+
+	return fmt.Sprintf(`
+disk_size_autoscaling = {
+	disk_size_limit           = %d
+	planned_usage_threshold   = %d
+	emergency_usage_threshold = %d
+}
+`,
+		utils.ToGigabytes(dsa.DiskSizeLimit.Value),
+		dsa.PlannedUsageThreshold.Value,
+		dsa.EmergencyUsageThreshold.Value)
 }
 
 func buildClickhouseConfigHCL(config *clickhouseConfig.ClickhouseConfig) string {

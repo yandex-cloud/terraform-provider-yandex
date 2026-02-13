@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -22,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/customplanmodifiers"
 )
 
@@ -217,7 +219,8 @@ func ZooKeeperSchema() schema.SingleNestedAttribute {
 			objectplanmodifier.UseStateForUnknown(),
 		},
 		Attributes: map[string]schema.Attribute{
-			"resources": ResourcesSchema(),
+			"resources":             ResourcesSchema(),
+			"disk_size_autoscaling": DiskSizeAutoscalingSchema(),
 		},
 	}
 }
@@ -361,8 +364,9 @@ func ClickHouseSchema() schema.SingleNestedAttribute {
 			objectplanmodifier.UseStateForUnknown(),
 		},
 		Attributes: map[string]schema.Attribute{
-			"resources": ResourcesSchema(),
-			"config":    ClickHouseConfigSchema(),
+			"resources":             ResourcesSchema(),
+			"disk_size_autoscaling": DiskSizeAutoscalingSchema(),
+			"config":                ClickHouseConfigSchema(),
 		},
 	}
 }
@@ -986,6 +990,67 @@ func ResourcesSchema() schema.SingleNestedAttribute {
 	}
 }
 
+func DiskSizeAutoscalingSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Cluster disk size autoscaling settings.",
+		Optional:            true,
+		Computed:            true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.UseStateForUnknown(),
+		},
+		Attributes: map[string]schema.Attribute{
+			"disk_size_limit": schema.Int64Attribute{
+				MarkdownDescription: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
+				Required:            true,
+				Validators: []validator.Int64{
+					mdbcommon.Int64GreaterValidator(
+						path.MatchRelative().
+							AtParent(). // disk_size_autoscaling
+							AtParent(). // clickhouse/zookeeper/shard
+							AtName("resources").
+							AtName("disk_size"),
+					),
+				},
+			},
+			"planned_usage_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 100),
+					int64validator.Any(
+						int64validator.OneOf(0),
+						int64validator.AlsoRequires(
+							path.MatchRoot("maintenance_window"),
+							path.MatchRoot("maintenance_window").AtName("type"),
+							path.MatchRoot("maintenance_window").AtName("hour"),
+							path.MatchRoot("maintenance_window").AtName("day"),
+						),
+					),
+				},
+				Default: int64default.StaticInt64(0),
+			},
+			"emergency_usage_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 100),
+					int64validator.Any(
+						mdbcommon.Int64GreaterValidator(
+							path.MatchRelative().
+								AtParent(). // disk_size_autoscaling
+								AtName("planned_usage_threshold"),
+						),
+						int64validator.OneOf(0),
+					),
+				},
+				Optional: true,
+				Computed: true,
+				Default:  int64default.StaticInt64(0),
+			},
+		},
+	}
+}
+
 func ShardsSchema() schema.MapNestedAttribute {
 	return schema.MapNestedAttribute{
 		Description: "A shards of the ClickHouse cluster.",
@@ -1004,7 +1069,8 @@ func ShardsSchema() schema.MapNestedAttribute {
 						int64planmodifier.UseStateForUnknown(),
 					},
 				},
-				"resources": ResourcesSchema(),
+				"resources":             ResourcesSchema(),
+				"disk_size_autoscaling": DiskSizeAutoscalingSchema(),
 			},
 		},
 	}

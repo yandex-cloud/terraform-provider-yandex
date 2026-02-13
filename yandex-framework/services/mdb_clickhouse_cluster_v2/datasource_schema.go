@@ -160,7 +160,8 @@ func DataSourceZooKeeperSchema() schema.SingleNestedAttribute {
 		MarkdownDescription: "Configuration of the ZooKeeper subcluster.",
 		Computed:            true,
 		Attributes: map[string]schema.Attribute{
-			"resources": DataSourceResourcesSchema(),
+			"resources":             DataSourceResourcesSchema(),
+			"disk_size_autoscaling": DataSourceDiskSizeAutoscalingSchema(),
 		},
 	}
 }
@@ -249,8 +250,9 @@ func DataSourceClickHouseSchema() schema.SingleNestedAttribute {
 		MarkdownDescription: "Configuration of the ClickHouse subcluster.",
 		Computed:            true,
 		Attributes: map[string]schema.Attribute{
-			"resources": DataSourceResourcesSchema(),
-			"config":    DataSourceClickHouseConfigSchema(),
+			"resources":             DataSourceResourcesSchema(),
+			"disk_size_autoscaling": DataSourceDiskSizeAutoscalingSchema(),
+			"config":                DataSourceClickHouseConfigSchema(),
 		},
 	}
 }
@@ -579,6 +581,27 @@ func DataSourceResourcesSchema() schema.SingleNestedAttribute {
 	}
 }
 
+func DataSourceDiskSizeAutoscalingSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Cluster disk size autoscaling settings.",
+		Computed:            true,
+		Attributes: map[string]schema.Attribute{
+			"disk_size_limit": schema.Int64Attribute{
+				MarkdownDescription: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
+				Computed:            true,
+			},
+			"planned_usage_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
+				Computed:            true,
+			},
+			"emergency_usage_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.",
+				Computed:            true,
+			},
+		},
+	}
+}
+
 func DataSourceShardsSchema() schema.MapNestedAttribute {
 	return schema.MapNestedAttribute{
 		MarkdownDescription: "A shards of the ClickHouse cluster.",
@@ -589,7 +612,8 @@ func DataSourceShardsSchema() schema.MapNestedAttribute {
 					MarkdownDescription: "The weight of shard.",
 					Computed:            true,
 				},
-				"resources": DataSourceResourcesSchema(),
+				"resources":             DataSourceResourcesSchema(),
+				"disk_size_autoscaling": DataSourceDiskSizeAutoscalingSchema(),
 			},
 		},
 	}

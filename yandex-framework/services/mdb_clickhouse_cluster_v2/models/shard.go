@@ -12,13 +12,15 @@ import (
 )
 
 type Shard struct {
-	Weight    types.Int64  `tfsdk:"weight"`
-	Resources types.Object `tfsdk:"resources"`
+	Weight              types.Int64  `tfsdk:"weight"`
+	Resources           types.Object `tfsdk:"resources"`
+	DiskSizeAutoscaling types.Object `tfsdk:"disk_size_autoscaling"`
 }
 
 var ShardAttrTypes = map[string]attr.Type{
-	"weight":    types.Int64Type,
-	"resources": types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"weight":                types.Int64Type,
+	"resources":             types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"disk_size_autoscaling": types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }
 
 func flattenShard(ctx context.Context, shard *clickhouse.Shard, diags *diag.Diagnostics) types.Object {
@@ -28,8 +30,9 @@ func flattenShard(ctx context.Context, shard *clickhouse.Shard, diags *diag.Diag
 
 	obj, d := types.ObjectValueFrom(
 		ctx, ShardAttrTypes, Shard{
-			Weight:    types.Int64Value(shard.Config.Clickhouse.Weight.Value),
-			Resources: mdbcommon.FlattenResources(ctx, shard.Config.Clickhouse.Resources, diags),
+			Weight:              types.Int64Value(shard.Config.Clickhouse.Weight.Value),
+			Resources:           mdbcommon.FlattenResources(ctx, shard.Config.Clickhouse.Resources, diags),
+			DiskSizeAutoscaling: FlattenDiskSizeAutoscaling(ctx, shard.Config.Clickhouse.DiskSizeAutoscaling, diags),
 		},
 	)
 	diags.Append(d...)
@@ -77,12 +80,21 @@ func ExpandListShard(ctx context.Context, m types.Map, cid string, diags *diag.D
 			Name: shardName,
 			ConfigSpec: &clickhouse.ShardConfigSpec{
 				Clickhouse: &clickhouse.ShardConfigSpec_Clickhouse{
-					Weight:    mdbcommon.ExpandInt64Wrapper(ctx, shard.Weight, diags),
-					Resources: mdbcommon.ExpandResources[clickhouse.Resources](ctx, shard.Resources, diags),
+					Weight:              mdbcommon.ExpandInt64Wrapper(ctx, shard.Weight, diags),
+					Resources:           mdbcommon.ExpandResources[clickhouse.Resources](ctx, shard.Resources, diags),
+					DiskSizeAutoscaling: ExpandDiskSizeAutoscaling(ctx, shard.DiskSizeAutoscaling, diags),
 				},
 			},
 		})
 	}
 
 	return result
+}
+
+func ShardResourcesGetter(s Shard) types.Object {
+	return s.Resources
+}
+
+func ShardDiskSizeAutoscalingGetter(s Shard) types.Object {
+	return s.DiskSizeAutoscaling
 }

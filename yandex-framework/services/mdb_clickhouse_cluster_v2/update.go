@@ -140,6 +140,13 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.Cluster, 
 			)
 		}
 
+		if !planClickHouse.DiskSizeAutoscaling.IsUnknown() && !planClickHouse.DiskSizeAutoscaling.Equal(stateClickHouse.DiskSizeAutoscaling) {
+			updateMaskPaths = append(
+				updateMaskPaths,
+				"config_spec.clickhouse.disk_size_autoscaling",
+			)
+		}
+
 		// Get update paths for clickhouse config
 		updateMaskPaths = append(updateMaskPaths, getClickHouseConfigUpdatePaths(ctx, planClickHouse, stateClickHouse, diags)...)
 		if diags.HasError() {
@@ -606,6 +613,23 @@ func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpe
 
 		if planResources.GetDiskTypeId() != stateResources.GetDiskTypeId() {
 			updateMaskPaths = append(updateMaskPaths, "config_spec.clickhouse.resources.disk_type_id")
+		}
+	}
+
+	planDsa := planClickHouse.GetDiskSizeAutoscaling()
+	stateDsa := stateClickHouse.GetDiskSizeAutoscaling()
+
+	if planDsa != nil {
+		if planDsa.GetDiskSizeLimit().GetValue() != stateDsa.GetDiskSizeLimit().GetValue() {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.clickhouse.disk_size_autoscaling.disk_size_limit")
+		}
+
+		if planDsa.GetPlannedUsageThreshold().GetValue() != stateDsa.GetPlannedUsageThreshold().GetValue() {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.clickhouse.disk_size_autoscaling.planned_usage_threshold")
+		}
+
+		if planDsa.GetEmergencyUsageThreshold().GetValue() != stateDsa.GetEmergencyUsageThreshold().GetValue() {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.clickhouse.disk_size_autoscaling.emergency_usage_threshold")
 		}
 	}
 

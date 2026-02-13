@@ -422,6 +422,14 @@ var (
 							"disk_size":          types.Int64Value(16),
 						},
 					),
+					"disk_size_autoscaling": types.ObjectValueMust(
+						models.DiskSizeAutoscalingAttrTypes,
+						map[string]attr.Value{
+							"disk_size_limit":           types.Int64Value(5),
+							"planned_usage_threshold":   types.Int64Value(20),
+							"emergency_usage_threshold": types.Int64Value(20),
+						},
+					),
 				},
 			),
 			"zookeeper": types.ObjectValueMust(
@@ -433,6 +441,14 @@ var (
 							"resource_preset_id": types.StringValue("b3-c1-m4"),
 							"disk_type_id":       types.StringValue("network-ssd"),
 							"disk_size":          types.Int64Value(10),
+						},
+					),
+					"disk_size_autoscaling": types.ObjectValueMust(
+						models.DiskSizeAutoscalingAttrTypes,
+						map[string]attr.Value{
+							"disk_size_limit":           types.Int64Value(10),
+							"planned_usage_threshold":   types.Int64Value(30),
+							"emergency_usage_threshold": types.Int64Value(40),
 						},
 					),
 				},
@@ -557,6 +573,7 @@ var (
 									"disk_size":          types.Int64Value(20),
 								},
 							),
+							"disk_size_autoscaling": types.ObjectNull(models.DiskSizeAutoscalingAttrTypes),
 						},
 					),
 					"shard2": types.ObjectValueMust(
@@ -569,6 +586,14 @@ var (
 									"resource_preset_id": types.StringValue("s2.medium"),
 									"disk_type_id":       types.StringValue("network-ssd"),
 									"disk_size":          types.Int64Value(40),
+								},
+							),
+							"disk_size_autoscaling": types.ObjectValueMust(
+								models.DiskSizeAutoscalingAttrTypes,
+								map[string]attr.Value{
+									"disk_size_limit":           types.Int64Value(15),
+									"planned_usage_threshold":   types.Int64Value(66),
+									"emergency_usage_threshold": types.Int64Value(77),
 								},
 							),
 						},
@@ -903,12 +928,22 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 							DiskTypeId:       "network-ssd",
 							DiskSize:         datasize.ToBytes(16),
 						},
+						DiskSizeAutoscaling: &clickhouse.DiskSizeAutoscaling{
+							DiskSizeLimit:           wrapperspb.Int64(datasize.ToBytes(5)),
+							PlannedUsageThreshold:   wrapperspb.Int64(20),
+							EmergencyUsageThreshold: wrapperspb.Int64(20),
+						},
 					},
 					Zookeeper: &clickhouse.ConfigSpec_Zookeeper{
 						Resources: &clickhouse.Resources{
 							ResourcePresetId: "b3-c1-m4",
 							DiskTypeId:       "network-ssd",
 							DiskSize:         datasize.ToBytes(10),
+						},
+						DiskSizeAutoscaling: &clickhouse.DiskSizeAutoscaling{
+							DiskSizeLimit:           wrapperspb.Int64(datasize.ToBytes(10)),
+							PlannedUsageThreshold:   wrapperspb.Int64(30),
+							EmergencyUsageThreshold: wrapperspb.Int64(40),
 						},
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{
@@ -959,6 +994,11 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 									ResourcePresetId: "s2.medium",
 									DiskTypeId:       "network-ssd",
 									DiskSize:         datasize.ToBytes(40),
+								},
+								DiskSizeAutoscaling: &clickhouse.DiskSizeAutoscaling{
+									DiskSizeLimit:           wrapperspb.Int64(datasize.ToBytes(15)),
+									PlannedUsageThreshold:   wrapperspb.Int64(66),
+									EmergencyUsageThreshold: wrapperspb.Int64(77),
 								},
 							},
 						},

@@ -12,11 +12,13 @@ import (
 )
 
 type Zookeeper struct {
-	Resources types.Object `tfsdk:"resources"`
+	Resources           types.Object `tfsdk:"resources"`
+	DiskSizeAutoscaling types.Object `tfsdk:"disk_size_autoscaling"`
 }
 
 var ZookeeperAttrTypes = map[string]attr.Type{
-	"resources": types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"resources":             types.ObjectType{AttrTypes: ResourcesAttrTypes},
+	"disk_size_autoscaling": types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }
 
 func FlattenZooKeeper(ctx context.Context, zookeeper *clickhouse.ClusterConfig_Zookeeper, diags *diag.Diagnostics) types.Object {
@@ -26,7 +28,8 @@ func FlattenZooKeeper(ctx context.Context, zookeeper *clickhouse.ClusterConfig_Z
 
 	obj, d := types.ObjectValueFrom(
 		ctx, ZookeeperAttrTypes, Zookeeper{
-			Resources: mdbcommon.FlattenResources(ctx, zookeeper.Resources, diags),
+			Resources:           mdbcommon.FlattenResources(ctx, zookeeper.Resources, diags),
+			DiskSizeAutoscaling: FlattenDiskSizeAutoscaling(ctx, zookeeper.DiskSizeAutoscaling, diags),
 		},
 	)
 	diags.Append(d...)
@@ -46,6 +49,7 @@ func ExpandZooKeeper(ctx context.Context, c types.Object, diags *diag.Diagnostic
 	}
 
 	return &clickhouse.ConfigSpec_Zookeeper{
-		Resources: mdbcommon.ExpandResources[clickhouse.Resources](ctx, zookeeperData.Resources, diags),
+		Resources:           mdbcommon.ExpandResources[clickhouse.Resources](ctx, zookeeperData.Resources, diags),
+		DiskSizeAutoscaling: ExpandDiskSizeAutoscaling(ctx, zookeeperData.DiskSizeAutoscaling, diags),
 	}
 }

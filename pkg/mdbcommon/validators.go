@@ -30,7 +30,9 @@ func (v *int64GreaterValidator) ValidateInt64(ctx context.Context, req validator
 		return
 	}
 
-	for _, expression := range v.expressions {
+	expressions := req.PathExpression.MergeExpressions(v.expressions...)
+
+	for _, expression := range expressions {
 
 		matchedPaths, diags := req.Config.PathMatches(ctx, expression)
 		resp.Diagnostics.Append(diags...)
