@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
-
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
@@ -569,6 +568,152 @@ func TestAccMDBRedisClusterV2_create_with_settings(t *testing.T) {
 		},
 	})
 
+}
+
+// Test
+// 1) Can create cluster with explicitly disabled modules
+// 2) Can update module settings
+func TestAccMDBRedisClusterV2_create_with_disabled_modules(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-valkey-modules")
+	redisDesc := "Valkey Cluster Terraform Test valkey modules"
+	folderID := test.GetExampleFolderID()
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm3-c2-m8"
+	tlsEnabled := true
+	version := "9.0-valkey"
+	password := "12345678PP"
+
+	nonShardedHosts := map[string]host{
+		"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
+	}
+	ops := []Op{
+		OpCreate,
+		OpModify,
+	}
+	conf := testAccModulesDisabledConfig(redisName, redisDesc)
+	modulesDisabledConfig := makeConfig(t, conf, &redisConfigTest{
+		Config: &config{
+			Version:  &version,
+			Password: &password,
+		},
+		TlsEnabled: &tlsEnabled,
+		Hosts:      nonShardedHosts,
+	})
+	modulesExplicitlyDisabledConfig := makeConfig(t, conf, &redisConfigTest{
+		Config: &config{
+			Version:  &version,
+			Password: &password,
+		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled: newPtr(false),
+			},
+			ValkeyJson: &valkeyJson{
+				Enabled: newPtr(false),
+			},
+			ValkeyBloom: &valkeyBloom{
+				Enabled: newPtr(false),
+			},
+		},
+		TlsEnabled: &tlsEnabled,
+		Hosts:      nonShardedHosts,
+	})
+	modulesEnabledConfig := makeConfig(t, conf, &redisConfigTest{
+		Config: &config{
+			Version:  &version,
+			Password: &password,
+		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled:       newPtr(true),
+				ReaderThreads: newPtr(4),
+				WriterThreads: newPtr(4),
+			},
+			ValkeyJson: &valkeyJson{
+				Enabled: newPtr(true),
+			},
+			ValkeyBloom: &valkeyBloom{
+				Enabled: newPtr(true),
+			},
+		},
+		TlsEnabled: &tlsEnabled,
+		Hosts:      nonShardedHosts,
+	})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
+		Steps: []resource.TestStep{
+			//1
+			{
+				Config: modulesDisabledConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_0.fqdn"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					testAccCheckMDBRedisOperations(redisResource, ops[:1]),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_search.enabled", "false"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_json.enabled", "false"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_bloom.enabled", "false"),
+				),
+			},
+			//2
+			mdbRedisClusterImportStep(redisResource),
+			//3
+			{
+				Config: modulesExplicitlyDisabledConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_0.fqdn"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					testAccCheckMDBRedisOperations(redisResource, ops[:1]),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_search.enabled", "false"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_json.enabled", "false"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_bloom.enabled", "false"),
+				),
+			},
+			//4
+			mdbRedisClusterImportStep(redisResource),
+			//5
+			{
+				Config: modulesEnabledConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_0.fqdn"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					testAccCheckMDBRedisOperations(redisResource, ops[:2]),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_search.enabled", "true"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_search.reader_threads", "4"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_search.writer_threads", "4"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_json.enabled", "true"),
+					resource.TestCheckResourceAttr(redisResource, "modules.valkey_bloom.enabled", "true"),
+				),
+			},
+			//6
+			mdbRedisClusterImportStep(redisResource),
+			//7
+			{
+				Config:      modulesExplicitlyDisabledConfig,
+				ExpectError: regexp.MustCompile(".*module can not be disabled.*"),
+			},
+			//8
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
 }
 
 // Test

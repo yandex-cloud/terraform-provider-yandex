@@ -3,6 +3,7 @@ package mdb_redis_cluster_v2
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
@@ -23,59 +24,98 @@ func flattenAutoscaling(ctx context.Context, r *redis.DiskSizeAutoscaling) (type
 }
 
 func flattenModules(ctx context.Context, r *redis.ValkeyModules) (types.Object, diag.Diagnostics) {
-	if r == nil {
-		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
-	}
-	a := ValkeyModules{}
+	// Build attribute map for ObjectValue
+	attrs := map[string]attr.Value{}
 
-	// Only create module objects if the API returns non-nil values
-	if r.ValkeySearch != nil {
-		a.ValkeySearch = &ValkeySearch{
-			Enabled: types.BoolValue(r.ValkeySearch.GetEnabled()),
+	// Flatten ValkeySearch - default to enabled=false if not present
+	if r.GetValkeySearch() != nil {
+		searchAttrs := map[string]attr.Value{
+			"enabled":        types.BoolValue(r.ValkeySearch.Enabled),
+			"reader_threads": types.Int64Value(r.ValkeySearch.GetReaderThreads().GetValue()),
+			"writer_threads": types.Int64Value(r.ValkeySearch.GetWriterThreads().GetValue()),
 		}
-		if r.ValkeySearch.ReaderThreads != nil {
-			a.ValkeySearch.ReaderThreads = types.Int64Value(r.ValkeySearch.GetReaderThreads().GetValue())
+		searchObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_search"].(types.ObjectType).AttrTypes,
+			searchAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
 		}
-		if r.ValkeySearch.WriterThreads != nil {
-			a.ValkeySearch.WriterThreads = types.Int64Value(r.ValkeySearch.GetWriterThreads().GetValue())
+		attrs["valkey_search"] = searchObj
+	} else {
+		// Default: enabled=false, threads=0
+		searchAttrs := map[string]attr.Value{
+			"enabled":        types.BoolValue(false),
+			"reader_threads": types.Int64Value(0),
+			"writer_threads": types.Int64Value(0),
 		}
-	}
-
-	if r.ValkeyJson != nil {
-		a.ValkeyJson = &ValkeyJson{
-			Enabled: types.BoolValue(r.ValkeyJson.GetEnabled()),
+		searchObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_search"].(types.ObjectType).AttrTypes,
+			searchAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
 		}
+		attrs["valkey_search"] = searchObj
 	}
 
-	if r.ValkeyBloom != nil {
-		a.ValkeyBloom = &ValkeyBloom{
-			Enabled: types.BoolValue(r.ValkeyBloom.GetEnabled()),
+	// Flatten ValkeyJson - default to enabled=false if not present
+	if r.GetValkeyJson() != nil {
+		jsonAttrs := map[string]attr.Value{
+			"enabled": types.BoolValue(r.ValkeyJson.Enabled),
 		}
+		jsonObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_json"].(types.ObjectType).AttrTypes,
+			jsonAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
+		}
+		attrs["valkey_json"] = jsonObj
+	} else {
+		// Default: enabled=false
+		jsonAttrs := map[string]attr.Value{
+			"enabled": types.BoolValue(false),
+		}
+		jsonObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_json"].(types.ObjectType).AttrTypes,
+			jsonAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
+		}
+		attrs["valkey_json"] = jsonObj
 	}
 
-	// If no modules are present, return null
-	if a.ValkeySearch == nil && a.ValkeyJson == nil && a.ValkeyBloom == nil {
-		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
+	// Flatten ValkeyBloom - default to enabled=false if not present
+	if r.GetValkeyBloom() != nil {
+		bloomAttrs := map[string]attr.Value{
+			"enabled": types.BoolValue(r.ValkeyBloom.Enabled),
+		}
+		bloomObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_bloom"].(types.ObjectType).AttrTypes,
+			bloomAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
+		}
+		attrs["valkey_bloom"] = bloomObj
+	} else {
+		// Default: enabled=false
+		bloomAttrs := map[string]attr.Value{
+			"enabled": types.BoolValue(false),
+		}
+		bloomObj, diags := types.ObjectValue(
+			ValkeyModulesType.AttrTypes["valkey_bloom"].(types.ObjectType).AttrTypes,
+			bloomAttrs,
+		)
+		if diags.HasError() {
+			return types.ObjectNull(ValkeyModulesType.AttributeTypes()), diags
+		}
+		attrs["valkey_bloom"] = bloomObj
 	}
 
-	// If all modules are disabled (default values), return null to maintain consistency
-	// with the plan when no modules are specified in the configuration
-	allDisabled := true
-	if a.ValkeySearch != nil && a.ValkeySearch.Enabled.ValueBool() {
-		allDisabled = false
-	}
-	if a.ValkeyJson != nil && a.ValkeyJson.Enabled.ValueBool() {
-		allDisabled = false
-	}
-	if a.ValkeyBloom != nil && a.ValkeyBloom.Enabled.ValueBool() {
-		allDisabled = false
-	}
-
-	if allDisabled {
-		return types.ObjectNull(ValkeyModulesType.AttributeTypes()), nil
-	}
-
-	return types.ObjectValueFrom(ctx, ValkeyModulesType.AttributeTypes(), a)
+	return types.ObjectValue(ValkeyModulesType.AttributeTypes(), attrs)
 }
 
 func flattenAccess(ctx context.Context, r *redis.Access) (types.Object, diag.Diagnostics) {

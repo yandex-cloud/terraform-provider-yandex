@@ -63,6 +63,33 @@ func testAccBaseConfig(name, description string) *redisConfigTest {
 	}
 }
 
+func testAccModulesDisabledConfig(name, description string) *redisConfigTest {
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm3-c2-m8"
+	return &redisConfigTest{
+		Name:        newPtr(name),
+		Description: newPtr(description),
+		Environment: newPtr("PRESTABLE"),
+		Resources: &hostResource{
+			ResourcePresetId: newPtr(baseFlavor),
+			DiskSize:         newPtr(baseDiskSize),
+			DiskTypeId:       newPtr(diskTypeId),
+		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled: newPtr(false),
+			},
+			ValkeyJson: &valkeyJson{
+				Enabled: newPtr(false),
+			},
+			ValkeyBloom: &valkeyBloom{
+				Enabled: newPtr(false),
+			},
+		},
+	}
+}
+
 func testAccAllSettingsConfig(name, description, version string, baseDiskSize int, diskTypeId, baseFlavor string, hosts map[string]host) *redisConfigTest {
 	return &redisConfigTest{
 		Name:               newPtr(name),

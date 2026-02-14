@@ -511,18 +511,22 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Valkey modules.",
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
 				Attributes: map[string]schema.Attribute{
 					"valkey_search": schema.SingleNestedAttribute{
 						Optional:            true,
 						Computed:            true,
 						MarkdownDescription: "Valkey search module settings.",
+						Validators: []validator.Object{
+							ValkeySearchValidator(),
+						},
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								PlanModifiers: []planmodifier.Bool{
-									boolplanmodifier.UseStateForUnknown(),
-								},
+								Optional:            true,
+								Computed:            true,
+								Default:             booldefault.StaticBool(false),
 								MarkdownDescription: "Enable Valkey search module.",
 							},
 							"reader_threads": schema.Int64Attribute{
@@ -552,11 +556,9 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 						MarkdownDescription: "Valkey json module settings.",
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								PlanModifiers: []planmodifier.Bool{
-									boolplanmodifier.UseStateForUnknown(),
-								},
+								Optional:            true,
+								Computed:            true,
+								Default:             booldefault.StaticBool(false),
 								MarkdownDescription: "Enable Valkey json module.",
 							},
 						},
@@ -570,11 +572,9 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 						MarkdownDescription: "Valkey bloom module settings.",
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								PlanModifiers: []planmodifier.Bool{
-									boolplanmodifier.UseStateForUnknown(),
-								},
+								Optional:            true,
+								Computed:            true,
+								Default:             booldefault.StaticBool(false),
 								MarkdownDescription: "Enable Valkey bloom module.",
 							},
 						},
@@ -582,9 +582,6 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 							objectplanmodifier.UseStateForUnknown(),
 						},
 					},
-				},
-				PlanModifiers: []planmodifier.Object{
-					modulesUseStateForUnknownWhenNotConfigured(),
 				},
 			},
 			"maintenance_window": schema.SingleNestedAttribute{

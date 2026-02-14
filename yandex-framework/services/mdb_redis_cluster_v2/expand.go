@@ -9,7 +9,6 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
@@ -48,47 +47,47 @@ func expandModules(ctx context.Context, o types.Object) (*redis.ValkeyModules, [
 		return nil, nil, nil
 	}
 
-	d := &ValkeyModules{}
-	diags := o.As(ctx, d, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: true})
+	modules := &ValkeyModules{}
+	diags := o.As(ctx, modules, baseOptions)
 	if diags.HasError() {
 		return nil, nil, diags
 	}
 
-	rs := &redis.ValkeyModules{}
+	result := &redis.ValkeyModules{}
 
-	if d.ValkeySearch != nil {
-		rs.ValkeySearch = &redis.ValkeySearch{}
-		if utils.IsPresent(d.ValkeySearch.Enabled) {
-			rs.ValkeySearch.Enabled = d.ValkeySearch.Enabled.ValueBool()
-			paths = append(paths, "config_spec.modules.valkey_search.enabled")
-		}
-		if utils.IsPresent(d.ValkeySearch.ReaderThreads) {
-			rs.ValkeySearch.ReaderThreads = &wrappers.Int64Value{Value: d.ValkeySearch.ReaderThreads.ValueInt64()}
+	// Expand ValkeySearch
+	if modules.ValkeySearch != nil {
+		valkeySearch := &redis.ValkeySearch{}
+		valkeySearch.Enabled = modules.ValkeySearch.Enabled.ValueBool()
+		paths = append(paths, "config_spec.modules.valkey_search.enabled")
+		if utils.IsPresent(modules.ValkeySearch.ReaderThreads) {
+			valkeySearch.ReaderThreads = &wrappers.Int64Value{Value: modules.ValkeySearch.ReaderThreads.ValueInt64()}
 			paths = append(paths, "config_spec.modules.valkey_search.reader_threads")
 		}
-		if utils.IsPresent(d.ValkeySearch.WriterThreads) {
-			rs.ValkeySearch.WriterThreads = &wrappers.Int64Value{Value: d.ValkeySearch.WriterThreads.ValueInt64()}
+		if utils.IsPresent(modules.ValkeySearch.WriterThreads) {
+			valkeySearch.WriterThreads = &wrappers.Int64Value{Value: modules.ValkeySearch.WriterThreads.ValueInt64()}
 			paths = append(paths, "config_spec.modules.valkey_search.writer_threads")
 		}
+		result.ValkeySearch = valkeySearch
 	}
 
-	if d.ValkeyJson != nil {
-		rs.ValkeyJson = &redis.ValkeyJson{}
-		if utils.IsPresent(d.ValkeyJson.Enabled) {
-			rs.ValkeyJson.Enabled = d.ValkeyJson.Enabled.ValueBool()
-			paths = append(paths, "config_spec.modules.valkey_json.enabled")
-		}
+	// Expand ValkeyJson
+	if modules.ValkeyJson != nil {
+		valkeyJson := &redis.ValkeyJson{}
+		valkeyJson.Enabled = modules.ValkeyJson.Enabled.ValueBool()
+		paths = append(paths, "config_spec.modules.valkey_json.enabled")
+		result.ValkeyJson = valkeyJson
 	}
 
-	if d.ValkeyBloom != nil {
-		rs.ValkeyBloom = &redis.ValkeyBloom{}
-		if utils.IsPresent(d.ValkeyBloom.Enabled) {
-			rs.ValkeyBloom.Enabled = d.ValkeyBloom.Enabled.ValueBool()
-			paths = append(paths, "config_spec.modules.valkey_bloom.enabled")
-		}
+	// Expand ValkeyBloom
+	if modules.ValkeyBloom != nil {
+		valkeyBloom := &redis.ValkeyBloom{}
+		valkeyBloom.Enabled = modules.ValkeyBloom.Enabled.ValueBool()
+		paths = append(paths, "config_spec.modules.valkey_bloom.enabled")
+		result.ValkeyBloom = valkeyBloom
 	}
 
-	return rs, paths, diags
+	return result, paths, diags
 }
 
 func expandAccess(ctx context.Context, a types.Object) (*redis.Access, diag.Diagnostics) {
