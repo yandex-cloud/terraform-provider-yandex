@@ -53,3 +53,22 @@ func ExpandZooKeeper(ctx context.Context, c types.Object, diags *diag.Diagnostic
 		DiskSizeAutoscaling: ExpandDiskSizeAutoscaling(ctx, zookeeperData.DiskSizeAutoscaling, diags),
 	}
 }
+
+// ZooKeeper is configured only when its resources are configured
+func (z *Zookeeper) IsConfigured(ctx context.Context, diags *diag.Diagnostics) bool {
+	if z == nil {
+		return false
+	}
+
+	if z.Resources.IsNull() {
+		return false
+	}
+
+	var resources Resources
+	diags.Append(z.Resources.As(ctx, &resources, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return false
+	}
+
+	return resources.IsConfigured()
+}

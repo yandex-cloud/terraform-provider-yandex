@@ -23,6 +23,7 @@ type ClickHouseAPI struct{}
 
 type ClickHouseOpts struct {
 	CopySchema               bool
+	CoordinatorResources     *clickhouse.Resources
 	HasCoordinator           bool
 	PlanShardSpecByShardName map[string]*clickhouse.ShardConfigSpec
 }
@@ -200,15 +201,16 @@ func (c *ClickHouseAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 	hostType := specs[0].Type
 
 	if (hostType == clickhouse.Host_ZOOKEEPER || hostType == clickhouse.Host_KEEPER) && !opts.HasCoordinator {
-		addCoordinator(ctx, sdk, diags, cid, specs)
+		addCoordinator(ctx, sdk, diags, cid, specs, opts.CoordinatorResources)
 	} else {
 		createHosts(ctx, sdk, diags, cid, specs, opts.CopySchema)
 	}
 }
 
-func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, specs []*clickhouse.HostSpec) {
+func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, specs []*clickhouse.HostSpec, resources *clickhouse.Resources) {
 	request := &clickhouse.AddClusterZookeeperRequest{
 		ClusterId: cid,
+		Resources: resources,
 		HostSpecs: specs,
 	}
 

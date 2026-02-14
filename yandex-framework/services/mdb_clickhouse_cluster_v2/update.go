@@ -154,7 +154,22 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.Cluster, 
 		}
 	}
 
-	if !plan.ZooKeeper.Equal(state.ZooKeeper) {
+	// We can update ZK only when it exists
+	hasZooKeeper := false
+	if !state.ZooKeeper.IsNull() && !state.ZooKeeper.IsUnknown() {
+		var stateZooKeeper models.Zookeeper
+		diags.Append(state.ZooKeeper.As(ctx, &stateZooKeeper, datasize.DefaultOpts)...)
+		if diags.HasError() {
+			return config, updateMaskPaths
+		}
+
+		hasZooKeeper = stateZooKeeper.IsConfigured(ctx, diags)
+		if diags.HasError() {
+			return config, updateMaskPaths
+		}
+	}
+
+	if hasZooKeeper && !plan.ZooKeeper.Equal(state.ZooKeeper) {
 		config.SetZookeeper(models.ExpandZooKeeper(ctx, plan.ZooKeeper, diags))
 		if diags.HasError() {
 			return config, updateMaskPaths

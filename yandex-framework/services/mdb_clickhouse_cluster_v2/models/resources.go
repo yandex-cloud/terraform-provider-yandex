@@ -38,3 +38,13 @@ func GetClickHouseResources(ctx context.Context, cluster Cluster, diags *diag.Di
 
 	return ch.Resources, true
 }
+
+func (r *Resources) IsConfigured() bool {
+	if r == nil {
+		return false
+	}
+
+	return r.ResourcePresetID.ValueString() != "" &&
+		r.DiskSize.ValueInt64() != 0 &&
+		r.DiskTypeID.ValueString() != ""
+}

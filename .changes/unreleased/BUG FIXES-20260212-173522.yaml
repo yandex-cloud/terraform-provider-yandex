@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: allow adding zookeeper hosts with zookeeper.resources in same apply'
+time: 2026-02-12T17:35:22.477448+05:30

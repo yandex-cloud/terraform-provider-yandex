@@ -196,6 +196,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Opts generate
 	copySchema := true
 	if !plan.CopySchemaOnNewHosts.IsNull() && !plan.CopySchemaOnNewHosts.IsUnknown() {
 		copySchema = plan.CopySchemaOnNewHosts.ValueBool()
@@ -214,8 +215,19 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		}
 	}
 
+	planZooKeeper := models.ExpandZooKeeper(ctx, plan.ZooKeeper, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var planZooKeeperResources *clickhouse.Resources
+	if planZooKeeper != nil {
+		planZooKeeperResources = planZooKeeper.Resources
+	}
+
 	opts := ClickHouseOpts{
 		HasCoordinator:           len(stateKeeperHostSpecs.Elements()) > 0,
+		CoordinatorResources:     planZooKeeperResources,
 		CopySchema:               copySchema,
 		PlanShardSpecByShardName: mapShardNameShardSpec,
 	}
