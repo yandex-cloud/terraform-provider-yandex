@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'trino: add `yandex_trino_cluster_iam_binding` resource'
-time: 2026-01-23T14:04:34.876674331+03:00
