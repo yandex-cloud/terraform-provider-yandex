@@ -222,7 +222,9 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			}
 			updMetastore = !stringsAreEqual(planMetastore.ClusterId, stateMetastore.ClusterId)
 
-			updSparkVersion = !stringsAreEqual(plan.Config.SparkVersion, state.Config.SparkVersion)
+			if plan.Config.SparkVersion.ValueString() != "" {
+				updSparkVersion = !stringsAreEqual(plan.Config.SparkVersion, state.Config.SparkVersion)
+			}
 		}
 
 		clusterConfig = &spark.ClusterConfig{

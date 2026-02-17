@@ -80,7 +80,6 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
 					RandSuffix:               clusterName,
 					Description:              clusterDesc,
-					SparkVersion:             "3.5",
 					DriverResourcePresetID:   "c2-m8",
 					DriverSize:               1,
 					ExecutorResourcePresetID: "c4-m16",
@@ -126,7 +125,6 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 				Config: sparkClusterConfig(t, sparkClusterConfigParams{
 					RandSuffix:               clusterName,
 					Description:              clusterDesc,
-					SparkVersion:             "3.5",
 					DriverResourcePresetID:   "c2-m8",
 					DriverSize:               1,
 					ExecutorResourcePresetID: "c4-m16",
@@ -152,7 +150,6 @@ func testAccSparkClusterIamBindingConfig(t *testing.T, role, userID, name, desc 
 	main := sparkClusterConfig(t, sparkClusterConfigParams{
 		RandSuffix:               name,
 		Description:              desc,
-		SparkVersion:             "3.5",
 		DriverResourcePresetID:   "c2-m8",
 		DriverSize:               1,
 		ExecutorResourcePresetID: "c4-m16",
@@ -173,7 +170,6 @@ func testAccSparkClusterIamBindingMultipleConfig(t *testing.T, roleFoo, roleBar,
 	main := sparkClusterConfig(t, sparkClusterConfigParams{
 		RandSuffix:               name,
 		Description:              desc,
-		SparkVersion:             "3.5",
 		DriverResourcePresetID:   "c2-m8",
 		DriverSize:               1,
 		ExecutorResourcePresetID: "c4-m16",

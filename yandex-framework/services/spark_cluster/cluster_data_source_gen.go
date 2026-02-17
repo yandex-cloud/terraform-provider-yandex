@@ -151,8 +151,8 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 					},
 					"spark_version": schema.StringAttribute{
 						Computed:            true,
-						Description:         "Version of Apache Spark. Format: Major.Minor",
-						MarkdownDescription: "Version of Apache Spark. Format: Major.Minor",
+						Description:         "Version of Apache Spark.",
+						MarkdownDescription: "Version of Apache Spark.",
 					},
 				},
 				CustomType: ConfigType{

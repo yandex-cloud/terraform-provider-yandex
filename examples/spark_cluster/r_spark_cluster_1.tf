@@ -12,6 +12,8 @@ resource "yandex_spark_cluster" "my_spark_cluster" {
   }
 
   config = {
+    spark_version = "3.5.7"
+
     resource_pools = {
       driver = {
         resource_preset_id = "c2-m8"
