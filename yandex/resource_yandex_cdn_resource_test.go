@@ -773,58 +773,74 @@ func TestAccCDNResource_Option_CompressionOptions(t *testing.T) {
 func TestAccCDNResource_Option_HostOption(t *testing.T) {
 	t.Parallel()
 
-	t.Skip("current provider implementation assumes bug")
-	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+	stepEmptyConfig := func(groupName, resourceCName string) resource.TestStep {
+		return resource.TestStep{
+			Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+			Check: resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "true"),
+				resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
+			),
+		}
+	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
-				),
+	t.Run("empty_config", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				stepEmptyConfig(groupName, resourceCName),
 			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, `forward_host_header = true`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "true"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
-				),
+		})
+	})
+
+	t.Run("forward_host_header", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.ParallelTest(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `forward_host_header = false`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
+					),
+				},
+				stepEmptyConfig(groupName, resourceCName),
 			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
-				),
+		})
+	})
+
+	t.Run("custom_host_header", func(t *testing.T) {
+		groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+		resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckCDNResourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "google.com"`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "google.com"),
+					),
+				},
+				{
+					Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "ya.ru"`),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
+						resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "ya.ru"),
+					),
+				},
+				stepEmptyConfig(groupName, resourceCName),
 			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "google.com"`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "google.com"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, `custom_host_header = "ya.ru"`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", "ya.ru"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.forward_host_header", "false"),
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.custom_host_header", ""),
-				),
-			},
-		},
+		})
 	})
 }
 

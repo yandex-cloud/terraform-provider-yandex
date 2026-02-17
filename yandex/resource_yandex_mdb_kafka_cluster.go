@@ -1287,6 +1287,8 @@ func getSuffixVersion(d *schema.ResourceData) string {
 	result := "3"
 	if strings.HasPrefix(version, "2") {
 		result = strings.Replace(version, ".", "_", -1)
+	} else if strings.HasPrefix(version, "4") {
+		result = "4"
 	}
 	return result
 }

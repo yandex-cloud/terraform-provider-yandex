@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-cty/cty/gocty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -74,7 +75,6 @@ var (
 		opts["rewrite_flag"] = "BREAK"
 		return rd.SetNew("options", []any{opts})
 	}
-
 	customizeDiffCDN_QueryParams schema.CustomizeDiffFunc = func(_ context.Context, rd *schema.ResourceDiff, _ any) error {
 		optsConfig := rd.GetRawConfig().GetAttr("options")
 		if optsConfig.LengthInt() != 1 {
@@ -104,6 +104,38 @@ var (
 		opts["query_params_whitelist"] = queryParamsWhitelistPlan
 		opts["query_params_blacklist"] = queryParamsBlacklistPlan
 		return rd.SetNew("options", []any{opts})
+	}
+
+	customizeDiffCDN_HostOption schema.CustomizeDiffFunc = func(_ context.Context, rd *schema.ResourceDiff, _ any) error {
+		opts := rd.GetRawConfig().GetAttr("options")
+		if len(opts.AsValueSlice()) != 1 {
+			return nil
+		}
+		opts = opts.AsValueSlice()[0]
+		var (
+			planForwardHostHeader = false
+			planCustomHostHeader  = ""
+
+			err error
+		)
+		cfgForwardHostHeader := opts.GetAttr("forward_host_header")
+		cfgCustomHostHeader := opts.GetAttr("custom_host_header")
+		switch {
+		case !cfgForwardHostHeader.IsNull():
+			err = gocty.FromCtyValue(cfgForwardHostHeader, &planForwardHostHeader)
+		case !cfgCustomHostHeader.IsNull():
+			err = gocty.FromCtyValue(cfgCustomHostHeader, &planCustomHostHeader)
+		default:
+			planForwardHostHeader = true
+		}
+		if err != nil {
+			return err
+		}
+
+		newOpts := rd.Get("options").([]any)[0].(map[string]any)
+		newOpts["forward_host_header"] = planForwardHostHeader
+		newOpts["custom_host_header"] = planCustomHostHeader
+		return rd.SetNew("options", []any{newOpts})
 	}
 )
 
@@ -349,9 +381,10 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 			Value:   v,
 		}
 	}
+	optsCty := d.GetRawPlan().GetAttr("options").AsValueSlice()[0]
 
 	result := &cdn.ResourceOptions{
-		HostOptions:        expandCDNResourceOptions_HostOptions(d),
+		HostOptions:        expandCDNResourceOptions_HostOptions(optsCty),
 		QueryParamsOptions: expandCDNResourceOptions_QueryParamsOptions(d),
 		CompressionOptions: expandCDNResourceOptions_CompressionOptions(d),
 		RedirectOptions:    expandCDNResourceOptions_RedirectOptions(d),
@@ -549,23 +582,21 @@ func expandCDNResourceOptions_QueryParamsOptions(d *schema.ResourceData) *cdn.Re
 	}
 }
 
-func expandCDNResourceOptions_HostOptions(d *schema.ResourceData) *cdn.ResourceOptions_HostOptions {
-	if rawOption, ok := d.GetOk("options.0.custom_host_header"); ok && rawOption.(string) != "" {
+func expandCDNResourceOptions_HostOptions(opts cty.Value) *cdn.ResourceOptions_HostOptions {
+	custom := opts.GetAttr("custom_host_header")
+	if custom.IsKnown() && custom.AsString() != "" {
 		return &cdn.ResourceOptions_HostOptions{
 			HostVariant: &cdn.ResourceOptions_HostOptions_Host{
-				Host: cdnStringOption(rawOption.(string)),
+				Host: cdnStringOption(custom.AsString()),
 			},
 		}
 	}
-
-	if rawOption, ok := d.GetOk("options.0.forward_host_header"); ok && rawOption.(bool) {
-		return &cdn.ResourceOptions_HostOptions{
-			HostVariant: &cdn.ResourceOptions_HostOptions_ForwardHostHeader{
-				ForwardHostHeader: cdnBoolOption(rawOption.(bool)),
-			},
-		}
+	forward := opts.GetAttr("forward_host_header")
+	return &cdn.ResourceOptions_HostOptions{
+		HostVariant: &cdn.ResourceOptions_HostOptions_ForwardHostHeader{
+			ForwardHostHeader: cdnBoolOption(forward.True()),
+		},
 	}
-	return nil
 }
 
 func cdnStringListOption(value []any) *cdn.ResourceOptions_StringsListOption {

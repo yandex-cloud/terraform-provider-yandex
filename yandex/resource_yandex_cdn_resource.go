@@ -54,6 +54,9 @@ func resourceYandexCDNResourceSchema() *schema.Resource {
 			if err := customizeDiffCDN_QueryParams(ctx, rd, v); err != nil {
 				return err
 			}
+			if err := customizeDiffCDN_HostOption(ctx, rd, v); err != nil {
+				return err
+			}
 			return nil
 		},
 

@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'kafka: add support for version 4 in `getSuffixVersion`'	
+time: 2026-02-02T10:57:52.735112774Z
