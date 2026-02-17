@@ -54,6 +54,11 @@ func (o *redisClusterDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	var config Cluster
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	config.ID = types.StringValue(clusterId)
 	clusterRead(ctx, o.providerConfig.SDK, &resp.Diagnostics, &config)
 	if resp.Diagnostics.HasError() {
@@ -67,11 +72,7 @@ func (o *redisClusterDataSource) Schema(ctx context.Context, _ datasource.Schema
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-redis/). [How to connect to the DB](https://yandex.cloud/docs/managed-redis/quickstart#connect). To connect, use port 6379. The port number is not configurable.",
 		Attributes: map[string]schema.Attribute{
-			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
-				Create: true,
-				Update: true,
-				Delete: true,
-			}),
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{Read: true}),
 			"id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: common.ResourceDescriptions["id"],
