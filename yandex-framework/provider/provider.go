@@ -25,6 +25,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop_group"
 	yandex_cloud_desktops_image "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_image"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_registry_ip_permission"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
@@ -129,6 +130,10 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 			"yq_endpoint": schema.StringAttribute{
 				Optional:    true,
 				Description: common.Descriptions["yq_endpoint"],
+			},
+			"datalens_endpoint": schema.StringAttribute{
+				Optional:    true,
+				Description: common.Descriptions["datalens_endpoint"],
 			},
 			"folder_id": schema.StringAttribute{
 				Optional:    true,
@@ -249,6 +254,7 @@ func setDefaults(config provider_config.State) provider_config.State {
 	config.StorageAccessKey = setToDefaultIfNeeded(config.StorageAccessKey, "YC_STORAGE_ACCESS_KEY", "")
 	config.StorageSecretKey = setToDefaultIfNeeded(config.StorageSecretKey, "YC_STORAGE_SECRET_KEY", "")
 	config.YMQEndpoint = setToDefaultIfNeeded(config.YMQEndpoint, "YC_MESSAGE_QUEUE_ENDPOINT", common.DefaultYMQEndpoint)
+	config.DatalensEndpoint = setToDefaultIfNeeded(config.DatalensEndpoint, "YC_DATALENS_ENDPOINT", common.DefaultDatalensEndpoint)
 	config.YMQAccessKey = setToDefaultIfNeeded(config.YMQAccessKey, "YC_MESSAGE_QUEUE_ACCESS_KEY", "")
 	config.YMQSecretKey = setToDefaultIfNeeded(config.YMQSecretKey, "YC_MESSAGE_QUEUE_SECRET_KEY", "")
 
@@ -338,6 +344,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		cloud_desktops_desktop_group.NewResource,
 		cloud_desktops_desktop.NewResource,
 		mdb_clickhouse_cluster_v2.NewClickHouseClusterResourceV2,
+		datalens_connection.NewResource,
 	}, yandex_gen.GetProviderResources()...)
 }
 
@@ -373,6 +380,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		cloud_desktops_desktop_group.NewDatasource,
 		cloud_desktops_desktop.NewDatasource,
 		mdb_clickhouse_cluster_v2.NewDataSource,
+		datalens_connection.NewDataSource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 

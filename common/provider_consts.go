@@ -1,12 +1,13 @@
 package common
 
 const (
-	DefaultMaxRetries      = 5
-	DefaultEndpoint        = "api.cloud.yandex.net:443"
-	DefaultStorageEndpoint = "storage.yandexcloud.net"
-	DefaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
-	DefaultRegion          = "ru-central1"
-	DefaultYQEndpoint      = "grpc.yandex-query.cloud.yandex.net:2135"
+	DefaultMaxRetries       = 5
+	DefaultEndpoint         = "api.cloud.yandex.net:443"
+	DefaultStorageEndpoint  = "storage.yandexcloud.net"
+	DefaultYMQEndpoint      = "message-queue.api.cloud.yandex.net"
+	DefaultRegion           = "ru-central1"
+	DefaultYQEndpoint       = "grpc.yandex-query.cloud.yandex.net:2135"
+	DefaultDatalensEndpoint = "https://api.datalens.tech"
 )
 
 var Descriptions = map[string]string{
@@ -61,4 +62,7 @@ var Descriptions = map[string]string{
 	"profile": "Profile name to use in the shared credentials file. Default value is `default`.",
 
 	"organization_id": "The ID of the [Cloud Organization](https://yandex.cloud/docs/organization/quickstart) to operate under.",
+
+	"datalens_endpoint": "Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **" + DefaultDatalensEndpoint + "**.\n" +
+		"This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.",
 }

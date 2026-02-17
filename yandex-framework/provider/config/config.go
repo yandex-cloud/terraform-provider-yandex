@@ -57,6 +57,7 @@ type State struct {
 	MaxRetries                     types.Int64  `tfsdk:"max_retries"`
 	StorageEndpoint                types.String `tfsdk:"storage_endpoint"`
 	YMQEndpoint                    types.String `tfsdk:"ymq_endpoint"`
+	DatalensEndpoint               types.String `tfsdk:"datalens_endpoint"`
 	Region                         types.String `tfsdk:"region_id"`
 
 	// These storage access keys are optional and only used when
