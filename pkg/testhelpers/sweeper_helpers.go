@@ -29,6 +29,13 @@ const (
 
 type sweeperFunc func(*provider_config.Config, string) error
 
+func envOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func ConfigForSweepers() (*provider_config.Config, error) {
 	token, saKeyFile := os.Getenv("YC_TOKEN"), os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE")
 	if token == "" && saKeyFile == "" {
@@ -66,6 +73,7 @@ func ConfigForSweepers() (*provider_config.Config, error) {
 			Endpoint:                       types.StringValue(os.Getenv("YC_ENDPOINT")),
 			YQEndpoint:                     types.StringValue(common.DefaultYQEndpoint),
 			StorageEndpoint:                types.StringValue(os.Getenv("YC_STORAGE_ENDPOINT_URL")),
+			DatalensEndpoint:               types.StringValue(envOrDefault("YC_DATALENS_ENDPOINT", common.DefaultDatalensEndpoint)),
 		},
 	}
 

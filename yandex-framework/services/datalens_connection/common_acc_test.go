@@ -40,7 +40,7 @@ func testSweepDatalensConnection(_ string) error {
 
 	orgID := test.GetExampleOrganizationID()
 	if orgID == "" {
-		return fmt.Errorf("YC_ORGANIZATION_ID must be set for sweepers")
+		return nil // skip sweep when org ID is not configured
 	}
 
 	dlClient, err := datalens.NewClient(datalens.Config{
