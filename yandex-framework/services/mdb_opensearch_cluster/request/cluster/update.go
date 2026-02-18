@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
@@ -115,6 +116,21 @@ func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opens
 		return nil, nil, diags
 	}
 
+	if !planOpenSearchBlock.Config.IsUnknown() && !planOpenSearchBlock.Config.Equal(stateOpenSearchBlock.Config) {
+		config2, config2UpdateMask, diags := model.PrepareUpdateOpenSearchConfig2(ctx, planOpenSearchBlock.Config, stateOpenSearchBlock.Config)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+
+		if len(config2UpdateMask) > 0 {
+			config.OpensearchSpec = &opensearch.OpenSearchClusterUpdateSpec{}
+			config.OpensearchSpec.Config = &opensearch.OpenSearchClusterUpdateSpec_OpensearchConfig_2{OpensearchConfig_2: config2}
+			for _, m := range config2UpdateMask {
+				updateMaskPaths = append(updateMaskPaths, fmt.Sprintf("config_spec.opensearch_spec.opensearch_config_2.%s", m))
+			}
+		}
+	}
+
 	if !planOpenSearchBlock.Plugins.IsUnknown() && !planOpenSearchBlock.Plugins.Equal(stateOpenSearchBlock.Plugins) {
 		plugins := make([]string, 0, len(planOpenSearchBlock.Plugins.Elements()))
 		diags.Append(planOpenSearchBlock.Plugins.ElementsAs(ctx, &plugins, false)...)
@@ -122,9 +138,10 @@ func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opens
 			return nil, nil, diags
 		}
 
-		config.OpensearchSpec = &opensearch.OpenSearchClusterUpdateSpec{
-			Plugins: plugins,
+		if config.OpensearchSpec == nil {
+			config.OpensearchSpec = &opensearch.OpenSearchClusterUpdateSpec{}
 		}
+		config.OpensearchSpec.Plugins = plugins
 		updateMaskPaths = append(updateMaskPaths, "config_spec.opensearch_spec.plugins")
 	}
 

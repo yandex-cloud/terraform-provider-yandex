@@ -14,8 +14,9 @@ import (
 )
 
 type OpenSearchSubConfig struct {
-	NodeGroups types.List `tfsdk:"node_groups"`
-	Plugins    types.Set  `tfsdk:"plugins"`
+	NodeGroups types.List   `tfsdk:"node_groups"`
+	Plugins    types.Set    `tfsdk:"plugins"`
+	Config     types.Object `tfsdk:"config"`
 }
 
 type OpenSearchNode struct {
@@ -83,6 +84,7 @@ func (n OpenSearchNode) GetDiskSizeAutoscaling() types.Object {
 var OpenSearchSubConfigAttrTypes = map[string]attr.Type{
 	"node_groups": types.ListType{ElemType: OpenSearchNodeType},
 	"plugins":     types.SetType{ElemType: types.StringType},
+	"config":      types.ObjectType{AttrTypes: openSearchConfig2Types},
 }
 
 var OpenSearchNodeType = types.ObjectType{
@@ -114,6 +116,16 @@ func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch
 		}
 	}
 
+	config := types.ObjectNull(openSearchConfig2Types)
+
+	ocs2 := cfg.GetOpensearchConfigSet_2()
+	if ocs2 != nil {
+		config, diags = openSearchConfig2ToObject(ctx, ocs2.GetUserConfig())
+		if diags.HasError() {
+			return types.ObjectNull(OpenSearchSubConfigAttrTypes), diags
+		}
+	}
+
 	// we have to keep node_groups order from config
 	stateNodeGroups := make([]OpenSearchNode, 0, len(state.NodeGroups.Elements()))
 	if len(state.NodeGroups.Elements()) != 0 {
@@ -131,6 +143,7 @@ func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch
 	return types.ObjectValueFrom(ctx, OpenSearchSubConfigAttrTypes, OpenSearchSubConfig{
 		NodeGroups: nodeGroups,
 		Plugins:    plugins,
+		Config:     config,
 	})
 }
 

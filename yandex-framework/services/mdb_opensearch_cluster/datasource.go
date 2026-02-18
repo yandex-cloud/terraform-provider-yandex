@@ -116,6 +116,7 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 								Optional:            true,
 								ElementType:         types.StringType,
 							},
+							"config": common_schema.OpenSearchConfig2(),
 						},
 						Blocks: map[string]schema.Block{
 							"node_groups": schema.ListNestedBlock{

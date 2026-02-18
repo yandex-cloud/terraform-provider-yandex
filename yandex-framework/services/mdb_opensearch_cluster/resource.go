@@ -608,6 +608,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 								Optional:            true,
 								ElementType:         types.StringType,
 							},
+							"config": common_schema.OpenSearchConfig2(),
 						},
 						Blocks: map[string]schema.Block{
 							//NOTE: changed "set" to "list+customValidator" because https://github.com/hashicorp/terraform-plugin-sdk/issues/1210

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add server configs max_clause_count,fielddata_cache_size,reindex_remote_whitelist'
+time: 2026-02-16T13:53:28.149494+03:00

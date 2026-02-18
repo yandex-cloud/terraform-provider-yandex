@@ -115,9 +115,19 @@ func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensea
 		return nil, diags
 	}
 
+	var osCreateSpecCfg2 *opensearch.OpenSearchCreateSpec_OpensearchConfig_2
+	if !(openSearchBlock.Config.IsUnknown() || openSearchBlock.Config.IsNull()) {
+		cfg2, diags := model.PrepareCreateOpenSearchConfig2(ctx, openSearchBlock.Config)
+		if diags.HasError() {
+			return nil, diags
+		}
+		osCreateSpecCfg2 = &opensearch.OpenSearchCreateSpec_OpensearchConfig_2{OpensearchConfig_2: cfg2}
+	}
+
 	opensearchSpec := &opensearch.OpenSearchCreateSpec{
 		NodeGroups: nodeGroups,
 		Plugins:    plugins,
+		Config:     osCreateSpecCfg2,
 	}
 
 	if config.Dashboards.IsNull() || config.Dashboards.IsUnknown() {
