@@ -71,10 +71,11 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							},
 						},
 						"resources": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Description: "Instance resource configuration.",
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"memory": {
@@ -291,7 +292,7 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"name": {
 							Type:        schema.TypeString,
-							Description: "Name template of the instance. In order to be unique it must contain at least one of instance unique placeholders:\n* `{instance.short_id}\n* `{instance.index}`\n* combination of `{instance.zone_id}` and `{instance.index_in_zone}`\n\nExample: `my-instance-{instance.index}`.\nIf not set, default is used: `{instance_group.id}-{instance.short_id}`. It may also contain another placeholders, see [Compute Instance group metadata doc](https://yandex.cloud/docs/compute/instancegroup/api-ref/grpc/InstanceGroup) for full list.",
+							Description: "Name template of the instance. In order to be unique it must contain at least one of instance unique placeholders:\n    * `{instance.short_id}`\n    * `{instance.index}`\n    * combination of `{instance.zone_id}` and `{instance.index_in_zone}`\n\n    Example: `my-instance-{instance.index}`.\n\n    If not set, default is used: `{instance_group.id}-{instance.short_id}`. It may also contain another placeholders, see [Compute Instance group metadata doc](https://yandex.cloud/docs/compute/instancegroup/api-ref/grpc/InstanceGroup) for full list.",
 							Optional:    true,
 						},
 						"labels": {
@@ -512,13 +513,14 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"maintenance_window": {
 							Type:        schema.TypeSet,
-							Description: "Set of day intervals, when maintenance is allowed for this node group. When omitted, it defaults to any time.\n\nTo specify time of day interval, for all days, one element should be provided, with two fields set, `start_time` and `duration`.\n\nTo allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one time interval is allowed for each day of week. Please see `my_node_group` config example.\n",
+							Description: "Set of day intervals, when maintenance is allowed for this node group. When omitted, it defaults to any time.\n\n    To specify time of day interval, for all days, one element should be provided, with two fields set, `start_time` and `duration`.\n\n    To allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one time interval is allowed for each day of week. Please see `my_node_group` config example.\n",
 							Optional:    true,
 							Set:         dayOfWeekHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"day": {
 										Type:             schema.TypeString,
+										Description:      "Day of week, on which maintenance is allowed.",
 										Optional:         true,
 										Computed:         true,
 										ValidateFunc:     validateParsableValue(parseDayOfWeek),
@@ -526,12 +528,14 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 									},
 									"start_time": {
 										Type:             schema.TypeString,
+										Description:      "Start time of maintenance in day.",
 										Required:         true,
 										ValidateFunc:     validateParsableValue(parseDayTime),
 										DiffSuppressFunc: shouldSuppressDiffForTimeOfDay,
 									},
 									"duration": {
 										Type:             schema.TypeString,
+										Description:      "Duration of maintenance from start_time.",
 										Required:         true,
 										ValidateFunc:     validateParsableValue(parseDuration),
 										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
@@ -606,6 +610,21 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["created_at"],
 				Computed:    true,
+			},
+			"workload_identity_federation": {
+				Type:        schema.TypeList,
+				Description: "Workload Identity Federation configuration.",
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "Identifies whether Workload Identity Federation is enabled.",
+							Required:    true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -706,20 +725,26 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		return nil, fmt.Errorf("error getting node taints for a Kubernetes node group creation: %s", err)
 	}
 
+	wlif, err := getNodeGroupWorkloadIdentityFederation(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get node group workload identity federation: %s", err)
+	}
+
 	req := &k8s.CreateNodeGroupRequest{
-		Name:                 d.Get("name").(string),
-		Description:          d.Get("description").(string),
-		Labels:               labels,
-		ClusterId:            d.Get("cluster_id").(string),
-		NodeTemplate:         tpl,
-		ScalePolicy:          sp,
-		AllocationPolicy:     getNodeGroupAllocationPolicy(d),
-		Version:              d.Get("version").(string),
-		MaintenancePolicy:    mp,
-		AllowedUnsafeSysctls: sysctls,
-		NodeLabels:           nodeLabels,
-		NodeTaints:           nodeTaints,
-		DeployPolicy:         dp,
+		Name:                       d.Get("name").(string),
+		Description:                d.Get("description").(string),
+		Labels:                     labels,
+		ClusterId:                  d.Get("cluster_id").(string),
+		NodeTemplate:               tpl,
+		ScalePolicy:                sp,
+		AllocationPolicy:           getNodeGroupAllocationPolicy(d),
+		Version:                    d.Get("version").(string),
+		MaintenancePolicy:          mp,
+		AllowedUnsafeSysctls:       sysctls,
+		NodeLabels:                 nodeLabels,
+		NodeTaints:                 nodeTaints,
+		DeployPolicy:               dp,
+		WorkloadIdentityFederation: wlif,
 	}
 
 	return req, nil
@@ -869,6 +894,21 @@ func getNodeGroupNodeTaints(d *schema.ResourceData) ([]*k8s.Taint, error) {
 		taints = append(taints, taint)
 	}
 	return taints, nil
+}
+
+func getNodeGroupWorkloadIdentityFederation(d *schema.ResourceData) (*k8s.NodeGroupWorkloadIdentityFederation, error) {
+	if _, ok := d.GetOk("workload_identity_federation"); !ok {
+		return nil, nil
+	}
+
+	enabled, ok := d.Get("workload_identity_federation.0.enabled").(bool)
+	if !ok {
+		return nil, fmt.Errorf("failed to get workload_identity_federation.enabled value")
+	}
+
+	return &k8s.NodeGroupWorkloadIdentityFederation{
+		Enabled: enabled,
+	}, nil
 }
 
 // parseTaint parses a taint from a string, whose form must be
@@ -1150,6 +1190,17 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
+	if wlif := ng.GetWorkloadIdentityFederation(); wlif != nil && wlif.GetEnabled() {
+		wlifData := []map[string]interface{}{
+			{
+				"enabled": wlif.GetEnabled(),
+			},
+		}
+		if err := d.Set("workload_identity_federation", wlifData); err != nil {
+			return err
+		}
+	}
+
 	maintenancePolicy, err := flattenKubernetesNodeGroupMaintenancePolicy(ng.GetMaintenancePolicy())
 	if err != nil {
 		return err
@@ -1231,6 +1282,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"maintenance_policy":                                        "maintenance_policy",
 	"deploy_policy.0.max_expansion":                             "deploy_policy.max_expansion",
 	"deploy_policy.0.max_unavailable":                           "deploy_policy.max_unavailable",
+	"workload_identity_federation":                              "workload_identity_federation",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1297,6 +1349,11 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		return nil, fmt.Errorf("error getting node group deploy policy while updating Kubernetes node group: %s", err)
 	}
 
+	wlif, err := getNodeGroupWorkloadIdentityFederation(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get node group workload identity federation: %s", err)
+	}
+
 	req := &k8s.UpdateNodeGroupRequest{
 		NodeGroupId:  d.Id(),
 		Name:         d.Get("name").(string),
@@ -1309,10 +1366,11 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 				Version: d.Get("version").(string),
 			},
 		},
-		MaintenancePolicy: mp,
-		DeployPolicy:      dp,
-		NodeLabels:        getNodeGroupNodeLabels(d),
-		AllocationPolicy:  getNodeGroupAllocationPolicy(d),
+		MaintenancePolicy:          mp,
+		DeployPolicy:               dp,
+		NodeLabels:                 getNodeGroupNodeLabels(d),
+		AllocationPolicy:           getNodeGroupAllocationPolicy(d),
+		WorkloadIdentityFederation: wlif,
 	}
 
 	return req, nil

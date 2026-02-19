@@ -171,8 +171,7 @@ func TestAccKubernetesClusterZonalScalePolicy_autoScale(t *testing.T) {
 }
 
 func TestAccKubernetesClusterZonalWLI_basic(t *testing.T) {
-	clusterResource := clusterInfo("testAccKubernetesClusterZonalWLI_basic", true)
-	clusterResource.WorkloadIdentityFederation = true
+	clusterResource := clusterInfoWLI("testAccKubernetesClusterZonalWLI_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
 	var cluster k8s.Cluster
@@ -846,6 +845,12 @@ func clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies(testDesc string,
 func clusterInfoAutoscaled(testDesc string, zonal bool) resourceClusterInfo {
 	res := clusterInfo(testDesc, zonal)
 	res.constructScalePolicyField(AutoScalePolicy)
+	return res
+}
+
+func clusterInfoWLI(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.WorkloadIdentityFederation = true
 	return res
 }
 

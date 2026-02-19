@@ -179,6 +179,31 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroupWLI_basic(t *testing.T) {
+	clusterResource := clusterInfoWLI("TestAccKubernetesNodeGroupWLI_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.WorkloadIdentityFederation = true
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_update", true)
 	clusterResource.MasterVersion = k8sTestUpdateVersion
@@ -337,6 +362,42 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupWLI_update(t *testing.T) {
+	clusterResource := clusterInfoWLI("TestAccKubernetesNodeGroupWLI_update", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.WorkloadIdentityFederation = true
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.WorkloadIdentityFederation = false
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
 				),
 			},
 		},
@@ -604,6 +665,8 @@ type resourceNodeGroupInfo struct {
 
 	PodMTU       int
 	LocationZone string
+
+	WorkloadIdentityFederation bool
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -909,6 +972,12 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     "kernel.msg*",
     "net.core.somaxconn",
   ]
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
 }
 `
 
@@ -1185,6 +1254,13 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "version", info.Version),
 				resource.TestCheckResourceAttr(resourceFullName, "version", ng.GetVersionInfo().GetCurrentVersion()),
+			)
+		}
+
+		if info.WorkloadIdentityFederation {
+			wlif := ng.GetWorkloadIdentityFederation()
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.enabled", strconv.FormatBool(wlif.GetEnabled())),
 			)
 		}
 

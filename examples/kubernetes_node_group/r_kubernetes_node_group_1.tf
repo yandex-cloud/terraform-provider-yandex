@@ -66,4 +66,8 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
       duration   = "4h30m"
     }
   }
+
+  workload_identity_federation {
+    enabled = true
+  }
 }
