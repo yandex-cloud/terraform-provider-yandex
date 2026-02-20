@@ -2,6 +2,17 @@
 
 
 
+## 0.188.0 (February 19, 2026)
+##### FEATURES:
+* datalens: add yandex_datalens_connection resource and data source
+* opensearch: add server configs max_clause_count,fielddata_cache_size,reindex_remote_whitelist
+##### BUG FIXES:
+* redis: fix to import timeout
+* CDN: Fix host options (Issue #365)
+##### ENHANCEMENTS:
+* kafka: add support for version 4 in `getSuffixVersion`
+* spark: fixed acc test
+
 ## 0.187.0 (February 16, 2026)
 ##### FEATURES:
 * airflow: add `yandex_airflow_cluster_iam_binding` resource
