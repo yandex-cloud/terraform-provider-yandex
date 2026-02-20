@@ -2329,6 +2329,8 @@ func testAccStorageBucketDisabledStaticKeyAuth(randInt int, disabled bool) strin
 
 	return newBucketConfigBuilder(randInt).
 		asEditor().
+		withFolderID(testFolderID).
+		withDisabledAccessKeys().
 		addStatement(disabledStaticKeyAuthStmt).
 		render()
 }
@@ -2337,23 +2339,33 @@ func TestAccStorageBucket_DisabledStaticKeyAuth(t *testing.T) {
 	const resourceName = "yandex_storage_bucket.test"
 	rInt := acctest.RandInt()
 
+	// save OS env vars
+	envVars := []string{"YC_STORAGE_ACCESS_KEY", "YC_STORAGE_SECRET_KEY"}
+	saveEnvVariable := saveAndUnsetEnvVars(envVars)
+	defer func() {
+		// restore OS env vars
+		if err := restoreEnvVars(saveEnvVariable); err != nil {
+			t.Fatal("failed to restore OS env vars:", envVars, "after test", t.Name(), " - error:", err)
+		}
+	}()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		CheckDestroy:             testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucketDisabledStaticKeyAuth(rInt, true),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "disabled_statickey_auth", "true"),
-				),
-			},
-			{
 				Config: testAccStorageBucketDisabledStaticKeyAuth(rInt, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "disabled_statickey_auth", "false"),
+				),
+			},
+			{
+				Config: testAccStorageBucketDisabledStaticKeyAuth(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "disabled_statickey_auth", "true"),
 				),
 			},
 		},
