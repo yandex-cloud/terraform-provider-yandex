@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'kubernetes: add "workload_identity_federation" attribute to k8s node-group resource and data-source'
-time: 2026-01-28T19:36:55.241248638+03:00

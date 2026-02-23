@@ -2,6 +2,10 @@
 
 
 
+## 0.189.0 (February 23, 2026)
+##### FEATURES:
+* kubernetes: add "workload_identity_federation" attribute to k8s node-group resource and data-source
+
 ## 0.188.0 (February 19, 2026)
 ##### FEATURES:
 * datalens: add yandex_datalens_connection resource and data source
