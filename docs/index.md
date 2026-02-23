@@ -69,6 +69,8 @@ storage_secret_key = default_secret_key_here
 
 - `cloud_id` (String). The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any resources to.
 This can also be specified using environment variable `YC_CLOUD_ID`.
+- `datalens_endpoint` (String). Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
 - `endpoint` (String). The endpoint for API calls, default value is **api.cloud.yandex.net:443**.
 This can also be defined by environment variable `YC_ENDPOINT`.
 - `folder_id` (String). The ID of the [Folder](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder) to operate under, if not specified by a given resource.
@@ -108,5 +110,3 @@ This can also be specified using environment variable `YC_MESSAGE_QUEUE_SECRET_K
 This can also be defined by environment variable `YC_YQ_ENDPOINT`.
 - `zone` (String). The default [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) to operate under, if not specified by a given resource.
 This can also be specified using environment variable `YC_ZONE`.
-- `datalens_endpoint` (String). Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). 
-Default value is **https://api.datalens.tech**.This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
