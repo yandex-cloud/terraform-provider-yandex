@@ -254,15 +254,6 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 							),
 						},
 					},
-					"autofailover": schema.BoolAttribute{
-						Description: "Configuration setting which enables/disables automatic failover in the cluster.",
-						Optional:    true,
-						Computed:    true,
-						Default:     booldefault.StaticBool(true),
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
-					},
 					"access": schema.SingleNestedAttribute{
 						Description: "Access policy to the PostgreSQL cluster.",
 						Optional:    true,

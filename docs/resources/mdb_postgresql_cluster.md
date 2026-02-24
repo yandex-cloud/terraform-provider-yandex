@@ -234,7 +234,6 @@ resource "yandex_vpc_subnet" "foo" {
 - `security_group_ids` (Set Of String). The list of security groups applied to resource or their components.
 - `status` (*Read-Only*) (String). Status of the cluster.
 - `config` [Block]. Configuration of the PostgreSQL cluster.
-  - `autofailover` (Bool). Configuration setting which enables/disables autofailover in cluster.
   - `backup_retain_period_days` (Number). The period in days during which backups are stored.
   - `postgresql_config` (Map Of String). PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
   - `version` (**Required**)(String). Version of the PostgreSQL cluster. (allowed versions are: 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).

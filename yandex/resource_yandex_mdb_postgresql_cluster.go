@@ -218,12 +218,6 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 					},
 				},
 			},
-			"autofailover": {
-				Type:        schema.TypeBool,
-				Description: "Configuration setting which enables/disables autofailover in cluster.",
-				Optional:    true,
-				Computed:    true,
-			},
 			"pooler_config": {
 				Type:        schema.TypeList,
 				Description: "Configuration of the connection pooler.",

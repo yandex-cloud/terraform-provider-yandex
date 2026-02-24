@@ -23,7 +23,6 @@ var (
 	expectedConfigAttrs = map[string]attr.Type{
 		"version":                   types.StringType,
 		"resources":                 types.ObjectType{AttrTypes: mdbcommon.ResourceType.AttrTypes},
-		"autofailover":              types.BoolType,
 		"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 		"performance_diagnostics":   types.ObjectType{AttrTypes: expectedPDAttrs},
 		"backup_window_start":       types.ObjectType{AttrTypes: mdbcommon.BackupWindowType.AttrTypes},
@@ -84,7 +83,6 @@ var (
 					"disk_size":          types.Int64Value(10),
 				},
 			),
-			"autofailover": types.BoolNull(),
 			"backup_window_start": types.ObjectNull(
 				expectedBWSAttrs,
 			),

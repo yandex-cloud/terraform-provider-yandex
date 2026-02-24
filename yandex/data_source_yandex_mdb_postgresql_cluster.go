@@ -272,11 +272,6 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 					},
 				},
 			},
-			"autofailover": {
-				Type:        schema.TypeBool,
-				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["autofailover"].Description,
-				Computed:    true,
-			},
 			"pooler_config": {
 				Type:        schema.TypeList,
 				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["pooler_config"].Description,

@@ -125,10 +125,6 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"config.0.access.0.data_lens",
 			},
 			{
-				"config.0.autofailover",
-				"config.0.autofailover",
-			},
-			{
 				"config.0.backup_window_start.#",
 				"config.0.backup_window_start.#",
 			},

@@ -11,7 +11,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var baseCluster = Cluster{
@@ -46,7 +45,6 @@ func TestYandexProvider_MDBPostgresClusterPrepateUpdateRequestBasic(t *testing.T
 	cluster := baseCluster
 
 	newCfg := baseConfig.Attributes()
-	newCfg["autofailover"] = types.BoolValue(true)
 
 	cluster.Config = types.ObjectValueMust(expectedConfigAttrs, newCfg)
 	cluster.Name = types.StringValue("test-cluster-new")
@@ -65,16 +63,13 @@ func TestYandexProvider_MDBPostgresClusterPrepateUpdateRequestBasic(t *testing.T
 	}
 
 	expectedUpdateReq := &postgresql.UpdateClusterRequest{
-		ClusterId: "test-id",
-		Name:      "test-cluster-new",
-		ConfigSpec: &postgresql.ConfigSpec{
-			Autofailover: wrapperspb.Bool(true),
-		},
+		ClusterId:          "test-id",
+		Name:               "test-cluster-new",
 		MaintenanceWindow:  nil,
 		SecurityGroupIds:   []string{"test-sg-new"},
 		DeletionProtection: false,
 		UpdateMask: &fieldmaskpb.FieldMask{
-			Paths: []string{"name", "config_spec.autofailover", "security_group_ids", "deletion_protection", "maintenance_window"},
+			Paths: []string{"name", "security_group_ids", "deletion_protection", "maintenance_window"},
 		},
 	}
 

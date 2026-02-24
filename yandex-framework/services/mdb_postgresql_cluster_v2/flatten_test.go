@@ -575,7 +575,6 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					DiskTypeId:       "network-ssd",
 					DiskSize:         datasize.ToBytes(10),
 				},
-				Autofailover: wrapperspb.Bool(true),
 				Access: &postgresql.Access{
 					DataLens:     true,
 					DataTransfer: true,
@@ -615,7 +614,6 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_type_id":       types.StringValue("network-ssd"),
 						"disk_size":          types.Int64Value(10),
 					}),
-					"autofailover": types.BoolValue(true),
 					"access": types.ObjectValueMust(accessAttrTypes, map[string]attr.Value{
 						"data_lens":     types.BoolValue(true),
 						"data_transfer": types.BoolValue(true),
@@ -667,7 +665,6 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"disk_type_id":       types.StringValue("network-hdd"),
 						"disk_size":          types.Int64Value(15),
 					}),
-					"autofailover":              types.BoolNull(),
 					"access":                    types.ObjectNull(accessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
@@ -735,7 +732,6 @@ func TestYandexProvider_MDBPostgresClusterConfigFlattenPgConfig(t *testing.T) {
 			DiskTypeId:       "network-ssd",
 			DiskSize:         datasize.ToBytes(10),
 		},
-		Autofailover: wrapperspb.Bool(true),
 		Access: &postgresql.Access{
 			DataLens:     true,
 			DataTransfer: true,

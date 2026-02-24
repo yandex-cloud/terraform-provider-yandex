@@ -13,7 +13,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/protobuf/field_mask"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func prepareVersionUpdateRequest(state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
@@ -137,15 +136,6 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 	if !plan.Resources.Equal(state.Resources) {
 		config.SetResources(mdbcommon.ExpandResources[postgresql.Resources](ctx, plan.Resources, &diags))
 		updateMaskPaths = append(updateMaskPaths, "config_spec.resources")
-	}
-
-	if !plan.Autofailover.Equal(state.Autofailover) {
-		config.SetAutofailover(
-			&wrapperspb.BoolValue{
-				Value: plan.Autofailover.ValueBool(),
-			},
-		)
-		updateMaskPaths = append(updateMaskPaths, "config_spec.autofailover")
 	}
 
 	if !plan.Access.Equal(state.Access) {

@@ -46,7 +46,6 @@ var hostType = types.ObjectType{
 type Config struct {
 	Version                types.String               `tfsdk:"version"`
 	Resources              types.Object               `tfsdk:"resources"`
-	Autofailover           types.Bool                 `tfsdk:"autofailover"`
 	Access                 types.Object               `tfsdk:"access"`
 	PerformanceDiagnostics types.Object               `tfsdk:"performance_diagnostics"`
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
@@ -69,7 +68,6 @@ var PoolerConfigAttrTypes = map[string]attr.Type{
 var ConfigAttrTypes = map[string]attr.Type{
 	"version":                   types.StringType,
 	"resources":                 types.ObjectType{AttrTypes: ResourcesAttrTypes},
-	"autofailover":              types.BoolType,
 	"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 	"backup_retain_period_days": types.Int64Type,

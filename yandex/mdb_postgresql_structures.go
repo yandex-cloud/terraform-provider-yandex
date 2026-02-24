@@ -35,7 +35,6 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	}
 
 	out := map[string]interface{}{}
-	out["autofailover"] = c.GetAutofailover().GetValue()
 	out["version"] = c.Version
 	out["pooler_config"] = flattenPGPoolerConfig(c.PoolerConfig)
 	out["resources"] = flattenPGResources(c.Resources)
@@ -944,7 +943,6 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"labels":                                     "labels",
 		"network_id":                                 "network_id",
 		"config.0.version":                           "config_spec.version",
-		"config.0.autofailover":                      "config_spec.autofailover",
 		"config.0.pooler_config.0.pooling_mode":      "config_spec.pooler_config.pooling_mode",
 		"config.0.pooler_config.0.pool_discard":      "config_spec.pooler_config.pool_discard",
 		"config.0.access.0.data_lens":                "config_spec.access.data_lens",
@@ -997,7 +995,6 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 
 	cs := &postgresql.ConfigSpec{
 		Version:                d.Get("config.0.version").(string),
-		Autofailover:           expandPGConfigAutofailover(d),
 		BackupRetainPeriodDays: expandPGBackupRetainPeriodDays(d),
 		PoolerConfig:           poolerConfig,
 		Resources:              resources,
@@ -1013,13 +1010,6 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 	}
 
 	return cs, settingNames, nil
-}
-
-func expandPGConfigAutofailover(d *schema.ResourceData) *wrappers.BoolValue {
-	if v, ok := d.GetOkExists("config.0.autofailover"); ok {
-		return &wrappers.BoolValue{Value: v.(bool)}
-	}
-	return nil
 }
 
 func expandPGBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.Int64Value {

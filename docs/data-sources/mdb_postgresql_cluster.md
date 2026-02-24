@@ -33,7 +33,6 @@ output "fqdn" {
     - `serverless` (Bool). Allow access for [connection to managed databases from functions](https://yandex.cloud/docs/functions/operations/database-connection).
     - `web_sql` (Bool). Allow access for [SQL queries in the management console](https://yandex.cloud/docs/managed-postgresql/operations/web-sql-query).
     - `yandex_query` (Bool). Allow access for [YandexQuery](https://yandex.cloud/services/query).
-  - `autofailover` (Bool). Configuration setting which enables/disables autofailover in cluster.
   - `backup_retain_period_days` (Number). The period in days during which backups are stored.
   - `backup_window_start` [Block]. Time to start the daily backup, in the UTC timezone.
     - `hours` (Number). The hour at which backup will be started (UTC).

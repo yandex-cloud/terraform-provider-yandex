@@ -533,7 +533,6 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					),
 					"backup_window_start":       types.ObjectNull(mdbcommon.BackupWindowType.AttrTypes),
 					"backup_retain_period_days": types.Int64Null(),
-					"autofailover":              types.BoolNull(),
 					"access":                    types.ObjectNull(accessAttrTypes),
 					"performance_diagnostics":   types.ObjectNull(expectedPDAttrs),
 					"postgresql_config":         NewPgSettingsMapNull(),
@@ -550,7 +549,6 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				},
 				BackupWindowStart:      &timeofday.TimeOfDay{},
 				BackupRetainPeriodDays: nil,
-				Autofailover:           nil,
 				Access:                 &postgresql.Access{},
 				PerformanceDiagnostics: nil,
 				PostgresqlConfig: &postgresql.ConfigSpec_PostgresqlConfig_15{
@@ -581,7 +579,6 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 						},
 					),
 					"backup_retain_period_days": types.Int64Value(7),
-					"autofailover":              types.BoolValue(true),
 					"access": types.ObjectValueMust(
 						accessAttrTypes,
 						map[string]attr.Value{
@@ -628,7 +625,6 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					Minutes: 0,
 				},
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
-				Autofailover:           wrapperspb.Bool(true),
 				Access: &postgresql.Access{
 					WebSql:      true,
 					DataLens:    true,
