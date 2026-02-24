@@ -3,7 +3,6 @@ package mdb_sharded_postgresql_cluster
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -441,8 +440,8 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// Prepare Create Request
 	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState)
+	resp.Diagnostics.Append(diags...)
 	if diags.HasError() {
-		resp.Diagnostics.Append(diags...)
 		return
 	}
 	// Add Hosts to the request
@@ -538,9 +537,6 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-
-	//consolePassword := path.Root("config").AtName("spqr_config").AtName("common").AtMapKey("console_password")
-	//resp.Diagnostics.Append(resp.State.SetAttribute(ctx, consolePassword, ConsolePasswordStubOnImport)...)
 }
 
 func (r *clusterResource) refreshResourceState(ctx context.Context, state *Cluster, respDiagnostics *diag.Diagnostics) {
@@ -558,7 +554,6 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	if respDiagnostics.HasError() {
 		return
 	}
-	log.Printf("here1 %v", diags.ErrorsCount())
 
 	state.Id = types.StringValue(cluster.Id)
 	state.FolderId = types.StringValue(cluster.FolderId)
@@ -571,10 +566,8 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.MaintenanceWindow = flattenMaintenanceWindow(ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
-	log.Printf("here2 %v %#v\n%#v", diags.ErrorsCount(), state.Config, cluster.GetConfig().GetAccess())
 	var cfgState Config
 	diags.Append(state.Config.As(ctx, &cfgState, datasize.DefaultOpts)...)
-	log.Printf("here3 %v", diags.ErrorsCount())
 	state.Config = flattenConfig(ctx, cfgState, cluster.GetConfig(), respDiagnostics)
 }
 

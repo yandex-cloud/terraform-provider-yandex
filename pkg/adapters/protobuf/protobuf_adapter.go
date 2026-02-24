@@ -106,10 +106,19 @@ func FindTag(f reflect.StructField, tag, attrTagName string) (string, bool) {
 // Mapping attribute type must be compatible with a target field type
 func (f *ProtobufMapDataAdapter) Fill(ctx context.Context, target any, attributes map[string]attr.Value, diags *diag.Diagnostics) {
 	unhandledAttrs := maps.Clone(attributes)
-	f.fill(ctx, target, unhandledAttrs, diags)
+	f.fill(ctx, target, unhandledAttrs, diags, 0, -1)
 }
 
-func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attributes map[string]attr.Value, diags *diag.Diagnostics) {
+func (f *ProtobufMapDataAdapter) FillWithDepth(ctx context.Context, target any, attributes map[string]attr.Value, diags *diag.Diagnostics, maxDepth int) {
+	unhandledAttrs := maps.Clone(attributes)
+	f.fill(ctx, target, unhandledAttrs, diags, 0, maxDepth)
+}
+
+func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attributes map[string]attr.Value, diags *diag.Diagnostics, depth int, maxDepth int) {
+	if depth == maxDepth {
+		return
+	}
+	depth++
 
 	targetReflectValPtr := reflect.ValueOf(target)
 	targetReflectTypePtr := reflect.TypeOf(target)
@@ -131,13 +140,15 @@ func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attribute
 		// If pointer to struct
 		if field.Type.Kind() == reflect.Ptr && field.Type.Elem().Kind() == reflect.Struct && !slices.Contains(wrapperTypes, field.Type) {
 			targetNestedField := targetReflectVal.Field(i)
-			if targetNestedField.IsNil() {
-				targetNestedField.Set(reflect.New(field.Type.Elem()))
-			}
-			f.fill(ctx, targetNestedField.Interface(), attributes, diags)
+			if depth != maxDepth {
+				if targetNestedField.IsNil() {
+					targetNestedField.Set(reflect.New(field.Type.Elem()))
+				}
+				f.fill(ctx, targetNestedField.Interface(), attributes, diags, depth, maxDepth)
 
-			if diags.HasError() {
-				return
+				if diags.HasError() {
+					return
+				}
 			}
 			continue
 		}
@@ -145,7 +156,7 @@ func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attribute
 		// If struct
 		if field.Type.Kind() == reflect.Struct {
 			targetNestedField := targetReflectVal.Field(i).Addr().Interface()
-			f.fill(ctx, targetNestedField, attributes, diags)
+			f.fill(ctx, targetNestedField, attributes, diags, depth, maxDepth)
 			continue
 		}
 

@@ -233,9 +233,6 @@ func TestAccMDBShardedPostgreSQLCluster_full(t *testing.T) {
 	`
 
 	shardedPostgresqlConfig := `
-		common = {
-			console_password: "P@ssw0rd"
-		}
 		router = {
 			config = {
 				show_notice_messages = false
@@ -249,9 +246,6 @@ func TestAccMDBShardedPostgreSQLCluster_full(t *testing.T) {
 	`
 
 	shardedPostgresqlConfigUpdated := `
-		common = {
-			console_password: "P@ssw0rd"
-		}
 		router = {
 			config = {
 				show_notice_messages = true
@@ -523,7 +517,6 @@ func mdbShardedPostgreSQLClusterImportStep(name string) resource.TestStep {
 			"health", // volatile value
 			"hosts",  // volatile value
 			"config.sharded_postgresql_config.common.%",
-			"config.sharded_postgresql_config.common.console_password",
 		},
 	}
 }
@@ -759,9 +752,6 @@ resource "yandex_mdb_sharded_postgresql_cluster" "%s" {
 
 	config = {
 		sharded_postgresql_config = {
-			common = {
-				console_password: "P@ssw0rd"
-			}
 			router = {
 				resources = {
 %s
@@ -836,9 +826,6 @@ resource "yandex_mdb_sharded_postgresql_cluster" "cluster_host_tests" {
 
 	config = {
 		sharded_postgresql_config = {
-			common = {
-				"console_password": "P@ssw0rd"
-			}
 			router = {
 				resources = {
 					resource_preset_id = "s2.micro"

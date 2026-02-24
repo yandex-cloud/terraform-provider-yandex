@@ -71,8 +71,7 @@ func TestYandexProvider_MDBSPQRClusterConfigExpand(t *testing.T) {
 			"CheckExplicitAttributes",
 			&ShardedPostgreSQLConfig{
 				Common: NewSettingsMapValueMust(map[string]attr.Value{
-					"log_level":        types.Int64Value(int64(spqr.LogLevel_DEBUG)),
-					"console_password": types.StringValue("P@ssw0rd"),
+					"log_level": types.Int64Value(int64(spqr.LogLevel_DEBUG)),
 				}),
 				Router: &ComponentConfig{
 					Config: NewSettingsMapValueMust(map[string]attr.Value{
@@ -146,8 +145,7 @@ func TestYandexProvider_MDBSPQRClusterConfigExpand(t *testing.T) {
 						DiskTypeId:       "network-ssd",
 					},
 				},
-				LogLevel:        spqr.LogLevel_DEBUG,
-				ConsolePassword: "P@ssw0rd",
+				LogLevel: spqr.LogLevel_DEBUG,
 				Balancer: &spqr.BalancerSettings{
 					CpuThreshold:    wrapperspb.Double(0.5),
 					SpaceThreshold:  wrapperspb.Double(0.5),
@@ -170,7 +168,7 @@ func TestYandexProvider_MDBSPQRClusterConfigExpand(t *testing.T) {
 			expectedVal: &spqr.SpqrSpec{
 				Balancer: &spqr.BalancerSettings{},
 			},
-			expectedError: false,
+			expectedError: true,
 		},
 	}
 

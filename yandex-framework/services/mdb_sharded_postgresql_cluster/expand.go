@@ -43,14 +43,17 @@ func expandSPQRConfig(
 	a := protobuf_adapter.NewProtobufMapDataAdapter()
 
 	conf := &spqr.SpqrSpec{
-		Balancer: &spqr.BalancerSettings{},
+		Balancer:   &spqr.BalancerSettings{},
+		Postgresql: nil,
 	}
 
-	// TODO: fix, temporary issue
-	v := getAttrOrDefault(ctx, diags, config.Common, "console_password", types.StringValue(""))
-	conf.ConsolePassword = v.(types.String).ValueString()
-	v = getAttrOrDefault(ctx, diags, config.Common, "log_level", types.Int64Value(0))
-	conf.LogLevel = spqr.LogLevel(v.(types.Int64).ValueInt64())
+	if !config.Common.IsNull() && !config.Common.IsUnknown() {
+		attrs := config.Common.PrimitiveElements(ctx, diags)
+		if _, ok := attrs["console_password"]; ok {
+			diags.AddWarning(`console_password is deprecated`, ConsolePasswordDeprecatedMsg)
+		}
+		a.FillWithDepth(ctx, conf, attrs, diags, 1)
+	}
 
 	if !config.Balancer.IsNull() && !config.Balancer.IsUnknown() {
 		attrs := config.Balancer.PrimitiveElements(ctx, diags)
