@@ -18,7 +18,7 @@ type OpenSearchConfig2 struct {
 	ReindexRemoteWhitelist types.String `tfsdk:"reindex_remote_whitelist"`
 }
 
-var openSearchConfig2Types = map[string]attr.Type{
+var OpenSearchConfig2Types = map[string]attr.Type{
 	"max_clause_count":         types.Int64Type,
 	"fielddata_cache_size":     types.StringType,
 	"reindex_remote_whitelist": types.StringType,
@@ -26,10 +26,10 @@ var openSearchConfig2Types = map[string]attr.Type{
 
 func openSearchConfig2ToObject(ctx context.Context, cfg *api.OpenSearchConfig2) (types.Object, diag.Diagnostics) {
 	if cfg == nil {
-		return types.ObjectNull(openSearchConfig2Types), nil
+		return types.ObjectNull(OpenSearchConfig2Types), nil
 	}
 
-	return types.ObjectValueFrom(ctx, openSearchConfig2Types, OpenSearchConfig2{
+	return types.ObjectValueFrom(ctx, OpenSearchConfig2Types, OpenSearchConfig2{
 		MaxClauseCount:         types.Int64Value(cfg.GetMaxClauseCount().GetValue()),
 		FielddataCacheSize:     types.StringValue(cfg.GetFielddataCacheSize()),
 		ReindexRemoteWhitelist: types.StringValue(cfg.GetReindexRemoteWhitelist()),

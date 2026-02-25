@@ -329,13 +329,14 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				}
 
 				openSearchNodes = append(openSearchNodes, model.OpenSearchNode{
-					Name:           oldOpenSearchNodeGroup.Name,
-					Resources:      newResource,
-					HostsCount:     oldOpenSearchNodeGroup.HostsCount,
-					ZoneIDs:        oldOpenSearchNodeGroup.ZoneIDs,
-					SubnetIDs:      oldOpenSearchNodeGroup.SubnetIDs,
-					AssignPublicIP: oldOpenSearchNodeGroup.AssignPublicIP,
-					Roles:          oldOpenSearchNodeGroup.Roles,
+					Name:                oldOpenSearchNodeGroup.Name,
+					Resources:           newResource,
+					HostsCount:          oldOpenSearchNodeGroup.HostsCount,
+					ZoneIDs:             oldOpenSearchNodeGroup.ZoneIDs,
+					SubnetIDs:           oldOpenSearchNodeGroup.SubnetIDs,
+					AssignPublicIP:      oldOpenSearchNodeGroup.AssignPublicIP,
+					Roles:               oldOpenSearchNodeGroup.Roles,
+					DiskSizeAutoscaling: types.ObjectNull(model.DiskSizeAutoscalingAttrTypes),
 				})
 			}
 
@@ -348,6 +349,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 			newOpenSearchSubConfig := model.OpenSearchSubConfig{
 				NodeGroups: newOpenSearchNodeGroups,
 				Plugins:    oldOpenSearchSubConfig.Plugins,
+				Config:     types.ObjectNull(model.OpenSearchConfig2Types),
 			}
 
 			newOpenSearchSubConfigObj, diags := types.ObjectValueFrom(ctx, model.OpenSearchSubConfigAttrTypes, newOpenSearchSubConfig)

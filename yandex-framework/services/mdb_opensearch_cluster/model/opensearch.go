@@ -84,7 +84,7 @@ func (n OpenSearchNode) GetDiskSizeAutoscaling() types.Object {
 var OpenSearchSubConfigAttrTypes = map[string]attr.Type{
 	"node_groups": types.ListType{ElemType: OpenSearchNodeType},
 	"plugins":     types.SetType{ElemType: types.StringType},
-	"config":      types.ObjectType{AttrTypes: openSearchConfig2Types},
+	"config":      types.ObjectType{AttrTypes: OpenSearchConfig2Types},
 }
 
 var OpenSearchNodeType = types.ObjectType{
@@ -116,7 +116,7 @@ func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch
 		}
 	}
 
-	config := types.ObjectNull(openSearchConfig2Types)
+	config := types.ObjectNull(OpenSearchConfig2Types)
 
 	ocs2 := cfg.GetOpensearchConfigSet_2()
 	if ocs2 != nil {
