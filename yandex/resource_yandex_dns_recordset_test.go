@@ -30,6 +30,7 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "type", "A"),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "name", "srv."+fqdn),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "ttl", "200"),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "description", "rs1 description 1"),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", true),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.2", true),
 				),
@@ -143,6 +144,7 @@ func TestAccDNSRecordSet_update(t *testing.T) {
 					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "type", "A"),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "name", "srv."+fqdn),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "description", "rs1 description 2"),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "ttl", "200"),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", false),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.2", false),
@@ -155,6 +157,7 @@ func TestAccDNSRecordSet_update(t *testing.T) {
 					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "type", "CNAME"),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "name", "srv2."+fqdn),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "description", ""),
 					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "ttl", "300"),
 					testAccCheckDnsRecordsetData(&rs, "srv."+fqdn, true),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", false),
@@ -225,11 +228,12 @@ resource "yandex_dns_zone" "zone1" {
 }
 
 resource "yandex_dns_recordset" "rs1" {
-  zone_id = yandex_dns_zone.zone1.id
-  name    = "srv.%[2]s"
-  type    = "A"
-  ttl     = 200
-  data    = ["192.168.0.1", "192.168.0.2"]
+  zone_id     = yandex_dns_zone.zone1.id
+  name        = "srv.%[2]s"
+  type        = "A"
+  description = "rs1 description 1"
+  ttl         = 200
+  data        = ["192.168.0.1", "192.168.0.2"]
 }
 `, name, fqdn)
 }
@@ -297,19 +301,21 @@ resource "yandex_dns_zone" "zone1" {
 }
 
 resource "yandex_dns_recordset" "rs1" {
-  zone_id = yandex_dns_zone.zone1.id
-  name    = "srv.%[2]s"
-  type    = "A"
-  ttl     = 200
-  data    = ["192.168.0.3"]
+  zone_id     = yandex_dns_zone.zone1.id
+  name        = "srv.%[2]s"
+  type        = "A"
+  description = "rs1 description 2"
+  ttl         = 200
+  data        = ["192.168.0.3"]
 }
 
 resource "yandex_dns_recordset" "rs2" {
-  zone_id = yandex_dns_zone.zone1.id
-  name    = "srv3"
-  type    = "A"
-  ttl     = 200
-  data    = ["192.168.0.10"]
+  zone_id     = yandex_dns_zone.zone1.id
+  name        = "srv3"
+  type        = "A"
+  description = "rs2 description 1"
+  ttl         = 200
+  data        = ["192.168.0.10"]
 }
 `, name, fqdn)
 }

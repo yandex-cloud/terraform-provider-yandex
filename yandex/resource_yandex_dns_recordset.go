@@ -46,6 +46,12 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(1, 254),
 			},
 
+			"description": {
+				Type:        schema.TypeString,
+				Description: "The DNS record set description.",
+				Optional:    true,
+			},
+
 			"type": {
 				Type:         schema.TypeString,
 				Description:  "The DNS record set type.",
@@ -82,10 +88,11 @@ func resourceYandexDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) 
 	sdk := getSDK(config)
 
 	rs := &dns.RecordSet{
-		Name: d.Get("name").(string),
-		Type: d.Get("type").(string),
-		Ttl:  int64(d.Get("ttl").(int)),
-		Data: convertStringSet(d.Get("data").(*schema.Set)),
+		Name:        d.Get("name").(string),
+		Type:        d.Get("type").(string),
+		Description: d.Get("description").(string),
+		Ttl:         int64(d.Get("ttl").(int)),
+		Data:        convertStringSet(d.Get("data").(*schema.Set)),
 	}
 
 	req := dns.UpdateRecordSetsRequest{
@@ -131,6 +138,7 @@ func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsRecordSet %s", rsId(d)))
 	}
 
+	d.Set("description", rs.Description)
 	d.Set("ttl", int(rs.Ttl))
 	d.Set("data", convertStringArrToInterface(rs.Data))
 
@@ -156,10 +164,11 @@ func resourceYandexDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) 
 	sdk := getSDK(config)
 
 	rs := &dns.RecordSet{
-		Name: d.Get("name").(string),
-		Type: d.Get("type").(string),
-		Ttl:  int64(d.Get("ttl").(int)),
-		Data: convertStringSet(d.Get("data").(*schema.Set)),
+		Name:        d.Get("name").(string),
+		Type:        d.Get("type").(string),
+		Description: d.Get("description").(string),
+		Ttl:         int64(d.Get("ttl").(int)),
+		Data:        convertStringSet(d.Get("data").(*schema.Set)),
 	}
 
 	req := dns.UpdateRecordSetsRequest{
@@ -193,25 +202,27 @@ func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecord
 
 	oldTtl, newTtl := d.GetChange("ttl")
 	oldType, newType := d.GetChange("type")
-
+	oldDescription, newDescription := d.GetChange("description")
 	oldData, _ := d.GetChange("data")
 
 	req := &dns.UpdateRecordSetsRequest{
 		DnsZoneId: d.Get("zone_id").(string),
 		Deletions: []*dns.RecordSet{
 			{
-				Name: name,
-				Type: oldType.(string),
-				Ttl:  int64(oldTtl.(int)),
-				Data: convertStringSet(oldData.(*schema.Set)),
+				Name:        name,
+				Type:        oldType.(string),
+				Description: oldDescription.(string),
+				Ttl:         int64(oldTtl.(int)),
+				Data:        convertStringSet(oldData.(*schema.Set)),
 			},
 		},
 		Additions: []*dns.RecordSet{
 			{
-				Name: name,
-				Type: newType.(string),
-				Ttl:  int64(newTtl.(int)),
-				Data: convertStringSet(d.Get("data").(*schema.Set)),
+				Name:        name,
+				Type:        newType.(string),
+				Description: newDescription.(string),
+				Ttl:         int64(newTtl.(int)),
+				Data:        convertStringSet(d.Get("data").(*schema.Set)),
 			},
 		},
 	}
