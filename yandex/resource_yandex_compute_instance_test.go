@@ -1391,6 +1391,28 @@ func TestComputeInstanceLocalDisksRequest(t *testing.T) {
 			expected: []*compute.AttachedLocalDiskSpec{
 				{
 					Size: 100,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{},
+					},
+				},
+			},
+		},
+		{
+			name: "create instance with encrypted local disk",
+			localDisksSpec: []interface{}{
+				map[string]interface{}{
+					"size_bytes": 100,
+					"kms_key_id": "kms-secret-key",
+				},
+			},
+			expected: []*compute.AttachedLocalDiskSpec{
+				{
+					Size: 100,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{
+							KmsKeyId: "kms-secret-key",
+						},
+					},
 				},
 			},
 		},

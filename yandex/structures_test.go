@@ -705,6 +705,9 @@ func TestExpandLocalDiskSpecs(t *testing.T) {
 			spec: []*compute.AttachedLocalDiskSpec{
 				{
 					Size: 1,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{},
+					},
 				},
 			},
 		},
@@ -721,9 +724,34 @@ func TestExpandLocalDiskSpecs(t *testing.T) {
 			spec: []*compute.AttachedLocalDiskSpec{
 				{
 					Size: 100,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{},
+					},
 				},
 				{
 					Size: 200,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{},
+					},
+				},
+			},
+		},
+		{
+			name: "encrypted local disk",
+			data: []interface{}{
+				map[string]interface{}{
+					"size_bytes": 100,
+					"kms_key_id": "kms-secret-key",
+				},
+			},
+			spec: []*compute.AttachedLocalDiskSpec{
+				{
+					Size: 100,
+					Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+						PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{
+							KmsKeyId: "kms-secret-key",
+						},
+					},
 				},
 			},
 		},
@@ -789,6 +817,31 @@ func TestFlattenLocalDiskLocalDisks(t *testing.T) {
 				map[string]interface{}{
 					"size_bytes":  200,
 					"device_name": "nvme-disk-1",
+				},
+			},
+		},
+		{
+			name: "encrypted local disk",
+			instance: &compute.Instance{
+				LocalDisks: []*compute.AttachedLocalDisk{
+					{
+						Size:       100,
+						DeviceName: "nvme-disk-0",
+						Type: &compute.AttachedLocalDisk_PhysicalLocalDisk{
+							PhysicalLocalDisk: &compute.PhysicalLocalDisk{
+								KmsKey: &compute.KMSKey{
+									KeyId: "kms-secret-key",
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: []interface{}{
+				map[string]interface{}{
+					"size_bytes":  100,
+					"device_name": "nvme-disk-0",
+					"kms_key_id":  "kms-secret-key",
 				},
 			},
 		},

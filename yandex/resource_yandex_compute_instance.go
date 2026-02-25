@@ -613,6 +613,12 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Description: "The name of the local disk device.",
 							Computed:    true,
 						},
+						"kms_key_id": {
+							Type:        schema.TypeString,
+							Description: "The ID of the KMS key to encrypt the disk.",
+							Optional:    true,
+							ForceNew:    true,
+						},
 					},
 				},
 			},

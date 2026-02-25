@@ -986,9 +986,18 @@ func expandLocalDiskSpecs(disks interface{}) []*compute.AttachedLocalDiskSpec {
 		for _, spec := range diskSpecs {
 			diskSpec := spec.(map[string]interface{})
 			diskSize := int64(diskSpec["size_bytes"].(int))
-			localDiskSpecs = append(localDiskSpecs, &compute.AttachedLocalDiskSpec{
+			localDisk := &compute.AttachedLocalDiskSpec{
 				Size: diskSize,
-			})
+				Type: &compute.AttachedLocalDiskSpec_PhysicalLocalDisk{
+					PhysicalLocalDisk: &compute.PhysicalLocalDiskSpec{},
+				},
+			}
+
+			if kmsKeyID, ok := diskSpec["kms_key_id"]; ok {
+				localDisk.GetPhysicalLocalDisk().KmsKeyId = kmsKeyID.(string)
+			}
+
+			localDiskSpecs = append(localDiskSpecs, localDisk)
 		}
 	}
 	return localDiskSpecs
@@ -2022,10 +2031,16 @@ func flattenLocalDisks(instance *compute.Instance) []interface{} {
 	}
 	result := make([]interface{}, len(instance.LocalDisks))
 	for i, disk := range instance.LocalDisks {
-		result[i] = map[string]interface{}{
+		spec := map[string]interface{}{
 			"size_bytes":  int(disk.Size),
 			"device_name": disk.DeviceName,
 		}
+
+		if disk.GetPhysicalLocalDisk() != nil && disk.GetPhysicalLocalDisk().KmsKey != nil {
+			spec["kms_key_id"] = disk.GetPhysicalLocalDisk().KmsKey.KeyId
+		}
+
+		result[i] = spec
 	}
 	return result
 }
