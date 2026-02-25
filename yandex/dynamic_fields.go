@@ -647,12 +647,16 @@ func stringOfEnumSliceCompareWithDefault(fieldsInfo *objectFieldsInfo, old, new,
 }
 
 func stringOfEnumCompareWithDefault(fieldsInfo *objectFieldsInfo, old, new, fieldname string) bool {
-	intV, err := fieldsInfo.stringToInt(fieldname, new)
+	intNew, err := fieldsInfo.stringToInt(fieldname, new)
 	if err != nil {
 		log.Printf("[ERROR] Cannot convert enum value to int. Fieldname: %s, value: %s", fieldname, new)
 		return false
 	}
-	if fieldsInfo.intEqualDefault(fieldname, intV) && old == "" {
+	intOld, err := fieldsInfo.stringToInt(fieldname, old)
+	if err != nil {
+		return false
+	}
+	if fieldsInfo.intEqualDefault(fieldname, intNew) && fieldsInfo.intEqualDefault(fieldname, intOld) {
 		return true
 	}
 	return old == new

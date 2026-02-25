@@ -28,7 +28,7 @@ type PGAuditSettings struct {
 	Log []string `json:"log"`
 }
 
-func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
+func flattenPGClusterConfig(d *schema.ResourceData, c *postgresql.ClusterConfig) ([]interface{}, error) {
 	settings, err := flattenPGSettings(c)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 
 	out := map[string]interface{}{}
 	out["version"] = c.Version
-	out["pooler_config"] = flattenPGPoolerConfig(c.PoolerConfig)
+	out["pooler_config"] = flattenPGPoolerConfig(d, c.PoolerConfig)
 	out["resources"] = flattenPGResources(c.Resources)
 	out["backup_window_start"] = flattenMDBBackupWindowStart(c.BackupWindowStart)
 	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
@@ -48,13 +48,19 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	return []interface{}{out}, nil
 }
 
-func flattenPGPoolerConfig(c *postgresql.ConnectionPoolerConfig) []interface{} {
+func flattenPGPoolerConfig(d *schema.ResourceData, c *postgresql.ConnectionPoolerConfig) []interface{} {
 	if c == nil {
 		return nil
 	}
 
 	out := map[string]interface{}{}
-	out["pool_discard"] = c.GetPoolDiscard().GetValue()
+	if _, ok := d.GetOk("config.0.pooler_config.0.pool_discard"); ok {
+		out["pool_discard"] = c.GetPoolDiscard().GetValue()
+	}
+
+	if _, ok := d.GetOk("config.0.pooler_config.0.pooler_pool_discard"); ok {
+		out["pooler_pool_discard"] = mdbPGResolveTristateBoolean(c.GetPoolDiscard())
+	}
 	out["pooling_mode"] = c.GetPoolingMode().String()
 
 	return []interface{}{out}
@@ -938,19 +944,21 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 	log.Print("[DEBUG] pgFieldName")
 
 	mdbPGUpdateFieldsMap := map[string]string{
-		"name":                                       "name",
-		"description":                                "description",
-		"labels":                                     "labels",
-		"network_id":                                 "network_id",
-		"config.0.version":                           "config_spec.version",
-		"config.0.pooler_config.0.pooling_mode":      "config_spec.pooler_config.pooling_mode",
-		"config.0.pooler_config.0.pool_discard":      "config_spec.pooler_config.pool_discard",
-		"config.0.access.0.data_lens":                "config_spec.access.data_lens",
-		"config.0.access.0.web_sql":                  "config_spec.access.web_sql",
-		"config.0.access.0.serverless":               "config_spec.access.serverless",
-		"config.0.access.0.data_transfer":            "config_spec.access.data_transfer",
-		"config.0.access.0.yandex_query":             "config_spec.access.yandex_query",
-		"config.0.performance_diagnostics.0.enabled": "config_spec.performance_diagnostics.enabled",
+		"name":                                  "name",
+		"description":                           "description",
+		"labels":                                "labels",
+		"network_id":                            "network_id",
+		"config.0.version":                      "config_spec.version",
+		"config.0.autofailover":                 "config_spec.autofailover",
+		"config.0.pooler_config.0.pooling_mode": "config_spec.pooler_config.pooling_mode",
+		"config.0.pooler_config.0.pool_discard": "config_spec.pooler_config.pool_discard",
+		"config.0.pooler_config.0.pooler_pool_discard":                    "config_spec.pooler_config.pool_discard",
+		"config.0.access.0.data_lens":                                     "config_spec.access.data_lens",
+		"config.0.access.0.web_sql":                                       "config_spec.access.web_sql",
+		"config.0.access.0.serverless":                                    "config_spec.access.serverless",
+		"config.0.access.0.data_transfer":                                 "config_spec.access.data_transfer",
+		"config.0.access.0.yandex_query":                                  "config_spec.access.yandex_query",
+		"config.0.performance_diagnostics.0.enabled":                      "config_spec.performance_diagnostics.enabled",
 		"config.0.performance_diagnostics.0.sessions_sampling_interval":   "config_spec.performance_diagnostics.sessions_sampling_interval",
 		"config.0.performance_diagnostics.0.statements_sampling_interval": "config_spec.performance_diagnostics.statements_sampling_interval",
 		"config.0.disk_size_autoscaling":                                  "config_spec.disk_size_autoscaling",
@@ -966,7 +974,9 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 	updatePath := []string{}
 	for field, path := range mdbPGUpdateFieldsMap {
 		if d.HasChange(field) {
-			updatePath = append(updatePath, path)
+			if !avoidPoolerConfigPoolDiscardChanges(d, field) {
+				updatePath = append(updatePath, path)
+			}
 		}
 	}
 
@@ -980,6 +990,21 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 	}
 
 	return updatePath, nil
+}
+
+func avoidPoolerConfigPoolDiscardChanges(d *schema.ResourceData, field string) bool {
+	if field == "config.0.pooler_config.0.pool_discard" || field == "config.0.pooler_config.0.pooler_pool_discard" {
+		oldPoolDiscard, newPoolDiscard := d.GetChange("config.0.pooler_config.0.pool_discard")
+		oldPoolerPoolDiscard, newPoolerPoolDiscard := d.GetChange("config.0.pooler_config.0.pooler_pool_discard")
+
+		if oldPoolDiscard == true && newPoolerPoolDiscard == "true" {
+			return true
+		}
+		if oldPoolerPoolDiscard == "true" && newPoolerPoolDiscard == "" && newPoolDiscard == true {
+			return true
+		}
+	}
+	return false
 }
 
 func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []string, error) {
@@ -1031,7 +1056,9 @@ func expandPGPoolerConfig(d *schema.ResourceData) (*postgresql.ConnectionPoolerC
 		pc.PoolingMode = pm
 	}
 
-	if v, ok := d.GetOk("config.0.pooler_config.0.pool_discard"); ok {
+	if v, ok := d.GetOk("config.0.pooler_config.0.pooler_pool_discard"); ok {
+		pc.PoolDiscard = mdbPGTristateBooleanName[v.(string)]
+	} else if v, ok := d.GetOk("config.0.pooler_config.0.pool_discard"); ok {
 		pc.PoolDiscard = &wrappers.BoolValue{Value: v.(bool)}
 	}
 
@@ -2293,3 +2320,7 @@ var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
 		defaultStringOfEnumsCheck("shared_preload_libraries"),
 		stringOfEnumSliceCompareWithDefault,
 	)
+
+var mdbPGPoolerConfigFieldsInfo = newObjectFieldsInfo().
+	addType(postgresql.ConnectionPoolerConfig{}, []reflect.Type{}).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pooling_mode", postgresql.ConnectionPoolerConfig_PoolingMode_name)

@@ -287,6 +287,12 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: poolerConfigElem.Schema["pool_discard"].Description,
 							Computed:    true,
+							Deprecated:  fieldDeprecatedForAnother("pool_discard", "pooler_pool_discard"),
+						},
+						"pooler_pool_discard": {
+							Type:        schema.TypeString,
+							Description: poolerConfigElem.Schema["pooler_pool_discard"].Description,
+							Computed:    true,
 						},
 					},
 				},
@@ -524,7 +530,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config)
+	pgClusterConfig, err := flattenPGClusterConfig(d, cluster.Config)
 	if err != nil {
 		return err
 	}
