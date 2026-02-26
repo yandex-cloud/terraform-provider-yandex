@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'compute: add `kms_key_id` option to local_disks'
-time: 2026-02-18T22:34:39.586352+03:00

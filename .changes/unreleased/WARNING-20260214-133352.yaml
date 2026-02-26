@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'sharded_postgresql: `console_password` for `yandex_mdb_sharded_postgresql_cluster` config is now deprecated'
-time: 2026-02-14T13:33:52.417561+03:00

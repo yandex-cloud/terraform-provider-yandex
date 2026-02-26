@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: deprecate pool_discard field, add new field pooler_pool_discard instead'
-time: 2026-02-24T17:38:31.365137+03:00
