@@ -40,21 +40,21 @@ func PatchIDsAfterRead(ctx context.Context, config *config.Config, resp *datatra
 }
 
 func ActivateReplicationAfterCreate(ctx context.Context, config *config.Config, resp *datatransfer.Transfer, model *yandexDatatransferTransferModel) diag.Diagnostics {
-	var diags diag.Diagnostics
-	transferType := model.GetType().String()
+	transferType := model.GetType().ValueString()
 	if transferType != datatransfer.TransferType_SNAPSHOT_ONLY.String() {
 		activateType := model.GetOnCreateActivateMode().ValueString()
 		if activateType != dontActivateMode {
 			syncMode := activateType == syncActivateMode
 			tflog.Debug(ctx, fmt.Sprintf("activating transfer due to on_create_activate_mode param: %s", activateType))
 			if err := activateTransfer(ctx, config, resp.Id, syncMode); err != nil {
-				diags.AddError("failed to activate transfer", fmt.Sprintf("cannot activate transfer %q: %s", resp.Id, err.Error()))
+				// TODO: fail gracefully after fix https://st.yandex-team.ru/CLOUDAPI-1423
+				tflog.Error(ctx, fmt.Sprintf("[ERROR] Failed to activate transfer %q: %s", resp.Id, err.Error()))
 			}
 		} else {
 			tflog.Debug(ctx, fmt.Sprintf("activating skipped by on_create_activate_mode param: %s", activateType))
 		}
 	}
-	return diags
+	return nil
 }
 
 func activateTransfer(ctx context.Context, config *config.Config, transferID string, waitActivating bool) error {
@@ -80,7 +80,7 @@ func activateTransfer(ctx context.Context, config *config.Config, transferID str
 }
 
 func DeactivateReplicationBeforeDelete(ctx context.Context, config *config.Config, req *datatransfer.DeleteTransferRequest, model *yandexDatatransferTransferModel) diag.Diagnostics {
-	transferType := model.GetType().String()
+	transferType := model.GetType().ValueString()
 	if transferType != datatransfer.TransferType_SNAPSHOT_ONLY.String() {
 		if err := deactivateTransfer(ctx, config, req.GetTransferId()); err != nil {
 			tflog.Error(ctx, fmt.Sprintf("[WARN] Deactivate Transfer %s error: %s. Trying to delete", req.GetTransferId(), err.Error()))
