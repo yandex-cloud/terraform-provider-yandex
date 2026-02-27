@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -63,12 +64,44 @@ func sweepMDBPostgreSQLCluster(conf *Config, id string) bool {
 	return sweepWithRetry(sweepMDBPostgreSQLClusterOnce, conf, "PostgreSQL cluster", id)
 }
 
+func waitPostgreSQLClusterReadyForSweep(ctx context.Context, conf *Config, id string) error {
+	ticker := time.NewTicker(15 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context cancelled while waiting for cluster %s to become ready for sweep", id)
+		case <-ticker.C:
+			cluster, err := conf.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+				ClusterId: id,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to get cluster %s state: %w", id, err)
+			}
+
+			switch cluster.Status {
+			case postgresql.Cluster_CREATING,
+				postgresql.Cluster_UPDATING,
+				postgresql.Cluster_STOPPING,
+				postgresql.Cluster_STARTING:
+				continue
+			default:
+				return nil
+			}
+		}
+	}
+}
+
 func sweepMDBPostgreSQLClusterOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexMDBPostgreSQLClusterDeleteTimeout)
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBPostgreSQLClusterCreateTimeout)
 	defer cancel()
 
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	if err := waitPostgreSQLClusterReadyForSweep(ctx, conf, id); err != nil {
+		return fmt.Errorf("cluster is not ready for sweep: %w", err)
+	}
 
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
 	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
