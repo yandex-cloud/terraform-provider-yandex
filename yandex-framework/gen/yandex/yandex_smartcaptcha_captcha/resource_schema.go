@@ -357,7 +357,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"timeouts": timeouts.AttributesAll(ctx),
 		},
 
 		Blocks: map[string]schema.Block{
@@ -489,13 +488,92 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 					Attributes: map[string]schema.Attribute{
 
-						"condition": schema.ListNestedAttribute{
-							NestedObject: schema.NestedAttributeObject{
+						"description": schema.StringAttribute{
+							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
+							Description: "Optional description of the rule. 0-512 characters long." +
+								// proto paths: +
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
+								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
+								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
+								"package: yandex.cloud.smartcaptcha.v1\n" +
+								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+							Optional: true,
+							Computed: true,
 
-								Attributes: map[string]schema.Attribute{
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								stringvalidator.LengthBetween(0, 512),
+							},
+						},
 
-									"headers": schema.ListNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the rule. The name is unique within the captcha. 1-50 characters long.",
+							Description: "Name of the rule. The name is unique within the captcha. 1-50 characters long." +
+								// proto paths: +
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
+								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
+								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
+								"package: yandex.cloud.smartcaptcha.v1\n" +
+								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+							Required: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								stringvalidator.RegexMatches(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), "error validating regexp"),
+								stringvalidator.LengthBetween(1, 50),
+							},
+						},
+
+						"override_variant_uuid": schema.StringAttribute{
+							MarkdownDescription: "Variant UUID to show in case of match the rule. Keep empty to use defaults.",
+							Description: "Variant UUID to show in case of match the rule. Keep empty to use defaults." +
+								// proto paths: +
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
+								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
+								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
+								"package: yandex.cloud.smartcaptcha.v1\n" +
+								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+
+						"priority": schema.Int64Attribute{
+							MarkdownDescription: "Priority of the rule. Lower value means higher priority.",
+							Description: "Priority of the rule. Lower value means higher priority." +
+								// proto paths: +
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
+								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
+								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
+								"package: yandex.cloud.smartcaptcha.v1\n" +
+								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.Int64{
+								int64validator.Between(1, 999999),
+							},
+						},
+					},
+					Blocks: map[string]schema.Block{
+
+						"condition": schema.ListNestedBlock{
+							NestedObject: schema.NestedBlockObject{
+
+								Blocks: map[string]schema.Block{
+
+									"headers": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
 
 											Attributes: map[string]schema.Attribute{
 
@@ -517,9 +595,11 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														stringvalidator.LengthBetween(1, 255),
 													},
 												},
+											},
+											Blocks: map[string]schema.Block{
 
-												"value": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"value": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -652,7 +732,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Required: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -671,8 +750,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 											// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headers
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-										Optional: true,
-										Computed: true,
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
@@ -680,13 +757,13 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 										},
 									},
 
-									"host": schema.ListNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
+									"host": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
 
-											Attributes: map[string]schema.Attribute{
+											Blocks: map[string]schema.Block{
 
-												"hosts": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"hosts": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -819,8 +896,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -837,8 +912,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 											// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.host
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-										Optional: true,
-										Computed: true,
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
@@ -848,13 +921,13 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 										},
 									},
 
-									"source_ip": schema.ListNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
+									"source_ip": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
 
-											Attributes: map[string]schema.Attribute{
+											Blocks: map[string]schema.Block{
 
-												"geo_ip_match": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"geo_ip_match": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -889,8 +962,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -900,8 +971,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 													},
 												},
 
-												"geo_ip_not_match": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"geo_ip_not_match": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -936,8 +1007,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -947,8 +1016,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 													},
 												},
 
-												"ip_ranges_match": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"ip_ranges_match": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -983,8 +1052,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -994,8 +1061,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 													},
 												},
 
-												"ip_ranges_not_match": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"ip_ranges_not_match": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -1030,8 +1097,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -1050,8 +1115,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 											// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ip
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-										Optional: true,
-										Computed: true,
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
@@ -1061,13 +1124,13 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 										},
 									},
 
-									"uri": schema.ListNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
+									"uri": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
 
-											Attributes: map[string]schema.Attribute{
+											Blocks: map[string]schema.Block{
 
-												"path": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"path": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -1200,8 +1263,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -1211,8 +1272,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 													},
 												},
 
-												"queries": schema.ListNestedAttribute{
-													NestedObject: schema.NestedAttributeObject{
+												"queries": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
@@ -1234,9 +1295,11 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																	stringvalidator.LengthBetween(1, 255),
 																},
 															},
+														},
+														Blocks: map[string]schema.Block{
 
-															"value": schema.ListNestedAttribute{
-																NestedObject: schema.NestedAttributeObject{
+															"value": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
 
 																	Attributes: map[string]schema.Attribute{
 
@@ -1369,7 +1432,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-																Required: true,
 
 																PlanModifiers: []planmodifier.List{
 																	listplanmodifier.UseStateForUnknown(),
@@ -1388,8 +1450,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-													Optional: true,
-													Computed: true,
 
 													PlanModifiers: []planmodifier.List{
 														listplanmodifier.UseStateForUnknown(),
@@ -1406,8 +1466,6 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 											// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uri
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-										Optional: true,
-										Computed: true,
 
 										PlanModifiers: []planmodifier.List{
 											listplanmodifier.UseStateForUnknown(),
@@ -1426,91 +1484,12 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.condition
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-							Optional: true,
-							Computed: true,
 
 							PlanModifiers: []planmodifier.List{
 								listplanmodifier.UseStateForUnknown(),
 							},
 							Validators: []validator.List{
 								listvalidator.SizeAtMost(1),
-							},
-						},
-
-						"description": schema.StringAttribute{
-							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
-							Description: "Optional description of the rule. 0-512 characters long." +
-								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
-								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
-								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
-								"package: yandex.cloud.smartcaptcha.v1\n" +
-								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-							Optional: true,
-							Computed: true,
-
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-							Validators: []validator.String{
-								stringvalidator.LengthBetween(0, 512),
-							},
-						},
-
-						"name": schema.StringAttribute{
-							MarkdownDescription: "Name of the rule. The name is unique within the captcha. 1-50 characters long.",
-							Description: "Name of the rule. The name is unique within the captcha. 1-50 characters long." +
-								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
-								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
-								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
-								"package: yandex.cloud.smartcaptcha.v1\n" +
-								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-							Required: true,
-
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-							Validators: []validator.String{
-								stringvalidator.RegexMatches(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), "error validating regexp"),
-								stringvalidator.LengthBetween(1, 50),
-							},
-						},
-
-						"override_variant_uuid": schema.StringAttribute{
-							MarkdownDescription: "Variant UUID to show in case of match the rule. Keep empty to use defaults.",
-							Description: "Variant UUID to show in case of match the rule. Keep empty to use defaults." +
-								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
-								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
-								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
-								"package: yandex.cloud.smartcaptcha.v1\n" +
-								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-							Optional: true,
-							Computed: true,
-
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-						},
-
-						"priority": schema.Int64Attribute{
-							MarkdownDescription: "Priority of the rule. Lower value means higher priority.",
-							Description: "Priority of the rule. Lower value means higher priority." +
-								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
-								// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
-								// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
-								"package: yandex.cloud.smartcaptcha.v1\n" +
-								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
-							Optional: true,
-							Computed: true,
-
-							PlanModifiers: []planmodifier.Int64{
-								int64planmodifier.UseStateForUnknown(),
-							},
-							Validators: []validator.Int64{
-								int64validator.Between(1, 999999),
 							},
 						},
 					},
@@ -1529,6 +1508,7 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 					planmodifiers.NilRelaxedList(),
 				},
 			},
+			"timeouts": timeouts.BlockAll(ctx),
 		},
 	}
 }

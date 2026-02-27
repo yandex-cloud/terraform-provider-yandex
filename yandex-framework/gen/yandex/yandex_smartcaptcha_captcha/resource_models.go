@@ -39,6 +39,22 @@ func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) GetUuid() types.St
 	return m.Uuid
 }
 
+func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) SetChallengeType(target types.String) {
+	m.ChallengeType = target
+}
+func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) SetComplexity(target types.String) {
+	m.Complexity = target
+}
+func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) SetPreCheckType(target types.String) {
+	m.PreCheckType = target
+}
+func (m *yandexSmartcaptchaCaptchaOverrideVariantStructModel) SetUuid(target types.String) {
+	m.Uuid = target
+}
+
 func NewYandexSmartcaptchaCaptchaOverrideVariantStructModel() yandexSmartcaptchaCaptchaOverrideVariantStructModel {
 	return yandexSmartcaptchaCaptchaOverrideVariantStructModel{
 		ChallengeType: types.StringNull(),
@@ -132,6 +148,13 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStruct
 	return m.Value
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructModel) SetValue(target types.List) {
+	m.Value = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructModel{
 		Name:  types.StringNull(),
@@ -219,6 +242,25 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStruct
 }
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) GetPrefixNotMatch() types.String {
 	return m.PrefixNotMatch
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaderMatcherStructValueModel {
@@ -369,6 +411,25 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherSt
 	return m.PrefixNotMatch
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModel{
 		ExactMatch:        types.StringNull(),
@@ -481,6 +542,13 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStru
 	return m.Value
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructModel) SetKey(target types.String) {
+	m.Key = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructModel) SetValue(target types.List) {
+	m.Value = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructModel{
 		Key:   types.StringNull(),
@@ -568,6 +636,25 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStru
 }
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) GetPrefixNotMatch() types.String {
 	return m.PrefixNotMatch
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriQueryMatcherStructValueModel {
@@ -714,6 +801,22 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) GetPriority() types.I
 	return m.Priority
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) SetCondition(target types.List) {
+	m.Condition = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) SetOverrideVariantUuid(target types.String) {
+	m.OverrideVariantUuid = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructModel) SetPriority(target types.Int64) {
+	m.Priority = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructModel() yandexSmartcaptchaCaptchaSecurityRuleStructModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructModel{
 		Condition:           types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionModelType),
@@ -814,6 +917,19 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) GetSourceIp(
 }
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) GetUri() types.List {
 	return m.Uri
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) SetHeaders(target types.List) {
+	m.Headers = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) SetHost(target types.List) {
+	m.Host = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) SetSourceIp(target types.List) {
+	m.SourceIp = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel) SetUri(target types.List) {
+	m.Uri = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionModel {
@@ -973,6 +1089,10 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) GetHosts
 	return m.Hosts
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel{
 		Hosts: types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType),
@@ -1112,6 +1232,19 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel) GetI
 	return m.IpRangesNotMatch
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel) SetGeoIpMatch(target types.List) {
+	m.GeoIpMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel) SetGeoIpNotMatch(target types.List) {
+	m.GeoIpNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel) SetIpRangesMatch(target types.List) {
+	m.IpRangesMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel) SetIpRangesNotMatch(target types.List) {
+	m.IpRangesNotMatch = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpModel{
 		GeoIpMatch:       types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModelType),
@@ -1221,6 +1354,10 @@ type yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModel
 
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModel) GetLocations() types.List {
 	return m.Locations
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModel) SetLocations(target types.List) {
+	m.Locations = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpMatchModel {
@@ -1350,6 +1487,10 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpNotMat
 	return m.Locations
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpNotMatchModel) SetLocations(target types.List) {
+	m.Locations = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpNotMatchModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpNotMatchModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpGeoIpNotMatchModel{
 		Locations: types.ListNull(types.StringType),
@@ -1477,6 +1618,10 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesMat
 	return m.IpRanges
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesMatchModel) SetIpRanges(target types.List) {
+	m.IpRanges = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesMatchModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesMatchModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesMatchModel{
 		IpRanges: types.ListNull(types.StringType),
@@ -1602,6 +1747,10 @@ type yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesNotMatc
 
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesNotMatchModel) GetIpRanges() types.List {
 	return m.IpRanges
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesNotMatchModel) SetIpRanges(target types.List) {
+	m.IpRanges = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesNotMatchModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionSourceIpIpRangesNotMatchModel {
@@ -1735,6 +1884,13 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel) GetQuerie
 	return m.Queries
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel) SetPath(target types.List) {
+	m.Path = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel) SetQueries(target types.List) {
+	m.Queries = target
+}
+
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriModel{
 		Path:    types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModelType),
@@ -1850,6 +2006,25 @@ func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) GetPr
 }
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) GetPrefixNotMatch() types.String {
 	return m.PrefixNotMatch
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionUriPathModel {
@@ -2103,6 +2278,67 @@ func (m *yandexSmartcaptchaCaptchaModel) GetTurnOffHostnameCheck() types.Bool {
 	return m.TurnOffHostnameCheck
 }
 
+func (m *yandexSmartcaptchaCaptchaModel) SetAllowedSites(target types.List) {
+	m.AllowedSites = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetCaptchaId(target types.String) {
+	m.CaptchaId = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetChallengeType(target types.String) {
+	m.ChallengeType = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetClientKey(target types.String) {
+	m.ClientKey = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetComplexity(target types.String) {
+	m.Complexity = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetDisallowDataProcessing(target types.Bool) {
+	m.DisallowDataProcessing = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetOverrideVariant(target types.List) {
+	m.OverrideVariant = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetPreCheckType(target types.String) {
+	m.PreCheckType = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetSecurityRule(target types.List) {
+	m.SecurityRule = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetStyleJson(target types.String) {
+	m.StyleJson = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetSuspend(target types.Bool) {
+	m.Suspend = target
+}
+func (m *yandexSmartcaptchaCaptchaModel) SetTurnOffHostnameCheck(target types.Bool) {
+	m.TurnOffHostnameCheck = target
+}
+
 func NewYandexSmartcaptchaCaptchaModel() yandexSmartcaptchaCaptchaModel {
 	return yandexSmartcaptchaCaptchaModel{
 		AllowedSites:           types.ListNull(types.StringType),
@@ -2214,7 +2450,7 @@ var yandexSmartcaptchaCaptchaModelType = types.ObjectType{
 		"style_json":               types.StringType,
 		"suspend":                  types.BoolType,
 		"turn_off_hostname_check":  types.BoolType,
-		"timeouts":                 timeouts.AttributesAll(context.Background()).GetType(),
+		"timeouts":                 timeouts.BlockAll(context.Background()).Type(),
 	},
 }
 

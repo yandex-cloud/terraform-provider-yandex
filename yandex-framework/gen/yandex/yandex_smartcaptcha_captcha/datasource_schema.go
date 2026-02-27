@@ -858,9 +858,10 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 					"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 				Computed: true,
 			},
-			"timeouts": timeouts.AttributesAll(ctx),
 		},
 
-		Blocks: map[string]schema.Block{},
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.BlockAll(ctx),
+		},
 	}
 }

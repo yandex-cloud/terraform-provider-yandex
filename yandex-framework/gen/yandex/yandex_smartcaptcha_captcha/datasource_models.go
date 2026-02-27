@@ -98,6 +98,67 @@ func (m *yandexSmartcaptchaCaptchaDatasourceModel) GetTurnOffHostnameCheck() typ
 	return m.TurnOffHostnameCheck
 }
 
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetAllowedSites(target types.List) {
+	m.AllowedSites = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetCaptchaId(target types.String) {
+	m.CaptchaId = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetChallengeType(target types.String) {
+	m.ChallengeType = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetClientKey(target types.String) {
+	m.ClientKey = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetComplexity(target types.String) {
+	m.Complexity = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetDisallowDataProcessing(target types.Bool) {
+	m.DisallowDataProcessing = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetOverrideVariant(target types.List) {
+	m.OverrideVariant = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetPreCheckType(target types.String) {
+	m.PreCheckType = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetSecurityRule(target types.List) {
+	m.SecurityRule = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetStyleJson(target types.String) {
+	m.StyleJson = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetSuspend(target types.Bool) {
+	m.Suspend = target
+}
+func (m *yandexSmartcaptchaCaptchaDatasourceModel) SetTurnOffHostnameCheck(target types.Bool) {
+	m.TurnOffHostnameCheck = target
+}
+
 func NewYandexSmartcaptchaCaptchaDatasourceModel() yandexSmartcaptchaCaptchaDatasourceModel {
 	return yandexSmartcaptchaCaptchaDatasourceModel{
 		AllowedSites:           types.ListNull(types.StringType),
@@ -209,7 +270,7 @@ var yandexSmartcaptchaCaptchaDatasourceModelType = types.ObjectType{
 		"style_json":               types.StringType,
 		"suspend":                  types.BoolType,
 		"turn_off_hostname_check":  types.BoolType,
-		"timeouts":                 timeouts.AttributesAll(context.Background()).GetType(),
+		"timeouts":                 timeouts.BlockAll(context.Background()).Type(),
 	},
 }
 
