@@ -125,6 +125,6 @@ The default is password_encryption setting for cluster.
 The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
 
 ```shell
-# terraform import yandex_mdb_postgresql_user.<resource Name> <resource Id>
+# terraform import yandex_mdb_postgresql_user.<resource Name> <cluster Id>:<user_name>
 terraform import yandex_mdb_postgresql_user.my_user ...
 ```
