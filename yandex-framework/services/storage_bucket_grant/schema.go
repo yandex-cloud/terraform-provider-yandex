@@ -48,6 +48,7 @@ func ResourceSchema(ctx context.Context) schema.Schema {
 			"access_key": schema.StringAttribute{
 				MarkdownDescription: "The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
 				Optional:            true,
+				Sensitive:           true,
 			},
 			"secret_key": schema.StringAttribute{
 				MarkdownDescription: "The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in provider config (explicitly or within `shared_credentials_file`) is used.",
