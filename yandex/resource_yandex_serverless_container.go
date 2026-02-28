@@ -562,7 +562,7 @@ func resourceYandexServerlessContainerDiagsFromDeployRevisionError(err error) di
 		return nil
 	}
 	return diag.Diagnostics{diag.Diagnostic{
-		Severity: diag.Warning,
+		Severity: diag.Error,
 		Summary:  "Failed to deploy revision for Yandex Cloud Container",
 		Detail: "Error while requesting API to deploy revision for Yandex Cloud Container. " +
 			"After resolving following issues apply resource again to deploy revision for Yandex Cloud Container:\n" +
