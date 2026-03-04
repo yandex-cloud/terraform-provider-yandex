@@ -66,6 +66,7 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			"folder_id": {
 				Type:        schema.TypeString,
 				Description: common.ResourceDescriptions["folder_id"],
+				Optional:    true,
 				Computed:    true,
 			},
 			"description": {
