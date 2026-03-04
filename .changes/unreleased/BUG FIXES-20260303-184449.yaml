@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'organizationmanager: fix update_mask and field deletion for idp userpool'
+time: 2026-03-03T18:44:49.682947+03:00

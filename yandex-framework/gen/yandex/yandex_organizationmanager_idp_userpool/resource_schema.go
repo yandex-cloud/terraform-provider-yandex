@@ -416,9 +416,6 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 						Optional: true,
 						Computed: true,
 
-						PlanModifiers: []planmodifier.Object{
-							objectplanmodifier.UseStateForUnknown(),
-						},
 						Validators: []validator.Object{
 							objectvalidator.ConflictsWith(
 								path.MatchRelative().AtParent().AtName("smart"),
@@ -561,9 +558,6 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 						Optional: true,
 						Computed: true,
 
-						PlanModifiers: []planmodifier.Object{
-							objectplanmodifier.UseStateForUnknown(),
-						},
 						Validators: []validator.Object{
 							objectvalidator.ConflictsWith(
 								path.MatchRelative().AtParent().AtName("fixed"),

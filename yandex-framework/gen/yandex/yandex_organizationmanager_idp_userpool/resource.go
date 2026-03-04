@@ -319,7 +319,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	if (plan.BruteforceProtectionPolicy.IsNull() || state.BruteforceProtectionPolicy.IsNull()) &&
 		!(plan.BruteforceProtectionPolicy.IsNull() && state.BruteforceProtectionPolicy.IsNull()) {
 		updatePaths = append(updatePaths, "bruteforce_protection_policy")
-	} else {
+	} else if !plan.BruteforceProtectionPolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel
 		resp.Diagnostics.Append(plan.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.BruteforceProtectionPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -356,7 +356,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	if (plan.PasswordLifetimePolicy.IsNull() || state.PasswordLifetimePolicy.IsNull()) &&
 		!(plan.PasswordLifetimePolicy.IsNull() && state.PasswordLifetimePolicy.IsNull()) {
 		updatePaths = append(updatePaths, "password_lifetime_policy")
-	} else {
+	} else if !plan.PasswordLifetimePolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel
 		resp.Diagnostics.Append(plan.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.PasswordLifetimePolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -375,7 +375,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	if (plan.PasswordQualityPolicy.IsNull() || state.PasswordQualityPolicy.IsNull()) &&
 		!(plan.PasswordQualityPolicy.IsNull() && state.PasswordQualityPolicy.IsNull()) {
 		updatePaths = append(updatePaths, "password_quality_policy")
-	} else {
+	} else if !plan.PasswordQualityPolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel
 		resp.Diagnostics.Append(plan.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.PasswordQualityPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -390,7 +390,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) &&
 			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) {
 			updatePaths = append(updatePaths, "password_quality_policy.fixed")
-		} else {
+		} else if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsUnknown() {
 			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel
 			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -424,7 +424,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) &&
 			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) {
 			updatePaths = append(updatePaths, "password_quality_policy.smart")
-		} else {
+		} else if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsUnknown() {
 			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel
 			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -450,7 +450,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	if (plan.UserSettings.IsNull() || state.UserSettings.IsNull()) &&
 		!(plan.UserSettings.IsNull() && state.UserSettings.IsNull()) {
 		updatePaths = append(updatePaths, "user_settings")
-	} else {
+	} else if !plan.UserSettings.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolUserSettingsState, yandexOrganizationmanagerIdpUserpoolUserSettingsPlan yandexOrganizationmanagerIdpUserpoolUserSettingsModel
 		resp.Diagnostics.Append(plan.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.UserSettings.As(ctx, &yandexOrganizationmanagerIdpUserpoolUserSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)

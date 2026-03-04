@@ -75,6 +75,49 @@ func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetID() types.Stri
 	return m.ID
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetBruteforceProtectionPolicy(target types.Object) {
+	m.BruteforceProtectionPolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetDomains(target types.List) {
+	m.Domains = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetPasswordLifetimePolicy(target types.Object) {
+	m.PasswordLifetimePolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetPasswordQualityPolicy(target types.Object) {
+	m.PasswordQualityPolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetUserSettings(target types.Object) {
+	m.UserSettings = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetUserpoolId(target types.String) {
+	m.UserpoolId = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolDatasourceModel() yandexOrganizationmanagerIdpUserpoolDatasourceModel {
 	return yandexOrganizationmanagerIdpUserpoolDatasourceModel{
 		BruteforceProtectionPolicy: types.ObjectNull(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModelType.AttrTypes),

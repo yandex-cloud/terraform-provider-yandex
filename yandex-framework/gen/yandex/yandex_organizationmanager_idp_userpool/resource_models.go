@@ -80,6 +80,52 @@ func (m *yandexOrganizationmanagerIdpUserpoolModel) GetID() types.String {
 	return m.ID
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetBruteforceProtectionPolicy(target types.Object) {
+	m.BruteforceProtectionPolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetDefaultSubdomain(target types.String) {
+	m.DefaultSubdomain = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetDomains(target types.List) {
+	m.Domains = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetPasswordLifetimePolicy(target types.Object) {
+	m.PasswordLifetimePolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetPasswordQualityPolicy(target types.Object) {
+	m.PasswordQualityPolicy = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetUserSettings(target types.Object) {
+	m.UserSettings = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetUserpoolId(target types.String) {
+	m.UserpoolId = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolModel() yandexOrganizationmanagerIdpUserpoolModel {
 	return yandexOrganizationmanagerIdpUserpoolModel{
 		BruteforceProtectionPolicy: types.ObjectNull(yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModelType.AttrTypes),
@@ -250,6 +296,16 @@ func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) Ge
 	return m.Window
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) SetAttempts(target types.Int64) {
+	m.Attempts = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) SetBlock(target types.String) {
+	m.Block = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel) SetWindow(target types.String) {
+	m.Window = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel() yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel {
 	return yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel{
 		Attempts: types.Int64Null(),
@@ -404,6 +460,13 @@ func (m *yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel) GetMin
 	return m.MinDaysCount
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel) SetMaxDaysCount(target types.Int64) {
+	m.MaxDaysCount = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel) SetMinDaysCount(target types.Int64) {
+	m.MinDaysCount = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel{
 		MaxDaysCount: types.Int64Null(),
@@ -486,6 +549,22 @@ func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetMaxL
 }
 func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) GetSmart() types.Object {
 	return m.Smart
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) SetAllowSimilar(target types.Bool) {
+	m.AllowSimilar = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) SetFixed(target types.Object) {
+	m.Fixed = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) SetMatchLength(target types.Int64) {
+	m.MatchLength = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) SetMaxLength(target types.Int64) {
+	m.MaxLength = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel) SetSmart(target types.Object) {
+	m.Smart = target
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel {
@@ -597,6 +676,22 @@ func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) Ge
 	return m.UppersRequired
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) SetDigitsRequired(target types.Bool) {
+	m.DigitsRequired = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) SetLowersRequired(target types.Bool) {
+	m.LowersRequired = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) SetMinLength(target types.Int64) {
+	m.MinLength = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) SetSpecialsRequired(target types.Bool) {
+	m.SpecialsRequired = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel) SetUppersRequired(target types.Bool) {
+	m.UppersRequired = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel{
 		DigitsRequired:   types.BoolNull(),
@@ -698,6 +793,19 @@ func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) Ge
 	return m.TwoClasses
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) SetFourClasses(target types.Int64) {
+	m.FourClasses = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) SetOneClass(target types.Int64) {
+	m.OneClass = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) SetThreeClasses(target types.Int64) {
+	m.ThreeClasses = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel) SetTwoClasses(target types.Int64) {
+	m.TwoClasses = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel() yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel {
 	return yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel{
 		FourClasses:  types.Int64Null(),
@@ -790,6 +898,19 @@ func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelf
 }
 func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) GetAllowEditSelfPassword() types.Bool {
 	return m.AllowEditSelfPassword
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) SetAllowEditSelfContacts(target types.Bool) {
+	m.AllowEditSelfContacts = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) SetAllowEditSelfInfo(target types.Bool) {
+	m.AllowEditSelfInfo = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) SetAllowEditSelfLogin(target types.Bool) {
+	m.AllowEditSelfLogin = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolUserSettingsModel) SetAllowEditSelfPassword(target types.Bool) {
+	m.AllowEditSelfPassword = target
 }
 
 func NewYandexOrganizationmanagerIdpUserpoolUserSettingsModel() yandexOrganizationmanagerIdpUserpoolUserSettingsModel {
