@@ -619,6 +619,86 @@ func TestAccKubernetesNodeGroup_containerNetwork(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroup_reservedInstancePool(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_reservedInstancePoolId", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResource.ReservedInstancePoolId = "test-reserved-pool"
+	// Because "test-reserved-pool" does not exist.
+	nodeResource.constructFixedScalePolicy(0)
+
+	updatedNodeResource := nodeResource
+	newTestReservedInstancePoolID := "new-test-reserved-pool"
+	updatedNodeResource.ReservedInstancePoolId = newTestReservedInstancePoolID
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, updatedNodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &updatedNodeResource, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_variables(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_variables", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	vars1 := map[string]string{
+		"some-key-1": "some-pool-value-1",
+		"some-key-2": "some-pool-value-2",
+	}
+	vars2 := map[string]string{
+		"some-key-3": "some-pool-value-3",
+	}
+
+	nodeResource.Variables = formatNodeGroupVariables(vars1)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.Variables = formatNodeGroupVariables(vars2)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+		},
+	})
+}
+
 type resourceNodeGroupInfo struct {
 	ClusterResourceName   string
 	NodeGroupResourceName string
@@ -667,6 +747,9 @@ type resourceNodeGroupInfo struct {
 	LocationZone string
 
 	WorkloadIdentityFederation bool
+
+	ReservedInstancePoolId string
+	Variables              string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -683,7 +766,7 @@ func nodeGroupInfoDualStack(clusterResourceName string) resourceNodeGroupInfo {
 
 func nodeGroupInfoAutoscaled(clusterResourceName string) resourceNodeGroupInfo {
 	ng := nodeGroupInfo(clusterResourceName)
-	ng.ScalePolicy = autoscaledScalePolicy
+	ng.constructAutoScalePolicy(autoscaledMinSize, autoscaledMaxSize, autoscaledInitialSize)
 	return ng
 }
 
@@ -708,7 +791,6 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		LabelValue:            "label_value",
 		NodeLabelKey:          "node_label_key",
 		NodeLabelValue:        "node_label_value",
-		ScalePolicy:           fixedScalePolicy,
 		NetworkInterfaces:     enableNAT,
 		NodeName:              "node-{instance.short_id}",
 		TemplateLabelKey:      "one",
@@ -718,6 +800,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
+	info.constructFixedScalePolicy(fixedScaleSize)
 	return info
 }
 
@@ -755,6 +838,28 @@ func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, aut
 	case weeklyMaintenancePolicySecond:
 		i.MaintenancePolicy = templateConfig(ngWeeklyMaintenancePolicyTemplateSecond, m)
 	}
+}
+
+func (i *resourceNodeGroupInfo) constructFixedScalePolicy(size int) {
+	i.ScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    fixed_scale {
+      size = %d
+    }
+  }
+`, size)
+}
+
+func (i *resourceNodeGroupInfo) constructAutoScalePolicy(min, max, initial int) {
+	i.ScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    auto_scale {
+      min     = %d
+      max     = %d
+      initial = %d
+    }
+  }
+`, min, max, initial)
 }
 
 func (i *resourceNodeGroupInfo) constructNetworkInterfaces(subnetName string, securityGroupName string) {
@@ -871,25 +976,7 @@ const (
 	autoscaledInitialSize = 2
 )
 
-var autoscaledScalePolicy = fmt.Sprintf(`
-  scale_policy {
-    auto_scale {
-      min = %d
-      max = %d
-      initial = %d
-    }
-  }
-`, autoscaledMinSize, autoscaledMaxSize, autoscaledInitialSize)
-
 const fixedScaleSize = 1
-
-var fixedScalePolicy = fmt.Sprintf(`
-  scale_policy {
-    fixed_scale {
-      size = %d
-    }
-  }
-`, fixedScaleSize)
 
 const nodeGroupConfigTemplate = `
 resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
@@ -951,6 +1038,10 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
       {{.TemplateLabelKey}} = "{{.TemplateLabelValue}}"
     }
     {{end}}
+
+	{{if .ReservedInstancePoolId}}
+    reserved_instance_pool_id = "{{.ReservedInstancePoolId}}"
+    {{end}}
   }
 
   {{.ScalePolicy}}
@@ -978,6 +1069,8 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     enabled = {{.WorkloadIdentityFederation}}
   }
   {{end}}
+
+  {{.Variables}}
 }
 `
 
@@ -1135,6 +1228,13 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			)
 		}
 
+		if info.ReservedInstancePoolId != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName,
+					"instance_template.0.reserved_instance_pool_id", info.ReservedInstancePoolId),
+			)
+		}
+
 		if info.ContainerRuntimeType != "" {
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
@@ -1237,16 +1337,12 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 		if !autoscaled {
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(int(scalePolicy.GetFixedScale().GetSize()))),
-				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(fixedScaleSize)),
 			)
 		} else {
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.min", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMinSize()))),
-				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.min", strconv.Itoa(autoscaledMinSize)),
 				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.max", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMaxSize()))),
-				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.max", strconv.Itoa(autoscaledMaxSize)),
 				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.initial", strconv.Itoa(int(scalePolicy.GetAutoScale().GetInitialSize()))),
-				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.initial", strconv.Itoa(autoscaledInitialSize)),
 			)
 		}
 
@@ -1262,6 +1358,18 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.enabled", strconv.FormatBool(wlif.GetEnabled())),
 			)
+		}
+
+		if info.Variables != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "variables.%", strconv.Itoa(len(ng.GetVariables()))),
+			)
+
+			for _, v := range ng.GetVariables() {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, fmt.Sprintf("variables.%s", v.Key), v.Value),
+				)
+			}
 		}
 
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
@@ -1381,4 +1489,18 @@ func testCheckResourceList(objName string, key string, values []string) resource
 	}
 
 	return resource.ComposeTestCheckFunc(checkFuncs...)
+}
+
+// formatNodeGroupVariables returns the HCL snippet for a variables map attribute.
+func formatNodeGroupVariables(vars map[string]string) string {
+	if len(vars) == 0 {
+		return ""
+	}
+	var sb strings.Builder
+	sb.WriteString("\n  variables = {")
+	for k, v := range vars {
+		sb.WriteString(fmt.Sprintf("\n    %q = %q", k, v))
+	}
+	sb.WriteString("\n  }")
+	return sb.String()
 }

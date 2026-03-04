@@ -345,6 +345,11 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"reserved_instance_pool_id": {
+							Type:        schema.TypeString,
+							Description: "ID of the reserved instance pool.",
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -626,6 +631,12 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 					},
 				},
 			},
+			"variables": {
+				Type:        schema.TypeMap,
+				Description: "Variables for templating as key/value pairs.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -730,6 +741,8 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		return nil, fmt.Errorf("failed to get node group workload identity federation: %s", err)
 	}
 
+	variables := getNodeGroupVariables(d.Get("variables"))
+
 	req := &k8s.CreateNodeGroupRequest{
 		Name:                       d.Get("name").(string),
 		Description:                d.Get("description").(string),
@@ -745,6 +758,7 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		NodeTaints:                 nodeTaints,
 		DeployPolicy:               dp,
 		WorkloadIdentityFederation: wlif,
+		Variables:                  variables,
 	}
 
 	return req, nil
@@ -821,16 +835,14 @@ func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
 	case okFixed && okAuto:
 		return nil, fmt.Errorf("scale policy should be exactly one of fixed scale or auto scale")
 	case okFixed:
-		if size, ok := d.GetOk("scale_policy.0.fixed_scale.0.size"); ok {
-			return &k8s.ScalePolicy{
-				ScaleType: &k8s.ScalePolicy_FixedScale_{
-					FixedScale: &k8s.ScalePolicy_FixedScale{
-						Size: int64(size.(int)),
-					},
+		size := d.Get("scale_policy.0.fixed_scale.0.size").(int)
+		return &k8s.ScalePolicy{
+			ScaleType: &k8s.ScalePolicy_FixedScale_{
+				FixedScale: &k8s.ScalePolicy_FixedScale{
+					Size: int64(size),
 				},
-			}, nil
-		}
-		return nil, fmt.Errorf("no size has been specified for a node group with a fixed scale policy")
+			},
+		}, nil
 	default: // okAuto
 		return &k8s.ScalePolicy{
 			ScaleType: &k8s.ScalePolicy_AutoScale_{
@@ -999,6 +1011,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		GpuSettings:              gpuSettings,
 		Name:                     h.GetString("name"),
 		Labels:                   labels,
+		ReservedInstancePoolId:   h.GetString("reserved_instance_pool_id"),
 	}
 
 	return tpl, nil
@@ -1158,6 +1171,17 @@ func getNodeGroupGPUSettings(d *schema.ResourceData) (*k8s.GpuSettings, error) {
 	return gs, nil
 }
 
+func getNodeGroupVariables(v interface{}) []*k8s.Variable {
+	var variables []*k8s.Variable
+	for key, val := range v.(map[string]interface{}) {
+		variables = append(variables, &k8s.Variable{
+			Key:   key,
+			Value: val.(string),
+		})
+	}
+	return variables
+}
+
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
 	d.Set("cluster_id", ng.ClusterId)
 	d.Set("created_at", getTimestamp(ng.CreatedAt))
@@ -1219,6 +1243,10 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
+	if err := d.Set("variables", flattenNodeGroupVariables(ng.Variables)); err != nil {
+		return err
+	}
+
 	if err := d.Set("allowed_unsafe_sysctls", ng.AllowedUnsafeSysctls); err != nil {
 		return err
 	}
@@ -1268,6 +1296,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.boot_disk.0.size":                      "node_template.boot_disk_spec.disk_size",
 	"instance_template.0.scheduling_policy.0.preemptible":       "node_template.scheduling_policy.preemptible",
 	"instance_template.0.placement_policy.0.placement_group_id": "node_template.placement_policy.placement_group_id",
+	"instance_template.0.reserved_instance_pool_id":             "node_template.reserved_instance_pool_id",
 	"instance_template.0.network_interface":                     "node_template.network_interface_specs",
 	"instance_template.0.network_acceleration_type":             "node_template.network_settings",
 	"instance_template.0.container_runtime.0.type":              "node_template.container_runtime_settings.type",
@@ -1283,6 +1312,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"deploy_policy.0.max_expansion":                             "deploy_policy.max_expansion",
 	"deploy_policy.0.max_unavailable":                           "deploy_policy.max_unavailable",
 	"workload_identity_federation":                              "workload_identity_federation",
+	"variables":                                                 "variables",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1354,6 +1384,8 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		return nil, fmt.Errorf("failed to get node group workload identity federation: %s", err)
 	}
 
+	variables := getNodeGroupVariables(d.Get("variables"))
+
 	req := &k8s.UpdateNodeGroupRequest{
 		NodeGroupId:  d.Id(),
 		Name:         d.Get("name").(string),
@@ -1371,6 +1403,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		NodeLabels:                 getNodeGroupNodeLabels(d),
 		AllocationPolicy:           getNodeGroupAllocationPolicy(d),
 		WorkloadIdentityFederation: wlif,
+		Variables:                  variables,
 	}
 
 	return req, nil
@@ -1425,6 +1458,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"labels":                    ngTpl.GetLabels(),
 		"container_network":         flattenKubernetesNodeGroupTemplateContainerNetwork(ngTpl.GetContainerNetworkSettings()),
 		"gpu_settings":              flattenKubernetesNodeGroupTemplateGPUSettings(ngTpl.GetGpuSettings()),
+		"reserved_instance_pool_id": ngTpl.GetReservedInstancePoolId(),
 	}
 
 	return []map[string]interface{}{tpl}
@@ -1630,4 +1664,12 @@ func flattenKubernetesNodeGroupTemplateResources(r *k8s.ResourcesSpec) []map[str
 			"gpus":          int(r.GetGpus()),
 		},
 	}
+}
+
+func flattenNodeGroupVariables(vars []*k8s.Variable) map[string]string {
+	variables := make(map[string]string)
+	for _, v := range vars {
+		variables[v.GetKey()] = v.GetValue()
+	}
+	return variables
 }

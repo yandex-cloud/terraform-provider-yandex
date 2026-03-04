@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'kubernetes: add "node_template.reserved_instance_pool_id" and "variables" attributes in "yandex_kubernetes_node_group"'
+time: 2026-02-27T14:11:41.923618+03:00

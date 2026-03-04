@@ -321,6 +321,11 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"reserved_instance_pool_id": {
+							Type:        schema.TypeString,
+							Description: resourceYandexKubernetesNodeGroup().Schema["instance_template"].Elem.(*schema.Resource).Schema["reserved_instance_pool_id"].Description,
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -528,6 +533,12 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 					},
 				},
+			},
+			"variables": {
+				Type:        schema.TypeMap,
+				Description: resourceYandexKubernetesNodeGroup().Schema["variables"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
