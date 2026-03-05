@@ -11,10 +11,12 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
-	defaultMDBPageSize = 1000
+	defaultMDBPageSize               = 1000
+	defaultConvertTablesToReplicated = true
 )
 
 var clickhouseApi = ClickHouseAPI{}
@@ -209,9 +211,10 @@ func (c *ClickHouseAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 
 func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, specs []*clickhouse.HostSpec, resources *clickhouse.Resources) {
 	request := &clickhouse.AddClusterZookeeperRequest{
-		ClusterId: cid,
-		Resources: resources,
-		HostSpecs: specs,
+		ClusterId:                 cid,
+		ConvertTablesToReplicated: wrapperspb.Bool(defaultConvertTablesToReplicated),
+		Resources:                 resources,
+		HostSpecs:                 specs,
 	}
 
 	tflog.Debug(ctx, "Creating ClickHouse coordinator", map[string]any{"request": request})

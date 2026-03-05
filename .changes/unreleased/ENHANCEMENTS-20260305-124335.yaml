@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'mdb_clickhouse: when creating zookeeper/keeper, set the convert_tables_to_replica parameter to true by default'
+time: 2026-03-05T12:43:35.931548+03:00
