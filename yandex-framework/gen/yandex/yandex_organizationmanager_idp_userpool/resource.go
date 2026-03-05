@@ -317,7 +317,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	var updatePaths []string
 
 	if (plan.BruteforceProtectionPolicy.IsNull() || state.BruteforceProtectionPolicy.IsNull()) &&
-		!(plan.BruteforceProtectionPolicy.IsNull() && state.BruteforceProtectionPolicy.IsNull()) {
+		!(plan.BruteforceProtectionPolicy.IsNull() && state.BruteforceProtectionPolicy.IsNull()) &&
+		!plan.BruteforceProtectionPolicy.IsUnknown() {
 		updatePaths = append(updatePaths, "bruteforce_protection_policy")
 	} else if !plan.BruteforceProtectionPolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyState, yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyPlan yandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicyModel
@@ -354,7 +355,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	}
 
 	if (plan.PasswordLifetimePolicy.IsNull() || state.PasswordLifetimePolicy.IsNull()) &&
-		!(plan.PasswordLifetimePolicy.IsNull() && state.PasswordLifetimePolicy.IsNull()) {
+		!(plan.PasswordLifetimePolicy.IsNull() && state.PasswordLifetimePolicy.IsNull()) &&
+		!plan.PasswordLifetimePolicy.IsUnknown() {
 		updatePaths = append(updatePaths, "password_lifetime_policy")
 	} else if !plan.PasswordLifetimePolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyState, yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel
@@ -373,7 +375,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	}
 
 	if (plan.PasswordQualityPolicy.IsNull() || state.PasswordQualityPolicy.IsNull()) &&
-		!(plan.PasswordQualityPolicy.IsNull() && state.PasswordQualityPolicy.IsNull()) {
+		!(plan.PasswordQualityPolicy.IsNull() && state.PasswordQualityPolicy.IsNull()) &&
+		!plan.PasswordQualityPolicy.IsUnknown() {
 		updatePaths = append(updatePaths, "password_quality_policy")
 	} else if !plan.PasswordQualityPolicy.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModel
@@ -388,7 +391,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		}
 
 		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) &&
-			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) {
+			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Fixed.IsNull()) &&
+			!yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsUnknown() {
 			updatePaths = append(updatePaths, "password_quality_policy.fixed")
 		} else if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Fixed.IsUnknown() {
 			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyFixedModel
@@ -422,7 +426,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		}
 
 		if (yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) &&
-			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) {
+			!(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsNull() && yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyState.Smart.IsNull()) &&
+			!yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsUnknown() {
 			updatePaths = append(updatePaths, "password_quality_policy.smart")
 		} else if !yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyPlan.Smart.IsUnknown() {
 			var yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartState, yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartPlan yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicySmartModel
@@ -448,7 +453,8 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 	}
 
 	if (plan.UserSettings.IsNull() || state.UserSettings.IsNull()) &&
-		!(plan.UserSettings.IsNull() && state.UserSettings.IsNull()) {
+		!(plan.UserSettings.IsNull() && state.UserSettings.IsNull()) &&
+		!plan.UserSettings.IsUnknown() {
 		updatePaths = append(updatePaths, "user_settings")
 	} else if !plan.UserSettings.IsUnknown() {
 		var yandexOrganizationmanagerIdpUserpoolUserSettingsState, yandexOrganizationmanagerIdpUserpoolUserSettingsPlan yandexOrganizationmanagerIdpUserpoolUserSettingsModel
