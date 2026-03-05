@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add server config "search_max_buckets"'
+time: 2026-02-24T21:42:47.057641618+03:00

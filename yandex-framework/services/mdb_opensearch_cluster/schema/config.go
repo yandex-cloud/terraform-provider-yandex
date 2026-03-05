@@ -27,6 +27,11 @@ func OpenSearchConfig2Attributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 		},
+		"search_max_buckets": schema.Int64Attribute{
+			MarkdownDescription: "The maximum number of aggregation buckets allowed in a single response. Default is 65535\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/configuring-opensearch/search-settings).",
+			Optional:            true,
+			Computed:            true,
+		},
 		"reindex_remote_whitelist": schema.StringAttribute{
 			MarkdownDescription: "Allowed remote hosts\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/api-reference/document-apis/reindex/#remote-cluster-allow-list).",
 			Optional:            true,

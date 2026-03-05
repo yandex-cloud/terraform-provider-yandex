@@ -15,12 +15,14 @@ import (
 type OpenSearchConfig2 struct {
 	MaxClauseCount         types.Int64  `tfsdk:"max_clause_count"`
 	FielddataCacheSize     types.String `tfsdk:"fielddata_cache_size"`
+	SearchMaxBuckets       types.Int64  `tfsdk:"search_max_buckets"`
 	ReindexRemoteWhitelist types.String `tfsdk:"reindex_remote_whitelist"`
 }
 
 var OpenSearchConfig2Types = map[string]attr.Type{
 	"max_clause_count":         types.Int64Type,
 	"fielddata_cache_size":     types.StringType,
+	"search_max_buckets":       types.Int64Type,
 	"reindex_remote_whitelist": types.StringType,
 }
 
@@ -32,6 +34,7 @@ func openSearchConfig2ToObject(ctx context.Context, cfg *api.OpenSearchConfig2) 
 	return types.ObjectValueFrom(ctx, OpenSearchConfig2Types, OpenSearchConfig2{
 		MaxClauseCount:         types.Int64Value(cfg.GetMaxClauseCount().GetValue()),
 		FielddataCacheSize:     types.StringValue(cfg.GetFielddataCacheSize()),
+		SearchMaxBuckets:       types.Int64Value(cfg.GetSearchMaxBuckets().GetValue()),
 		ReindexRemoteWhitelist: types.StringValue(cfg.GetReindexRemoteWhitelist()),
 	})
 }
@@ -51,6 +54,10 @@ func PrepareCreateOpenSearchConfig2(ctx context.Context, planObject types.Object
 
 	if !(plan.FielddataCacheSize.IsUnknown() || plan.FielddataCacheSize.IsNull()) {
 		res.FielddataCacheSize = plan.FielddataCacheSize.ValueString()
+	}
+
+	if !(plan.SearchMaxBuckets.IsUnknown() || plan.SearchMaxBuckets.IsNull()) {
+		res.SearchMaxBuckets = &wrapperspb.Int64Value{Value: plan.SearchMaxBuckets.ValueInt64()}
 	}
 
 	if !(plan.ReindexRemoteWhitelist.IsUnknown() || plan.ReindexRemoteWhitelist.IsNull()) {
@@ -83,6 +90,11 @@ func PrepareUpdateOpenSearchConfig2(ctx context.Context, planObject, stateObject
 	if !plan.FielddataCacheSize.IsUnknown() && !plan.FielddataCacheSize.Equal(state.FielddataCacheSize) {
 		res.FielddataCacheSize = plan.FielddataCacheSize.ValueString()
 		updateMask = append(updateMask, "fielddata_cache_size")
+	}
+
+	if !plan.SearchMaxBuckets.IsUnknown() && !plan.SearchMaxBuckets.Equal(state.SearchMaxBuckets) {
+		res.SearchMaxBuckets = &wrapperspb.Int64Value{Value: plan.SearchMaxBuckets.ValueInt64()}
+		updateMask = append(updateMask, "search_max_buckets")
 	}
 
 	if !plan.ReindexRemoteWhitelist.IsUnknown() && !plan.ReindexRemoteWhitelist.Equal(state.ReindexRemoteWhitelist) {
