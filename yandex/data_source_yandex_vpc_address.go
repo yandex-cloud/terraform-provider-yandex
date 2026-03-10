@@ -43,25 +43,49 @@ func dataSourceYandexVPCAddress() *schema.Resource {
 				Set:         schema.HashString,
 			},
 			"external_ipv4_address": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "External IPv4 address specification.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Value of address.",
 						},
 						"zone_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Availability zone of the address.",
 						},
 						"ddos_protection_provider": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "DDoS protection provider ID.",
 						},
 						"outgoing_smtp_capability": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Outgoing SMTP capability.",
+						},
+					},
+				},
+			},
+			"internal_ipv4_address": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Internal IPv4 address specification.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Value of address.",
+						},
+						"subnet_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Subnet ID of the address.",
 						},
 					},
 				},
@@ -87,25 +111,30 @@ func dataSourceYandexVPCAddress() *schema.Resource {
 				Computed:    true,
 			},
 			"dns_record": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "DNS record specifications.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dns_zone_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the public DNS zone.",
 						},
 						"fqdn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "DNS record name (absolute or relative to the DNS zone in use).",
 						},
 						"ttl": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "TTL of record.",
 						},
 						"ptr": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "PTR record status.",
 						},
 					},
 				},

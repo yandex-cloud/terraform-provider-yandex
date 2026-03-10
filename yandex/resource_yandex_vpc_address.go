@@ -113,6 +113,29 @@ func resourceYandexVPCAddress() *schema.Resource {
 					},
 				},
 			},
+			"internal_ipv4_address": {
+				Type:        schema.TypeList,
+				Description: "Specification of internal IPv4 address.\n\n~> Change any argument in `internal_ipv4_address` will cause an address recreate.\n",
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Description: "Allocated IP address.",
+							Computed:    true,
+							ForceNew:    true,
+						},
+						"subnet_id": {
+							Type:        schema.TypeString,
+							Description: "Subnet ID from which the address will be allocated.",
+							Required:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
 			"used": {
 				Type:        schema.TypeBool,
 				Description: "`true` if address is used.",
@@ -194,8 +217,13 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 		return err
 	}
 
-	v4Addr := flattenExternalIpV4AddressSpec(address.GetExternalIpv4Address())
-	if err := d.Set("external_ipv4_address", v4Addr); err != nil {
+	externalV4Addr := flattenExternalIpV4AddressSpec(address.GetExternalIpv4Address())
+	if err := d.Set("external_ipv4_address", externalV4Addr); err != nil {
+		return err
+	}
+
+	internalV4Addr := flattenInternalIpV4AddressSpec(address.GetInternalIpv4Address())
+	if err := d.Set("internal_ipv4_address", internalV4Addr); err != nil {
 		return err
 	}
 
@@ -228,14 +256,35 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return addressError("expanding folder ID while creating address: %s", err)
 	}
 
-	spec, err := expandExternalIpv4Address(d)
+	externalSpec, err := expandExternalIpv4Address(d)
 	if err != nil {
 		return addressError("expanding external ipv4 address while creating address: %s", err)
+	}
+
+	internalSpec, err := expandInternalIpv4Address(d)
+	if err != nil {
+		return addressError("expanding internal ipv4 address while creating address: %s", err)
 	}
 
 	dnsSpecs, err := expandVpcAddressDnsRecords(d)
 	if err != nil {
 		return addressError("expanding dns record specs while creating address %s", err)
+	}
+
+	// Validate that either external or internal address is specified, but not both
+	if (externalSpec == nil && internalSpec == nil) || (externalSpec != nil && internalSpec != nil) {
+		return addressError("either external_ipv4_address or internal_ipv4_address must be specified, but not both")
+	}
+
+	var addressSpec vpc.CreateAddressRequest_AddressSpec
+	if externalSpec != nil {
+		addressSpec = &vpc.CreateAddressRequest_ExternalIpv4AddressSpec{
+			ExternalIpv4AddressSpec: externalSpec,
+		}
+	} else {
+		addressSpec = &vpc.CreateAddressRequest_InternalIpv4AddressSpec{
+			InternalIpv4AddressSpec: internalSpec,
+		}
 	}
 
 	req := vpc.CreateAddressRequest{
@@ -244,9 +293,7 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 		Description: d.Get("description").(string),
 		Labels:      labels,
 
-		AddressSpec: &vpc.CreateAddressRequest_ExternalIpv4AddressSpec{
-			ExternalIpv4AddressSpec: spec,
-		},
+		AddressSpec:        addressSpec,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		DnsRecordSpecs:     dnsSpecs,
 	}

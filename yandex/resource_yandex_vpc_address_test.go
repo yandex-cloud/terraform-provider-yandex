@@ -90,6 +90,101 @@ resource "yandex_vpc_address" "addr1" {
 `, name)
 }
 
+func testAccVPCAddressInternal(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "network1" {
+  name = "%[1]s-network"
+}
+
+resource "yandex_vpc_subnet" "subnet1" {
+  name           = "%[1]s-subnet"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network1.id
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_address" "addr1" {
+  name        = "%[1]s"
+  description = "internal address"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  internal_ipv4_address {
+    subnet_id = yandex_vpc_subnet.subnet1.id
+  }
+  deletion_protection = true
+}
+`, name)
+}
+
+func testAccVPCAddressInternalUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "network1" {
+  name = "%[1]s-network"
+}
+
+resource "yandex_vpc_subnet" "subnet1" {
+  name           = "%[1]s-subnet"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network1.id
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_address" "addr1" {
+  name        = "%[1]s-updated"
+  description = "updated internal address"
+
+  labels = {
+    new-label = "new"
+  }
+
+  internal_ipv4_address {
+    subnet_id = yandex_vpc_subnet.subnet1.id
+  }
+  deletion_protection = false
+}
+`, name)
+}
+
+func testAccVPCAddressInternalRecreate(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "network1" {
+  name = "%[1]s-network"
+}
+
+resource "yandex_vpc_subnet" "subnet1" {
+  name           = "%[1]s-subnet"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network1.id
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "subnet2" {
+  name           = "%[1]s-subnet2"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network1.id
+  v4_cidr_blocks = ["192.168.1.0/24"]
+}
+
+resource "yandex_vpc_address" "addr1" {
+  name        = "%[1]s"
+  description = "internal address in different subnet"
+
+  labels = {
+    new-label = "new"
+  }
+
+  internal_ipv4_address {
+    subnet_id = yandex_vpc_subnet.subnet2.id
+  }
+  deletion_protection = false
+}
+`, name)
+}
+
 func TestAccVPCAddress_basic(t *testing.T) {
 	t.Parallel()
 
@@ -162,6 +257,74 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "0"),
+				),
+			},
+			{
+				ResourceName:      "yandex_vpc_address.addr1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVPCAddress_internal(t *testing.T) {
+	t.Parallel()
+
+	var address vpc.Address
+	addressName := acctest.RandomWithPrefix("tf-address")
+	updatedAddressName := acctest.RandomWithPrefix("tf-address")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCAddressInternal(addressName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCAddressExists("yandex_vpc_address.addr1", &address),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "folder_id"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "name", addressName),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "description", "internal address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "internal_ipv4_address.#", "1"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.subnet_id"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "reserved", "true"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "used", "false"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "deletion_protection", "true"),
+					testAccCheckVPCAddressContainsLabel(&address, "tf-label", "tf-label-value"),
+					testAccCheckVPCAddressContainsLabel(&address, "empty-label", ""),
+					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
+				),
+			},
+			{
+				Config: testAccVPCAddressInternalUpdate(updatedAddressName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCAddressExists("yandex_vpc_address.addr1", &address),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "folder_id"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "name", updatedAddressName+"-updated"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "description", "updated internal address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "internal_ipv4_address.#", "1"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.subnet_id"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "reserved", "true"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "used", "false"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "deletion_protection", "false"),
+					testAccCheckVPCAddressContainsLabelNotFound(&address, "tf-label"),
+					testAccCheckVPCAddressContainsLabelNotFound(&address, "empty-label"),
+					testAccCheckVPCAddressContainsLabel(&address, "new-label", "new"),
+					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
+				),
+			},
+			{
+				Config: testAccVPCAddressInternalRecreate(updatedAddressName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCAddressRecreated("yandex_vpc_address.addr1", address.GetId()),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "internal_ipv4_address.#", "1"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.subnet_id"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "deletion_protection", "false"),
 				),
 			},
 			{

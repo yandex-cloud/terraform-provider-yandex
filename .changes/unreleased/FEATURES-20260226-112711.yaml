@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'vpc: added internal addresses to `yandex_vpc_address` resource and datasource'
+time: 2026-02-26T11:27:11.971491+03:00

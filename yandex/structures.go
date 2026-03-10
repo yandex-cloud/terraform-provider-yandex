@@ -2017,6 +2017,60 @@ func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4Address
 	return &addrSpec, nil
 }
 
+func expandInternalIpv4Address(d *schema.ResourceData) (*vpc.InternalIpv4AddressSpec, error) {
+	var (
+		v  interface{}
+		ok bool
+	)
+
+	if v, ok = d.GetOk("internal_ipv4_address"); !ok {
+		return nil, nil
+	}
+
+	addresses := v.([]interface{})
+
+	if len(addresses) == 0 {
+		return nil, nil
+	}
+
+	addrDesc, ok := addresses[0].(map[string]interface{})
+	if !ok {
+		return nil, addressError("fail to cast %#v to map[string]interface{}", addresses[0])
+	}
+
+	var addrSpec vpc.InternalIpv4AddressSpec
+
+	if v, ok := addrDesc["address"].(string); ok {
+		addrSpec.SetAddress(v)
+	}
+
+	if v, ok := addrDesc["subnet_id"].(string); ok {
+		addrSpec.SetSubnetId(v)
+	}
+
+	return &addrSpec, nil
+}
+
+func flattenInternalIpV4AddressSpec(address *vpc.InternalIpv4Address) []interface{} {
+	if address == nil {
+		return nil
+	}
+
+	m := make(map[string]interface{})
+
+	if address.Address != "" {
+		m["address"] = address.GetAddress()
+	}
+	if address.GetSubnetId() != "" {
+		m["subnet_id"] = address.GetSubnetId()
+	}
+
+	if len(m) > 0 {
+		return []interface{}{m}
+	}
+	return nil
+}
+
 func expandAndValidateNetworkId(d *schema.ResourceData, config *Config) (string, error) {
 	networkID := d.Get("network_id").(string)
 	if config.Endpoint == common.DefaultEndpoint && len(networkID) == 0 {
