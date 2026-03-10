@@ -139,6 +139,7 @@ resource "yandex_mdb_greenplum_user" "alice" {
 	name           = "alice"
 	password       = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group2.name
+	depends_on = [yandex_mdb_greenplum_resource_group.some_group2]
 }`
 }
 
@@ -150,6 +151,7 @@ resource "yandex_mdb_greenplum_user" "bob" {
 	name       = "bob"
 	password   = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group2.name
+	depends_on = [yandex_mdb_greenplum_resource_group.some_group2]
 }`
 }
 
@@ -161,5 +163,6 @@ resource "yandex_mdb_greenplum_user" "alice" {
 	name       = "alice"
 	password   = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group1.name
+	depends_on = [yandex_mdb_greenplum_resource_group.some_group1]
 }`
 }
