@@ -1438,7 +1438,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"replicated_deduplication_window": schema.Int64Attribute{
 				Description: "Replicated deduplication window: Number of recent hash blocks that ZooKeeper will store (the old ones will be deleted).",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1446,7 +1446,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"replicated_deduplication_window_seconds": schema.Int64Attribute{
 				Description: "Replicated deduplication window seconds: Time during which ZooKeeper stores the hash blocks (the old ones will be deleted).",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1494,7 +1494,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"parts_to_delay_insert": schema.Int64Attribute{
 				Description: "Parts to delay insert: Number of active data parts in a table, on exceeding which ClickHouse starts artificially reduce the rate of inserting data into the table",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1502,7 +1502,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"parts_to_throw_insert": schema.Int64Attribute{
 				Description: "Parts to throw insert: Threshold value of active data parts in a table, on exceeding which ClickHouse throws the 'Too many parts ...' exception.",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1526,7 +1526,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"max_replicated_merges_in_queue": schema.Int64Attribute{
 				Description: "Max replicated merges in queue: Maximum number of merge tasks that can be in the ReplicatedMergeTree queue at the same time.",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1598,7 +1598,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"max_parts_in_total": schema.Int64Attribute{
 				Description: "Maximum number of parts in all partitions.",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1614,7 +1614,7 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			"materialize_ttl_recalculate_only": schema.BoolAttribute{
 				Description: "Only recalculate ttl info when **MATERIALIZE TTL**.",
 				Optional:    true,
-				Computed:    true,
+				// Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
