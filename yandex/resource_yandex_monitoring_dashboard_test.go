@@ -339,7 +339,7 @@ func testAccResourceMonitoringDashboardExists() resource.TestCheckFunc {
 		}
 		dashboard, err := config.sdk.Monitoring().Dashboard().Get(ctx, req)
 		if err != nil {
-			return fmt.Errorf(fmt.Sprintf("Dashboard %s doesnt exists", rs.Primary.Attributes["dashboard_id"]))
+			return fmt.Errorf("dashboard %s doesnt exists", rs.Primary.Attributes["dashboard_id"])
 		}
 		if dashboard.Id != rs.Primary.Attributes["dashboard_id"] {
 			return fmt.Errorf("Dashboard id mismatch")

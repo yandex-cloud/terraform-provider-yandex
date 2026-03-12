@@ -1171,7 +1171,7 @@ func TestExpandInstanceGroupNetworkInterface(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := expandInstanceGroupNetworkInterfaceSpec(tc.data)
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)

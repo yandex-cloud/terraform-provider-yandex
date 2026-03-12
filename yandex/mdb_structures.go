@@ -44,8 +44,8 @@ func flattenMDBBackupWindowStart(t *timeofday.TimeOfDay) []interface{} {
 
 func expandMDBBackupWindowStart(d *schema.ResourceData, path string) *timeofday.TimeOfDay {
 	out := &timeofday.TimeOfDay{}
-	hours := fmt.Sprintf(path + ".hours")
-	minutes := fmt.Sprintf(path + ".minutes")
+	hours := fmt.Sprintf("%s.hours", path)
+	minutes := fmt.Sprintf("%s.minutes", path)
 
 	if v, ok := d.GetOk(hours); ok {
 		out.Hours = int32(v.(int))

@@ -2020,7 +2020,7 @@ func preparePlacementPolicyForUpdateRequest(d *schema.ResourceData) (*compute.Pl
 func ensureAllowStoppingForUpdate(d *schema.ResourceData, propNames ...string) error {
 	message := fmt.Sprintf("Changing the %s in an instance requires stopping it. ", strings.Join(propNames, ", "))
 	if !d.Get("allow_stopping_for_update").(bool) {
-		return fmt.Errorf(message + "To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
+		return fmt.Errorf("%sTo acknowledge this action, please set allow_stopping_for_update = true in your config file", message)
 	}
 	return nil
 }
