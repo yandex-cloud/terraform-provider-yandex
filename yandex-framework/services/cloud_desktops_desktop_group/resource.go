@@ -350,7 +350,8 @@ func (r *cloudDesktopDesktopGroupResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	updateDesktopGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, desktopGroupID, updateDesktopGroupReq, []string{"labels"})
+	updatePaths := []string{"labels", "description"}
+	updateDesktopGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, desktopGroupID, updateDesktopGroupReq, updatePaths)
 	if resp.Diagnostics.HasError() {
 		return
 	}

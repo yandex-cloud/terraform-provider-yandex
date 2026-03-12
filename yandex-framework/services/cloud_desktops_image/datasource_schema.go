@@ -43,10 +43,19 @@ func YandexCloudDesktopsImageDatasourceSchema(ctx context.Context) schema.Schema
 
 			"labels": schema.MapAttribute{
 				ElementType:         types.StringType,
-				MarkdownDescription: "Description of the image.",
-				Description: "Description of the image." +
+				MarkdownDescription: "Labels of the image.",
+				Description: "Labels of the image." +
 					// proto paths: +
 					// -> yandex.cloud.clouddesktop.v1.api.DesktopImage.labels
+					"package: yandex.cloud.clouddesktop.v1.api\n" +
+					"filename: yandex/cloud/clouddesktop/v1/desktop_image.proto\n",
+				Computed: true,
+			},
+
+			"description": schema.StringAttribute{
+				MarkdownDescription: "Description of the image.",
+				Description: "Description of the image." +
+					// -> yandex.cloud.clouddesktop.v1.api.DesktopImage.description
 					"package: yandex.cloud.clouddesktop.v1.api\n" +
 					"filename: yandex/cloud/clouddesktop/v1/desktop_image.proto\n",
 				Computed: true,

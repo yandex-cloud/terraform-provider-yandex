@@ -17,6 +17,7 @@ type Desktop struct {
 
 	DesktopId        types.String     `tfsdk:"desktop_id"`
 	Name             types.String     `tfsdk:"name"`
+	Description      types.String     `tfsdk:"description"`
 	DesktopGroupId   types.String     `tfsdk:"desktop_group_id"`
 	NetworkInterface NetworkInterface `tfsdk:"network_interface"`
 	Users            types.List       `tfsdk:"members"`
@@ -28,6 +29,7 @@ type Desktop struct {
 type DesktopDataSource struct {
 	DesktopId      types.String `tfsdk:"desktop_id"`
 	Name           types.String `tfsdk:"name"`
+	Description    types.String `tfsdk:"description"`
 	FolderId       types.String `tfsdk:"folder_id"`
 	DesktopGroupId types.String `tfsdk:"desktop_group_id"`
 	Users          types.List   `tfsdk:"members"`
@@ -54,6 +56,7 @@ var userType = types.ObjectType{
 func desktopToState(ctx context.Context, desktop *clouddesktop.Desktop, state *Desktop) diag.Diagnostics {
 	state.DesktopId = types.StringValue(desktop.Id)
 	state.Name = types.StringValue(desktop.Name)
+	state.Description = types.StringValue(desktop.Description)
 	state.DesktopGroupId = types.StringValue(desktop.DesktopGroupId)
 
 	var diag diag.Diagnostics
@@ -89,6 +92,7 @@ func desktopToState(ctx context.Context, desktop *clouddesktop.Desktop, state *D
 func desktopToDataSourceState(ctx context.Context, desktop *clouddesktop.Desktop, state *DesktopDataSource) diag.Diagnostics {
 	state.DesktopId = types.StringValue(desktop.Id)
 	state.Name = types.StringValue(desktop.Name)
+	state.Description = types.StringValue(desktop.Description)
 	state.FolderId = types.StringValue(desktop.FolderId)
 	state.DesktopGroupId = types.StringValue(desktop.DesktopGroupId)
 
@@ -127,6 +131,16 @@ func planToCreateDesktop(ctx context.Context, plan *Desktop) (*clouddesktop.Crea
 
 	create.DesktopGroupId = plan.DesktopGroupId.ValueString()
 	create.SubnetId = plan.NetworkInterface.SubnetId.ValueString()
+	create.Name = plan.Name.ValueString()
+	create.Description = plan.Description.ValueString()
+
+	if !plan.Labels.IsNull() && !plan.Labels.IsUnknown() {
+		create.Labels = make(map[string]string, 0)
+		diag := plan.Labels.ElementsAs(ctx, &create.Labels, false)
+		if diag.HasError() {
+			return nil, diag
+		}
+	}
 
 	users := []User{}
 	diag := plan.Users.ElementsAs(ctx, &users, false)
@@ -148,6 +162,7 @@ func planToUpdateDesktop(ctx context.Context, plan *Desktop) (*clouddesktop.Upda
 	update := &clouddesktop.UpdatePropertiesRequest{}
 
 	update.Name = plan.Name.ValueString()
+	update.Description = plan.Description.ValueString()
 
 	update.Labels = make(map[string]string, 0)
 	diag := plan.Labels.ElementsAs(ctx, &update.Labels, false)

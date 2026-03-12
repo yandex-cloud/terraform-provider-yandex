@@ -67,6 +67,7 @@ func testAccDataSourceCloudDesktopsDesktopCheck(datasourceName, resourceName str
 		toCheck := []string{
 			"desktop_id",
 			"name",
+			"description",
 			"desktop_group_id",
 			"members.#",
 			"members.0.subject_id",
@@ -180,6 +181,7 @@ func testAccDataSourceCloudDesktopsDesktopConfigStep1(groupName, desktopName str
 	return fmt.Sprintf(testAccDataSourceCloudDesktopsDesktopConfigStep0(groupName)+`
 resource "yandex_cloud_desktops_desktop" "desktop" {
 	name 				= "%s"
+	description 		= "%s"
 	desktop_group_id 	= yandex_cloud_desktops_desktop_group.desktop_group.desktop_group_id
 	
 	network_interface = {
@@ -211,13 +213,14 @@ data "yandex_cloud_desktops_desktop" "data_desktop_name" {
 data "yandex_cloud_desktops_desktop" "data_desktop_id" {
 	desktop_id = yandex_cloud_desktops_desktop.desktop.desktop_id
 }
-`, desktopName, test.GetExampleUserID1(), test.GetExampleFolderID())
+`, desktopName, expectedDesktopDescription, test.GetExampleUserID1(), test.GetExampleFolderID())
 }
 
 func testAccDataSourceCloudDesktopsDesktopConfigStep2(groupName, desktopName string) string {
 	return fmt.Sprintf(testAccDataSourceCloudDesktopsDesktopConfigStep0(groupName)+`
 resource "yandex_cloud_desktops_desktop" "desktop" {
 	name 				= "%s"
+	description 		= "%s"
 	desktop_group_id 	= yandex_cloud_desktops_desktop_group.desktop_group.desktop_group_id
 	
 	network_interface = {
@@ -249,5 +252,5 @@ data "yandex_cloud_desktops_desktop" "data_desktop_name" {
 data "yandex_cloud_desktops_desktop" "data_desktop_id" {
 	desktop_id = yandex_cloud_desktops_desktop.desktop.desktop_id
 }
-`, desktopName, test.GetExampleUserID1(), test.GetExampleFolderID())
+`, desktopName, expectedDesktopDescription, test.GetExampleUserID1(), test.GetExampleFolderID())
 }

@@ -67,6 +67,9 @@ func testAccDataSourceDesktopsImageCheck(rsName, id, name, folder_id string, lab
 		if err := checkAttributesEquality(rs.Primary.Attributes, "folder_id", folder_id); err != nil {
 			return fmt.Errorf("DataSource %s attributes aren't the expected ones: %w", rsName, err)
 		}
+		if _, ok := rs.Primary.Attributes["description"]; !ok {
+			return fmt.Errorf("DataSource %s has no attribute 'description'", rsName)
+		}
 		for labelKey, labelVal := range labels {
 			fullKey := "labels." + labelKey
 			if err := checkAttributesEquality(rs.Primary.Attributes, fullKey, labelVal); err != nil {

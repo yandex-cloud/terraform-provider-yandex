@@ -78,6 +78,11 @@ func (r *cloudDesktopDesktopResource) Schema(ctx context.Context, _ resource.Sch
 				MarkdownDescription: "The name of the Desktop",
 				Optional:            true,
 			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "Description of the desktop. Maximum length is 1024 characters.",
+				Optional:            true,
+				Computed:            true,
+			},
 			"desktop_group_id": schema.StringAttribute{
 				MarkdownDescription: "The id of the Desktop Group to which the Desktop belongs",
 				Required:            true,
@@ -222,6 +227,9 @@ func getUpdatePaths(plan, state *clouddesktop.UpdatePropertiesRequest) []string 
 	}
 	if state.Name != plan.Name {
 		updatePaths = append(updatePaths, "name")
+	}
+	if state.Description != plan.Description {
+		updatePaths = append(updatePaths, "description")
 	}
 
 	return updatePaths

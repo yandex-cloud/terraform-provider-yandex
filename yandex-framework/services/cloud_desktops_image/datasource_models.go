@@ -14,11 +14,12 @@ import (
 )
 
 type yandexCloudDesktopsImageDatasourceModel struct {
-	FolderId types.String   `tfsdk:"folder_id"`
-	Id       types.String   `tfsdk:"id"`
-	Labels   types.Map      `tfsdk:"labels"`
-	Name     types.String   `tfsdk:"name"`
-	Timeouts timeouts.Value `tfsdk:"timeouts"`
+	FolderId    types.String   `tfsdk:"folder_id"`
+	Id          types.String   `tfsdk:"id"`
+	Labels      types.Map      `tfsdk:"labels"`
+	Description types.String   `tfsdk:"description"`
+	Name        types.String   `tfsdk:"name"`
+	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (m *yandexCloudDesktopsImageDatasourceModel) GetFolderId() types.String {
@@ -30,16 +31,20 @@ func (m *yandexCloudDesktopsImageDatasourceModel) GetId() types.String {
 func (m *yandexCloudDesktopsImageDatasourceModel) GetLabels() types.Map {
 	return m.Labels
 }
+func (m *yandexCloudDesktopsImageDatasourceModel) GetDescription() types.String {
+	return m.Description
+}
 func (m *yandexCloudDesktopsImageDatasourceModel) GetName() types.String {
 	return m.Name
 }
 
 func NewYandexCloudDesktopsImageDatasourceModel() yandexCloudDesktopsImageDatasourceModel {
 	return yandexCloudDesktopsImageDatasourceModel{
-		FolderId: types.StringNull(),
-		Id:       types.StringNull(),
-		Labels:   types.MapNull(types.StringType),
-		Name:     types.StringNull(),
+		FolderId:    types.StringNull(),
+		Id:          types.StringNull(),
+		Labels:      types.MapNull(types.StringType),
+		Description: types.StringNull(),
+		Name:        types.StringNull(),
 	}
 }
 
@@ -53,6 +58,9 @@ func yandexCloudDesktopsImageDatasourceModelFillUnknown(target yandexCloudDeskto
 	if target.Labels.IsUnknown() || target.Labels.IsNull() {
 		target.Labels = types.MapNull(types.StringType)
 	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -61,11 +69,12 @@ func yandexCloudDesktopsImageDatasourceModelFillUnknown(target yandexCloudDeskto
 
 var yandexCloudDesktopsImageDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"folder_id": types.StringType,
-		"id":        types.StringType,
-		"labels":    types.MapType{ElemType: types.StringType},
-		"name":      types.StringType,
-		"timeouts":  timeouts.AttributesAll(context.Background()).GetType(),
+		"folder_id":   types.StringType,
+		"id":          types.StringType,
+		"labels":      types.MapType{ElemType: types.StringType},
+		"description": types.StringType,
+		"name":        types.StringType,
+		"timeouts":    timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -78,11 +87,12 @@ func flattenYandexCloudDesktopsImageDatasource(ctx context.Context,
 		return types.ObjectNull(yandexCloudDesktopsImageDatasourceModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexCloudDesktopsImageDatasourceModelType.AttrTypes, yandexCloudDesktopsImageDatasourceModel{
-		FolderId: types.StringValue(yandexCloudDesktopsImageDatasource.GetFolderId()),
-		Id:       types.StringValue(yandexCloudDesktopsImageDatasource.GetId()),
-		Labels:   flattenYandexCloudDesktopsImageLabels(ctx, yandexCloudDesktopsImageDatasource.GetLabels(), state.Labels, diags),
-		Name:     types.StringValue(yandexCloudDesktopsImageDatasource.GetName()),
-		Timeouts: to,
+		FolderId:    types.StringValue(yandexCloudDesktopsImageDatasource.GetFolderId()),
+		Id:          types.StringValue(yandexCloudDesktopsImageDatasource.GetId()),
+		Labels:      flattenYandexCloudDesktopsImageLabels(ctx, yandexCloudDesktopsImageDatasource.GetLabels(), state.Labels, diags),
+		Description: types.StringValue(yandexCloudDesktopsImageDatasource.GetDescription()),
+		Name:        types.StringValue(yandexCloudDesktopsImageDatasource.GetName()),
+		Timeouts:    to,
 	})
 	diags.Append(diag...)
 	return value

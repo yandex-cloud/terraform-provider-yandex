@@ -21,9 +21,10 @@ resource "yandex_vpc_subnet" "subnet" {
 	v4_cidr_blocks 	= ["10.1.0.0/24"]
 }
 `
-	desktopName      = "yandex_cloud_desktops_desktop.desktop"
-	desktopGroupName = "yandex_cloud_desktops_desktop_group.desktop_group"
-	vpcSubnetName    = "yandex_vpc_subnet.subnet"
+	desktopName                = "yandex_cloud_desktops_desktop.desktop"
+	desktopGroupName           = "yandex_cloud_desktops_desktop_group.desktop_group"
+	vpcSubnetName              = "yandex_vpc_subnet.subnet"
+	expectedDesktopDescription = "My cloud desktop description"
 )
 
 // TestMain - add sweepers flag to the go test command
@@ -95,6 +96,11 @@ func testAccResourceCloudDesktopsDesktopEqualityCheck(name string) resource.Test
 		expectedLabelsNum := "2"
 		if labelsNum != expectedLabelsNum {
 			return fmt.Errorf("resource labels size is not the expected: %s != %s", labelsNum, expectedLabelsNum)
+		}
+
+		description := rs.Primary.Attributes["description"]
+		if description != expectedDesktopDescription {
+			return fmt.Errorf("resource description is not the expected: %s != %s", description, expectedDesktopDescription)
 		}
 
 		membersNum := rs.Primary.Attributes["members.#"]
@@ -185,6 +191,7 @@ func testAccResourceCloudDesktopsDesktopConfigStep2(name, groupName string) stri
 	return fmt.Sprintf(testAccResourceCloudDesktopsDesktopConfigStep1(groupName)+`
 resource "yandex_cloud_desktops_desktop" "desktop" {
 	name 				= "%s"
+	description 		= "%s"
 	desktop_group_id 	= yandex_cloud_desktops_desktop_group.desktop_group.desktop_group_id
 	
 	network_interface = {
@@ -203,5 +210,5 @@ resource "yandex_cloud_desktops_desktop" "desktop" {
 		label2 = "label2-value"
 	}
 }
-`, name, test.GetExampleUserID1())
+`, name, expectedDesktopDescription, test.GetExampleUserID1())
 }

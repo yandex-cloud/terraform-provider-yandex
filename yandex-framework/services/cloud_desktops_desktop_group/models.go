@@ -193,6 +193,14 @@ func planToCreateRequest(ctx context.Context, plan *DesktopGroup) (*clouddesktop
 	request.Description = plan.Description.ValueString()
 	request.DesktopImageId = plan.DesktopImageID.ValueString()
 
+	if !plan.Labels.IsNull() && !plan.Labels.IsUnknown() {
+		request.Labels = make(map[string]string, 0)
+		diag := plan.Labels.ElementsAs(ctx, &request.Labels, false)
+		if diag.HasError() {
+			return nil, diag
+		}
+	}
+
 	request.NetworkInterfaceSpec = &clouddesktop.NetworkInterfaceSpec{}
 	diag := planToNetworkInterfaces(ctx, &plan.DesktopTemplate.Networks, request.NetworkInterfaceSpec)
 	if diag.HasError() {

@@ -94,6 +94,10 @@ func (d *cloudDesktopDesktopDatasource) Schema(ctx context.Context, _ datasource
 				Computed:            true,
 				ElementType:         types.StringType,
 			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "Description of the desktop.",
+				Computed:            true,
+			},
 		},
 	}
 }
