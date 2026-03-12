@@ -13,17 +13,19 @@ import (
 )
 
 type OpenSearchConfig2 struct {
-	MaxClauseCount         types.Int64  `tfsdk:"max_clause_count"`
-	FielddataCacheSize     types.String `tfsdk:"fielddata_cache_size"`
-	SearchMaxBuckets       types.Int64  `tfsdk:"search_max_buckets"`
-	ReindexRemoteWhitelist types.String `tfsdk:"reindex_remote_whitelist"`
+	MaxClauseCount           types.Int64  `tfsdk:"max_clause_count"`
+	FielddataCacheSize       types.String `tfsdk:"fielddata_cache_size"`
+	SearchMaxBuckets         types.Int64  `tfsdk:"search_max_buckets"`
+	ReindexRemoteWhitelist   types.String `tfsdk:"reindex_remote_whitelist"`
+	HttpMaxInitialLineLength types.String `tfsdk:"http_max_initial_line_length"`
 }
 
 var OpenSearchConfig2Types = map[string]attr.Type{
-	"max_clause_count":         types.Int64Type,
-	"fielddata_cache_size":     types.StringType,
-	"search_max_buckets":       types.Int64Type,
-	"reindex_remote_whitelist": types.StringType,
+	"max_clause_count":             types.Int64Type,
+	"fielddata_cache_size":         types.StringType,
+	"search_max_buckets":           types.Int64Type,
+	"reindex_remote_whitelist":     types.StringType,
+	"http_max_initial_line_length": types.StringType,
 }
 
 func openSearchConfig2ToObject(ctx context.Context, cfg *api.OpenSearchConfig2) (types.Object, diag.Diagnostics) {
@@ -32,10 +34,11 @@ func openSearchConfig2ToObject(ctx context.Context, cfg *api.OpenSearchConfig2) 
 	}
 
 	return types.ObjectValueFrom(ctx, OpenSearchConfig2Types, OpenSearchConfig2{
-		MaxClauseCount:         types.Int64Value(cfg.GetMaxClauseCount().GetValue()),
-		FielddataCacheSize:     types.StringValue(cfg.GetFielddataCacheSize()),
-		SearchMaxBuckets:       types.Int64Value(cfg.GetSearchMaxBuckets().GetValue()),
-		ReindexRemoteWhitelist: types.StringValue(cfg.GetReindexRemoteWhitelist()),
+		MaxClauseCount:           types.Int64Value(cfg.GetMaxClauseCount().GetValue()),
+		FielddataCacheSize:       types.StringValue(cfg.GetFielddataCacheSize()),
+		SearchMaxBuckets:         types.Int64Value(cfg.GetSearchMaxBuckets().GetValue()),
+		ReindexRemoteWhitelist:   types.StringValue(cfg.GetReindexRemoteWhitelist()),
+		HttpMaxInitialLineLength: types.StringValue(cfg.GetHttpMaxInitialLineLength().GetValue()),
 	})
 }
 
@@ -62,6 +65,10 @@ func PrepareCreateOpenSearchConfig2(ctx context.Context, planObject types.Object
 
 	if !(plan.ReindexRemoteWhitelist.IsUnknown() || plan.ReindexRemoteWhitelist.IsNull()) {
 		res.ReindexRemoteWhitelist = plan.ReindexRemoteWhitelist.ValueString()
+	}
+
+	if !(plan.HttpMaxInitialLineLength.IsUnknown() || plan.HttpMaxInitialLineLength.IsNull()) {
+		res.HttpMaxInitialLineLength = &wrapperspb.StringValue{Value: plan.HttpMaxInitialLineLength.ValueString()}
 	}
 
 	return res, diag.Diagnostics{}
@@ -100,6 +107,11 @@ func PrepareUpdateOpenSearchConfig2(ctx context.Context, planObject, stateObject
 	if !plan.ReindexRemoteWhitelist.IsUnknown() && !plan.ReindexRemoteWhitelist.Equal(state.ReindexRemoteWhitelist) {
 		res.ReindexRemoteWhitelist = plan.ReindexRemoteWhitelist.ValueString()
 		updateMask = append(updateMask, "reindex_remote_whitelist")
+	}
+
+	if !plan.HttpMaxInitialLineLength.IsUnknown() && !plan.HttpMaxInitialLineLength.Equal(state.HttpMaxInitialLineLength) {
+		res.HttpMaxInitialLineLength = &wrapperspb.StringValue{Value: plan.HttpMaxInitialLineLength.ValueString()}
+		updateMask = append(updateMask, "http_max_initial_line_length")
 	}
 
 	return res, updateMask, diag.Diagnostics{}
