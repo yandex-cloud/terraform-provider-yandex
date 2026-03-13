@@ -18,6 +18,32 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 		MarkdownDescription: "Transfer core entity",
 		Attributes: map[string]schema.Attribute{
 
+			"data_objects": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+
+					Attributes: map[string]schema.Attribute{
+
+						"include_objects": schema.ListAttribute{
+							ElementType:         types.StringType,
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.Transfer.data_objectsyandex.cloud.datatransfer.v1.DataObjects.include_objects
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+							Computed: true,
+						},
+					},
+				},
+				MarkdownDescription: "",
+				Description: "" +
+					// proto paths: +
+					// -> yandex.cloud.datatransfer.v1.Transfer.data_objects
+					"package: yandex.cloud.datatransfer.v1\n" +
+					"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+				Computed: true,
+			},
+
 			"description": schema.StringAttribute{
 				MarkdownDescription: "",
 				Description: "" +
@@ -60,6 +86,157 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 				Computed: true,
 			},
 
+			"regular_snapshot": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+
+					Attributes: map[string]schema.Attribute{
+
+						"disabled": schema.ListNestedAttribute{
+							NestedObject:        schema.NestedAttributeObject{},
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.disabled
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+							Computed: true,
+						},
+
+						"settings": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+
+								Attributes: map[string]schema.Attribute{
+
+									"cron_expression": schema.StringAttribute{
+										MarkdownDescription: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set",
+										Description: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
+
+									"increment_delay_seconds": schema.Int64Attribute{
+										MarkdownDescription: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order",
+										Description: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
+
+									"retry_config": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"max_attempts": schema.Int64Attribute{
+													MarkdownDescription: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation.",
+													Description: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation." +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_configyandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Regular snapshot retries, only for cloud installation",
+										Description: "Regular snapshot retries, only for cloud installation" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
+
+									"schedule": schema.StringAttribute{
+										MarkdownDescription: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set",
+										Description: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
+
+									"tables": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"cursor_column": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Computed: true,
+												},
+
+												"initial_state": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.initial_state
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Computed: true,
+												},
+
+												"table_name": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_name
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Computed: true,
+												},
+
+												"table_namespace": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value.",
+										Description: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value." +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
+								},
+							},
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settings
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+							Computed: true,
+						},
+					},
+				},
+				MarkdownDescription: "Regular snapshots for the transfer, applicable only if transfer type is\n SNAPSHOT_ONLY",
+				Description: "Regular snapshots for the transfer, applicable only if transfer type is\n SNAPSHOT_ONLY" +
+					// proto paths: +
+					// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot
+					"package: yandex.cloud.datatransfer.v1\n" +
+					"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+				Computed: true,
+			},
+
 			"replication_runtime": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 
@@ -69,6 +246,16 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							NestedObject: schema.NestedAttributeObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"flavor": schema.StringAttribute{
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
 
 									"job_count": schema.Int64Attribute{
 										MarkdownDescription: "Number of workers in parallel replication.",
@@ -144,6 +331,16 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							NestedObject: schema.NestedAttributeObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"flavor": schema.StringAttribute{
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Computed: true,
+									},
 
 									"job_count": schema.Int64Attribute{
 										MarkdownDescription: "Number of workers in parallel replication.",

@@ -250,8 +250,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																							Attributes: map[string]schema.Attribute{
 
 																								"ca_certificate": schema.StringAttribute{
-																									MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																									Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
 																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -606,8 +606,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																							Attributes: map[string]schema.Attribute{
 
 																								"ca_certificate": schema.StringAttribute{
-																									MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																									Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
 																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1069,8 +1069,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1247,8 +1247,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 																		"json_fields": schema.StringAttribute{
 																			DeprecationMessage:  "Please use `fields` instead",
-																			MarkdownDescription: "Description of the data schema as JSON specification",
-																			Description: "Description of the data schema as JSON specification" +
+																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
+																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1398,8 +1398,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 																		"json_fields": schema.StringAttribute{
 																			DeprecationMessage:  "Please use `fields` instead",
-																			MarkdownDescription: "Description of the data schema as JSON specification",
-																			Description: "Description of the data schema as JSON specification" +
+																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
+																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1766,8 +1766,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2234,8 +2234,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																							Attributes: map[string]schema.Attribute{
 
 																								"ca_certificate": schema.StringAttribute{
-																									MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																									Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
 																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2543,8 +2543,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																							Attributes: map[string]schema.Attribute{
 
 																								"ca_certificate": schema.StringAttribute{
-																									MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																									Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
 																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2792,8 +2792,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3128,8 +3128,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3407,8 +3407,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3883,8 +3883,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																				Attributes: map[string]schema.Attribute{
 
 																					"ca_certificate": schema.StringAttribute{
-																						MarkdownDescription: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
-																						Description: "CA certificate\n \n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
 																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4420,8 +4420,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 																		"json_fields": schema.StringAttribute{
 																			DeprecationMessage:  "Please use `fields` instead",
-																			MarkdownDescription: "Description of the data schema as JSON specification",
-																			Description: "Description of the data schema as JSON specification" +
+																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
+																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4571,8 +4571,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 																		"json_fields": schema.StringAttribute{
 																			DeprecationMessage:  "Please use `fields` instead",
-																			MarkdownDescription: "Description of the data schema as JSON specification",
-																			Description: "Description of the data schema as JSON specification" +
+																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
+																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +

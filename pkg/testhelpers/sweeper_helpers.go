@@ -2,6 +2,7 @@ package testhelpers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -80,7 +81,7 @@ func ConfigForSweepers() (*provider_config.Config, error) {
 	diags := diag.Diagnostics{}
 	diags.Append(conf.InitAndValidate(context.Background(), "", true, diag.Diagnostics{})...)
 	if diags.HasError() {
-		return nil, fmt.Errorf(diags.Errors()[0].Detail())
+		return nil, errors.New(diags.Errors()[0].Detail())
 	}
 
 	return conf, nil

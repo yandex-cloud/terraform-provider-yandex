@@ -1,8 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.23.9
-
-toolchain go1.23.10
+go 1.24.0
 
 require (
 	github.com/aws/aws-sdk-go v1.42.11
@@ -52,7 +50,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12
 	github.com/yandex-cloud/go-sdk/services/dataproc v0.0.26
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12
-	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.25
+	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.42
 	github.com/yandex-cloud/go-sdk/services/dns v0.0.35
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.12
@@ -80,7 +78,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/trino v0.0.26
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
-	github.com/yandex-cloud/go-sdk/v2 v2.53.0
+	github.com/yandex-cloud/go-sdk/v2 v2.66.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0

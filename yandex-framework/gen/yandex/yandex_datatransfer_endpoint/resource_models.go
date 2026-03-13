@@ -28,6 +28,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 	return m.Name
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModel) SetName(target types.String) {
+	m.Name = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModel {
 	return yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModel{
 		Hosts: types.ListNull(types.StringType),
@@ -138,6 +145,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel) G
 	return m.ToName
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel) SetFromName(target types.String) {
+	m.FromName = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel) SetToName(target types.String) {
+	m.ToName = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel() yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModel{
 		FromName: types.StringNull(),
@@ -208,6 +222,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModel) GetName() types.String {
 	return m.Name
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModel) SetName(target types.String) {
+	m.Name = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModel {
@@ -320,6 +341,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping
 	return m.ShardName
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModel) SetColumnValue(target types.List) {
+	m.ColumnValue = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModel) SetShardName(target types.String) {
+	m.ShardName = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModel() yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModel{
 		ColumnValue: types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructColumnValueModelType),
@@ -387,6 +415,10 @@ type yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValu
 
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructColumnValueModel) GetStringValue() types.String {
 	return m.StringValue
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructColumnValueModel) SetStringValue(target types.String) {
+	m.StringValue = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructColumnValueModel() yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructColumnValueModel {
@@ -486,6 +518,22 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) GetType() types.String {
 	return m.Type
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetKey(target types.Bool) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetPath(target types.String) {
+	m.Path = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetRequired(target types.Bool) {
+	m.Required = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetType(target types.String) {
+	m.Type = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel() yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModel {
@@ -593,6 +641,22 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema
 	return m.Type
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetKey(target types.Bool) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetPath(target types.String) {
+	m.Path = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetRequired(target types.Bool) {
+	m.Required = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetType(target types.String) {
+	m.Type = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel() yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModel{
 		Key:      types.BoolNull(),
@@ -686,6 +750,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebezi
 	return m.Value
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel) SetKey(target types.String) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel) SetValue(target types.String) {
+	m.Value = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel() yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel{
 		Key:   types.StringNull(),
@@ -756,6 +827,13 @@ func (m *yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel
 }
 func (m *yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel) GetType() types.String {
 	return m.Type
+}
+
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel) SetType(target types.String) {
+	m.Type = target
 }
 
 func NewYandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel() yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModel {
@@ -868,6 +946,13 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel
 	return m.DatabaseName
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel) SetCollectionName(target types.String) {
+	m.CollectionName = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel) SetDatabaseName(target types.String) {
+	m.DatabaseName = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel() yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel {
 	return yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModel{
 		CollectionName: types.StringNull(),
@@ -950,6 +1035,22 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFi
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) GetType() types.String {
 	return m.Type
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetKey(target types.Bool) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetPath(target types.String) {
+	m.Path = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetRequired(target types.Bool) {
+	m.Required = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel) SetType(target types.String) {
+	m.Type = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel() yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModel {
@@ -1057,6 +1158,22 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFi
 	return m.Type
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetKey(target types.Bool) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetPath(target types.String) {
+	m.Path = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetRequired(target types.Bool) {
+	m.Required = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel) SetType(target types.String) {
+	m.Type = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel() yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModel{
 		Key:      types.BoolNull(),
@@ -1150,6 +1267,13 @@ func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebezium
 	return m.Value
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel) SetKey(target types.String) {
+	m.Key = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel) SetValue(target types.String) {
+	m.Value = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel() yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel {
 	return yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModel{
 		Key:   types.StringNull(),
@@ -1241,6 +1365,28 @@ func (m *yandexDatatransferEndpointModel) GetName() types.String {
 }
 func (m *yandexDatatransferEndpointModel) GetSettings() types.List {
 	return m.Settings
+}
+
+func (m *yandexDatatransferEndpointModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexDatatransferEndpointModel) SetEndpointId(target types.String) {
+	m.EndpointId = target
+}
+func (m *yandexDatatransferEndpointModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexDatatransferEndpointModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexDatatransferEndpointModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexDatatransferEndpointModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointModel) SetSettings(target types.List) {
+	m.Settings = target
 }
 
 func NewYandexDatatransferEndpointModel() yandexDatatransferEndpointModel {
@@ -1441,6 +1587,52 @@ func (m *yandexDatatransferEndpointSettingsModel) GetYdsSource() types.List {
 }
 func (m *yandexDatatransferEndpointSettingsModel) GetYdsTarget() types.List {
 	return m.YdsTarget
+}
+
+func (m *yandexDatatransferEndpointSettingsModel) SetClickhouseSource(target types.List) {
+	m.ClickhouseSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetClickhouseTarget(target types.List) {
+	m.ClickhouseTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetKafkaSource(target types.List) {
+	m.KafkaSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetKafkaTarget(target types.List) {
+	m.KafkaTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetMetrikaSource(target types.List) {
+	m.MetrikaSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetMongoSource(target types.List) {
+	m.MongoSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetMongoTarget(target types.List) {
+	m.MongoTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetMysqlSource(target types.List) {
+	m.MysqlSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetMysqlTarget(target types.List) {
+	m.MysqlTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetPostgresSource(target types.List) {
+	m.PostgresSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetPostgresTarget(target types.List) {
+	m.PostgresTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetYdbSource(target types.List) {
+	m.YdbSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetYdbTarget(target types.List) {
+	m.YdbTarget = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetYdsSource(target types.List) {
+	m.YdsSource = target
+}
+func (m *yandexDatatransferEndpointSettingsModel) SetYdsTarget(target types.List) {
+	m.YdsTarget = target
 }
 
 func NewYandexDatatransferEndpointSettingsModel() yandexDatatransferEndpointSettingsModel {
@@ -1681,6 +1873,25 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) GetSubnetId() 
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetClickhouseClusterName(target types.String) {
+	m.ClickhouseClusterName = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseSourceModel() yandexDatatransferEndpointSettingsClickhouseSourceModel {
 	return yandexDatatransferEndpointSettingsClickhouseSourceModel{
 		ClickhouseClusterName: types.StringNull(),
@@ -1806,6 +2017,10 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel) GetC
 	return m.ConnectionOptions
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel) SetConnectionOptions(target types.List) {
+	m.ConnectionOptions = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel {
 	return yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel{
 		ConnectionOptions: types.ListNull(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModelType),
@@ -1916,6 +2131,25 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel {
@@ -2053,6 +2287,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -2151,6 +2392,19 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel) SetHttpPort(target types.Int64) {
+	m.HttpPort = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel) SetNativePort(target types.Int64) {
+	m.NativePort = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel) SetShards(target types.List) {
+	m.Shards = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel {
@@ -2312,6 +2566,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel {
@@ -2481,6 +2742,10 @@ func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionO
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -2560,6 +2825,10 @@ type yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptio
 
 func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel() yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel {
@@ -2793,6 +3062,31 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) GetSubnetId() 
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetAltNames(target types.List) {
+	m.AltNames = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetCleanupPolicy(target types.String) {
+	m.CleanupPolicy = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetClickhouseClusterName(target types.String) {
+	m.ClickhouseClusterName = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetIsSchemaMigrationDisabled(target types.Bool) {
+	m.IsSchemaMigrationDisabled = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetSharding(target types.List) {
+	m.Sharding = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetModel() yandexDatatransferEndpointSettingsClickhouseTargetModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetModel{
 		AltNames:                  types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModelType),
@@ -2969,6 +3263,10 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel) GetC
 	return m.ConnectionOptions
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel) SetConnectionOptions(target types.List) {
+	m.ConnectionOptions = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel{
 		ConnectionOptions: types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModelType),
@@ -3079,6 +3377,25 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel {
@@ -3216,6 +3533,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -3314,6 +3638,19 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel) SetHttpPort(target types.Int64) {
+	m.HttpPort = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel) SetNativePort(target types.Int64) {
+	m.NativePort = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel) SetShards(target types.List) {
+	m.Shards = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel {
@@ -3475,6 +3812,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel {
@@ -3644,6 +3988,10 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionO
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -3723,6 +4071,10 @@ type yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptio
 
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel() yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel {
@@ -3866,6 +4218,19 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingModel) GetTra
 	return m.TransferId
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingModel) SetColumnValueHash(target types.List) {
+	m.ColumnValueHash = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingModel) SetCustomMapping(target types.List) {
+	m.CustomMapping = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingModel) SetRoundRobin(target types.List) {
+	m.RoundRobin = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingModel) SetTransferId(target types.List) {
+	m.TransferId = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetShardingModel() yandexDatatransferEndpointSettingsClickhouseTargetShardingModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetShardingModel{
 		ColumnValueHash: types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModelType),
@@ -3985,6 +4350,10 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHa
 	return m.ColumnName
 }
 
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel) SetColumnName(target types.String) {
+	m.ColumnName = target
+}
+
 func NewYandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel() yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel {
 	return yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel{
 		ColumnName: types.StringNull(),
@@ -4068,6 +4437,13 @@ func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping
 }
 func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel) GetMapping() types.List {
 	return m.Mapping
+}
+
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel) SetColumnName(target types.String) {
+	m.ColumnName = target
+}
+func (m *yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel) SetMapping(target types.List) {
+	m.Mapping = target
 }
 
 func NewYandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel() yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel {
@@ -4369,6 +4745,28 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) GetTransformer() ty
 	return m.Transformer
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetAuth(target types.List) {
+	m.Auth = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetParser(target types.List) {
+	m.Parser = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetTopicName(target types.String) {
+	m.TopicName = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetTopicNames(target types.List) {
+	m.TopicNames = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceModel) SetTransformer(target types.List) {
+	m.Transformer = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceModel() yandexDatatransferEndpointSettingsKafkaSourceModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceModel{
 		Auth:           types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceAuthModelType),
@@ -4503,6 +4901,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthModel) GetNoAuth() typ
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthModel) GetSasl() types.List {
 	return m.Sasl
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthModel) SetNoAuth(target types.List) {
+	m.NoAuth = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthModel) SetSasl(target types.List) {
+	m.Sasl = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceAuthModel() yandexDatatransferEndpointSettingsKafkaSourceAuthModel {
@@ -4680,6 +5085,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel) GetUser() t
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel) SetMechanism(target types.String) {
+	m.Mechanism = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel() yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel{
 		Mechanism: types.StringNull(),
@@ -4784,6 +5199,10 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel) Get
 	return m.Raw
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel() yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel{
 		Raw: types.StringNull(),
@@ -4882,6 +5301,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionModel) GetConnec
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionModel) GetOnPremise() types.List {
 	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionModel) SetClusterId(target types.String) {
+	m.ClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceConnectionModel() yandexDatatransferEndpointSettingsKafkaSourceConnectionModel {
@@ -4998,6 +5427,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManage
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -5092,6 +5528,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel) 
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel) SetBrokerUrls(target types.List) {
+	m.BrokerUrls = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel() yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel {
@@ -5237,6 +5683,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel {
@@ -5406,6 +5859,10 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -5497,6 +5954,19 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetJsonParser
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetTskvParser() types.List {
 	return m.TskvParser
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetAuditTrailsV1Parser(target types.List) {
+	m.AuditTrailsV1Parser = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetCloudLoggingParser(target types.List) {
+	m.CloudLoggingParser = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetJsonParser(target types.List) {
+	m.JsonParser = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetTskvParser(target types.List) {
+	m.TskvParser = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserModel() yandexDatatransferEndpointSettingsKafkaSourceParserModel {
@@ -5762,6 +6232,19 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel) Get
 	return m.UnescapeStringValues
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel) SetAddRestColumn(target types.Bool) {
+	m.AddRestColumn = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel) SetDataSchema(target types.List) {
+	m.DataSchema = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel) SetNullKeysAllowed(target types.Bool) {
+	m.NullKeysAllowed = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel) SetUnescapeStringValues(target types.Bool) {
+	m.UnescapeStringValues = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel() yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel{
 		AddRestColumn:        types.BoolNull(),
@@ -5877,6 +6360,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema
 	return m.JsonFields
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel) SetFields(target types.List) {
+	m.Fields = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel) SetJsonFields(target types.String) {
+	m.JsonFields = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel() yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel{
 		Fields:     types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModelType),
@@ -5976,6 +6466,10 @@ type yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFiel
 
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel) GetFields() types.List {
 	return m.Fields
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel) SetFields(target types.List) {
+	m.Fields = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel() yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel {
@@ -6117,6 +6611,19 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel) Get
 	return m.UnescapeStringValues
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel) SetAddRestColumn(target types.Bool) {
+	m.AddRestColumn = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel) SetDataSchema(target types.List) {
+	m.DataSchema = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel) SetNullKeysAllowed(target types.Bool) {
+	m.NullKeysAllowed = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel) SetUnescapeStringValues(target types.Bool) {
+	m.UnescapeStringValues = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel() yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel{
 		AddRestColumn:        types.BoolNull(),
@@ -6232,6 +6739,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema
 	return m.JsonFields
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel) SetFields(target types.List) {
+	m.Fields = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel) SetJsonFields(target types.String) {
+	m.JsonFields = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel() yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel{
 		Fields:     types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModelType),
@@ -6331,6 +6845,10 @@ type yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFiel
 
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel) GetFields() types.List {
 	return m.Fields
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel) SetFields(target types.List) {
+	m.Fields = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel() yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel {
@@ -6554,6 +7072,25 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) GetServi
 	return m.ServiceAccountId
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetBufferFlushInterval(target types.String) {
+	m.BufferFlushInterval = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetBufferSize(target types.String) {
+	m.BufferSize = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetCloudFunction(target types.String) {
+	m.CloudFunction = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetInvocationTimeout(target types.String) {
+	m.InvocationTimeout = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetNumberOfRetries(target types.Int64) {
+	m.NumberOfRetries = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceTransformerModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaSourceTransformerModel() yandexDatatransferEndpointSettingsKafkaSourceTransformerModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceTransformerModel{
 		BufferFlushInterval: types.StringNull(),
@@ -6686,6 +7223,22 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) GetTopicSettings() 
 	return m.TopicSettings
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) SetAuth(target types.List) {
+	m.Auth = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) SetSerializer(target types.List) {
+	m.Serializer = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetModel) SetTopicSettings(target types.List) {
+	m.TopicSettings = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetModel() yandexDatatransferEndpointSettingsKafkaTargetModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetModel{
 		Auth:           types.ListNull(yandexDatatransferEndpointSettingsKafkaTargetAuthModelType),
@@ -6806,6 +7359,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthModel) GetNoAuth() typ
 }
 func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthModel) GetSasl() types.List {
 	return m.Sasl
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthModel) SetNoAuth(target types.List) {
+	m.NoAuth = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthModel) SetSasl(target types.List) {
+	m.Sasl = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetAuthModel() yandexDatatransferEndpointSettingsKafkaTargetAuthModel {
@@ -6983,6 +7543,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel) GetUser() t
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel) SetMechanism(target types.String) {
+	m.Mechanism = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel() yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel{
 		Mechanism: types.StringNull(),
@@ -7087,6 +7657,10 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel) Get
 	return m.Raw
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel() yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel{
 		Raw: types.StringNull(),
@@ -7185,6 +7759,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionModel) GetConnec
 }
 func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionModel) GetOnPremise() types.List {
 	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionModel) SetClusterId(target types.String) {
+	m.ClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetConnectionModel() yandexDatatransferEndpointSettingsKafkaTargetConnectionModel {
@@ -7301,6 +7885,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManage
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -7395,6 +7986,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel) 
 }
 func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel) SetBrokerUrls(target types.List) {
+	m.BrokerUrls = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel() yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel {
@@ -7540,6 +8141,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode
 }
 func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel {
@@ -7709,6 +8317,10 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -7833,6 +8445,16 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerModel) GetSerial
 }
 func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerModel) GetSerializerJson() types.List {
 	return m.SerializerJson
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerModel) SetSerializerAuto(target types.List) {
+	m.SerializerAuto = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerModel) SetSerializerDebezium(target types.List) {
+	m.SerializerDebezium = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerModel) SetSerializerJson(target types.List) {
+	m.SerializerJson = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetSerializerModel() yandexDatatransferEndpointSettingsKafkaTargetSerializerModel {
@@ -8009,6 +8631,10 @@ type yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumMo
 
 func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel) GetSerializerParameters() types.List {
 	return m.SerializerParameters
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel) SetSerializerParameters(target types.List) {
+	m.SerializerParameters = target
 }
 
 func NewYandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel() yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel {
@@ -8208,6 +8834,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel) GetTop
 	return m.TopicPrefix
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel) SetTopic(target types.List) {
+	m.Topic = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel) SetTopicPrefix(target types.String) {
+	m.TopicPrefix = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel() yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel{
 		Topic:       types.ListNull(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModelType),
@@ -8313,6 +8946,13 @@ func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel) G
 	return m.TopicName
 }
 
+func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel) SetSaveTxOrder(target types.Bool) {
+	m.SaveTxOrder = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel) SetTopicName(target types.String) {
+	m.TopicName = target
+}
+
 func NewYandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel() yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel {
 	return yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel{
 		SaveTxOrder: types.BoolNull(),
@@ -8407,6 +9047,16 @@ func (m *yandexDatatransferEndpointSettingsMetrikaSourceModel) GetStreams() type
 }
 func (m *yandexDatatransferEndpointSettingsMetrikaSourceModel) GetToken() types.List {
 	return m.Token
+}
+
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceModel) SetCounterIds(target types.List) {
+	m.CounterIds = target
+}
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceModel) SetStreams(target types.List) {
+	m.Streams = target
+}
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceModel) SetToken(target types.List) {
+	m.Token = target
 }
 
 func NewYandexDatatransferEndpointSettingsMetrikaSourceModel() yandexDatatransferEndpointSettingsMetrikaSourceModel {
@@ -8596,6 +9246,10 @@ func (m *yandexDatatransferEndpointSettingsMetrikaSourceTokenModel) GetRaw() typ
 	return m.Raw
 }
 
+func (m *yandexDatatransferEndpointSettingsMetrikaSourceTokenModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
 func NewYandexDatatransferEndpointSettingsMetrikaSourceTokenModel() yandexDatatransferEndpointSettingsMetrikaSourceTokenModel {
 	return yandexDatatransferEndpointSettingsMetrikaSourceTokenModel{
 		Raw: types.StringNull(),
@@ -8706,6 +9360,25 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceModel) GetSecurityGroups()
 }
 func (m *yandexDatatransferEndpointSettingsMongoSourceModel) GetSubnetId() types.String {
 	return m.SubnetId
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetCollections(target types.List) {
+	m.Collections = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetExcludedCollections(target types.List) {
+	m.ExcludedCollections = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetSecondaryPreferredMode(target types.Bool) {
+	m.SecondaryPreferredMode = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoSourceModel() yandexDatatransferEndpointSettingsMongoSourceModel {
@@ -8870,6 +9543,10 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionModel) GetConnec
 	return m.ConnectionOptions
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionModel) SetConnectionOptions(target types.List) {
+	m.ConnectionOptions = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionModel() yandexDatatransferEndpointSettingsMongoSourceConnectionModel {
 	return yandexDatatransferEndpointSettingsMongoSourceConnectionModel{
 		ConnectionOptions: types.ListNull(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModelType),
@@ -8980,6 +9657,25 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetAuthSource(target types.String) {
+	m.AuthSource = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel {
@@ -9117,6 +9813,13 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOption
 	return m.ReplicaSet
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel) SetReplicaSet(target types.String) {
+	m.ReplicaSet = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -9215,6 +9918,19 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel) SetReplicaSet(target types.String) {
+	m.ReplicaSet = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel {
@@ -9367,6 +10083,13 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel {
@@ -9536,6 +10259,10 @@ func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOption
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -9615,6 +10342,10 @@ type yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPas
 
 func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel() yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel {
@@ -9799,6 +10530,22 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetModel) GetSubnetId() types
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoTargetModel) SetCleanupPolicy(target types.String) {
+	m.CleanupPolicy = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoTargetModel() yandexDatatransferEndpointSettingsMongoTargetModel {
 	return yandexDatatransferEndpointSettingsMongoTargetModel{
 		CleanupPolicy:  types.StringNull(),
@@ -9917,6 +10664,10 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionModel) GetConnec
 	return m.ConnectionOptions
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionModel) SetConnectionOptions(target types.List) {
+	m.ConnectionOptions = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionModel() yandexDatatransferEndpointSettingsMongoTargetConnectionModel {
 	return yandexDatatransferEndpointSettingsMongoTargetConnectionModel{
 		ConnectionOptions: types.ListNull(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModelType),
@@ -10027,6 +10778,25 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetAuthSource(target types.String) {
+	m.AuthSource = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel {
@@ -10164,6 +10934,13 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOption
 	return m.ReplicaSet
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel) SetReplicaSet(target types.String) {
+	m.ReplicaSet = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -10262,6 +11039,19 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel) SetReplicaSet(target types.String) {
+	m.ReplicaSet = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel {
@@ -10414,6 +11204,13 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOption
 }
 func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel {
@@ -10583,6 +11380,10 @@ func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOption
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -10662,6 +11463,10 @@ type yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPas
 
 func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel() yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel {
@@ -10829,6 +11634,37 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) GetUser() types.Str
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetExcludeTablesRegex(target types.List) {
+	m.ExcludeTablesRegex = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetIncludeTablesRegex(target types.List) {
+	m.IncludeTablesRegex = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetObjectTransferSettings(target types.List) {
+	m.ObjectTransferSettings = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetServiceDatabase(target types.String) {
+	m.ServiceDatabase = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetTimezone(target types.String) {
+	m.Timezone = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlSourceModel() yandexDatatransferEndpointSettingsMysqlSourceModel {
 	return yandexDatatransferEndpointSettingsMysqlSourceModel{
 		Connection:             types.ListNull(yandexDatatransferEndpointSettingsMysqlSourceConnectionModelType),
@@ -10990,6 +11826,16 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionModel) GetOnPrem
 	return m.OnPremise
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlSourceConnectionModel() yandexDatatransferEndpointSettingsMysqlSourceConnectionModel {
 	return yandexDatatransferEndpointSettingsMysqlSourceConnectionModel{
 		ConnectionManagerConnection: types.ListNull(yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModelType),
@@ -11104,6 +11950,13 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManage
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -11202,6 +12055,19 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) 
 }
 func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel() yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel {
@@ -11354,6 +12220,13 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsMode
 }
 func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel {
@@ -11523,6 +12396,10 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsMode
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -11690,6 +12567,19 @@ func (m *yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsMode
 	return m.View
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel) SetRoutine(target types.String) {
+	m.Routine = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel) SetTables(target types.String) {
+	m.Tables = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel) SetTrigger(target types.String) {
+	m.Trigger = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel) SetView(target types.String) {
+	m.View = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel() yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel {
 	return yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel{
 		Routine: types.StringNull(),
@@ -11790,6 +12680,10 @@ type yandexDatatransferEndpointSettingsMysqlSourcePasswordModel struct {
 
 func (m *yandexDatatransferEndpointSettingsMysqlSourcePasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlSourcePasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlSourcePasswordModel() yandexDatatransferEndpointSettingsMysqlSourcePasswordModel {
@@ -11961,6 +12855,40 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) GetUser() types.Str
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetCleanupPolicy(target types.String) {
+	m.CleanupPolicy = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetIsSchemaMigrationDisabled(target types.Bool) {
+	m.IsSchemaMigrationDisabled = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetServiceDatabase(target types.String) {
+	m.ServiceDatabase = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetSkipConstraintChecks(target types.Bool) {
+	m.SkipConstraintChecks = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetSqlMode(target types.String) {
+	m.SqlMode = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetTimezone(target types.String) {
+	m.Timezone = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlTargetModel() yandexDatatransferEndpointSettingsMysqlTargetModel {
 	return yandexDatatransferEndpointSettingsMysqlTargetModel{
 		CleanupPolicy:             types.StringNull(),
@@ -12129,6 +13057,16 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionModel) GetOnPrem
 	return m.OnPremise
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlTargetConnectionModel() yandexDatatransferEndpointSettingsMysqlTargetConnectionModel {
 	return yandexDatatransferEndpointSettingsMysqlTargetConnectionModel{
 		ConnectionManagerConnection: types.ListNull(yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModelType),
@@ -12243,6 +13181,13 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManage
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -12341,6 +13286,19 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) 
 }
 func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel() yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel {
@@ -12493,6 +13451,13 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsMode
 }
 func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel {
@@ -12662,6 +13627,10 @@ func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsMode
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -12741,6 +13710,10 @@ type yandexDatatransferEndpointSettingsMysqlTargetPasswordModel struct {
 
 func (m *yandexDatatransferEndpointSettingsMysqlTargetPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsMysqlTargetPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsMysqlTargetPasswordModel() yandexDatatransferEndpointSettingsMysqlTargetPasswordModel {
@@ -12908,6 +13881,37 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) GetUser() types.
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetObjectTransferSettings(target types.List) {
+	m.ObjectTransferSettings = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetServiceSchema(target types.String) {
+	m.ServiceSchema = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetSlotGigabyteLagLimit(target types.Float64) {
+	m.SlotGigabyteLagLimit = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresSourceModel() yandexDatatransferEndpointSettingsPostgresSourceModel {
 	return yandexDatatransferEndpointSettingsPostgresSourceModel{
 		Connection:             types.ListNull(yandexDatatransferEndpointSettingsPostgresSourceConnectionModelType),
@@ -13069,6 +14073,16 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionModel) GetOnP
 	return m.OnPremise
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresSourceConnectionModel() yandexDatatransferEndpointSettingsPostgresSourceConnectionModel {
 	return yandexDatatransferEndpointSettingsPostgresSourceConnectionModel{
 		ConnectionManagerConnection: types.ListNull(yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModelType),
@@ -13183,6 +14197,13 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionMan
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -13281,6 +14302,19 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseMode
 }
 func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel() yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel {
@@ -13433,6 +14467,13 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsM
 }
 func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel {
@@ -13600,6 +14641,10 @@ type yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeE
 
 func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel) GetCaCertificate() types.String {
 	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel {
@@ -13825,6 +14870,61 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsM
 	return m.View
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetCast(target types.String) {
+	m.Cast = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetCollation(target types.String) {
+	m.Collation = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetConstraint(target types.String) {
+	m.Constraint = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetDefaultValues(target types.String) {
+	m.DefaultValues = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetFkConstraint(target types.String) {
+	m.FkConstraint = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetFunction(target types.String) {
+	m.Function = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetIndex(target types.String) {
+	m.Index = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetMaterializedView(target types.String) {
+	m.MaterializedView = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetPolicy(target types.String) {
+	m.Policy = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetPrimaryKey(target types.String) {
+	m.PrimaryKey = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetRule(target types.String) {
+	m.Rule = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetSequence(target types.String) {
+	m.Sequence = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetSequenceOwnedBy(target types.String) {
+	m.SequenceOwnedBy = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetSequenceSet(target types.String) {
+	m.SequenceSet = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetTable(target types.String) {
+	m.Table = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetTrigger(target types.String) {
+	m.Trigger = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetType(target types.String) {
+	m.Type = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel) SetView(target types.String) {
+	m.View = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel() yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel {
 	return yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel{
 		Cast:             types.StringNull(),
@@ -14025,6 +15125,10 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourcePasswordModel) GetRaw()
 	return m.Raw
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourcePasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresSourcePasswordModel() yandexDatatransferEndpointSettingsPostgresSourcePasswordModel {
 	return yandexDatatransferEndpointSettingsPostgresSourcePasswordModel{
 		Raw: types.StringNull(),
@@ -14178,6 +15282,28 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) GetUser() types.
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetCleanupPolicy(target types.String) {
+	m.CleanupPolicy = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetConnection(target types.List) {
+	m.Connection = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetIsSchemaMigrationDisabled(target types.Bool) {
+	m.IsSchemaMigrationDisabled = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresTargetModel() yandexDatatransferEndpointSettingsPostgresTargetModel {
 	return yandexDatatransferEndpointSettingsPostgresTargetModel{
 		CleanupPolicy:             types.StringNull(),
@@ -14318,6 +15444,16 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionModel) GetOnP
 	return m.OnPremise
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionModel) SetConnectionManagerConnection(target types.List) {
+	m.ConnectionManagerConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionModel) SetMdbClusterId(target types.String) {
+	m.MdbClusterId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresTargetConnectionModel() yandexDatatransferEndpointSettingsPostgresTargetConnectionModel {
 	return yandexDatatransferEndpointSettingsPostgresTargetConnectionModel{
 		ConnectionManagerConnection: types.ListNull(yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModelType),
@@ -14432,6 +15568,13 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionMan
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel() yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel {
 	return yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel{
 		ConnectionId: types.StringNull(),
@@ -14530,6 +15673,19 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseMode
 }
 func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel) GetTlsMode() types.List {
 	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel() yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel {
@@ -14682,6 +15838,13 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsM
 }
 func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
 	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel {
@@ -14851,6 +16014,10 @@ func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsM
 	return m.CaCertificate
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel {
 	return yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel{
 		CaCertificate: types.StringNull(),
@@ -14930,6 +16097,10 @@ type yandexDatatransferEndpointSettingsPostgresTargetPasswordModel struct {
 
 func (m *yandexDatatransferEndpointSettingsPostgresTargetPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsPostgresTargetPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexDatatransferEndpointSettingsPostgresTargetPasswordModel() yandexDatatransferEndpointSettingsPostgresTargetPasswordModel {
@@ -15091,6 +16262,34 @@ func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetServiceAccountId()
 }
 func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetSubnetId() types.String {
 	return m.SubnetId
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetChangefeedCustomConsumerName(target types.String) {
+	m.ChangefeedCustomConsumerName = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetChangefeedCustomName(target types.String) {
+	m.ChangefeedCustomName = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetPaths(target types.List) {
+	m.Paths = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetSaKeyContent(target types.String) {
+	m.SaKeyContent = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdbSourceModel() yandexDatatransferEndpointSettingsYdbSourceModel {
@@ -15353,6 +16552,40 @@ func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetSubnetId() types.S
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetCleanupPolicy(target types.String) {
+	m.CleanupPolicy = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetDefaultCompression(target types.String) {
+	m.DefaultCompression = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetIsSchemaMigrationDisabled(target types.Bool) {
+	m.IsSchemaMigrationDisabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetIsTableColumnOriented(target types.Bool) {
+	m.IsTableColumnOriented = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetPath(target types.String) {
+	m.Path = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetSaKeyContent(target types.String) {
+	m.SaKeyContent = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdbTargetModel() yandexDatatransferEndpointSettingsYdbTargetModel {
 	return yandexDatatransferEndpointSettingsYdbTargetModel{
 		CleanupPolicy:             types.StringNull(),
@@ -15586,6 +16819,37 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetSupportedCodecs() 
 	return m.SupportedCodecs
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetAllowTtlRewind(target types.Bool) {
+	m.AllowTtlRewind = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetConsumer(target types.String) {
+	m.Consumer = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetEndpoint(target types.String) {
+	m.Endpoint = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetParser(target types.List) {
+	m.Parser = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetStream(target types.String) {
+	m.Stream = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetSupportedCodecs(target types.List) {
+	m.SupportedCodecs = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceModel() yandexDatatransferEndpointSettingsYdsSourceModel {
 	return yandexDatatransferEndpointSettingsYdsSourceModel{
 		AllowTtlRewind:   types.BoolNull(),
@@ -15749,6 +17013,19 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetJsonParser()
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetTskvParser() types.List {
 	return m.TskvParser
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetAuditTrailsV1Parser(target types.List) {
+	m.AuditTrailsV1Parser = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetCloudLoggingParser(target types.List) {
+	m.CloudLoggingParser = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetJsonParser(target types.List) {
+	m.JsonParser = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetTskvParser(target types.List) {
+	m.TskvParser = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdsSourceParserModel() yandexDatatransferEndpointSettingsYdsSourceParserModel {
@@ -16014,6 +17291,19 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel) GetUn
 	return m.UnescapeStringValues
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel) SetAddRestColumn(target types.Bool) {
+	m.AddRestColumn = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel) SetDataSchema(target types.List) {
+	m.DataSchema = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel) SetNullKeysAllowed(target types.Bool) {
+	m.NullKeysAllowed = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel) SetUnescapeStringValues(target types.Bool) {
+	m.UnescapeStringValues = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel() yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel{
 		AddRestColumn:        types.BoolNull(),
@@ -16129,6 +17419,13 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaMo
 	return m.JsonFields
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel) SetFields(target types.List) {
+	m.Fields = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel) SetJsonFields(target types.String) {
+	m.JsonFields = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel() yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel{
 		Fields:     types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModelType),
@@ -16228,6 +17525,10 @@ type yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFields
 
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel) GetFields() types.List {
 	return m.Fields
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel) SetFields(target types.List) {
+	m.Fields = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel() yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel {
@@ -16369,6 +17670,19 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel) GetUn
 	return m.UnescapeStringValues
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel) SetAddRestColumn(target types.Bool) {
+	m.AddRestColumn = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel) SetDataSchema(target types.List) {
+	m.DataSchema = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel) SetNullKeysAllowed(target types.Bool) {
+	m.NullKeysAllowed = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel) SetUnescapeStringValues(target types.Bool) {
+	m.UnescapeStringValues = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel() yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel{
 		AddRestColumn:        types.BoolNull(),
@@ -16484,6 +17798,13 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaMo
 	return m.JsonFields
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel) SetFields(target types.List) {
+	m.Fields = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel) SetJsonFields(target types.String) {
+	m.JsonFields = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel() yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel{
 		Fields:     types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModelType),
@@ -16583,6 +17904,10 @@ type yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFields
 
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel) GetFields() types.List {
 	return m.Fields
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel) SetFields(target types.List) {
+	m.Fields = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel() yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel {
@@ -16818,6 +18143,34 @@ func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetSubnetId() types.S
 	return m.SubnetId
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetCompressionCodec(target types.String) {
+	m.CompressionCodec = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetEndpoint(target types.String) {
+	m.Endpoint = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetSaveTxOrder(target types.Bool) {
+	m.SaveTxOrder = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetSecurityGroups(target types.List) {
+	m.SecurityGroups = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetSerializer(target types.List) {
+	m.Serializer = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetStream(target types.String) {
+	m.Stream = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsTargetModel() yandexDatatransferEndpointSettingsYdsTargetModel {
 	return yandexDatatransferEndpointSettingsYdsTargetModel{
 		CompressionCodec: types.StringNull(),
@@ -17009,6 +18362,16 @@ func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerModel) GetSerializ
 	return m.SerializerJson
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerModel) SetSerializerAuto(target types.List) {
+	m.SerializerAuto = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerModel) SetSerializerDebezium(target types.List) {
+	m.SerializerDebezium = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerModel) SetSerializerJson(target types.List) {
+	m.SerializerJson = target
+}
+
 func NewYandexDatatransferEndpointSettingsYdsTargetSerializerModel() yandexDatatransferEndpointSettingsYdsTargetSerializerModel {
 	return yandexDatatransferEndpointSettingsYdsTargetSerializerModel{
 		SerializerAuto:     types.ListNull(yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerAutoModelType),
@@ -17183,6 +18546,10 @@ type yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumMode
 
 func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel) GetSerializerParameters() types.List {
 	return m.SerializerParameters
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel) SetSerializerParameters(target types.List) {
+	m.SerializerParameters = target
 }
 
 func NewYandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel() yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel {

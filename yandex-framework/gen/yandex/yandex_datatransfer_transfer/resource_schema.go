@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
@@ -219,6 +220,305 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 
 		Blocks: map[string]schema.Block{
 
+			"data_objects": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+
+					Attributes: map[string]schema.Attribute{
+
+						"include_objects": schema.ListAttribute{
+							ElementType:         types.StringType,
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.data_objectsyandex.cloud.datatransfer.v1.DataObjects.include_objects
+								// -> yandex.cloud.datatransfer.v1.Transfer.data_objectsyandex.cloud.datatransfer.v1.DataObjects.include_objects
+								// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.data_objectsyandex.cloud.datatransfer.v1.DataObjects.include_objects
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+								planmodifiers.NilRelaxedList(),
+							},
+							Validators: []validator.List{
+								listvalidator.ValueStringsAre(),
+							},
+						},
+					},
+				},
+				MarkdownDescription: "",
+				Description: "" +
+					// proto paths: +
+					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.data_objects
+					// -> yandex.cloud.datatransfer.v1.Transfer.data_objects
+					// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.data_objects
+					"package: yandex.cloud.datatransfer.v1\n" +
+					"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
+			},
+
+			"regular_snapshot": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+
+					Blocks: map[string]schema.Block{
+
+						"disabled": schema.ListNestedBlock{
+							NestedObject:        schema.NestedBlockObject{},
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.disabled
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.disabled
+								// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.disabled
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.List{
+								listvalidator.ConflictsWith(
+									path.MatchRelative().AtParent().AtName("settings"),
+								), listvalidator.SizeAtMost(1),
+							},
+						},
+
+						"settings": schema.ListNestedBlock{
+							NestedObject: schema.NestedBlockObject{
+
+								Attributes: map[string]schema.Attribute{
+
+									"cron_expression": schema.StringAttribute{
+										MarkdownDescription: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set",
+										Description: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+										},
+									},
+
+									"increment_delay_seconds": schema.Int64Attribute{
+										MarkdownDescription: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order",
+										Description: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Int64{
+											int64planmodifier.UseStateForUnknown(),
+										},
+									},
+
+									"schedule": schema.StringAttribute{
+										MarkdownDescription: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set",
+										Description: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.String{
+											stringvalidator.OneOf(converter.MapKeys(datatransfer.RegularSnapshotScheduleInterval_value)...),
+										},
+									},
+								},
+								Blocks: map[string]schema.Block{
+
+									"retry_config": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"max_attempts": schema.Int64Attribute{
+													MarkdownDescription: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation.",
+													Description: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation." +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_configyandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_configyandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_configyandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.Int64{
+														int64planmodifier.UseStateForUnknown(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Regular snapshot retries, only for cloud installation",
+										Description: "Regular snapshot retries, only for cloud installation" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"tables": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"cursor_column": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+
+												"initial_state": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.initial_state
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.initial_state
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.initial_state
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+
+												"table_name": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_name
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_name
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_name
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+
+												"table_namespace": schema.StringAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value.",
+										Description: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value." +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+											planmodifiers.NilRelaxedList(),
+										},
+									},
+								},
+							},
+							MarkdownDescription: "",
+							Description: "" +
+								// proto paths: +
+								// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settings
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settings
+								// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settings
+								"package: yandex.cloud.datatransfer.v1\n" +
+								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.List{
+								listvalidator.ConflictsWith(
+									path.MatchRelative().AtParent().AtName("disabled"),
+								), listvalidator.SizeAtMost(1),
+							},
+						},
+					},
+				},
+				MarkdownDescription: "Regular snapshots for the transfer, applicable only if transfer type is\n SNAPSHOT_ONLY",
+				Description: "Regular snapshots for the transfer, applicable only if transfer type is\n SNAPSHOT_ONLY" +
+					// proto paths: +
+					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshot
+					// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot
+					// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.regular_snapshot
+					"package: yandex.cloud.datatransfer.v1\n" +
+					"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
+			},
+
 			"replication_runtime": schema.ListNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 
@@ -228,6 +528,26 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 							NestedObject: schema.NestedBlockObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"flavor": schema.StringAttribute{
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.String{
+											stringvalidator.OneOf(converter.MapKeys(datatransfer.Flavor_value)...),
+										},
+									},
 
 									"job_count": schema.Int64Attribute{
 										MarkdownDescription: "Number of workers in parallel replication.",
@@ -350,6 +670,26 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 							NestedObject: schema.NestedBlockObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"flavor": schema.StringAttribute{
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											"package: yandex.cloud.datatransfer.v1\n" +
+											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.String{
+											stringplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.String{
+											stringvalidator.OneOf(converter.MapKeys(datatransfer.Flavor_value)...),
+										},
+									},
 
 									"job_count": schema.Int64Attribute{
 										MarkdownDescription: "Number of workers in parallel replication.",

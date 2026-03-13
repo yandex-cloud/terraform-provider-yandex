@@ -720,6 +720,132 @@ func TestAccDataTransferTransferWithTransformation(t *testing.T) {
 	})
 }
 
+func TestAccDataTransferTransferWithNewFields(t *testing.T) {
+	t.Parallel()
+	const pgTargetEndpointResourceName = "pg-target-with-new-fields"
+	const mysqlSourceEndpointResourceName = "mysql-source-with-new-fields"
+	const transferResourceName = "transfer-with-new-fields"
+	const fullTransferResourceName = "yandex_datatransfer_transfer.transfer_with_new_fields"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigTransferWithNewFields(
+					mysqlSourceEndpointResourceName+randomPostfix,
+					pgTargetEndpointResourceName+randomPostfix,
+					transferResourceName+randomPostfix,
+					"acctst-"+randomPostfix,
+					`
+					runtime {
+				       yc_runtime {
+				          flavor = "MEDIUM"
+					      job_count = 5
+						  upload_shard_params {
+							  job_count = 4
+							  process_count = 3
+						   }
+				        }
+				    }
+					regular_snapshot {
+						disabled {}
+					}
+					data_objects {
+					   include_objects = ["some_object"]
+					}
+					`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullTransferResourceName, "name", transferResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.flavor", "MEDIUM"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "data_objects.0.include_objects.0", "some_object"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "replication_runtime.0"),
+					resource.TestCheckResourceAttrSet(fullTransferResourceName, "regular_snapshot.0.disabled.#"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigTransferWithNewFields(
+					mysqlSourceEndpointResourceName+randomPostfix,
+					pgTargetEndpointResourceName+randomPostfix,
+					transferResourceName+randomPostfix+"2",
+					"acctst-"+randomPostfix,
+					`
+					runtime {
+					   yc_runtime {
+						  job_count = 4
+						  flavor = "LARGE"
+					   }
+					}
+					`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullTransferResourceName, "name", transferResourceName+randomPostfix+"2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.flavor", "LARGE"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "replication_runtime.0"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "data_objects.0"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "transformation.0"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "regular_snapshot.0"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigTransferWithNewFields(
+					mysqlSourceEndpointResourceName+randomPostfix,
+					pgTargetEndpointResourceName+randomPostfix,
+					transferResourceName+randomPostfix+"2",
+					"acctst-"+randomPostfix,
+					`
+					runtime {
+					   yc_runtime {
+						  job_count = 4
+						  flavor = "LARGE"
+					   }
+					}
+					regular_snapshot {
+					   settings {
+						  cron_expression         = "30 0 * * *" # 00:30
+						  increment_delay_seconds = 0
+						  tables {
+						    table_namespace = "db1"
+							table_name      = "my_table"
+							cursor_column   = "created_at"
+							initial_state  = "2024-01-01T00:00:00Z"
+						  }
+						  tables {
+						    table_namespace = "db1"
+							table_name      = "my_table2"
+							cursor_column   = "created_at"
+							initial_state  = "2025-01-01T00:00:00Z"
+						  }
+					   }
+					}
+					`,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullTransferResourceName, "name", transferResourceName+randomPostfix+"2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.flavor", "LARGE"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "replication_runtime.0"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "data_objects.0"),
+					resource.TestCheckNoResourceAttr(fullTransferResourceName, "transformation.0"),
+					resource.TestCheckResourceAttrSet(fullTransferResourceName, "regular_snapshot.#"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.cron_expression", "30 0 * * *"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.0.table_namespace", "db1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.0.table_name", "my_table"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.0.cursor_column", "created_at"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.0.initial_state", "2024-01-01T00:00:00Z"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.1.table_name", "my_table2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "regular_snapshot.0.settings.0.tables.1.initial_state", "2025-01-01T00:00:00Z"),
+				),
+			},
+			{
+				ResourceName:      fullTransferResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccDataTransferConfigTransferWithTransformation(
 	mysqlName,
 	pgName,
@@ -818,6 +944,69 @@ resource "yandex_datatransfer_transfer" "transfer_with_transformation" {
   }
 }
 `, mysqlName, pgName, transferName, description, jobCount, newName)
+}
+
+func testAccDataTransferConfigTransferWithNewFields(
+	mysqlName,
+	pgName,
+	transferName,
+	description string,
+	newFields string,
+) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "mysql_source_with_new_fields" {
+  name      = "%[1]s"
+  settings {
+    mysql_source {
+      connection {
+		on_premise {
+		  hosts = [
+			"src hostname"
+		  ]
+		  port = 3306
+		}
+	  }
+      database = "db1"
+      user     = "user1"
+      password {
+        raw = "pass"
+      }
+	  include_tables_regex = ["my_table", "my_table2"]
+    }
+  }
+}
+
+resource "yandex_datatransfer_endpoint" "pg_target_with_new_fields" {
+	name      = "%[2]s"
+	settings {
+		postgres_target {
+			connection {
+				on_premise {
+					hosts = [
+					 	"dst hostname"
+					]
+					port = 5432
+				}
+			}
+			database = "postgres"
+			user = "postgres"
+			password {
+				raw = "dst password"
+			}
+			cleanup_policy = "DROP"
+		}
+	}
+}
+
+resource "yandex_datatransfer_transfer" "transfer_with_new_fields" {
+  name        = "%[3]s"
+  description = "%[4]s"
+  source_id   = yandex_datatransfer_endpoint.mysql_source_with_new_fields.id
+  target_id   = yandex_datatransfer_endpoint.pg_target_with_new_fields.id
+  type        = "SNAPSHOT_ONLY"
+  %[5]s
+}
+`, mysqlName, pgName, transferName, description, newFields)
 }
 
 func TestAccDataTransferYDSSourceEndpoint(t *testing.T) {

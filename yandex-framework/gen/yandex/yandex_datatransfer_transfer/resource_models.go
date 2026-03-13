@@ -13,6 +13,113 @@ import (
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 )
 
+type yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel struct {
+	CursorColumn   types.String `tfsdk:"cursor_column"`
+	InitialState   types.String `tfsdk:"initial_state"`
+	TableName      types.String `tfsdk:"table_name"`
+	TableNamespace types.String `tfsdk:"table_namespace"`
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) GetCursorColumn() types.String {
+	return m.CursorColumn
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) GetInitialState() types.String {
+	return m.InitialState
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) GetTableName() types.String {
+	return m.TableName
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) GetTableNamespace() types.String {
+	return m.TableNamespace
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) SetCursorColumn(target types.String) {
+	m.CursorColumn = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) SetInitialState(target types.String) {
+	m.InitialState = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) SetTableName(target types.String) {
+	m.TableName = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) SetTableNamespace(target types.String) {
+	m.TableNamespace = target
+}
+
+func NewYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel() yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel {
+	return yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel{
+		CursorColumn:   types.StringNull(),
+		InitialState:   types.StringNull(),
+		TableName:      types.StringNull(),
+		TableNamespace: types.StringNull(),
+	}
+}
+
+func yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelFillUnknown(target yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel) yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel {
+	if target.CursorColumn.IsUnknown() || target.CursorColumn.IsNull() {
+		target.CursorColumn = types.StringNull()
+	}
+	if target.InitialState.IsUnknown() || target.InitialState.IsNull() {
+		target.InitialState = types.StringNull()
+	}
+	if target.TableName.IsUnknown() || target.TableName.IsNull() {
+		target.TableName = types.StringNull()
+	}
+	if target.TableNamespace.IsUnknown() || target.TableNamespace.IsNull() {
+		target.TableNamespace = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cursor_column":   types.StringType,
+		"initial_state":   types.StringType,
+		"table_name":      types.StringType,
+		"table_namespace": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct(ctx context.Context,
+	yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct *datatransfer.IncrementalTable,
+	diags *diag.Diagnostics) types.Object {
+	if yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct == nil {
+		return types.ObjectNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel{
+		CursorColumn:   types.StringValue(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct.GetCursorColumn()),
+		InitialState:   types.StringValue(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct.GetInitialState()),
+		TableName:      types.StringValue(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct.GetTableName()),
+		TableNamespace: types.StringValue(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct.GetTableNamespace()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState types.Object, diags *diag.Diagnostics) *datatransfer.IncrementalTable {
+	if yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.IsNull() || yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.IsUnknown() {
+		return nil
+	}
+	var yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel
+	diags.Append(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.As(ctx, &yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel(ctx, yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct, diags)
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel, diags *diag.Diagnostics) *datatransfer.IncrementalTable {
+	value := &datatransfer.IncrementalTable{}
+	value.SetCursorColumn(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.CursorColumn.ValueString())
+	value.SetInitialState(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.InitialState.ValueString())
+	value.SetTableName(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.TableName.ValueString())
+	value.SetTableNamespace(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructState.TableNamespace.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel struct {
 	NewName      types.List `tfsdk:"new_name"`
 	OriginalName types.List `tfsdk:"original_name"`
@@ -23,6 +130,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRe
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel) GetOriginalName() types.List {
 	return m.OriginalName
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel) SetNewName(target types.List) {
+	m.NewName = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel) SetOriginalName(target types.List) {
+	m.OriginalName = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel() yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModel {
@@ -96,6 +210,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRe
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructNewNameModel) GetNameSpace() types.String {
 	return m.NameSpace
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructNewNameModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructNewNameModel) SetNameSpace(target types.String) {
+	m.NameSpace = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructNewNameModel() yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructNewNameModel {
@@ -188,6 +309,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRe
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructOriginalNameModel) GetNameSpace() types.String {
 	return m.NameSpace
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructOriginalNameModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructOriginalNameModel) SetNameSpace(target types.String) {
+	m.NameSpace = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructOriginalNameModel() yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructOriginalNameModel {
@@ -304,6 +432,31 @@ func (m *yandexDatatransferTransferTransformationTransformerStructModel) GetShar
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructModel) GetTableSplitterTransformer() types.List {
 	return m.TableSplitterTransformer
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetConvertToString(target types.List) {
+	m.ConvertToString = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetFilterColumns(target types.List) {
+	m.FilterColumns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetFilterRows(target types.List) {
+	m.FilterRows = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetMaskField(target types.List) {
+	m.MaskField = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetRenameTables(target types.List) {
+	m.RenameTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetReplacePrimaryKey(target types.List) {
+	m.ReplacePrimaryKey = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetSharderTransformer(target types.List) {
+	m.SharderTransformer = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructModel) SetTableSplitterTransformer(target types.List) {
+	m.TableSplitterTransformer = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructModel() yandexDatatransferTransferTransformationTransformerStructModel {
@@ -437,6 +590,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStrin
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructConvertToStringModel() yandexDatatransferTransferTransformationTransformerStructConvertToStringModel {
 	return yandexDatatransferTransferTransformationTransformerStructConvertToStringModel{
 		Columns: types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType),
@@ -536,6 +696,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStrin
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModel) GetIncludeColumns() types.List {
 	return m.IncludeColumns
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModel) SetExcludeColumns(target types.List) {
+	m.ExcludeColumns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModel) SetIncludeColumns(target types.List) {
+	m.IncludeColumns = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModel() yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModel {
@@ -713,6 +880,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStrin
 	return m.IncludeTables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModel() yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModel {
 	return yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModel{
 		ExcludeTables: types.ListNull(types.StringType),
@@ -888,6 +1062,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsM
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructFilterColumnsModel() yandexDatatransferTransferTransformationTransformerStructFilterColumnsModel {
 	return yandexDatatransferTransferTransformationTransformerStructFilterColumnsModel{
 		Columns: types.ListNull(yandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModelType),
@@ -987,6 +1168,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsC
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModel) GetIncludeColumns() types.List {
 	return m.IncludeColumns
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModel) SetExcludeColumns(target types.List) {
+	m.ExcludeColumns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModel) SetIncludeColumns(target types.List) {
+	m.IncludeColumns = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModel() yandexDatatransferTransferTransformationTransformerStructFilterColumnsColumnsModel {
@@ -1162,6 +1350,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsT
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsTablesModel) GetIncludeTables() types.List {
 	return m.IncludeTables
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterColumnsTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructFilterColumnsTablesModel() yandexDatatransferTransferTransformationTransformerStructFilterColumnsTablesModel {
@@ -1343,6 +1538,16 @@ func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsMode
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsModel) SetFilter(target types.String) {
+	m.Filter = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsModel) SetFilters(target types.List) {
+	m.Filters = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructFilterRowsModel() yandexDatatransferTransferTransformationTransformerStructFilterRowsModel {
 	return yandexDatatransferTransferTransformationTransformerStructFilterRowsModel{
 		Filter:  types.StringNull(),
@@ -1486,6 +1691,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsTabl
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsTablesModel) GetIncludeTables() types.List {
 	return m.IncludeTables
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructFilterRowsTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructFilterRowsTablesModel() yandexDatatransferTransferTransformationTransformerStructFilterRowsTablesModel {
@@ -1667,6 +1879,16 @@ func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldModel
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldModel) SetFunction(target types.List) {
+	m.Function = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructMaskFieldModel() yandexDatatransferTransferTransformationTransformerStructMaskFieldModel {
 	return yandexDatatransferTransferTransformationTransformerStructMaskFieldModel{
 		Columns:  types.ListNull(types.StringType),
@@ -1808,6 +2030,10 @@ func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldFunct
 	return m.MaskFunctionHash
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionModel) SetMaskFunctionHash(target types.List) {
+	m.MaskFunctionHash = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionModel() yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionModel {
 	return yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionModel{
 		MaskFunctionHash: types.ListNull(yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionMaskFunctionHashModelType),
@@ -1900,6 +2126,10 @@ func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldFunct
 	return m.UserDefinedSalt
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionMaskFunctionHashModel) SetUserDefinedSalt(target types.String) {
+	m.UserDefinedSalt = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionMaskFunctionHashModel() yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionMaskFunctionHashModel {
 	return yandexDatatransferTransferTransformationTransformerStructMaskFieldFunctionMaskFunctionHashModel{
 		UserDefinedSalt: types.StringNull(),
@@ -1983,6 +2213,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldTable
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldTablesModel) GetIncludeTables() types.List {
 	return m.IncludeTables
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructMaskFieldTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructMaskFieldTablesModel() yandexDatatransferTransferTransformationTransformerStructMaskFieldTablesModel {
@@ -2156,6 +2393,10 @@ func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesMo
 	return m.RenameTables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructRenameTablesModel) SetRenameTables(target types.List) {
+	m.RenameTables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructRenameTablesModel() yandexDatatransferTransferTransformationTransformerStructRenameTablesModel {
 	return yandexDatatransferTransferTransformationTransformerStructRenameTablesModel{
 		RenameTables: types.ListNull(yandexDatatransferTransferTransformationTransformerStructRenameTablesRenameTableStructModelType),
@@ -2296,6 +2537,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimary
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyModel) SetKeys(target types.List) {
+	m.Keys = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyModel() yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyModel {
 	return yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyModel{
 		Keys:   types.ListNull(types.StringType),
@@ -2432,6 +2680,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimary
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyTablesModel) GetIncludeTables() types.List {
 	return m.IncludeTables
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyTablesModel() yandexDatatransferTransferTransformationTransformerStructReplacePrimaryKeyTablesModel {
@@ -2617,6 +2872,19 @@ func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransfo
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel) SetRandom(target types.List) {
+	m.Random = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel) SetShardsCount(target types.Int64) {
+	m.ShardsCount = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructSharderTransformerModel() yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel {
 	return yandexDatatransferTransferTransformationTransformerStructSharderTransformerModel{
 		Columns:     types.ListNull(yandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModelType),
@@ -2734,6 +3002,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransfo
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModel) GetIncludeColumns() types.List {
 	return m.IncludeColumns
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModel) SetExcludeColumns(target types.List) {
+	m.ExcludeColumns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModel) SetIncludeColumns(target types.List) {
+	m.IncludeColumns = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModel() yandexDatatransferTransferTransformationTransformerStructSharderTransformerColumnsModel {
@@ -2977,6 +3252,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransfo
 	return m.IncludeTables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructSharderTransformerTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructSharderTransformerTablesModel() yandexDatatransferTransferTransformationTransformerStructSharderTransformerTablesModel {
 	return yandexDatatransferTransferTransformationTransformerStructSharderTransformerTablesModel{
 		ExcludeTables: types.ListNull(types.StringType),
@@ -3156,6 +3438,16 @@ func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterT
 	return m.Tables
 }
 
+func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel) SetColumns(target types.List) {
+	m.Columns = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel) SetSplitter(target types.String) {
+	m.Splitter = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
 func NewYandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel() yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel {
 	return yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerModel{
 		Columns:  types.ListNull(types.StringType),
@@ -3299,6 +3591,13 @@ func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterT
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerTablesModel) GetIncludeTables() types.List {
 	return m.IncludeTables
+}
+
+func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerTablesModel) SetExcludeTables(target types.List) {
+	m.ExcludeTables = target
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerTablesModel) SetIncludeTables(target types.List) {
+	m.IncludeTables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerTablesModel() yandexDatatransferTransferTransformationTransformerStructTableSplitterTransformerTablesModel {
@@ -3465,10 +3764,12 @@ func expandYandexDatatransferTransferTransformationTransformerStructTableSplitte
 }
 
 type yandexDatatransferTransferModel struct {
+	DataObjects          types.List     `tfsdk:"data_objects"`
 	Description          types.String   `tfsdk:"description"`
 	FolderId             types.String   `tfsdk:"folder_id"`
 	Labels               types.Map      `tfsdk:"labels"`
 	Name                 types.String   `tfsdk:"name"`
+	RegularSnapshot      types.List     `tfsdk:"regular_snapshot"`
 	ReplicationRuntime   types.List     `tfsdk:"replication_runtime"`
 	Runtime              types.List     `tfsdk:"runtime"`
 	SourceId             types.String   `tfsdk:"source_id"`
@@ -3482,6 +3783,9 @@ type yandexDatatransferTransferModel struct {
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexDatatransferTransferModel) GetDataObjects() types.List {
+	return m.DataObjects
+}
 func (m *yandexDatatransferTransferModel) GetDescription() types.String {
 	return m.Description
 }
@@ -3493,6 +3797,9 @@ func (m *yandexDatatransferTransferModel) GetLabels() types.Map {
 }
 func (m *yandexDatatransferTransferModel) GetName() types.String {
 	return m.Name
+}
+func (m *yandexDatatransferTransferModel) GetRegularSnapshot() types.List {
+	return m.RegularSnapshot
 }
 func (m *yandexDatatransferTransferModel) GetReplicationRuntime() types.List {
 	return m.ReplicationRuntime
@@ -3525,12 +3832,63 @@ func (m *yandexDatatransferTransferModel) GetOnCreateActivateMode() types.String
 	return m.OnCreateActivateMode
 }
 
+func (m *yandexDatatransferTransferModel) SetDataObjects(target types.List) {
+	m.DataObjects = target
+}
+func (m *yandexDatatransferTransferModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexDatatransferTransferModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexDatatransferTransferModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexDatatransferTransferModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferTransferModel) SetRegularSnapshot(target types.List) {
+	m.RegularSnapshot = target
+}
+func (m *yandexDatatransferTransferModel) SetReplicationRuntime(target types.List) {
+	m.ReplicationRuntime = target
+}
+func (m *yandexDatatransferTransferModel) SetRuntime(target types.List) {
+	m.Runtime = target
+}
+func (m *yandexDatatransferTransferModel) SetSourceId(target types.String) {
+	m.SourceId = target
+}
+func (m *yandexDatatransferTransferModel) SetTargetId(target types.String) {
+	m.TargetId = target
+}
+func (m *yandexDatatransferTransferModel) SetTransferId(target types.String) {
+	m.TransferId = target
+}
+func (m *yandexDatatransferTransferModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexDatatransferTransferModel) SetTransformation(target types.List) {
+	m.Transformation = target
+}
+func (m *yandexDatatransferTransferModel) SetType(target types.String) {
+	m.Type = target
+}
+func (m *yandexDatatransferTransferModel) SetWarning(target types.String) {
+	m.Warning = target
+}
+func (m *yandexDatatransferTransferModel) SetOnCreateActivateMode(target types.String) {
+	m.OnCreateActivateMode = target
+}
+
 func NewYandexDatatransferTransferModel() yandexDatatransferTransferModel {
 	return yandexDatatransferTransferModel{
+		DataObjects:          types.ListNull(yandexDatatransferTransferDataObjectsModelType),
 		Description:          types.StringNull(),
 		FolderId:             types.StringNull(),
 		Labels:               types.MapNull(types.StringType),
 		Name:                 types.StringNull(),
+		RegularSnapshot:      types.ListNull(yandexDatatransferTransferRegularSnapshotModelType),
 		ReplicationRuntime:   types.ListNull(yandexDatatransferTransferReplicationRuntimeModelType),
 		Runtime:              types.ListNull(yandexDatatransferTransferRuntimeModelType),
 		SourceId:             types.StringNull(),
@@ -3545,6 +3903,9 @@ func NewYandexDatatransferTransferModel() yandexDatatransferTransferModel {
 }
 
 func yandexDatatransferTransferModelFillUnknown(target yandexDatatransferTransferModel) yandexDatatransferTransferModel {
+	if target.DataObjects.IsUnknown() || target.DataObjects.IsNull() {
+		target.DataObjects = types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+	}
 	if target.Description.IsUnknown() || target.Description.IsNull() {
 		target.Description = types.StringNull()
 	}
@@ -3556,6 +3917,9 @@ func yandexDatatransferTransferModelFillUnknown(target yandexDatatransferTransfe
 	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
+	}
+	if target.RegularSnapshot.IsUnknown() || target.RegularSnapshot.IsNull() {
+		target.RegularSnapshot = types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
 	}
 	if target.ReplicationRuntime.IsUnknown() || target.ReplicationRuntime.IsNull() {
 		target.ReplicationRuntime = types.ListNull(yandexDatatransferTransferReplicationRuntimeModelType)
@@ -3592,10 +3956,12 @@ func yandexDatatransferTransferModelFillUnknown(target yandexDatatransferTransfe
 
 var yandexDatatransferTransferModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"data_objects":            types.ListType{ElemType: yandexDatatransferTransferDataObjectsModelType},
 		"description":             types.StringType,
 		"folder_id":               types.StringType,
 		"labels":                  types.MapType{ElemType: types.StringType},
 		"name":                    types.StringType,
+		"regular_snapshot":        types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotModelType},
 		"replication_runtime":     types.ListType{ElemType: yandexDatatransferTransferReplicationRuntimeModelType},
 		"runtime":                 types.ListType{ElemType: yandexDatatransferTransferRuntimeModelType},
 		"source_id":               types.StringType,
@@ -3619,10 +3985,12 @@ func flattenYandexDatatransferTransfer(ctx context.Context,
 		return types.ObjectNull(yandexDatatransferTransferModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferModelType.AttrTypes, yandexDatatransferTransferModel{
+		DataObjects:          flattenYandexDatatransferTransferDataObjects(ctx, yandexDatatransferTransfer.GetDataObjects(), state.DataObjects, diags),
 		Description:          types.StringValue(yandexDatatransferTransfer.GetDescription()),
 		FolderId:             types.StringValue(yandexDatatransferTransfer.GetFolderId()),
 		Labels:               flattenYandexDatatransferTransferLabels(ctx, yandexDatatransferTransfer.GetLabels(), state.Labels, diags),
 		Name:                 types.StringValue(yandexDatatransferTransfer.GetName()),
+		RegularSnapshot:      flattenYandexDatatransferTransferRegularSnapshot(ctx, yandexDatatransferTransfer.GetRegularSnapshot(), state.RegularSnapshot, diags),
 		ReplicationRuntime:   flattenYandexDatatransferTransferReplicationRuntime(ctx, yandexDatatransferTransfer.GetReplicationRuntime(), state.ReplicationRuntime, diags),
 		Runtime:              flattenYandexDatatransferTransferRuntime(ctx, yandexDatatransferTransfer.GetRuntime(), state.Runtime, diags),
 		SourceId:             state.SourceId,
@@ -3653,10 +4021,12 @@ func expandYandexDatatransferTransfer(ctx context.Context, yandexDatatransferTra
 
 func expandYandexDatatransferTransferModel(ctx context.Context, yandexDatatransferTransferState yandexDatatransferTransferModel, diags *diag.Diagnostics) *datatransfer.Transfer {
 	value := &datatransfer.Transfer{}
+	value.SetDataObjects(expandYandexDatatransferTransferDataObjects(ctx, yandexDatatransferTransferState.DataObjects, diags))
 	value.SetDescription(yandexDatatransferTransferState.Description.ValueString())
 	value.SetFolderId(yandexDatatransferTransferState.FolderId.ValueString())
 	value.SetLabels(expandYandexDatatransferTransferLabels(ctx, yandexDatatransferTransferState.Labels, diags))
 	value.SetName(yandexDatatransferTransferState.Name.ValueString())
+	value.SetRegularSnapshot(expandYandexDatatransferTransferRegularSnapshot(ctx, yandexDatatransferTransferState.RegularSnapshot, diags))
 	value.SetReplicationRuntime(expandYandexDatatransferTransferReplicationRuntime(ctx, yandexDatatransferTransferState.ReplicationRuntime, diags))
 	value.SetRuntime(expandYandexDatatransferTransferRuntime(ctx, yandexDatatransferTransferState.Runtime, diags))
 	value.SetId(yandexDatatransferTransferState.TransferId.ValueString())
@@ -3668,6 +4038,137 @@ func expandYandexDatatransferTransferModel(ctx context.Context, yandexDatatransf
 		return nil
 	}
 	return value
+}
+
+type yandexDatatransferTransferDataObjectsModel struct {
+	IncludeObjects types.List `tfsdk:"include_objects"`
+}
+
+func (m *yandexDatatransferTransferDataObjectsModel) GetIncludeObjects() types.List {
+	return m.IncludeObjects
+}
+
+func (m *yandexDatatransferTransferDataObjectsModel) SetIncludeObjects(target types.List) {
+	m.IncludeObjects = target
+}
+
+func NewYandexDatatransferTransferDataObjectsModel() yandexDatatransferTransferDataObjectsModel {
+	return yandexDatatransferTransferDataObjectsModel{
+		IncludeObjects: types.ListNull(types.StringType),
+	}
+}
+
+func yandexDatatransferTransferDataObjectsModelFillUnknown(target yandexDatatransferTransferDataObjectsModel) yandexDatatransferTransferDataObjectsModel {
+	if target.IncludeObjects.IsUnknown() || target.IncludeObjects.IsNull() {
+		target.IncludeObjects = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexDatatransferTransferDataObjectsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"include_objects": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexDatatransferTransferDataObjects(ctx context.Context,
+	yandexDatatransferTransferDataObjects *datatransfer.DataObjects,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferDataObjects == nil || (yandexDatatransferTransferDataObjects.String() == (&datatransfer.DataObjects{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferTransferDataObjectsModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferTransferDataObjectsType := make([]yandexDatatransferTransferDataObjectsModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+				}
+				state = yandexDatatransferTransferDataObjectsType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferDataObjectsModelType.AttrTypes, yandexDatatransferTransferDataObjectsModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferTransferDataObjectsModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+	}
+	var state yandexDatatransferTransferDataObjectsModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferTransferDataObjectsType := make([]yandexDatatransferTransferDataObjectsModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+		}
+		state = yandexDatatransferTransferDataObjectsType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferDataObjectsModelType.AttrTypes, yandexDatatransferTransferDataObjectsModel{
+		IncludeObjects: flattenYandexDatatransferTransferDataObjectsIncludeObjects(ctx, yandexDatatransferTransferDataObjects.GetIncludeObjects(), state.IncludeObjects, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferTransferDataObjectsModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferTransferDataObjects(ctx context.Context, yandexDatatransferTransferDataObjectsState types.List, diags *diag.Diagnostics) *datatransfer.DataObjects {
+	if yandexDatatransferTransferDataObjectsState.IsNull() || yandexDatatransferTransferDataObjectsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferDataObjectsState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferTransferDataObjectsType := make([]yandexDatatransferTransferDataObjectsModel, 0, len(yandexDatatransferTransferDataObjectsState.Elements()))
+	diags.Append(yandexDatatransferTransferDataObjectsState.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferDataObjectsModel(ctx, yandexDatatransferTransferDataObjectsType[0], diags)
+}
+
+func expandYandexDatatransferTransferDataObjectsModel(ctx context.Context, yandexDatatransferTransferDataObjectsState yandexDatatransferTransferDataObjectsModel, diags *diag.Diagnostics) *datatransfer.DataObjects {
+	value := &datatransfer.DataObjects{}
+	value.SetIncludeObjects(expandYandexDatatransferTransferDataObjectsIncludeObjects(ctx, yandexDatatransferTransferDataObjectsState.IncludeObjects, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexDatatransferTransferDataObjectsIncludeObjects(ctx context.Context, yandexDatatransferTransferDataObjectsIncludeObjects []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferDataObjectsIncludeObjects == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexDatatransferTransferDataObjectsIncludeObjectsValues []attr.Value
+	for _, elem := range yandexDatatransferTransferDataObjectsIncludeObjects {
+		val := types.StringValue(elem)
+		yandexDatatransferTransferDataObjectsIncludeObjectsValues = append(yandexDatatransferTransferDataObjectsIncludeObjectsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexDatatransferTransferDataObjectsIncludeObjectsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexDatatransferTransferDataObjectsIncludeObjects(ctx context.Context, yandexDatatransferTransferDataObjectsIncludeObjectsState types.List, diags *diag.Diagnostics) []string {
+	if yandexDatatransferTransferDataObjectsIncludeObjectsState.IsNull() || yandexDatatransferTransferDataObjectsIncludeObjectsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferDataObjectsIncludeObjectsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexDatatransferTransferDataObjectsIncludeObjectsRes := make([]string, 0, len(yandexDatatransferTransferDataObjectsIncludeObjectsState.Elements()))
+	yandexDatatransferTransferDataObjectsIncludeObjectsType := make([]types.String, 0, len(yandexDatatransferTransferDataObjectsIncludeObjectsState.Elements()))
+	diags.Append(yandexDatatransferTransferDataObjectsIncludeObjectsState.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsIncludeObjectsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexDatatransferTransferDataObjectsIncludeObjectsType {
+		yandexDatatransferTransferDataObjectsIncludeObjectsRes = append(yandexDatatransferTransferDataObjectsIncludeObjectsRes, elem.ValueString())
+	}
+	return yandexDatatransferTransferDataObjectsIncludeObjectsRes
 }
 
 func flattenYandexDatatransferTransferLabels(ctx context.Context, yandexDatatransferTransferLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
@@ -3707,12 +4208,466 @@ func expandYandexDatatransferTransferLabels(ctx context.Context, yandexDatatrans
 	return yandexDatatransferTransferLabelsRes
 }
 
+type yandexDatatransferTransferRegularSnapshotModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Settings types.List `tfsdk:"settings"`
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferTransferRegularSnapshotModel) GetSettings() types.List {
+	return m.Settings
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotModel) SetSettings(target types.List) {
+	m.Settings = target
+}
+
+func NewYandexDatatransferTransferRegularSnapshotModel() yandexDatatransferTransferRegularSnapshotModel {
+	return yandexDatatransferTransferRegularSnapshotModel{
+		Disabled: types.ListNull(yandexDatatransferTransferRegularSnapshotDisabledModelType),
+		Settings: types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType),
+	}
+}
+
+func yandexDatatransferTransferRegularSnapshotModelFillUnknown(target yandexDatatransferTransferRegularSnapshotModel) yandexDatatransferTransferRegularSnapshotModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferTransferRegularSnapshotDisabledModelType)
+	}
+	if target.Settings.IsUnknown() || target.Settings.IsNull() {
+		target.Settings = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+	}
+	return target
+}
+
+var yandexDatatransferTransferRegularSnapshotModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotDisabledModelType},
+		"settings": types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotSettingsModelType},
+	},
+}
+
+func flattenYandexDatatransferTransferRegularSnapshot(ctx context.Context,
+	yandexDatatransferTransferRegularSnapshot *datatransfer.RegularSnapshot,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferRegularSnapshot == nil || (yandexDatatransferTransferRegularSnapshot.String() == (&datatransfer.RegularSnapshot{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferTransferRegularSnapshotModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferTransferRegularSnapshotType := make([]yandexDatatransferTransferRegularSnapshotModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
+				}
+				state = yandexDatatransferTransferRegularSnapshotType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferTransferRegularSnapshotModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
+	}
+	var state yandexDatatransferTransferRegularSnapshotModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferTransferRegularSnapshotType := make([]yandexDatatransferTransferRegularSnapshotModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
+		}
+		state = yandexDatatransferTransferRegularSnapshotType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotModel{
+		Disabled: flattenYandexDatatransferTransferRegularSnapshotDisabled(ctx, yandexDatatransferTransferRegularSnapshot.GetDisabled(), state.Disabled, diags),
+		Settings: flattenYandexDatatransferTransferRegularSnapshotSettings(ctx, yandexDatatransferTransferRegularSnapshot.GetSettings(), state.Settings, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferTransferRegularSnapshotModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferTransferRegularSnapshot(ctx context.Context, yandexDatatransferTransferRegularSnapshotState types.List, diags *diag.Diagnostics) *datatransfer.RegularSnapshot {
+	if yandexDatatransferTransferRegularSnapshotState.IsNull() || yandexDatatransferTransferRegularSnapshotState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferRegularSnapshotState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferTransferRegularSnapshotType := make([]yandexDatatransferTransferRegularSnapshotModel, 0, len(yandexDatatransferTransferRegularSnapshotState.Elements()))
+	diags.Append(yandexDatatransferTransferRegularSnapshotState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferRegularSnapshotModel(ctx, yandexDatatransferTransferRegularSnapshotType[0], diags)
+}
+
+func expandYandexDatatransferTransferRegularSnapshotModel(ctx context.Context, yandexDatatransferTransferRegularSnapshotState yandexDatatransferTransferRegularSnapshotModel, diags *diag.Diagnostics) *datatransfer.RegularSnapshot {
+	value := &datatransfer.RegularSnapshot{}
+	if !(yandexDatatransferTransferRegularSnapshotState.Disabled.IsNull() || yandexDatatransferTransferRegularSnapshotState.Disabled.IsUnknown() || len(yandexDatatransferTransferRegularSnapshotState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferTransferRegularSnapshotDisabled(ctx, yandexDatatransferTransferRegularSnapshotState.Disabled, diags))
+	}
+	if !(yandexDatatransferTransferRegularSnapshotState.Settings.IsNull() || yandexDatatransferTransferRegularSnapshotState.Settings.IsUnknown() || len(yandexDatatransferTransferRegularSnapshotState.Settings.Elements()) == 0) {
+		value.SetSettings(expandYandexDatatransferTransferRegularSnapshotSettings(ctx, yandexDatatransferTransferRegularSnapshotState.Settings, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferTransferRegularSnapshotDisabledModel struct {
+}
+
+func NewYandexDatatransferTransferRegularSnapshotDisabledModel() yandexDatatransferTransferRegularSnapshotDisabledModel {
+	return yandexDatatransferTransferRegularSnapshotDisabledModel{}
+}
+
+func yandexDatatransferTransferRegularSnapshotDisabledModelFillUnknown(target yandexDatatransferTransferRegularSnapshotDisabledModel) yandexDatatransferTransferRegularSnapshotDisabledModel {
+	return target
+}
+
+var yandexDatatransferTransferRegularSnapshotDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferTransferRegularSnapshotDisabled(ctx context.Context,
+	yandexDatatransferTransferRegularSnapshotDisabled *datatransfer.RegularSnapshotDisabled,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferRegularSnapshotDisabled == nil || (yandexDatatransferTransferRegularSnapshotDisabled.String() == (&datatransfer.RegularSnapshotDisabled{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferTransferRegularSnapshotDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferTransferRegularSnapshotDisabledType := make([]yandexDatatransferTransferRegularSnapshotDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferTransferRegularSnapshotDisabledModelType)
+				}
+				state = yandexDatatransferTransferRegularSnapshotDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotDisabledModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferTransferRegularSnapshotDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferTransferRegularSnapshotDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotDisabledModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferTransferRegularSnapshotDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferTransferRegularSnapshotDisabled(ctx context.Context, yandexDatatransferTransferRegularSnapshotDisabledState types.List, diags *diag.Diagnostics) *datatransfer.RegularSnapshotDisabled {
+	if yandexDatatransferTransferRegularSnapshotDisabledState.IsNull() || yandexDatatransferTransferRegularSnapshotDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferRegularSnapshotDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferTransferRegularSnapshotDisabledType := make([]yandexDatatransferTransferRegularSnapshotDisabledModel, 0, len(yandexDatatransferTransferRegularSnapshotDisabledState.Elements()))
+	diags.Append(yandexDatatransferTransferRegularSnapshotDisabledState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferRegularSnapshotDisabledModel(ctx, yandexDatatransferTransferRegularSnapshotDisabledType[0], diags)
+}
+
+func expandYandexDatatransferTransferRegularSnapshotDisabledModel(ctx context.Context, yandexDatatransferTransferRegularSnapshotDisabledState yandexDatatransferTransferRegularSnapshotDisabledModel, diags *diag.Diagnostics) *datatransfer.RegularSnapshotDisabled {
+	value := &datatransfer.RegularSnapshotDisabled{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferTransferRegularSnapshotSettingsModel struct {
+	CronExpression        types.String `tfsdk:"cron_expression"`
+	IncrementDelaySeconds types.Int64  `tfsdk:"increment_delay_seconds"`
+	RetryConfig           types.List   `tfsdk:"retry_config"`
+	Schedule              types.String `tfsdk:"schedule"`
+	Tables                types.List   `tfsdk:"tables"`
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) GetCronExpression() types.String {
+	return m.CronExpression
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) GetIncrementDelaySeconds() types.Int64 {
+	return m.IncrementDelaySeconds
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) GetRetryConfig() types.List {
+	return m.RetryConfig
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) GetSchedule() types.String {
+	return m.Schedule
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) GetTables() types.List {
+	return m.Tables
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) SetCronExpression(target types.String) {
+	m.CronExpression = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) SetIncrementDelaySeconds(target types.Int64) {
+	m.IncrementDelaySeconds = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) SetRetryConfig(target types.List) {
+	m.RetryConfig = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) SetSchedule(target types.String) {
+	m.Schedule = target
+}
+func (m *yandexDatatransferTransferRegularSnapshotSettingsModel) SetTables(target types.List) {
+	m.Tables = target
+}
+
+func NewYandexDatatransferTransferRegularSnapshotSettingsModel() yandexDatatransferTransferRegularSnapshotSettingsModel {
+	return yandexDatatransferTransferRegularSnapshotSettingsModel{
+		CronExpression:        types.StringNull(),
+		IncrementDelaySeconds: types.Int64Null(),
+		RetryConfig:           types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType),
+		Schedule:              types.StringNull(),
+		Tables:                types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType),
+	}
+}
+
+func yandexDatatransferTransferRegularSnapshotSettingsModelFillUnknown(target yandexDatatransferTransferRegularSnapshotSettingsModel) yandexDatatransferTransferRegularSnapshotSettingsModel {
+	if target.CronExpression.IsUnknown() || target.CronExpression.IsNull() {
+		target.CronExpression = types.StringNull()
+	}
+	if target.IncrementDelaySeconds.IsUnknown() || target.IncrementDelaySeconds.IsNull() {
+		target.IncrementDelaySeconds = types.Int64Null()
+	}
+	if target.RetryConfig.IsUnknown() || target.RetryConfig.IsNull() {
+		target.RetryConfig = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType)
+	}
+	if target.Schedule.IsUnknown() || target.Schedule.IsNull() {
+		target.Schedule = types.StringNull()
+	}
+	if target.Tables.IsUnknown() || target.Tables.IsNull() {
+		target.Tables = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType)
+	}
+	return target
+}
+
+var yandexDatatransferTransferRegularSnapshotSettingsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cron_expression":         types.StringType,
+		"increment_delay_seconds": types.Int64Type,
+		"retry_config":            types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType},
+		"schedule":                types.StringType,
+		"tables":                  types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType},
+	},
+}
+
+func flattenYandexDatatransferTransferRegularSnapshotSettings(ctx context.Context,
+	yandexDatatransferTransferRegularSnapshotSettings *datatransfer.RegularSnapshotSettings,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferRegularSnapshotSettings == nil || (yandexDatatransferTransferRegularSnapshotSettings.String() == (&datatransfer.RegularSnapshotSettings{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferTransferRegularSnapshotSettingsModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferTransferRegularSnapshotSettingsType := make([]yandexDatatransferTransferRegularSnapshotSettingsModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+				}
+				state = yandexDatatransferTransferRegularSnapshotSettingsType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotSettingsModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotSettingsModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferTransferRegularSnapshotSettingsModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+	}
+	var state yandexDatatransferTransferRegularSnapshotSettingsModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferTransferRegularSnapshotSettingsType := make([]yandexDatatransferTransferRegularSnapshotSettingsModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+		}
+		state = yandexDatatransferTransferRegularSnapshotSettingsType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotSettingsModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotSettingsModel{
+		CronExpression:        types.StringValue(yandexDatatransferTransferRegularSnapshotSettings.GetCronExpression()),
+		IncrementDelaySeconds: types.Int64Value(int64(yandexDatatransferTransferRegularSnapshotSettings.GetIncrementDelaySeconds())),
+		RetryConfig:           flattenYandexDatatransferTransferRegularSnapshotSettingsRetryConfig(ctx, yandexDatatransferTransferRegularSnapshotSettings.GetRetryConfig(), state.RetryConfig, diags),
+		Schedule:              types.StringValue(yandexDatatransferTransferRegularSnapshotSettings.GetSchedule().String()),
+		Tables:                flattenYandexDatatransferTransferRegularSnapshotSettingsTables(ctx, yandexDatatransferTransferRegularSnapshotSettings.GetTables(), state.Tables, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferTransferRegularSnapshotSettingsModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettings(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsState types.List, diags *diag.Diagnostics) *datatransfer.RegularSnapshotSettings {
+	if yandexDatatransferTransferRegularSnapshotSettingsState.IsNull() || yandexDatatransferTransferRegularSnapshotSettingsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferRegularSnapshotSettingsState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferTransferRegularSnapshotSettingsType := make([]yandexDatatransferTransferRegularSnapshotSettingsModel, 0, len(yandexDatatransferTransferRegularSnapshotSettingsState.Elements()))
+	diags.Append(yandexDatatransferTransferRegularSnapshotSettingsState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferRegularSnapshotSettingsModel(ctx, yandexDatatransferTransferRegularSnapshotSettingsType[0], diags)
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsModel(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsState yandexDatatransferTransferRegularSnapshotSettingsModel, diags *diag.Diagnostics) *datatransfer.RegularSnapshotSettings {
+	value := &datatransfer.RegularSnapshotSettings{}
+	value.SetCronExpression(yandexDatatransferTransferRegularSnapshotSettingsState.CronExpression.ValueString())
+	value.SetIncrementDelaySeconds((yandexDatatransferTransferRegularSnapshotSettingsState.IncrementDelaySeconds.ValueInt64()))
+	value.SetRetryConfig(expandYandexDatatransferTransferRegularSnapshotSettingsRetryConfig(ctx, yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig, diags))
+	value.SetSchedule(datatransfer.RegularSnapshotScheduleInterval(datatransfer.RegularSnapshotScheduleInterval_value[yandexDatatransferTransferRegularSnapshotSettingsState.Schedule.ValueString()]))
+	value.SetTables(expandYandexDatatransferTransferRegularSnapshotSettingsTables(ctx, yandexDatatransferTransferRegularSnapshotSettingsState.Tables, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel struct {
+	MaxAttempts types.Int64 `tfsdk:"max_attempts"`
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel) GetMaxAttempts() types.Int64 {
+	return m.MaxAttempts
+}
+
+func (m *yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel) SetMaxAttempts(target types.Int64) {
+	m.MaxAttempts = target
+}
+
+func NewYandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel() yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel {
+	return yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel{
+		MaxAttempts: types.Int64Null(),
+	}
+}
+
+func yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelFillUnknown(target yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel) yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel {
+	if target.MaxAttempts.IsUnknown() || target.MaxAttempts.IsNull() {
+		target.MaxAttempts = types.Int64Null()
+	}
+	return target
+}
+
+var yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"max_attempts": types.Int64Type,
+	},
+}
+
+func flattenYandexDatatransferTransferRegularSnapshotSettingsRetryConfig(ctx context.Context,
+	yandexDatatransferTransferRegularSnapshotSettingsRetryConfig *datatransfer.RegularSnapshotSettings_RetryConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferRegularSnapshotSettingsRetryConfig == nil || (yandexDatatransferTransferRegularSnapshotSettingsRetryConfig.String() == (&datatransfer.RegularSnapshotSettings_RetryConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType := make([]yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType)
+				}
+				state = yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType.AttrTypes, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel{
+		MaxAttempts: types.Int64Value(int64(yandexDatatransferTransferRegularSnapshotSettingsRetryConfig.GetMaxAttempts())),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsRetryConfig(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState types.List, diags *diag.Diagnostics) *datatransfer.RegularSnapshotSettings_RetryConfig {
+	if yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.IsNull() || yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType := make([]yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel, 0, len(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.Elements()))
+	diags.Append(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel(ctx, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigType[0], diags)
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel, diags *diag.Diagnostics) *datatransfer.RegularSnapshotSettings_RetryConfig {
+	value := &datatransfer.RegularSnapshotSettings_RetryConfig{}
+	value.SetMaxAttempts((yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.MaxAttempts.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexDatatransferTransferRegularSnapshotSettingsTables(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsTables []*datatransfer.IncrementalTable, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexDatatransferTransferRegularSnapshotSettingsTables == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType)
+	}
+	var yandexDatatransferTransferRegularSnapshotSettingsTablesValues []attr.Value
+	for _, elem := range yandexDatatransferTransferRegularSnapshotSettingsTables {
+		val := flattenYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStruct(ctx, elem, diags)
+		yandexDatatransferTransferRegularSnapshotSettingsTablesValues = append(yandexDatatransferTransferRegularSnapshotSettingsTablesValues, val)
+	}
+
+	value, diag := types.ListValue(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType, yandexDatatransferTransferRegularSnapshotSettingsTablesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexDatatransferTransferRegularSnapshotSettingsTables(ctx context.Context, yandexDatatransferTransferRegularSnapshotSettingsTablesState types.List, diags *diag.Diagnostics) []*datatransfer.IncrementalTable {
+	if yandexDatatransferTransferRegularSnapshotSettingsTablesState.IsNull() || yandexDatatransferTransferRegularSnapshotSettingsTablesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferTransferRegularSnapshotSettingsTablesState.Elements()) == 0 {
+		return []*datatransfer.IncrementalTable{}
+	}
+	yandexDatatransferTransferRegularSnapshotSettingsTablesRes := make([]*datatransfer.IncrementalTable, 0, len(yandexDatatransferTransferRegularSnapshotSettingsTablesState.Elements()))
+	yandexDatatransferTransferRegularSnapshotSettingsTablesType := make([]yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel, 0, len(yandexDatatransferTransferRegularSnapshotSettingsTablesState.Elements()))
+	diags.Append(yandexDatatransferTransferRegularSnapshotSettingsTablesState.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsTablesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexDatatransferTransferRegularSnapshotSettingsTablesType {
+		yandexDatatransferTransferRegularSnapshotSettingsTablesRes = append(yandexDatatransferTransferRegularSnapshotSettingsTablesRes, expandYandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModel(ctx, elem, diags))
+	}
+	return yandexDatatransferTransferRegularSnapshotSettingsTablesRes
+}
+
 type yandexDatatransferTransferReplicationRuntimeModel struct {
 	YcRuntime types.List `tfsdk:"yc_runtime"`
 }
 
 func (m *yandexDatatransferTransferReplicationRuntimeModel) GetYcRuntime() types.List {
 	return m.YcRuntime
+}
+
+func (m *yandexDatatransferTransferReplicationRuntimeModel) SetYcRuntime(target types.List) {
+	m.YcRuntime = target
 }
 
 func NewYandexDatatransferTransferReplicationRuntimeModel() yandexDatatransferTransferReplicationRuntimeModel {
@@ -3800,10 +4755,14 @@ func expandYandexDatatransferTransferReplicationRuntimeModel(ctx context.Context
 }
 
 type yandexDatatransferTransferReplicationRuntimeYcRuntimeModel struct {
-	JobCount          types.Int64 `tfsdk:"job_count"`
-	UploadShardParams types.List  `tfsdk:"upload_shard_params"`
+	Flavor            types.String `tfsdk:"flavor"`
+	JobCount          types.Int64  `tfsdk:"job_count"`
+	UploadShardParams types.List   `tfsdk:"upload_shard_params"`
 }
 
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) GetFlavor() types.String {
+	return m.Flavor
+}
 func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) GetJobCount() types.Int64 {
 	return m.JobCount
 }
@@ -3811,14 +4770,28 @@ func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) GetUploadSh
 	return m.UploadShardParams
 }
 
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) SetFlavor(target types.String) {
+	m.Flavor = target
+}
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) SetJobCount(target types.Int64) {
+	m.JobCount = target
+}
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) SetUploadShardParams(target types.List) {
+	m.UploadShardParams = target
+}
+
 func NewYandexDatatransferTransferReplicationRuntimeYcRuntimeModel() yandexDatatransferTransferReplicationRuntimeYcRuntimeModel {
 	return yandexDatatransferTransferReplicationRuntimeYcRuntimeModel{
+		Flavor:            types.StringNull(),
 		JobCount:          types.Int64Null(),
 		UploadShardParams: types.ListNull(yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModelType),
 	}
 }
 
 func yandexDatatransferTransferReplicationRuntimeYcRuntimeModelFillUnknown(target yandexDatatransferTransferReplicationRuntimeYcRuntimeModel) yandexDatatransferTransferReplicationRuntimeYcRuntimeModel {
+	if target.Flavor.IsUnknown() || target.Flavor.IsNull() {
+		target.Flavor = types.StringNull()
+	}
 	if target.JobCount.IsUnknown() || target.JobCount.IsNull() {
 		target.JobCount = types.Int64Null()
 	}
@@ -3830,6 +4803,7 @@ func yandexDatatransferTransferReplicationRuntimeYcRuntimeModelFillUnknown(targe
 
 var yandexDatatransferTransferReplicationRuntimeYcRuntimeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"flavor":              types.StringType,
 		"job_count":           types.Int64Type,
 		"upload_shard_params": types.ListType{ElemType: yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModelType},
 	},
@@ -3866,6 +4840,7 @@ func flattenYandexDatatransferTransferReplicationRuntimeYcRuntime(ctx context.Co
 		state = yandexDatatransferTransferReplicationRuntimeYcRuntimeType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferReplicationRuntimeYcRuntimeModelType.AttrTypes, yandexDatatransferTransferReplicationRuntimeYcRuntimeModel{
+		Flavor:            types.StringValue(yandexDatatransferTransferReplicationRuntimeYcRuntime.GetFlavor().String()),
 		JobCount:          types.Int64Value(int64(yandexDatatransferTransferReplicationRuntimeYcRuntime.GetJobCount())),
 		UploadShardParams: flattenYandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParams(ctx, yandexDatatransferTransferReplicationRuntimeYcRuntime.GetUploadShardParams(), state.UploadShardParams, diags),
 	})
@@ -3892,6 +4867,7 @@ func expandYandexDatatransferTransferReplicationRuntimeYcRuntime(ctx context.Con
 
 func expandYandexDatatransferTransferReplicationRuntimeYcRuntimeModel(ctx context.Context, yandexDatatransferTransferReplicationRuntimeYcRuntimeState yandexDatatransferTransferReplicationRuntimeYcRuntimeModel, diags *diag.Diagnostics) *datatransfer.YcRuntime {
 	value := &datatransfer.YcRuntime{}
+	value.SetFlavor(datatransfer.Flavor(datatransfer.Flavor_value[yandexDatatransferTransferReplicationRuntimeYcRuntimeState.Flavor.ValueString()]))
 	value.SetJobCount((yandexDatatransferTransferReplicationRuntimeYcRuntimeState.JobCount.ValueInt64()))
 	value.SetUploadShardParams(expandYandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParams(ctx, yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams, diags))
 	if diags.HasError() {
@@ -3910,6 +4886,13 @@ func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsM
 }
 func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel) GetProcessCount() types.Int64 {
 	return m.ProcessCount
+}
+
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel) SetJobCount(target types.Int64) {
+	m.JobCount = target
+}
+func (m *yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel) SetProcessCount(target types.Int64) {
+	m.ProcessCount = target
 }
 
 func NewYandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel() yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel {
@@ -4000,6 +4983,10 @@ func (m *yandexDatatransferTransferRuntimeModel) GetYcRuntime() types.List {
 	return m.YcRuntime
 }
 
+func (m *yandexDatatransferTransferRuntimeModel) SetYcRuntime(target types.List) {
+	m.YcRuntime = target
+}
+
 func NewYandexDatatransferTransferRuntimeModel() yandexDatatransferTransferRuntimeModel {
 	return yandexDatatransferTransferRuntimeModel{
 		YcRuntime: types.ListNull(yandexDatatransferTransferRuntimeYcRuntimeModelType),
@@ -4085,10 +5072,14 @@ func expandYandexDatatransferTransferRuntimeModel(ctx context.Context, yandexDat
 }
 
 type yandexDatatransferTransferRuntimeYcRuntimeModel struct {
-	JobCount          types.Int64 `tfsdk:"job_count"`
-	UploadShardParams types.List  `tfsdk:"upload_shard_params"`
+	Flavor            types.String `tfsdk:"flavor"`
+	JobCount          types.Int64  `tfsdk:"job_count"`
+	UploadShardParams types.List   `tfsdk:"upload_shard_params"`
 }
 
+func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) GetFlavor() types.String {
+	return m.Flavor
+}
 func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) GetJobCount() types.Int64 {
 	return m.JobCount
 }
@@ -4096,14 +5087,28 @@ func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) GetUploadShardParams()
 	return m.UploadShardParams
 }
 
+func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) SetFlavor(target types.String) {
+	m.Flavor = target
+}
+func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) SetJobCount(target types.Int64) {
+	m.JobCount = target
+}
+func (m *yandexDatatransferTransferRuntimeYcRuntimeModel) SetUploadShardParams(target types.List) {
+	m.UploadShardParams = target
+}
+
 func NewYandexDatatransferTransferRuntimeYcRuntimeModel() yandexDatatransferTransferRuntimeYcRuntimeModel {
 	return yandexDatatransferTransferRuntimeYcRuntimeModel{
+		Flavor:            types.StringNull(),
 		JobCount:          types.Int64Null(),
 		UploadShardParams: types.ListNull(yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModelType),
 	}
 }
 
 func yandexDatatransferTransferRuntimeYcRuntimeModelFillUnknown(target yandexDatatransferTransferRuntimeYcRuntimeModel) yandexDatatransferTransferRuntimeYcRuntimeModel {
+	if target.Flavor.IsUnknown() || target.Flavor.IsNull() {
+		target.Flavor = types.StringNull()
+	}
 	if target.JobCount.IsUnknown() || target.JobCount.IsNull() {
 		target.JobCount = types.Int64Null()
 	}
@@ -4115,6 +5120,7 @@ func yandexDatatransferTransferRuntimeYcRuntimeModelFillUnknown(target yandexDat
 
 var yandexDatatransferTransferRuntimeYcRuntimeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"flavor":              types.StringType,
 		"job_count":           types.Int64Type,
 		"upload_shard_params": types.ListType{ElemType: yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModelType},
 	},
@@ -4151,6 +5157,7 @@ func flattenYandexDatatransferTransferRuntimeYcRuntime(ctx context.Context,
 		state = yandexDatatransferTransferRuntimeYcRuntimeType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferRuntimeYcRuntimeModelType.AttrTypes, yandexDatatransferTransferRuntimeYcRuntimeModel{
+		Flavor:            types.StringValue(yandexDatatransferTransferRuntimeYcRuntime.GetFlavor().String()),
 		JobCount:          types.Int64Value(int64(yandexDatatransferTransferRuntimeYcRuntime.GetJobCount())),
 		UploadShardParams: flattenYandexDatatransferTransferRuntimeYcRuntimeUploadShardParams(ctx, yandexDatatransferTransferRuntimeYcRuntime.GetUploadShardParams(), state.UploadShardParams, diags),
 	})
@@ -4177,6 +5184,7 @@ func expandYandexDatatransferTransferRuntimeYcRuntime(ctx context.Context, yande
 
 func expandYandexDatatransferTransferRuntimeYcRuntimeModel(ctx context.Context, yandexDatatransferTransferRuntimeYcRuntimeState yandexDatatransferTransferRuntimeYcRuntimeModel, diags *diag.Diagnostics) *datatransfer.YcRuntime {
 	value := &datatransfer.YcRuntime{}
+	value.SetFlavor(datatransfer.Flavor(datatransfer.Flavor_value[yandexDatatransferTransferRuntimeYcRuntimeState.Flavor.ValueString()]))
 	value.SetJobCount((yandexDatatransferTransferRuntimeYcRuntimeState.JobCount.ValueInt64()))
 	value.SetUploadShardParams(expandYandexDatatransferTransferRuntimeYcRuntimeUploadShardParams(ctx, yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams, diags))
 	if diags.HasError() {
@@ -4195,6 +5203,13 @@ func (m *yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel) GetJo
 }
 func (m *yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel) GetProcessCount() types.Int64 {
 	return m.ProcessCount
+}
+
+func (m *yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel) SetJobCount(target types.Int64) {
+	m.JobCount = target
+}
+func (m *yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel) SetProcessCount(target types.Int64) {
+	m.ProcessCount = target
 }
 
 func NewYandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel() yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel {
@@ -4283,6 +5298,10 @@ type yandexDatatransferTransferTransformationModel struct {
 
 func (m *yandexDatatransferTransferTransformationModel) GetTransformers() types.List {
 	return m.Transformers
+}
+
+func (m *yandexDatatransferTransferTransformationModel) SetTransformers(target types.List) {
+	m.Transformers = target
 }
 
 func NewYandexDatatransferTransferTransformationModel() yandexDatatransferTransferTransformationModel {

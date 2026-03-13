@@ -176,7 +176,9 @@ func (r *yandexDatatransferTransferResource) Create(ctx context.Context, req res
 	createReq.SetType(datatransfer.TransferType(datatransfer.TransferType_value[plan.Type.ValueString()]))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetLabels(expandYandexDatatransferTransferLabels(ctx, plan.Labels, &diags))
+	createReq.SetRegularSnapshot(expandYandexDatatransferTransferRegularSnapshot(ctx, plan.RegularSnapshot, &diags))
 	createReq.SetTransformation(expandYandexDatatransferTransferTransformation(ctx, plan.Transformation, &diags))
+	createReq.SetDataObjects(expandYandexDatatransferTransferDataObjects(ctx, plan.DataObjects, &diags))
 	createReq.SetReplicationRuntime(expandYandexDatatransferTransferReplicationRuntime(ctx, plan.ReplicationRuntime, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -358,6 +360,42 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 	defer cancel()
 	var updatePaths []string
 
+	if plan.DataObjects.IsNull() {
+		plan.DataObjects = types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+	}
+	if state.DataObjects.IsNull() {
+		state.DataObjects = types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+	}
+
+	if (plan.DataObjects.IsNull() || state.DataObjects.IsNull()) &&
+		!(plan.DataObjects.IsNull() && state.DataObjects.IsNull()) &&
+		!plan.DataObjects.IsUnknown() {
+		updatePaths = append(updatePaths, "data_objects")
+	} else if !plan.DataObjects.IsUnknown() {
+		var yandexDatatransferTransferDataObjectsListState, yandexDatatransferTransferDataObjectsListPlan []yandexDatatransferTransferDataObjectsModel = make([]yandexDatatransferTransferDataObjectsModel, 0, len(state.DataObjects.Elements())), make([]yandexDatatransferTransferDataObjectsModel, 0, len(plan.DataObjects.Elements()))
+		resp.Diagnostics.Append(plan.DataObjects.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsListPlan, false)...)
+		resp.Diagnostics.Append(state.DataObjects.ElementsAs(ctx, &yandexDatatransferTransferDataObjectsListState, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		var yandexDatatransferTransferDataObjectsState, yandexDatatransferTransferDataObjectsPlan yandexDatatransferTransferDataObjectsModel
+		if len(yandexDatatransferTransferDataObjectsListState) != 0 {
+			yandexDatatransferTransferDataObjectsState = yandexDatatransferTransferDataObjectsListState[0]
+		}
+		if len(yandexDatatransferTransferDataObjectsListPlan) != 0 {
+			yandexDatatransferTransferDataObjectsPlan = yandexDatatransferTransferDataObjectsListPlan[0]
+		}
+
+		if yandexDatatransferTransferDataObjectsPlan.IncludeObjects.IsNull() {
+			yandexDatatransferTransferDataObjectsPlan.IncludeObjects = types.ListNull(types.StringType)
+		}
+		if yandexDatatransferTransferDataObjectsState.IncludeObjects.IsNull() {
+			yandexDatatransferTransferDataObjectsState.IncludeObjects = types.ListNull(types.StringType)
+		}
+		if !yandexDatatransferTransferDataObjectsPlan.IncludeObjects.Equal(yandexDatatransferTransferDataObjectsState.IncludeObjects) {
+			updatePaths = append(updatePaths, "data_objects.include_objects")
+		}
+	}
 	if !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
@@ -374,6 +412,110 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 		updatePaths = append(updatePaths, "name")
 	}
 
+	if plan.RegularSnapshot.IsNull() {
+		plan.RegularSnapshot = types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
+	}
+	if state.RegularSnapshot.IsNull() {
+		state.RegularSnapshot = types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
+	}
+
+	if (plan.RegularSnapshot.IsNull() || state.RegularSnapshot.IsNull()) &&
+		!(plan.RegularSnapshot.IsNull() && state.RegularSnapshot.IsNull()) &&
+		!plan.RegularSnapshot.IsUnknown() {
+		updatePaths = append(updatePaths, "regular_snapshot")
+	} else if !plan.RegularSnapshot.IsUnknown() {
+		var yandexDatatransferTransferRegularSnapshotListState, yandexDatatransferTransferRegularSnapshotListPlan []yandexDatatransferTransferRegularSnapshotModel = make([]yandexDatatransferTransferRegularSnapshotModel, 0, len(state.RegularSnapshot.Elements())), make([]yandexDatatransferTransferRegularSnapshotModel, 0, len(plan.RegularSnapshot.Elements()))
+		resp.Diagnostics.Append(plan.RegularSnapshot.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotListPlan, false)...)
+		resp.Diagnostics.Append(state.RegularSnapshot.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotListState, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		var yandexDatatransferTransferRegularSnapshotState, yandexDatatransferTransferRegularSnapshotPlan yandexDatatransferTransferRegularSnapshotModel
+		if len(yandexDatatransferTransferRegularSnapshotListState) != 0 {
+			yandexDatatransferTransferRegularSnapshotState = yandexDatatransferTransferRegularSnapshotListState[0]
+		}
+		if len(yandexDatatransferTransferRegularSnapshotListPlan) != 0 {
+			yandexDatatransferTransferRegularSnapshotPlan = yandexDatatransferTransferRegularSnapshotListPlan[0]
+		}
+
+		if yandexDatatransferTransferRegularSnapshotPlan.Settings.IsNull() {
+			yandexDatatransferTransferRegularSnapshotPlan.Settings = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+		}
+		if yandexDatatransferTransferRegularSnapshotState.Settings.IsNull() {
+			yandexDatatransferTransferRegularSnapshotState.Settings = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsModelType)
+		}
+
+		if (yandexDatatransferTransferRegularSnapshotPlan.Settings.IsNull() || yandexDatatransferTransferRegularSnapshotState.Settings.IsNull()) &&
+			!(yandexDatatransferTransferRegularSnapshotPlan.Settings.IsNull() && yandexDatatransferTransferRegularSnapshotState.Settings.IsNull()) &&
+			!yandexDatatransferTransferRegularSnapshotPlan.Settings.IsUnknown() {
+			updatePaths = append(updatePaths, "regular_snapshot.settings")
+		} else if !yandexDatatransferTransferRegularSnapshotPlan.Settings.IsUnknown() {
+			var yandexDatatransferTransferRegularSnapshotSettingsListState, yandexDatatransferTransferRegularSnapshotSettingsListPlan []yandexDatatransferTransferRegularSnapshotSettingsModel = make([]yandexDatatransferTransferRegularSnapshotSettingsModel, 0, len(yandexDatatransferTransferRegularSnapshotState.Settings.Elements())), make([]yandexDatatransferTransferRegularSnapshotSettingsModel, 0, len(yandexDatatransferTransferRegularSnapshotPlan.Settings.Elements()))
+			resp.Diagnostics.Append(yandexDatatransferTransferRegularSnapshotPlan.Settings.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsListPlan, false)...)
+			resp.Diagnostics.Append(yandexDatatransferTransferRegularSnapshotState.Settings.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsListState, false)...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			var yandexDatatransferTransferRegularSnapshotSettingsState, yandexDatatransferTransferRegularSnapshotSettingsPlan yandexDatatransferTransferRegularSnapshotSettingsModel
+			if len(yandexDatatransferTransferRegularSnapshotSettingsListState) != 0 {
+				yandexDatatransferTransferRegularSnapshotSettingsState = yandexDatatransferTransferRegularSnapshotSettingsListState[0]
+			}
+			if len(yandexDatatransferTransferRegularSnapshotSettingsListPlan) != 0 {
+				yandexDatatransferTransferRegularSnapshotSettingsPlan = yandexDatatransferTransferRegularSnapshotSettingsListPlan[0]
+			}
+
+			if !yandexDatatransferTransferRegularSnapshotSettingsPlan.CronExpression.Equal(yandexDatatransferTransferRegularSnapshotSettingsState.CronExpression) {
+				updatePaths = append(updatePaths, "regular_snapshot.settings.cron_expression")
+			}
+			if !yandexDatatransferTransferRegularSnapshotSettingsPlan.IncrementDelaySeconds.Equal(yandexDatatransferTransferRegularSnapshotSettingsState.IncrementDelaySeconds) {
+				updatePaths = append(updatePaths, "regular_snapshot.settings.increment_delay_seconds")
+			}
+
+			if yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.IsNull() {
+				yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType)
+			}
+			if yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig.IsNull() {
+				yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModelType)
+			}
+
+			if (yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.IsNull() || yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig.IsNull()) &&
+				!(yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.IsNull() && yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig.IsNull()) &&
+				!yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.IsUnknown() {
+				updatePaths = append(updatePaths, "regular_snapshot.settings.retry_config")
+			} else if !yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.IsUnknown() {
+				var yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListState, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListPlan []yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel = make([]yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel, 0, len(yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig.Elements())), make([]yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel, 0, len(yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferTransferRegularSnapshotSettingsPlan.RetryConfig.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferTransferRegularSnapshotSettingsState.RetryConfig.ElementsAs(ctx, &yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState, yandexDatatransferTransferRegularSnapshotSettingsRetryConfigPlan yandexDatatransferTransferRegularSnapshotSettingsRetryConfigModel
+				if len(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListState) != 0 {
+					yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState = yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListState[0]
+				}
+				if len(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListPlan) != 0 {
+					yandexDatatransferTransferRegularSnapshotSettingsRetryConfigPlan = yandexDatatransferTransferRegularSnapshotSettingsRetryConfigListPlan[0]
+				}
+
+				if !yandexDatatransferTransferRegularSnapshotSettingsRetryConfigPlan.MaxAttempts.Equal(yandexDatatransferTransferRegularSnapshotSettingsRetryConfigState.MaxAttempts) {
+					updatePaths = append(updatePaths, "regular_snapshot.settings.retry_config.max_attempts")
+				}
+			}
+			if !yandexDatatransferTransferRegularSnapshotSettingsPlan.Schedule.Equal(yandexDatatransferTransferRegularSnapshotSettingsState.Schedule) {
+				updatePaths = append(updatePaths, "regular_snapshot.settings.schedule")
+			}
+			if yandexDatatransferTransferRegularSnapshotSettingsPlan.Tables.IsNull() {
+				yandexDatatransferTransferRegularSnapshotSettingsPlan.Tables = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType)
+			}
+			if yandexDatatransferTransferRegularSnapshotSettingsState.Tables.IsNull() {
+				yandexDatatransferTransferRegularSnapshotSettingsState.Tables = types.ListNull(yandexDatatransferTransferRegularSnapshotSettingsIncrementalTableStructModelType)
+			}
+			if !yandexDatatransferTransferRegularSnapshotSettingsPlan.Tables.Equal(yandexDatatransferTransferRegularSnapshotSettingsState.Tables) {
+				updatePaths = append(updatePaths, "regular_snapshot.settings.tables")
+			}
+		}
+	}
+
 	if plan.ReplicationRuntime.IsNull() {
 		plan.ReplicationRuntime = types.ListNull(yandexDatatransferTransferReplicationRuntimeModelType)
 	}
@@ -382,9 +524,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 	}
 
 	if (plan.ReplicationRuntime.IsNull() || state.ReplicationRuntime.IsNull()) &&
-		!(plan.ReplicationRuntime.IsNull() && state.ReplicationRuntime.IsNull()) {
+		!(plan.ReplicationRuntime.IsNull() && state.ReplicationRuntime.IsNull()) &&
+		!plan.ReplicationRuntime.IsUnknown() {
 		updatePaths = append(updatePaths, "replication_runtime")
-	} else {
+	} else if !plan.ReplicationRuntime.IsUnknown() {
 		var yandexDatatransferTransferReplicationRuntimeListState, yandexDatatransferTransferReplicationRuntimeListPlan []yandexDatatransferTransferReplicationRuntimeModel = make([]yandexDatatransferTransferReplicationRuntimeModel, 0, len(state.ReplicationRuntime.Elements())), make([]yandexDatatransferTransferReplicationRuntimeModel, 0, len(plan.ReplicationRuntime.Elements()))
 		resp.Diagnostics.Append(plan.ReplicationRuntime.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeListPlan, false)...)
 		resp.Diagnostics.Append(state.ReplicationRuntime.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeListState, false)...)
@@ -407,9 +550,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.IsNull() || yandexDatatransferTransferReplicationRuntimeState.YcRuntime.IsNull()) &&
-			!(yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.IsNull() && yandexDatatransferTransferReplicationRuntimeState.YcRuntime.IsNull()) {
+			!(yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.IsNull() && yandexDatatransferTransferReplicationRuntimeState.YcRuntime.IsNull()) &&
+			!yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.IsUnknown() {
 			updatePaths = append(updatePaths, "replication_runtime.yc_runtime")
-		} else {
+		} else if !yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.IsUnknown() {
 			var yandexDatatransferTransferReplicationRuntimeYcRuntimeListState, yandexDatatransferTransferReplicationRuntimeYcRuntimeListPlan []yandexDatatransferTransferReplicationRuntimeYcRuntimeModel = make([]yandexDatatransferTransferReplicationRuntimeYcRuntimeModel, 0, len(yandexDatatransferTransferReplicationRuntimeState.YcRuntime.Elements())), make([]yandexDatatransferTransferReplicationRuntimeYcRuntimeModel, 0, len(yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferTransferReplicationRuntimePlan.YcRuntime.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeYcRuntimeListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferTransferReplicationRuntimeState.YcRuntime.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeYcRuntimeListState, false)...)
@@ -424,6 +568,9 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 				yandexDatatransferTransferReplicationRuntimeYcRuntimePlan = yandexDatatransferTransferReplicationRuntimeYcRuntimeListPlan[0]
 			}
 
+			if !yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.Flavor.Equal(yandexDatatransferTransferReplicationRuntimeYcRuntimeState.Flavor) {
+				updatePaths = append(updatePaths, "replication_runtime.yc_runtime.flavor")
+			}
 			if !yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.JobCount.Equal(yandexDatatransferTransferReplicationRuntimeYcRuntimeState.JobCount) {
 				updatePaths = append(updatePaths, "replication_runtime.yc_runtime.job_count")
 			}
@@ -436,9 +583,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.IsNull() || yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams.IsNull()) &&
-				!(yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.IsNull() && yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams.IsNull()) {
+				!(yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.IsNull() && yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams.IsNull()) &&
+				!yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.IsUnknown() {
 				updatePaths = append(updatePaths, "replication_runtime.yc_runtime.upload_shard_params")
-			} else {
+			} else if !yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.IsUnknown() {
 				var yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsListState, yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsListPlan []yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel = make([]yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel, 0, len(yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams.Elements())), make([]yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsModel, 0, len(yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferTransferReplicationRuntimeYcRuntimePlan.UploadShardParams.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferTransferReplicationRuntimeYcRuntimeState.UploadShardParams.ElementsAs(ctx, &yandexDatatransferTransferReplicationRuntimeYcRuntimeUploadShardParamsListState, false)...)
@@ -471,9 +619,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 	}
 
 	if (plan.Runtime.IsNull() || state.Runtime.IsNull()) &&
-		!(plan.Runtime.IsNull() && state.Runtime.IsNull()) {
+		!(plan.Runtime.IsNull() && state.Runtime.IsNull()) &&
+		!plan.Runtime.IsUnknown() {
 		updatePaths = append(updatePaths, "runtime")
-	} else {
+	} else if !plan.Runtime.IsUnknown() {
 		var yandexDatatransferTransferRuntimeListState, yandexDatatransferTransferRuntimeListPlan []yandexDatatransferTransferRuntimeModel = make([]yandexDatatransferTransferRuntimeModel, 0, len(state.Runtime.Elements())), make([]yandexDatatransferTransferRuntimeModel, 0, len(plan.Runtime.Elements()))
 		resp.Diagnostics.Append(plan.Runtime.ElementsAs(ctx, &yandexDatatransferTransferRuntimeListPlan, false)...)
 		resp.Diagnostics.Append(state.Runtime.ElementsAs(ctx, &yandexDatatransferTransferRuntimeListState, false)...)
@@ -496,9 +645,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferTransferRuntimePlan.YcRuntime.IsNull() || yandexDatatransferTransferRuntimeState.YcRuntime.IsNull()) &&
-			!(yandexDatatransferTransferRuntimePlan.YcRuntime.IsNull() && yandexDatatransferTransferRuntimeState.YcRuntime.IsNull()) {
+			!(yandexDatatransferTransferRuntimePlan.YcRuntime.IsNull() && yandexDatatransferTransferRuntimeState.YcRuntime.IsNull()) &&
+			!yandexDatatransferTransferRuntimePlan.YcRuntime.IsUnknown() {
 			updatePaths = append(updatePaths, "runtime.yc_runtime")
-		} else {
+		} else if !yandexDatatransferTransferRuntimePlan.YcRuntime.IsUnknown() {
 			var yandexDatatransferTransferRuntimeYcRuntimeListState, yandexDatatransferTransferRuntimeYcRuntimeListPlan []yandexDatatransferTransferRuntimeYcRuntimeModel = make([]yandexDatatransferTransferRuntimeYcRuntimeModel, 0, len(yandexDatatransferTransferRuntimeState.YcRuntime.Elements())), make([]yandexDatatransferTransferRuntimeYcRuntimeModel, 0, len(yandexDatatransferTransferRuntimePlan.YcRuntime.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferTransferRuntimePlan.YcRuntime.ElementsAs(ctx, &yandexDatatransferTransferRuntimeYcRuntimeListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferTransferRuntimeState.YcRuntime.ElementsAs(ctx, &yandexDatatransferTransferRuntimeYcRuntimeListState, false)...)
@@ -513,6 +663,9 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 				yandexDatatransferTransferRuntimeYcRuntimePlan = yandexDatatransferTransferRuntimeYcRuntimeListPlan[0]
 			}
 
+			if !yandexDatatransferTransferRuntimeYcRuntimePlan.Flavor.Equal(yandexDatatransferTransferRuntimeYcRuntimeState.Flavor) {
+				updatePaths = append(updatePaths, "runtime.yc_runtime.flavor")
+			}
 			if !yandexDatatransferTransferRuntimeYcRuntimePlan.JobCount.Equal(yandexDatatransferTransferRuntimeYcRuntimeState.JobCount) {
 				updatePaths = append(updatePaths, "runtime.yc_runtime.job_count")
 			}
@@ -525,9 +678,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.IsNull() || yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams.IsNull()) &&
-				!(yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.IsNull() && yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams.IsNull()) {
+				!(yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.IsNull() && yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams.IsNull()) &&
+				!yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.IsUnknown() {
 				updatePaths = append(updatePaths, "runtime.yc_runtime.upload_shard_params")
-			} else {
+			} else if !yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.IsUnknown() {
 				var yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsListState, yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsListPlan []yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel = make([]yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel, 0, len(yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams.Elements())), make([]yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsModel, 0, len(yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferTransferRuntimeYcRuntimePlan.UploadShardParams.ElementsAs(ctx, &yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferTransferRuntimeYcRuntimeState.UploadShardParams.ElementsAs(ctx, &yandexDatatransferTransferRuntimeYcRuntimeUploadShardParamsListState, false)...)
@@ -563,9 +717,10 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 	}
 
 	if (plan.Transformation.IsNull() || state.Transformation.IsNull()) &&
-		!(plan.Transformation.IsNull() && state.Transformation.IsNull()) {
+		!(plan.Transformation.IsNull() && state.Transformation.IsNull()) &&
+		!plan.Transformation.IsUnknown() {
 		updatePaths = append(updatePaths, "transformation")
-	} else {
+	} else if !plan.Transformation.IsUnknown() {
 		var yandexDatatransferTransferTransformationListState, yandexDatatransferTransferTransformationListPlan []yandexDatatransferTransferTransformationModel = make([]yandexDatatransferTransferTransformationModel, 0, len(state.Transformation.Elements())), make([]yandexDatatransferTransferTransformationModel, 0, len(plan.Transformation.Elements()))
 		resp.Diagnostics.Append(plan.Transformation.ElementsAs(ctx, &yandexDatatransferTransferTransformationListPlan, false)...)
 		resp.Diagnostics.Append(state.Transformation.ElementsAs(ctx, &yandexDatatransferTransferTransformationListState, false)...)
@@ -602,7 +757,9 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 		updateReq.SetRuntime(expandYandexDatatransferTransferRuntime(ctx, plan.Runtime, &diags))
 		updateReq.SetName(plan.Name.ValueString())
 		updateReq.SetLabels(expandYandexDatatransferTransferLabels(ctx, plan.Labels, &diags))
+		updateReq.SetRegularSnapshot(expandYandexDatatransferTransferRegularSnapshot(ctx, plan.RegularSnapshot, &diags))
 		updateReq.SetTransformation(expandYandexDatatransferTransferTransformation(ctx, plan.Transformation, &diags))
+		updateReq.SetDataObjects(expandYandexDatatransferTransferDataObjects(ctx, plan.DataObjects, &diags))
 		updateReq.SetReplicationRuntime(expandYandexDatatransferTransferReplicationRuntime(ctx, plan.ReplicationRuntime, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 

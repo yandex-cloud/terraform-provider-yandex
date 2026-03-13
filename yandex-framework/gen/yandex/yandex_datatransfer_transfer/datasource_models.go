@@ -13,10 +13,12 @@ import (
 )
 
 type yandexDatatransferTransferDatasourceModel struct {
+	DataObjects          types.List     `tfsdk:"data_objects"`
 	Description          types.String   `tfsdk:"description"`
 	FolderId             types.String   `tfsdk:"folder_id"`
 	Labels               types.Map      `tfsdk:"labels"`
 	Name                 types.String   `tfsdk:"name"`
+	RegularSnapshot      types.List     `tfsdk:"regular_snapshot"`
 	ReplicationRuntime   types.List     `tfsdk:"replication_runtime"`
 	Runtime              types.List     `tfsdk:"runtime"`
 	TransferId           types.String   `tfsdk:"transfer_id"`
@@ -28,6 +30,9 @@ type yandexDatatransferTransferDatasourceModel struct {
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexDatatransferTransferDatasourceModel) GetDataObjects() types.List {
+	return m.DataObjects
+}
 func (m *yandexDatatransferTransferDatasourceModel) GetDescription() types.String {
 	return m.Description
 }
@@ -39,6 +44,9 @@ func (m *yandexDatatransferTransferDatasourceModel) GetLabels() types.Map {
 }
 func (m *yandexDatatransferTransferDatasourceModel) GetName() types.String {
 	return m.Name
+}
+func (m *yandexDatatransferTransferDatasourceModel) GetRegularSnapshot() types.List {
+	return m.RegularSnapshot
 }
 func (m *yandexDatatransferTransferDatasourceModel) GetReplicationRuntime() types.List {
 	return m.ReplicationRuntime
@@ -65,12 +73,57 @@ func (m *yandexDatatransferTransferDatasourceModel) GetOnCreateActivateMode() ty
 	return m.OnCreateActivateMode
 }
 
+func (m *yandexDatatransferTransferDatasourceModel) SetDataObjects(target types.List) {
+	m.DataObjects = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetRegularSnapshot(target types.List) {
+	m.RegularSnapshot = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetReplicationRuntime(target types.List) {
+	m.ReplicationRuntime = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetRuntime(target types.List) {
+	m.Runtime = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetTransferId(target types.String) {
+	m.TransferId = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetTransformation(target types.List) {
+	m.Transformation = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetType(target types.String) {
+	m.Type = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetWarning(target types.String) {
+	m.Warning = target
+}
+func (m *yandexDatatransferTransferDatasourceModel) SetOnCreateActivateMode(target types.String) {
+	m.OnCreateActivateMode = target
+}
+
 func NewYandexDatatransferTransferDatasourceModel() yandexDatatransferTransferDatasourceModel {
 	return yandexDatatransferTransferDatasourceModel{
+		DataObjects:          types.ListNull(yandexDatatransferTransferDataObjectsModelType),
 		Description:          types.StringNull(),
 		FolderId:             types.StringNull(),
 		Labels:               types.MapNull(types.StringType),
 		Name:                 types.StringNull(),
+		RegularSnapshot:      types.ListNull(yandexDatatransferTransferRegularSnapshotModelType),
 		ReplicationRuntime:   types.ListNull(yandexDatatransferTransferReplicationRuntimeModelType),
 		Runtime:              types.ListNull(yandexDatatransferTransferRuntimeModelType),
 		TransferId:           types.StringNull(),
@@ -83,6 +136,9 @@ func NewYandexDatatransferTransferDatasourceModel() yandexDatatransferTransferDa
 }
 
 func yandexDatatransferTransferDatasourceModelFillUnknown(target yandexDatatransferTransferDatasourceModel) yandexDatatransferTransferDatasourceModel {
+	if target.DataObjects.IsUnknown() || target.DataObjects.IsNull() {
+		target.DataObjects = types.ListNull(yandexDatatransferTransferDataObjectsModelType)
+	}
 	if target.Description.IsUnknown() || target.Description.IsNull() {
 		target.Description = types.StringNull()
 	}
@@ -94,6 +150,9 @@ func yandexDatatransferTransferDatasourceModelFillUnknown(target yandexDatatrans
 	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
+	}
+	if target.RegularSnapshot.IsUnknown() || target.RegularSnapshot.IsNull() {
+		target.RegularSnapshot = types.ListNull(yandexDatatransferTransferRegularSnapshotModelType)
 	}
 	if target.ReplicationRuntime.IsUnknown() || target.ReplicationRuntime.IsNull() {
 		target.ReplicationRuntime = types.ListNull(yandexDatatransferTransferReplicationRuntimeModelType)
@@ -124,10 +183,12 @@ func yandexDatatransferTransferDatasourceModelFillUnknown(target yandexDatatrans
 
 var yandexDatatransferTransferDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"data_objects":            types.ListType{ElemType: yandexDatatransferTransferDataObjectsModelType},
 		"description":             types.StringType,
 		"folder_id":               types.StringType,
 		"labels":                  types.MapType{ElemType: types.StringType},
 		"name":                    types.StringType,
+		"regular_snapshot":        types.ListType{ElemType: yandexDatatransferTransferRegularSnapshotModelType},
 		"replication_runtime":     types.ListType{ElemType: yandexDatatransferTransferReplicationRuntimeModelType},
 		"runtime":                 types.ListType{ElemType: yandexDatatransferTransferRuntimeModelType},
 		"transfer_id":             types.StringType,
@@ -149,10 +210,12 @@ func flattenYandexDatatransferTransferDatasource(ctx context.Context,
 		return types.ObjectNull(yandexDatatransferTransferDatasourceModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferDatasourceModelType.AttrTypes, yandexDatatransferTransferDatasourceModel{
+		DataObjects:          flattenYandexDatatransferTransferDataObjects(ctx, yandexDatatransferTransferDatasource.GetDataObjects(), state.DataObjects, diags),
 		Description:          types.StringValue(yandexDatatransferTransferDatasource.GetDescription()),
 		FolderId:             types.StringValue(yandexDatatransferTransferDatasource.GetFolderId()),
 		Labels:               flattenYandexDatatransferTransferLabels(ctx, yandexDatatransferTransferDatasource.GetLabels(), state.Labels, diags),
 		Name:                 types.StringValue(yandexDatatransferTransferDatasource.GetName()),
+		RegularSnapshot:      flattenYandexDatatransferTransferRegularSnapshot(ctx, yandexDatatransferTransferDatasource.GetRegularSnapshot(), state.RegularSnapshot, diags),
 		ReplicationRuntime:   flattenYandexDatatransferTransferReplicationRuntime(ctx, yandexDatatransferTransferDatasource.GetReplicationRuntime(), state.ReplicationRuntime, diags),
 		Runtime:              flattenYandexDatatransferTransferRuntime(ctx, yandexDatatransferTransferDatasource.GetRuntime(), state.Runtime, diags),
 		TransferId:           types.StringValue(yandexDatatransferTransferDatasource.GetId()),

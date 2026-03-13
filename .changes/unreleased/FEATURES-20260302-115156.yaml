@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'yandex_datatransfer_transfer: add data_objects, regular_snapshot, incremental_tables and runtime flavor options'
+time: 2026-03-11T11:51:56.418872+01:00

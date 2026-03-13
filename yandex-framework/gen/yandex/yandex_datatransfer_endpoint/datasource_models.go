@@ -45,6 +45,28 @@ func (m *yandexDatatransferEndpointDatasourceModel) GetSettings() types.List {
 	return m.Settings
 }
 
+func (m *yandexDatatransferEndpointDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetEndpointId(target types.String) {
+	m.EndpointId = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexDatatransferEndpointDatasourceModel) SetSettings(target types.List) {
+	m.Settings = target
+}
+
 func NewYandexDatatransferEndpointDatasourceModel() yandexDatatransferEndpointDatasourceModel {
 	return yandexDatatransferEndpointDatasourceModel{
 		Description: types.StringNull(),
