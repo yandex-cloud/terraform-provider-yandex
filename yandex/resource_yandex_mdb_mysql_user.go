@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -62,7 +62,6 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 				Type:        schema.TypeSet,
 				Description: "Set of permissions granted to the user.",
 				Optional:    true,
-				Computed:    true,
 				Set:         mysqlUserPermissionHash,
 				Elem:        resourceYandexMDBMySQLUserPermission(),
 			},
@@ -73,7 +72,6 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				Computed: true,
 			},
 			"connection_limits": {
 				Type:        schema.TypeList,
@@ -302,6 +300,28 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
+	updatePath := []string{}
+	changeMask := map[string]string{
+		"password":           "password",
+		"permission":         "permissions",
+		"global_permissions": "global_permissions",
+		"connection_limits.0.max_questions_per_hour":   "connection_limits.max_questions_per_hour",
+		"connection_limits.0.max_updates_per_hour":     "connection_limits.max_updates_per_hour",
+		"connection_limits.0.max_connections_per_hour": "connection_limits.max_connections_per_hour",
+		"connection_limits.0.max_user_connections":     "connection_limits.max_user_connections",
+		"authentication_plugin":                        "authentication_plugin",
+	}
+
+	for field, mask := range changeMask {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, mask)
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
 	clusterID := d.Get("cluster_id").(string)
 	request := &mysql.UpdateUserRequest{
 		ClusterId:            clusterID,
@@ -311,7 +331,7 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		AuthenticationPlugin: user.AuthenticationPlugin,
 		ConnectionLimits:     user.ConnectionLimits,
 		GlobalPermissions:    user.GlobalPermissions,
-		UpdateMask:           &field_mask.FieldMask{Paths: []string{"authentication_plugin", "password", "permissions", "connection_limits", "global_permissions"}},
+		UpdateMask:           &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL user update request: %+v", request)
