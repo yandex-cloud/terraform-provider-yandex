@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: set computed to false for merge tree settings `replicated_deduplication_window`, `replicated_deduplication_window_seconds`, `parts_to_delay`, `parts_to_throw_insert`, `max_replicated_merges_in_queue`, `max_parts_in_total`, `materialize_ttl_recalculate_only`'
-time: 2026-03-12T13:26:13.163617+03:00
