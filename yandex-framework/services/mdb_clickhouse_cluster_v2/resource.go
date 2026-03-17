@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -426,14 +425,8 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 
 func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("clickhouse").AtName("resources"),
-			path.MatchRoot("shards").AtAnyMapKey().AtName("resources"),
-		),
-		resourcevalidator.Conflicting(
-			path.MatchRoot("clickhouse").AtName("disk_size_autoscaling"),
-			path.MatchRoot("shards").AtAnyMapKey().AtName("disk_size_autoscaling"),
-		),
+		clickhouseShardConflictValidator{attrName: "resources"},
+		clickhouseShardConflictValidator{attrName: "disk_size_autoscaling"},
 	}
 }
 
