@@ -44,7 +44,7 @@ func backupOriginalClusterResource(d *schema.ResourceData) {
 func sortClickHouseHosts(hosts []*clickhouse.Host, specs []*clickhouse.HostSpec) []*clickhouse.Host {
 	implicitZk := true
 	for _, h := range specs {
-		if h.Type == clickhouse.Host_ZOOKEEPER {
+		if isCoordinator(h.Type) {
 			implicitZk = false
 			break
 		}
@@ -277,7 +277,7 @@ func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schem
 }
 
 func createKey(hostType clickhouse.Host_Type, zoneId, shardName string) string {
-	if hostType == clickhouse.Host_ZOOKEEPER {
+	if isCoordinator(hostType) {
 		shardName = "zk"
 	}
 	return hostType.String() + zoneId + shardName
@@ -317,7 +317,7 @@ func getHostsToAdd(keysHosts map[string][]*clickhouse.HostSpec, mKeys []string) 
 			continue
 		}
 		h := hs[0]
-		if h.Type == clickhouse.Host_ZOOKEEPER {
+		if isCoordinator(h.Type) {
 			toAdd["zk"] = append(toAdd["zk"], h)
 		} else {
 			toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
@@ -560,7 +560,7 @@ func expandClickHouseHost(config map[string]interface{}) (*clickhouse.HostSpec, 
 
 	if v, ok := config["shard_name"]; ok {
 		host.ShardName = v.(string)
-		if host.Type == clickhouse.Host_ZOOKEEPER && host.ShardName != "" {
+		if isCoordinator(host.Type) && host.ShardName != "" {
 			return nil, fmt.Errorf("ZooKeeper hosts cannot have a 'shard_name'")
 		}
 	}
@@ -3596,4 +3596,8 @@ func isValidClickhousePasswordConfiguration(userSpec *clickhouse.UserSpec) bool 
 	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
 	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
 	return !isBothFieldNotSpecified && !isBothFieldSpecified
+}
+
+func isCoordinator(hostType clickhouse.Host_Type) bool {
+	return hostType == clickhouse.Host_ZOOKEEPER || hostType == clickhouse.Host_KEEPER
 }

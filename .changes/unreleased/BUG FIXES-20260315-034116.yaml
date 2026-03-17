@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: fixed a bug where you could not set resources for KEEPER hosts'
+time: 2026-03-15T03:41:16.908493+03:00

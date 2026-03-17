@@ -1802,7 +1802,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 		}
 
 		for _, h := range currHosts {
-			if h.Type == clickhouse.Host_ZOOKEEPER {
+			if isCoordinator(h.Type) {
 				updatePath = append(updatePath, "config_spec.zookeeper")
 				onDone = append(onDone, func() {
 
@@ -1993,13 +1993,13 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 
 	currZkHosts := []*clickhouse.Host{}
 	for _, h := range currHosts {
-		if h.Type == clickhouse.Host_ZOOKEEPER {
+		if isCoordinator(h.Type) {
 			currZkHosts = append(currZkHosts, h)
 		}
 	}
 	targetZkHosts := []*clickhouse.HostSpec{}
 	for _, h := range targetHosts {
-		if h.Type == clickhouse.Host_ZOOKEEPER {
+		if isCoordinator(h.Type) {
 			targetZkHosts = append(targetZkHosts, h)
 		}
 	}
@@ -2944,7 +2944,7 @@ func listClickHouseMlModels(ctx context.Context, config *Config, id string) ([]*
 
 func suppressZooKeeperResourcesDIff(k, old, new string, d *schema.ResourceData) bool {
 	for _, host := range d.Get("host").([]interface{}) {
-		if hostType, ok := host.(map[string]interface{})["type"]; ok && hostType == "ZOOKEEPER" {
+		if hostType, ok := host.(map[string]interface{})["type"]; ok && (hostType == "ZOOKEEPER" || hostType == "KEEPER") {
 			return false
 		}
 	}
