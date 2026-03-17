@@ -17,6 +17,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 )
 
 const (
@@ -474,7 +475,10 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 		clickhouse.AnytimeMaintenanceWindow,
 		clickhouse.WeeklyMaintenanceWindow_WeekDay,
 	](ctx, cluster.MaintenanceWindow, diags)
-	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, diags)
+	newSecurityGroupIds := mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, diags)
+	if !utils.SetsAreEqual(state.SecurityGroupIds, newSecurityGroupIds) {
+		state.SecurityGroupIds = newSecurityGroupIds
+	}
 	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, diags)
 
 	state.Version = types.StringValue(cluster.Config.Version)

@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: handle null/empty set equivalence for security_group_ids'
+time: 2026-03-15T17:15:17.254851+03:00
