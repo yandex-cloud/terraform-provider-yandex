@@ -1372,7 +1372,6 @@ func CompressionSchema() schema.ListNestedAttribute {
 				"level": schema.Int64Attribute{
 					Description: "Compression level for `ZSTD` method.",
 					Optional:    true,
-					Computed:    true,
 					PlanModifiers: []planmodifier.Int64{
 						int64planmodifier.UseStateForUnknown(),
 					},

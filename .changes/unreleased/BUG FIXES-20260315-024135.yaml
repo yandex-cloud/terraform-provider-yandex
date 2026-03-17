@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: set computed to false for compression level setting'
+time: 2026-03-15T02:41:35.242897+03:00
