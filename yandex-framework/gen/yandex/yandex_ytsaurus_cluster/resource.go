@@ -318,9 +318,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	var updatePaths []string
 
 	if (plan.CidrBlocksWhitelist.IsNull() || state.CidrBlocksWhitelist.IsNull()) &&
-		!(plan.CidrBlocksWhitelist.IsNull() && state.CidrBlocksWhitelist.IsNull()) {
+		!(plan.CidrBlocksWhitelist.IsNull() && state.CidrBlocksWhitelist.IsNull()) &&
+		!plan.CidrBlocksWhitelist.IsUnknown() {
 		updatePaths = append(updatePaths, "cidr_blocks_whitelist")
-	} else {
+	} else if !plan.CidrBlocksWhitelist.IsUnknown() {
 		var yandexYtsaurusClusterCidrBlocksWhitelistState, yandexYtsaurusClusterCidrBlocksWhitelistPlan yandexYtsaurusClusterCidrBlocksWhitelistModel
 		resp.Diagnostics.Append(plan.CidrBlocksWhitelist.As(ctx, &yandexYtsaurusClusterCidrBlocksWhitelistPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.CidrBlocksWhitelist.As(ctx, &yandexYtsaurusClusterCidrBlocksWhitelistState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -367,9 +368,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	}
 
 	if (plan.Spec.IsNull() || state.Spec.IsNull()) &&
-		!(plan.Spec.IsNull() && state.Spec.IsNull()) {
+		!(plan.Spec.IsNull() && state.Spec.IsNull()) &&
+		!plan.Spec.IsUnknown() {
 		updatePaths = append(updatePaths, "spec")
-	} else {
+	} else if !plan.Spec.IsUnknown() {
 		var yandexYtsaurusClusterSpecState, yandexYtsaurusClusterSpecPlan yandexYtsaurusClusterSpecModel
 		resp.Diagnostics.Append(plan.Spec.As(ctx, &yandexYtsaurusClusterSpecPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.Spec.As(ctx, &yandexYtsaurusClusterSpecState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -378,9 +380,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.ClientLogging.IsNull() || yandexYtsaurusClusterSpecState.ClientLogging.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.ClientLogging.IsNull() && yandexYtsaurusClusterSpecState.ClientLogging.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.ClientLogging.IsNull() && yandexYtsaurusClusterSpecState.ClientLogging.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.ClientLogging.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.client_logging")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.ClientLogging.IsUnknown() {
 			var yandexYtsaurusClusterSpecClientLoggingState, yandexYtsaurusClusterSpecClientLoggingPlan yandexYtsaurusClusterSpecClientLoggingModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.ClientLogging.As(ctx, &yandexYtsaurusClusterSpecClientLoggingPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.ClientLogging.As(ctx, &yandexYtsaurusClusterSpecClientLoggingState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -412,9 +415,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.Cron.IsNull() || yandexYtsaurusClusterSpecState.Cron.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.Cron.IsNull() && yandexYtsaurusClusterSpecState.Cron.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.Cron.IsNull() && yandexYtsaurusClusterSpecState.Cron.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Cron.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.cron")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.Cron.IsUnknown() {
 			var yandexYtsaurusClusterSpecCronState, yandexYtsaurusClusterSpecCronPlan yandexYtsaurusClusterSpecCronModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Cron.As(ctx, &yandexYtsaurusClusterSpecCronPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Cron.As(ctx, &yandexYtsaurusClusterSpecCronState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -423,9 +427,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			}
 
 			if (yandexYtsaurusClusterSpecCronPlan.ClearTmp.IsNull() || yandexYtsaurusClusterSpecCronState.ClearTmp.IsNull()) &&
-				!(yandexYtsaurusClusterSpecCronPlan.ClearTmp.IsNull() && yandexYtsaurusClusterSpecCronState.ClearTmp.IsNull()) {
+				!(yandexYtsaurusClusterSpecCronPlan.ClearTmp.IsNull() && yandexYtsaurusClusterSpecCronState.ClearTmp.IsNull()) &&
+				!yandexYtsaurusClusterSpecCronPlan.ClearTmp.IsUnknown() {
 				updatePaths = append(updatePaths, "spec.cron.clear_tmp")
-			} else {
+			} else if !yandexYtsaurusClusterSpecCronPlan.ClearTmp.IsUnknown() {
 				var yandexYtsaurusClusterSpecCronClearTmpState, yandexYtsaurusClusterSpecCronClearTmpPlan yandexYtsaurusClusterSpecCronClearTmpModel
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecCronPlan.ClearTmp.As(ctx, &yandexYtsaurusClusterSpecCronClearTmpPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecCronState.ClearTmp.As(ctx, &yandexYtsaurusClusterSpecCronClearTmpState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -447,14 +452,32 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				}
 			}
 		}
+
+		if (yandexYtsaurusClusterSpecPlan.Excel.IsNull() || yandexYtsaurusClusterSpecState.Excel.IsNull()) &&
+			!(yandexYtsaurusClusterSpecPlan.Excel.IsNull() && yandexYtsaurusClusterSpecState.Excel.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Excel.IsUnknown() {
+			updatePaths = append(updatePaths, "spec.excel")
+		} else if !yandexYtsaurusClusterSpecPlan.Excel.IsUnknown() {
+			var yandexYtsaurusClusterSpecExcelState, yandexYtsaurusClusterSpecExcelPlan yandexYtsaurusClusterSpecExcelModel
+			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Excel.As(ctx, &yandexYtsaurusClusterSpecExcelPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Excel.As(ctx, &yandexYtsaurusClusterSpecExcelState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexYtsaurusClusterSpecExcelPlan.Enabled.Equal(yandexYtsaurusClusterSpecExcelState.Enabled) {
+				updatePaths = append(updatePaths, "spec.excel.enabled")
+			}
+		}
 		if !yandexYtsaurusClusterSpecPlan.Flavor.Equal(yandexYtsaurusClusterSpecState.Flavor) {
 			updatePaths = append(updatePaths, "spec.flavor")
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.Odin.IsNull() || yandexYtsaurusClusterSpecState.Odin.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.Odin.IsNull() && yandexYtsaurusClusterSpecState.Odin.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.Odin.IsNull() && yandexYtsaurusClusterSpecState.Odin.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Odin.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.odin")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.Odin.IsUnknown() {
 			var yandexYtsaurusClusterSpecOdinState, yandexYtsaurusClusterSpecOdinPlan yandexYtsaurusClusterSpecOdinModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Odin.As(ctx, &yandexYtsaurusClusterSpecOdinPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Odin.As(ctx, &yandexYtsaurusClusterSpecOdinState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -468,9 +491,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.Proxy.IsNull() || yandexYtsaurusClusterSpecState.Proxy.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.Proxy.IsNull() && yandexYtsaurusClusterSpecState.Proxy.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.Proxy.IsNull() && yandexYtsaurusClusterSpecState.Proxy.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Proxy.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.proxy")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.Proxy.IsUnknown() {
 			var yandexYtsaurusClusterSpecProxyState, yandexYtsaurusClusterSpecProxyPlan yandexYtsaurusClusterSpecProxyModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Proxy.As(ctx, &yandexYtsaurusClusterSpecProxyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Proxy.As(ctx, &yandexYtsaurusClusterSpecProxyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -479,9 +503,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			}
 
 			if (yandexYtsaurusClusterSpecProxyPlan.Http.IsNull() || yandexYtsaurusClusterSpecProxyState.Http.IsNull()) &&
-				!(yandexYtsaurusClusterSpecProxyPlan.Http.IsNull() && yandexYtsaurusClusterSpecProxyState.Http.IsNull()) {
+				!(yandexYtsaurusClusterSpecProxyPlan.Http.IsNull() && yandexYtsaurusClusterSpecProxyState.Http.IsNull()) &&
+				!yandexYtsaurusClusterSpecProxyPlan.Http.IsUnknown() {
 				updatePaths = append(updatePaths, "spec.proxy.http")
-			} else {
+			} else if !yandexYtsaurusClusterSpecProxyPlan.Http.IsUnknown() {
 				var yandexYtsaurusClusterSpecProxyHttpState, yandexYtsaurusClusterSpecProxyHttpPlan yandexYtsaurusClusterSpecProxyHttpModel
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyPlan.Http.As(ctx, &yandexYtsaurusClusterSpecProxyHttpPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyState.Http.As(ctx, &yandexYtsaurusClusterSpecProxyHttpState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -495,9 +520,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			}
 
 			if (yandexYtsaurusClusterSpecProxyPlan.Rpc.IsNull() || yandexYtsaurusClusterSpecProxyState.Rpc.IsNull()) &&
-				!(yandexYtsaurusClusterSpecProxyPlan.Rpc.IsNull() && yandexYtsaurusClusterSpecProxyState.Rpc.IsNull()) {
+				!(yandexYtsaurusClusterSpecProxyPlan.Rpc.IsNull() && yandexYtsaurusClusterSpecProxyState.Rpc.IsNull()) &&
+				!yandexYtsaurusClusterSpecProxyPlan.Rpc.IsUnknown() {
 				updatePaths = append(updatePaths, "spec.proxy.rpc")
-			} else {
+			} else if !yandexYtsaurusClusterSpecProxyPlan.Rpc.IsUnknown() {
 				var yandexYtsaurusClusterSpecProxyRpcState, yandexYtsaurusClusterSpecProxyRpcPlan yandexYtsaurusClusterSpecProxyRpcModel
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyPlan.Rpc.As(ctx, &yandexYtsaurusClusterSpecProxyRpcPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyState.Rpc.As(ctx, &yandexYtsaurusClusterSpecProxyRpcState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -509,12 +535,30 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					updatePaths = append(updatePaths, "spec.proxy.rpc.count")
 				}
 			}
+
+			if (yandexYtsaurusClusterSpecProxyPlan.Task.IsNull() || yandexYtsaurusClusterSpecProxyState.Task.IsNull()) &&
+				!(yandexYtsaurusClusterSpecProxyPlan.Task.IsNull() && yandexYtsaurusClusterSpecProxyState.Task.IsNull()) &&
+				!yandexYtsaurusClusterSpecProxyPlan.Task.IsUnknown() {
+				updatePaths = append(updatePaths, "spec.proxy.task")
+			} else if !yandexYtsaurusClusterSpecProxyPlan.Task.IsUnknown() {
+				var yandexYtsaurusClusterSpecProxyTaskState, yandexYtsaurusClusterSpecProxyTaskPlan yandexYtsaurusClusterSpecProxyTaskModel
+				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyPlan.Task.As(ctx, &yandexYtsaurusClusterSpecProxyTaskPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+				resp.Diagnostics.Append(yandexYtsaurusClusterSpecProxyState.Task.As(ctx, &yandexYtsaurusClusterSpecProxyTaskState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+
+				if !yandexYtsaurusClusterSpecProxyTaskPlan.Count.Equal(yandexYtsaurusClusterSpecProxyTaskState.Count) {
+					updatePaths = append(updatePaths, "spec.proxy.task.count")
+				}
+			}
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.Storage.IsNull() || yandexYtsaurusClusterSpecState.Storage.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.Storage.IsNull() && yandexYtsaurusClusterSpecState.Storage.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.Storage.IsNull() && yandexYtsaurusClusterSpecState.Storage.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Storage.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.storage")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.Storage.IsUnknown() {
 			var yandexYtsaurusClusterSpecStorageState, yandexYtsaurusClusterSpecStoragePlan yandexYtsaurusClusterSpecStorageModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Storage.As(ctx, &yandexYtsaurusClusterSpecStoragePlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Storage.As(ctx, &yandexYtsaurusClusterSpecStorageState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -523,9 +567,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			}
 
 			if (yandexYtsaurusClusterSpecStoragePlan.Hdd.IsNull() || yandexYtsaurusClusterSpecStorageState.Hdd.IsNull()) &&
-				!(yandexYtsaurusClusterSpecStoragePlan.Hdd.IsNull() && yandexYtsaurusClusterSpecStorageState.Hdd.IsNull()) {
+				!(yandexYtsaurusClusterSpecStoragePlan.Hdd.IsNull() && yandexYtsaurusClusterSpecStorageState.Hdd.IsNull()) &&
+				!yandexYtsaurusClusterSpecStoragePlan.Hdd.IsUnknown() {
 				updatePaths = append(updatePaths, "spec.storage.hdd")
-			} else {
+			} else if !yandexYtsaurusClusterSpecStoragePlan.Hdd.IsUnknown() {
 				var yandexYtsaurusClusterSpecStorageHddState, yandexYtsaurusClusterSpecStorageHddPlan yandexYtsaurusClusterSpecStorageHddModel
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecStoragePlan.Hdd.As(ctx, &yandexYtsaurusClusterSpecStorageHddPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecStorageState.Hdd.As(ctx, &yandexYtsaurusClusterSpecStorageHddState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -542,9 +587,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 			}
 
 			if (yandexYtsaurusClusterSpecStoragePlan.Ssd.IsNull() || yandexYtsaurusClusterSpecStorageState.Ssd.IsNull()) &&
-				!(yandexYtsaurusClusterSpecStoragePlan.Ssd.IsNull() && yandexYtsaurusClusterSpecStorageState.Ssd.IsNull()) {
+				!(yandexYtsaurusClusterSpecStoragePlan.Ssd.IsNull() && yandexYtsaurusClusterSpecStorageState.Ssd.IsNull()) &&
+				!yandexYtsaurusClusterSpecStoragePlan.Ssd.IsUnknown() {
 				updatePaths = append(updatePaths, "spec.storage.ssd")
-			} else {
+			} else if !yandexYtsaurusClusterSpecStoragePlan.Ssd.IsUnknown() {
 				var yandexYtsaurusClusterSpecStorageSsdState, yandexYtsaurusClusterSpecStorageSsdPlan yandexYtsaurusClusterSpecStorageSsdModel
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecStoragePlan.Ssd.As(ctx, &yandexYtsaurusClusterSpecStorageSsdPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexYtsaurusClusterSpecStorageState.Ssd.As(ctx, &yandexYtsaurusClusterSpecStorageSsdState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -553,9 +599,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				}
 
 				if (yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.IsNull() || yandexYtsaurusClusterSpecStorageSsdState.Changelogs.IsNull()) &&
-					!(yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.IsNull() && yandexYtsaurusClusterSpecStorageSsdState.Changelogs.IsNull()) {
+					!(yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.IsNull() && yandexYtsaurusClusterSpecStorageSsdState.Changelogs.IsNull()) &&
+					!yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.IsUnknown() {
 					updatePaths = append(updatePaths, "spec.storage.ssd.changelogs")
-				} else {
+				} else if !yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.IsUnknown() {
 					var yandexYtsaurusClusterSpecStorageSsdChangelogsState, yandexYtsaurusClusterSpecStorageSsdChangelogsPlan yandexYtsaurusClusterSpecStorageSsdChangelogsModel
 					resp.Diagnostics.Append(yandexYtsaurusClusterSpecStorageSsdPlan.Changelogs.As(ctx, &yandexYtsaurusClusterSpecStorageSsdChangelogsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexYtsaurusClusterSpecStorageSsdState.Changelogs.As(ctx, &yandexYtsaurusClusterSpecStorageSsdChangelogsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -580,9 +627,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		}
 
 		if (yandexYtsaurusClusterSpecPlan.Tablet.IsNull() || yandexYtsaurusClusterSpecState.Tablet.IsNull()) &&
-			!(yandexYtsaurusClusterSpecPlan.Tablet.IsNull() && yandexYtsaurusClusterSpecState.Tablet.IsNull()) {
+			!(yandexYtsaurusClusterSpecPlan.Tablet.IsNull() && yandexYtsaurusClusterSpecState.Tablet.IsNull()) &&
+			!yandexYtsaurusClusterSpecPlan.Tablet.IsUnknown() {
 			updatePaths = append(updatePaths, "spec.tablet")
-		} else {
+		} else if !yandexYtsaurusClusterSpecPlan.Tablet.IsUnknown() {
 			var yandexYtsaurusClusterSpecTabletState, yandexYtsaurusClusterSpecTabletPlan yandexYtsaurusClusterSpecTabletModel
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecPlan.Tablet.As(ctx, &yandexYtsaurusClusterSpecTabletPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexYtsaurusClusterSpecState.Tablet.As(ctx, &yandexYtsaurusClusterSpecTabletState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)

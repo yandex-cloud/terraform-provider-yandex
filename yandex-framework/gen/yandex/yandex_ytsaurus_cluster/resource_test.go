@@ -160,6 +160,9 @@ resource "yandex_ytsaurus_cluster" "test-cluster" {
 	  	size_gb = 100
 		type 	= "network-ssd"
 		count 	= 3
+		changelogs = {
+		  size_gb = 10
+		}
 	  }
 	}
 	compute = [{

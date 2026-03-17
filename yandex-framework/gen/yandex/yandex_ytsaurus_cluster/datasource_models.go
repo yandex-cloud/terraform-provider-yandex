@@ -91,6 +91,61 @@ func (m *yandexYtsaurusClusterDatasourceModel) GetZoneId() types.String {
 	return m.ZoneId
 }
 
+func (m *yandexYtsaurusClusterDatasourceModel) SetCidrBlocksWhitelist(target types.Object) {
+	m.CidrBlocksWhitelist = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetClusterId(target types.String) {
+	m.ClusterId = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetCreatedBy(target types.String) {
+	m.CreatedBy = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetEndpoints(target types.Object) {
+	m.Endpoints = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetSecurityGroupIds(target types.List) {
+	m.SecurityGroupIds = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetSpec(target types.Object) {
+	m.Spec = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetUpdatedBy(target types.String) {
+	m.UpdatedBy = target
+}
+func (m *yandexYtsaurusClusterDatasourceModel) SetZoneId(target types.String) {
+	m.ZoneId = target
+}
+
 func NewYandexYtsaurusClusterDatasourceModel() yandexYtsaurusClusterDatasourceModel {
 	return yandexYtsaurusClusterDatasourceModel{
 		CidrBlocksWhitelist: types.ObjectNull(yandexYtsaurusClusterCidrBlocksWhitelistModelType.AttrTypes),

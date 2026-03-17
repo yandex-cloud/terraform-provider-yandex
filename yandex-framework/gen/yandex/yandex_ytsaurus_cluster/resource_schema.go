@@ -758,6 +758,43 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 
+					"excel": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"enabled": schema.BoolAttribute{
+								MarkdownDescription: "Enable Excel.",
+								Description: "Enable Excel." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.excelyandex.cloud.ytsaurus.v1.ExcelSpec.enabled
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.excelyandex.cloud.ytsaurus.v1.ExcelSpec.enabled
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.excelyandex.cloud.ytsaurus.v1.ExcelSpec.enabled
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						MarkdownDescription: "Cluster Excel configuration.",
+						Description: "Cluster Excel configuration." +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.excel
+							// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.excel
+							// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.excel
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+					},
+
 					"flavor": schema.StringAttribute{
 						MarkdownDescription: "Cluster flavor (type).",
 						Description: "Cluster flavor (type)." +
@@ -884,6 +921,43 @@ func YandexYtsaurusClusterResourceSchema(ctx context.Context) schema.Schema {
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpc
 									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpc
 									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpc
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Object{
+									objectplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"task": schema.SingleNestedAttribute{
+
+								Attributes: map[string]schema.Attribute{
+
+									"count": schema.Int64Attribute{
+										MarkdownDescription: "Total amount of task proxies.",
+										Description: "Total amount of task proxies." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.taskyandex.cloud.ytsaurus.v1.TaskProxySpec.count
+											// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.taskyandex.cloud.ytsaurus.v1.TaskProxySpec.count
+											// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.taskyandex.cloud.ytsaurus.v1.TaskProxySpec.count
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Int64{
+											int64planmodifier.UseStateForUnknown(),
+										},
+									},
+								},
+								MarkdownDescription: "Configuration of task proxies.",
+								Description: "Configuration of task proxies." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.task
+									// -> yandex.cloud.ytsaurus.v1.CreateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.task
+									// -> yandex.cloud.ytsaurus.v1.UpdateClusterRequest.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.task
 									"package: yandex.cloud.ytsaurus.v1\n" +
 									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
 								Optional: true,

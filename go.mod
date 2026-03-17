@@ -77,7 +77,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/spark v0.0.26
 	github.com/yandex-cloud/go-sdk/services/trino v0.0.26
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
-	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.2
+	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.36
 	github.com/yandex-cloud/go-sdk/v2 v2.66.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f

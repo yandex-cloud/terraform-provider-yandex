@@ -492,6 +492,29 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 						Computed: true,
 					},
 
+					"excel": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"enabled": schema.BoolAttribute{
+								MarkdownDescription: "Enable Excel.",
+								Description: "Enable Excel." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.excelyandex.cloud.ytsaurus.v1.ExcelSpec.enabled
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Computed: true,
+							},
+						},
+						MarkdownDescription: "Cluster Excel configuration.",
+						Description: "Cluster Excel configuration." +
+							// proto paths: +
+							// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.excel
+							"package: yandex.cloud.ytsaurus.v1\n" +
+							"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+						Computed: true,
+					},
+
 					"flavor": schema.StringAttribute{
 						MarkdownDescription: "Cluster flavor (type).",
 						Description: "Cluster flavor (type)." +
@@ -570,6 +593,29 @@ func YandexYtsaurusClusterDatasourceSchema(ctx context.Context) schema.Schema {
 								Description: "Configuration of rpc proxies." +
 									// proto paths: +
 									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.rpc
+									"package: yandex.cloud.ytsaurus.v1\n" +
+									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+								Computed: true,
+							},
+
+							"task": schema.SingleNestedAttribute{
+
+								Attributes: map[string]schema.Attribute{
+
+									"count": schema.Int64Attribute{
+										MarkdownDescription: "Total amount of task proxies.",
+										Description: "Total amount of task proxies." +
+											// proto paths: +
+											// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.taskyandex.cloud.ytsaurus.v1.TaskProxySpec.count
+											"package: yandex.cloud.ytsaurus.v1\n" +
+											"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
+										Computed: true,
+									},
+								},
+								MarkdownDescription: "Configuration of task proxies.",
+								Description: "Configuration of task proxies." +
+									// proto paths: +
+									// -> yandex.cloud.ytsaurus.v1.Cluster.specyandex.cloud.ytsaurus.v1.ClusterSpec.proxyyandex.cloud.ytsaurus.v1.ProxySpec.task
 									"package: yandex.cloud.ytsaurus.v1\n" +
 									"filename: yandex/cloud/ytsaurus/v1/cluster.proto\n",
 								Computed: true,
