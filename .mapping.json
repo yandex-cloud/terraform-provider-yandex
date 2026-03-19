@@ -1059,6 +1059,7 @@
   "pkg/converter/string.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/string.go",
   "pkg/converter/time_of_day.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/time_of_day.go",
   "pkg/converter/timestamp.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/timestamp.go",
+  "pkg/converter/wrapped.go":"opensource/terraform-provider-yandex-mirror/pkg/converter/wrapped.go",
   "pkg/datalens/client.go":"opensource/terraform-provider-yandex-mirror/pkg/datalens/client.go",
   "pkg/datalens/client_test.go":"opensource/terraform-provider-yandex-mirror/pkg/datalens/client_test.go",
   "pkg/datalens/helpers.go":"opensource/terraform-provider-yandex-mirror/pkg/datalens/helpers.go",
