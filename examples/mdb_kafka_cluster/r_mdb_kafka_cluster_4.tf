@@ -1,5 +1,5 @@
 //
-// Creating multi-host Kafka Cluster without sub-cluster of controllers, 
+// Creating multi-host Kafka Cluster without sub-cluster of controllers,
 // using KRaft-combine quorum.
 //
 resource "yandex_mdb_kafka_cluster" "kraft-combine" {
@@ -9,7 +9,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
   subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
 
   config {
-    version          = "3.6"
+    version          = "3.9"
     brokers_count    = 1
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     assign_public_ip = true

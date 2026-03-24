@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	currentDefaultKafkaVersion = "3.6"
+	currentDefaultKafkaVersion = "3.9"
 
 	kfResourceType = "yandex_mdb_kafka_cluster"
 	kfResourceFoo  = kfResourceType + ".foo"
@@ -59,7 +59,7 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 `
 )
 
-var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"}
+var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9"}
 
 func init() {
 	resource.AddTestSweepers(kfResourceType, &resource.Sweeper{
@@ -425,7 +425,7 @@ func TestExpandKafkaKRaftCombineClusterConfig(t *testing.T) {
 		"environment": "PRESTABLE",
 		"config": []interface{}{
 			map[string]interface{}{
-				"version":       "3.6",
+				"version":       "3.9",
 				"brokers_count": 1,
 				"zones":         []interface{}{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
 				"kafka": []interface{}{
@@ -456,7 +456,7 @@ func TestExpandKafkaKRaftCombineClusterConfig(t *testing.T) {
 		Labels:      map[string]string{},
 		Environment: kafka.Cluster_PRESTABLE,
 		ConfigSpec: &kafka.ConfigSpec{
-			Version:      "3.6",
+			Version:      "3.9",
 			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
 			ZoneId:       []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
 			Kafka: &kafka.ConfigSpec_Kafka{
@@ -484,7 +484,7 @@ func TestExpandKafkaKRaftSplitClusterConfig(t *testing.T) {
 		"environment": "PRESTABLE",
 		"config": []interface{}{
 			map[string]interface{}{
-				"version":       "3.6",
+				"version":       "3.9",
 				"brokers_count": 1,
 				"zones":         []interface{}{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
 				"kafka": []interface{}{
@@ -526,7 +526,7 @@ func TestExpandKafkaKRaftSplitClusterConfig(t *testing.T) {
 		Labels:      map[string]string{},
 		Environment: kafka.Cluster_PRESTABLE,
 		ConfigSpec: &kafka.ConfigSpec{
-			Version:      "3.6",
+			Version:      "3.9",
 			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
 			ZoneId:       []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"},
 			Kafka: &kafka.ConfigSpec_Kafka{
@@ -1496,7 +1496,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
-	  schema_registry  = false	
+	  schema_registry  = false
       access {
 	    data_transfer  = true
       }
