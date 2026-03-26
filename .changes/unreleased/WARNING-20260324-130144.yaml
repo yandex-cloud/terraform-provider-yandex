@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'mdb_kafka: deprecate Kafka 3.6 version, use 3.9 instead'
-time: 2026-03-24T13:01:44.553698+03:00
