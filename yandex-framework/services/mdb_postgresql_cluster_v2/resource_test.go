@@ -1540,18 +1540,10 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 	return func(s *terraform.State) error {
 		var cmpObj interface{}
 		switch expectedUserConfig.(type) {
-		case *pconfig.PostgresqlConfig10:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_10().GetUserConfig()
-		case *pconfig.PostgresqlConfig10_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_10_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig11:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_11().GetUserConfig()
 		case *pconfig.PostgresqlConfig11_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_11_1C().GetUserConfig()
-		case *pconfig.PostgresqlConfig12:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_12().GetUserConfig()
-		case *pconfig.PostgresqlConfig12_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_12_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig13:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_13().GetUserConfig()
 		case *pconfig.PostgresqlConfig13_1C:
