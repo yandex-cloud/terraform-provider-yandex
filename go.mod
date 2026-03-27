@@ -1,6 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.24.0
+go 1.24.13
 
 require (
 	github.com/aws/aws-sdk-go v1.42.11
@@ -39,7 +39,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.60.0
+	github.com/yandex-cloud/go-genproto v0.64.0
 	github.com/yandex-cloud/go-sdk v0.31.0
 	github.com/yandex-cloud/go-sdk/services/airflow v0.0.26
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
@@ -48,6 +48,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/compute v1.0.15
 	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.8
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.12
+	github.com/yandex-cloud/go-sdk/services/datacatalog v0.0.2
 	github.com/yandex-cloud/go-sdk/services/dataproc v0.0.26
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12
 	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.42
@@ -78,7 +79,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/trino v0.0.26
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.36
-	github.com/yandex-cloud/go-sdk/v2 v2.66.0
+	github.com/yandex-cloud/go-sdk/v2 v2.76.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0

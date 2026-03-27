@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_transfer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
@@ -40,6 +41,7 @@ func init() {
 		yandex_cloudregistry_lifecycle_policy.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
+		yandex_datacatalog_catalog.NewDataSource,
 		yandex_datatransfer_endpoint.NewDataSource,
 		yandex_datatransfer_transfer.NewDataSource,
 		yandex_smartcaptcha_captcha.NewDataSource,
