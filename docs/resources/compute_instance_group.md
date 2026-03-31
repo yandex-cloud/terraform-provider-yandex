@@ -124,6 +124,7 @@ resource "yandex_compute_instance_group" "group1" {
   - `max_unavailable` (**Required**)(Number). The maximum number of running instances that can be taken offline (stopped or deleted) at the same time during the update process.
   - `startup_duration` (Number). The amount of time in seconds to allow for an instance to start. Instance will be considered up and running (and start receiving traffic) only after the startup_duration has elapsed and all health checks are passed.
   - `strategy` (String). Affects the lifecycle of the instance during deployment. If set to `proactive` (default), Instance Groups can forcefully stop a running instance. If `opportunistic`, Instance Groups does not stop a running instance. Instead, it will wait until the instance stops itself or becomes unhealthy.
+  - `minimal_action` (String). The minimal action that can be performed during an update. If set to `RESTART`, Instance Groups will restart the instance. If set to `RECREATE`, Instance Groups will replace the instance with a new one. If set to `LIVE_UPDATES` (default), Instance Groups will update the instance without restarting it.
 - `health_check` [Block]. Health check specifications.
   - `healthy_threshold` (Number). The number of successful health checks before the managed instance is declared healthy.
   - `interval` (Number). The interval to wait between health checks in seconds.
