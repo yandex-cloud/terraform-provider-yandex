@@ -63,7 +63,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.15
 	github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.16
 	github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.17
-	github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.16
+	github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.34
 	github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.16
 	github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.16
 	github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.16
