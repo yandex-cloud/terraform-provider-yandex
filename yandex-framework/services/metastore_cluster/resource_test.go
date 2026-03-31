@@ -81,6 +81,20 @@ resource "yandex_resourcemanager_folder_iam_member" "metastore-sa-bindings-{{ .R
   role      = "managed-metastore.integrationProvider"
   member    = "serviceAccount:${yandex_iam_service_account.metastore-sa-{{ .RandSuffix }}.id}"
 }
+
+resource "yandex_resourcemanager_folder_iam_member" "metastore-sa-storage-{{ .RandSuffix }}" {
+  folder_id = "{{ .FolderID }}"
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.metastore-sa-{{ .RandSuffix }}.id}"
+}
+
+resource "yandex_storage_bucket" "metastore-wh-{{ .RandSuffix }}" {
+  bucket     = "metastore-wh-{{ .RandSuffix }}"
+  folder_id  = "{{ .FolderID }}"
+  depends_on = [
+    yandex_resourcemanager_folder_iam_member.metastore-sa-storage-{{ .RandSuffix }}
+  ]
+}
 `)
 	require.NoError(t, err)
 	b := new(bytes.Buffer)
@@ -101,6 +115,12 @@ type metastoreClusterConfigParams struct {
 	SubnetIDVar        string
 	ResourcePreset     string
 	Version            optional[string]
+	WarehouseConfig    *WarehouseConfigTestParams
+}
+
+type WarehouseConfigTestParams struct {
+	Bucket string
+	Path   string
 }
 
 type MaintenanceWindow struct {
@@ -130,12 +150,22 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
 
   cluster_config = {
     resource_preset_id = "{{ .ResourcePreset }}"
+    {{ if .WarehouseConfig }}
+    warehouse_config = {
+      s3 = {
+        bucket = "{{ .WarehouseConfig.Bucket }}"
+        {{ if .WarehouseConfig.Path }}
+        path = "{{ .WarehouseConfig.Path }}"
+        {{ end }}
+      }
+    }
+    {{ end }}
   }
-  
+
   {{ if .DeletionProtection.Valid }}
   deletion_protection = {{ .DeletionProtection.Value }}
   {{ end }}
- 
+
   {{ if .Labels }}
   labels = {
     {{ range $key, $val := .Labels}}
@@ -157,7 +187,7 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
   {{ if .Description.Valid }}
   description = "{{ .Description.Value }}"
   {{ end }}
-  
+
   {{ if .SGIDsSpecified.Valid }}
   {{ if .SGIDsSpecified.Value }}
   security_group_ids = [yandex_vpc_security_group.metastore-sg1.id]
@@ -190,7 +220,10 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
 	delete = "50m"
   }
   depends_on = [
-    yandex_resourcemanager_folder_iam_member.metastore-sa-bindings-{{ .RandSuffix }}
+    yandex_resourcemanager_folder_iam_member.metastore-sa-bindings-{{ .RandSuffix }},
+    {{ if .WarehouseConfig }}
+    yandex_storage_bucket.metastore-wh-{{ .RandSuffix }},
+    {{ end }}
   ]
 }`)
 	require.NoError(t, err)
@@ -370,6 +403,65 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckNoResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging"),
 				),
 			},
+		},
+	})
+}
+
+func TestAccMDBMetastoreCluster_warehouse(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
+	folderID := os.Getenv("YC_FOLDER_ID")
+	bucketName := fmt.Sprintf("metastore-wh-%s", randSuffix)
+	var cluster metastore.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testhelpers.AccPreCheck(t) },
+		ProtoV6ProviderFactories: testhelpers.AccProviderFactories,
+		CheckDestroy:             testAccCheckMetastoreClusterDestroy,
+		Steps: []resource.TestStep{
+			// Step 1: Create cluster with warehouse_config
+			{
+				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
+					RandSuffix:     randSuffix,
+					FolderID:       folderID,
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					ResourcePreset: "c2-m8",
+					Version:        newOptional("4.2"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: bucketName,
+						Path:   "warehouse/data",
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "cluster_config.resource_preset_id", "c2-m8"),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "cluster_config.warehouse_config.s3.bucket", bucketName),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "cluster_config.warehouse_config.s3.path", "warehouse/data"),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "4.2"),
+				),
+			},
+			metastoreClusterImportStep("yandex_metastore_cluster.metastore_cluster"),
+			// Step 2: Update warehouse path
+			{
+				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
+					RandSuffix:     randSuffix,
+					FolderID:       folderID,
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					ResourcePreset: "c2-m8",
+					Version:        newOptional("4.2"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: bucketName,
+						Path:   "warehouse/updated",
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "cluster_config.warehouse_config.s3.bucket", bucketName),
+					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "cluster_config.warehouse_config.s3.path", "warehouse/updated"),
+				),
+			},
+			metastoreClusterImportStep("yandex_metastore_cluster.metastore_cluster"),
 		},
 	})
 }

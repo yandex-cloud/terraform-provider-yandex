@@ -211,6 +211,50 @@
                     "computed_optional_required": "required",
                     "description": "The identifier of the preset for computational resources available to an instance (CPU, memory etc.)."
                   }
+                },
+                {
+                  "name": "warehouse_config",
+                  "single_nested": {
+                    "computed_optional_required": "optional",
+                    "description": "Warehouse configuration for Hive Metastore. Required for HMS version 4.2+.",
+                    "attributes": [
+                      {
+                        "name": "s3",
+                        "single_nested": {
+                          "computed_optional_required": "required",
+                          "description": "S3-compatible storage configuration for warehouse.",
+                          "attributes": [
+                            {
+                              "name": "bucket",
+                              "string": {
+                                "computed_optional_required": "required",
+                                "description": "Name of the S3 bucket used as warehouse storage."
+                              }
+                            },
+                            {
+                              "name": "path",
+                              "string": {
+                                "computed_optional_required": "optional",
+                                "description": "Path prefix within the bucket for warehouse data.",
+                                "validators": [
+                                  {
+                                    "custom": {
+                                      "imports": [
+                                        {
+                                          "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                                        }
+                                      ],
+                                      "schema_definition": "warehousePathValidator()"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
                 }
               ]
             }

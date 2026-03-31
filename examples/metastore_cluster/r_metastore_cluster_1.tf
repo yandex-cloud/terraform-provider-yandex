@@ -9,7 +9,15 @@ resource "yandex_metastore_cluster" "my_metastore_cluster" {
 
   cluster_config = {
     resource_preset_id = "c2-m8"
+    warehouse_config = {
+      s3 = {
+        bucket = "my-metastore-warehouse"
+        path   = "data/warehouse"
+      }
+    }
   }
+
+  version = "4.2"
 
   maintenance_window = {
     type = "WEEKLY"
