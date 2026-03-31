@@ -664,39 +664,6 @@ func TestAccCDNResource_Option_QueryParams(t *testing.T) {
 	})
 }
 
-func TestAccCDNResource_Option_Slice(t *testing.T) {
-	t.Parallel()
-
-	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
-	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCDNResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "false"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, `slice = true`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "true"),
-				),
-			},
-			{
-				Config: makeCDNResourceWithOptions(groupName, resourceCName, `slice = false`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", "options.0.slice", "false"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccCDNResource_Option_CompressionOptions(t *testing.T) {
 	t.Parallel()
 
@@ -1028,8 +995,50 @@ func TestAccCDNResource_Option_AllowedHttpMethods(t *testing.T) {
 	})
 }
 
-// TODO: proxy_cache_methods_set
-// TODO: disable_proxy_force_ranges
+func testCdnBoolOption(t *testing.T, option string, defaultValue bool) {
+	t.Parallel()
+
+	path := fmt.Sprintf("options.0.%s", option)
+	first := fmt.Sprint(defaultValue)
+	second := fmt.Sprint(!defaultValue)
+
+	groupName := fmt.Sprintf("tf%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("tf%s.yandex.net", acctest.RandString(4))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", path, first),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, fmt.Sprintf("%s = %s", option, second)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", path, second),
+				),
+			},
+			{
+				Config: makeCDNResourceWithOptions(groupName, resourceCName, ``),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foo", path, first),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCDNResource_Option_BoolOptions(t *testing.T) {
+	t.Parallel()
+	t.Run("IgnoreCookie", func(t *testing.T) { testCdnBoolOption(t, "ignore_cookie", true) })
+	t.Run("DisableProxyForceRanges", func(t *testing.T) { testCdnBoolOption(t, "disable_proxy_force_ranges", false) })
+	t.Run("ProxyCacheMethodsSet", func(t *testing.T) { testCdnBoolOption(t, "proxy_cache_methods_set", false) })
+	t.Run("Slice", func(t *testing.T) { testCdnBoolOption(t, "slice", false) })
+}
 
 func TestAccCDNResource_Option_StaticRequestHeaders(t *testing.T) {
 	t.Parallel()
