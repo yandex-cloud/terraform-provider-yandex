@@ -345,6 +345,8 @@ var (
 									"session_timeout_ms":                  types.Int64Value(60000),
 									"debug":                               types.StringValue("DEBUG_ALL"),
 									"auto_offset_reset":                   types.StringValue("AUTO_OFFSET_RESET_EARLIEST"),
+									"message_max_bytes":                   types.Int64Value(1000000),
+									"batch_size":                          types.Int64Value(1000000),
 								},
 							),
 							"rabbitmq": types.ObjectValueMust(
@@ -883,6 +885,8 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 								SessionTimeoutMs:                 wrapperspb.Int64(60000),
 								Debug:                            clickhouseConfig.ClickhouseConfig_Kafka_DEBUG_ALL,
 								AutoOffsetReset:                  clickhouseConfig.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_EARLIEST,
+								MessageMaxBytes:                  wrapperspb.Int64(1000000),
+								BatchSize:                        wrapperspb.Int64(1000000),
 							},
 							Rabbitmq: &clickhouseConfig.ClickhouseConfig_Rabbitmq{
 								Username: "rmq-user",

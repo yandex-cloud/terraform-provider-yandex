@@ -1079,6 +1079,14 @@ func DataSourceKafkaSchema() schema.SingleNestedAttribute {
 				MarkdownDescription: "Action when no initial offset: 'smallest','earliest','largest','latest','error'.",
 				Computed:            true,
 			},
+			"message_max_bytes": schema.Int64Attribute{
+				MarkdownDescription: "Maximum Kafka protocol request message size.",
+				Computed:            true,
+			},
+			"batch_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum size (in bytes) of all messages batched in one MessageSet, including protocol framing overhead.",
+				Computed:            true,
+			},
 		},
 	}
 }

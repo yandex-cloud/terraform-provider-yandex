@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: add kafka settings message_max_bytes and batch_size'
+time: 2026-03-31T11:41:22.403251+03:00

@@ -482,6 +482,8 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			EnableSslCertificateVerification: &wrappers.BoolValue{Value: true},
 			MaxPollIntervalMs:                &wrappers.Int64Value{Value: 300000},
 			SessionTimeoutMs:                 &wrappers.Int64Value{Value: 45000},
+			MessageMaxBytes:                  &wrappers.Int64Value{Value: 500000},
+			BatchSize:                        &wrappers.Int64Value{Value: 500000},
 		},
 		Rabbitmq: &clickhouseConfig.ClickhouseConfig_Rabbitmq{
 			Username: "rabbit_user",
@@ -664,6 +666,8 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			EnableSslCertificateVerification: &wrappers.BoolValue{Value: false},
 			MaxPollIntervalMs:                &wrappers.Int64Value{Value: 400000},
 			SessionTimeoutMs:                 &wrappers.Int64Value{Value: 60000},
+			MessageMaxBytes:                  &wrappers.Int64Value{Value: 1000000},
+			BatchSize:                        &wrappers.Int64Value{Value: 1000000},
 		},
 		Rabbitmq: &clickhouseConfig.ClickhouseConfig_Rabbitmq{
 			Username: "rabbit_user",
@@ -2645,6 +2649,8 @@ kafka = {
 	session_timeout_ms                  = %d
 	debug                               = "%s"
 	auto_offset_reset                   = "%s"
+	message_max_bytes                   = %d
+	batch_size                          = %d
 }
 `,
 		kafka.SecurityProtocol.String(),
@@ -2656,6 +2662,8 @@ kafka = {
 		kafka.SessionTimeoutMs.GetValue(),
 		kafka.Debug.String(),
 		kafka.AutoOffsetReset.String(),
+		kafka.MessageMaxBytes.GetValue(),
+		kafka.BatchSize.GetValue(),
 	)
 }
 
