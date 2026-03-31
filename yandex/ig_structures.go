@@ -917,7 +917,6 @@ func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.Dep
 		MaxDeleting:    int64(d.Get("deploy_policy.0.max_deleting").(int)),
 		MaxCreating:    int64(d.Get("deploy_policy.0.max_creating").(int)),
 		MaxExpansion:   int64(d.Get("deploy_policy.0.max_expansion").(int)),
-		MinimalAction:  d.Get("deploy_policy.0.minimal_action").(instancegroup.DeployPolicy_MinimalAction),
 	}
 
 	if v, ok := d.GetOk("deploy_policy.0.startup_duration"); ok {
