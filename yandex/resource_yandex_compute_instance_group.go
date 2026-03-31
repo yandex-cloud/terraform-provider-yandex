@@ -879,6 +879,13 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"proactive", "opportunistic"}, false),
 						},
+						"minimal_action": {
+							Type:         schema.TypeString,
+							Description:  "Minimal action to be taken on an instance during deployment. If set to `RESTART`, Instance Groups will restart the instance",
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RESTART", "RECREATE"}, false),
+						},
 					},
 				},
 			},
