@@ -102,7 +102,7 @@ func dashboardsNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Da
 			return types.ListUnknown(DashboardNodeType), diags
 		}
 
-		if sliceAndListAreEqual(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
+		if sameSubnets(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
 			subnetIds = stateGroup.SubnetIDs
 		}
 

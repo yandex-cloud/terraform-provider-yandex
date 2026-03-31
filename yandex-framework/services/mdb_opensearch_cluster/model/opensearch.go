@@ -190,7 +190,7 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 			return types.ListUnknown(OpenSearchNodeType), diags
 		}
 
-		if sliceAndListAreEqual(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
+		if sameSubnets(ctx, stateGroup.SubnetIDs, v.GetSubnetIds()) {
 			subnetIds = stateGroup.SubnetIDs
 		} else {
 			tflog.Debug(ctx, fmt.Sprintf("slice %v is not 'same' with %v", v.GetSubnetIds(), stateGroup.SubnetIDs))
