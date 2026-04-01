@@ -194,10 +194,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]

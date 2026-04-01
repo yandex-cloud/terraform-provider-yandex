@@ -18,6 +18,7 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/validators"
 )
 
 const (
@@ -426,8 +427,9 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 
 func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
-		clickhouseShardConflictValidator{attrName: "resources"},
-		clickhouseShardConflictValidator{attrName: "disk_size_autoscaling"},
+		validators.ClickhouseShardConflictValidator{AttrName: "resources"},
+		validators.ClickhouseShardConflictValidator{AttrName: "disk_size_autoscaling"},
+		validators.ShardsHostsConsistencyValidator{},
 	}
 }
 
@@ -443,6 +445,9 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 	}
 
 	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, sdk, diags, clickhouseHostService, &clickhouseApi, state.HostSpecs, cid)
+	if diags.HasError() {
+		return
+	}
 
 	var d diag.Diagnostics
 	state.HostSpecs, d = types.MapValueFrom(ctx, models.HostType, entityIdToApiHosts)

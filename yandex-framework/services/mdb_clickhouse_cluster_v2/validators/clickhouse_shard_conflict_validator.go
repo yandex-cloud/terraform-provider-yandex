@@ -1,4 +1,4 @@
-package mdb_clickhouse_cluster_v2
+package validators
 
 import (
 	"context"
@@ -11,26 +11,26 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
 )
 
-type clickhouseShardConflictValidator struct {
-	attrName string
+type ClickhouseShardConflictValidator struct {
+	AttrName string
 }
 
-func (v clickhouseShardConflictValidator) Description(_ context.Context) string {
-	return fmt.Sprintf(`"clickhouse.%[1]s" and "shards[*].%[1]s" cannot both be set`, v.attrName)
+func (v ClickhouseShardConflictValidator) Description(_ context.Context) string {
+	return fmt.Sprintf(`"clickhouse.%[1]s" and "shards[*].%[1]s" cannot both be set`, v.AttrName)
 }
 
-func (v clickhouseShardConflictValidator) MarkdownDescription(ctx context.Context) string {
+func (v ClickhouseShardConflictValidator) MarkdownDescription(ctx context.Context) string {
 	return v.Description(ctx)
 }
 
-func (v clickhouseShardConflictValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+func (v ClickhouseShardConflictValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var config models.Cluster
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Resolve clickhouse.<attrName>
+	// Resolve clickhouse.<AttrName>
 	if config.ClickHouse.IsNull() || config.ClickHouse.IsUnknown() {
 		return
 	}
@@ -39,12 +39,12 @@ func (v clickhouseShardConflictValidator) ValidateResource(ctx context.Context, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	chAttr := clickhouseAttrByName(ch, v.attrName)
+	chAttr := clickhouseAttrByName(ch, v.AttrName)
 	if chAttr.IsNull() || chAttr.IsUnknown() {
 		return // clickhouse.<attr> not set — no conflict possible
 	}
 
-	// Check if any shard has <attrName> set
+	// Check if any shard has <AttrName> set
 	if config.Shards.IsNull() || config.Shards.IsUnknown() {
 		return
 	}
@@ -54,14 +54,14 @@ func (v clickhouseShardConflictValidator) ValidateResource(ctx context.Context, 
 		return
 	}
 	for shardName, shard := range shards {
-		shardAttr := shardAttrByName(shard, v.attrName)
+		shardAttr := shardAttrByName(shard, v.AttrName)
 		if !shardAttr.IsNull() && !shardAttr.IsUnknown() {
 			resp.Diagnostics.AddAttributeError(
-				path.Root("clickhouse").AtName(v.attrName),
+				path.Root("clickhouse").AtName(v.AttrName),
 				"Invalid Attribute Combination",
 				fmt.Sprintf(
 					`"clickhouse.%s" and "shards[*].%s" cannot both be set. Shard %q has %s defined.`,
-					v.attrName, v.attrName, shardName, v.attrName,
+					v.AttrName, v.AttrName, shardName, v.AttrName,
 				),
 			)
 			return

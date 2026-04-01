@@ -31,7 +31,8 @@ func (h Host) GetFQDN() types.String {
 }
 
 func (h Host) GetShard() string {
-	if h.Type.ValueString() == clickhouse.Host_ZOOKEEPER.String() {
+	switch h.Type.ValueString() {
+	case clickhouse.Host_ZOOKEEPER.String(), clickhouse.Host_KEEPER.String():
 		return "zk"
 	}
 	return h.ShardName.ValueString()
