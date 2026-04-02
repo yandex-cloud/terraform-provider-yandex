@@ -91,9 +91,11 @@ output "network_id" {
       - `port` (Number). Port of jdbc bridge. Default value: 9019.
     - `kafka` [Block]. Kafka connection configuration.
       - `auto_offset_reset` (String). Action when no initial offset: 'smallest','earliest','largest','latest','error'.
+      - `batch_size` (Number). Maximum size (in bytes) of all messages batched in one MessageSet, including protocol framing overhead.
       - `debug` (String). A comma-separated list of debug contexts to enable.
       - `enable_ssl_certificate_verification` (Bool). Enable verification of SSL certificates.
       - `max_poll_interval_ms` (Number). Maximum allowed time between calls to consume messages. If exceeded, consumer is considered failed.
+      - `message_max_bytes` (Number). Maximum Kafka protocol request message size.
       - `sasl_mechanism` (String). SASL mechanism used in kafka authentication.
       - `sasl_password` (String). User password on kafka server.
       - `sasl_username` (String). Username on kafka server.
