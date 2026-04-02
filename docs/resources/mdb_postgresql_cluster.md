@@ -292,8 +292,8 @@ resource "yandex_vpc_subnet" "foo" {
   - `backup_id` (**Required**)(String). Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-postgresql/operations/cluster-backups).
   - `time` (String). Timestamp of the moment to which the PostgreSQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.
   - `time_inclusive` (Bool). Flag that indicates whether a database should be restored to the first backup point available just after the timestamp specified in the [time] field instead of just before. Possible values:
-* `false` (default) — the restore point refers to the first backup moment before [time].
-* `true` — the restore point refers to the first backup point after [time].
+    * `false` (default) — the restore point refers to the first backup moment before [time].
+    * `true` — the restore point refers to the first backup point after [time].
 
 - `user` [Block]. ~> Deprecated! To manage users, please switch to using a separate resource type `yandex_mdb_postgresql_user`.
   - `conn_limit` (Number). The maximum number of connections per user. (Default 50).
