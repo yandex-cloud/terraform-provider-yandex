@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'CDN: fix resource options disable_proxy_force_ranges and proxy_cache_methods_set'
-time: 2026-03-30T15:22:04.893405+03:00

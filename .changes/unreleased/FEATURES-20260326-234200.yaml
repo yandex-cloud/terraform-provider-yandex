@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'metastore: add warehouse_config support to yandex_metastore_cluster resource and data source'
-time: 2026-03-26T23:42:00.899736+03:00
