@@ -29,7 +29,7 @@ resource "yandex_function_trigger" "my_trigger" {
 - `created_at` (*Read-Only*) (String). The creation timestamp of the resource.
 - `description` (String). The resource description.
 - `folder_id` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
-- `id` (String). 
+- `id` (String).
 - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
 - `name` (**Required**)(String). The resource name.
 - `container` [Block]. [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger.
@@ -104,6 +104,11 @@ resource "yandex_function_trigger" "my_trigger" {
 - `timer` [Block]. [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
   - `cron_expression` (**Required**)(String). Cron expression for timer for Yandex Cloud Functions Trigger.
   - `payload` (String). Payload to be passed to function.
+- `workflow` [Block]. Workflows settings definition for Yandex Cloud Functions Trigger.
+  - `id` (**Required**)(String). Workflow ID.
+  - `retry_attempts` (String). Retry attempts for Workflows.
+  - `retry_interval` (String). Retry interval in seconds for Workflows.
+  - `service_account_id` (**Required**)(String). Service account ID for Workflows.
 
 ## Import
 
