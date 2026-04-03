@@ -267,6 +267,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -303,6 +304,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 
 						"visibility_timeout": {
@@ -368,6 +370,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -428,6 +431,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -467,6 +471,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -524,6 +529,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -626,6 +632,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -1700,21 +1707,25 @@ func checkDisableRetrySettingsForMessageQueueTrigger(d *schema.ResourceData, pre
 }
 
 func expandBatchSettings(d *schema.ResourceData, prefix string) (settings *triggers.BatchSettings, err error) {
-	if _, ok := d.GetOk(prefix + ".batch_size"); !ok {
+	batchCutoffRaw, ok := d.GetOk(prefix + ".batch_cutoff")
+	if !ok {
 		return nil, nil
 	}
 
 	settings = &triggers.BatchSettings{}
-	settings.Size, err = strconv.ParseInt(d.Get(prefix+".batch_size").(string), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("Cannot define "+prefix+".batch_size for Yandex Cloud Functions Trigger: %s", err)
-	}
 
-	batchCutoff, err := strconv.ParseInt(d.Get(prefix+".batch_cutoff").(string), 10, 64)
+	batchCutoff, err := strconv.ParseInt(batchCutoffRaw.(string), 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot define "+prefix+"batch_cutoff for Yandex Cloud Functions Trigger: %s", err)
+		return nil, fmt.Errorf("Cannot define "+prefix+".batch_cutoff for Yandex Cloud Functions Trigger: %s", err)
 	}
 	settings.Cutoff = &duration.Duration{Seconds: batchCutoff}
+
+	if batchSizeRaw, ok := d.GetOk(prefix + ".batch_size"); ok {
+		settings.Size, err = strconv.ParseInt(batchSizeRaw.(string), 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot define "+prefix+".batch_size for Yandex Cloud Functions Trigger: %s", err)
+		}
+	}
 
 	return settings, nil
 }
