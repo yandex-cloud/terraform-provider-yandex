@@ -106,7 +106,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
     }
 
     hosts = {
-        "h1" = {
+        "clickhouse-host1" = {
             type      = "CLICKHOUSE"
             zone      = "ru-central1-a"
             subnet_id = yandex_vpc_subnet.foo.id

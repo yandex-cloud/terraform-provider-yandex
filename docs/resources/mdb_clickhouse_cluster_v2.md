@@ -117,7 +117,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
     }
 
     hosts = {
-        "h1" = {
+        "clickhouse-host1" = {
             type      = "CLICKHOUSE"
             zone      = "ru-central1-a"
             subnet_id = yandex_vpc_subnet.foo.id
@@ -175,30 +175,30 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
   }
 
   hosts = {
-    "ka" = {
+    "clickhouse-host1" = {
+      type      = "CLICKHOUSE"
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.foo.id
+    }
+    "clickhouse-host2" = {
+      type      = "CLICKHOUSE"
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.bar.id
+    }
+    "keeper-host1" = {
       type      = "KEEPER"
       zone      = "ru-central1-a"
       subnet_id = yandex_vpc_subnet.foo.id
     }
-    "kb" = {
+    "keeper-host2" = {
       type      = "KEEPER"
       zone      = "ru-central1-b"
       subnet_id = yandex_vpc_subnet.bar.id
     }
-    "kd" = {
+    "keeper-host3" = {
       type      = "KEEPER"
       zone      = "ru-central1-d"
       subnet_id = yandex_vpc_subnet.baz.id
-    }
-    "ca" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.foo.id
-    }
-    "cb" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.bar.id
     }
   }
 
@@ -267,25 +267,25 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
   }
 
   hosts = {
-    "c1a" = {
+    "clickhouse-shard1-host1" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-a"
       subnet_id  = yandex_vpc_subnet.foo.id
       shard_name = "shard1"
     }
-    "c1b" = {
+    "clickhouse-shard1-host2" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-b"
       subnet_id  = yandex_vpc_subnet.bar.id
       shard_name = "shard1"
     }
-    "c2a" = {
+    "clickhouse-shard2-host1" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-b"
       subnet_id  = yandex_vpc_subnet.bar.id
       shard_name = "shard2"
     }
-    "c2d" = {
+    "clickhouse-shard2-host2" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-d"
       subnet_id  = yandex_vpc_subnet.baz.id
@@ -346,8 +346,8 @@ resource "yandex_vpc_subnet" "baz" {
 - `backup_window_start` [Block]. Time to start the daily backup, in the UTC timezone.
   - `hours` (Number). The hour at which backup will be started (UTC).
   - `minutes` (Number). The minute at which backup will be started (UTC).
-- `clickhouse` [Block]. Configuration of the ClickHouse subcluster.
-  - `config` [Block]. Configuration of the ClickHouse subcluster.
+- `clickhouse` [Block]. ClickHouse configuration.
+  - `config` [Block]. Configuration of ClickHouse DBMS.
     - `access_control_improvements` [Block]. Access control settings.
       - `select_from_information_schema_requires_grant` (Bool). Sets whether `SELECT * FROM information_schema.<table>` requires any grants and can be executed by any user. If set to true, then this query requires `GRANT SELECT ON information_schema.<table>`, just as for ordinary tables.
       - `select_from_system_db_requires_grant` (Bool). Sets whether `SELECT * FROM system.<table>` requires any grants and can be executed by any user. If set to true then this query requires `GRANT SELECT ON system.<table>` just as for non-system tables.
@@ -555,7 +555,7 @@ resource "yandex_vpc_subnet" "baz" {
 - `sql_database_management` (Bool). Grants `admin` user database management permission.
 - `sql_user_management` (Bool). Enables `admin` user with user management permission.
 - `version` (String). Version of the ClickHouse server software.
-- `zookeeper` [Block]. Configuration of the ZooKeeper subcluster.
+- `zookeeper` [Block]. Configuration of coordination service (ClickHouse Keeper or ZooKeeper).
   - `disk_size_autoscaling` [Block]. Cluster disk size autoscaling settings.
     - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.
     - `emergency_usage_threshold` (Number). Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.

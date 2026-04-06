@@ -23,30 +23,30 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
   }
 
   hosts = {
-    "ka" = {
+    "clickhouse-host1" = {
+      type      = "CLICKHOUSE"
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.foo.id
+    }
+    "clickhouse-host2" = {
+      type      = "CLICKHOUSE"
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.bar.id
+    }
+    "keeper-host1" = {
       type      = "KEEPER"
       zone      = "ru-central1-a"
       subnet_id = yandex_vpc_subnet.foo.id
     }
-    "kb" = {
+    "keeper-host2" = {
       type      = "KEEPER"
       zone      = "ru-central1-b"
       subnet_id = yandex_vpc_subnet.bar.id
     }
-    "kd" = {
+    "keeper-host3" = {
       type      = "KEEPER"
       zone      = "ru-central1-d"
       subnet_id = yandex_vpc_subnet.baz.id
-    }
-    "ca" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.foo.id
-    }
-    "cb" = {
-      type      = "CLICKHOUSE"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.bar.id
     }
   }
 

@@ -32,25 +32,25 @@ resource "yandex_mdb_clickhouse_cluster_v2" "my_cluster" {
   }
 
   hosts = {
-    "c1a" = {
+    "clickhouse-shard1-host1" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-a"
       subnet_id  = yandex_vpc_subnet.foo.id
       shard_name = "shard1"
     }
-    "c1b" = {
+    "clickhouse-shard1-host2" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-b"
       subnet_id  = yandex_vpc_subnet.bar.id
       shard_name = "shard1"
     }
-    "c2a" = {
+    "clickhouse-shard2-host1" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-b"
       subnet_id  = yandex_vpc_subnet.bar.id
       shard_name = "shard2"
     }
-    "c2d" = {
+    "clickhouse-shard2-host2" = {
       type       = "CLICKHOUSE"
       zone       = "ru-central1-d"
       subnet_id  = yandex_vpc_subnet.baz.id
