@@ -64,5 +64,9 @@ resource "yandex_lockbox_secret_version" "my_version" {
     - `args` (List Of String). List of arguments to be passed to the script/command.
     - `env` (Map Of String). Map of environment variables to set before calling the script/command.
     - `path` (**Required**)(String). The path to the script or command to execute.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `read` (String).
 
 

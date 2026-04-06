@@ -56,6 +56,10 @@ resource "yandex_vpc_gateway" "egress-gateway" {
   - `destination_prefix` (String). Route prefix in CIDR notation.
   - `gateway_id` (String). ID of the gateway used ad next hop.
   - `next_hop_address` (String). Address of the next hop.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

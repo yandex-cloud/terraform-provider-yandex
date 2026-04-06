@@ -46,7 +46,7 @@ data "yandex_function_trigger" "my_trigger" {
   - `database` (**Required**)(String). Stream database for Yandex Cloud Functions Trigger.
   - `service_account_id` (**Required**)(String). Service account ID to access data stream for Yandex Cloud Functions Trigger.
   - `stream_name` (**Required**)(String). Stream name for Yandex Cloud Functions Trigger.
-  - `suffix` .
+  - `suffix` . 
 - `description` (String). The resource description.
 - `dlq` [Block]. Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
   - `queue_id` (**Required**)(String). ID of Dead Letter Queue for Trigger (Queue ARN).
@@ -58,7 +58,7 @@ data "yandex_function_trigger" "my_trigger" {
   - `retry_interval` (String). Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger.
   - `service_account_id` (String). Service account ID for Yandex Cloud Function.
   - `tag` (String). Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger.
-- `id` (String).
+- `id` (String). 
 - `iot` [Block]. [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present. Only one section `iot` or `message_queue`.
   - `batch_cutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
   - `batch_size` (String). Batch Size for Yandex Cloud Functions Trigger.

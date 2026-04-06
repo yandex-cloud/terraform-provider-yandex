@@ -241,6 +241,11 @@ To allow maintenance only on specific days of week, please provide list of eleme
     - `zone` (String). ID of the availability zone.
 - `network_implementation` [Block]. Network Implementation options.
   - `cilium` [Block]. Cilium network implementation configuration. No options exist.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `read` (String). 
+  - `update` (String). 
 - `workload_identity_federation` [Block]. Workload Identity Federation configuration.
   - `enabled` (**Required**)(Bool). Identifies whether Workload Identity Federation is enabled.
   - `issuer` (*Read-Only*) (String). Issuer URI for Kubernetes service account tokens.

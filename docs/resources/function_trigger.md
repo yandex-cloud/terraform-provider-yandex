@@ -29,7 +29,7 @@ resource "yandex_function_trigger" "my_trigger" {
 - `created_at` (*Read-Only*) (String). The creation timestamp of the resource.
 - `description` (String). The resource description.
 - `folder_id` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
-- `id` (String).
+- `id` (String). 
 - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
 - `name` (**Required**)(String). The resource name.
 - `container` [Block]. [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger.
@@ -101,6 +101,10 @@ resource "yandex_function_trigger" "my_trigger" {
   - `prefix` (String). Prefix for Object Storage for Yandex Cloud Functions Trigger.
   - `suffix` (String). Suffix for Object Storage for Yandex Cloud Functions Trigger.
   - `update` (Bool). Boolean flag for setting `update` event for Yandex Cloud Functions Trigger.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String). 
 - `timer` [Block]. [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
   - `cron_expression` (**Required**)(String). Cron expression for timer for Yandex Cloud Functions Trigger.
   - `payload` (String). Payload to be passed to function.

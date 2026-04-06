@@ -46,6 +46,11 @@ resource "yandex_kubernetes_marketplace_helm_release" "gwin_helm_release" {
 - `user_values` (Map Of String). Values to be passed for the installation of the product. The block consists of attributes that accept string values. For complex objects and lists, use `yamlencode()` function to properly encode the values (see example above with `defaultBalancerSubnets`). The exact structure depends on the particular product and may differ for different versions of the same product. Depending on the product, some values may be required, and the installation may fail if they are not provided.
 ~> `applicationName` and `namespace`, if provided in this block, override `name` and `namespace` arguments, respectively.
 
+- `timeouts` [Block]. 
+  - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+  - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+  - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+
 ## Import
 
 The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).

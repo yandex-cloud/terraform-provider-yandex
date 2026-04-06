@@ -346,8 +346,8 @@ resource "yandex_vpc_subnet" "baz" {
 - `backup_window_start` [Block]. Time to start the daily backup, in the UTC timezone.
   - `hours` (Number). The hour at which backup will be started (UTC).
   - `minutes` (Number). The minute at which backup will be started (UTC).
-- `clickhouse` [Block]. ClickHouse configuration.
-  - `config` [Block]. Configuration of ClickHouse DBMS.
+- `clickhouse` [Block]. Configuration of the ClickHouse subcluster.
+  - `config` [Block]. Configuration of the ClickHouse subcluster.
     - `access_control_improvements` [Block]. Access control settings.
       - `select_from_information_schema_requires_grant` (Bool). Sets whether `SELECT * FROM information_schema.<table>` requires any grants and can be executed by any user. If set to true, then this query requires `GRANT SELECT ON information_schema.<table>`, just as for ordinary tables.
       - `select_from_system_db_requires_grant` (Bool). Sets whether `SELECT * FROM system.<table>` requires any grants and can be executed by any user. If set to true then this query requires `GRANT SELECT ON system.<table>` just as for non-system tables.
@@ -554,8 +554,12 @@ resource "yandex_vpc_subnet" "baz" {
   - `weight` (Number). The weight of shard.
 - `sql_database_management` (Bool). Grants `admin` user database management permission.
 - `sql_user_management` (Bool). Enables `admin` user with user management permission.
+- `timeouts` [Block]. 
+  - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+  - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+  - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 - `version` (String). Version of the ClickHouse server software.
-- `zookeeper` [Block]. Configuration of coordination service (ClickHouse Keeper or ZooKeeper).
+- `zookeeper` [Block]. Configuration of the ZooKeeper subcluster.
   - `disk_size_autoscaling` [Block]. Cluster disk size autoscaling settings.
     - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.
     - `emergency_usage_threshold` (Number). Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.

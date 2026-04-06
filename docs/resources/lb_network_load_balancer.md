@@ -80,6 +80,10 @@ resource "yandex_lb_network_load_balancer" "my_nlb" {
     - `address` (String). Internal IP address for a listener. Must belong to the subnet that is referenced in subnet_id. IP address will be allocated if it wasn't been set.
     - `ip_version` (String). IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.
     - `subnet_id` (**Required**)(String). ID of the subnet to which the internal IP address belongs.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

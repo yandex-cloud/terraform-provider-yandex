@@ -295,6 +295,10 @@ resource "yandex_vpc_subnet" "foo" {
 * `false` (default) — the restore point refers to the first backup moment before [time].
 * `true` — the restore point refers to the first backup point after [time].
 
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String). 
 - `user` [Block]. ~> Deprecated! To manage users, please switch to using a separate resource type `yandex_mdb_postgresql_user`.
   - `conn_limit` (Number). The maximum number of connections per user. (Default 50).
   - `grants` (List Of String). List of the user's grants.
