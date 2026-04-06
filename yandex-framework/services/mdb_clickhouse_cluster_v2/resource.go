@@ -333,10 +333,8 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
-// YC API behavior: updating clickhouse.<resources|disk_size_autoscaling> rewrites ALL shard resources/disk_size_autoscaling, and updating
-// shard resources/disk_size_autoscaling may change the observed clickhouse.<resources|disk_size_autoscaling>.
-// With UseStateForUnknown this may cause "inconsistent result after apply".
-// Here we "unpin" the opposite branch by setting it to Unknown in the plan:
+// Plan modify logic:
+// - add coordinator hosts without zookeeper.resources	  => zookeeper.resources 						  = Unknown
 // - clickhouse.<resources|disk_size_autoscaling> changed => shards[*].<resources|disk_size_autoscaling>  = Unknown
 // - shards[*].<resources|disk_size_autoscaling> changed  => clickhouse.<resources|disk_size_autoscaling> = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -350,6 +348,33 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// zookeeper resources
+	_, planKeeperHosts := splitHostSpecsByType(ctx, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	_, stateKeeperHosts := splitHostSpecsByType(ctx, state.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(planKeeperHosts.Elements()) > 0 && len(stateKeeperHosts.Elements()) == 0 {
+		configResources, hasResources := config.ZooKeeper.Attributes()["resources"]
+		if !hasResources || configResources.IsNull() {
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(
+					ctx,
+					path.Root("zookeeper").AtName("resources"),
+					types.ObjectUnknown(models.ResourcesAttrTypes),
+				)...,
+			)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
 	}
 
 	// resources
@@ -418,10 +443,6 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 				)...,
 			)
 		}
-	}
-
-	if resp.Diagnostics.HasError() {
-		return
 	}
 }
 
