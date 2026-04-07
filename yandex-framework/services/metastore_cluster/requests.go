@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/metastore/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -31,6 +32,7 @@ func BuildCreateClusterRequest(ctx context.Context, plan *ClusterModel, provider
 			Resources: &metastore.Resources{
 				ResourcePresetId: plan.ClusterConfig.ResourcePresetId.ValueString(),
 			},
+			Warehouse: expandWarehouseConfig(plan.ClusterConfig.WarehouseConfig),
 		},
 		ServiceAccountId: plan.ServiceAccountId.ValueString(),
 		Logging:          expandLogging(plan.Logging, diags),
@@ -72,13 +74,22 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		updateMaskPaths = append(updateMaskPaths, "deletion_protection")
 	}
 
-	if !plan.ClusterConfig.Equal(state.ClusterConfig) {
-		updateClusterRequest.SetConfigSpec(&metastore.UpdateClusterConfigSpec{
-			Resources: &metastore.Resources{
-				ResourcePresetId: plan.ClusterConfig.ResourcePresetId.ValueString(),
-			},
-		})
-		updateMaskPaths = append(updateMaskPaths, "config_spec")
+	if !plan.ClusterConfig.ResourcePresetId.Equal(state.ClusterConfig.ResourcePresetId) {
+		if updateClusterRequest.ConfigSpec == nil {
+			updateClusterRequest.ConfigSpec = &metastore.UpdateClusterConfigSpec{}
+		}
+		updateClusterRequest.ConfigSpec.Resources = &metastore.Resources{
+			ResourcePresetId: plan.ClusterConfig.ResourcePresetId.ValueString(),
+		}
+		updateMaskPaths = append(updateMaskPaths, "config_spec.resources.resource_preset_id")
+	}
+
+	if !plan.ClusterConfig.WarehouseConfig.Equal(state.ClusterConfig.WarehouseConfig) {
+		if updateClusterRequest.ConfigSpec == nil {
+			updateClusterRequest.ConfigSpec = &metastore.UpdateClusterConfigSpec{}
+		}
+		updateClusterRequest.ConfigSpec.Warehouse = expandWarehouseConfig(plan.ClusterConfig.WarehouseConfig)
+		updateMaskPaths = append(updateMaskPaths, "config_spec.warehouse")
 	}
 
 	if !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
@@ -227,6 +238,40 @@ func expandLogging(logging LoggingValue, diags *diag.Diagnostics) *metastore.Log
 	}
 
 	return loggingConfig
+}
+
+func expandWarehouseConfig(wc basetypes.ObjectValue) *metastore.WarehouseConfig {
+	if wc.IsNull() || wc.IsUnknown() {
+		return nil
+	}
+
+	s3Attr, ok := wc.Attributes()["s3"]
+	if !ok || s3Attr.IsNull() || s3Attr.IsUnknown() {
+		return nil
+	}
+
+	s3Obj, ok := s3Attr.(basetypes.ObjectValue)
+	if !ok {
+		return nil
+	}
+
+	s3Attrs := s3Obj.Attributes()
+	bucketAttr, ok := s3Attrs["bucket"].(basetypes.StringValue)
+	if !ok {
+		return nil
+	}
+
+	s3 := &metastore.WarehouseConfig_S3Warehouse{
+		Bucket: bucketAttr.ValueString(),
+	}
+
+	if pathAttr, ok := s3Attrs["path"].(basetypes.StringValue); ok && !pathAttr.IsNull() && !pathAttr.IsUnknown() {
+		s3.Path = pathAttr.ValueString()
+	}
+
+	return &metastore.WarehouseConfig{
+		Warehouse: &metastore.WarehouseConfig_S3{S3: s3},
+	}
 }
 
 func expandMaintenanceWindow(mw MaintenanceWindowValue, diags *diag.Diagnostics) *metastore.MaintenanceWindow {

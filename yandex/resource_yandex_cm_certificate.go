@@ -640,10 +640,25 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 				var challenges []interface{}
 				var exists = make(map[string]bool)
 				var key string
+
+				_, isManaged := d.GetOk("managed")
+				if !fromDataSource && isManaged {
+					if challengeCount, ok := d.GetOk("managed.0.challenge_count"); ok {
+						if len(resp.Domains) != challengeCount {
+							log.Printf("[ERROR] managed.challenge_count must be equal to domain count (current value is %d while %d required)", challengeCount, len(resp.Domains))
+							return resource.NonRetryableError(fmt.Errorf("managed.challenge_count must be equal to domain count (current value is %d while %d required))", challengeCount, len(resp.Domains)))
+						}
+					}
+				}
+
 				for _, challenge := range resp.Challenges {
 					var flChallenge map[string]interface{}
 					switch challenge.Type {
 					case certificatemanager.ChallengeType_DNS:
+						if challenge.Challenge == nil {
+							log.Printf("[ERROR] challenge is unexpectedly nil for DNS challenge type")
+							return resource.NonRetryableError(fmt.Errorf("[ERROR] challenge is unexpectedly nil for DNS challenge type"))
+						}
 						dnsChallenge := challenge.Challenge.(*certificatemanager.Challenge_DnsChallenge).DnsChallenge
 						if challengeType == CHALLENGE_TYPE_DNS_CNAME && strings.ToUpper(dnsChallenge.Type) == "CNAME" ||
 							challengeType == CHALLENGE_TYPE_DNS_TXT && strings.ToUpper(dnsChallenge.Type) == "TXT" {
@@ -658,6 +673,10 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 						}
 					case certificatemanager.ChallengeType_HTTP:
 						if challengeType == CHALLENGE_TYPE_HTTP {
+							if challenge.Challenge == nil {
+								log.Printf("[ERROR] challenge is unexpectedly nil for HTTP challenge type")
+								return resource.NonRetryableError(fmt.Errorf("[ERROR] challenge is unexpectedly nil for HTTP challenge type"))
+							}
 							httpChallenge := challenge.Challenge.(*certificatemanager.Challenge_HttpChallenge).HttpChallenge
 							flChallenge = map[string]interface{}{
 								"http_url":     httpChallenge.Url,
@@ -685,7 +704,7 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 					log.Printf("[ERROR] failed set field challenges: %s", err)
 					return resource.NonRetryableError(err)
 				}
-				_, isManaged := d.GetOk("managed")
+				_, isManaged = d.GetOk("managed")
 				if !fromDataSource && isManaged {
 					if challengeCount, ok := d.GetOk("managed.0.challenge_count"); ok {
 						if len(challenges) != challengeCount {

@@ -91,9 +91,11 @@ output "network_id" {
       - `port` (Number). Port of jdbc bridge. Default value: 9019.
     - `kafka` [Block]. Kafka connection configuration.
       - `auto_offset_reset` (String). Action when no initial offset: 'smallest','earliest','largest','latest','error'.
+      - `batch_size` (Number). Maximum size (in bytes) of all messages batched in one MessageSet, including protocol framing overhead.
       - `debug` (String). A comma-separated list of debug contexts to enable.
       - `enable_ssl_certificate_verification` (Bool). Enable verification of SSL certificates.
       - `max_poll_interval_ms` (Number). Maximum allowed time between calls to consume messages. If exceeded, consumer is considered failed.
+      - `message_max_bytes` (Number). Maximum Kafka protocol request message size.
       - `sasl_mechanism` (String). SASL mechanism used in kafka authentication.
       - `sasl_password` (String). User password on kafka server.
       - `sasl_username` (String). Username on kafka server.
@@ -243,6 +245,10 @@ output "network_id" {
   - `weight` (Number). The weight of shard.
 - `sql_database_management` (Bool). Grants `admin` user database management permission.
 - `sql_user_management` (Bool). Enables `admin` user with user management permission.
+- `timeouts` [Block]. 
+  - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+  - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+  - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 - `version` (String). Version of the ClickHouse server software.
 - `zookeeper` [Block]. Configuration of the ZooKeeper subcluster.
   - `disk_size_autoscaling` [Block]. Cluster disk size autoscaling settings.

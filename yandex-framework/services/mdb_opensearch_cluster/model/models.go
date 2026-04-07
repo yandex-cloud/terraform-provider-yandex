@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -178,24 +177,6 @@ func nullableStringSliceToList(ctx context.Context, s []string) (types.List, dia
 	}
 
 	return types.ListValueFrom(ctx, types.StringType, s)
-}
-
-func sliceAndListAreEqual(ctx context.Context, l types.List, s []string) bool {
-	if l.IsUnknown() {
-		return false
-	}
-
-	if len(l.Elements()) != len(s) {
-		return false
-	}
-
-	slices.Sort(s)
-
-	fromList := make([]string, 0, len(l.Elements()))
-	l.ElementsAs(ctx, &fromList, false)
-	slices.Sort(fromList)
-
-	return slices.Equal(fromList, s)
 }
 
 func setsAreEqual(set1, set2 types.Set) bool {

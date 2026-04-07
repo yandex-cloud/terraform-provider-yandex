@@ -46,6 +46,10 @@ resource "yandex_alb_http_router" "tf-router" {
             - `exact` (String). Match exactly.
             - `prefix` (String). Match prefix.
             - `regex` (String). Match regex.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

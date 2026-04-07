@@ -187,6 +187,10 @@ resource "yandex_alb_backend_group" "my_alb_bg" {
     - `validation_context` [Block]. Validation context
       - `trusted_ca_bytes` (String). PEM-encoded trusted CA certificate chain.
       - `trusted_ca_id` (String). Trusted CA certificate ID in the Certificate Manager.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

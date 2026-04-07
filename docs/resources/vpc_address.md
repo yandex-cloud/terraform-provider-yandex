@@ -94,6 +94,10 @@ resource "yandex_vpc_subnet" "foo" {
 
   - `address` (*Read-Only*) (String). Allocated IP address.
   - `subnet_id` (**Required**)(String). Subnet ID from which the address will be allocated.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

@@ -381,46 +381,48 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 			Value:   v,
 		}
 	}
+
+	var allowedHttpMethods *cdn.ResourceOptions_StringsListOption
+	if rawOption, ok := d.GetOk("options.0.allowed_http_methods"); ok {
+		allowedHttpMethods = cdnStringListOption(rawOption.([]any))
+	}
+
+	var customServerName *cdn.ResourceOptions_StringOption
+	if rawOption, ok := d.GetOk("options.0.custom_server_name"); ok {
+		customServerName = cdnStringOption(rawOption.(string))
+	}
+
 	optsCty := d.GetRawPlan().GetAttr("options").AsValueSlice()[0]
 
 	result := &cdn.ResourceOptions{
-		HostOptions:        expandCDNResourceOptions_HostOptions(optsCty),
-		QueryParamsOptions: expandCDNResourceOptions_QueryParamsOptions(d),
-		CompressionOptions: expandCDNResourceOptions_CompressionOptions(d),
-		RedirectOptions:    expandCDNResourceOptions_RedirectOptions(d),
-		IpAddressAcl:       expandCDNResourceOptions_IPAddressACL(d),
-		SecureKey:          expandCDNResourceOptions_SecureKey(d),
-		EdgeCacheSettings:  expandCDNResourceOptions_EdgeCacheSettings(d),
+		DisableCache:            nil, // deprecated
+		EdgeCacheSettings:       expandCDNResourceOptions_EdgeCacheSettings(d),
+		BrowserCacheSettings:    bcs,
+		CacheHttpHeaders:        nil, // deprecated
+		QueryParamsOptions:      expandCDNResourceOptions_QueryParamsOptions(d),
+		Slice:                   cdnBoolOption(d.Get("options.0.slice").(bool)),
+		CompressionOptions:      expandCDNResourceOptions_CompressionOptions(d),
+		RedirectOptions:         expandCDNResourceOptions_RedirectOptions(d),
+		HostOptions:             expandCDNResourceOptions_HostOptions(optsCty),
+		StaticHeaders:           cdnStringsMapOption(d.Get("options.0.static_response_headers").(map[string]any)),
+		Cors:                    cdnStringListOption(d.Get("options.0.cors").([]any)),
+		Stale:                   cdnStringListOption(d.Get("options.0.stale").([]any)),
+		AllowedHttpMethods:      allowedHttpMethods,
+		ProxyCacheMethodsSet:    cdnBoolOption(d.Get("options.0.proxy_cache_methods_set").(bool)),
+		DisableProxyForceRanges: cdnBoolOption(d.Get("options.0.disable_proxy_force_ranges").(bool)),
+		StaticRequestHeaders:    cdnStringsMapOption(d.Get("options.0.static_request_headers").(map[string]any)),
+		CustomServerName:        customServerName,
+		IgnoreCookie:            cdnBoolOption(d.Get("options.0.ignore_cookie").(bool)),
+		Rewrite:                 expandCDNResourceOptions_Rewrite(d),
+		SecureKey:               expandCDNResourceOptions_SecureKey(d),
+		IpAddressAcl:            expandCDNResourceOptions_IPAddressACL(d),
 
-		Slice:        cdnBoolOption(d.Get("options.0.slice").(bool)),
-		IgnoreCookie: cdnBoolOption(d.Get("options.0.ignore_cookie").(bool)),
-
-		Rewrite: expandCDNResourceOptions_Rewrite(d),
-
-		Cors:  cdnStringListOption(d.Get("options.0.cors").([]any)),
-		Stale: cdnStringListOption(d.Get("options.0.stale").([]any)),
-
-		StaticHeaders:        cdnStringsMapOption(d.Get("options.0.static_response_headers").(map[string]any)),
-		StaticRequestHeaders: cdnStringsMapOption(d.Get("options.0.static_request_headers").(map[string]any)),
-
-		BrowserCacheSettings: bcs,
-	}
-
-	// bool options
-	if rawOption, ok := d.GetOk("options.0.proxy_cache_method_set"); ok {
-		result.ProxyCacheMethodsSet = cdnBoolOption(rawOption.(bool))
-	}
-	if rawOption, ok := d.GetOk("options.0.disable_proxy_force_ranges"); ok {
-		result.DisableProxyForceRanges = cdnBoolOption(rawOption.(bool))
-	}
-
-	// stringList options
-	if rawOption, ok := d.GetOk("options.0.allowed_http_methods"); ok {
-		result.AllowedHttpMethods = cdnStringListOption(rawOption.([]any))
-	}
-
-	if rawOption, ok := d.GetOk("options.0.custom_server_name"); ok {
-		result.CustomServerName = cdnStringOption(rawOption.(string))
+		FollowRedirects: nil, // TODO
+		Websockets:      nil, // TODO
+		HeaderFilter:    nil, // TODO
+		GeoAcl:          nil, // TODO
+		ReferrerAcl:     nil, // TODO
+		StaticResponse:  nil, // TODO
 	}
 
 	return result

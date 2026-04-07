@@ -27,6 +27,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_registry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
@@ -166,6 +167,7 @@ func init() {
 		yandex_compute_snapshot_schedule_iam_binding.NewResource,
 		yandex_compute_snapshot_iam_binding.NewResource,
 		yandex_connectionmanager_connection.NewResource,
+		yandex_datacatalog_catalog.NewResource,
 		yandex_datasphere_community_iam_binding.NewResource,
 		yandex_datasphere_project_iam_binding.NewResource,
 		yandex_datatransfer_endpoint.NewResource,

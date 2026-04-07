@@ -275,6 +275,10 @@ If not set, default name is used: `{instance_group.id}-{instance.short_id}`. It 
       - `rule_type` (**Required**)(String). Rule type: `UTILIZATION` - This type means that the metric applies to one instance. First, Instance Groups calculates the average metric value for each instance, then averages the values for instances in one availability zone. This type of metric must have the `instance_id` label. `WORKLOAD` - This type means that the metric applies to instances in one availability zone. This type of metric must have the `zone_id` label.
       - `service` (String). Service of custom metric in Yandex Monitoring that should be used for scaling.
       - `target` (**Required**)(Number). Target metric value level.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

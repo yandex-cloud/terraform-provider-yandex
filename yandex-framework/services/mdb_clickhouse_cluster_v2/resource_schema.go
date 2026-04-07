@@ -1800,6 +1800,22 @@ func KafkaSchema() schema.SingleNestedAttribute {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"message_max_bytes": schema.Int64Attribute{
+				Description: "Maximum Kafka protocol request message size.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"batch_size": schema.Int64Attribute{
+				Description: "Maximum size (in bytes) of all messages batched in one MessageSet, including protocol framing overhead.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }

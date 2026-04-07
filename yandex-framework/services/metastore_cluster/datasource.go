@@ -92,6 +92,40 @@ func (d *metastoreClusterDatasource) Schema(ctx context.Context, req datasource.
 						Description:         "The identifier of the preset for computational resources available to an instance (CPU, memory etc.).",
 						MarkdownDescription: "The identifier of the preset for computational resources available to an instance (CPU, memory etc.).",
 					},
+					"warehouse_config": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"s3": schema.SingleNestedAttribute{
+								Attributes: map[string]schema.Attribute{
+									"bucket": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Name of the S3 bucket used as warehouse storage.",
+										MarkdownDescription: "Name of the S3 bucket used as warehouse storage.",
+									},
+									"path": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Path prefix within the bucket for warehouse data.",
+										MarkdownDescription: "Path prefix within the bucket for warehouse data.",
+									},
+								},
+								CustomType: S3Type{
+									ObjectType: types.ObjectType{
+										AttrTypes: S3Value{}.AttributeTypes(ctx),
+									},
+								},
+								Computed:            true,
+								Description:         "S3-compatible storage configuration for warehouse.",
+								MarkdownDescription: "S3-compatible storage configuration for warehouse.",
+							},
+						},
+						CustomType: WarehouseConfigType{
+							ObjectType: types.ObjectType{
+								AttrTypes: WarehouseConfigValue{}.AttributeTypes(ctx),
+							},
+						},
+						Computed:            true,
+						Description:         "Warehouse configuration for Hive Metastore.",
+						MarkdownDescription: "Warehouse configuration for Hive Metastore.",
+					},
 				},
 				CustomType: ClusterConfigType{
 					ObjectType: types.ObjectType{

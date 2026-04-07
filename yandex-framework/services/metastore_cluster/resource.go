@@ -238,6 +238,7 @@ func refreshState(ctx context.Context, sdk *ycsdk.SDK, state *ClusterModel, diag
 
 	state.ClusterConfig = ClusterConfigValue{
 		ResourcePresetId: types.StringValue(cluster.GetClusterConfig().GetResources().GetResourcePresetId()),
+		WarehouseConfig:  flattenWarehouseConfig(ctx, cluster.GetClusterConfig().GetWarehouse()),
 		state:            attr.ValueStateKnown,
 	}
 	state.CreatedAt = types.StringValue(cluster.GetCreatedAt().String())

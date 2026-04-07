@@ -92,8 +92,8 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"container"},
-				ExactlyOneOf:  []string{"function", "container"},
+				ConflictsWith: []string{"container", "workflow"},
+				ExactlyOneOf:  []string{"function", "container", "workflow"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -135,8 +135,8 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"function"},
-				ExactlyOneOf:  []string{"function", "container"},
+				ConflictsWith: []string{"function", "workflow"},
+				ExactlyOneOf:  []string{"function", "container", "workflow"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -166,6 +166,43 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"retry_interval": {
 							Type:        schema.TypeString,
 							Description: "Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.",
+							Optional:    true,
+						},
+					},
+				},
+			},
+
+			"workflow": {
+				Type:          schema.TypeList,
+				Description:   "Workflows settings definition for Yandex Cloud Functions Trigger.",
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"function", "container"},
+				ExactlyOneOf:  []string{"function", "container", "workflow"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Description: "Workflow ID.",
+							Required:    true,
+						},
+
+						"service_account_id": {
+							Type:        schema.TypeString,
+							Description: "Service account ID for Workflows.",
+							Required:    true,
+						},
+
+						"retry_attempts": {
+							Type:        schema.TypeString,
+							Description: "Retry attempts for Workflows.",
+							Optional:    true,
+						},
+
+						"retry_interval": {
+							Type:        schema.TypeString,
+							Description: "Retry interval in seconds for Workflows.",
 							Optional:    true,
 						},
 					},
@@ -230,6 +267,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -266,6 +304,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 
 						"visibility_timeout": {
@@ -331,6 +370,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -391,6 +431,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -430,6 +471,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -487,6 +529,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -589,6 +632,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Type:        schema.TypeString,
 							Description: "Batch Size for Yandex Cloud Functions Trigger.",
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -632,6 +676,9 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 	}
 	if _, ok := d.GetOk("container"); ok {
 		invokeType = "container"
+	}
+	if _, ok := d.GetOk("workflow"); ok {
+		invokeType = "workflow"
 	}
 
 	retrySettings, err := expandRetrySettings(d, invokeType)
@@ -677,6 +724,22 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			ContainerId:      d.Get("container.0.id").(string),
 			Path:             d.Get("container.0.path").(string),
 			ServiceAccountId: d.Get("container.0.service_account_id").(string),
+		}
+	}
+
+	var getStartWorkflowWithRetry = func() *triggers.StartWorkflowWithRetry {
+		return &triggers.StartWorkflowWithRetry{
+			WorkflowId:       d.Get("workflow.0.id").(string),
+			ServiceAccountId: d.Get("workflow.0.service_account_id").(string),
+			RetrySettings:    retrySettings,
+			DeadLetterQueue:  dlqSettings,
+		}
+	}
+
+	var getStartWorkflowOnce = func() *triggers.StartWorkflowOnce {
+		return &triggers.StartWorkflowOnce{
+			WorkflowId:       d.Get("workflow.0.id").(string),
+			ServiceAccountId: d.Get("workflow.0.service_account_id").(string),
 		}
 	}
 
@@ -729,6 +792,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			messageQueue.Action = &triggers.Trigger_MessageQueue_InvokeContainer{
 				InvokeContainer: getInvokeContainerOnce(),
 			}
+		} else if invokeType == "workflow" {
+			messageQueue.Action = &triggers.Trigger_MessageQueue_StartWorkflow{
+				StartWorkflow: getStartWorkflowOnce(),
+			}
 		}
 
 		if _, ok := d.GetOk("message_queue.0.visibility_timeout"); ok {
@@ -769,6 +836,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			storageTrigger.Action = &triggers.Trigger_ObjectStorage_InvokeContainer{
 				InvokeContainer: getInvokeContainerWithRetry(),
 			}
+		} else if invokeType == "workflow" {
+			storageTrigger.Action = &triggers.Trigger_ObjectStorage_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
+			}
 		}
 
 		batch, err := expandBatchSettings(d, "object_storage.0")
@@ -807,6 +878,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			crTrigger.Action = &triggers.Trigger_ContainerRegistry_InvokeContainer{
 				InvokeContainer: getInvokeContainerWithRetry(),
 			}
+		} else if invokeType == "workflow" {
+			crTrigger.Action = &triggers.Trigger_ContainerRegistry_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
+			}
 		}
 
 		batch, err := expandBatchSettings(d, "container_registry.0")
@@ -831,6 +906,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 		} else if invokeType == "container" {
 			timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
 				InvokeContainerWithRetry: getInvokeContainerWithRetry(),
+			}
+		} else if invokeType == "workflow" {
+			timer.Action = &triggers.Trigger_Timer_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
 			}
 		}
 
@@ -879,6 +958,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 			yds.Action = &triggers.DataStream_InvokeContainer{
 				InvokeContainer: getInvokeContainerWithRetry(),
 			}
+		} else if invokeType == "workflow" {
+			yds.Action = &triggers.DataStream_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
+			}
 		}
 		batch, err := expandBatchSettings(d, "data_streams.0")
 		if err != nil {
@@ -903,6 +986,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 		} else if invokeType == "container" {
 			mail.Action = &triggers.Mail_InvokeContainer{
 				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		} else if invokeType == "workflow" {
+			mail.Action = &triggers.Mail_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
 			}
 		}
 
@@ -947,6 +1034,10 @@ func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 		} else if invokeType == "container" {
 			logging.Action = &triggers.Trigger_Logging_InvokeContainer{
 				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		} else if invokeType == "workflow" {
+			logging.Action = &triggers.Trigger_Logging_StartWorkflow{
+				StartWorkflow: getStartWorkflowWithRetry(),
 			}
 		}
 
@@ -1141,6 +1232,42 @@ func flattenYandexContainerTriggerInvokeWithRetry(d *schema.ResourceData, contai
 	return nil
 }
 
+func flattenYandexWorkflowTriggerStartWithRetry(d *schema.ResourceData, wf *triggers.StartWorkflowWithRetry) error {
+	w := map[string]interface{}{
+		"id":                 wf.WorkflowId,
+		"service_account_id": wf.ServiceAccountId,
+	}
+
+	if retrySettings := wf.GetRetrySettings(); retrySettings != nil {
+		w["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
+		if retrySettings.Interval != nil {
+			w["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
+		}
+	}
+
+	err := d.Set("workflow", []map[string]interface{}{w})
+	if err != nil {
+		return err
+	}
+
+	if deadLetter := wf.GetDeadLetterQueue(); deadLetter != nil {
+		dlq := map[string]interface{}{
+			"queue_id":           deadLetter.QueueId,
+			"service_account_id": deadLetter.ServiceAccountId,
+		}
+		return d.Set("dlq", []map[string]interface{}{dlq})
+	}
+	return nil
+}
+
+func flattenYandexWorkflowTriggerStartOnce(d *schema.ResourceData, wf *triggers.StartWorkflowOnce) error {
+	w := map[string]interface{}{
+		"id":                 wf.WorkflowId,
+		"service_account_id": wf.ServiceAccountId,
+	}
+	return d.Set("workflow", []map[string]interface{}{w})
+}
+
 func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger) error {
 	d.Set("name", trig.Name)
 	d.Set("folder_id", trig.FolderId)
@@ -1205,6 +1332,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
+		} else if wf := yds.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartWithRetry(d, wf)
+			if err != nil {
+				return err
+			}
 		}
 	} else if mail := trig.GetRule().GetMail(); mail != nil {
 		i := map[string]interface{}{}
@@ -1231,6 +1363,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		} else if function := mail.GetInvokeContainer(); function != nil {
 			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if wf := mail.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartWithRetry(d, wf)
 			if err != nil {
 				return err
 			}
@@ -1262,6 +1399,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		} else if function := messageQueue.GetInvokeContainer(); function != nil {
 			err = flattenYandexContainerTriggerInvokeOnce(d, function)
+			if err != nil {
+				return err
+			}
+		} else if wf := messageQueue.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartOnce(d, wf)
 			if err != nil {
 				return err
 			}
@@ -1302,6 +1444,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		} else if function := storage.GetInvokeContainer(); function != nil {
 			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if wf := storage.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartWithRetry(d, wf)
 			if err != nil {
 				return err
 			}
@@ -1346,6 +1493,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
+		} else if wf := cr.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartWithRetry(d, wf)
+			if err != nil {
+				return err
+			}
 		}
 	} else if timer := trig.GetRule().GetTimer(); timer != nil {
 		t := map[string]interface{}{
@@ -1370,6 +1522,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		} else if function := timer.GetInvokeContainerWithRetry(); function != nil {
 			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if wf := timer.GetStartWorkflow(); wf != nil {
+			err = flattenYandexWorkflowTriggerStartWithRetry(d, wf)
 			if err != nil {
 				return err
 			}
@@ -1439,8 +1596,13 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
-		} else if function := logGroup.GetInvokeContainer(); function != nil {
+		} else if function := logging.GetInvokeContainer(); function != nil {
 			err := flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if wf := logging.GetStartWorkflow(); wf != nil {
+			err := flattenYandexWorkflowTriggerStartWithRetry(d, wf)
 			if err != nil {
 				return err
 			}
@@ -1545,21 +1707,25 @@ func checkDisableRetrySettingsForMessageQueueTrigger(d *schema.ResourceData, pre
 }
 
 func expandBatchSettings(d *schema.ResourceData, prefix string) (settings *triggers.BatchSettings, err error) {
-	if _, ok := d.GetOk(prefix + ".batch_size"); !ok {
+	batchCutoffRaw, ok := d.GetOk(prefix + ".batch_cutoff")
+	if !ok {
 		return nil, nil
 	}
 
 	settings = &triggers.BatchSettings{}
-	settings.Size, err = strconv.ParseInt(d.Get(prefix+".batch_size").(string), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("Cannot define "+prefix+".batch_size for Yandex Cloud Functions Trigger: %s", err)
-	}
 
-	batchCutoff, err := strconv.ParseInt(d.Get(prefix+".batch_cutoff").(string), 10, 64)
+	batchCutoff, err := strconv.ParseInt(batchCutoffRaw.(string), 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot define "+prefix+"batch_cutoff for Yandex Cloud Functions Trigger: %s", err)
+		return nil, fmt.Errorf("Cannot define "+prefix+".batch_cutoff for Yandex Cloud Functions Trigger: %s", err)
 	}
 	settings.Cutoff = &duration.Duration{Seconds: batchCutoff}
+
+	if batchSizeRaw, ok := d.GetOk(prefix + ".batch_size"); ok {
+		settings.Size, err = strconv.ParseInt(batchSizeRaw.(string), 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot define "+prefix+".batch_size for Yandex Cloud Functions Trigger: %s", err)
+		}
+	}
 
 	return settings, nil
 }

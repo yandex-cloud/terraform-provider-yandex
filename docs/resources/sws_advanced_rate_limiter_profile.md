@@ -175,7 +175,12 @@ resource "yandex_sws_advanced_rate_limiter_profile" "demo-profile" {
         - `ip_ranges_match` [Block]. 
           - `ip_ranges` (List Of String). 
         - `ip_ranges_not_match` [Block]. 
-          - `ip_ranges` (List Of String).
+          - `ip_ranges` (List Of String). 
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `read` (String). 
+  - `update` (String).
 
 ## Import
 

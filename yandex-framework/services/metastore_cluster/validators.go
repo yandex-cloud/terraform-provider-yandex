@@ -2,6 +2,7 @@ package metastore_cluster
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -35,6 +36,13 @@ func mwHourValidator() validator.Int64 {
 
 func mwDayValidator() validator.String {
 	return stringvalidator.OneOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+}
+
+func warehousePathValidator() validator.String {
+	return stringvalidator.RegexMatches(
+		regexp.MustCompile(`^([a-zA-Z0-9/][-a-zA-Z0-9_./]{0,512})?$`),
+		"must match pattern: start with alphanumeric or /, followed by up to 512 chars of [-a-zA-Z0-9_./]",
+	)
 }
 
 func mwValidator() validator.Object {

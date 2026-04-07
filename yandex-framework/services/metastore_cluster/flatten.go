@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/metastore/v1"
 )
 
@@ -59,6 +60,36 @@ func flattenLoggingConfig(cfg *metastore.LoggingConfig, diags *diag.Diagnostics)
 	}
 
 	return loggingValue
+}
+
+func flattenWarehouseConfig(ctx context.Context, wc *metastore.WarehouseConfig) basetypes.ObjectValue {
+	warehouseAttrTypes := WarehouseConfigValue{}.AttributeTypes(ctx)
+
+	if wc == nil {
+		return types.ObjectNull(warehouseAttrTypes)
+	}
+
+	s3 := wc.GetS3()
+	if s3 == nil {
+		return types.ObjectNull(warehouseAttrTypes)
+	}
+
+	pathVal := types.StringNull()
+	if s3.GetPath() != "" {
+		pathVal = types.StringValue(s3.GetPath())
+	}
+
+	s3AttrTypes := S3Value{}.AttributeTypes(ctx)
+	s3Obj, _ := types.ObjectValue(s3AttrTypes, map[string]attr.Value{
+		"bucket": types.StringValue(s3.GetBucket()),
+		"path":   pathVal,
+	})
+
+	warehouseObj, _ := types.ObjectValue(warehouseAttrTypes, map[string]attr.Value{
+		"s3": s3Obj,
+	})
+
+	return warehouseObj
 }
 
 func flattenMaintenanceWindow(mw *metastore.MaintenanceWindow, diags *diag.Diagnostics) MaintenanceWindowValue {

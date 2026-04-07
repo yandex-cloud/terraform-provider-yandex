@@ -174,6 +174,10 @@ resource "yandex_alb_virtual_host" "my-vhost" {
             - `exact` (String). Match exactly.
             - `prefix` (String). Match prefix.
             - `regex` (String). Match regex.
+- `timeouts` [Block]. 
+  - `create` (String). 
+  - `delete` (String). 
+  - `update` (String).
 
 ## Import
 

@@ -482,6 +482,8 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			EnableSslCertificateVerification: &wrappers.BoolValue{Value: true},
 			MaxPollIntervalMs:                &wrappers.Int64Value{Value: 300000},
 			SessionTimeoutMs:                 &wrappers.Int64Value{Value: 45000},
+			MessageMaxBytes:                  &wrappers.Int64Value{Value: 500000},
+			BatchSize:                        &wrappers.Int64Value{Value: 500000},
 		},
 		Rabbitmq: &clickhouseConfig.ClickhouseConfig_Rabbitmq{
 			Username: "rabbit_user",
@@ -664,6 +666,8 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			EnableSslCertificateVerification: &wrappers.BoolValue{Value: false},
 			MaxPollIntervalMs:                &wrappers.Int64Value{Value: 400000},
 			SessionTimeoutMs:                 &wrappers.Int64Value{Value: 60000},
+			MessageMaxBytes:                  &wrappers.Int64Value{Value: 1000000},
+			BatchSize:                        &wrappers.Int64Value{Value: 1000000},
 		},
 		Rabbitmq: &clickhouseConfig.ClickhouseConfig_Rabbitmq{
 			Username: "rabbit_user",
@@ -1215,6 +1219,38 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	chName := acctest.RandomWithPrefix("tf-clickhouse-sharded")
 	folderID := test.GetExampleFolderID()
 
+	hostWithoutShard := `
+hosts = {
+	"h1" = {
+		type      = "CLICKHOUSE"
+		zone      = "ru-central1-a"
+		subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+		shard_name = "shard1"
+		assign_public_ip = false
+	}
+}
+
+shards = {
+	shard2 = {}
+}
+`
+
+	shardWithoutHosts := `
+hosts = {
+	"h1" = {
+		type      = "CLICKHOUSE"
+		zone      = "ru-central1-a"
+		subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+		shard_name = "shard2"
+		assign_public_ip = false
+	}
+}
+
+shards = {
+	shard1 = {}
+}
+`
+
 	shardsWithShardGroupsFirstStep := `
 hosts = {
 	"h1" = {
@@ -1328,6 +1364,17 @@ shard_group {
 		ProtoV6ProviderFactories: test.AccProviderFactories,
 		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
+			// Check that ShardsHostsConsistencyValidator is working
+			{
+				Config:      testAccMDBClickHouseCluster_sharded(chName, hostWithoutShard),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`Shard not defined`),
+			},
+			{
+				Config:      testAccMDBClickHouseCluster_sharded(chName, shardWithoutHosts),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`Shard has no hosts`),
+			},
 			// Create sharded ClickHouse Cluster
 			{
 				Config: testAccMDBClickHouseCluster_sharded(chName, shardsWithShardGroupsFirstStep),
@@ -1543,10 +1590,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   # changeable config
@@ -1606,7 +1658,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	  type       = "CLICKHOUSE"
 	  zone       = "ru-central1-a"
 	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-	  shard_name = "shard1"
+	  shard_name = "%s"
     }
   }
 
@@ -1630,6 +1682,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		buildDiskSizeAutoscalingHCL(clickHouseAutoscalingSettings),
 		buildResourcesHCL(zookeeperResources),
 		buildDiskSizeAutoscalingHCL(zookeeperAutoscalingSettings),
+		firstShardName,
 		firstShardName,
 		buildResourcesHCL(shardResources),
 		buildDiskSizeAutoscalingHCL(shardAutoscalingSettings),
@@ -1659,10 +1712,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   # maintenance_window
@@ -1718,10 +1776,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   # maintenance_window
@@ -1752,10 +1815,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "cloud" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   # maintenance_window
@@ -1792,10 +1860,15 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
   hosts = {
     "ha" = {
-	  type      = "CLICKHOUSE"
-	  zone      = "ru-central1-a"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
     }
+  }
+
+  shards = {
+	shard1 = {}
   }
 
   # maintenance_window
@@ -2645,6 +2718,8 @@ kafka = {
 	session_timeout_ms                  = %d
 	debug                               = "%s"
 	auto_offset_reset                   = "%s"
+	message_max_bytes                   = %d
+	batch_size                          = %d
 }
 `,
 		kafka.SecurityProtocol.String(),
@@ -2656,6 +2731,8 @@ kafka = {
 		kafka.SessionTimeoutMs.GetValue(),
 		kafka.Debug.String(),
 		kafka.AutoOffsetReset.String(),
+		kafka.MessageMaxBytes.GetValue(),
+		kafka.BatchSize.GetValue(),
 	)
 }
 

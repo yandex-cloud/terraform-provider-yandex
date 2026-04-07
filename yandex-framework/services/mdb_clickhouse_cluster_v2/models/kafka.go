@@ -22,6 +22,8 @@ type Kafka struct {
 	SessionTimeoutMs                 types.Int64  `tfsdk:"session_timeout_ms"`
 	Debug                            types.String `tfsdk:"debug"`
 	AutoOffsetReset                  types.String `tfsdk:"auto_offset_reset"`
+	MessageMaxBytes                  types.Int64  `tfsdk:"message_max_bytes"`
+	BatchSize                        types.Int64  `tfsdk:"batch_size"`
 }
 
 var KafkaAttrTypes = map[string]attr.Type{
@@ -34,6 +36,8 @@ var KafkaAttrTypes = map[string]attr.Type{
 	"session_timeout_ms":                  types.Int64Type,
 	"debug":                               types.StringType,
 	"auto_offset_reset":                   types.StringType,
+	"message_max_bytes":                   types.Int64Type,
+	"batch_size":                          types.Int64Type,
 }
 
 func flattenKafka(ctx context.Context, state *Cluster, kafka *clickhouseConfig.ClickhouseConfig_Kafka, diags *diag.Diagnostics) types.Object {
@@ -67,6 +71,8 @@ func flattenKafka(ctx context.Context, state *Cluster, kafka *clickhouseConfig.C
 			SessionTimeoutMs:                 mdbcommon.FlattenInt64Wrapper(ctx, kafka.SessionTimeoutMs, diags),
 			Debug:                            types.StringValue(kafka.Debug.Enum().String()),
 			AutoOffsetReset:                  types.StringValue(kafka.AutoOffsetReset.Enum().String()),
+			MessageMaxBytes:                  mdbcommon.FlattenInt64Wrapper(ctx, kafka.MessageMaxBytes, diags),
+			BatchSize:                        mdbcommon.FlattenInt64Wrapper(ctx, kafka.BatchSize, diags),
 		},
 	)
 	diags.Append(d...)
@@ -115,5 +121,7 @@ func expandKafka(ctx context.Context, c types.Object, diags *diag.Diagnostics) *
 		SessionTimeoutMs:                 mdbcommon.ExpandInt64Wrapper(ctx, kafka.SessionTimeoutMs, diags),
 		Debug:                            clickhouseConfig.ClickhouseConfig_Kafka_Debug(*debugValue),
 		AutoOffsetReset:                  clickhouseConfig.ClickhouseConfig_Kafka_AutoOffsetReset(*autoOffsetResetValue),
+		MessageMaxBytes:                  mdbcommon.ExpandInt64Wrapper(ctx, kafka.MessageMaxBytes, diags),
+		BatchSize:                        mdbcommon.ExpandInt64Wrapper(ctx, kafka.BatchSize, diags),
 	}
 }

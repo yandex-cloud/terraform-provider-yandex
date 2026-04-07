@@ -380,14 +380,14 @@ func resourceYandexCDNResourceSchema_Options() *schema.Resource {
 			"proxy_cache_methods_set": {
 				Type:        schema.TypeBool,
 				Description: "Allows caching for GET, HEAD and POST requests.",
-				Computed:    true,
 				Optional:    true,
+				Default:     false,
 			},
 			"disable_proxy_force_ranges": {
 				Type:        schema.TypeBool,
 				Description: "Disabling proxy force ranges.",
-				Computed:    true,
 				Optional:    true,
+				Default:     false,
 			},
 			"static_request_headers": {
 				Type:        schema.TypeMap,

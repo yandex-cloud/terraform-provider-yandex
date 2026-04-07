@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: "serverless: fix bug with batch_cutoff in triggers"
+time: 2026-03-26T19:44:38.512192+05:00
