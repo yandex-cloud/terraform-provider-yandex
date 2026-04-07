@@ -568,6 +568,9 @@ resource "yandex_vpc_subnet" "baz" {
     - `disk_size` (Number). Volume of the storage available to a host, in gigabytes.
     - `disk_type_id` (String). Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
     - `resource_preset_id` (String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
+- `extension` [Block]. A set of cluster extensions.
+  - `name` (**Required**)(String). The name of the extension.
+  - `version` (String). Version of the extension.
 - `format_schema` [Block]. A set of `protobuf` or `capnproto` format schemas.
   - `name` (**Required**)(String). The name of the format schema.
   - `type` (**Required**)(String). Type of the format schema.

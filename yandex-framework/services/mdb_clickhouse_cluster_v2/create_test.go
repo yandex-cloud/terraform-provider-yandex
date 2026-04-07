@@ -56,6 +56,7 @@ var (
 			"format_schema":             types.SetNull(types.ObjectType{AttrTypes: models.FormatSchemaAttrTypes}),
 			"shards":                    types.MapNull(types.ObjectType{AttrTypes: models.ShardAttrTypes}),
 			"shard_group":               types.ListNull(types.ObjectType{AttrTypes: models.ShardGroupAttrTypes}),
+			"extension":                 types.SetNull(types.ObjectType{AttrTypes: models.ExtensionAttrTypes}),
 			"hosts": types.MapValueMust(types.StringType, map[string]attr.Value{
 				"host1": types.StringValue("host1"),
 				"host2": types.StringValue("host2"),
@@ -602,6 +603,25 @@ var (
 					),
 				},
 			),
+			"extension": types.SetValueMust(
+				types.ObjectType{AttrTypes: models.ExtensionAttrTypes},
+				[]attr.Value{
+					types.ObjectValueMust(
+						models.ExtensionAttrTypes,
+						map[string]attr.Value{
+							"name":    types.StringValue("geodb"),
+							"version": types.StringValue("2025.11.25-112243"),
+						},
+					),
+					types.ObjectValueMust(
+						models.ExtensionAttrTypes,
+						map[string]attr.Value{
+							"name":    types.StringValue("catboost"),
+							"version": types.StringNull(),
+						},
+					),
+				},
+			),
 			"sql_database_management":   types.BoolValue(true),
 			"sql_user_management":       types.BoolValue(true),
 			"admin_password":            types.StringNull(),
@@ -632,6 +652,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 		expectedFormatSchemaRequests []*clickhouse.CreateFormatSchemaRequest
 		expectedMlModelRequests      []*clickhouse.CreateMlModelRequest
 		expectedShardGroupRequests   []*clickhouse.CreateClusterShardGroupRequest
+		expectedExtensionRequests    []*clickhouse.CreateClusterExtensionRequest
 		expectedError                bool
 	}{
 		{
@@ -1059,6 +1080,16 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 					ShardNames:     []string{"shard3"},
 				},
 			},
+			expectedExtensionRequests: []*clickhouse.CreateClusterExtensionRequest{
+				{
+					ClusterId:     clusterId,
+					ExtensionSpec: &clickhouse.ExtensionSpec{Name: "geodb", Version: "2025.11.25-112243"},
+				},
+				{
+					ClusterId:     clusterId,
+					ExtensionSpec: &clickhouse.ExtensionSpec{Name: "catboost", Version: ""},
+				},
+			},
 		},
 	}
 
@@ -1197,6 +1228,43 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 				actReq, ok := mapShardGroupNameRequest[expReq.ShardGroupName]
 				if !ok {
 					t.Errorf("Missing shard group request for %q in %s", expReq.ShardGroupName, c.testname)
+					return
+				}
+				utils.AssertProtoEqual(t, c.testname, expReq, actReq)
+			}
+
+			// Check create extension requests
+			extReqs := prepareExtensionsCreateRequests(ctx, cluster, &diags)
+			if diags.HasError() != c.expectedError {
+				t.Errorf(
+					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
+					c.testname,
+					c.expectedError,
+					diags.HasError(),
+					diags.Errors(),
+				)
+				return
+			}
+
+			if len(extReqs) != len(c.expectedExtensionRequests) {
+				t.Errorf(
+					"Unexpected number of extension requests %s: expected=%d, got=%d",
+					c.testname,
+					len(c.expectedExtensionRequests),
+					len(extReqs),
+				)
+				return
+			}
+
+			mapExtensionNameRequest := map[string]*clickhouse.CreateClusterExtensionRequest{}
+			for _, req := range extReqs {
+				mapExtensionNameRequest[req.ExtensionSpec.GetName()] = req
+			}
+
+			for _, expReq := range c.expectedExtensionRequests {
+				actReq, ok := mapExtensionNameRequest[expReq.ExtensionSpec.GetName()]
+				if !ok {
+					t.Errorf("Missing extension request for %q in %s", expReq.ExtensionSpec.GetName(), c.testname)
 					return
 				}
 				utils.AssertProtoEqual(t, c.testname, expReq, actReq)

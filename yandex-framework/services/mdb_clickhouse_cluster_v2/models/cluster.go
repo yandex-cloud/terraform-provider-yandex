@@ -38,6 +38,7 @@ type Cluster struct {
 	MLModel      types.Set  `tfsdk:"ml_model"`
 	Shards       types.Map  `tfsdk:"shards"`
 	ShardGroup   types.List `tfsdk:"shard_group"`
+	Extension    types.Set  `tfsdk:"extension"`
 
 	HostSpecs            types.Map      `tfsdk:"hosts"`
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
@@ -75,6 +76,7 @@ var ClusterAttrTypes = map[string]attr.Type{
 	"ml_model":      types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
 	"shards":        types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
 	"shard_group":   types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
+	"extension":     types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
 
 	"hosts":                    types.MapType{ElemType: types.StringType},
 	"timeouts":                 timeouts.Type{},

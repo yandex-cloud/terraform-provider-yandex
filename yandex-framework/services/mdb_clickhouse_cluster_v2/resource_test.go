@@ -110,6 +110,10 @@ access = {
 	yandex_query  = true
 }
 
+extension {
+	name = "geodb"
+}
+
 # maintenance_window
 %s
 `,
@@ -137,6 +141,11 @@ format_schema {
 	name = "test_schema"
 	type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
 	uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test.capnp"
+}
+
+extension {
+	name = "catboost"
+	version = "1.17.3"
 }
 
 # maintenance_window
@@ -184,6 +193,9 @@ format_schema {
 					resource.TestCheckResourceAttr(chResource, "sql_database_management", "false"),
 
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
+					testAccCheckMDBClickHouseClusterHasExtensions(chResource, map[string]string{
+						"geodb": "",
+					}),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -226,6 +238,10 @@ format_schema {
 							"type": "FORMAT_SCHEMA_TYPE_CAPNPROTO",
 							"uri":  fmt.Sprintf("%s/%s/test.capnp", StorageEndpointUrl, bucketName),
 						},
+					}),
+
+					testAccCheckMDBClickHouseClusterHasExtensions(chResource, map[string]string{
+						"catboost": "1.17.3",
 					}),
 				),
 			},
@@ -2168,6 +2184,45 @@ func testAccCheckMDBClickHouseClusterHasFormatSchemas(r string, targetSchemas ma
 
 			if s.Uri != ts["uri"] {
 				return fmt.Errorf("format schema %s has wrong uri, %v. expected %v", s.Name, s.Uri, ts["uri"])
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseClusterHasExtensions(r string, targetExtensions map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+
+		resp, err := config.SDK.MDB().Clickhouse().ClusterExtension().List(context.Background(), &clickhouse.ListClusterExtensionsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Extensions) != len(targetExtensions) {
+			return fmt.Errorf("expected %d extensions, found %d", len(targetExtensions), len(resp.Extensions))
+		}
+
+		for _, e := range resp.Extensions {
+			expectedVersion, ok := targetExtensions[e.Name]
+			if !ok {
+				return fmt.Errorf("unexpected extension: %s", e.Name)
+			}
+			if expectedVersion != "" && e.Version != expectedVersion {
+				return fmt.Errorf("extension %s has wrong version %q, expected %q", e.Name, e.Version, expectedVersion)
 			}
 		}
 

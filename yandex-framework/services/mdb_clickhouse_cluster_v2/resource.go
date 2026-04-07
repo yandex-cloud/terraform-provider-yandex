@@ -125,6 +125,12 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	// Create extensions
+	r.createExtensions(ctx, plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Update state
 	prevState := plan
 	refreshState(ctx, &prevState, &plan, r.providerConfig.SDK, &resp.Diagnostics)
@@ -298,6 +304,15 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		// Update shard groups
 		tflog.Debug(ctx, "Updating Clickhouse shard groups")
 		updateShardGroups(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	if !state.Extension.Equal(plan.Extension) {
+		// Update extensions
+		tflog.Debug(ctx, "Updating Clickhouse extensions")
+		updateExtensions(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -530,6 +545,9 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
 	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
+
+	currentExtensions := clickhouseApi.ListExtensions(ctx, sdk, diags, cid)
+	state.Extension = models.FlattenListExtensions(ctx, currentExtensions, diags)
 }
 
 func shardOverridesChanged(

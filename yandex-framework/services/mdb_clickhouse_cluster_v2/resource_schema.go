@@ -156,6 +156,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"format_schema":      FormatSchemaSchema(),
 			"ml_model":           MlModelSchema(),
 			"maintenance_window": MaintenanceWindowSchema(),
+			"extension":          ExtensionSchema(),
 		},
 	}
 }
@@ -1175,6 +1176,28 @@ func MaintenanceWindowSchema() schema.SingleNestedBlock {
 				Optional:    true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 24),
+				},
+			},
+		},
+	}
+}
+
+func ExtensionSchema() schema.SetNestedBlock {
+	return schema.SetNestedBlock{
+		Description: "A set of cluster extensions.",
+		NestedObject: schema.NestedBlockObject{
+			Attributes: map[string]schema.Attribute{
+				"name": schema.StringAttribute{
+					Description: "The name of the extension.",
+					Required:    true,
+				},
+				"version": schema.StringAttribute{
+					Description: "Version of the extension.",
+					Optional:    true,
+					Computed:    true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 				},
 			},
 		},
