@@ -116,6 +116,7 @@ func DataSourceClusterSchema(ctx context.Context) schema.Schema {
 			"format_schema":      DataSourceFormatSchemaSchema(),
 			"ml_model":           DataSourceMlModelSchema(),
 			"maintenance_window": DataSourceMaintenanceWindowSchema(),
+			"extension":          DataSourceExtensionSchema(),
 		},
 	}
 }
@@ -1125,6 +1126,24 @@ func DataSourceJdbcBridgeSchema() schema.SingleNestedAttribute {
 			"port": schema.Int64Attribute{
 				MarkdownDescription: "Port of jdbc bridge. Default value: 9019.",
 				Computed:            true,
+			},
+		},
+	}
+}
+
+func DataSourceExtensionSchema() schema.SetNestedBlock {
+	return schema.SetNestedBlock{
+		MarkdownDescription: "A set of cluster extensions.",
+		NestedObject: schema.NestedBlockObject{
+			Attributes: map[string]schema.Attribute{
+				"name": schema.StringAttribute{
+					MarkdownDescription: "The name of the extension.",
+					Computed:            true,
+				},
+				"version": schema.StringAttribute{
+					MarkdownDescription: "Version of the extension.",
+					Computed:            true,
+				},
 			},
 		},
 	}

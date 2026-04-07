@@ -207,6 +207,11 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 
+	extension {
+		name = "geodb"
+		version = "2025.11.25-112243"
+	}
+
   maintenance_window {
   	type = "ANYTIME"
   }

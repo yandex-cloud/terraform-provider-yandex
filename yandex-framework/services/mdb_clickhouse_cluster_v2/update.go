@@ -665,6 +665,17 @@ func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpe
 	}
 }
 
+// Extensions
+
+func updateExtensions(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+	specs := models.ExpandListExtensions(ctx, plan.Extension, diags)
+	if diags.HasError() {
+		return
+	}
+
+	clickhouseApi.SetExtensions(ctx, sdk, diags, plan.Id.ValueString(), specs)
+}
+
 // Utils
 
 func appendNestedConfigUpdatePaths(

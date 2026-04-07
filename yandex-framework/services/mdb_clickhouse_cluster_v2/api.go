@@ -870,3 +870,79 @@ func (c *ClickHouseAPI) DeleteShardGroup(ctx context.Context, sdk *ycsdk.SDK, di
 		return
 	}
 }
+
+// Extensions
+
+func (c *ClickHouseAPI) ListExtensions(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouse.ClusterExtension {
+	extensions := []*clickhouse.ClusterExtension{}
+	pageToken := ""
+
+	for {
+		resp, err := sdk.MDB().Clickhouse().ClusterExtension().List(ctx, &clickhouse.ListClusterExtensionsRequest{
+			ClusterId: cid,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+
+		if err != nil {
+			diags.AddError(
+				"Failed to read resource",
+				fmt.Sprintf("Error while requesting API to read extensions of cluster ClickHouse '%s': %s", cid, err.Error()),
+			)
+			return nil
+		}
+
+		extensions = append(extensions, resp.Extensions...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+
+		pageToken = resp.NextPageToken
+	}
+	return extensions
+}
+
+func (c *ClickHouseAPI) CreateExtension(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterExtensionRequest) {
+	tflog.Debug(ctx, "Creating ClickHouse cluster extension", map[string]any{"cluster_id": req.ClusterId, "extension": req.ExtensionSpec.GetName()})
+
+	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().ClusterExtension().Create(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while requesting API to create extension %q of ClickHouse cluster '%s': %s", req.ExtensionSpec.GetName(), req.ClusterId, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while waiting for operation %q to create extension %q of ClickHouse cluster '%s': %s", op.Id(), req.ExtensionSpec.GetName(), req.ClusterId, err.Error()),
+		)
+	}
+}
+
+func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, specs []*clickhouse.ExtensionSpec) {
+	tflog.Debug(ctx, "Setting ClickHouse cluster extensions", map[string]any{"cluster_id": cid})
+
+	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().ClusterExtension().SetExtensions(ctx, &clickhouse.SetClusterExtensionsRequest{
+		ClusterId:      cid,
+		ExtensionSpecs: specs,
+	}))
+
+	if err != nil {
+		diags.AddError(
+			"Failed to update resource",
+			fmt.Sprintf("Error while requesting API to set extensions of ClickHouse cluster '%s': %s", cid, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to update resource",
+			fmt.Sprintf("Error while waiting for operation %q to set extensions of ClickHouse cluster '%s': %s", op.Id(), cid, err.Error()),
+		)
+	}
+}

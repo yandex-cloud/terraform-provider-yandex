@@ -203,3 +203,40 @@ func prepareShardGroupsCreateRequests(ctx context.Context, plan *models.Cluster,
 
 	return requests
 }
+
+// Create extensions
+
+func (r *clusterResource) createExtensions(ctx context.Context, plan models.Cluster, diags *diag.Diagnostics) {
+	tflog.Debug(ctx, "Creating ClickHouse extensions")
+
+	requests := prepareExtensionsCreateRequests(ctx, &plan, diags)
+	if diags.HasError() {
+		return
+	}
+
+	for _, request := range requests {
+		clickhouseApi.CreateExtension(ctx, r.providerConfig.SDK, diags, request)
+		if diags.HasError() {
+			return
+		}
+	}
+}
+
+func prepareExtensionsCreateRequests(ctx context.Context, plan *models.Cluster, diags *diag.Diagnostics) []*clickhouse.CreateClusterExtensionRequest {
+	cid := plan.Id.ValueString()
+	var requests []*clickhouse.CreateClusterExtensionRequest
+
+	specs := models.ExpandListExtensions(ctx, plan.Extension, diags)
+	if diags.HasError() {
+		return requests
+	}
+
+	for _, spec := range specs {
+		requests = append(requests, &clickhouse.CreateClusterExtensionRequest{
+			ClusterId:     cid,
+			ExtensionSpec: spec,
+		})
+	}
+
+	return requests
+}
