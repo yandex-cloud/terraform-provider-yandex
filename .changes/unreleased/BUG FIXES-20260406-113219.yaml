@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: fixed a bug with adding zookeeper/keeper hosts'
-time: 2026-04-06T11:32:19.023976+02:00
