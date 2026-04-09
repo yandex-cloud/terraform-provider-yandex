@@ -55,6 +55,55 @@ resource "yandex_mdb_kafka_connector" "connector" {
   }
 }
 
+resource "yandex_mdb_kafka_connector" "iceberg_static" {
+  cluster_id = yandex_mdb_kafka_cluster.my_cluster.id
+  name       = "iceberg-sink-static"
+  tasks_max  = 2
+  properties = {
+    "key.converter"   = "org.apache.kafka.connect.storage.StringConverter"
+    "value.converter" = "org.apache.kafka.connect.json.JsonConverter"
+  }
+  connector_config_iceberg_sink {
+    topics        = "topic1,topic2,topic3"
+    control_topic = "iceberg-control"
+
+    metastore_connection {
+      catalog_uri = "thrift://metastore.example.com:9083"
+      warehouse   = "s3a://my-bucket/warehouse"
+    }
+
+    s3_connection {
+      external_s3 {
+        endpoint          = "https://storage.yandexcloud.net"
+        access_key_id     = "some_access_key_id"
+        secret_access_key = "some_secret_access_key"
+        region            = "ru-central1"
+      }
+    }
+
+    static_tables {
+      tables = "db.table1,db.table2,db.table3"
+    }
+
+    tables_config {
+      default_commit_branch    = "main"
+      default_id_columns       = "id"
+      default_partition_by     = "year(timestamp),month(timestamp)"
+      evolve_schema_enabled    = true
+      schema_force_optional    = false
+      schema_case_insensitive  = true
+    }
+
+    control_config {
+      group_id_prefix      = "cg-iceberg"
+      commit_interval_ms   = 300000
+      commit_timeout_ms    = 30000
+      commit_threads       = 4
+      transactional_prefix = "txn-"
+    }
+  }
+}
+
 resource "yandex_mdb_kafka_cluster" "my_cluster" {
   name       = "foo"
   network_id = "c64vs98keiqc7f24pvkd"

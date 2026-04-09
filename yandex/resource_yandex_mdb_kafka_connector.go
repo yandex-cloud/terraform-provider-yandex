@@ -118,6 +118,74 @@ func resourceYandexMDBKafkaConnector() *schema.Resource {
 					},
 				},
 			},
+			"connector_config_iceberg_sink": {
+				Type:        schema.TypeList,
+				Description: "Settings for Iceberg Sink connector.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"topics": {
+							Type:        schema.TypeString,
+							Description: "The pattern for topic names to be written to Iceberg tables.",
+							Optional:    true,
+						},
+						"topics_regex": {
+							Type:        schema.TypeString,
+							Description: "Regex pattern for topic names to be written to Iceberg tables.",
+							Optional:    true,
+						},
+						"control_topic": {
+							Type:        schema.TypeString,
+							Description: "Control topic name for Iceberg connector.",
+							Optional:    true,
+						},
+						"metastore_connection": {
+							Type:        schema.TypeList,
+							Description: "Settings for connection to Hive Metastore.",
+							Required:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaMetastoreConnectionSpec(),
+						},
+						"s3_connection": {
+							Type:        schema.TypeList,
+							Description: "Settings for connection to s3-compatible storage.",
+							Required:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaIcebergS3ConnectionSpec(),
+						},
+						"static_tables": {
+							Type:        schema.TypeList,
+							Description: "Static table routing configuration. Cannot be changed after creation.",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaStaticTablesSpec(),
+						},
+						"dynamic_tables": {
+							Type:        schema.TypeList,
+							Description: "Dynamic table routing configuration. Cannot be changed after creation.",
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaDynamicTablesSpec(),
+						},
+						"tables_config": {
+							Type:        schema.TypeList,
+							Description: "Optional table settings.",
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaIcebergTablesConfigSpec(),
+						},
+						"control_config": {
+							Type:        schema.TypeList,
+							Description: "Optional control settings.",
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        resourceYandexMDBKafkaIcebergControlSpec(),
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -218,6 +286,154 @@ func resourceYandexMDBKafkaS3ConnectionSpec() *schema.Resource {
 	}
 }
 
+func resourceYandexMDBKafkaMetastoreConnectionSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"catalog_uri": {
+				Type:        schema.TypeString,
+				Description: "Thrift URI of Hive Metastore. Format: 'thrift://host:9083'",
+				Required:    true,
+			},
+			"warehouse": {
+				Type:        schema.TypeString,
+				Description: "Warehouse root directory in S3. Format: 's3a://bucket-name/path/to/warehouse'",
+				Required:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaIcebergS3ConnectionSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"external_s3": {
+				Type:        schema.TypeList,
+				Description: "Connection params for external s3-compatible storage.",
+				Required:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"endpoint": {
+							Type:        schema.TypeString,
+							Description: "URL of s3-compatible storage.",
+							Required:    true,
+						},
+						"access_key_id": {
+							Type:        schema.TypeString,
+							Description: "ID of aws-compatible static key.",
+							Optional:    true,
+						},
+						"secret_access_key": {
+							Type:        schema.TypeString,
+							Description: "Secret key of aws-compatible static key.",
+							Optional:    true,
+							Sensitive:   true,
+						},
+						"region": {
+							Type:        schema.TypeString,
+							Description: "Region of s3-compatible storage.",
+							Optional:    true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaStaticTablesSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"tables": {
+				Type:        schema.TypeString,
+				Description: "List of tables, separated by ','.",
+				Required:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaDynamicTablesSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"route_field": {
+				Type:        schema.TypeString,
+				Description: "Field in the message to define the target table.",
+				Required:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaIcebergTablesConfigSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"default_commit_branch": {
+				Type:        schema.TypeString,
+				Description: "Default Git-like branch name for Iceberg commits. Default: 'main'",
+				Optional:    true,
+			},
+			"default_id_columns": {
+				Type:        schema.TypeString,
+				Description: "List of columns used as identifiers for upsert operations, separated by ','.",
+				Optional:    true,
+			},
+			"default_partition_by": {
+				Type:        schema.TypeString,
+				Description: "Comma-separated list of columns or transform expressions for table partitioning.",
+				Optional:    true,
+			},
+			"evolve_schema_enabled": {
+				Type:        schema.TypeBool,
+				Description: "Enable automatic schema evolution. Default: false",
+				Optional:    true,
+			},
+			"schema_force_optional": {
+				Type:        schema.TypeBool,
+				Description: "Force all columns to be nullable. Default: false",
+				Optional:    true,
+			},
+			"schema_case_insensitive": {
+				Type:        schema.TypeBool,
+				Description: "Enable case-insensitive field name matching. Default: false",
+				Optional:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaIcebergControlSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"group_id_prefix": {
+				Type:        schema.TypeString,
+				Description: "Consumer group ID prefix for control topic. Default: 'cg-control'",
+				Optional:    true,
+			},
+			"commit_interval_ms": {
+				Type:        schema.TypeInt,
+				Description: "Interval between commits in milliseconds. Default: 300000 (5 minutes)",
+				Optional:    true,
+			},
+			"commit_timeout_ms": {
+				Type:        schema.TypeInt,
+				Description: "Commit operation timeout in milliseconds. Default: 30000 (30 seconds)",
+				Optional:    true,
+			},
+			"commit_threads": {
+				Type:        schema.TypeInt,
+				Description: "Number of threads for commit operations. Default: cores * 2",
+				Optional:    true,
+			},
+			"transactional_prefix": {
+				Type:        schema.TypeString,
+				Description: "Prefix for transactional operations. Default: ''",
+				Optional:    true,
+			},
+		},
+	}
+}
+
 func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -306,6 +522,14 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 			return err
 		}
 		if err = d.Set("connector_config_s3_sink", cfg); err != nil {
+			return err
+		}
+	case *kafka.Connector_ConnectorConfigIcebergSink:
+		cfg, err := flattenKafkaConnectorIcebergSink(conn.GetConnectorConfigIcebergSink(), d)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("connector_config_iceberg_sink", cfg); err != nil {
 			return err
 		}
 	default:
@@ -422,6 +646,10 @@ func buildKafkaConnectorSpec(d *schema.ResourceData) (*kafka.ConnectorSpec, erro
 		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpec(d))
 		countOfSpecificConnectorConfigs++
 	}
+	if _, ok := d.GetOk("connector_config_iceberg_sink"); ok {
+		connSpec.SetConnectorConfigIcebergSink(buildKafkaIcebergSinkConnectorSpec(d))
+		countOfSpecificConnectorConfigs++
+	}
 	if countOfSpecificConnectorConfigs == 0 {
 		return nil, fmt.Errorf("connector-specific config must be specified")
 	} else if countOfSpecificConnectorConfigs > 1 {
@@ -448,6 +676,10 @@ func buildKafkaConnectorUpdateSpec(d *schema.ResourceData) (*kafka.UpdateConnect
 	}
 	if _, ok := d.GetOk("connector_config_s3_sink"); ok {
 		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpecUpdate(d))
+		countOfSpecificConnectorConfigs++
+	}
+	if _, ok := d.GetOk("connector_config_iceberg_sink"); ok {
+		connSpec.SetConnectorConfigIcebergSink(buildKafkaIcebergSinkConnectorSpecUpdate(d))
 		countOfSpecificConnectorConfigs++
 	}
 	if countOfSpecificConnectorConfigs > 1 {
@@ -525,6 +757,172 @@ func buildS3ConnectionSpec(d *schema.ResourceData, prefixKey string) *kafka.S3Co
 	}
 	return spec
 }
+func buildKafkaIcebergSinkConnectorSpec(d *schema.ResourceData) *kafka.ConnectorConfigIcebergSinkSpec {
+	spec := &kafka.ConnectorConfigIcebergSinkSpec{
+		MetastoreConnection: buildMetastoreConnectionSpec(d, "connector_config_iceberg_sink.0.metastore_connection.0."),
+		S3Connection:        buildIcebergS3ConnectionSpec(d, "connector_config_iceberg_sink.0.s3_connection.0."),
+	}
+
+	// Topics source (topics or topics_regex)
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.topics"); ok {
+		spec.TopicsSource = &kafka.ConnectorConfigIcebergSinkSpec_Topics{
+			Topics: v.(string),
+		}
+	}
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.topics_regex"); ok {
+		spec.TopicsSource = &kafka.ConnectorConfigIcebergSinkSpec_TopicsRegex{
+			TopicsRegex: v.(string),
+		}
+	}
+
+	// Control topic
+	spec.ControlTopic = d.Get("connector_config_iceberg_sink.0.control_topic").(string)
+
+	// Table routing (static_tables or dynamic_tables)
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.static_tables"); ok {
+		spec.TableRouting = &kafka.ConnectorConfigIcebergSinkSpec_StaticTables{
+			StaticTables: &kafka.StaticTablesSpec{
+				Tables: d.Get("connector_config_iceberg_sink.0.static_tables.0.tables").(string),
+			},
+		}
+	}
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.dynamic_tables"); ok {
+		spec.TableRouting = &kafka.ConnectorConfigIcebergSinkSpec_DynamicTables{
+			DynamicTables: &kafka.DynamicTablesSpec{
+				RouteField: d.Get("connector_config_iceberg_sink.0.dynamic_tables.0.route_field").(string),
+			},
+		}
+	}
+
+	// Tables config
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.tables_config"); ok {
+		spec.TablesConfig = buildIcebergTablesConfigSpec(d, "connector_config_iceberg_sink.0.tables_config.0.")
+	}
+
+	// Control config
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.control_config"); ok {
+		spec.ControlConfig = buildIcebergControlSpec(d, "connector_config_iceberg_sink.0.control_config.0.")
+	}
+
+	return spec
+}
+
+func buildKafkaIcebergSinkConnectorSpecUpdate(d *schema.ResourceData) *kafka.UpdateConnectorConfigIcebergSinkSpec {
+	spec := &kafka.UpdateConnectorConfigIcebergSinkSpec{
+		MetastoreConnection: buildMetastoreConnectionSpec(d, "connector_config_iceberg_sink.0.metastore_connection.0."),
+		S3Connection:        buildIcebergS3ConnectionSpec(d, "connector_config_iceberg_sink.0.s3_connection.0."),
+	}
+
+	// Topics source (topics or topics_regex)
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.topics"); ok {
+		spec.TopicsSource = &kafka.UpdateConnectorConfigIcebergSinkSpec_Topics{
+			Topics: v.(string),
+		}
+	}
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.topics_regex"); ok {
+		spec.TopicsSource = &kafka.UpdateConnectorConfigIcebergSinkSpec_TopicsRegex{
+			TopicsRegex: v.(string),
+		}
+	}
+
+	// Control topic
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.control_topic"); ok {
+		spec.ControlTopic = v.(string)
+	}
+
+	// Tables config
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.tables_config"); ok {
+		spec.TablesConfig = buildIcebergTablesConfigSpec(d, "connector_config_iceberg_sink.0.tables_config.0.")
+	}
+
+	// Control config
+	if _, ok := d.GetOk("connector_config_iceberg_sink.0.control_config"); ok {
+		spec.ControlConfig = buildIcebergControlSpec(d, "connector_config_iceberg_sink.0.control_config.0.")
+	}
+
+	return spec
+}
+
+func buildMetastoreConnectionSpec(d *schema.ResourceData, prefixKey string) *kafka.MetastoreConnectionSpec {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
+	}
+	return &kafka.MetastoreConnectionSpec{
+		CatalogUri: d.Get(key("catalog_uri")).(string),
+		Warehouse:  d.Get(key("warehouse")).(string),
+	}
+}
+
+func buildIcebergS3ConnectionSpec(d *schema.ResourceData, prefixKey string) *kafka.IcebergS3ConnectionSpec {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
+	}
+	spec := &kafka.IcebergS3ConnectionSpec{}
+	if _, ok := d.GetOk(key("external_s3")); ok {
+		spec.Storage = &kafka.IcebergS3ConnectionSpec_ExternalS3{
+			ExternalS3: &kafka.ExternalIcebergS3StorageSpec{
+				AccessKeyId:     d.Get(key("external_s3.0.access_key_id")).(string),
+				SecretAccessKey: d.Get(key("external_s3.0.secret_access_key")).(string),
+				Endpoint:        d.Get(key("external_s3.0.endpoint")).(string),
+				Region:          d.Get(key("external_s3.0.region")).(string),
+			},
+		}
+	}
+	return spec
+}
+
+func buildIcebergTablesConfigSpec(d *schema.ResourceData, prefixKey string) *kafka.IcebergTablesConfigSpec {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
+	}
+	spec := &kafka.IcebergTablesConfigSpec{}
+
+	if v, ok := d.GetOk(key("default_commit_branch")); ok {
+		spec.DefaultCommitBranch = v.(string)
+	}
+	if v, ok := d.GetOk(key("default_id_columns")); ok {
+		spec.DefaultIdColumns = v.(string)
+	}
+	if v, ok := d.GetOk(key("default_partition_by")); ok {
+		spec.DefaultPartitionBy = v.(string)
+	}
+	if v, ok := d.GetOk(key("evolve_schema_enabled")); ok {
+		spec.EvolveSchemaEnabled = v.(bool)
+	}
+	if v, ok := d.GetOk(key("schema_force_optional")); ok {
+		spec.SchemaForceOptional = v.(bool)
+	}
+	if v, ok := d.GetOk(key("schema_case_insensitive")); ok {
+		spec.SchemaCaseInsensitive = v.(bool)
+	}
+
+	return spec
+}
+
+func buildIcebergControlSpec(d *schema.ResourceData, prefixKey string) *kafka.IcebergControlSpec {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
+	}
+	spec := &kafka.IcebergControlSpec{}
+
+	if v, ok := d.GetOk(key("group_id_prefix")); ok {
+		spec.GroupIdPrefix = v.(string)
+	}
+	if v, ok := d.GetOk(key("commit_interval_ms")); ok {
+		spec.CommitIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(key("commit_timeout_ms")); ok {
+		spec.CommitTimeoutMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(key("commit_threads")); ok {
+		spec.CommitThreads = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(key("transactional_prefix")); ok {
+		spec.TransactionalPrefix = v.(string)
+	}
+
+	return spec
+}
 
 var mdbKafkaConnectorUpdateFieldsMap = map[string]string{}
 
@@ -535,6 +933,7 @@ func init() {
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"properties"] = valPrefix + "properties"
 	addMirrormakerUpdatePathsToFieldsMap(keyPrefix, valPrefix)
 	addS3SinkUpdatePathsToFieldsMap(keyPrefix, valPrefix)
+	addIcebergSinkUpdatePathsToFieldsMap(keyPrefix, valPrefix)
 }
 
 func addMirrormakerUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefix string) {
@@ -574,4 +973,52 @@ func addS3SinkUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefix str
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"secret_access_key"] = valPrefix + "secret_access_key"
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"endpoint"] = valPrefix + "endpoint"
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"region"] = valPrefix + "region"
+}
+
+func addIcebergSinkUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefix string) {
+	keyPrefix := commonKeyPrefix + "connector_config_iceberg_sink.0."
+	valPrefix := commonValPrefix + "connector_config_iceberg_sink."
+
+	// Topics source
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"topics"] = valPrefix + "topics"
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"topics_regex"] = valPrefix + "topics_regex"
+
+	// Control topic
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"control_topic"] = valPrefix + "control_topic"
+
+	// Metastore connection
+	metastoreKeyPrefix := keyPrefix + "metastore_connection.0."
+	metastoreValPrefix := valPrefix + "metastore_connection."
+	mdbKafkaConnectorUpdateFieldsMap[metastoreKeyPrefix+"catalog_uri"] = metastoreValPrefix + "catalog_uri"
+	mdbKafkaConnectorUpdateFieldsMap[metastoreKeyPrefix+"warehouse"] = metastoreValPrefix + "warehouse"
+
+	// S3 connection
+	s3KeyPrefix := keyPrefix + "s3_connection.0."
+	s3ValPrefix := valPrefix + "s3_connection."
+
+	s3ExternalKeyPrefix := s3KeyPrefix + "external_s3.0."
+	s3ExternalValPrefix := s3ValPrefix + "external_s3."
+	mdbKafkaConnectorUpdateFieldsMap[s3ExternalKeyPrefix+"access_key_id"] = s3ExternalValPrefix + "access_key_id"
+	mdbKafkaConnectorUpdateFieldsMap[s3ExternalKeyPrefix+"secret_access_key"] = s3ExternalValPrefix + "secret_access_key"
+	mdbKafkaConnectorUpdateFieldsMap[s3ExternalKeyPrefix+"endpoint"] = s3ExternalValPrefix + "endpoint"
+	mdbKafkaConnectorUpdateFieldsMap[s3ExternalKeyPrefix+"region"] = s3ExternalValPrefix + "region"
+
+	// Tables config
+	tablesConfigKeyPrefix := keyPrefix + "tables_config.0."
+	tablesConfigValPrefix := valPrefix + "tables_config."
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"default_commit_branch"] = tablesConfigValPrefix + "default_commit_branch"
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"default_id_columns"] = tablesConfigValPrefix + "default_id_columns"
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"default_partition_by"] = tablesConfigValPrefix + "default_partition_by"
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"evolve_schema_enabled"] = tablesConfigValPrefix + "evolve_schema_enabled"
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"schema_force_optional"] = tablesConfigValPrefix + "schema_force_optional"
+	mdbKafkaConnectorUpdateFieldsMap[tablesConfigKeyPrefix+"schema_case_insensitive"] = tablesConfigValPrefix + "schema_case_insensitive"
+
+	// Control config
+	controlConfigKeyPrefix := keyPrefix + "control_config.0."
+	controlConfigValPrefix := valPrefix + "control_config."
+	mdbKafkaConnectorUpdateFieldsMap[controlConfigKeyPrefix+"group_id_prefix"] = controlConfigValPrefix + "group_id_prefix"
+	mdbKafkaConnectorUpdateFieldsMap[controlConfigKeyPrefix+"commit_interval_ms"] = controlConfigValPrefix + "commit_interval_ms"
+	mdbKafkaConnectorUpdateFieldsMap[controlConfigKeyPrefix+"commit_timeout_ms"] = controlConfigValPrefix + "commit_timeout_ms"
+	mdbKafkaConnectorUpdateFieldsMap[controlConfigKeyPrefix+"commit_threads"] = controlConfigValPrefix + "commit_threads"
+	mdbKafkaConnectorUpdateFieldsMap[controlConfigKeyPrefix+"transactional_prefix"] = controlConfigValPrefix + "transactional_prefix"
 }
