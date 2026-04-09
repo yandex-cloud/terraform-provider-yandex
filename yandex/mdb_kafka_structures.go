@@ -1435,3 +1435,134 @@ func flattenExternalS3Storage(externalS3 *kafka.ExternalS3Storage, d *schema.Res
 
 	return result
 }
+
+func flattenKafkaConnectorIcebergSink(icebergSink *kafka.ConnectorConfigIcebergSink, d *schema.ResourceData) ([]map[string]interface{}, error) {
+	config := map[string]interface{}{}
+
+	// Topics source
+	switch icebergSink.GetTopicsSource().(type) {
+	case *kafka.ConnectorConfigIcebergSink_Topics:
+		config["topics"] = icebergSink.GetTopics()
+	case *kafka.ConnectorConfigIcebergSink_TopicsRegex:
+		config["topics_regex"] = icebergSink.GetTopicsRegex()
+	}
+
+	// Control topic
+	if icebergSink.ControlTopic != "" {
+		config["control_topic"] = icebergSink.ControlTopic
+	}
+
+	// Metastore connection
+	metastoreConn, err := flattenMetastoreConnection(icebergSink.GetMetastoreConnection())
+	if err != nil {
+		return nil, err
+	}
+	config["metastore_connection"] = []map[string]interface{}{metastoreConn}
+
+	// S3 connection
+	s3Conn, err := flattenIcebergS3Connection(icebergSink.GetS3Connection(), d)
+	if err != nil {
+		return nil, err
+	}
+	config["s3_connection"] = []map[string]interface{}{s3Conn}
+
+	// Table routing
+	switch icebergSink.GetTableRouting().(type) {
+	case *kafka.ConnectorConfigIcebergSink_StaticTables:
+		config["static_tables"] = []map[string]interface{}{
+			{
+				"tables": icebergSink.GetStaticTables().Tables,
+			},
+		}
+	case *kafka.ConnectorConfigIcebergSink_DynamicTables:
+		config["dynamic_tables"] = []map[string]interface{}{
+			{
+				"route_field": icebergSink.GetDynamicTables().RouteField,
+			},
+		}
+	}
+
+	// Tables config
+	if icebergSink.TablesConfig != nil {
+		config["tables_config"] = []map[string]interface{}{flattenIcebergTablesConfig(icebergSink.TablesConfig)}
+	}
+
+	// Control config
+	if icebergSink.ControlConfig != nil {
+		config["control_config"] = []map[string]interface{}{flattenIcebergControl(icebergSink.ControlConfig)}
+	}
+
+	return []map[string]interface{}{config}, nil
+}
+
+func flattenMetastoreConnection(mc *kafka.MetastoreConnection) (map[string]interface{}, error) {
+	return map[string]interface{}{
+		"catalog_uri": mc.CatalogUri,
+		"warehouse":   mc.Warehouse,
+	}, nil
+}
+
+func flattenIcebergS3Connection(s3Conn *kafka.IcebergS3Connection, d *schema.ResourceData) (map[string]interface{}, error) {
+	config := map[string]interface{}{}
+	switch s3Conn.GetStorage().(type) {
+	case *kafka.IcebergS3Connection_ExternalS3:
+		config["external_s3"] = []map[string]interface{}{flattenExternalIcebergS3Storage(s3Conn.GetExternalS3(), d)}
+	default:
+		return nil, fmt.Errorf("this s3 connection type of iceberg-sink connector is not supported by current version of terraform provider")
+	}
+	return config, nil
+}
+
+func flattenExternalIcebergS3Storage(externalS3 *kafka.ExternalIcebergS3Storage, d *schema.ResourceData) map[string]interface{} {
+	result := map[string]interface{}{
+		"access_key_id": externalS3.AccessKeyId,
+		"endpoint":      externalS3.Endpoint,
+		"region":        externalS3.Region,
+	}
+	// Preserve secret_access_key from state since API doesn't return it
+	if v, ok := d.GetOk("connector_config_iceberg_sink.0.s3_connection.0.external_s3.0.secret_access_key"); ok {
+		result["secret_access_key"] = v.(string)
+	}
+	return result
+}
+
+func flattenIcebergTablesConfig(tc *kafka.IcebergTablesConfig) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if tc.DefaultCommitBranch != "" {
+		result["default_commit_branch"] = tc.DefaultCommitBranch
+	}
+	if tc.DefaultIdColumns != "" {
+		result["default_id_columns"] = tc.DefaultIdColumns
+	}
+	if tc.DefaultPartitionBy != "" {
+		result["default_partition_by"] = tc.DefaultPartitionBy
+	}
+	result["evolve_schema_enabled"] = tc.EvolveSchemaEnabled
+	result["schema_force_optional"] = tc.SchemaForceOptional
+	result["schema_case_insensitive"] = tc.SchemaCaseInsensitive
+
+	return result
+}
+
+func flattenIcebergControl(ic *kafka.IcebergControl) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if ic.GroupIdPrefix != "" {
+		result["group_id_prefix"] = ic.GroupIdPrefix
+	}
+	if ic.CommitIntervalMs != nil {
+		result["commit_interval_ms"] = int(ic.CommitIntervalMs.GetValue())
+	}
+	if ic.CommitTimeoutMs != nil {
+		result["commit_timeout_ms"] = int(ic.CommitTimeoutMs.GetValue())
+	}
+	if ic.CommitThreads != nil {
+		result["commit_threads"] = int(ic.CommitThreads.GetValue())
+	}
+	if ic.TransactionalPrefix != "" {
+		result["transactional_prefix"] = ic.TransactionalPrefix
+	}
+
+	return result
+}
