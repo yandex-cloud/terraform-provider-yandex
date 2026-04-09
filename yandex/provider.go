@@ -196,6 +196,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_loadtesting_agent":                                dataSourceYandexLoadtestingAgent(),
 			"yandex_lockbox_secret":                                   dataSourceYandexLockboxSecret(),
 			"yandex_lockbox_secret_version":                           dataSourceYandexLockboxSecretVersion(),
+			"yandex_lockbox_secret_version_entry":                     dataSourceYandexLockboxSecretVersionEntry(),
 			"yandex_kms_symmetric_key":                                dataSourceYandexKMSSymmetricKey(),
 			"yandex_logging_group":                                    dataSourceYandexLoggingGroup(),
 			"yandex_mdb_clickhouse_cluster":                           dataSourceYandexMDBClickHouseCluster(),

@@ -817,6 +817,14 @@ Resources:
     HasI: false
     #HasF: false
     #HasE: false
+  lockbox_secret_version_entry:
+    Category: "Lockbox (Secret Management)"
+    Type: sdk
+    HasR: false
+    HasD: true
+    HasI: false
+    #HasF: false
+    #HasE: false
   logging_group:
     Category: "Cloud Logging"
     Type: sdk
