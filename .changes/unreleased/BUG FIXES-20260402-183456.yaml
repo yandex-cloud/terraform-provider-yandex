@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix generating update mask for config_spec.disk_size_autoscaling.* parameters'
-time: 2026-04-02T18:34:56.664396+03:00
