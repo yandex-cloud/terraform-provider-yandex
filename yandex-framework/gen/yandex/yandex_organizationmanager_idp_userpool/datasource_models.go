@@ -22,6 +22,7 @@ type yandexOrganizationmanagerIdpUserpoolDatasourceModel struct {
 	Labels                     types.Map      `tfsdk:"labels"`
 	Name                       types.String   `tfsdk:"name"`
 	OrganizationId             types.String   `tfsdk:"organization_id"`
+	PasswordBlacklistPolicy    types.Object   `tfsdk:"password_blacklist_policy"`
 	PasswordLifetimePolicy     types.Object   `tfsdk:"password_lifetime_policy"`
 	PasswordQualityPolicy      types.Object   `tfsdk:"password_quality_policy"`
 	Status                     types.String   `tfsdk:"status"`
@@ -52,6 +53,9 @@ func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetName() types.St
 }
 func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetOrganizationId() types.String {
 	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetPasswordBlacklistPolicy() types.Object {
+	return m.PasswordBlacklistPolicy
 }
 func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) GetPasswordLifetimePolicy() types.Object {
 	return m.PasswordLifetimePolicy
@@ -96,6 +100,9 @@ func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetName(target typ
 func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetOrganizationId(target types.String) {
 	m.OrganizationId = target
 }
+func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetPasswordBlacklistPolicy(target types.Object) {
+	m.PasswordBlacklistPolicy = target
+}
 func (m *yandexOrganizationmanagerIdpUserpoolDatasourceModel) SetPasswordLifetimePolicy(target types.Object) {
 	m.PasswordLifetimePolicy = target
 }
@@ -127,6 +134,7 @@ func NewYandexOrganizationmanagerIdpUserpoolDatasourceModel() yandexOrganization
 		Labels:                     types.MapNull(types.StringType),
 		Name:                       types.StringNull(),
 		OrganizationId:             types.StringNull(),
+		PasswordBlacklistPolicy:    types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes),
 		PasswordLifetimePolicy:     types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType.AttrTypes),
 		PasswordQualityPolicy:      types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType.AttrTypes),
 		Status:                     types.StringNull(),
@@ -158,6 +166,9 @@ func yandexOrganizationmanagerIdpUserpoolDatasourceModelFillUnknown(target yande
 	}
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
+	}
+	if target.PasswordBlacklistPolicy.IsUnknown() || target.PasswordBlacklistPolicy.IsNull() {
+		target.PasswordBlacklistPolicy = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes)
 	}
 	if target.PasswordLifetimePolicy.IsUnknown() || target.PasswordLifetimePolicy.IsNull() {
 		target.PasswordLifetimePolicy = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType.AttrTypes)
@@ -192,6 +203,7 @@ var yandexOrganizationmanagerIdpUserpoolDatasourceModelType = types.ObjectType{
 		"labels":                       types.MapType{ElemType: types.StringType},
 		"name":                         types.StringType,
 		"organization_id":              types.StringType,
+		"password_blacklist_policy":    yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType,
 		"password_lifetime_policy":     yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType,
 		"password_quality_policy":      yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType,
 		"status":                       types.StringType,
@@ -219,6 +231,7 @@ func flattenYandexOrganizationmanagerIdpUserpoolDatasource(ctx context.Context,
 		Labels:                     flattenYandexOrganizationmanagerIdpUserpoolLabels(ctx, yandexOrganizationmanagerIdpUserpoolDatasource.GetLabels(), state.Labels, diags),
 		Name:                       types.StringValue(yandexOrganizationmanagerIdpUserpoolDatasource.GetName()),
 		OrganizationId:             types.StringValue(yandexOrganizationmanagerIdpUserpoolDatasource.GetOrganizationId()),
+		PasswordBlacklistPolicy:    flattenYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx, yandexOrganizationmanagerIdpUserpoolDatasource.GetPasswordBlacklistPolicy(), diags),
 		PasswordLifetimePolicy:     flattenYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicy(ctx, yandexOrganizationmanagerIdpUserpoolDatasource.GetPasswordLifetimePolicy(), diags),
 		PasswordQualityPolicy:      flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx, yandexOrganizationmanagerIdpUserpoolDatasource.GetPasswordQualityPolicy(), diags),
 		Status:                     types.StringValue(yandexOrganizationmanagerIdpUserpoolDatasource.GetStatus().String()),

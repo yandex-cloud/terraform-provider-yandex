@@ -24,6 +24,7 @@ type yandexOrganizationmanagerIdpUserpoolModel struct {
 	Labels                     types.Map      `tfsdk:"labels"`
 	Name                       types.String   `tfsdk:"name"`
 	OrganizationId             types.String   `tfsdk:"organization_id"`
+	PasswordBlacklistPolicy    types.Object   `tfsdk:"password_blacklist_policy"`
 	PasswordLifetimePolicy     types.Object   `tfsdk:"password_lifetime_policy"`
 	PasswordQualityPolicy      types.Object   `tfsdk:"password_quality_policy"`
 	Status                     types.String   `tfsdk:"status"`
@@ -57,6 +58,9 @@ func (m *yandexOrganizationmanagerIdpUserpoolModel) GetName() types.String {
 }
 func (m *yandexOrganizationmanagerIdpUserpoolModel) GetOrganizationId() types.String {
 	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerIdpUserpoolModel) GetPasswordBlacklistPolicy() types.Object {
+	return m.PasswordBlacklistPolicy
 }
 func (m *yandexOrganizationmanagerIdpUserpoolModel) GetPasswordLifetimePolicy() types.Object {
 	return m.PasswordLifetimePolicy
@@ -104,6 +108,9 @@ func (m *yandexOrganizationmanagerIdpUserpoolModel) SetName(target types.String)
 func (m *yandexOrganizationmanagerIdpUserpoolModel) SetOrganizationId(target types.String) {
 	m.OrganizationId = target
 }
+func (m *yandexOrganizationmanagerIdpUserpoolModel) SetPasswordBlacklistPolicy(target types.Object) {
+	m.PasswordBlacklistPolicy = target
+}
 func (m *yandexOrganizationmanagerIdpUserpoolModel) SetPasswordLifetimePolicy(target types.Object) {
 	m.PasswordLifetimePolicy = target
 }
@@ -136,6 +143,7 @@ func NewYandexOrganizationmanagerIdpUserpoolModel() yandexOrganizationmanagerIdp
 		Labels:                     types.MapNull(types.StringType),
 		Name:                       types.StringNull(),
 		OrganizationId:             types.StringNull(),
+		PasswordBlacklistPolicy:    types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes),
 		PasswordLifetimePolicy:     types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType.AttrTypes),
 		PasswordQualityPolicy:      types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType.AttrTypes),
 		Status:                     types.StringNull(),
@@ -171,6 +179,9 @@ func yandexOrganizationmanagerIdpUserpoolModelFillUnknown(target yandexOrganizat
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
 	}
+	if target.PasswordBlacklistPolicy.IsUnknown() || target.PasswordBlacklistPolicy.IsNull() {
+		target.PasswordBlacklistPolicy = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes)
+	}
 	if target.PasswordLifetimePolicy.IsUnknown() || target.PasswordLifetimePolicy.IsNull() {
 		target.PasswordLifetimePolicy = types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType.AttrTypes)
 	}
@@ -205,6 +216,7 @@ var yandexOrganizationmanagerIdpUserpoolModelType = types.ObjectType{
 		"labels":                       types.MapType{ElemType: types.StringType},
 		"name":                         types.StringType,
 		"organization_id":              types.StringType,
+		"password_blacklist_policy":    yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType,
 		"password_lifetime_policy":     yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModelType,
 		"password_quality_policy":      yandexOrganizationmanagerIdpUserpoolPasswordQualityPolicyModelType,
 		"status":                       types.StringType,
@@ -233,6 +245,7 @@ func flattenYandexOrganizationmanagerIdpUserpool(ctx context.Context,
 		Labels:                     flattenYandexOrganizationmanagerIdpUserpoolLabels(ctx, yandexOrganizationmanagerIdpUserpool.GetLabels(), state.Labels, diags),
 		Name:                       types.StringValue(yandexOrganizationmanagerIdpUserpool.GetName()),
 		OrganizationId:             types.StringValue(yandexOrganizationmanagerIdpUserpool.GetOrganizationId()),
+		PasswordBlacklistPolicy:    flattenYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx, yandexOrganizationmanagerIdpUserpool.GetPasswordBlacklistPolicy(), diags),
 		PasswordLifetimePolicy:     flattenYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicy(ctx, yandexOrganizationmanagerIdpUserpool.GetPasswordLifetimePolicy(), diags),
 		PasswordQualityPolicy:      flattenYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx, yandexOrganizationmanagerIdpUserpool.GetPasswordQualityPolicy(), diags),
 		Status:                     types.StringValue(yandexOrganizationmanagerIdpUserpool.GetStatus().String()),
@@ -267,6 +280,7 @@ func expandYandexOrganizationmanagerIdpUserpoolModel(ctx context.Context, yandex
 	value.SetLabels(expandYandexOrganizationmanagerIdpUserpoolLabels(ctx, yandexOrganizationmanagerIdpUserpoolState.Labels, diags))
 	value.SetName(yandexOrganizationmanagerIdpUserpoolState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerIdpUserpoolState.OrganizationId.ValueString())
+	value.SetPasswordBlacklistPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx, yandexOrganizationmanagerIdpUserpoolState.PasswordBlacklistPolicy, diags))
 	value.SetPasswordLifetimePolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicy(ctx, yandexOrganizationmanagerIdpUserpoolState.PasswordLifetimePolicy, diags))
 	value.SetPasswordQualityPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx, yandexOrganizationmanagerIdpUserpoolState.PasswordQualityPolicy, diags))
 	value.SetStatus(idp.Userpool_Status(idp.Userpool_Status_value[yandexOrganizationmanagerIdpUserpoolState.Status.ValueString()]))
@@ -446,6 +460,71 @@ func expandYandexOrganizationmanagerIdpUserpoolLabels(ctx context.Context, yande
 		yandexOrganizationmanagerIdpUserpoolLabelsRes[k] = elem.ValueString()
 	}
 	return yandexOrganizationmanagerIdpUserpoolLabelsRes
+}
+
+type yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel struct {
+	CheckCommon types.Bool `tfsdk:"check_common"`
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel) GetCheckCommon() types.Bool {
+	return m.CheckCommon
+}
+
+func (m *yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel) SetCheckCommon(target types.Bool) {
+	m.CheckCommon = target
+}
+
+func NewYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel() yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel {
+	return yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel{
+		CheckCommon: types.BoolNull(),
+	}
+}
+
+func yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelFillUnknown(target yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel) yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel {
+	if target.CheckCommon.IsUnknown() || target.CheckCommon.IsNull() {
+		target.CheckCommon = types.BoolNull()
+	}
+	return target
+}
+
+var yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"check_common": types.BoolType,
+	},
+}
+
+func flattenYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx context.Context,
+	yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy *idp.PasswordBlacklistPolicy,
+	diags *diag.Diagnostics) types.Object {
+	if yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy == nil {
+		return types.ObjectNull(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModelType.AttrTypes, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel{
+		CheckCommon: types.BoolValue(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy.GetCheckCommon().GetValue()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState types.Object, diags *diag.Diagnostics) *idp.PasswordBlacklistPolicy {
+	if yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState.IsNull() || yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState.IsUnknown() {
+		return nil
+	}
+	var yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel
+	diags.Append(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel(ctx, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy, diags)
+}
+
+func expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel(ctx context.Context, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel, diags *diag.Diagnostics) *idp.PasswordBlacklistPolicy {
+	value := &idp.PasswordBlacklistPolicy{}
+	value.SetCheckCommon(converter.WrappedBool(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState.CheckCommon))
+	if diags.HasError() {
+		return nil
+	}
+	return value
 }
 
 type yandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicyModel struct {

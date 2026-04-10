@@ -160,6 +160,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Create(ctx context.Contex
 	createReq.SetPasswordQualityPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx, plan.PasswordQualityPolicy, &diags))
 	createReq.SetPasswordLifetimePolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicy(ctx, plan.PasswordLifetimePolicy, &diags))
 	createReq.SetBruteforceProtectionPolicy(expandYandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicy(ctx, plan.BruteforceProtectionPolicy, &diags))
+	createReq.SetPasswordBlacklistPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx, plan.PasswordBlacklistPolicy, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -354,6 +355,23 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		updatePaths = append(updatePaths, "name")
 	}
 
+	if (plan.PasswordBlacklistPolicy.IsNull() || state.PasswordBlacklistPolicy.IsNull()) &&
+		!(plan.PasswordBlacklistPolicy.IsNull() && state.PasswordBlacklistPolicy.IsNull()) &&
+		!plan.PasswordBlacklistPolicy.IsUnknown() {
+		updatePaths = append(updatePaths, "password_blacklist_policy")
+	} else if !plan.PasswordBlacklistPolicy.IsUnknown() {
+		var yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState, yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyPlan yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyModel
+		resp.Diagnostics.Append(plan.PasswordBlacklistPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.PasswordBlacklistPolicy.As(ctx, &yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if !yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyPlan.CheckCommon.Equal(yandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicyState.CheckCommon) {
+			updatePaths = append(updatePaths, "password_blacklist_policy.check_common")
+		}
+	}
+
 	if (plan.PasswordLifetimePolicy.IsNull() || state.PasswordLifetimePolicy.IsNull()) &&
 		!(plan.PasswordLifetimePolicy.IsNull() && state.PasswordLifetimePolicy.IsNull()) &&
 		!plan.PasswordLifetimePolicy.IsUnknown() {
@@ -495,6 +513,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolResource) Update(ctx context.Contex
 		updateReq.SetPasswordQualityPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordQualityPolicy(ctx, plan.PasswordQualityPolicy, &diags))
 		updateReq.SetPasswordLifetimePolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordLifetimePolicy(ctx, plan.PasswordLifetimePolicy, &diags))
 		updateReq.SetBruteforceProtectionPolicy(expandYandexOrganizationmanagerIdpUserpoolBruteforceProtectionPolicy(ctx, plan.BruteforceProtectionPolicy, &diags))
+		updateReq.SetPasswordBlacklistPolicy(expandYandexOrganizationmanagerIdpUserpoolPasswordBlacklistPolicy(ctx, plan.PasswordBlacklistPolicy, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

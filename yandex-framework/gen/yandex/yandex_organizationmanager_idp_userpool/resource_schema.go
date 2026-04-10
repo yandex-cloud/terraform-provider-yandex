@@ -232,6 +232,43 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 				},
 			},
 
+			"password_blacklist_policy": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"check_common": schema.BoolAttribute{
+						MarkdownDescription: "Whether check in common password database is enabled. Default value is true.",
+						Description: "Whether check in common password database is enabled. Default value is true." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserpoolRequest.password_blacklist_policyyandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
+							// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserpoolRequest.password_blacklist_policyyandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policyyandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
+							"package: yandex.cloud.organizationmanager.v1.idp\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Bool{
+							boolplanmodifier.UseStateForUnknown(),
+						},
+					},
+				},
+				MarkdownDescription: "Password blacklist policy for this userpool.",
+				Description: "Password blacklist policy for this userpool." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserpoolRequest.password_blacklist_policy
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserpoolRequest.password_blacklist_policy
+					// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policy
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+			},
+
 			"password_lifetime_policy": schema.SingleNestedAttribute{
 
 				Attributes: map[string]schema.Attribute{
