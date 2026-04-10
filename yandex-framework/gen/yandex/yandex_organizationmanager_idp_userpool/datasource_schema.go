@@ -123,6 +123,29 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 				Computed: true,
 			},
 
+			"password_blacklist_policy": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"check_common": schema.BoolAttribute{
+						MarkdownDescription: "Whether check in common password database is enabled. Default value is true.",
+						Description: "Whether check in common password database is enabled. Default value is true." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policyyandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
+							"package: yandex.cloud.organizationmanager.v1.idp\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+						Computed: true,
+					},
+				},
+				MarkdownDescription: "Password blacklist policy for this userpool.",
+				Description: "Password blacklist policy for this userpool." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policy
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
+				Computed: true,
+			},
+
 			"password_lifetime_policy": schema.SingleNestedAttribute{
 
 				Attributes: map[string]schema.Attribute{
