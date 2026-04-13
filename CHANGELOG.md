@@ -2,6 +2,12 @@
 
 
 
+## 0.198.0 (April 13, 2026)
+##### FEATURES:
+* CloudOrganization: added new password policy to userpool - password blacklist policy
+* lockbox_secret_version_entry: added new data source to retrieve a single secret entry by key
+* Kafka: Terraform Provider: add iceberg sink connector
+
 ## 0.197.0 (April 9, 2026)
 ##### FEATURES:
 * function_trigger: added `workflow` invocation target support for Workflows
