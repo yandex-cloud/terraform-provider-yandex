@@ -780,6 +780,146 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					),
 				),
 			},
+			// Decrease disk size (nothing changes)
+			{
+				Config: testAccMDBMySQLClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate,
+					`resource_preset_id = "s2.micro"
+					disk_size          = 8
+					disk_type_id       = "network-ssd"`,
+					accessUpdated,
+					performanceDiagnosticsUpdated,
+					diskSizeAutoscalingUpdated,
+					backupWindowStartUpdated,
+					msCfgUpdated,
+					maintenanceWindowUpdated,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(versionUpdate)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"data_lens":     knownvalue.Bool(true),
+							"data_transfer": knownvalue.Bool(false),
+							"web_sql":       knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(true),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("performance_diagnostics"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"enabled":                      knownvalue.Bool(false),
+							"sessions_sampling_interval":   knownvalue.Int64Exact(500),
+							"statements_sampling_interval": knownvalue.Int64Exact(1000),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_size_autoscaling"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"disk_size_limit":           knownvalue.Int64Exact(30),
+							"planned_usage_threshold":   knownvalue.Int64Exact(10),
+							"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_retain_period_days"), knownvalue.Int64Exact(14)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("backup_window_start"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"hours":   knownvalue.Int64Exact(10),
+							"minutes": knownvalue.Int64Exact(3),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("mysql_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"sql_mode":                   knownvalue.StringExact("STRICT_TRANS_TABLES"),
+							"max_connections":            knownvalue.StringExact("150"),
+							"innodb_print_all_deadlocks": knownvalue.StringExact("true"),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"type": knownvalue.StringExact("WEEKLY"),
+							"day":  knownvalue.StringExact("MON"),
+							"hour": knownvalue.Int64Exact(5),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(1)),
+					statecheck.CompareValueCollection(
+						clusterResource,
+						[]tfjsonpath.Path{
+							tfjsonpath.New("security_group_ids"),
+						},
+						"yandex_vpc_security_group.sgroup2",
+						tfjsonpath.New("id"), compare.ValuesSame(),
+					),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
+					testAccCheckClusterAccessExact(&cluster, &mysql.Access{
+						DataLens:     true,
+						DataTransfer: false,
+						WebSql:       false,
+						YandexQuery:  true,
+					}),
+					testAccCheckClusterPerformanceDiagnosticsExact(
+						&cluster,
+						&mysql.PerformanceDiagnostics{
+							SessionsSamplingInterval:   500,
+							StatementsSamplingInterval: 1000,
+						},
+					),
+					testAccCheckClusterDiskSizeAutoscalingExact(
+						&cluster,
+						&mysql.DiskSizeAutoscaling{
+							DiskSizeLimit:           datasize.ToBytes(30),
+							PlannedUsageThreshold:   10,
+							EmergencyUsageThreshold: 15,
+						}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
+					testAccCheckClusterMysqlConfigExact(
+						&cluster, &msconfig.MysqlConfig8_0{
+							SqlMode: []msconfig.MysqlConfig8_0_SQLMode{
+								msconfig.MysqlConfig8_0_STRICT_TRANS_TABLES,
+							},
+							MaxConnections:          wrapperspb.Int64(150),
+							InnodbPrintAllDeadlocks: wrapperspb.Bool(true),
+						}, []string{
+							"DefaultAuthenticationPlugin",
+							"SqlMode",
+							"MaxConnections",
+							"InnodbPrintAllDeadlocks",
+						},
+					),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   10,
+						Minutes: 3,
+					}),
+					testAccCheckClusterMaintenanceWindow(&cluster, &mysql.MaintenanceWindow{
+						Policy: &mysql.MaintenanceWindow_WeeklyMaintenanceWindow{
+							WeeklyMaintenanceWindow: &mysql.WeeklyMaintenanceWindow{
+								Day:  mysql.WeeklyMaintenanceWindow_MON,
+								Hour: 5,
+							},
+						},
+					}),
+					testAccCheckClusterSecurityGroupIdsExact(
+						&cluster,
+						[]string{
+							"yandex_vpc_security_group.sgroup2",
+						},
+					),
+				),
+			},
 			mdbMySQLClusterImportStep(clusterResource),
 		},
 	})
