@@ -996,6 +996,12 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 					EmbeddedKeeper:         wrapperspb.Bool(false),
 					BackupRetainPeriodDays: wrapperspb.Int64(14),
 				},
+				DatabaseSpecs: []*clickhouse.DatabaseSpec{
+					&clickhouse.DatabaseSpec{
+						Name:   "default_database",
+						Engine: clickhouse.DatabaseEngine_DATABASE_ENGINE_UNSPECIFIED,
+					},
+				},
 				ShardSpecs: []*clickhouse.ShardSpec{
 					{
 						Name: "shard1",

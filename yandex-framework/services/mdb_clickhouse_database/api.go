@@ -2,6 +2,7 @@ package mdb_clickhouse_database
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -46,10 +47,18 @@ func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 	})
 
 	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while requesting API to create ClickHouse database:"+err.Error(),
-		)
+		if strings.Contains(err.Error(), "AlreadyExists") {
+			// Try to automatically read existing resource rather than force user to import it manually
+			diag.AddWarning(
+				"Resource already exists.",
+				"Database "+dbSpec.Name+" already exits in cluster "+cid,
+			)
+		} else {
+			diag.AddError(
+				"Failed to Create resource",
+				"Error while requesting API to create ClickHouse database:"+err.Error(),
+			)
+		}
 		return
 	}
 
