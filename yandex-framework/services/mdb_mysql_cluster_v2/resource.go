@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -428,6 +429,27 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	d := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(d...)
+}
+
+func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+		return
+	}
+	var plan Cluster
+	var state Cluster
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Debug(ctx, "Modifying plan for cluster", map[string]interface{}{"id": plan.Id.ValueString()})
+
+	autoscalingOn := utils.IsPresent(attr.Value(state.DiskSizeAutoscaling))
+
+	// remove changes on disk_size from plan if enabled autoscaling
+	plan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, plan.Resources, state.Resources, autoscalingOn, &resp.Diagnostics)
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, plan)...)
 }
 
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
