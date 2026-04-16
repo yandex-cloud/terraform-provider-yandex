@@ -42,29 +42,39 @@ func prepareClusterCreateRequest(
 	diags *diag.Diagnostics,
 	hostSpecsSlice []*clickhouse.HostSpec,
 ) *clickhouse.CreateClusterRequest {
+	configSpec := &clickhouse.ConfigSpec{
+		Version:                plan.Version.ValueString(),
+		Clickhouse:             models.ExpandClickHouse(ctx, plan.ClickHouse, diags),
+		Zookeeper:              models.ExpandZooKeeper(ctx, plan.ZooKeeper, diags),
+		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, plan.BackupWindowStart, diags),
+		Access:                 models.ExpandAccess(ctx, plan.Access, diags),
+		CloudStorage:           models.ExpandCloudStorage(ctx, plan.CloudStorage, diags),
+		SqlDatabaseManagement:  mdbcommon.ExpandBoolWrapper(ctx, plan.SqlDatabaseManagement, diags),
+		SqlUserManagement:      mdbcommon.ExpandBoolWrapper(ctx, plan.SqlUserManagement, diags),
+		AdminPassword:          plan.AdminPassword.ValueString(),
+		EmbeddedKeeper:         mdbcommon.ExpandBoolWrapper(ctx, plan.EmbeddedKeeper, diags),
+		BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, plan.BackupRetainPeriodDays, diags),
+	}
+	var databaseSpec []*clickhouse.DatabaseSpec
+	if configSpec.Clickhouse != nil && configSpec.Clickhouse.Config != nil && len(configSpec.Clickhouse.Config.DefaultDatabase.GetValue()) != 0 {
+		databaseSpec = []*clickhouse.DatabaseSpec{
+			&clickhouse.DatabaseSpec{
+				Name: configSpec.Clickhouse.Config.DefaultDatabase.Value,
+			},
+		}
+	}
 	return &clickhouse.CreateClusterRequest{
-		Name:             plan.Name.ValueString(),
-		Description:      plan.Description.ValueString(),
-		FolderId:         mdbcommon.ExpandFolderId(ctx, plan.FolderId, providerConfig, diags),
-		NetworkId:        plan.NetworkId.ValueString(),
-		Environment:      mdbcommon.ExpandEnvironment[clickhouse.Cluster_Environment](ctx, plan.Environment, diags),
-		Labels:           mdbcommon.ExpandLabels(ctx, plan.Labels, diags),
-		HostSpecs:        hostSpecsSlice,
-		ShardSpecs:       models.ExpandListShard(ctx, plan.Shards, plan.Id.ValueString(), diags),
-		ServiceAccountId: plan.ServiceAccountId.ValueString(),
-		ConfigSpec: &clickhouse.ConfigSpec{
-			Version:                plan.Version.ValueString(),
-			Clickhouse:             models.ExpandClickHouse(ctx, plan.ClickHouse, diags),
-			Zookeeper:              models.ExpandZooKeeper(ctx, plan.ZooKeeper, diags),
-			BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, plan.BackupWindowStart, diags),
-			Access:                 models.ExpandAccess(ctx, plan.Access, diags),
-			CloudStorage:           models.ExpandCloudStorage(ctx, plan.CloudStorage, diags),
-			SqlDatabaseManagement:  mdbcommon.ExpandBoolWrapper(ctx, plan.SqlDatabaseManagement, diags),
-			SqlUserManagement:      mdbcommon.ExpandBoolWrapper(ctx, plan.SqlUserManagement, diags),
-			AdminPassword:          plan.AdminPassword.ValueString(),
-			EmbeddedKeeper:         mdbcommon.ExpandBoolWrapper(ctx, plan.EmbeddedKeeper, diags),
-			BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, plan.BackupRetainPeriodDays, diags),
-		},
+		Name:               plan.Name.ValueString(),
+		Description:        plan.Description.ValueString(),
+		FolderId:           mdbcommon.ExpandFolderId(ctx, plan.FolderId, providerConfig, diags),
+		NetworkId:          plan.NetworkId.ValueString(),
+		Environment:        mdbcommon.ExpandEnvironment[clickhouse.Cluster_Environment](ctx, plan.Environment, diags),
+		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, diags),
+		HostSpecs:          hostSpecsSlice,
+		ShardSpecs:         models.ExpandListShard(ctx, plan.Shards, plan.Id.ValueString(), diags),
+		ServiceAccountId:   plan.ServiceAccountId.ValueString(),
+		DatabaseSpecs:      databaseSpec,
+		ConfigSpec:         configSpec,
 		DeletionProtection: plan.DeletionProtection.ValueBool(),
 		SecurityGroupIds:   mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, diags),
 		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
