@@ -527,6 +527,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						tfjsonpath.New("id"), compare.ValuesSame(),
 					),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.Null()),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("priority"), knownvalue.Int64Exact(10)),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -1683,6 +1684,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
     "host" = {
       zone      = "ru-central1-a"
       subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+	  priority  = 10
     }
   }
 

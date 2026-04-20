@@ -2162,3 +2162,88 @@ func testAccMDBPGClusterConfigRestoreAddEncryption(clusterName string) string {
 	return diskEncryptionKeyResource + testAccMDBPGClusterConfigRestoreWithEncryption(
 		clusterName, pgRestoreBackupId, "${yandex_kms_symmetric_key.disk_encrypt.id}")
 }
+
+func TestAccMDBPostgreSQLCluster_priority(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-priority")
+	clusterResource := "yandex_mdb_postgresql_cluster.test_priority"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// Check host priority
+			{
+				Config: testAccMDBPGClusterConfigWithPriority(clusterName, version, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "host-a"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.priority", "10"),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// Host priority without name -> error
+			{
+				Config:      testAccMDBPGClusterConfigPriorityWithoutName(clusterName, version),
+				ExpectError: regexp.MustCompile(".*priority can be set only when name is specified.*"),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterConfigWithPriority(name, version string, priority int) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "test_priority" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  host {
+    name      = "host-a"
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    priority  = %d
+  }
+}
+`, name, version, priority)
+}
+
+func testAccMDBPGClusterConfigPriorityWithoutName(name, version string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "test_priority" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    priority  = 10
+  }
+}
+`, name, version)
+}

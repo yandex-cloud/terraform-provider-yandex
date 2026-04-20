@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var postgresqlHostService = &PostgresqlHostService{}
@@ -27,6 +28,7 @@ func (r PostgresqlHostService) PartialMatch(planHost Host, stateHost Host) bool 
 
 func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.UpdateHostSpec, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
 	if !r.PartialMatch(plan, state) {
 		diags.AddError(
 			"Wrong changes for host",
@@ -34,16 +36,29 @@ func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.Up
 		)
 		return nil, diags
 	}
-	if plan.AssignPublicIp.Equal(state.AssignPublicIp) && plan.ReplicationSource.Equal(state.ReplicationSource) {
+
+	paths := []string{}
+	if !plan.AssignPublicIp.Equal(state.AssignPublicIp) {
+		paths = append(paths, "assign_public_ip")
+	}
+	if !plan.ReplicationSource.Equal(state.ReplicationSource) {
+		paths = append(paths, "replication_source")
+	}
+	if !plan.Priority.Equal(state.Priority) {
+		paths = append(paths, "priority")
+	}
+	if len(paths) == 0 {
 		return nil, nil
 	}
+
 	return &postgresql.UpdateHostSpec{
 		HostName: state.FQDN.ValueString(),
 		UpdateMask: &fieldmaskpb.FieldMask{
-			Paths: []string{"assign_public_ip", "replica_priority"},
+			Paths: paths,
 		},
 		AssignPublicIp:    plan.AssignPublicIp.ValueBool(),
 		ReplicationSource: plan.ReplicationSource.ValueString(),
+		Priority:          wrapperspb.Int64(plan.Priority.ValueInt64()),
 	}, diags
 }
 
@@ -53,6 +68,7 @@ func (r PostgresqlHostService) ConvertToProto(h Host) *postgresql.HostSpec {
 		SubnetId:          h.SubnetId.ValueString(),
 		AssignPublicIp:    h.AssignPublicIp.ValueBool(),
 		ReplicationSource: h.ReplicationSource.ValueString(),
+		Priority:          wrapperspb.Int64(h.Priority.ValueInt64()),
 	}
 }
 
@@ -64,6 +80,7 @@ func (r PostgresqlHostService) ConvertFromProto(apiHost *postgresql.Host) Host {
 		AssignPublicIp:    types.BoolValue(apiHost.AssignPublicIp),
 		ReplicationSource: types.StringValue(apiHost.ReplicationSource),
 		FQDN:              types.StringValue(apiHost.Name),
+		Priority:          types.Int64Value(apiHost.Priority.GetValue()),
 	}
 }
 

@@ -31,6 +31,7 @@ type Host struct {
 	AssignPublicIp    types.Bool   `tfsdk:"assign_public_ip"`
 	FQDN              types.String `tfsdk:"fqdn"`
 	ReplicationSource types.String `tfsdk:"replication_source"`
+	Priority          types.Int64  `tfsdk:"priority"`
 }
 
 var hostType = types.ObjectType{
@@ -40,6 +41,7 @@ var hostType = types.ObjectType{
 		"assign_public_ip":   types.BoolType,
 		"fqdn":               types.StringType,
 		"replication_source": types.StringType,
+		"priority":           types.Int64Type,
 	},
 }
 

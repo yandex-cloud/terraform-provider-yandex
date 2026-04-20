@@ -27,6 +27,7 @@ func (r MySQLHostService) PartialMatch(planHost Host, stateHost Host) bool {
 
 func (r MySQLHostService) GetChanges(plan Host, state Host) (*mysql.UpdateHostSpec, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
 	if !r.PartialMatch(plan, state) {
 		diags.AddError(
 			"Wrong changes for host",
@@ -34,13 +35,22 @@ func (r MySQLHostService) GetChanges(plan Host, state Host) (*mysql.UpdateHostSp
 		)
 		return nil, diags
 	}
-	if plan.AssignPublicIp.Equal(state.AssignPublicIp) && plan.ReplicationSource.Equal(state.ReplicationSource) {
+
+	paths := []string{}
+	if !plan.AssignPublicIp.Equal(state.AssignPublicIp) {
+		paths = append(paths, "assign_public_ip")
+	}
+	if !plan.ReplicationSource.Equal(state.ReplicationSource) {
+		paths = append(paths, "replication_source")
+	}
+	if len(paths) == 0 {
 		return nil, nil
 	}
+
 	return &mysql.UpdateHostSpec{
 		HostName: state.FQDN.ValueString(),
 		UpdateMask: &fieldmaskpb.FieldMask{
-			Paths: []string{"assign_public_ip", "replica_priority"},
+			Paths: paths,
 		},
 		AssignPublicIp:    plan.AssignPublicIp.ValueBool(),
 		ReplicationSource: plan.ReplicationSource.ValueString(),
