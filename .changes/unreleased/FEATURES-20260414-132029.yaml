@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'postgresql: add `priority` host attribute to mdb_postgresql_cluster_v2'
+time: 2026-04-14T13:20:29.566304918+03:00

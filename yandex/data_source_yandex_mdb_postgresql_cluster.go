@@ -451,7 +451,6 @@ func dataSourceYandexMDBPostgreSQLClusterHostBlock() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["priority"].Description,
 				Computed:    true,
-				Deprecated:  "The field has not affected anything. You can safely delete it.",
 			},
 			"replication_source_name": {
 				Type:        schema.TypeString,

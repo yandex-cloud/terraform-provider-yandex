@@ -409,35 +409,37 @@ type pgHostInfo struct {
 	oldAssignPublicIP        bool
 	oldReplicationSource     string
 	oldReplicationSourceName string
+	oldPriority              int64
 
 	newAssignPublicIP        bool
 	newReplicationSource     string
 	newReplicationSourceName string
+	newPriority              int64
 
 	inTargetSet bool
 
 	rowNumber int
 }
 
-func loadNewPGHostsInfo(newHosts []interface{}) ([]*pgHostInfo, error) {
+func loadNewHosts(newHosts []any) ([]*pgHostInfo, error) {
 	hostsInfo := make([]*pgHostInfo, 0)
 	for i, newHostInfo := range newHosts {
 		hni := objx.New(newHostInfo)
 		if hni == nil {
 			return nil, fmt.Errorf("PostgreSQL.host: failed to read hosts info %v", hostsInfo)
 		}
+
 		hostsInfo = append(hostsInfo, &pgHostInfo{
 			name:                     hni.Get("name").Str(),
 			zone:                     hni.Get("zone").Str(),
 			subnetID:                 hni.Get("subnet_id").Str(),
 			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
 			newReplicationSourceName: hni.Get("replication_source_name").Str(),
+			newPriority:              int64(hni.Get("priority").Int()),
 			rowNumber:                i,
 			inTargetSet:              true,
 		})
-
 	}
-
 	return hostsInfo, nil
 }
 
@@ -604,10 +606,14 @@ func comparePGNoNamedHostsInfo(existingHostsInfo map[string]*pgHostInfo, newHost
 	return compareMap
 }
 
-func loadExistingPGHostsInfo(currentHosts []*postgresql.Host, oldHosts []interface{}) (map[string]*pgHostInfo, error) {
+func loadExistingHosts(currentHosts []*postgresql.Host, oldHosts []any) (map[string]*pgHostInfo, error) {
 	hostsInfo := make(map[string]*pgHostInfo)
 
 	for i, h := range currentHosts {
+		var priority int64
+		if h.Priority != nil {
+			priority = int64(h.Priority.Value)
+		}
 		hostsInfo[h.Name] = &pgHostInfo{
 			fqdn:                 h.Name,
 			zone:                 h.ZoneId,
@@ -615,6 +621,7 @@ func loadExistingPGHostsInfo(currentHosts []*postgresql.Host, oldHosts []interfa
 			role:                 h.Role,
 			oldAssignPublicIP:    h.AssignPublicIp,
 			oldReplicationSource: h.ReplicationSource,
+			oldPriority:          priority,
 
 			rowNumber: i,
 		}
@@ -635,10 +642,30 @@ func loadExistingPGHostsInfo(currentHosts []*postgresql.Host, oldHosts []interfa
 		if hi, ok := hostsInfo[fqdn]; ok {
 			hi.name = name
 		}
+	}
+	return hostsInfo, nil
+}
 
+func validatePriority(existingHosts map[string]*pgHostInfo, newHosts []*pgHostInfo) error {
+	check := func(host *pgHostInfo) error {
+		if host.newPriority > 0 && host.name == "" {
+			return fmt.Errorf("priority can be set only when name is specified")
+		}
+		return nil
 	}
 
-	return hostsInfo, nil
+	for _, host := range existingHosts {
+		if err := check(host); err != nil {
+			return err
+		}
+	}
+	for _, host := range newHosts {
+		if err := check(host); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func validateNewPGHostsInfo(newHostsInfo []*pgHostInfo, isUpdate bool) (bool, error) {
@@ -676,126 +703,175 @@ type comparePGHostsInfoResult struct {
 }
 
 func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host, isUpdate bool) (*comparePGHostsInfoResult, error) {
-	oldHosts, newHosts := d.GetChange("host")
+	existing, new := d.GetChange("host")
 
-	// actual hosts configuration (enriched with 'name', when available): fqdn -> *myHostInfo
-	existingHostsInfo, err := loadExistingPGHostsInfo(currentHosts, oldHosts.([]interface{}))
+	existingHosts, err := loadExistingHosts(currentHosts, existing.([]any))
 	if err != nil {
 		return nil, err
 	}
 
-	// expected hosts configuration: []*pgHostInfo
-	newHostsInfo, err := loadNewPGHostsInfo(newHosts.([]interface{}))
+	newHosts, err := loadNewHosts(new.([]any))
 	if err != nil {
 		return nil, err
 	}
 
-	haveHostWithName, err := validateNewPGHostsInfo(newHostsInfo, isUpdate)
+	haveHostWithName, err := validateNewPGHostsInfo(newHosts, isUpdate)
 	if err != nil {
 		return nil, err
 	}
 
+	nameToHost := getNameToHost(existingHosts)
+	if haveHostWithName {
+		return compareNamedHosts(existingHosts, newHosts, nameToHost)
+	}
+	return compareUnnamedHosts(existingHosts, newHosts, nameToHost)
+}
+
+func getNameToHost(hosts map[string]*pgHostInfo) map[string]string {
 	nameToHost := make(map[string]string)
-	for fqdn, hi := range existingHostsInfo {
+	for fqdn, hi := range hosts {
 		if hi.name != "" {
 			nameToHost[hi.name] = fqdn
 		}
 	}
+	return nameToHost
+}
 
-	createHostsInfoPrepare := make([]*pgHostInfo, 0)
-	log.Printf("[DEBUG] haveHostWithName: %t", haveHostWithName)
-	if haveHostWithName {
-		// find best mapping from existingHostsInfo to newHostsInfo
-		compareMap, hostToName := comparePGNamedHostsInfo(existingHostsInfo, nameToHost, newHostsInfo)
+func applyNewHostInfo(exist *pgHostInfo, new *pgHostInfo) {
+	exist.name = new.name
+	exist.rowNumber = new.rowNumber
+	exist.newReplicationSourceName = new.newReplicationSourceName
+	exist.newAssignPublicIP = new.newAssignPublicIP
+	exist.inTargetSet = true
+	exist.newPriority = new.newPriority
+}
 
-		log.Println("[DEBUG] iterate over newHostsInfo")
-		for i, newHostInfo := range newHostsInfo {
-			if existHostFqdn, ok := compareMap[i]; ok {
-				existHostInfo := existingHostsInfo[existHostFqdn]
-
-				existHostInfo.name = newHostInfo.name
-				existHostInfo.rowNumber = newHostInfo.rowNumber
-				existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
-				existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
-				existHostInfo.inTargetSet = true
-
-				nameToHost[existHostInfo.name] = existHostInfo.fqdn
-			} else {
-				createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
-			}
-		}
-
-		for _, existHostInfo := range existingHostsInfo {
-			if existHostInfo.newReplicationSourceName == "" {
-				existHostInfo.newReplicationSource = ""
-			} else if fqdn, ok := nameToHost[existHostInfo.newReplicationSourceName]; ok {
-				existHostInfo.newReplicationSource = fqdn
-			} else {
-				existHostInfo.newReplicationSource = existHostInfo.oldReplicationSource
-			}
-
-			if existHostInfo.oldReplicationSource == "" {
-				existHostInfo.oldReplicationSourceName = ""
-			} else if name, ok := hostToName[existHostInfo.oldReplicationSource]; ok {
-				existHostInfo.oldReplicationSourceName = name
-			}
-		}
-
-		createHostsInfo := make([]*pgHostInfo, 0)
-		hierarchyExists := false
-		for _, newHostInfo := range createHostsInfoPrepare {
-			if newHostInfo.newReplicationSourceName == "" {
-				createHostsInfo = append(createHostsInfo, newHostInfo)
-			} else if fqdn, ok := nameToHost[newHostInfo.newReplicationSourceName]; ok {
-				newHostInfo.newReplicationSource = fqdn
-				createHostsInfo = append(createHostsInfo, newHostInfo)
-			} else {
-				hierarchyExists = true
-			}
-		}
-
-		return &comparePGHostsInfoResult{
-			haveHostWithName: haveHostWithName,
-			createHostsInfo:  createHostsInfo,
-			hierarchyExists:  hierarchyExists,
-			hostsInfo:        existingHostsInfo,
-		}, nil
+func resolveNewReplicationSource(
+	exist *pgHostInfo,
+	nameToHost map[string]string,
+) {
+	if exist.newReplicationSourceName == "" {
+		exist.newReplicationSource = ""
+		return
 	}
 
-	compareMap := comparePGNoNamedHostsInfo(existingHostsInfo, newHostsInfo)
-	for i, newHostInfo := range newHostsInfo {
-		if existingHostFqdn, ok := compareMap[i]; ok {
-			log.Printf("[DEBUG] host %s exists", existingHostFqdn)
-			existHostInfo := existingHostsInfo[existingHostFqdn]
+	if fqdn, ok := nameToHost[exist.newReplicationSourceName]; ok {
+		exist.newReplicationSource = fqdn
+	} else {
+		exist.newReplicationSource = exist.oldReplicationSource
+	}
+}
 
-			existHostInfo.rowNumber = newHostInfo.rowNumber
-			existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
-			existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
-			existHostInfo.inTargetSet = true
+func resolveOldReplicationSourceName(
+	exist *pgHostInfo,
+	hostToName map[string]string,
+) {
+	if exist.oldReplicationSource == "" {
+		exist.oldReplicationSourceName = ""
+		return
+	}
+
+	if name, ok := hostToName[exist.oldReplicationSource]; ok {
+		exist.oldReplicationSourceName = name
+	}
+}
+
+func prepareHostForCreate(
+	newHost *pgHostInfo,
+	nameToHost map[string]string,
+) (ready bool) {
+	if newHost.newReplicationSourceName == "" {
+		return true
+	}
+
+	if fqdn, ok := nameToHost[newHost.newReplicationSourceName]; ok {
+		newHost.newReplicationSource = fqdn
+		return true
+	}
+
+	return false
+}
+
+func compareNamedHosts(
+	existingHosts map[string]*pgHostInfo,
+	newHosts []*pgHostInfo,
+	nameToHost map[string]string,
+) (*comparePGHostsInfoResult, error) {
+	createHostsInfoPrepare := make([]*pgHostInfo, 0)
+	compareMap, hostToName := comparePGNamedHostsInfo(existingHosts, nameToHost, newHosts)
+
+	for i, newHostInfo := range newHosts {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existingHosts[existHostFqdn]
+			applyNewHostInfo(existHostInfo, newHostInfo)
+			if existHostInfo.name != "" {
+				nameToHost[existHostInfo.name] = existHostInfo.fqdn
+			}
 		} else {
-			log.Printf("[DEBUG] should create host %v", newHostInfo)
 			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
 		}
 	}
 
-	for _, existHostInfo := range existingHostsInfo {
-		if existHostInfo.newReplicationSourceName == "" {
-			existHostInfo.newReplicationSource = ""
-		} else if fqdn, ok := nameToHost[existHostInfo.newReplicationSourceName]; ok {
-			existHostInfo.newReplicationSource = fqdn
-		} else {
-			existHostInfo.newReplicationSource = existHostInfo.oldReplicationSource
-		}
+	for _, existHostInfo := range existingHosts {
+		resolveNewReplicationSource(existHostInfo, nameToHost)
+		resolveOldReplicationSourceName(existHostInfo, hostToName)
+	}
 
+	createHostsInfo := make([]*pgHostInfo, 0)
+	hierarchyExists := false
+
+	for _, newHostInfo := range createHostsInfoPrepare {
+		if prepareHostForCreate(newHostInfo, nameToHost) {
+			createHostsInfo = append(createHostsInfo, newHostInfo)
+		} else {
+			hierarchyExists = true
+		}
+	}
+
+	if err := validatePriority(existingHosts, createHostsInfo); err != nil {
+		return nil, err
+	}
+
+	return &comparePGHostsInfoResult{
+		haveHostWithName: true,
+		createHostsInfo:  createHostsInfo,
+		hierarchyExists:  hierarchyExists,
+		hostsInfo:        existingHosts,
+	}, nil
+}
+
+func compareUnnamedHosts(
+	existingHosts map[string]*pgHostInfo,
+	newHosts []*pgHostInfo,
+	nameToHost map[string]string,
+) (*comparePGHostsInfoResult, error) {
+	createHostsInfoPrepare := make([]*pgHostInfo, 0)
+	compareMap := comparePGNoNamedHostsInfo(existingHosts, newHosts)
+
+	for i, newHostInfo := range newHosts {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existingHosts[existHostFqdn]
+			applyNewHostInfo(existHostInfo, newHostInfo)
+		} else {
+			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+		}
+	}
+
+	for _, existHostInfo := range existingHosts {
+		resolveNewReplicationSource(existHostInfo, nameToHost)
 		if existHostInfo.oldReplicationSource == "" {
 			existHostInfo.oldReplicationSourceName = ""
 		}
 	}
 
+	if err := validatePriority(existingHosts, createHostsInfoPrepare); err != nil {
+		return nil, err
+	}
+
 	return &comparePGHostsInfoResult{
-		haveHostWithName: haveHostWithName,
+		haveHostWithName: false,
 		createHostsInfo:  createHostsInfoPrepare,
-		hostsInfo:        existingHostsInfo,
+		hostsInfo:        existingHosts,
 	}, nil
 }
 
@@ -804,17 +880,18 @@ func flattenPGHostsInfo(d *schema.ResourceData, hs []*postgresql.Host) ([]*pgHos
 	if err != nil {
 		return nil, err
 	}
+
 	orderedHostsInfo := make([]*pgHostInfo, 0, len(compareHostsInfo.hostsInfo))
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
 		orderedHostsInfo = append(orderedHostsInfo, hostInfo)
 	}
+
 	sort.Slice(orderedHostsInfo, func(i, j int) bool {
 		if orderedHostsInfo[i].inTargetSet == orderedHostsInfo[j].inTargetSet {
 			return orderedHostsInfo[i].rowNumber < orderedHostsInfo[j].rowNumber
 		}
 		return orderedHostsInfo[i].inTargetSet
 	})
-
 	return orderedHostsInfo, nil
 }
 
@@ -871,6 +948,7 @@ func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*pgH
 		m["fqdn"] = hostInfo.fqdn
 		m["role"] = hostInfo.role.String()
 		m["replication_source"] = hostInfo.oldReplicationSource
+		m["priority"] = hostInfo.oldPriority
 		if !isDataSource && isNameFieldUsed {
 			m["name"] = hostInfo.name
 			m["replication_source_name"] = hostInfo.oldReplicationSourceName
@@ -1259,23 +1337,28 @@ func expandPGHosts(d *schema.ResourceData) ([]*PostgreSQLHostSpec, error) {
 func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 	hostSpec := &postgresql.HostSpec{}
 	host := &PostgreSQLHostSpec{HostSpec: hostSpec}
+
 	if v, ok := m["zone"]; ok {
 		host.HostSpec.ZoneId = v.(string)
 	}
-
 	if v, ok := m["subnet_id"]; ok {
 		host.HostSpec.SubnetId = v.(string)
 	}
-
 	if v, ok := m["assign_public_ip"]; ok {
 		host.HostSpec.AssignPublicIp = v.(bool)
 	}
 	if v, ok := m["fqdn"]; ok && v.(string) != "" {
 		host.Fqdn = v.(string)
 	}
-
 	if v, ok := m["replication_source_name"]; ok {
 		host.HostSpec.ReplicationSource = v.(string)
+	}
+	if v, ok := m["priority"].(int); ok {
+		priority := int64(v)
+		if name, ok := m["name"]; priority > 0 && (!ok || name.(string) == "") {
+			return nil, fmt.Errorf("priority can be set only when name is specified")
+		}
+		host.HostSpec.Priority = wrapperspb.Int64(priority)
 	}
 
 	return host, nil
