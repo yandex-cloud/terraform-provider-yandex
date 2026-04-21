@@ -10,6 +10,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_endpoint"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datatransfer_transfer"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_firewall"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_workload_identity_federated_credential"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_encryption_key"
@@ -44,6 +45,7 @@ func init() {
 		yandex_datacatalog_catalog.NewDataSource,
 		yandex_datatransfer_endpoint.NewDataSource,
 		yandex_datatransfer_transfer.NewDataSource,
+		yandex_dns_firewall.NewDataSource,
 		yandex_smartcaptcha_captcha.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}

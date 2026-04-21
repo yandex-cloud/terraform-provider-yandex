@@ -807,8 +807,8 @@ github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12 h1:pqk3AkGixC2GoClTHN
 github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12/go.mod h1:b3nxTuC2S1i+BIzRkatMUVTQ936Ys0nLcuGLFUb/ZLY=
 github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.42 h1:heDOlZqsMAP36G5zfW/3A94Hcf9ios1yxe5OM8UlVtI=
 github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.42/go.mod h1:EIQO4BtsYbpaINJiLW9b7mkgedeTgMiBLmV2fr/kKOo=
-github.com/yandex-cloud/go-sdk/services/dns v0.0.35 h1:b1b/qs7UxjSR58DQL/b5wXaFPoAsuYTe79u1nx6rMlo=
-github.com/yandex-cloud/go-sdk/services/dns v0.0.35/go.mod h1:Y76O0HOz022FHdT53tZL7xhaw8PlLMzG7jJIxf08KKU=
+github.com/yandex-cloud/go-sdk/services/dns v0.0.48 h1:rWC5F6N/ogB7xpZkAiqjuN6KRdXnu8Wj06JyV05ybog=
+github.com/yandex-cloud/go-sdk/services/dns v0.0.48/go.mod h1:/FZS0Tu7WrAkfD9x0X3ni4EcSiK+wUQyjcQrTdAVWBE=
 github.com/yandex-cloud/go-sdk/services/iam v0.0.2 h1:5JwlgEw6sbei9yO++0rdIFJOFzkvtrOozkVLTVZ71Vw=
 github.com/yandex-cloud/go-sdk/services/iam v0.0.2/go.mod h1:17EOBXJlbnT1Sb2PTVyUziR+VIGa+VwCe9Xd8liiqBU=
 github.com/yandex-cloud/go-sdk/services/k8s v0.0.12 h1:cFxmNugYHCWnZr0EM5JLZP57IEn7+wJzccsKihtmAZs=

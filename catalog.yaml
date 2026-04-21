@@ -433,6 +433,22 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  dns_firewall:
+    Category: "Cloud Domain Name System (DNS)"
+    Type: sdk
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
+  dns_firewall_iam_binding:
+    Category: "Cloud Domain Name System (DNS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
   dns_zone:
     Category: "Cloud Domain Name System (DNS)"
     Type: sdk

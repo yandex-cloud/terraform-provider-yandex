@@ -52,7 +52,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/dataproc v0.0.26
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.12
 	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.42
-	github.com/yandex-cloud/go-sdk/services/dns v0.0.35
+	github.com/yandex-cloud/go-sdk/services/dns v0.0.48
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.12
 	github.com/yandex-cloud/go-sdk/services/kms v0.0.12
