@@ -194,6 +194,7 @@ type KafkaConfig struct {
 	SslCipherSuites             []string
 	OffsetsRetentionMinutes     *wrappers.Int64Value
 	SaslEnabledMechanisms       []kafka.SaslMechanism
+	TransactionalIdExpirationMs *wrappers.Int64Value
 }
 
 func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
@@ -224,6 +225,7 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 	res.MessageMaxBytes = parseIntKafkaConfigParam(d, "message_max_bytes", &retErr)
 	res.ReplicaFetchMaxBytes = parseIntKafkaConfigParam(d, "replica_fetch_max_bytes", &retErr)
 	res.OffsetsRetentionMinutes = parseIntKafkaConfigParam(d, "offsets_retention_minutes", &retErr)
+	res.TransactionalIdExpirationMs = parseIntKafkaConfigParam(d, "transactional_id_expiration_ms", &retErr)
 
 	if v, ok := d.GetOk(kafkaConfigPath + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
@@ -272,6 +274,7 @@ func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error)
 		SslCipherSuites:             kafkaConfig.SslCipherSuites,
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
+		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
 	}, nil
 }
 
@@ -300,6 +303,7 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 		SslCipherSuites:             kafkaConfig.SslCipherSuites,
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
+		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
 	}, nil
 }
 
@@ -328,6 +332,7 @@ func expandKafkaConfig4x(d *schema.ResourceData) (*kafka.KafkaConfig4, error) {
 		SslCipherSuites:             kafkaConfig.SslCipherSuites,
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
+		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
 	}, nil
 }
 
@@ -772,6 +777,7 @@ type KafkaConfigSettings interface {
 	GetSslCipherSuites() []string
 	GetOffsetsRetentionMinutes() *wrappers.Int64Value
 	GetSaslEnabledMechanisms() []kafka.SaslMechanism
+	GetTransactionalIdExpirationMs() *wrappers.Int64Value
 }
 
 func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]interface{}, error) {
@@ -833,6 +839,9 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	}
 	if kafkaConfig.GetSaslEnabledMechanisms() != nil {
 		res["sasl_enabled_mechanisms"] = convertStringArrToInterface(convertSaslEnabledMechanismsToStrings(kafkaConfig.GetSaslEnabledMechanisms()))
+	}
+	if kafkaConfig.GetTransactionalIdExpirationMs() != nil {
+		res["transactional_id_expiration_ms"] = strconv.FormatInt(kafkaConfig.GetTransactionalIdExpirationMs().GetValue(), 10)
 	}
 	return res, nil
 }

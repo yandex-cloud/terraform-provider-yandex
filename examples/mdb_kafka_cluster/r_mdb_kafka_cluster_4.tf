@@ -43,6 +43,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-combine" {
         ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
         offsets_retention_minutes       = 10080
         sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
+        transactional_id_expiration_ms  = 604800000
       }
     }
   }
