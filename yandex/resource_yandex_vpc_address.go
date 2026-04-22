@@ -123,7 +123,8 @@ func resourceYandexVPCAddress() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"address": {
 							Type:        schema.TypeString,
-							Description: "Allocated IP address.",
+							Description: "Allocated IP address. If not specified, an address will be automatically allocated from the subnet.",
+							Optional:    true,
 							Computed:    true,
 							ForceNew:    true,
 						},

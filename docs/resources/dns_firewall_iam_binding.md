@@ -28,15 +28,15 @@ resource "yandex_dns_firewall_iam_binding" "fw-editor" {
 - `dns_firewall_id` (**Required**)(String). The ID of the `dns_firewall` to attach the policy to.
 - `id` (String). The ID of this resource.
 - `members` (**Required**)(Set Of String). An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
-* **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
-* **serviceAccount:{service_account_id}**: A unique service account ID.
-* **federatedUser:{federated_user_id}**: A unique federated user ID.
-* **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.
-* **group:{group_id}**: A unique group ID.
-* **system:group:federation:{federation_id}:users**: All users in federation.
-* **system:group:organization:{organization_id}:users**: All users in organization.
-* **system:allAuthenticatedUsers**: All authenticated users.
-* **system:allUsers**: All users, including unauthenticated ones.
+ * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+ * **serviceAccount:{service_account_id}**: A unique service account ID.
+ * **federatedUser:{federated_user_id}**: A unique federated user ID.
+ * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.
+ * **group:{group_id}**: A unique group ID.
+ * **system:group:federation:{federation_id}:users**: All users in federation.
+ * **system:group:organization:{organization_id}:users**: All users in organization.
+ * **system:allAuthenticatedUsers**: All authenticated users.
+ * **system:allUsers**: All users, including unauthenticated ones.
 
 ~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
