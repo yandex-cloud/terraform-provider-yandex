@@ -55,7 +55,7 @@ func TestAccOrganizationManagerMfaEnforcementCreate(t *testing.T) {
 					testAccCheckMfaEnforcementExists("yandex_organizationmanager_mfa_enforcement.foobar"),
 					test.AccCheckCreatedAtAttr("yandex_organizationmanager_mfa_enforcement.foobar"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "name", name),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "ttl", "5s"),
+					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "ttl", "5m"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "status", "MFA_ENFORCEMENT_STATUS_ACTIVE"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "enroll_window", "5h0m0s"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foobar", "organization_id", organizationId),
@@ -162,7 +162,7 @@ resource "yandex_organizationmanager_mfa_enforcement" "foobar" {
   name            = "%s"
   organization_id = "%s"
   acr_id 		  = "%s"
-  ttl 		  	  = "5s"
+  ttl 		  	  = "5m"
   status 		  = "MFA_ENFORCEMENT_STATUS_ACTIVE"
   enroll_window   = "5h0m0s"
 }
@@ -175,7 +175,7 @@ resource "yandex_organizationmanager_mfa_enforcement" "foobar" {
   name            = "%s"
   organization_id = "%s"
   acr_id 	 	  = "%s"
-  ttl 			  = "5s"
+  ttl 			  = "5m"
   status 		  = "%s"
   enroll_window   = "5h0m0s"
   description     = "%s"
