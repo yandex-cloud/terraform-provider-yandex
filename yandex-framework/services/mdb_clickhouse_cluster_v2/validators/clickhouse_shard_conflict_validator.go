@@ -24,7 +24,7 @@ func (v ClickhouseShardConflictValidator) MarkdownDescription(ctx context.Contex
 }
 
 func (v ClickhouseShardConflictValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var config models.Cluster
+	var config models.ClusterResource
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return

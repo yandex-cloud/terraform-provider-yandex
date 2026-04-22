@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: support cluster restore from backup'
+time: 2026-04-13T18:04:26.162161+03:00

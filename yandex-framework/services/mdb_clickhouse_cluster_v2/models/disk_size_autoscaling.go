@@ -57,7 +57,7 @@ func ExpandDiskSizeAutoscaling(ctx context.Context, diskSizeAutoscaling types.Ob
 	}
 }
 
-func GetClickHouseDiskSizeAutoscaling(ctx context.Context, cluster Cluster, diags *diag.Diagnostics) (types.Object, bool) {
+func GetClickHouseDiskSizeAutoscaling(ctx context.Context, cluster ClusterResource, diags *diag.Diagnostics) (types.Object, bool) {
 	if cluster.ClickHouse.IsNull() || cluster.ClickHouse.IsUnknown() {
 		return types.ObjectNull(DiskSizeAutoscalingAttrTypes), false
 	}

@@ -946,3 +946,45 @@ func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags
 		)
 	}
 }
+
+// Restore
+
+func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.RestoreClusterRequest) string {
+	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"request": req})
+
+	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Restore(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource",
+			fmt.Sprintf("Error while requesting API to restore ClickHouse cluster from backup: %s", err.Error()),
+		)
+		return ""
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		diags.AddError(
+			"Failed to restore resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+
+	md, ok := protoMetadata.(*clickhouse.RestoreClusterMetadata)
+	if !ok {
+		diags.AddError(
+			"Failed to restore resource",
+			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
+		)
+		return ""
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to restore resource",
+			fmt.Sprintf("Error while waiting for operation %q to restore ClickHouse cluster from backup: %s", op.Id(), err.Error()),
+		)
+		return ""
+	}
+	return md.ClusterId
+}

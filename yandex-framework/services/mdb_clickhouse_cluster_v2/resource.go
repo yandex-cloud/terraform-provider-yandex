@@ -22,10 +22,11 @@ import (
 )
 
 const (
-	yandexMDBClickHouseClusterCreateTimeout = 60 * time.Minute
-	yandexMDBClickHouseClusterDeleteTimeout = 30 * time.Minute
-	yandexMDBClickHouseClusterUpdateTimeout = 90 * time.Minute
-	yandexMDBClickHouseClusterPollInterval  = 10 * time.Second
+	yandexMDBClickHouseClusterCreateTimeout  = 60 * time.Minute
+	yandexMDBClickHouseClusterDeleteTimeout  = 30 * time.Minute
+	yandexMDBClickHouseClusterUpdateTimeout  = 90 * time.Minute
+	yandexMDBClickHouseClusterPollInterval   = 10 * time.Second
+	yandexMDBClickHouseClusterRestoreTimeout = 48 * time.Hour
 )
 
 var _ resource.ResourceWithModifyPlan = &clusterResource{}
@@ -62,7 +63,7 @@ func (r *clusterResource) Configure(_ context.Context,
 
 func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Load the current state of the resource
-	var state models.Cluster
+	var state models.ClusterResource
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -81,14 +82,28 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan models.Cluster
+	var (
+		plan                  models.ClusterResource
+		existingFormatSchemas []*clickhouse.FormatSchema
+		existingMlModels      []*clickhouse.MlModel
+		existingShardGroups   []*clickhouse.ShardGroup
+		existingExtensions    []*clickhouse.ClusterExtension
+	)
+
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBClickHouseClusterCreateTimeout)
+	isRestore := !plan.Restore.IsNull() && !plan.Restore.IsUnknown()
+
+	defaultCreateTimeout := yandexMDBClickHouseClusterCreateTimeout
+	if isRestore {
+		defaultCreateTimeout = yandexMDBClickHouseClusterRestoreTimeout
+	}
+
+	createTimeout, diags := plan.Timeouts.Create(ctx, defaultCreateTimeout)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -97,36 +112,49 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	hostSpecsSlice, diags := mdbcommon.CreateClusterHosts(ctx, clickhouseHostService, plan.HostSpecs)
-	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-		return
+
+	// Create or restore cluster
+	if isRestore {
+		r.createClusterFromBackup(ctx, &plan, hostSpecsSlice, &resp.Diagnostics)
+	} else {
+		r.createCluster(ctx, &plan, hostSpecsSlice, &resp.Diagnostics)
 	}
 
-	// Create cluster
-	r.createCluster(ctx, &plan, hostSpecsSlice, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	if isRestore {
+		cid := plan.Id.ValueString()
+		existingFormatSchemas = clickhouseApi.ListFormatSchemas(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		existingMlModels = clickhouseApi.ListMlModels(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		existingShardGroups = clickhouseApi.ListShardGroups(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		existingExtensions = clickhouseApi.ListExtensions(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
 	// Create format schemas
-	r.createFormatSchemas(ctx, plan, &resp.Diagnostics)
+	r.createFormatSchemas(ctx, plan, existingFormatSchemas, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Create ml models
-	r.createMlModels(ctx, plan, &resp.Diagnostics)
+	r.createMlModels(ctx, plan, existingMlModels, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Create shard groups
-	r.createShardGroups(ctx, plan, &resp.Diagnostics)
+	r.createShardGroups(ctx, plan, existingShardGroups, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Create extensions
-	r.createExtensions(ctx, plan, &resp.Diagnostics)
+	r.createExtensions(ctx, plan, existingExtensions, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -139,8 +167,8 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan models.Cluster
-	var state models.Cluster
+	var plan models.ClusterResource
+	var state models.ClusterResource
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
@@ -326,7 +354,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state models.Cluster
+	var state models.ClusterResource
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -357,7 +385,7 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 		return
 	}
 
-	var config, plan, state models.Cluster
+	var config, plan, state models.ClusterResource
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -473,7 +501,7 @@ func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func refreshState(ctx context.Context, prevState, state *models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := state.Id.ValueString()
 	cluster := clickhouseApi.GetCluster(ctx, sdk, diags, cid)
 	if diags.HasError() {
@@ -523,7 +551,7 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, diags)
 
 	state.Version = types.StringValue(cluster.Config.Version)
-	state.ClickHouse = models.FlattenClickHouse(ctx, prevState, cluster.Config.Clickhouse, diags)
+	state.ClickHouse = models.FlattenClickHouse(ctx, prevState.ClickHouse, cluster.Config.Clickhouse, diags)
 	state.ZooKeeper = models.FlattenZooKeeper(ctx, cluster.Config.Zookeeper, diags)
 	state.BackupWindowStart = mdbcommon.FlattenBackupWindowStart(ctx, cluster.Config.BackupWindowStart, diags)
 	state.Access = models.FlattenAccess(ctx, cluster.Config.Access, diags)
@@ -553,7 +581,7 @@ func refreshState(ctx context.Context, prevState, state *models.Cluster, sdk *yc
 func shardOverridesChanged(
 	ctx context.Context,
 	configOverrides map[string]types.Object,
-	state models.Cluster,
+	state models.ClusterResource,
 	diags *diag.Diagnostics,
 	getter func(models.Shard) types.Object,
 ) bool {
@@ -583,7 +611,7 @@ func shardOverridesChanged(
 
 func setShardsAttrUnknown(
 	ctx context.Context,
-	plan *models.Cluster,
+	plan *models.ClusterResource,
 	attrName string,
 	attrTypes map[string]attr.Type,
 	resp *resource.ModifyPlanResponse,
@@ -614,7 +642,7 @@ func setShardsAttrUnknown(
 
 func getShardOverrides(
 	ctx context.Context,
-	cluster models.Cluster,
+	cluster models.ClusterResource,
 	diags *diag.Diagnostics,
 	getter func(models.Shard) types.Object,
 ) (map[string]types.Object, bool) {

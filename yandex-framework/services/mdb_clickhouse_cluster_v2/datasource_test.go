@@ -13,10 +13,14 @@ import (
 )
 
 var ignoreAttrsSet = map[string]struct{}{
-	// Senserive attributies:
+	// Total attribute count differs because datasource omits resource-only attrs:
+	"%": {},
+	// Sensitive attributes:
 	"admin_password":                        {},
 	"clickhouse.config.kafka.sasl_password": {},
 	"clickhouse.config.rabbitmq.password":   {},
+	// Resource-only attributes not present in datasource:
+	"restore": {},
 }
 
 var ignoreByPrefixAttrsSet = map[string]struct{}{

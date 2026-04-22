@@ -55,7 +55,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 		t.Run(c.testname, func(t *testing.T) {
 			t.Parallel()
 
-			state := &models.Cluster{}
+			state := &models.ClusterResource{}
 			diags := c.stateVal.As(ctx, state, datasize.DefaultOpts)
 			if diags.HasError() {
 				t.Fatalf(
@@ -65,7 +65,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 				)
 			}
 
-			plan := &models.Cluster{}
+			plan := &models.ClusterResource{}
 			diags = c.planVal.As(ctx, plan, datasize.DefaultOpts)
 			if diags.HasError() {
 				t.Fatalf(

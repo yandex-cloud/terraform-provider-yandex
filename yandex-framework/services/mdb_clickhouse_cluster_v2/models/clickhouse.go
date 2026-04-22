@@ -23,14 +23,14 @@ var ClickhouseAttrTypes = map[string]attr.Type{
 	"disk_size_autoscaling": types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 }
 
-func FlattenClickHouse(ctx context.Context, state *Cluster, clickhouse *clickhouse.ClusterConfig_Clickhouse, diags *diag.Diagnostics) types.Object {
+func FlattenClickHouse(ctx context.Context, prevClickHouse types.Object, clickhouse *clickhouse.ClusterConfig_Clickhouse, diags *diag.Diagnostics) types.Object {
 	if clickhouse == nil {
 		return types.ObjectNull(ClickhouseAttrTypes)
 	}
 
 	obj, d := types.ObjectValueFrom(
 		ctx, ClickhouseAttrTypes, Clickhouse{
-			Config:              FlattenClickHouseConfig(ctx, state, clickhouse.Config.EffectiveConfig, diags),
+			Config:              FlattenClickHouseConfig(ctx, prevClickHouse, clickhouse.Config.EffectiveConfig, diags),
 			Resources:           mdbcommon.FlattenResources(ctx, clickhouse.Resources, diags),
 			DiskSizeAutoscaling: FlattenDiskSizeAutoscaling(ctx, clickhouse.DiskSizeAutoscaling, diags),
 		},

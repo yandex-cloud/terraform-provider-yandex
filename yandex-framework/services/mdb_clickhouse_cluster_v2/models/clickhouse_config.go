@@ -180,7 +180,7 @@ var ClickhouseConfigAttrTypes = map[string]attr.Type{
 	"custom_macros":                                 types.ListType{ElemType: types.ObjectType{AttrTypes: MacroAttrTypes}},
 }
 
-func FlattenClickHouseConfig(ctx context.Context, state *Cluster, config *clickhouseConfig.ClickhouseConfig, diags *diag.Diagnostics) types.Object {
+func FlattenClickHouseConfig(ctx context.Context, prevClickHouse types.Object, config *clickhouseConfig.ClickhouseConfig, diags *diag.Diagnostics) types.Object {
 	if config == nil {
 		return types.ObjectNull(ClickhouseConfigAttrTypes)
 	}
@@ -261,8 +261,8 @@ func FlattenClickHouseConfig(ctx context.Context, state *Cluster, config *clickh
 			MergeTree:                                 flattenMergeTree(ctx, config.MergeTree, diags),
 			Compression:                               flattenListCompression(ctx, config.Compression, diags),
 			GraphiteRollup:                            flattenListGraphiteRollup(ctx, config.GraphiteRollup, diags),
-			Kafka:                                     flattenKafka(ctx, state, config.Kafka, diags),
-			Rabbitmq:                                  flattenRabbitmq(ctx, state, config.Rabbitmq, diags),
+			Kafka:                                     flattenKafka(ctx, prevClickHouse, config.Kafka, diags),
+			Rabbitmq:                                  flattenRabbitmq(ctx, prevClickHouse, config.Rabbitmq, diags),
 			QueryMaskingRules:                         flattenListQueryMaskingRule(ctx, config.QueryMaskingRules, diags),
 			QueryCache:                                flattenQueryCache(ctx, config.QueryCache, diags),
 			JdbcBridge:                                flattenJdbcBridge(ctx, config.JdbcBridge, diags),
