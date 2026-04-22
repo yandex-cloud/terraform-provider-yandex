@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/numberplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
@@ -150,6 +151,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"access":              AccessSchema(),
 			"hosts":               HostsSchema(),
 			"shards":              ShardsSchema(),
+			"restore":             RestoreSchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"shard_group":        ShardGroupSchema(),
@@ -1900,6 +1902,41 @@ func JdbcBridgeSchema() schema.SingleNestedAttribute {
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+		},
+	}
+}
+
+func RestoreSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Description: "The cluster will be created from the specified backup.",
+		Optional:    true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.RequiresReplace(),
+		},
+		Attributes: map[string]schema.Attribute{
+			"backup_id": schema.StringAttribute{
+				Description: "Backup ID. The cluster will be created from the specified backup.",
+				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"include_patterns": schema.ListAttribute{
+				Description: "Tables and databases to include in restore.",
+				Optional:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+			},
+			"exclude_patterns": schema.ListAttribute{
+				Description: "Tables and databases to exclude from restore.",
+				Optional:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
 				},
 			},
 		},

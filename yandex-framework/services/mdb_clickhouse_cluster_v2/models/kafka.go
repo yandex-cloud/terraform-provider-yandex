@@ -40,15 +40,15 @@ var KafkaAttrTypes = map[string]attr.Type{
 	"batch_size":                          types.Int64Type,
 }
 
-func flattenKafka(ctx context.Context, state *Cluster, kafka *clickhouseConfig.ClickhouseConfig_Kafka, diags *diag.Diagnostics) types.Object {
+func flattenKafka(ctx context.Context, prevClickHouse types.Object, kafka *clickhouseConfig.ClickhouseConfig_Kafka, diags *diag.Diagnostics) types.Object {
 	if kafka == nil {
 		return types.ObjectNull(KafkaAttrTypes)
 	}
 
 	var stateKafka Kafka
-	if state != nil && !state.ClickHouse.IsNull() && !state.ClickHouse.IsUnknown() {
+	if !prevClickHouse.IsNull() && !prevClickHouse.IsUnknown() {
 		var stateClickHouse Clickhouse
-		diags.Append(state.ClickHouse.As(ctx, &stateClickHouse, datasize.UnhandledOpts)...)
+		diags.Append(prevClickHouse.As(ctx, &stateClickHouse, datasize.UnhandledOpts)...)
 
 		var stateClickHouseConfig ClickhouseConfig
 		if !stateClickHouse.Config.IsNull() && !stateClickHouse.Config.IsUnknown() {

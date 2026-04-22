@@ -18,7 +18,7 @@ import (
 
 // Folder id
 
-func prepareFolderIdUpdateRequest(state, plan *models.Cluster) *clickhouse.MoveClusterRequest {
+func prepareFolderIdUpdateRequest(state, plan *models.ClusterResource) *clickhouse.MoveClusterRequest {
 	if state.FolderId.Equal(plan.FolderId) {
 		return nil
 	}
@@ -31,7 +31,7 @@ func prepareFolderIdUpdateRequest(state, plan *models.Cluster) *clickhouse.MoveC
 
 // Version
 
-func prepareVersionUpdateRequest(state, plan *models.Cluster) *clickhouse.UpdateClusterRequest {
+func prepareVersionUpdateRequest(state, plan *models.ClusterResource) *clickhouse.UpdateClusterRequest {
 	if state.Version.Equal(plan.Version) {
 		return nil
 	}
@@ -49,7 +49,7 @@ func prepareVersionUpdateRequest(state, plan *models.Cluster) *clickhouse.Update
 
 // Cluster
 
-func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluster, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
+func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.ClusterResource, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
 	request := &clickhouse.UpdateClusterRequest{
 		ClusterId:  state.Id.ValueString(),
 		UpdateMask: &field_mask.FieldMask{},
@@ -116,7 +116,7 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 
 // Cluster config
 
-func prepareClusterConfigSpec(ctx context.Context, plan, state *models.Cluster, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
+func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterResource, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
 	var updateMaskPaths []string
 	config := &clickhouse.ConfigSpec{}
 
@@ -323,7 +323,7 @@ func getClickHouseConfigUpdatePaths(ctx context.Context, planClickHouse, stateCl
 
 // Format schemas
 
-func updateFormatSchemas(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateFormatSchemas(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := plan.Id.ValueString()
 	currentFormatSchemas := clickhouseApi.ListFormatSchemas(ctx, sdk, diags, cid)
 	if diags.HasError() {
@@ -357,7 +357,7 @@ func updateFormatSchemas(ctx context.Context, plan models.Cluster, sdk *ycsdk.SD
 	}
 }
 
-func prepareFormatSchemaUpdateRequests(ctx context.Context, currentSchemas []*clickhouse.FormatSchema, plan *models.Cluster, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateFormatSchemaRequest, []*clickhouse.CreateFormatSchemaRequest) {
+func prepareFormatSchemaUpdateRequests(ctx context.Context, currentSchemas []*clickhouse.FormatSchema, plan *models.ClusterResource, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateFormatSchemaRequest, []*clickhouse.CreateFormatSchemaRequest) {
 	targetSchemas := models.ExpandListFormatSchema(ctx, plan.FormatSchema, plan.Id.ValueString(), diags)
 	if diags.HasError() {
 		return nil, nil, nil
@@ -411,7 +411,7 @@ func prepareFormatSchemaUpdateRequests(ctx context.Context, currentSchemas []*cl
 
 // Ml models
 
-func updateMlModels(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateMlModels(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := plan.Id.ValueString()
 	currentMlModels := clickhouseApi.ListMlModels(ctx, sdk, diags, cid)
 	if diags.HasError() {
@@ -445,7 +445,7 @@ func updateMlModels(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, di
 	}
 }
 
-func prepareMlModelUpdateRequests(ctx context.Context, currentModels []*clickhouse.MlModel, plan *models.Cluster, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateMlModelRequest, []*clickhouse.CreateMlModelRequest) {
+func prepareMlModelUpdateRequests(ctx context.Context, currentModels []*clickhouse.MlModel, plan *models.ClusterResource, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateMlModelRequest, []*clickhouse.CreateMlModelRequest) {
 	targetModels := models.ExpandListMLModel(ctx, plan.MLModel, plan.Id.ValueString(), diags)
 	if diags.HasError() {
 		return nil, nil, nil
@@ -499,7 +499,7 @@ func prepareMlModelUpdateRequests(ctx context.Context, currentModels []*clickhou
 
 // Shard groups
 
-func updateShardGroups(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateShardGroups(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := plan.Id.ValueString()
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
 	if diags.HasError() {
@@ -533,7 +533,7 @@ func updateShardGroups(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK,
 	}
 }
 
-func prepareShardGroupUpdateRequests(ctx context.Context, currentShardGroups []*clickhouse.ShardGroup, plan *models.Cluster, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateClusterShardGroupRequest, []*clickhouse.CreateClusterShardGroupRequest) {
+func prepareShardGroupUpdateRequests(ctx context.Context, currentShardGroups []*clickhouse.ShardGroup, plan *models.ClusterResource, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateClusterShardGroupRequest, []*clickhouse.CreateClusterShardGroupRequest) {
 	targetShardGroups := models.ExpandListShardGroup(ctx, plan.ShardGroup, plan.Id.ValueString(), diags)
 	if diags.HasError() {
 		return nil, nil, nil
@@ -584,7 +584,7 @@ func prepareShardGroupUpdateRequests(ctx context.Context, currentShardGroups []*
 
 // Shards
 
-func updateShards(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateShards(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := plan.Id.ValueString()
 
 	shards := models.ExpandListShard(ctx, plan.Shards, cid, diags)
@@ -667,7 +667,7 @@ func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpe
 
 // Extensions
 
-func updateExtensions(ctx context.Context, plan models.Cluster, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateExtensions(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	specs := models.ExpandListExtensions(ctx, plan.Extension, diags)
 	if diags.HasError() {
 		return

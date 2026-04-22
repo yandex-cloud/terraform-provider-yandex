@@ -22,15 +22,15 @@ var RabbitmqAttrTypes = map[string]attr.Type{
 	"vhost":    types.StringType,
 }
 
-func flattenRabbitmq(ctx context.Context, state *Cluster, rabbitmq *clickhouseConfig.ClickhouseConfig_Rabbitmq, diags *diag.Diagnostics) types.Object {
+func flattenRabbitmq(ctx context.Context, prevClickHouse types.Object, rabbitmq *clickhouseConfig.ClickhouseConfig_Rabbitmq, diags *diag.Diagnostics) types.Object {
 	if rabbitmq == nil {
 		return types.ObjectNull(RabbitmqAttrTypes)
 	}
 
 	var stateRabbitmq Rabbitmq
-	if state != nil && !state.ClickHouse.IsNull() && !state.ClickHouse.IsUnknown() {
+	if !prevClickHouse.IsNull() && !prevClickHouse.IsUnknown() {
 		var stateClickHouse Clickhouse
-		diags.Append(state.ClickHouse.As(ctx, &stateClickHouse, datasize.UnhandledOpts)...)
+		diags.Append(prevClickHouse.As(ctx, &stateClickHouse, datasize.UnhandledOpts)...)
 
 		var stateClickHouseConfig ClickhouseConfig
 		if !stateClickHouse.Config.IsNull() && !stateClickHouse.Config.IsUnknown() {

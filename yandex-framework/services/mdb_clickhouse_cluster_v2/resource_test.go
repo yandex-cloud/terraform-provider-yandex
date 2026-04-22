@@ -38,6 +38,9 @@ const (
 	chResourceCloudStorage = "yandex_mdb_clickhouse_cluster_v2.cloud"
 	chResourceSharded      = "yandex_mdb_clickhouse_cluster_v2.bar"
 	chResource             = "yandex_mdb_clickhouse_cluster_v2.foo"
+	chResourceRestore      = "yandex_mdb_clickhouse_cluster_v2.restore_test"
+
+	chRestoreBackupWithExtensionId = "c9qqv135s8oadbbjcq7m:c9qmqctragekko24qtt3"
 
 	defaultMDBPageSize = 1000
 )
@@ -1585,6 +1588,34 @@ func TestAccMDBClickHouseCluster_encrypted_disk(t *testing.T) {
 	})
 }
 
+// Test that a ClickHouse cluster can be restored from a backup that already contains an extension
+// and declaring the same extension in config does not produce an "already exists" error.
+func TestAccMDBClickHouseCluster_restore(t *testing.T) {
+	t.Parallel()
+
+	var cluster clickhouse.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-clickhouse-restored")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBClickHouseCluster_restore(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceRestore, &cluster, 1),
+					resource.TestCheckResourceAttr(chResourceRestore, "name", clusterName),
+					resource.TestCheckResourceAttr(chResourceRestore, "restore.backup_id", chRestoreBackupWithExtensionId),
+					testAccCheckMDBClickHouseClusterHasExtensions(chResourceRestore, map[string]string{
+						"catboost": "1.17.3",
+					}),
+				),
+			},
+		},
+	})
+}
+
 // Test HCL configs
 
 func testAccMDBClickHouseCluster_basic(name string, bucket string, randInt int, changeableConf string) string {
@@ -1895,6 +1926,55 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 `,
 		name,
 		maintenanceWindowAnytime,
+	)
+}
+
+func testAccMDBClickHouseCluster_restore(name string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+resource "yandex_mdb_clickhouse_cluster_v2" "restore_test" {
+  name                = "%s"
+  description         = "ClickHouse Cluster Restore Test"
+  environment         = "PRESTABLE"
+  network_id          = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  deletion_protection = false
+
+  restore = {
+    backup_id = "%s"
+  }
+
+  clickhouse = {
+    resources = {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 10
+    }
+  }
+
+  hosts = {
+    "ha" = {
+      type       = "CLICKHOUSE"
+      zone       = "ru-central1-a"
+      subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+      shard_name = "shard1"
+    }
+  }
+
+  shards = {
+    shard1 = {}
+  }
+
+  extension {
+    name    = "catboost"
+    version = "1.17.3"
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+}
+`,
+		name,
+		chRestoreBackupWithExtensionId,
 	)
 }
 

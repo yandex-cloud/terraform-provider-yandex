@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,7 +26,7 @@ var (
 	clusterId = "cluster-id"
 
 	minimalConfig = types.ObjectValueMust(
-		models.ClusterAttrTypes,
+		models.ClusterResourceAttrTypes,
 		map[string]attr.Value{
 			"id":                        types.StringValue(clusterId),
 			"cluster_id":                types.StringValue(clusterId),
@@ -63,11 +64,12 @@ var (
 			}),
 			"timeouts":                 timeouts.Value{},
 			"copy_schema_on_new_hosts": types.BoolNull(),
+			"restore":                  types.ObjectNull(models.RestoreAttrTypes),
 		},
 	)
 
 	maximalConfig = types.ObjectValueMust(
-		models.ClusterAttrTypes,
+		models.ClusterResourceAttrTypes,
 		map[string]attr.Value{
 			"id":          types.StringValue(clusterId),
 			"cluster_id":  types.StringValue(clusterId),
@@ -636,6 +638,7 @@ var (
 			}),
 			"timeouts":                 timeouts.Value{},
 			"copy_schema_on_new_hosts": types.BoolNull(),
+			"restore":                  types.ObjectNull(models.RestoreAttrTypes),
 		},
 	)
 )
@@ -1103,7 +1106,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 		t.Run(c.testname, func(t *testing.T) {
 			t.Parallel()
 
-			cluster := &models.Cluster{}
+			cluster := &models.ClusterResource{}
 			diags := c.reqVal.As(ctx, cluster, datasize.DefaultOpts)
 			if diags.HasError() {
 				t.Errorf(
@@ -1129,7 +1132,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			utils.AssertProtoEqual(t, c.testname, c.expectedClusterRequest, req)
 
 			// Check create format schema requests
-			fsReqs := prepareFormatSchemasCreateRequests(ctx, cluster, &diags)
+			fsReqs := prepareFormatSchemasCreateRequests(ctx, cluster, nil, &diags)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1166,7 +1169,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create ml model requests
-			mlReqs := prepareMlModelsCreateRequests(ctx, cluster, &diags)
+			mlReqs := prepareMlModelsCreateRequests(ctx, cluster, nil, &diags)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1203,7 +1206,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create shard group requests
-			sgReqs := prepareShardGroupsCreateRequests(ctx, cluster, &diags)
+			sgReqs := prepareShardGroupsCreateRequests(ctx, cluster, nil, &diags)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1240,7 +1243,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create extension requests
-			extReqs := prepareExtensionsCreateRequests(ctx, cluster, &diags)
+			extReqs := prepareExtensionsCreateRequests(ctx, cluster, nil, &diags)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1277,4 +1280,68 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 		})
 	}
+}
+
+func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	hostSpecs := []*clickhouse.HostSpec{
+		{ZoneId: "ru-central1-a", ShardName: "shard1", Type: clickhouse.Host_CLICKHOUSE},
+	}
+
+	baseExpected := &clickhouse.RestoreClusterRequest{
+		BackupId:    "test-backup-id",
+		Name:        "test-cluster",
+		FolderId:    "test-folder-1",
+		NetworkId:   "test-network",
+		Environment: clickhouse.Cluster_PRESTABLE,
+		HostSpecs:   hostSpecs,
+		ConfigSpec:  &clickhouse.ConfigSpec{Version: "25.8", BackupWindowStart: &timeofday.TimeOfDay{}},
+	}
+
+	makeCluster := func(includePatterns, excludePatterns []attr.Value) *models.ClusterResource {
+		cfg := minimalConfig.Attributes()
+		cfg["restore"] = types.ObjectValueMust(
+			models.RestoreAttrTypes,
+			map[string]attr.Value{
+				"backup_id":        types.StringValue("test-backup-id"),
+				"include_patterns": types.ListValueMust(types.StringType, includePatterns),
+				"exclude_patterns": types.ListValueMust(types.StringType, excludePatterns),
+			},
+		)
+		reqVal := types.ObjectValueMust(models.ClusterResourceAttrTypes, cfg)
+		cluster := &models.ClusterResource{}
+		diags := reqVal.As(ctx, cluster, datasize.DefaultOpts)
+		if diags.HasError() {
+			t.Fatalf("Unexpected diagnostics in As(): %v", diags.Errors())
+		}
+		return cluster
+	}
+
+	t.Run("include_patterns", func(t *testing.T) {
+		cluster := makeCluster([]attr.Value{types.StringValue("default.*")}, nil)
+		expected := proto.Clone(baseExpected).(*clickhouse.RestoreClusterRequest)
+		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
+			IncludePatterns: []string{"default.*"},
+		}
+		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		if diags.HasError() {
+			t.Fatalf("Unexpected error: %v", diags.Errors())
+		}
+		utils.AssertProtoEqual(t, "PartialRestore include", expected, req)
+	})
+
+	t.Run("exclude_patterns", func(t *testing.T) {
+		cluster := makeCluster(nil, []attr.Value{types.StringValue("secret.*")})
+		expected := proto.Clone(baseExpected).(*clickhouse.RestoreClusterRequest)
+		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
+			ExcludePatterns: []string{"secret.*"},
+		}
+		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		if diags.HasError() {
+			t.Fatalf("Unexpected error: %v", diags.Errors())
+		}
+		utils.AssertProtoEqual(t, "PartialRestore exclude", expected, req)
+	})
 }

@@ -20,7 +20,7 @@ func (v ShardsHostsConsistencyValidator) MarkdownDescription(ctx context.Context
 }
 
 func (v ShardsHostsConsistencyValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var config models.Cluster
+	var config models.ClusterResource
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
