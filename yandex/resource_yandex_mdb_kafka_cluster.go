@@ -644,6 +644,12 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"transactional_id_expiration_ms": {
+				Type:         schema.TypeString,
+				Description:  "Timeout for transactional ids to expire in ms.",
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
+			},
 		},
 	}
 }
@@ -1206,6 +1212,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.ssl_cipher_suites":               "config_spec.kafka.kafka_config_{version}.ssl_cipher_suites",
 	"config.0.kafka.0.kafka_config.0.offsets_retention_minutes":       "config_spec.kafka.kafka_config_{version}.offsets_retention_minutes",
 	"config.0.kafka.0.kafka_config.0.sasl_enabled_mechanisms":         "config_spec.kafka.kafka_config_{version}.sasl_enabled_mechanisms",
+	"config.0.kafka.0.kafka_config.0.transactional_id_expiration_ms":  "config_spec.kafka.kafka_config_{version}.transactional_id_expiration_ms",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
