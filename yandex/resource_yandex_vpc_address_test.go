@@ -422,3 +422,70 @@ func testAccCheckVPCAddressContainsLabelNotFound(address *vpc.Address, key strin
 		return nil
 	}
 }
+
+func testAccVPCAddressInternalWithAddress(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "network1" {
+  name = "%[1]s-network"
+}
+
+resource "yandex_vpc_subnet" "subnet1" {
+  name           = "%[1]s-subnet"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network1.id
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_address" "addr1" {
+  name        = "%[1]s"
+  description = "internal address with explicit address"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  internal_ipv4_address {
+    address   = "192.168.0.10"
+    subnet_id = yandex_vpc_subnet.subnet1.id
+  }
+}
+`, name)
+}
+
+func TestAccVPCAddress_internalWithAddress(t *testing.T) {
+	t.Parallel()
+
+	var address vpc.Address
+	addressName := acctest.RandomWithPrefix("tf-address")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCAddressInternalWithAddress(addressName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCAddressExists("yandex_vpc_address.addr1", &address),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "folder_id"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "name", addressName),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "description", "internal address with explicit address"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "internal_ipv4_address.#", "1"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "internal_ipv4_address.0.subnet_id"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "internal_ipv4_address.0.address", "192.168.0.10"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "reserved", "true"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "used", "false"),
+					testAccCheckVPCAddressContainsLabel(&address, "tf-label", "tf-label-value"),
+					testAccCheckVPCAddressContainsLabel(&address, "empty-label", ""),
+					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
+				),
+			},
+			{
+				ResourceName:      "yandex_vpc_address.addr1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
