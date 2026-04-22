@@ -52,6 +52,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/organizationmanager_idp_application_oauth_application_assignment"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/organizationmanager_idp_application_saml_application_assignment"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/organizationmanager_mfa_enforcement_audience"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/organizationmanager_mfa_enforcement_excluded_audience"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/spark_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_grant"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_iam_binding"
@@ -324,6 +325,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		organizationmanager_idp_application_oauth_application_assignment.NewResource,
 		organizationmanager_idp_application_saml_application_assignment.NewResource,
 		organizationmanager_mfa_enforcement_audience.NewResource,
+		organizationmanager_mfa_enforcement_excluded_audience.NewResource,
 		spark_cluster.NewResource,
 		gitlab_instance.NewResource,
 		trino_access_control.NewResource,

@@ -1,4 +1,4 @@
-package organizationmanager_mfa_enforcement_audience_test
+package organizationmanager_mfa_enforcement_excluded_audience_test
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-func TestAccOrganizationManagerMfaEnforcementAudienceCreate(t *testing.T) {
+func TestAccOrganizationManagerMfaEnforcementExcludedAudienceCreate(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
 	subjectId := test.GetExampleUserID1()
 
@@ -29,18 +29,18 @@ func TestAccOrganizationManagerMfaEnforcementAudienceCreate(t *testing.T) {
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId),
+				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
+					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foo", "organization_id", organizationId),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId),
+					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId),
 				),
 			},
 		},
 	})
 }
 
-func TestAccOrganizationManagerMfaEnforcementAudienceRecreateForNewSubjectId(t *testing.T) {
+func TestAccOrganizationManagerMfaEnforcementExcludedAudienceRecreateForNewSubjectId(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
 	subjectId1 := test.GetExampleUserID1()
 	subjectId2 := test.GetExampleUserID2()
@@ -51,24 +51,24 @@ func TestAccOrganizationManagerMfaEnforcementAudienceRecreateForNewSubjectId(t *
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId1),
+				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId1),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId1),
+					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
+					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId1),
 				),
 			},
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId2),
+				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId2),
+					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
+					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId2),
 				),
 			},
 		},
 	})
 }
 
-func TestAccOrganizationManagerMfaEnforcementAudienceDelete(t *testing.T) {
+func TestAccOrganizationManagerMfaEnforcementExcludedAudienceDelete(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
 	subjectId := test.GetExampleUserID1()
 
@@ -78,12 +78,12 @@ func TestAccOrganizationManagerMfaEnforcementAudienceDelete(t *testing.T) {
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId),
-				Check:  testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
+				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId),
+				Check:  testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
 			},
 			{
 				Config: testAccMfaEnforcement(organizationId),
-				Check:  testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo"),
+				Check:  testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo"),
 			},
 		},
 	})
@@ -95,23 +95,23 @@ resource "yandex_organizationmanager_mfa_enforcement" "foo" {
 	name            = "test-mfa-enforcement-name"
 	organization_id = "%s"
 	acr_id 		    = "any-mfa"
-	ttl 		    = "5m"
+	ttl 		    = "5s"
 	status 		    = "MFA_ENFORCEMENT_STATUS_ACTIVE"
-	enroll_window   = "5h0m0s"
+	enroll_window   = "5h"
 }
 `, organizationId)
 }
 
-func testAccMfaEnforcementAudience(subjectId string) string {
+func testAccMfaEnforcementExcludedAudience(subjectId string) string {
 	return fmt.Sprintf(`
-resource "yandex_organizationmanager_mfa_enforcement_audience" "bar" {
+resource "yandex_organizationmanager_mfa_enforcement_excluded_audience" "bar" {
 	mfa_enforcement_id = yandex_organizationmanager_mfa_enforcement.foo.id
 	subject_id = "%s"
 }
 `, subjectId)
 }
 
-func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audiences ...string) resource.TestCheckFunc {
+func testAccCheckMfaEnforcementWithExcludedAudienceExists(mfaEnforcement string, audiences ...string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 		client := organizationmanagersdk.NewMfaEnforcementClient(config.SDKv2)
@@ -129,7 +129,7 @@ func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audienc
 		if resp1.Id != mfaEnforcementId {
 			return fmt.Errorf("MFA enforcement %s not found", mfaEnforcement)
 		}
-		resp2, err := client.ListAudience(context.Background(), &organizationmanager.ListAudienceRequest{
+		resp2, err := client.ListExcludedAudience(context.Background(), &organizationmanager.ListExcludedAudienceRequest{
 			MfaEnforcementId: mfaEnforcementId,
 		})
 		if err != nil {
@@ -155,7 +155,7 @@ func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audienc
 				}
 				got += subjectId
 			}
-			return fmt.Errorf("invalid MFA enforcement's audience: expected '%s', got '%s'", expected, got)
+			return fmt.Errorf("invalid MFA enforcement's excluded audience: expected '%s', got '%s'", expected, got)
 		}
 		for _, audience := range audiences {
 			audienceRS, err := resourceState(s, audience)
@@ -163,7 +163,7 @@ func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audienc
 				return err
 			}
 			if audienceRS.Primary.Attributes["mfa_enforcement_id"] != mfaEnforcementId {
-				return fmt.Errorf("invalid MFA enforcement id in audience: expected '%s', got '%s'", mfaEnforcementId, audienceRS.Primary.Attributes["mfa_enforcement_id"])
+				return fmt.Errorf("invalid MFA enforcement id in excluded audience: expected '%s', got '%s'", mfaEnforcementId, audienceRS.Primary.Attributes["mfa_enforcement_id"])
 			}
 			subjectId := audienceRS.Primary.Attributes["subject_id"]
 			found := false
@@ -174,7 +174,7 @@ func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audienc
 				}
 			}
 			if !found {
-				return fmt.Errorf("audience '%s' for MFA enforcement '%s' not found", subjectId, mfaEnforcementId)
+				return fmt.Errorf("excluded audience '%s' for MFA enforcement '%s' not found", subjectId, mfaEnforcementId)
 			}
 		}
 		return nil
