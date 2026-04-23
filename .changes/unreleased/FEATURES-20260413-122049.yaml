@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'dns: add new resource and data-source `yandex_dns_firewall` and new resource `yandex_dns_firewall_iam_binding`'
-time: 2026-04-13T12:20:49.647404+03:00
