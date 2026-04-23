@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'vpc: added optional address parameter for internal addresses to yandex_vpc_address'
-time: 2026-04-21T19:42:32.009834+03:00
