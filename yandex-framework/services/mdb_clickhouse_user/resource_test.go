@@ -90,6 +90,7 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseUserResourceIDField(makeCHUserResource(chUserResourceName2)),
 					testAccCheckMDBClickHouseClusterHasUsers(chClusterResourceID, []string{chUserResourceName2, chUserResourceName3}),
+					resource.TestCheckResourceAttr(makeCHUserResource(chUserResourceName2), "permissions.#", "0"),
 				),
 			},
 		},
@@ -481,6 +482,7 @@ func testAccMDBClickHouseUserConfig_basic_create(name string, description string
 	      database_name = %s.name
 	  	}
 	}
+
 	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1, makeCHDBResource(chDBResourceName1))
 }
 
@@ -511,6 +513,7 @@ func testAccMDBClickHouseUserConfig_basic_update(name string, description string
 		}
 
 	}
+
 	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1,
 		makeCHDBResource(chDBResourceName1), makeCHDBResource(chDBResourceName2))
 }
@@ -527,11 +530,8 @@ func testAccMDBClickHouseUserConfig_basic_several(name, description string, user
 		cluster_id = %s
 		name       = "%s"
 		password   = "mysecureP@ssw0rd"
-		permission {
-	      database_name = %s.name
-	  	}
 	}
-	`, userName, chClusterResourceIDLink, userName, makeCHDBResource(chDBResourceName1))
+	`, userName, chClusterResourceIDLink, userName)
 	}
 
 	return planAll

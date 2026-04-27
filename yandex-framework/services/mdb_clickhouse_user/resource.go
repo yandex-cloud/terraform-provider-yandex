@@ -131,9 +131,33 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	plan.Id = types.StringValue(resourceid.Construct(cid, userName))
-	r.refreshResourceState(ctx, &plan, &diags)
+	plannedPermissions := plan.Permissions
+	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// When we try to create user without permissions, API will create it with permissions to all DBs, even when providing empty permission list.
+	// We have to delete it separately.
+	if (plannedPermissions.IsNull() || plannedPermissions.IsUnknown()) && !plan.Permissions.Equal(plannedPermissions) {
+		log.Printf("[DEBUG] mdb_clickhouse_user: permissions drift after create. planned: %v, actual: %v. Forcing update.",
+			plannedPermissions, plan.Permissions)
+		plan.Permissions = plannedPermissions
+		userSpec, diags = userFromState(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userSpec, []string{"permissions"})
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	diags = resp.State.Set(ctx, plan)

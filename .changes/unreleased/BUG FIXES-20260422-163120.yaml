@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: fix creation of resource `mdb_clickhouse_user` with empty permissions'
+time: 2026-04-22T16:31:20.25251421+03:00
