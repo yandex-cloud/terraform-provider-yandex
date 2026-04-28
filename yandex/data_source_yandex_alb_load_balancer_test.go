@@ -634,6 +634,132 @@ func TestAccDataSourceALBLoadBalancer_tlsListenerRewriteRequestID(t *testing.T) 
 	})
 }
 
+func TestAccDataSourceALBLoadBalancer_httpListenerWithPreserveHTTP1HeaderCasing(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsHTTPListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsPreserveHTTP1HeaderCasing = true
+	albResource.IsDataSource = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerDataSourceResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "name", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "name", func(value string) error {
+							albName := alb.GetListeners()[0].GetName()
+							if value != albName {
+								return fmt.Errorf("ALB Load Balancer's listener's name doesnt't match. %s != %s", value, albName)
+							}
+							return nil
+						},
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "endpoint.0.ports.0", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "endpoint.0.ports.0", func(value string) error {
+							port := alb.GetListeners()[0].GetEndpoints()[0].GetPorts()[0]
+							if realValue, _ := strconv.ParseInt(value, 10, 64); realValue != port {
+								return fmt.Errorf("ALB Load Balancer's listener's endpoint's port doesnt't match. %d != %d", realValue, port)
+							}
+							return nil
+						},
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "http.0.handler.0.preserve_http1_header_casing", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "http.0.handler.0.preserve_http1_header_casing", func(value string) error {
+							preserveHTTP1HeaderCasing := alb.GetListeners()[0].GetHttp().GetHandler().GetPreserveHttp1HeaderCasing()
+							if realValue, _ := strconv.ParseBool(value); realValue != preserveHTTP1HeaderCasing {
+								return fmt.Errorf("ALB Load Balancer's HTTP listener's preserve HTTP/1 header casing doesnt't match. %t != %t", realValue, preserveHTTP1HeaderCasing)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceALBLoadBalancer_tlsListenerWithPreserveHTTP1HeaderCasing(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsTLSListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsPreserveHTTP1HeaderCasing = true
+	albResource.IsDataSource = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerDataSourceResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "name", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "name", func(value string) error {
+							albName := alb.GetListeners()[0].GetName()
+							if value != albName {
+								return fmt.Errorf("ALB Load Balancer's listener's name doesnt't match. %s != %s", value, albName)
+							}
+							return nil
+						},
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "endpoint.0.ports.0", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "endpoint.0.ports.0", func(value string) error {
+							port := alb.GetListeners()[0].GetEndpoints()[0].GetPorts()[0]
+							if realValue, _ := strconv.ParseInt(value, 10, 64); realValue != port {
+								return fmt.Errorf("ALB Load Balancer's listener's endpoint's port doesnt't match. %d != %d", realValue, port)
+							}
+							return nil
+						},
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "tls.0.default_handler.0.http_handler.0.preserve_http1_header_casing", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.http_handler.0.preserve_http1_header_casing", func(value string) error {
+							preserveHTTP1HeaderCasing := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetHttpHandler().GetPreserveHttp1HeaderCasing()
+							if realValue, _ := strconv.ParseBool(value); realValue != preserveHTTP1HeaderCasing {
+								return fmt.Errorf("ALB Load Balancer's TLS listener's preserve HTTP/1 header casing doesnt't match. %t != %t", realValue, preserveHTTP1HeaderCasing)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceALBLoadBalancer_logOptions(t *testing.T) {
 	t.Parallel()
 	albResource := albLoadBalancerInfo()

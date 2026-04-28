@@ -235,6 +235,7 @@ func TestAccALBLoadBalancer_httpListenerWithRewriteRequestID(t *testing.T) {
 	albResource.IsHTTPListener = true
 	albResource.IsHTTPHandler = true
 	albResource.IsRewriteRequestID = true
+	albResource.IsPreserveHTTP1HeaderCasing = true
 
 	var alb apploadbalancer.LoadBalancer
 	listenerPath := ""
@@ -259,6 +260,9 @@ func TestAccALBLoadBalancer_httpListenerWithRewriteRequestID(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "http.0.handler.0.rewrite_request_id", albDefaultRewriteRequestID, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "http.0.handler.0.preserve_http1_header_casing", albDefaultPreserveHTTP1HeaderCasing, &listenerPath,
 					),
 				),
 			},
@@ -443,6 +447,7 @@ func TestAccALBLoadBalancer_tlsListenerWithRewriteRequestID(t *testing.T) {
 	albResource.IsTLSListener = true
 	albResource.IsHTTPHandler = true
 	albResource.IsRewriteRequestID = true
+	albResource.IsPreserveHTTP1HeaderCasing = true
 
 	var alb apploadbalancer.LoadBalancer
 	listenerPath := ""
@@ -467,6 +472,9 @@ func TestAccALBLoadBalancer_tlsListenerWithRewriteRequestID(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.rewrite_request_id", albDefaultRewriteRequestID, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.preserve_http1_header_casing", albDefaultPreserveHTTP1HeaderCasing, &listenerPath,
 					),
 				),
 			},
@@ -962,10 +970,11 @@ func TestUnitALBLoadBalancerValidateListenerTypeAttributes(t *testing.T) {
 	emptyHttpDiff := map[string]*terraform2.ResourceAttrDiff{
 		"listener.0.http.#": arrayInit,
 		// handler
-		"listener.0.http.0.handler.#":                    arrayInit,
-		"listener.0.http.0.handler.0.http_router_id":     emptyStringInit,
-		"listener.0.http.0.handler.0.rewrite_request_id": falseInit,
-		"listener.0.http.0.handler.0.allow_http10":       falseInit,
+		"listener.0.http.0.handler.#":                              arrayInit,
+		"listener.0.http.0.handler.0.http_router_id":               emptyStringInit,
+		"listener.0.http.0.handler.0.rewrite_request_id":           falseInit,
+		"listener.0.http.0.handler.0.preserve_http1_header_casing": falseInit,
+		"listener.0.http.0.handler.0.allow_http10":                 falseInit,
 		// handler {http2}
 		"listener.0.http.0.handler.0.http2_options.#":                        arrayInit,
 		"listener.0.http.0.handler.0.http2_options.0.max_concurrent_streams": zeroInit,
@@ -986,10 +995,11 @@ func TestUnitALBLoadBalancerValidateListenerTypeAttributes(t *testing.T) {
 		// default_handler
 		"listener.0.tls.0.default_handler.#": arrayInit,
 		//default_handler {http_handler}
-		"listener.0.tls.0.default_handler.0.http_handler.#":                    arrayInit,
-		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":     emptyStringInit,
-		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id": falseInit,
-		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":       falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.#":                              arrayInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":               emptyStringInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id":           falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.preserve_http1_header_casing": falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":                 falseInit,
 		// default_handler {http_handler {http2_options}}
 		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.#":                        arrayInit,
 		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,
@@ -1017,10 +1027,11 @@ func TestUnitALBLoadBalancerValidateListenerTypeAttributes(t *testing.T) {
 		// sni_handler {handler}
 		"listener.0.tls.0.sni_handler.0.handler.#": arrayInit,
 		// sni_handler {handler {http_handler}}
-		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.#":                    arrayInit,
-		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http_router_id":     emptyStringInit,
-		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.rewrite_request_id": falseInit,
-		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.allow_http10":       falseInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.#":                              arrayInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http_router_id":               emptyStringInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.rewrite_request_id":           falseInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.preserve_http1_header_casing": falseInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.allow_http10":                 falseInit,
 		// sni_handler {handler {http_handler{http2_options}}}
 		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http2_options.#":                        arrayInit,
 		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,
@@ -1047,10 +1058,11 @@ func TestUnitALBLoadBalancerValidateListenerTypeAttributes(t *testing.T) {
 		// default_handler
 		"listener.0.tls.0.default_handler.#": arrayInit,
 		// default_handler {http_handler}
-		"listener.0.tls.0.default_handler.0.http_handler.#":                    arrayDelete,
-		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":     emptyStringInit,
-		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id": falseInit,
-		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":       falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.#":                              arrayDelete,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":               emptyStringInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id":           falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.preserve_http1_header_casing": falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":                 falseInit,
 		// default_handler {http_handler {http2_options}}
 		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.#":                        arrayDelete,
 		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,

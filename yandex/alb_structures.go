@@ -1106,6 +1106,10 @@ func expandALBHTTPHandler(d *schema.ResourceData, path string) (*apploadbalancer
 		mHttpHandler.maybeCreate().SetRewriteRequestId(v.(bool))
 	}
 
+	if v, ok := d.GetOk(path + "preserve_http1_header_casing"); ok {
+		mHttpHandler.maybeCreate().SetPreserveHttp1HeaderCasing(v.(bool))
+	}
+
 	allowHTTP10, gotAllowHTTP10 := d.GetOk(path + "allow_http10")
 	_, gotHTTP2Options := d.GetOk(path + "http2_options.0")
 
@@ -2294,8 +2298,9 @@ func flattenALBStreamHandler(streamHandler *apploadbalancer.StreamHandler) []int
 func flattenALBHTTPHandler(httpHandler *apploadbalancer.HttpHandler) []interface{} {
 	if httpHandler != nil {
 		flHTTPHandler := map[string]interface{}{
-			"http_router_id":     httpHandler.GetHttpRouterId(),
-			"rewrite_request_id": httpHandler.GetRewriteRequestId(),
+			"http_router_id":               httpHandler.GetHttpRouterId(),
+			"rewrite_request_id":           httpHandler.GetRewriteRequestId(),
+			"preserve_http1_header_casing": httpHandler.GetPreserveHttp1HeaderCasing(),
 		}
 
 		switch httpHandler.ProtocolSettings.(type) {

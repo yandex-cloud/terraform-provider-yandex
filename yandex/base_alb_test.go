@@ -47,6 +47,7 @@ const albDefaultRedirectResponseCode = "moved_permanently"
 const albDefaultAutoHostRewrite = "true"
 const albDefaultAllowHTTP10 = "true"
 const albDefaultRewriteRequestID = "true"
+const albDefaultPreserveHTTP1HeaderCasing = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
 const albDefaultProxyProtocol = "false"
@@ -60,67 +61,71 @@ const albDefaultIdleTimeout = "42s"
 const albDefaultExpectedStatuses = "null"
 
 type resourceALBLoadBalancerInfo struct {
-	IsHTTPListener     bool
-	IsStreamListener   bool
-	IsTLSListener      bool
-	IsRedirects        bool
-	IsHTTPHandler      bool
-	IsStreamHandler    bool
-	IsDataSource       bool
-	IsHTTP2Options     bool
-	IsAllowHTTP10      bool
-	IsRewriteRequestID bool
-	IsLogOptions       bool
-	IsIdleTimeout      bool
+	IsHTTPListener              bool
+	IsStreamListener            bool
+	IsTLSListener               bool
+	IsRedirects                 bool
+	IsHTTPHandler               bool
+	IsStreamHandler             bool
+	IsDataSource                bool
+	IsHTTP2Options              bool
+	IsAllowHTTP10               bool
+	IsRewriteRequestID          bool
+	IsPreserveHTTP1HeaderCasing bool
+	IsLogOptions                bool
+	IsIdleTimeout               bool
 
 	BaseTemplate string
 
-	BalancerName         string
-	RouterName           string
-	BackendGroupName     string
-	TargetGroupName      string
-	ListenerName         string
-	BalancerDescription  string
-	AllowHTTP10          string
-	RewriteRequestID     string
-	MaxConcurrentStreams string
-	EndpointPort         string
-	HTTPToHTTPS          string
-	CertificateID        string
-	IdleTimeout          string
-	AllowZonalShift      bool
-	AutoScalePolicy      bool
+	BalancerName              string
+	RouterName                string
+	BackendGroupName          string
+	TargetGroupName           string
+	ListenerName              string
+	BalancerDescription       string
+	AllowHTTP10               string
+	RewriteRequestID          string
+	PreserveHTTP1HeaderCasing string
+	MaxConcurrentStreams      string
+	EndpointPort              string
+	HTTPToHTTPS               string
+	CertificateID             string
+	IdleTimeout               string
+	AllowZonalShift           bool
+	AutoScalePolicy           bool
 }
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 	res := resourceALBLoadBalancerInfo{
-		IsHTTPListener:       false,
-		IsStreamListener:     false,
-		IsTLSListener:        false,
-		IsDataSource:         false,
-		IsRedirects:          false,
-		IsHTTPHandler:        false,
-		IsStreamHandler:      false,
-		IsHTTP2Options:       false,
-		IsAllowHTTP10:        false,
-		IsRewriteRequestID:   false,
-		IsIdleTimeout:        false,
-		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
-		BalancerName:         acctest.RandomWithPrefix("tf-load-balancer"),
-		RouterName:           acctest.RandomWithPrefix("tf-router"),
-		BackendGroupName:     acctest.RandomWithPrefix("tf-bg"),
-		TargetGroupName:      acctest.RandomWithPrefix("tf-tg"),
-		ListenerName:         acctest.RandomWithPrefix("tf-listener"),
-		BalancerDescription:  acctest.RandomWithPrefix("tf-load-balancer-description"),
-		AllowHTTP10:          albDefaultAllowHTTP10,
-		RewriteRequestID:     albDefaultRewriteRequestID,
-		MaxConcurrentStreams: albDefaultMaxConcurrentStreams,
-		EndpointPort:         albDefaultPort,
-		HTTPToHTTPS:          albDefaultHTTPToHTTPS,
-		CertificateID:        os.Getenv("ALB_TEST_CERTIFICATE_ID"),
-		IdleTimeout:          albDefaultIdleTimeout,
-		AllowZonalShift:      false,
-		AutoScalePolicy:      false,
+		IsHTTPListener:              false,
+		IsStreamListener:            false,
+		IsTLSListener:               false,
+		IsDataSource:                false,
+		IsRedirects:                 false,
+		IsHTTPHandler:               false,
+		IsStreamHandler:             false,
+		IsHTTP2Options:              false,
+		IsAllowHTTP10:               false,
+		IsRewriteRequestID:          false,
+		IsIdleTimeout:               false,
+		IsPreserveHTTP1HeaderCasing: false,
+		BaseTemplate:                testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		BalancerName:                acctest.RandomWithPrefix("tf-load-balancer"),
+		RouterName:                  acctest.RandomWithPrefix("tf-router"),
+		BackendGroupName:            acctest.RandomWithPrefix("tf-bg"),
+		TargetGroupName:             acctest.RandomWithPrefix("tf-tg"),
+		ListenerName:                acctest.RandomWithPrefix("tf-listener"),
+		BalancerDescription:         acctest.RandomWithPrefix("tf-load-balancer-description"),
+		AllowHTTP10:                 albDefaultAllowHTTP10,
+		RewriteRequestID:            albDefaultRewriteRequestID,
+		PreserveHTTP1HeaderCasing:   albDefaultPreserveHTTP1HeaderCasing,
+		MaxConcurrentStreams:        albDefaultMaxConcurrentStreams,
+		EndpointPort:                albDefaultPort,
+		HTTPToHTTPS:                 albDefaultHTTPToHTTPS,
+		CertificateID:               os.Getenv("ALB_TEST_CERTIFICATE_ID"),
+		IdleTimeout:                 albDefaultIdleTimeout,
+		AllowZonalShift:             false,
+		AutoScalePolicy:             false,
 	}
 
 	return res
@@ -681,6 +686,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         {{end}}
 		{{if .IsRewriteRequestID}}
 		rewrite_request_id = {{.RewriteRequestID}}
+		{{end}} 
+		{{if .IsPreserveHTTP1HeaderCasing}}
+		preserve_http1_header_casing = {{.PreserveHTTP1HeaderCasing}}
 		{{end}}
         {{if .IsHTTP2Options}}
         http2_options {
@@ -720,6 +728,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
 		  {{if .IsRewriteRequestID}}
 		  rewrite_request_id = {{.RewriteRequestID}}
 		  {{end}}
+		  {{if .IsPreserveHTTP1HeaderCasing}}
+		  preserve_http1_header_casing = {{.PreserveHTTP1HeaderCasing}}
+		  {{end}}
           {{if .IsHTTP2Options}}
           http2_options {
             max_concurrent_streams = {{.MaxConcurrentStreams}}
@@ -744,6 +755,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
           http_handler {
             http_router_id = yandex_alb_http_router.test-router.id
 			rewrite_request_id = true
+			{{if .IsPreserveHTTP1HeaderCasing}}
+			preserve_http1_header_casing = {{.PreserveHTTP1HeaderCasing}}
+			{{end}}
             allow_http10 = true
           }
           certificate_ids = ["{{.CertificateID}}"]

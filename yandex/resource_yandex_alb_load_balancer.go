@@ -476,6 +476,12 @@ func httpHandler() *schema.Schema {
 					Default:     false,
 					Description: "When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.",
 				},
+				"preserve_http1_header_casing": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: "When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.",
+				},
 			},
 		},
 	}
