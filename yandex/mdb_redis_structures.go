@@ -203,8 +203,10 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res := redisConfig{
 		version: cc.Version,
 	}
-	c := cc.Redis.EffectiveConfig
-	res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+	c := cc.Redis.UserConfig
+	if c.GetMaxmemoryPolicy() != 0 {
+		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+	}
 	res.timeout = c.GetTimeout().GetValue()
 	res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
 	res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()

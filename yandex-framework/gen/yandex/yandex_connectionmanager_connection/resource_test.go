@@ -53,6 +53,9 @@ func testSweepConnection(_ string) error {
 
 	result := &multierror.Error{}
 	for _, c := range resp.Connection {
+		if c.GetIsManaged() {
+			continue
+		}
 		if !sweepConnection(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Connection Manager connection %q", c.Id))
 		}

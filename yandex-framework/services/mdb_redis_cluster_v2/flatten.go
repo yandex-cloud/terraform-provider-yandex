@@ -130,41 +130,90 @@ func flattenAccess(ctx context.Context, r *redis.Access) (types.Object, diag.Dia
 }
 
 func FlattenConfig(cc *redis.ClusterConfig) Config {
-	c := cc.Redis.EffectiveConfig
+	c := cc.Redis.UserConfig
 
 	res := Config{
-		MaxmemoryPolicy:      types.StringValue(c.GetMaxmemoryPolicy().String()),
-		Timeout:              types.Int64Value(c.GetTimeout().GetValue()),
-		NotifyKeyspaceEvents: types.StringValue(c.GetNotifyKeyspaceEvents()),
-		SlowlogLogSlowerThan: types.Int64Value(c.GetSlowlogLogSlowerThan().GetValue()),
-		SlowlogMaxLen:        types.Int64Value(c.GetSlowlogMaxLen().GetValue()),
-		Databases:            types.Int64Value(c.GetDatabases().GetValue()),
-		MaxmemoryPercent:     types.Int64Value(c.GetMaxmemoryPercent().GetValue()),
-		ClientOutputBufferLimitNormal: types.StringValue(limitToStr(
-			c.GetClientOutputBufferLimitNormal().GetHardLimit(),
-			c.GetClientOutputBufferLimitNormal().GetSoftLimit(),
-			c.GetClientOutputBufferLimitNormal().GetSoftSeconds(),
-		)),
-		ClientOutputBufferLimitPubsub: types.StringValue(limitToStr(
-			c.GetClientOutputBufferLimitPubsub().GetHardLimit(),
-			c.GetClientOutputBufferLimitPubsub().GetSoftLimit(),
-			c.GetClientOutputBufferLimitPubsub().GetSoftSeconds(),
-		)),
-		UseLuajit:                       types.BoolValue(c.GetUseLuajit().GetValue()),
-		IoThreadsAllowed:                types.BoolValue(c.GetIoThreadsAllowed().GetValue()),
-		Version:                         types.StringValue(cc.Version),
-		LuaTimeLimit:                    types.Int64Value(c.GetLuaTimeLimit().GetValue()),
-		ReplBacklogSizePercent:          types.Int64Value(c.GetReplBacklogSizePercent().GetValue()),
-		ClusterRequireFullCoverage:      types.BoolValue(c.GetClusterRequireFullCoverage().GetValue()),
-		ClusterAllowReadsWhenDown:       types.BoolValue(c.GetClusterAllowReadsWhenDown().GetValue()),
-		ClusterAllowPubsubshardWhenDown: types.BoolValue(c.GetClusterAllowPubsubshardWhenDown().GetValue()),
-		LfuDecayTime:                    types.Int64Value(c.GetLfuDecayTime().GetValue()),
-		LfuLogFactor:                    types.Int64Value(c.GetLfuLogFactor().GetValue()),
-		TurnBeforeSwitchover:            types.BoolValue(c.GetTurnBeforeSwitchover().GetValue()),
-		AllowDataLoss:                   types.BoolValue(c.GetAllowDataLoss().GetValue()),
-		BackupRetainPeriodDays:          types.Int64Value(cc.GetBackupRetainPeriodDays().GetValue()),
-		ZsetMaxListpackEntries:          types.Int64Value(c.GetZsetMaxListpackEntries().GetValue()),
+		Version: types.StringValue(cc.Version),
 	}
+
+	// Enum field — 0 means unspecified (not set by user)
+	if c.GetMaxmemoryPolicy() != 0 {
+		res.MaxmemoryPolicy = types.StringValue(c.GetMaxmemoryPolicy().String())
+	}
+
+	// Plain string field — empty means not set
+	if c.GetNotifyKeyspaceEvents() != "" {
+		res.NotifyKeyspaceEvents = types.StringValue(c.GetNotifyKeyspaceEvents())
+	}
+
+	// Int64 wrapper fields — nil means not set by user
+	if c.Timeout != nil {
+		res.Timeout = types.Int64Value(c.GetTimeout().GetValue())
+	}
+	if c.SlowlogLogSlowerThan != nil {
+		res.SlowlogLogSlowerThan = types.Int64Value(c.GetSlowlogLogSlowerThan().GetValue())
+	}
+	if c.SlowlogMaxLen != nil {
+		res.SlowlogMaxLen = types.Int64Value(c.GetSlowlogMaxLen().GetValue())
+	}
+	if c.Databases != nil {
+		res.Databases = types.Int64Value(c.GetDatabases().GetValue())
+	}
+	if c.MaxmemoryPercent != nil {
+		res.MaxmemoryPercent = types.Int64Value(c.GetMaxmemoryPercent().GetValue())
+	}
+	if c.LuaTimeLimit != nil {
+		res.LuaTimeLimit = types.Int64Value(c.GetLuaTimeLimit().GetValue())
+	}
+	if c.ReplBacklogSizePercent != nil {
+		res.ReplBacklogSizePercent = types.Int64Value(c.GetReplBacklogSizePercent().GetValue())
+	}
+	if c.LfuDecayTime != nil {
+		res.LfuDecayTime = types.Int64Value(c.GetLfuDecayTime().GetValue())
+	}
+	if c.LfuLogFactor != nil {
+		res.LfuLogFactor = types.Int64Value(c.GetLfuLogFactor().GetValue())
+	}
+	if c.ZsetMaxListpackEntries != nil {
+		res.ZsetMaxListpackEntries = types.Int64Value(c.GetZsetMaxListpackEntries().GetValue())
+	}
+	if cc.BackupRetainPeriodDays != nil {
+		res.BackupRetainPeriodDays = types.Int64Value(cc.GetBackupRetainPeriodDays().GetValue())
+	}
+
+	// Bool wrapper fields — nil means not set by user
+	if c.UseLuajit != nil {
+		res.UseLuajit = types.BoolValue(c.GetUseLuajit().GetValue())
+	}
+	if c.IoThreadsAllowed != nil {
+		res.IoThreadsAllowed = types.BoolValue(c.GetIoThreadsAllowed().GetValue())
+	}
+	if c.ClusterRequireFullCoverage != nil {
+		res.ClusterRequireFullCoverage = types.BoolValue(c.GetClusterRequireFullCoverage().GetValue())
+	}
+	if c.ClusterAllowReadsWhenDown != nil {
+		res.ClusterAllowReadsWhenDown = types.BoolValue(c.GetClusterAllowReadsWhenDown().GetValue())
+	}
+	if c.ClusterAllowPubsubshardWhenDown != nil {
+		res.ClusterAllowPubsubshardWhenDown = types.BoolValue(c.GetClusterAllowPubsubshardWhenDown().GetValue())
+	}
+	if c.TurnBeforeSwitchover != nil {
+		res.TurnBeforeSwitchover = types.BoolValue(c.GetTurnBeforeSwitchover().GetValue())
+	}
+	if c.AllowDataLoss != nil {
+		res.AllowDataLoss = types.BoolValue(c.GetAllowDataLoss().GetValue())
+	}
+
+	res.ClientOutputBufferLimitPubsub = types.StringValue(limitToStr(
+		c.GetClientOutputBufferLimitPubsub().GetHardLimit(),
+		c.GetClientOutputBufferLimitPubsub().GetSoftLimit(),
+		c.GetClientOutputBufferLimitPubsub().GetSoftSeconds(),
+	))
+	res.ClientOutputBufferLimitNormal = types.StringValue(limitToStr(
+		c.GetClientOutputBufferLimitNormal().GetHardLimit(),
+		c.GetClientOutputBufferLimitNormal().GetSoftLimit(),
+		c.GetClientOutputBufferLimitNormal().GetSoftSeconds(),
+	))
 
 	return res
 }

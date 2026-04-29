@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -347,5 +349,10 @@ func sweepLockboxSecretOnce(conf *Config, id string) error {
 	op, err := conf.sdk.LockboxSecret().Secret().Delete(ctx, &lockbox.DeleteSecretRequest{
 		SecretId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperation(ctx, conf, op, err)
+	if isStatusWithCode(err, codes.FailedPrecondition) &&
+		strings.Contains(errorMessage(err), "management is only allowed to") {
+		return nil
+	}
+	return err
 }

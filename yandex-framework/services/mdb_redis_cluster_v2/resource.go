@@ -248,91 +248,55 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 						MarkdownDescription: "Authentication password.",
 					},
 					"timeout": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Time that Redis keeps the connection open while the client is idle.",
 					},
 					"maxmemory_policy": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Redis key eviction policy for a dataset that reaches maximum memory, available to the host.",
 					},
 					"notify_keyspace_events": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: `String setting for pub\sub functionality.`,
 					},
 					"slowlog_log_slower_than": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Threshold for logging slow requests to server in microseconds (log only slower than it).",
 					},
 					"slowlog_max_len": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Max slow requests number to log.",
 					},
 					"databases": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Number of database buckets on a single redis-server process.",
 					},
 					"maxmemory_percent": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Redis maxmemory percent",
 					},
 					"client_output_buffer_limit_normal": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "Redis connection output buffers limits for clients.",
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
-					},
-					"client_output_buffer_limit_pubsub": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "Redis connection output buffers limits for pubsub operations.",
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
-					},
-					"use_luajit": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
+						MarkdownDescription: "Redis connection output buffers limits for clients.",
+					},
+					"client_output_buffer_limit_pubsub": schema.StringAttribute{
+						Optional: true,
+						Computed: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
+						MarkdownDescription: "Redis connection output buffers limits for pubsub operations.",
+					},
+					"use_luajit": schema.BoolAttribute{
+						Optional:            true,
 						MarkdownDescription: "Use JIT for lua scripts and functions. Can be either true or false.",
 					},
 					"io_threads_allowed": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Allow redis to use io-threads. Can be either true or false.",
 					},
 					"version": schema.StringAttribute{
@@ -340,75 +304,39 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 						MarkdownDescription: `Redis version.`,
 					},
 					"lua_time_limit": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Maximum time in milliseconds for Lua scripts, 0 - disabled mechanism.",
 					},
 					"repl_backlog_size_percent": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Replication backlog size as a percentage of flavor maxmemory.",
 					},
 					"cluster_require_full_coverage": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Controls whether all hash slots must be covered by nodes. Can be either true or false.",
 					},
 					"cluster_allow_reads_when_down": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Allows read operations when cluster is down. Can be either true or false.",
 					},
 					"cluster_allow_pubsubshard_when_down": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: `Permits Pub/Sub shard operations when cluster is down. Can be either true or false.`,
 					},
 					"lfu_decay_time": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "The time, in minutes, that must elapse in order for the key counter to be divided by two (or decremented if it has a value less <= 10).",
 					},
 					"lfu_log_factor": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Determines how the frequency counter represents key hits.",
 					},
 					"turn_before_switchover": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Allows to turn before switchover in RDSync. Can be either true or false.",
 					},
 					"allow_data_loss": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Bool{
-							boolplanmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: `Allows some data to be lost in favor of faster switchover/restart. Can be either true or false.`,
 					},
 					"backup_retain_period_days": schema.Int64Attribute{
@@ -420,11 +348,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 						MarkdownDescription: "Retain period of automatically created backup in days.",
 					},
 					"zset_max_listpack_entries": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.UseStateForUnknown(),
-						},
+						Optional:            true,
 						MarkdownDescription: "Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist",
 					},
 					"backup_window_start": schema.SingleNestedAttribute{
