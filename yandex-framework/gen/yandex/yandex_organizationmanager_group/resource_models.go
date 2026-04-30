@@ -20,6 +20,7 @@ type yandexOrganizationmanagerGroupModel struct {
 	Description    types.String   `tfsdk:"description"`
 	GroupId        types.String   `tfsdk:"group_id"`
 	ID             types.String   `tfsdk:"id"`
+	Labels         types.Map      `tfsdk:"labels"`
 	Name           types.String   `tfsdk:"name"`
 	OrganizationId types.String   `tfsdk:"organization_id"`
 	Timeouts       timeouts.Value `tfsdk:"timeouts"`
@@ -37,11 +38,36 @@ func (m *yandexOrganizationmanagerGroupModel) GetGroupId() types.String {
 func (m *yandexOrganizationmanagerGroupModel) GetID() types.String {
 	return m.ID
 }
+func (m *yandexOrganizationmanagerGroupModel) GetLabels() types.Map {
+	return m.Labels
+}
 func (m *yandexOrganizationmanagerGroupModel) GetName() types.String {
 	return m.Name
 }
 func (m *yandexOrganizationmanagerGroupModel) GetOrganizationId() types.String {
 	return m.OrganizationId
+}
+
+func (m *yandexOrganizationmanagerGroupModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetGroupId(target types.String) {
+	m.GroupId = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerGroupModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
 }
 
 func NewYandexOrganizationmanagerGroupModel() yandexOrganizationmanagerGroupModel {
@@ -50,6 +76,7 @@ func NewYandexOrganizationmanagerGroupModel() yandexOrganizationmanagerGroupMode
 		Description:    types.StringNull(),
 		GroupId:        types.StringNull(),
 		ID:             types.StringNull(),
+		Labels:         types.MapNull(types.StringType),
 		Name:           types.StringNull(),
 		OrganizationId: types.StringNull(),
 	}
@@ -68,6 +95,9 @@ func yandexOrganizationmanagerGroupModelFillUnknown(target yandexOrganizationman
 	if target.ID.IsUnknown() || target.ID.IsNull() {
 		target.ID = types.StringNull()
 	}
+	if target.Labels.IsUnknown() || target.Labels.IsNull() {
+		target.Labels = types.MapNull(types.StringType)
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -83,6 +113,7 @@ var yandexOrganizationmanagerGroupModelType = types.ObjectType{
 		"description":     types.StringType,
 		"group_id":        types.StringType,
 		"id":              types.StringType,
+		"labels":          types.MapType{ElemType: types.StringType},
 		"name":            types.StringType,
 		"organization_id": types.StringType,
 		"timeouts":        timeouts.BlockAll(context.Background()).Type(),
@@ -102,6 +133,7 @@ func flattenYandexOrganizationmanagerGroup(ctx context.Context,
 		Description:    types.StringValue(yandexOrganizationmanagerGroup.GetDescription()),
 		GroupId:        types.StringValue(yandexOrganizationmanagerGroup.GetId()),
 		ID:             types.StringValue(yandexOrganizationmanagerGroup.GetId()),
+		Labels:         flattenYandexOrganizationmanagerGroupLabels(ctx, yandexOrganizationmanagerGroup.GetLabels(), state.Labels, diags),
 		Name:           types.StringValue(yandexOrganizationmanagerGroup.GetName()),
 		OrganizationId: types.StringValue(yandexOrganizationmanagerGroup.GetOrganizationId()),
 		Timeouts:       to,
@@ -128,10 +160,48 @@ func expandYandexOrganizationmanagerGroupModel(ctx context.Context, yandexOrgani
 	value.SetDescription(yandexOrganizationmanagerGroupState.Description.ValueString())
 	value.SetId(yandexOrganizationmanagerGroupState.GroupId.ValueString())
 	value.SetId(yandexOrganizationmanagerGroupState.GroupId.ValueString())
+	value.SetLabels(expandYandexOrganizationmanagerGroupLabels(ctx, yandexOrganizationmanagerGroupState.Labels, diags))
 	value.SetName(yandexOrganizationmanagerGroupState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerGroupState.OrganizationId.ValueString())
 	if diags.HasError() {
 		return nil
 	}
 	return value
+}
+
+func flattenYandexOrganizationmanagerGroupLabels(ctx context.Context, yandexOrganizationmanagerGroupLabels map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
+	if yandexOrganizationmanagerGroupLabels == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.MapNull(types.StringType)
+	}
+	yandexOrganizationmanagerGroupLabelsValues := make(map[string]attr.Value)
+	for k, elem := range yandexOrganizationmanagerGroupLabels {
+		val := types.StringValue(elem)
+		yandexOrganizationmanagerGroupLabelsValues[k] = val
+	}
+
+	value, diag := types.MapValue(types.StringType, yandexOrganizationmanagerGroupLabelsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexOrganizationmanagerGroupLabels(ctx context.Context, yandexOrganizationmanagerGroupLabelsState types.Map, diags *diag.Diagnostics) map[string]string {
+	if yandexOrganizationmanagerGroupLabelsState.IsNull() || yandexOrganizationmanagerGroupLabelsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexOrganizationmanagerGroupLabelsState.Elements()) == 0 {
+		return map[string]string{}
+	}
+	yandexOrganizationmanagerGroupLabelsRes := make(map[string]string)
+	yandexOrganizationmanagerGroupLabelsType := make(map[string]types.String)
+	diags.Append(yandexOrganizationmanagerGroupLabelsState.ElementsAs(ctx, &yandexOrganizationmanagerGroupLabelsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for k, elem := range yandexOrganizationmanagerGroupLabelsType {
+		yandexOrganizationmanagerGroupLabelsRes[k] = elem.ValueString()
+	}
+	return yandexOrganizationmanagerGroupLabelsRes
 }

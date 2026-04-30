@@ -153,6 +153,7 @@ func (r *yandexOrganizationmanagerGroupResource) Create(ctx context.Context, req
 	createReq.SetOrganizationId(converter.GetOrganizationID(plan.OrganizationId.ValueString(), r.providerConfig, &diags))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetLabels(expandYandexOrganizationmanagerGroupLabels(ctx, plan.Labels, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -315,6 +316,15 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 	if !plan.GroupId.Equal(state.GroupId) {
 		updatePaths = append(updatePaths, "group_id")
 	}
+	if plan.Labels.IsNull() {
+		plan.Labels = types.MapNull(types.StringType)
+	}
+	if state.Labels.IsNull() {
+		state.Labels = types.MapNull(types.StringType)
+	}
+	if !plan.Labels.Equal(state.Labels) {
+		updatePaths = append(updatePaths, "labels")
+	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
@@ -328,6 +338,7 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 		updateReq.SetGroupId(id)
 		updateReq.SetName(plan.Name.ValueString())
 		updateReq.SetDescription(plan.Description.ValueString())
+		updateReq.SetLabels(expandYandexOrganizationmanagerGroupLabels(ctx, plan.Labels, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

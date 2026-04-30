@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'organizationmanager: support `labels` for `yandex_organizationmanager_group` resource'
+time: 2026-04-29T12:33:28.449869+03:00

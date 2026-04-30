@@ -54,60 +54,11 @@ func testSweepGroups(_ string) error {
 	return result.ErrorOrNil()
 }
 
-func TestAccOrganizationManagerGroup_createAndUpdate(t *testing.T) {
-	t.Parallel()
-
-	// Doing 2 runs effectively means one create and one subsequent update operation.
-	testAccGroupRunTest(t, testAccOrganizationManagerGroup, true, 1)
-}
-
-func TestAccOrganizationManagerGroup_import(t *testing.T) {
-	t.Parallel()
-
-	info := newGroupInfo()
-	name := info.getResourceName(true)
-
-	var group organizationmanager.Group
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
-		CheckDestroy:             testAccCheckGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccOrganizationManagerGroup(info),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGroupExists(name, &group),
-				),
-			},
-			organizationGroupImportStep(name, group.Id),
-		},
-	})
-}
-
-// The config here should match as closely as possible to the one presented to the user in the docs.
-// Serves as a proof that the example config is viable.
-func TestAccOrganizationManagerGroup_example(t *testing.T) {
-	t.Parallel()
-
-	config := fmt.Sprintf(`
-resource "yandex_organizationmanager_group" group {
-  name            = "my-group"
-  description     = "My new Group"
-  organization_id = "%s"
-}
-`, getExampleOrganizationID())
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
-		CheckDestroy:             testAccCheckGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: config,
-			},
-		},
-	})
-}
+// Resource-level acceptance tests (TestAccOrganizationManagerGroup_basic, _Labels,
+// _UpgradeFromSDKv2) live next to the framework resource at
+// yandex-framework/gen/yandex/yandex_organizationmanager_group/resource_test.go.
+// Helpers below remain because data source / iam_member / membership tests in
+// this package still depend on them.
 
 type GroupConfigGenerateFunc func(info *resourceGroupInfo) string
 
@@ -241,13 +192,4 @@ resource "yandex_organizationmanager_group" {{.ResourceName}} {
 
 func testAccOrganizationManagerGroup(info *resourceGroupInfo) string {
 	return templateConfig(groupConfigTemplate, info.Map())
-}
-
-func organizationGroupImportStep(resourceName, groupID string) resource.TestStep {
-	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     groupID,
-		ImportState:       true,
-		ImportStateVerify: true,
-	}
 }

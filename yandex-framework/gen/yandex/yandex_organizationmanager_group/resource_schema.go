@@ -7,12 +7,16 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 )
 
 func YandexOrganizationmanagerGroupResourceSchema(ctx context.Context) schema.Schema {
@@ -91,6 +95,35 @@ func YandexOrganizationmanagerGroupResourceSchema(ctx context.Context) schema.Sc
 				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 50),
+				},
+			},
+
+			"labels": schema.MapAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "Resource labels as `key:value` pairs.",
+				Description: "Resource labels as `key:value` pairs." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.CreateGroupRequest.labels
+					// -> yandex.cloud.organizationmanager.v1.Group.labels
+					// -> yandex.cloud.organizationmanager.v1.UpdateGroupRequest.labels
+					"package: yandex.cloud.organizationmanager.v1\n" +
+					"filename: yandex/cloud/organizationmanager/v1/group.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedMap(),
+				},
+				Validators: []validator.Map{
+					mapvalidator.KeysAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(1, 63),
+					),
+					mapvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([-_0-9a-z]*)$"), "error validating regexp"),
+						stringvalidator.LengthBetween(0, 63),
+					),
 				},
 			},
 
