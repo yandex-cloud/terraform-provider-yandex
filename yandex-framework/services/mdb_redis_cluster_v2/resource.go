@@ -161,7 +161,15 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				},
 				MarkdownDescription: common.ResourceDescriptions["description"],
 			},
-			"labels": defaultschema.Labels(),
+			"labels": schema.MapAttribute{
+				MarkdownDescription: common.ResourceDescriptions["labels"],
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					labelsUnknownToEmptyModifier{},
+				},
+			},
 			"sharded": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
@@ -669,6 +677,7 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -937,6 +937,72 @@ func TestAccMDBRedisClusterV2_sharded(t *testing.T) {
 	})
 }
 
+// Test
+// 1) Can create cluster with explicitly empty labels (labels = {})
+func TestAccMDBRedisClusterV2_empty_labels(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis-empty-labels")
+	redisDesc := "Redis Cluster Terraform Test Empty Labels"
+	folderID := test.GetExampleFolderID()
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm3-c2-m8"
+	tlsEnabled := true
+	version := "8.1-valkey"
+	password := "12345678PP"
+
+	nonShardedHosts := map[string]host{
+		"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
+	}
+	ops := []Op{
+		OpCreate,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
+		Steps: []resource.TestStep{
+			//1 Create Redis Cluster with empty labels
+			{
+				Config: makeConfig(t, &redisConfigTest{
+					Name:        newPtr(redisName),
+					Description: newPtr(redisDesc),
+					Environment: newPtr("PRESTABLE"),
+					Resources: &hostResource{
+						ResourcePresetId: newPtr(baseFlavor),
+						DiskSize:         newPtr(baseDiskSize),
+						DiskTypeId:       newPtr(diskTypeId),
+					},
+					Config: &config{
+						Version:  &version,
+						Password: &password,
+					},
+					TlsEnabled:  &tlsEnabled,
+					Hosts:       nonShardedHosts,
+					EmptyLabels: true,
+				}),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_0.fqdn"),
+					resource.TestCheckResourceAttr(redisResource, "hosts.hst_0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(redisResource, "hosts.hst_0.replica_priority", "100"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					testAccCheckMDBRedisOperations(redisResource, ops[:1]),
+					resource.TestCheckResourceAttr(redisResource, "labels.%", "0"),
+				),
+			},
+			//2
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
+}
+
 /*func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
 	t.Parallel()
 

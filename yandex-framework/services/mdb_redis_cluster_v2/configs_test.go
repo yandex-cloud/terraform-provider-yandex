@@ -345,6 +345,7 @@ type redisConfigTest struct {
 
 	Resources           *hostResource
 	Labels              map[string]string
+	EmptyLabels         bool
 	SecurityGroupIds    []string
 	Hosts               map[string]host
 	Access              *access
@@ -443,13 +444,13 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
   }
   {{end}}
 
-  {{with .Labels}}
-  labels = {
-    {{- range $key, $value := .}}
-      {{ $key }} = "{{ $value }}"
-    {{- end}}
-  }  
-  {{end}}
+   {{if or .Labels .EmptyLabels}}
+   labels = {
+     {{- range $key, $value := .Labels}}
+       {{ $key }} = "{{ $value }}"
+     {{- end}}
+   }
+   {{end}}
 
   {{with .Access}}
   access = {
