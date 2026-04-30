@@ -91,6 +91,9 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_eventrouter_bus"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_spark_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_profile"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
@@ -185,6 +188,9 @@ func init() {
 		yandex_serverless_eventrouter_bus.NewResource,
 		yandex_function_iam_binding.NewResource,
 		yandex_smartcaptcha_captcha.NewResource,
+		yandex_sws_advanced_rate_limiter_profile.NewResource,
+		yandex_sws_waf_profile.NewResource,
+		yandex_sws_security_profile.NewResource,
 		yandex_spark_cluster_iam_binding.NewResource,
 		yandex_trino_cluster_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,

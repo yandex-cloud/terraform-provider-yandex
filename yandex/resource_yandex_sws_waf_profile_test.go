@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	waf "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/waf"
 )
 
@@ -22,8 +23,8 @@ func init() {
 func TestAccSmartwebsecurityWafProfile_basic(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-wafp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSmartwebsecurityWafProfileBasic(name),
@@ -40,6 +41,95 @@ func TestAccSmartwebsecurityWafProfile_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccSmartwebsecurityWAF_UpgradeFromSDKv2(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-yc-sc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckFolderDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.200.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testAccSmartwebsecurityWAFBasicMigration(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_waf_profile.this", "name", name),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+				Config:                   testAccSmartwebsecurityWAFBasicMigration(name),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccSmartwebsecurityWAFBasicMigration(targetName string) string {
+	return fmt.Sprintf(`
+locals {
+  waf_paranoia_level = 4
+}
+data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
+  name = "OWASP Core Ruleset"
+  version = "4.0.0"
+}
+resource "yandex_sws_waf_profile" "this" {
+	name = "%[1]v"
+    core_rule_set {
+        inbound_anomaly_score = 2
+        paranoia_level = local.waf_paranoia_level
+        rule_set {
+            name = "OWASP Core Ruleset"
+            version = "4.0.0"
+			type = "CORE"
+        }
+    }
+    dynamic "rule" {
+        for_each = [
+            for rule in data.yandex_sws_waf_rule_set_descriptor.owasp4.rules: rule
+            if rule.paranoia_level >= local.waf_paranoia_level
+        ]
+        content {
+            rule_id = rule.value.id
+            is_enabled = true
+            is_blocking = false
+        }
+    }
+    analyze_request_body {
+        is_enabled = true
+        size_limit = 8
+        size_limit_action = "IGNORE"
+    }
+	rule_set {
+		action     = "DENY"
+    	is_enabled = true
+    	priority   = 1
+		core_rule_set {
+			inbound_anomaly_score = 2
+			paranoia_level = local.waf_paranoia_level
+			rule_set {
+				name = "OWASP Core Ruleset"
+				version = "4.0.0"
+				type = "CORE"
+				id = "OWASP_CRS_4_0_0"
+			}
+		}
+	}
+}
+`, targetName)
 }
 
 func testAccSmartwebsecurityWafProfileBasic(targetName string) string {

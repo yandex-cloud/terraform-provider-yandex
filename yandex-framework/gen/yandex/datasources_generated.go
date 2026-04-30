@@ -23,6 +23,10 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_mfa_enforcement"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_rule_set_descriptor"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
@@ -47,6 +51,10 @@ func init() {
 		yandex_datatransfer_transfer.NewDataSource,
 		yandex_dns_firewall.NewDataSource,
 		yandex_smartcaptcha_captcha.NewDataSource,
+		yandex_sws_advanced_rate_limiter_profile.NewDataSource,
+		yandex_sws_waf_rule_set_descriptor.NewDataSource,
+		yandex_sws_waf_profile.NewDataSource,
+		yandex_sws_security_profile.NewDataSource,
 		yandex_ytsaurus_cluster.NewDataSource,
 	}
 }

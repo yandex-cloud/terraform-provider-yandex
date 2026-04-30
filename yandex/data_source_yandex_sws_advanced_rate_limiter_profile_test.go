@@ -11,8 +11,8 @@ import (
 func TestAccDataSourceSmartwebsecurityArlProfile_byID(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-arlp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceArlProfileConfig(name, true),
@@ -25,8 +25,8 @@ func TestAccDataSourceSmartwebsecurityArlProfile_byID(t *testing.T) {
 func TestAccDataSourceSmartwebsecurityArlProfile_byName(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-arlp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceArlProfileConfig(name, false),

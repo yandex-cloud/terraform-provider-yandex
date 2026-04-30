@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	advanced_rate_limiter "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter"
 )
 
@@ -22,8 +23,8 @@ func init() {
 func TestAccSmartwebsecurityArlProfile_basic(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-arlp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSmartwebsecurityArlProfileBasic(name),
@@ -37,6 +38,40 @@ func TestAccSmartwebsecurityArlProfile_basic(t *testing.T) {
 				ResourceName:      "yandex_sws_advanced_rate_limiter_profile.this",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSmartwebsecurityArlProfile_UpgradeFromSDKv2(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-yc-sc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckFolderDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.200.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
+				Config: testAccSmartwebsecurityArlProfileBasic(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "name", name),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+				Config:                   testAccSmartwebsecurityArlProfileBasic(name),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})

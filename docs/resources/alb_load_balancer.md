@@ -87,8 +87,8 @@ resource "yandex_alb_load_balancer" "my_alb" {
     - `handler` [Block]. HTTP handler.
       - `allow_http10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
       - `http_router_id` (String). HTTP router id.
+      - `preserve_http1_header_casing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
       - `rewrite_request_id` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
-      - `preserve_http1_header_casing` (Bool). When enabled, preserves the original casing of HTTP/1.1 header names (e.g. `Content-Type` instead of `content-type`). Has no effect when `http2_options` is set.
       - `http2_options` [Block]. If set, will enable HTTP2 protocol for the handler.
         - `max_concurrent_streams` (Number). Maximum number of concurrent streams.
     - `redirects` [Block]. Shortcut for adding http -> https redirects.
@@ -103,8 +103,8 @@ resource "yandex_alb_load_balancer" "my_alb" {
       - `http_handler` [Block]. HTTP handler.
         - `allow_http10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
         - `http_router_id` (String). HTTP router id.
+        - `preserve_http1_header_casing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
         - `rewrite_request_id` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
-        - `preserve_http1_header_casing` (Bool). When enabled, preserves the original casing of HTTP/1.1 header names (e.g. `Content-Type` instead of `content-type`). Has no effect when `http2_options` is set.
         - `http2_options` [Block]. If set, will enable HTTP2 protocol for the handler.
           - `max_concurrent_streams` (Number). Maximum number of concurrent streams.
       - `stream_handler` [Block]. Stream handler resource.
@@ -118,8 +118,8 @@ resource "yandex_alb_load_balancer" "my_alb" {
         - `http_handler` [Block]. HTTP handler.
           - `allow_http10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
           - `http_router_id` (String). HTTP router id.
+          - `preserve_http1_header_casing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
           - `rewrite_request_id` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
-          - `preserve_http1_header_casing` (Bool). When enabled, preserves the original casing of HTTP/1.1 header names (e.g. `Content-Type` instead of `content-type`). Has no effect when `http2_options` is set.
           - `http2_options` [Block]. If set, will enable HTTP2 protocol for the handler.
             - `max_concurrent_streams` (Number). Maximum number of concurrent streams.
         - `stream_handler` [Block]. Stream handler resource.

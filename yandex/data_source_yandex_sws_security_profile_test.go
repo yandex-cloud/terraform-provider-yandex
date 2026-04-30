@@ -11,8 +11,8 @@ import (
 func TestAccDataSourceSmartwebsecuritySecurityProfile_byID(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-sp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceSecurityProfileConfig(name, true),
@@ -25,8 +25,8 @@ func TestAccDataSourceSmartwebsecuritySecurityProfile_byID(t *testing.T) {
 func TestAccDataSourceSmartwebsecuritySecurityProfile_byName(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-yc-sp")
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceSecurityProfileConfig(name, false),
