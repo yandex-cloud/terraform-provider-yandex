@@ -186,10 +186,11 @@ func datalensConnectionImportIDFunc(resourceName string) resource.ImportStateIdF
 // testAccDatalensConnectionInfraConfig returns HCL that creates all infrastructure
 // needed for DataLens connection tests:
 //   - a service account with ydb.editor role
-//   - a serverless YDB database
+//   - a serverless YDB database (or reuses one via env vars)
 //
 // Names must be generated once per test to stay deterministic across test steps.
 func testAccDatalensConnectionInfraConfig(saName, dbName string) string {
+	ydbResource, ydbHost, ydbPath := datalensTestYDB(dbName)
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "datalens_test_sa" {
   name        = "%s"
@@ -203,16 +204,12 @@ resource "yandex_resourcemanager_folder_iam_member" "datalens_test_sa_ydb_editor
   member    = "serviceAccount:${yandex_iam_service_account.datalens_test_sa.id}"
 }
 
-resource "yandex_ydb_database_serverless" "test" {
-  name      = "%s"
-  folder_id = "%s"
-  location_id = "global"
-}
-
+%s
 locals {
-  ydb_host = split(":", yandex_ydb_database_serverless.test.ydb_api_endpoint)[0]
+  ydb_host    = %s
+  ydb_db_path = %s
 }
-`, saName, test.GetExampleFolderID(), test.GetExampleFolderID(), dbName, test.GetExampleFolderID())
+`, saName, test.GetExampleFolderID(), test.GetExampleFolderID(), ydbResource, ydbHost, ydbPath)
 }
 
 func newTestDatalensClient(config *provider_config.Config) (*datalens.Client, error) {
