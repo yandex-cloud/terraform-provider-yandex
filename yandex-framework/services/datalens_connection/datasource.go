@@ -161,6 +161,10 @@ func (d *connectionDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 						MarkdownDescription: "The cache TTL in seconds.",
 						Computed:            true,
 					},
+					"cache_invalidation_throttling_interval_sec": schema.Int64Attribute{
+						MarkdownDescription: "Throttling interval (seconds) between cache invalidation calls.",
+						Computed:            true,
+					},
 					"data_export_forbidden": schema.StringAttribute{
 						MarkdownDescription: "Whether data export is forbidden.",
 						Computed:            true,
@@ -215,35 +219,9 @@ func (d *connectionDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	config.Id = types.StringValue(connectionID)
 	config.OrganizationId = types.StringValue(orgID)
 
-	// The API accepts "type" on create but returns "db_type" on read.
-	if v, ok := apiResponse["db_type"].(string); ok {
-		config.Type = types.StringValue(v)
-	} else if v, ok := apiResponse["type"].(string); ok {
-		config.Type = types.StringValue(v)
-	}
-	if v, ok := apiResponse["name"].(string); ok {
-		config.Name = types.StringValue(v)
-	}
-	if v, ok := apiResponse["description"]; ok {
-		if v == nil || v == "" {
-			config.Description = types.StringNull()
-		} else if s, ok := v.(string); ok {
-			config.Description = types.StringValue(s)
-		}
-	}
-	if v, ok := apiResponse["created_at"].(string); ok {
-		config.CreatedAt = types.StringValue(v)
-	}
-	if v, ok := apiResponse["updated_at"].(string); ok {
-		config.UpdatedAt = types.StringValue(v)
-	}
-
-	connType := config.Type.ValueString()
-	switch connType {
-	case "ydb":
-		ydb := &ydbDataSourceConfigModel{}
-		populateYdbDataSourceFromResponse(ydb, apiResponse)
-		config.Ydb = ydb
+	if err := unmarshalConnectionDataSource(apiResponse, &config); err != nil {
+		resp.Diagnostics.AddError("Failed to parse get response", err.Error())
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &config)...)
