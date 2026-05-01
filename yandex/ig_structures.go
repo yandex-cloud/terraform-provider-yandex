@@ -241,6 +241,7 @@ func flattenInstanceGroupDeployPolicy(ig *instancegroup.InstanceGroup) ([]map[st
 		res["max_creating"] = ig.DeployPolicy.MaxCreating
 		res["max_deleting"] = ig.DeployPolicy.MaxDeleting
 		res["max_unavailable"] = ig.DeployPolicy.MaxUnavailable
+		res["minimal_action"] = instancegroup.DeployPolicy_MinimalAction_name[int32(ig.DeployPolicy.MinimalAction)]
 		if ig.DeployPolicy.StartupDuration != nil {
 			res["startup_duration"] = ig.DeployPolicy.StartupDuration.Seconds
 		}
@@ -928,6 +929,14 @@ func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.Dep
 			return nil, fmt.Errorf("value for 'strategy' should be 'proactive' or 'opportunistic', not '%s'", v)
 		}
 		policy.Strategy = instancegroup.DeployPolicy_Strategy(typeVal)
+	}
+
+	if v, ok := d.GetOk("deploy_policy.0.minimal_action"); ok {
+		typeVal, ok := instancegroup.DeployPolicy_MinimalAction_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'minimal_action' should be 'RESTART', 'RECREATE', 'LIVE_UPDATE' not '%s'", v)
+		}
+		policy.MinimalAction = instancegroup.DeployPolicy_MinimalAction(typeVal)
 	}
 
 	return policy, nil
