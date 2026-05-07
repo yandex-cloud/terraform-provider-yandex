@@ -2,6 +2,18 @@
 
 
 
+## 0.202.0 (May 7, 2026)
+##### FEATURES:
+* mdb_clickhouse: add performance diagnostics settings enabled and processes_refresh_interval
+* alb: add `preserve_http1_header_casing` support in `HTTPHandler`
+* organizationmanager: support `labels` for `yandex_organizationmanager_group` resource
+##### BUG FIXES:
+* Valkey: Fixed issue with empty labels in Redis provider
+* redis: fix pending changes after apply by reading user-set values (UserConfig) instead of EffectiveConfig
+* mdb_clickhouse: fix creation of resource `mdb_clickhouse_user` with empty permissions
+##### ENHANCEMENTS:
+* SmartWebSecurity: migration from TF 1.0 to TF 2.0
+
 ## 0.201.0 (April 23, 2026)
 ##### FEATURES:
 * dns: add new resource and data-source `yandex_dns_firewall` and new resource `yandex_dns_firewall_iam_binding`
