@@ -13,19 +13,25 @@ data "yandex_sws_waf_rule_set_descriptor" "owasp4" {
 resource "yandex_sws_waf_profile" "default" {
   name = "waf-profile-default"
 
-  core_rule_set {
-    inbound_anomaly_score = 2
-    paranoia_level        = local.waf_paranoia_level
-    rule_set {
-      name    = "OWASP Core Ruleset"
-      version = "4.0.0"
+  rule_set {
+    action     = "DENY"
+    is_enabled = true
+    priority   = 1
+    core_rule_set {
+      inbound_anomaly_score = 2
+      paranoia_level        = local.waf_paranoia_level
+      rule_set {
+        name    = "OWASP Core Ruleset"
+        version = "4.0.0"
+        type    = "CORE"
+      }
     }
   }
 
   dynamic "rule" {
     for_each = [
       for rule in data.yandex_sws_waf_rule_set_descriptor.owasp4.rules : rule
-      if rule.paranoia_level >= local.waf_paranoia_level
+      if rule.paranoia_level <= local.waf_paranoia_level
     ]
     content {
       rule_id     = rule.value.id
