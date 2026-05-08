@@ -1,0 +1,4 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: fix creation of resource `mdb_clickhouse_cluster_v2` with cloud_storage
+  enabled with default params'
+time: 2026-04-30T23:30:12.123143796+03:00

@@ -27,15 +27,27 @@ func (m *cloudStoragePlanModifierStruct) PlanModifyObject(ctx context.Context, r
 		return
 	}
 
-	if planModel.Enabled.IsNull() || planModel.Enabled.IsUnknown() || planModel.Enabled.ValueBool() {
-		return
-	}
+	enabled := !planModel.Enabled.IsNull() && !planModel.Enabled.IsUnknown() && planModel.Enabled.ValueBool()
 
-	// Cloud storage disabled
-	planModel.MoveFactor = types.NumberNull()
-	planModel.DataCacheEnabled = types.BoolNull()
-	planModel.DataCacheMaxSize = types.Int64Null()
-	planModel.PreferNotToMerge = types.BoolNull()
+	if !enabled {
+		planModel.MoveFactor = types.NumberNull()
+		planModel.DataCacheEnabled = types.BoolNull()
+		planModel.DataCacheMaxSize = types.Int64Null()
+		planModel.PreferNotToMerge = types.BoolNull()
+	} else {
+		if planModel.MoveFactor.IsUnknown() {
+			planModel.MoveFactor = types.NumberNull()
+		}
+		if planModel.DataCacheEnabled.IsUnknown() {
+			planModel.DataCacheEnabled = types.BoolNull()
+		}
+		if planModel.DataCacheMaxSize.IsUnknown() {
+			planModel.DataCacheMaxSize = types.Int64Null()
+		}
+		if planModel.PreferNotToMerge.IsUnknown() {
+			planModel.PreferNotToMerge = types.BoolNull()
+		}
+	}
 
 	newPlanVal, diags := types.ObjectValueFrom(ctx, models.CloudStorageAttrTypes, planModel)
 	resp.Diagnostics.Append(diags...)

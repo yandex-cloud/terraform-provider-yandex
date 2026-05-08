@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	clickhouse "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -1359,4 +1360,43 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		}
 		utils.AssertProtoEqual(t, "PartialRestore exclude", expected, req)
 	})
+}
+
+func TestExpandCloudStorage_EnabledTrueWithUnknownOptionalFields(t *testing.T) {
+	ctx := context.Background()
+
+	cs := types.ObjectValueMust(
+		models.CloudStorageAttrTypes,
+		map[string]attr.Value{
+			"enabled":             types.BoolValue(true),
+			"move_factor":         types.NumberUnknown(),
+			"data_cache_enabled":  types.BoolUnknown(),
+			"data_cache_max_size": types.Int64Unknown(),
+			"prefer_not_to_merge": types.BoolUnknown(),
+		},
+	)
+
+	var diags diag.Diagnostics
+	got := models.ExpandCloudStorage(ctx, cs, &diags)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags.Errors())
+	}
+	if got == nil {
+		t.Fatalf("expected non-nil CloudStorage, got nil")
+	}
+	if !got.Enabled {
+		t.Errorf("expected Enabled=true, got false")
+	}
+	if got.MoveFactor != nil {
+		t.Errorf("expected MoveFactor to be nil for Unknown, got %v", got.MoveFactor)
+	}
+	if got.DataCacheEnabled != nil {
+		t.Errorf("expected DataCacheEnabled to be nil for Unknown, got %v", got.DataCacheEnabled)
+	}
+	if got.DataCacheMaxSize != nil {
+		t.Errorf("expected DataCacheMaxSize to be nil for Unknown, got %v", got.DataCacheMaxSize)
+	}
+	if got.PreferNotToMerge != nil {
+		t.Errorf("expected PreferNotToMerge to be nil for Unknown, got %v", got.PreferNotToMerge)
+	}
 }

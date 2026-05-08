@@ -74,12 +74,21 @@ func ExpandCloudStorage(ctx context.Context, cloudStorage types.Object, diags *d
 	}
 
 	if enabled {
-		moveFactor, _ := cs.MoveFactor.ValueBigFloat().Float64()
-
-		result.MoveFactor = &wrapperspb.DoubleValue{Value: moveFactor}
-		result.DataCacheEnabled = &wrapperspb.BoolValue{Value: cs.DataCacheEnabled.ValueBool()}
-		result.DataCacheMaxSize = &wrapperspb.Int64Value{Value: cs.DataCacheMaxSize.ValueInt64()}
-		result.PreferNotToMerge = &wrapperspb.BoolValue{Value: cs.PreferNotToMerge.ValueBool()}
+		if !cs.MoveFactor.IsNull() && !cs.MoveFactor.IsUnknown() {
+			if bf := cs.MoveFactor.ValueBigFloat(); bf != nil {
+				moveFactor, _ := bf.Float64()
+				result.MoveFactor = &wrapperspb.DoubleValue{Value: moveFactor}
+			}
+		}
+		if !cs.DataCacheEnabled.IsNull() && !cs.DataCacheEnabled.IsUnknown() {
+			result.DataCacheEnabled = &wrapperspb.BoolValue{Value: cs.DataCacheEnabled.ValueBool()}
+		}
+		if !cs.DataCacheMaxSize.IsNull() && !cs.DataCacheMaxSize.IsUnknown() {
+			result.DataCacheMaxSize = &wrapperspb.Int64Value{Value: cs.DataCacheMaxSize.ValueInt64()}
+		}
+		if !cs.PreferNotToMerge.IsNull() && !cs.PreferNotToMerge.IsUnknown() {
+			result.PreferNotToMerge = &wrapperspb.BoolValue{Value: cs.PreferNotToMerge.ValueBool()}
+		}
 	}
 
 	return result
