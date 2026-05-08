@@ -3440,6 +3440,221 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Required: true,
 						},
+
+						"request_condition": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+
+								Attributes: map[string]schema.Attribute{
+
+									"body_matcher": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"body_value": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request body.",
+										Description: "Matcher for request body." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+										Computed: true,
+									},
+
+									"cookie_matcher": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"cookie_name": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request cookies.",
+										Description: "Matcher for request cookies." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+										Computed: true,
+									},
+
+									"header_matcher": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"header_name": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request headers.",
+										Description: "Matcher for request headers." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+										Computed: true,
+									},
+
+									"param_matcher": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"param_name": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request query parameters.",
+										Description: "Matcher for request query parameters." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+										Computed: true,
+									},
+								},
+							},
+							MarkdownDescription: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered.",
+							Description: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
+								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+							Computed: true,
+						},
 					},
 				},
 				MarkdownDescription: "List of exclusion rules. See [Rules](/docs/smartwebsecurity/concepts/waf#exclusion-rules).",
@@ -3490,8 +3705,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.name
 					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
-				Optional: true,
-				Computed: true,
+				Required: true,
 
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), "error validating regexp"),
@@ -3565,8 +3779,8 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 
 									"inbound_anomaly_score": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request headers.",
+										Description: "Matcher for request headers." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.inbound_anomaly_score
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
@@ -3575,8 +3789,8 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 									},
 
 									"paranoia_level": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request cookies.",
+										Description: "Matcher for request cookies." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.paranoia_level
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
@@ -3630,8 +3844,8 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request query parameters.",
+										Description: "Matcher for request query parameters." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +

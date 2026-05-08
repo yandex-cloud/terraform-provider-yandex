@@ -6145,6 +6145,341 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 								listvalidator.SizeAtMost(1),
 							},
 						},
+
+						"request_condition": schema.ListNestedBlock{
+							NestedObject: schema.NestedBlockObject{
+
+								Blocks: map[string]schema.Block{
+
+									"body_matcher": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"body_value": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request body.",
+										Description: "Matcher for request body." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"cookie_matcher": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"cookie_name": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request cookies.",
+										Description: "Matcher for request cookies." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"header_matcher": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"header_name": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request headers.",
+										Description: "Matcher for request headers." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"param_matcher": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"param_name": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"case_sensitive": schema.BoolAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"value": schema.StringAttribute{
+																MarkdownDescription: "",
+																Description: "" +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+														planmodifiers.NilRelaxedList(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Matcher for request query parameters.",
+										Description: "Matcher for request query parameters." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
+											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+								},
+							},
+							MarkdownDescription: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered.",
+							Description: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
+								// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
+								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.List{
+								listvalidator.SizeAtMost(1),
+							},
+						},
 					},
 				},
 				MarkdownDescription: "List of exclusion rules. See [Rules](/docs/smartwebsecurity/concepts/waf#exclusion-rules).",
@@ -6303,8 +6638,8 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 
 									"inbound_anomaly_score": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request headers.",
+										Description: "Matcher for request headers." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.inbound_anomaly_score
 											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.inbound_anomaly_score
@@ -6323,8 +6658,8 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 									},
 
 									"paranoia_level": schema.Int64Attribute{
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request cookies.",
+										Description: "Matcher for request cookies." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.paranoia_level
 											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.paranoia_level
@@ -6419,8 +6754,8 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 										},
-										MarkdownDescription: "",
-										Description: "" +
+										MarkdownDescription: "Matcher for request query parameters.",
+										Description: "Matcher for request query parameters." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set
 											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set
