@@ -50,21 +50,30 @@ func dataSourceYandexALBTargetGroup() *schema.Resource {
 			},
 
 			"target": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Targets of the target group.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Subnet ID of the target.",
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "IP address of the target.",
 						},
 						"private_ipv4_address": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Private IPv4 address of the target.",
+						},
+						"external_address": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "External address of the target.",
 						},
 					},
 				},

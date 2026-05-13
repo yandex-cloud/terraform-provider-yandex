@@ -1812,8 +1812,16 @@ func expandALBTarget(d *schema.ResourceData, key string) (*apploadbalancer.Targe
 
 	subnet, gotSubnet := d.GetOk(key + "subnet_id")
 	privateAddr, gotPrivateAddr := d.GetOk(key + "private_ipv4_address")
+	externalAddr, gotExternalAddr := d.GetOk(key + "external_address")
 	if isPlural(gotSubnet, gotPrivateAddr) {
 		return nil, fmt.Errorf("Cannot specify both subnet_id and private_ipv4_address for a target")
+	}
+	if isPlural(gotSubnet, gotExternalAddr) {
+		return nil, fmt.Errorf("Cannot specify both subnet_id and external_address for a target")
+	}
+
+	if isPlural(gotPrivateAddr, gotExternalAddr) {
+		return nil, fmt.Errorf("Cannot specify both private_ipv4_address and external_address for a target")
 	}
 
 	if gotSubnet {
@@ -1824,6 +1832,9 @@ func expandALBTarget(d *schema.ResourceData, key string) (*apploadbalancer.Targe
 	}
 	if gotPrivateAddr {
 		target.SetPrivateIpv4Address(privateAddr.(bool))
+	}
+	if gotExternalAddr {
+		target.SetExternalAddress(externalAddr.(bool))
 	}
 	return target, nil
 }
@@ -2612,6 +2623,7 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {
 			flTarget["subnet_id"] = t.GetSubnetId()
 		} else {
 			flTarget["private_ipv4_address"] = t.GetPrivateIpv4Address()
+			flTarget["external_address"] = t.GetExternalAddress()
 		}
 
 		switch t.GetAddressType().(type) {

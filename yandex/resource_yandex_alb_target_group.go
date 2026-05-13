@@ -79,8 +79,14 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 							Required:    true,
 						},
 						"private_ipv4_address": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Private IPv4 address of the target.",
+						},
+						"external_address": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "External address of the target.",
 						},
 					},
 				},

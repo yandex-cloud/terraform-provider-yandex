@@ -150,6 +150,34 @@ func TestAccALBTargetGroup_full(t *testing.T) {
 	})
 }
 
+func TestAccALBTargetGroup_externalAddress(t *testing.T) {
+	t.Parallel()
+
+	var tg apploadbalancer.TargetGroup
+	tgName := acctest.RandomWithPrefix("tf-target-group-ext")
+	tgDesc := "Description for test"
+	instancePrefix := acctest.RandomWithPrefix("tf-instance")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBTargetGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccALBTargetGroupExternalAddress(tgName, tgDesc, testAccALBBaseTemplate(instancePrefix)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBTargetGroupExists(albTGResource, &tg),
+					resource.TestCheckResourceAttr(albTGResource, "name", tgName),
+					resource.TestCheckResourceAttr(albTGResource, "target.#", "1"),
+					resource.TestCheckResourceAttr(albTGResource, "target.0.external_address", "true"),
+					testAccCheckALBTargetGroupExternalAddressTarget(&tg, true),
+				),
+			},
+			albTargetGroupImportStep(),
+		},
+	})
+}
+
 func TestAccALBTargetGroup_update(t *testing.T) {
 	var tg apploadbalancer.TargetGroup
 	instancePrefix := acctest.RandomWithPrefix("tf-instance")
@@ -240,6 +268,42 @@ func testAccCheckALBTargetGroupExists(tgName string, tg *apploadbalancer.TargetG
 
 		return nil
 	}
+}
+
+func testAccCheckALBTargetGroupExternalAddressTarget(tg *apploadbalancer.TargetGroup, expectExternal bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		targets := tg.GetTargets()
+		if len(targets) != 1 {
+			return fmt.Errorf("expected 1 target in target group, got %d", len(targets))
+		}
+		t := targets[0]
+		if t.GetSubnetId() != "" {
+			return fmt.Errorf("expected empty subnet_id for external_address target, got %q", t.GetSubnetId())
+		}
+		if t.GetExternalAddress() != expectExternal {
+			return fmt.Errorf("expected external_address=%v from API, got %v", expectExternal, t.GetExternalAddress())
+		}
+		if t.GetIpAddress() == "" {
+			return fmt.Errorf("expected non-empty target ip_address from API")
+		}
+		return nil
+	}
+}
+
+func testAccALBTargetGroupExternalAddress(tgName, tgDesc, baseTemplate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "yandex_alb_target_group" "test-tg" {
+  name = "%s"
+  description = "%s"
+
+  target {
+    ip_address       = yandex_compute_instance.test-instance-1.network_interface.0.ip_address
+    external_address = true
+  }
+}
+`, baseTemplate, tgName, tgDesc)
 }
 
 func testAccCheckALBTargetGroupContainsLabel(tg *apploadbalancer.TargetGroup, key string, value string) resource.TestCheckFunc {

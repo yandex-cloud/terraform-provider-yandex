@@ -13,6 +13,10 @@ import (
 
 const albTgDataSourceResource = "data.yandex_alb_target_group.test-tg-ds"
 
+// albTgPrivateExternalTestIPAddress is a fixed private IPv4 used in acc tests for
+// external_address targets without provisioning compute.
+const albTgPrivateExternalTestIPAddress = "192.168.10.37"
+
 func TestAccDataSourceALBTargetGroup_byID(t *testing.T) {
 	t.Parallel()
 
@@ -94,6 +98,8 @@ func TestAccDataSourceALBTargetGroup_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceALBTargetGroupExists(albTgDataSourceResource, &tg),
 					testAccCheckALBTargetGroupValues(&tg, []string{fmt.Sprintf("%s-1", instancePrefix)}),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "target.0.private_ipv4_address", "false"),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "target.0.external_address", "false"),
 					testExistsFirstElementWithAttr(
 						albTgDataSourceResource, "target", "subnet_id", &targetPath,
 					),
@@ -119,6 +125,53 @@ func TestAccDataSourceALBTargetGroup_full(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDataSourceALBTargetGroup_privateAndExternalAddress(t *testing.T) {
+	t.Parallel()
+
+	var tg apploadbalancer.TargetGroup
+	tgName := acctest.RandomWithPrefix("tf-tg")
+	tgDesc := "Description for test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBTargetGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceALBTargetGroupPrivateAndExternal(tgName, tgDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBTargetGroupExists(albTgDataSourceResource, &tg),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "name", tgName),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "target.#", "1"),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "target.0.ip_address", albTgPrivateExternalTestIPAddress),
+					resource.TestCheckResourceAttr(albTgDataSourceResource, "target.0.external_address", "true"),
+					testAccCheckALBTargetGroupPrivateIPv4AndExternalTargets(&tg, true),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckALBTargetGroupPrivateIPv4AndExternalTargets(tg *apploadbalancer.TargetGroup, wantSubnetEmpty bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ts := tg.GetTargets()
+		if len(ts) != 1 {
+			return fmt.Errorf("expected 1 target, got %d", len(ts))
+		}
+		t := ts[0]
+		if wantSubnetEmpty && t.GetSubnetId() != "" {
+			return fmt.Errorf("expected empty subnet_id, got %q", t.GetSubnetId())
+		}
+		if !t.GetExternalAddress() {
+			return fmt.Errorf("expected external_address true from API, got false")
+		}
+		if t.GetIpAddress() == "" {
+			return fmt.Errorf("expected non-empty ip_address from API")
+		}
+		return nil
+	}
 }
 
 func testAccDataSourceALBTargetGroupExists(n string, tg *apploadbalancer.TargetGroup) resource.TestCheckFunc {
@@ -176,4 +229,22 @@ resource "yandex_alb_target_group" "test-tg" {
   description	= "%s"
 }
 `, name, desc)
+}
+
+func testAccDataSourceALBTargetGroupPrivateAndExternal(name, desc string) string {
+	return fmt.Sprintf(`
+data "yandex_alb_target_group" "test-tg-ds" {
+  name = yandex_alb_target_group.test-tg.name
+}
+
+resource "yandex_alb_target_group" "test-tg" {
+  name        = "%s"
+  description = "%s"
+
+  target {
+    ip_address           = "%s"
+    external_address     = true
+  }
+}
+`, name, desc, albTgPrivateExternalTestIPAddress)
 }
