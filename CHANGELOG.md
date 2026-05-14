@@ -2,6 +2,15 @@
 
 
 
+## 0.203.0 (May 14, 2026)
+##### FEATURES:
+* alb: add `external_address` support in `Target`
+* smartwebsecurity: Request condition (param/header/cookie/body matchers) in ycp_smartwebsecurity_waf_waf_profile exclusion rules
+##### BUG FIXES:
+* mdb_clickhouse: fix creation of resource `mdb_clickhouse_cluster_v2` with cloud_storage enabled with default params
+##### ENHANCEMENTS:
+* dns: fix documentation for `yandex_dns_firewall`
+
 ## 0.202.0 (May 7, 2026)
 ##### FEATURES:
 * mdb_clickhouse: add performance diagnostics settings enabled and processes_refresh_interval
