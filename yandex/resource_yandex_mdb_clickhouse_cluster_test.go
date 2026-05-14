@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	chVersion        = "25.3"
-	chUpdatedVersion = "25.8"
+	chVersion        = "25.8"
+	chUpdatedVersion = "26.3"
 
 	chResourceType         = "yandex_mdb_clickhouse_cluster"
 	chResourceFoo          = chResourceType + ".foo"

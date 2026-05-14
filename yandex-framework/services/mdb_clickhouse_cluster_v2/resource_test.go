@@ -31,8 +31,8 @@ const (
 	yandexMDBClickHouseClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBClickHouseClusterUpdateTimeout = 60 * time.Minute
 
-	chVersion        = "25.3"
-	chUpdatedVersion = "25.8"
+	chVersion        = "25.8"
+	chUpdatedVersion = "26.3"
 
 	chResourceKeeper       = "yandex_mdb_clickhouse_cluster_v2.keeper"
 	chResourceCloudStorage = "yandex_mdb_clickhouse_cluster_v2.cloud"

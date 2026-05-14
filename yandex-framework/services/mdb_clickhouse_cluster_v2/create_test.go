@@ -40,7 +40,7 @@ var (
 			"labels":                    types.MapNull(types.StringType),
 			"environment":               types.StringValue("PRESTABLE"),
 			"network_id":                types.StringValue("test-network"),
-			"version":                   types.StringValue("25.8"),
+			"version":                   types.StringValue("26.3"),
 			"maintenance_window":        types.ObjectNull(models.MaintenanceWindowAttrTypes),
 			"clickhouse":                types.ObjectNull(models.ClickhouseAttrTypes),
 			"zookeeper":                 types.ObjectNull(models.ZookeeperAttrTypes),
@@ -86,7 +86,7 @@ var (
 			}),
 			"environment": types.StringValue("PRESTABLE"),
 			"network_id":  types.StringValue("test-network"),
-			"version":     types.StringValue("25.3"),
+			"version":     types.StringValue("25.8"),
 			"maintenance_window": types.ObjectValueMust(
 				mdbcommon.MaintenanceWindowType.AttrTypes,
 				map[string]attr.Value{
@@ -688,7 +688,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 				},
 				ServiceAccountId: "",
 				ConfigSpec: &clickhouse.ConfigSpec{
-					Version:                "25.8",
+					Version:                "26.3",
 					Clickhouse:             nil,
 					Zookeeper:              nil,
 					BackupWindowStart:      &timeofday.TimeOfDay{},
@@ -729,7 +729,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 				},
 				ServiceAccountId: "sa-id",
 				ConfigSpec: &clickhouse.ConfigSpec{
-					Version: "25.3",
+					Version: "25.8",
 					Clickhouse: &clickhouse.ConfigSpec_Clickhouse{
 						Config: &clickhouseConfig.ClickhouseConfig{
 							LogLevel:           clickhouseConfig.ClickhouseConfig_TRACE,
@@ -1313,7 +1313,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		NetworkId:   "test-network",
 		Environment: clickhouse.Cluster_PRESTABLE,
 		HostSpecs:   hostSpecs,
-		ConfigSpec:  &clickhouse.ConfigSpec{Version: "25.8", BackupWindowStart: &timeofday.TimeOfDay{}},
+		ConfigSpec:  &clickhouse.ConfigSpec{Version: "26.3", BackupWindowStart: &timeofday.TimeOfDay{}},
 	}
 
 	makeCluster := func(includePatterns, excludePatterns []attr.Value) *models.ClusterResource {
