@@ -1495,7 +1495,7 @@ resource "yandex_compute_instance_group" "group1" {
         size        = 3
         type        = "network-hdd"
       }
-      
+
       name = "secondary-disk-name2"
     }
 
@@ -2026,6 +2026,8 @@ resource "yandex_compute_instance_group" "group1" {
 	  aws_v1_http_endpoint = 1
 	  gce_http_token       = 1
 	  aws_v1_http_token    = 2
+	  aws_v2_http_endpoint = 2
+	  aws_v2_http_token    = 2
 	}
   }
 
@@ -2657,11 +2659,11 @@ resource "yandex_compute_instance_group" "group1" {
   allocation_policy {
     zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     instance_tags_pool {
-      zone = "ru-central1-a" 
+      zone = "ru-central1-a"
       tags = ["atag"]
     }
     instance_tags_pool {
-      zone = "ru-central1-b" 
+      zone = "ru-central1-b"
       tags = ["btag"]
     }
     instance_tags_pool {
@@ -3087,6 +3089,12 @@ func testAccCheckComputeInstanceGroupMetadataOptions(ig *instancegroup.InstanceG
 		}
 		if ig.InstanceTemplate.MetadataOptions.AwsV1HttpToken.String() != "DISABLED" {
 			return fmt.Errorf("wrong metadata_options.aws_v1_http_token on instance group %s", ig.Name)
+		}
+		if ig.InstanceTemplate.MetadataOptions.AwsV2HttpEndpoint.String() != "DISABLED" {
+			return fmt.Errorf("wrong metadata_options.aws_v2_http_endpoint on instance group %s", ig.Name)
+		}
+		if ig.InstanceTemplate.MetadataOptions.AwsV2HttpToken.String() != "DISABLED" {
+			return fmt.Errorf("wrong metadata_options.aws_v2_http_token on instance group %s", ig.Name)
 		}
 		return nil
 	}

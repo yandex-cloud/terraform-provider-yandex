@@ -448,6 +448,18 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 						},
+						"aws_v2_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v2_http_token": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
 					},
 				},
 			},

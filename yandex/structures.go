@@ -950,6 +950,12 @@ func expandInstanceMetadataOptions(d *schema.ResourceData) *compute.MetadataOpti
 	if v, ok := d.GetOk("metadata_options.0.aws_v1_http_token"); ok {
 		metadataOptions.AwsV1HttpToken = compute.MetadataOption(v.(int))
 	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v2_http_endpoint"); ok {
+		metadataOptions.AwsV2HttpEndpoint = compute.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v2_http_token"); ok {
+		metadataOptions.AwsV2HttpToken = compute.MetadataOption(v.(int))
+	}
 
 	return &metadataOptions
 }
@@ -1086,6 +1092,8 @@ func flattenInstanceMetadataOptions(instance *compute.Instance) []map[string]int
 		"aws_v1_http_endpoint": int(instance.MetadataOptions.AwsV1HttpEndpoint),
 		"gce_http_token":       int(instance.MetadataOptions.GceHttpToken),
 		"aws_v1_http_token":    int(instance.MetadataOptions.AwsV1HttpToken),
+		"aws_v2_http_endpoint": int(instance.MetadataOptions.AwsV2HttpEndpoint),
+		"aws_v2_http_token":    int(instance.MetadataOptions.AwsV2HttpToken),
 	}
 
 	return []map[string]interface{}{metadataOptions}

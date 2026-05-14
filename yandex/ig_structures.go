@@ -155,6 +155,8 @@ func flattenInstanceGroupMetadataOptions(mo *instancegroup.MetadataOptions) []ma
 		"aws_v1_http_endpoint": int(mo.AwsV1HttpEndpoint),
 		"gce_http_token":       int(mo.GceHttpToken),
 		"aws_v1_http_token":    int(mo.AwsV1HttpToken),
+		"aws_v2_http_endpoint": int(mo.AwsV2HttpEndpoint),
+		"aws_v2_http_token":    int(mo.AwsV2HttpToken),
 	}
 
 	return []map[string]interface{}{metadataOptions}
@@ -1180,6 +1182,20 @@ func expandInstanceGroupMetadataOptions(v interface{}) (*instancegroup.MetadataO
 			return nil, err
 		}
 		mo.AwsV1HttpEndpoint = opt
+	}
+	if val, ok := vMap["aws_v2_http_endpoint"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.AwsV2HttpEndpoint = opt
+	}
+	if val, ok := vMap["aws_v2_http_token"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.AwsV2HttpToken = opt
 	}
 	return mo, nil
 }
