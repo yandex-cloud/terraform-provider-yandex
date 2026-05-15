@@ -165,16 +165,6 @@ func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
 			out = append(out, int32(v))
 		}
 	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
-		for _, v := range cf.PostgresqlConfig_13.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
-		for _, v := range cf.PostgresqlConfig_13_1C.UserConfig.SharedPreloadLibraries {
-			out = append(out, int32(v))
-		}
-	}
 	return out
 }
 
@@ -259,22 +249,6 @@ func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
 		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, settingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
-		return settings, nil
-	}
-	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -906,10 +880,6 @@ func getMasterHostname(orderedHostsInfo []*pgHostInfo) string {
 
 func getPostgreSQLConfigFieldName(version string) (string, error) {
 	switch version {
-	case "13":
-		return "postgresql_config_13", nil
-	case "13-1c":
-		return "postgresql_config_13_1c", nil
 	case "14":
 		return "postgresql_config_14", nil
 	case "14-1c":
@@ -1595,29 +1565,7 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 		return []string{}, err
 	}
 
-	if version == "13" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_13{
-			PostgresqlConfig_13: &config.PostgresqlConfig13{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_13.SharedPreloadLibraries = append(cfg.PostgresqlConfig_13.SharedPreloadLibraries, config.PostgresqlConfig13_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo13, d, cfg.PostgresqlConfig_13, "config.0.postgresql_config.", true)
-	} else if version == "13-1c" {
-		cfg := &postgresql.ConfigSpec_PostgresqlConfig_13_1C{
-			PostgresqlConfig_13_1C: &config.PostgresqlConfig13_1C{},
-		}
-		if len(sharedPreloadLibraries) > 0 {
-			for _, v := range sharedPreloadLibraries {
-				cfg.PostgresqlConfig_13_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_13_1C.SharedPreloadLibraries, config.PostgresqlConfig13_1C_SharedPreloadLibraries(v))
-			}
-		}
-		configSpec.PostgresqlConfig = cfg
-		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo13_1C, d, cfg.PostgresqlConfig_13_1C, "config.0.postgresql_config.", true)
-	} else if version == "14" {
+	if version == "14" {
 		cfg := &postgresql.ConfigSpec_PostgresqlConfig_14{
 			PostgresqlConfig_14: &config.PostgresqlConfig14{},
 		}
@@ -1995,10 +1943,6 @@ func pgAuditCheck(fieldsInfo *objectFieldsInfo, v any) error {
 
 func getMdbPGSettingsFieldsInfo(version string) (*objectFieldsInfo, error) {
 	switch version {
-	case "13":
-		return mdbPGSettingsFieldsInfo13, nil
-	case "13-1c":
-		return mdbPGSettingsFieldsInfo13_1C, nil
 	case "14":
 		return mdbPGSettingsFieldsInfo14, nil
 	case "14-1c":
@@ -2340,68 +2284,6 @@ var mdbPGSettingsFieldsInfo14_1C = newObjectFieldsInfo().
 	addSkipEnumGeneratedNamesWithEmptySliceValue(
 		"shared_preload_libraries",
 		config.PostgresqlConfig14_1C_SharedPreloadLibraries_name,
-		defaultStringOfEnumsCheck("shared_preload_libraries"),
-		stringOfEnumSliceCompareWithDefault,
-	)
-
-var mdbPGSettingsFieldsInfo13 = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig13{}, []reflect.Type{}).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig13_WalLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig13_SynchronousCommit_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig13_ConstraintExclusion_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig13_ForceParallelMode_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig13_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig13_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig13_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig13_LogErrorVerbosity_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig13_LogStatement_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig13_TransactionIsolation_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig13_ByteaOutput_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig13_XmlBinary_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig13_XmlOption_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig13_BackslashQuote_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig13_PlanCacheMode_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig13_PgHintPlanDebugPrint_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig13_LogLevel_name).
-	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
-		"password_encryption",
-		config.PostgresqlConfig13_PasswordEncryption_name,
-		int(config.PostgresqlConfig13_PASSWORD_ENCRYPTION_MD5.Number()),
-	).
-	addSkipEnumGeneratedNamesWithEmptySliceValue(
-		"shared_preload_libraries",
-		config.PostgresqlConfig13_SharedPreloadLibraries_name,
-		defaultStringOfEnumsCheck("shared_preload_libraries"),
-		stringOfEnumSliceCompareWithDefault,
-	)
-
-var mdbPGSettingsFieldsInfo13_1C = newObjectFieldsInfo().
-	addType(config.PostgresqlConfig13_1C{}, []reflect.Type{}).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig13_1C_WalLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig13_1C_SynchronousCommit_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig13_1C_ConstraintExclusion_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig13_1C_ForceParallelMode_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig13_1C_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig13_1C_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig13_1C_LogLevel_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig13_1C_LogErrorVerbosity_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig13_1C_LogStatement_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig13_1C_TransactionIsolation_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig13_1C_ByteaOutput_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig13_1C_XmlBinary_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig13_1C_XmlOption_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig13_1C_BackslashQuote_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig13_1C_PlanCacheMode_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig13_1C_PgHintPlanDebugPrint_name).
-	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig13_1C_LogLevel_name).
-	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
-		"password_encryption",
-		config.PostgresqlConfig13_1C_PasswordEncryption_name,
-		int(config.PostgresqlConfig13_1C_PASSWORD_ENCRYPTION_MD5.Number()),
-	).
-	addSkipEnumGeneratedNamesWithEmptySliceValue(
-		"shared_preload_libraries",
-		config.PostgresqlConfig13_1C_SharedPreloadLibraries_name,
 		defaultStringOfEnumsCheck("shared_preload_libraries"),
 		stringOfEnumSliceCompareWithDefault,
 	)

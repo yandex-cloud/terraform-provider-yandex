@@ -60,8 +60,6 @@ func expandBoolWrapper(_ context.Context, b types.Bool, _ *diag.Diagnostics) *wr
 }
 
 var pgVersionConfigs = map[string]postgresql.ConfigSpec_PostgresqlConfig{
-	"13":    &postgresql.ConfigSpec_PostgresqlConfig_13{},
-	"13-1c": &postgresql.ConfigSpec_PostgresqlConfig_13_1C{},
 	"14":    &postgresql.ConfigSpec_PostgresqlConfig_14{},
 	"14-1c": &postgresql.ConfigSpec_PostgresqlConfig_14_1C{},
 	"15":    &postgresql.ConfigSpec_PostgresqlConfig_15{},

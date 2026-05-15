@@ -432,7 +432,7 @@ func TestFieldsDynamicGenerateMapSchemaValidateFuncCorrect(t *testing.T) {
 func TestFieldsDynamicGenerateMapSchemaValidateFuncFail(t *testing.T) {
 	t.Parallel()
 
-	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo13)
+	validateFunc := generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo18)
 
 	value := map[string]interface{}{
 		// type is not correct string but should be int

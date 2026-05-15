@@ -27,7 +27,7 @@ const (
 	pgRestoreBackupIdEncrypted = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
 )
 
-var postgresql_versions = [...]string{"14", "14-1c", "15", "15-1c", "16", "16-1c", "17", "17-1c", "18"}
+var postgresql_versions = [...]string{"14", "14-1c", "15", "15-1c", "16", "16-1c", "17", "17-1c", "18", "18-1c"}
 
 func init() {
 	resource.AddTestSweepers(pgResourceType, &resource.Sweeper{
@@ -1039,34 +1039,6 @@ type clusterSettingsResult struct {
 
 func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSettingsResult, error) {
 	switch version {
-	case "13":
-		userConfig := cluster.Config.GetPostgresqlConfig_13().UserConfig
-		sharedPreloadLibraries := []int32{}
-		for _, v := range userConfig.SharedPreloadLibraries {
-			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
-		}
-		return &clusterSettingsResult{
-			maxConnections:              userConfig.MaxConnections.GetValue(),
-			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
-			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
-			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
-			sharedPreloadLibraries:      sharedPreloadLibraries,
-			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
-		}, nil
-	case "13-1c":
-		userConfig := cluster.Config.GetPostgresqlConfig_13_1C().UserConfig
-		sharedPreloadLibraries := []int32{}
-		for _, v := range userConfig.SharedPreloadLibraries {
-			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
-		}
-		return &clusterSettingsResult{
-			maxConnections:              userConfig.MaxConnections.GetValue(),
-			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
-			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
-			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
-			sharedPreloadLibraries:      sharedPreloadLibraries,
-			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
-		}, nil
 	case "14":
 		userConfig := cluster.Config.GetPostgresqlConfig_14().UserConfig
 		sharedPreloadLibraries := []int32{}

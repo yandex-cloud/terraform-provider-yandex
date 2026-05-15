@@ -80,7 +80,7 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 
 var (
 	pgVersions   = [...]string{"14", "15", "16", "17", "18"}
-	pg1CVersions = [...]string{"13-1c", "14-1c", "15-1c", "16-1c", "17-1c"} //nolint:unused
+	pg1CVersions = [...]string{"14-1c", "15-1c", "16-1c", "17-1c", "18-1c"} //nolint:unused
 )
 
 // TestMain - add sweepers flag to the go test command
@@ -1541,14 +1541,6 @@ func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUse
 	return func(s *terraform.State) error {
 		var cmpObj interface{}
 		switch expectedUserConfig.(type) {
-		case *pconfig.PostgresqlConfig11:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_11().GetUserConfig()
-		case *pconfig.PostgresqlConfig11_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_12().GetUserConfig()
-		case *pconfig.PostgresqlConfig13:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_13().GetUserConfig()
-		case *pconfig.PostgresqlConfig13_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_13_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig14:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_14().GetUserConfig()
 		case *pconfig.PostgresqlConfig14_1C:

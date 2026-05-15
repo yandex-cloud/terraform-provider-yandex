@@ -189,7 +189,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the PostgreSQL cluster. (allowed versions are: 13, 13-1c, 14, 14-1c, 15, 15-1c, 16, 17).",
+				Description: "Version of the PostgreSQL cluster. (allowed versions are: 14, 14-1c, 15, 15-1c, 16, 16-1c, 17, 17-1c, 18, 18-1c).",
 				Required:    true,
 			},
 			"resources": {

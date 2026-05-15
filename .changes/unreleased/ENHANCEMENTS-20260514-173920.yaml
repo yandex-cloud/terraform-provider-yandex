@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'postgresql: remove 13 and 13-1c postgresql versions support'
+time: 2026-05-14T17:39:20.71447+03:00

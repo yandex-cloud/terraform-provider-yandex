@@ -35,8 +35,6 @@ var pgSettingsEnumNames = map[string]map[int32]string{
 
 func pgSharedPreloadLibrariesEnumNames() map[int32]string {
 	namesMap := make(map[int32]string)
-	maps.Copy(namesMap, config.PostgresqlConfig13_SharedPreloadLibraries_name)
-	maps.Copy(namesMap, config.PostgresqlConfig13_1C_SharedPreloadLibraries_name)
 	maps.Copy(namesMap, config.PostgresqlConfig14_SharedPreloadLibraries_name)
 	maps.Copy(namesMap, config.PostgresqlConfig14_1C_SharedPreloadLibraries_name)
 	maps.Copy(namesMap, config.PostgresqlConfig15_SharedPreloadLibraries_name)
@@ -75,8 +73,6 @@ var pgSettingsEnumValues = map[string]map[string]int32{
 
 func pgSharedPreloadLibrariesEnumValues() map[string]int32 {
 	kek := MergeMaps(
-		config.PostgresqlConfig13_SharedPreloadLibraries_value,
-		config.PostgresqlConfig13_1C_SharedPreloadLibraries_value,
 		config.PostgresqlConfig14_SharedPreloadLibraries_value,
 		config.PostgresqlConfig14_1C_SharedPreloadLibraries_value,
 		config.PostgresqlConfig15_SharedPreloadLibraries_value,
