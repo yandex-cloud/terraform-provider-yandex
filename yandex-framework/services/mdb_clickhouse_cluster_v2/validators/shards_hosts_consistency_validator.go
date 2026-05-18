@@ -26,7 +26,12 @@ func (v ShardsHostsConsistencyValidator) ValidateResource(ctx context.Context, r
 		return
 	}
 
-	if config.Shards.IsNull() || config.Shards.IsUnknown() {
+	// To accept passing variables in config that will be evaluated later
+	if config.Shards.IsUnknown() || config.HostSpecs.IsUnknown() {
+		return
+	}
+
+	if config.Shards.IsNull() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("shards"),
 			"Shards not defined",
@@ -34,7 +39,7 @@ func (v ShardsHostsConsistencyValidator) ValidateResource(ctx context.Context, r
 		)
 		return
 	}
-	if config.HostSpecs.IsNull() || config.HostSpecs.IsUnknown() {
+	if config.HostSpecs.IsNull() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("hosts"),
 			"Hosts not defined",
