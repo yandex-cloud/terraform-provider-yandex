@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'compute: add `aws_v2_http_endpoint` and `aws_v2_http_token` options to yandex_compute_instance'
-time: 2026-04-15T12:47:04.45870442+03:00
