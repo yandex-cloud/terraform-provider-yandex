@@ -737,9 +737,6 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	if d.HasChange("resources.0.disk_type_id") {
-		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
-	}
 	config := meta.(*Config)
 
 	if d.HasChange("sharded") {
