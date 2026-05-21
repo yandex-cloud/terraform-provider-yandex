@@ -326,25 +326,25 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 	if state.AllowedSites.IsNull() {
 		state.AllowedSites = types.ListNull(types.StringType)
 	}
-	if !plan.AllowedSites.Equal(state.AllowedSites) {
+	if !plan.AllowedSites.IsUnknown() && !plan.AllowedSites.Equal(state.AllowedSites) {
 		updatePaths = append(updatePaths, "allowed_sites")
 	}
-	if !plan.CaptchaId.Equal(state.CaptchaId) {
+	if !plan.CaptchaId.IsUnknown() && !plan.CaptchaId.Equal(state.CaptchaId) {
 		updatePaths = append(updatePaths, "captcha_id")
 	}
-	if !plan.ChallengeType.Equal(state.ChallengeType) {
+	if !plan.ChallengeType.IsUnknown() && !plan.ChallengeType.Equal(state.ChallengeType) {
 		updatePaths = append(updatePaths, "challenge_type")
 	}
-	if !plan.Complexity.Equal(state.Complexity) {
+	if !plan.Complexity.IsUnknown() && !plan.Complexity.Equal(state.Complexity) {
 		updatePaths = append(updatePaths, "complexity")
 	}
-	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+	if !plan.DeletionProtection.IsUnknown() && !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.DisallowDataProcessing.Equal(state.DisallowDataProcessing) {
+	if !plan.DisallowDataProcessing.IsUnknown() && !plan.DisallowDataProcessing.Equal(state.DisallowDataProcessing) {
 		updatePaths = append(updatePaths, "disallow_data_processing")
 	}
 	if plan.Labels.IsNull() {
@@ -353,10 +353,10 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.OverrideVariant.IsNull() {
@@ -365,10 +365,10 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 	if state.OverrideVariant.IsNull() {
 		state.OverrideVariant = types.ListNull(yandexSmartcaptchaCaptchaOverrideVariantStructModelType)
 	}
-	if !plan.OverrideVariant.Equal(state.OverrideVariant) {
+	if !plan.OverrideVariant.IsUnknown() && !plan.OverrideVariant.Equal(state.OverrideVariant) {
 		updatePaths = append(updatePaths, "override_variants")
 	}
-	if !plan.PreCheckType.Equal(state.PreCheckType) {
+	if !plan.PreCheckType.IsUnknown() && !plan.PreCheckType.Equal(state.PreCheckType) {
 		updatePaths = append(updatePaths, "pre_check_type")
 	}
 	if plan.SecurityRule.IsNull() {
@@ -377,13 +377,13 @@ func (r *yandexSmartcaptchaCaptchaResource) Update(ctx context.Context, req reso
 	if state.SecurityRule.IsNull() {
 		state.SecurityRule = types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructModelType)
 	}
-	if !plan.SecurityRule.Equal(state.SecurityRule) {
+	if !plan.SecurityRule.IsUnknown() && !plan.SecurityRule.Equal(state.SecurityRule) {
 		updatePaths = append(updatePaths, "security_rules")
 	}
-	if !plan.StyleJson.Equal(state.StyleJson) {
+	if !plan.StyleJson.IsUnknown() && !plan.StyleJson.Equal(state.StyleJson) {
 		updatePaths = append(updatePaths, "style_json")
 	}
-	if !plan.TurnOffHostnameCheck.Equal(state.TurnOffHostnameCheck) {
+	if !plan.TurnOffHostnameCheck.IsUnknown() && !plan.TurnOffHostnameCheck.Equal(state.TurnOffHostnameCheck) {
 		updatePaths = append(updatePaths, "turn_off_hostname_check")
 	}
 	if len(updatePaths) != 0 {

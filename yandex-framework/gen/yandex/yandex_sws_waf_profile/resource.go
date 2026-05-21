@@ -344,13 +344,13 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 			yandexSwsWafProfileAnalyzeRequestBodyPlan = yandexSwsWafProfileAnalyzeRequestBodyListPlan[0]
 		}
 
-		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.IsEnabled.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.IsEnabled) {
+		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.IsEnabled.IsUnknown() && !yandexSwsWafProfileAnalyzeRequestBodyPlan.IsEnabled.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.IsEnabled) {
 			updatePaths = append(updatePaths, "analyze_request_body.is_enabled")
 		}
-		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimit.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.SizeLimit) {
+		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimit.IsUnknown() && !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimit.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.SizeLimit) {
 			updatePaths = append(updatePaths, "analyze_request_body.size_limit")
 		}
-		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimitAction.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.SizeLimitAction) {
+		if !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimitAction.IsUnknown() && !yandexSwsWafProfileAnalyzeRequestBodyPlan.SizeLimitAction.Equal(yandexSwsWafProfileAnalyzeRequestBodyState.SizeLimitAction) {
 			updatePaths = append(updatePaths, "analyze_request_body.size_limit_action")
 		}
 	}
@@ -381,10 +381,10 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 			yandexSwsWafProfileCoreRuleSetPlan = yandexSwsWafProfileCoreRuleSetListPlan[0]
 		}
 
-		if !yandexSwsWafProfileCoreRuleSetPlan.InboundAnomalyScore.Equal(yandexSwsWafProfileCoreRuleSetState.InboundAnomalyScore) {
+		if !yandexSwsWafProfileCoreRuleSetPlan.InboundAnomalyScore.IsUnknown() && !yandexSwsWafProfileCoreRuleSetPlan.InboundAnomalyScore.Equal(yandexSwsWafProfileCoreRuleSetState.InboundAnomalyScore) {
 			updatePaths = append(updatePaths, "core_rule_set.inbound_anomaly_score")
 		}
-		if !yandexSwsWafProfileCoreRuleSetPlan.ParanoiaLevel.Equal(yandexSwsWafProfileCoreRuleSetState.ParanoiaLevel) {
+		if !yandexSwsWafProfileCoreRuleSetPlan.ParanoiaLevel.IsUnknown() && !yandexSwsWafProfileCoreRuleSetPlan.ParanoiaLevel.Equal(yandexSwsWafProfileCoreRuleSetState.ParanoiaLevel) {
 			updatePaths = append(updatePaths, "core_rule_set.paranoia_level")
 		}
 
@@ -414,21 +414,21 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 				yandexSwsWafProfileCoreRuleSetRuleSetPlan = yandexSwsWafProfileCoreRuleSetRuleSetListPlan[0]
 			}
 
-			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Id.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Id) {
+			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Id.IsUnknown() && !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Id.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Id) {
 				updatePaths = append(updatePaths, "core_rule_set.rule_set.id")
 			}
-			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Name.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Name) {
+			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Name.IsUnknown() && !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Name.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Name) {
 				updatePaths = append(updatePaths, "core_rule_set.rule_set.name")
 			}
-			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Type.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Type) {
+			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Type.IsUnknown() && !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Type.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Type) {
 				updatePaths = append(updatePaths, "core_rule_set.rule_set.type")
 			}
-			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Version.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Version) {
+			if !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Version.IsUnknown() && !yandexSwsWafProfileCoreRuleSetRuleSetPlan.Version.Equal(yandexSwsWafProfileCoreRuleSetRuleSetState.Version) {
 				updatePaths = append(updatePaths, "core_rule_set.rule_set.version")
 			}
 		}
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.ExclusionRule.IsNull() {
@@ -437,7 +437,7 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 	if state.ExclusionRule.IsNull() {
 		state.ExclusionRule = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructModelType)
 	}
-	if !plan.ExclusionRule.Equal(state.ExclusionRule) {
+	if !plan.ExclusionRule.IsUnknown() && !plan.ExclusionRule.Equal(state.ExclusionRule) {
 		updatePaths = append(updatePaths, "exclusion_rules")
 	}
 	if plan.Labels.IsNull() {
@@ -446,13 +446,13 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.MatchAllRuleSets.Equal(state.MatchAllRuleSets) {
+	if !plan.MatchAllRuleSets.IsUnknown() && !plan.MatchAllRuleSets.Equal(state.MatchAllRuleSets) {
 		updatePaths = append(updatePaths, "match_all_rule_sets")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.Rule.IsNull() {
@@ -461,7 +461,7 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 	if state.Rule.IsNull() {
 		state.Rule = types.ListNull(yandexSwsWafProfileWafProfileRuleStructModelType)
 	}
-	if !plan.Rule.Equal(state.Rule) {
+	if !plan.Rule.IsUnknown() && !plan.Rule.Equal(state.Rule) {
 		updatePaths = append(updatePaths, "rules")
 	}
 	if plan.RuleSet.IsNull() {
@@ -470,10 +470,10 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 	if state.RuleSet.IsNull() {
 		state.RuleSet = types.ListNull(yandexSwsWafProfileWafProfileRuleSetStructModelType)
 	}
-	if !plan.RuleSet.Equal(state.RuleSet) {
+	if !plan.RuleSet.IsUnknown() && !plan.RuleSet.Equal(state.RuleSet) {
 		updatePaths = append(updatePaths, "rule_sets")
 	}
-	if !plan.WafProfileId.Equal(state.WafProfileId) {
+	if !plan.WafProfileId.IsUnknown() && !plan.WafProfileId.Equal(state.WafProfileId) {
 		updatePaths = append(updatePaths, "waf_profile_id")
 	}
 	if len(updatePaths) != 0 {

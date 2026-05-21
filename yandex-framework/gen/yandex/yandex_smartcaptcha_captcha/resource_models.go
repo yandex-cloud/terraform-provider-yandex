@@ -1082,24 +1082,35 @@ func expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHeaders(ctx conte
 }
 
 type yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel struct {
-	Hosts types.List `tfsdk:"hosts"`
+	HostMatcher types.List `tfsdk:"host_matcher"`
+	Hosts       types.List `tfsdk:"hosts"`
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) GetHostMatcher() types.List {
+	return m.HostMatcher
+}
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) GetHosts() types.List {
 	return m.Hosts
 }
 
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) SetHostMatcher(target types.List) {
+	m.HostMatcher = target
+}
 func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) SetHosts(target types.List) {
 	m.Hosts = target
 }
 
 func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel {
 	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel{
-		Hosts: types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType),
+		HostMatcher: types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType),
+		Hosts:       types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType),
 	}
 }
 
 func yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModelFillUnknown(target yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel) yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel {
+	if target.HostMatcher.IsUnknown() || target.HostMatcher.IsNull() {
+		target.HostMatcher = types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType)
+	}
 	if target.Hosts.IsUnknown() || target.Hosts.IsNull() {
 		target.Hosts = types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType)
 	}
@@ -1108,7 +1119,8 @@ func yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModelFillUnknown(ta
 
 var yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"hosts": types.ListType{ElemType: yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType},
+		"host_matcher": types.ListType{ElemType: yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType},
+		"hosts":        types.ListType{ElemType: yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostStringMatcherStructModelType},
 	},
 }
 
@@ -1143,7 +1155,8 @@ func flattenYandexSmartcaptchaCaptchaSecurityRuleStructConditionHost(ctx context
 		state = yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModelType.AttrTypes, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel{
-		Hosts: flattenYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHosts(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHost.GetHosts(), state.Hosts, diags),
+		HostMatcher: flattenYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHost.GetHostMatcher(), state.HostMatcher, diags),
+		Hosts:       flattenYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHosts(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHost.GetHosts(), state.Hosts, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModelType, []attr.Value{value})
@@ -1168,7 +1181,175 @@ func expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHost(ctx context.
 
 func expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel(ctx context.Context, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostState yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostModel, diags *diag.Diagnostics) *smartcaptcha.Condition_HostMatcher {
 	value := &smartcaptcha.Condition_HostMatcher{}
+	value.SetHostMatcher(expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostState.HostMatcher, diags))
 	value.SetHosts(expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHosts(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostState.Hosts, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel struct {
+	ExactMatch        types.String `tfsdk:"exact_match"`
+	ExactNotMatch     types.String `tfsdk:"exact_not_match"`
+	PireRegexMatch    types.String `tfsdk:"pire_regex_match"`
+	PireRegexNotMatch types.String `tfsdk:"pire_regex_not_match"`
+	PrefixMatch       types.String `tfsdk:"prefix_match"`
+	PrefixNotMatch    types.String `tfsdk:"prefix_not_match"`
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetExactMatch() types.String {
+	return m.ExactMatch
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetExactNotMatch() types.String {
+	return m.ExactNotMatch
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetPireRegexMatch() types.String {
+	return m.PireRegexMatch
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetPireRegexNotMatch() types.String {
+	return m.PireRegexNotMatch
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetPrefixMatch() types.String {
+	return m.PrefixMatch
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) GetPrefixNotMatch() types.String {
+	return m.PrefixNotMatch
+}
+
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
+}
+
+func NewYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel() yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel {
+	return yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel{
+		ExactMatch:        types.StringNull(),
+		ExactNotMatch:     types.StringNull(),
+		PireRegexMatch:    types.StringNull(),
+		PireRegexNotMatch: types.StringNull(),
+		PrefixMatch:       types.StringNull(),
+		PrefixNotMatch:    types.StringNull(),
+	}
+}
+
+func yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelFillUnknown(target yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel) yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel {
+	if target.ExactMatch.IsUnknown() || target.ExactMatch.IsNull() {
+		target.ExactMatch = types.StringNull()
+	}
+	if target.ExactNotMatch.IsUnknown() || target.ExactNotMatch.IsNull() {
+		target.ExactNotMatch = types.StringNull()
+	}
+	if target.PireRegexMatch.IsUnknown() || target.PireRegexMatch.IsNull() {
+		target.PireRegexMatch = types.StringNull()
+	}
+	if target.PireRegexNotMatch.IsUnknown() || target.PireRegexNotMatch.IsNull() {
+		target.PireRegexNotMatch = types.StringNull()
+	}
+	if target.PrefixMatch.IsUnknown() || target.PrefixMatch.IsNull() {
+		target.PrefixMatch = types.StringNull()
+	}
+	if target.PrefixNotMatch.IsUnknown() || target.PrefixNotMatch.IsNull() {
+		target.PrefixNotMatch = types.StringNull()
+	}
+	return target
+}
+
+var yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"exact_match":          types.StringType,
+		"exact_not_match":      types.StringType,
+		"pire_regex_match":     types.StringType,
+		"pire_regex_not_match": types.StringType,
+		"prefix_match":         types.StringType,
+		"prefix_not_match":     types.StringType,
+	},
+}
+
+func flattenYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher(ctx context.Context,
+	yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher *smartcaptcha.Condition_StringMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher == nil || (yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.String() == (&smartcaptcha.Condition_StringMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType := make([]yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType)
+				}
+				state = yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType.AttrTypes, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType.AttrTypes, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel{
+		ExactMatch:        types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetExactMatch()),
+		ExactNotMatch:     types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetExactNotMatch()),
+		PireRegexMatch:    types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetPireRegexMatch()),
+		PireRegexNotMatch: types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetPireRegexNotMatch()),
+		PrefixMatch:       types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetPrefixMatch()),
+		PrefixNotMatch:    types.StringValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher.GetPrefixNotMatch()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcher(ctx context.Context, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState types.List, diags *diag.Diagnostics) *smartcaptcha.Condition_StringMatcher {
+	if yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.Elements()) == 0 {
+		return nil
+	}
+	yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType := make([]yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel, 0, len(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.Elements()))
+	diags.Append(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ElementsAs(ctx, &yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel(ctx, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherType[0], diags)
+}
+
+func expandYandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel(ctx context.Context, yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherModel, diags *diag.Diagnostics) *smartcaptcha.Condition_StringMatcher {
+	value := &smartcaptcha.Condition_StringMatcher{}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactMatch.Equal(types.StringValue(""))) {
+		value.SetExactMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactMatch.ValueString())
+	}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactNotMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactNotMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactNotMatch.Equal(types.StringValue(""))) {
+		value.SetExactNotMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.ExactNotMatch.ValueString())
+	}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexMatch.ValueString())
+	}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexNotMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexNotMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexNotMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexNotMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PireRegexNotMatch.ValueString())
+	}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixMatch.ValueString())
+	}
+	if !(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixNotMatch.IsNull() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixNotMatch.IsUnknown() || yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixNotMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixNotMatch(yandexSmartcaptchaCaptchaSecurityRuleStructConditionHostHostMatcherState.PrefixNotMatch.ValueString())
+	}
 	if diags.HasError() {
 		return nil
 	}

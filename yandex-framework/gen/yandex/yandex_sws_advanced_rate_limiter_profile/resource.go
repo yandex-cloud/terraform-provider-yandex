@@ -311,7 +311,7 @@ func (r *yandexSwsAdvancedRateLimiterProfileResource) Update(ctx context.Context
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.AdvancedRateLimiterProfileId.Equal(state.AdvancedRateLimiterProfileId) {
+	if !plan.AdvancedRateLimiterProfileId.IsUnknown() && !plan.AdvancedRateLimiterProfileId.Equal(state.AdvancedRateLimiterProfileId) {
 		updatePaths = append(updatePaths, "advanced_rate_limiter_profile_id")
 	}
 	if plan.AdvancedRateLimiterRule.IsNull() {
@@ -320,10 +320,10 @@ func (r *yandexSwsAdvancedRateLimiterProfileResource) Update(ctx context.Context
 	if state.AdvancedRateLimiterRule.IsNull() {
 		state.AdvancedRateLimiterRule = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructModelType)
 	}
-	if !plan.AdvancedRateLimiterRule.Equal(state.AdvancedRateLimiterRule) {
+	if !plan.AdvancedRateLimiterRule.IsUnknown() && !plan.AdvancedRateLimiterRule.Equal(state.AdvancedRateLimiterRule) {
 		updatePaths = append(updatePaths, "advanced_rate_limiter_rules")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -332,10 +332,10 @@ func (r *yandexSwsAdvancedRateLimiterProfileResource) Update(ctx context.Context
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

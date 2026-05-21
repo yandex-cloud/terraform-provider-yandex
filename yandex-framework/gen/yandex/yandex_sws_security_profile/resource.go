@@ -315,7 +315,7 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.AdvancedRateLimiterProfileId.Equal(state.AdvancedRateLimiterProfileId) {
+	if !plan.AdvancedRateLimiterProfileId.IsUnknown() && !plan.AdvancedRateLimiterProfileId.Equal(state.AdvancedRateLimiterProfileId) {
 		updatePaths = append(updatePaths, "advanced_rate_limiter_profile_id")
 	}
 
@@ -345,20 +345,20 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 			yandexSwsSecurityProfileAnalyzeRequestBodyPlan = yandexSwsSecurityProfileAnalyzeRequestBodyListPlan[0]
 		}
 
-		if !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimit.Equal(yandexSwsSecurityProfileAnalyzeRequestBodyState.SizeLimit) {
+		if !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimit.IsUnknown() && !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimit.Equal(yandexSwsSecurityProfileAnalyzeRequestBodyState.SizeLimit) {
 			updatePaths = append(updatePaths, "analyze_request_body.size_limit")
 		}
-		if !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimitAction.Equal(yandexSwsSecurityProfileAnalyzeRequestBodyState.SizeLimitAction) {
+		if !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimitAction.IsUnknown() && !yandexSwsSecurityProfileAnalyzeRequestBodyPlan.SizeLimitAction.Equal(yandexSwsSecurityProfileAnalyzeRequestBodyState.SizeLimitAction) {
 			updatePaths = append(updatePaths, "analyze_request_body.size_limit_action")
 		}
 	}
-	if !plan.CaptchaId.Equal(state.CaptchaId) {
+	if !plan.CaptchaId.IsUnknown() && !plan.CaptchaId.Equal(state.CaptchaId) {
 		updatePaths = append(updatePaths, "captcha_id")
 	}
-	if !plan.DefaultAction.Equal(state.DefaultAction) {
+	if !plan.DefaultAction.IsUnknown() && !plan.DefaultAction.Equal(state.DefaultAction) {
 		updatePaths = append(updatePaths, "default_action")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -367,13 +367,13 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.SecurityProfileId.Equal(state.SecurityProfileId) {
+	if !plan.SecurityProfileId.IsUnknown() && !plan.SecurityProfileId.Equal(state.SecurityProfileId) {
 		updatePaths = append(updatePaths, "security_profile_id")
 	}
 	if plan.SecurityRule.IsNull() {
@@ -382,7 +382,7 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 	if state.SecurityRule.IsNull() {
 		state.SecurityRule = types.ListNull(yandexSwsSecurityProfileSecurityRuleStructModelType)
 	}
-	if !plan.SecurityRule.Equal(state.SecurityRule) {
+	if !plan.SecurityRule.IsUnknown() && !plan.SecurityRule.Equal(state.SecurityRule) {
 		updatePaths = append(updatePaths, "security_rules")
 	}
 	if len(updatePaths) != 0 {

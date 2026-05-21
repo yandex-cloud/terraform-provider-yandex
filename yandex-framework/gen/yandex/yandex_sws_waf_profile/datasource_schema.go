@@ -3705,7 +3705,8 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.name
 					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
-				Required: true,
+				Optional: true,
+				Computed: true,
 
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(regexp.MustCompile("^([a-zA-Z0-9][a-zA-Z0-9-_.]*)$"), "error validating regexp"),

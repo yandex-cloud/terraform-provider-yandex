@@ -4,6 +4,7 @@ package yandex_smartcaptcha_captcha
 
 import (
 	"context"
+	"math"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -209,8 +210,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 			},
 
 			"disallow_data_processing": schema.BoolAttribute{
-				MarkdownDescription: "If true, Yandex team won't be able to read internal data.",
-				Description: "If true, Yandex team won't be able to read internal data." +
+				MarkdownDescription: "Disables the use of HTTP request data for training and improving the service's ML models.",
+				Description: "Disables the use of HTTP request data for training and improving the service's ML models." +
 					// proto paths: +
 					// -> yandex.cloud.smartcaptcha.v1.Captcha.disallow_data_processing
 					// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.disallow_data_processing
@@ -247,8 +248,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 			"labels": schema.MapAttribute{
 				ElementType:         types.StringType,
-				MarkdownDescription: "Resource labels as `key:value` pairs.",
-				Description: "Resource labels as `key:value` pairs." +
+				MarkdownDescription: "Labels as `` key:value `` pairs. Maximum of 64 per resource.",
+				Description: "Labels as `` key:value `` pairs. Maximum of 64 per resource." +
 					// proto paths: +
 					// -> yandex.cloud.smartcaptcha.v1.Captcha.labels
 					// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.labels
@@ -604,8 +605,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														Attributes: map[string]schema.Attribute{
 
 															"exact_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact match condition.",
+																Description: "Exact match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
@@ -624,8 +625,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"exact_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact not match condition.",
+																Description: "Exact not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
@@ -644,8 +645,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex match condition.",
+																Description: "PIRE regex match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
@@ -664,8 +665,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex not match condition.",
+																Description: "PIRE regex not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
@@ -684,8 +685,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix match condition.",
+																Description: "Prefix match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
@@ -704,8 +705,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix not match condition.",
+																Description: "Prefix not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
@@ -762,14 +763,157 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 											Blocks: map[string]schema.Block{
 
+												"host_matcher": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"exact_match": schema.StringAttribute{
+																MarkdownDescription: "Exact match condition.",
+																Description: "Exact match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"exact_not_match": schema.StringAttribute{
+																MarkdownDescription: "Exact not match condition.",
+																Description: "Exact not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"pire_regex_match": schema.StringAttribute{
+																MarkdownDescription: "PIRE regex match condition.",
+																Description: "PIRE regex match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"pire_regex_not_match": schema.StringAttribute{
+																MarkdownDescription: "PIRE regex not match condition.",
+																Description: "PIRE regex not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"prefix_match": schema.StringAttribute{
+																MarkdownDescription: "Prefix match condition.",
+																Description: "Prefix match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"prefix_not_match": schema.StringAttribute{
+																MarkdownDescription: "Prefix not match condition.",
+																Description: "Prefix not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	"package: yandex.cloud.smartcaptcha.v1\n" +
+																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "Host matcher.",
+													Description: "Host matcher." +
+														// proto paths: +
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher
+														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher
+														// -> yandex.cloud.smartcaptcha.v1.UpdateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher
+														"package: yandex.cloud.smartcaptcha.v1\n" +
+														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.SizeAtMost(1),
+													},
+												},
+
 												"hosts": schema.ListNestedBlock{
 													NestedObject: schema.NestedBlockObject{
 
 														Attributes: map[string]schema.Attribute{
 
 															"exact_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact match condition.",
+																Description: "Exact match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
@@ -788,8 +932,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"exact_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact not match condition.",
+																Description: "Exact not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
@@ -808,8 +952,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex match condition.",
+																Description: "PIRE regex match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
@@ -828,8 +972,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex not match condition.",
+																Description: "PIRE regex not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
@@ -848,8 +992,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix match condition.",
+																Description: "Prefix match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
@@ -868,8 +1012,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix not match condition.",
+																Description: "Prefix not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
@@ -904,8 +1048,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 												},
 											},
 										},
-										MarkdownDescription: "Host where captcha placed.",
-										Description: "Host where captcha placed." +
+										MarkdownDescription: "*AND* semantics implied.",
+										Description: "*AND* semantics implied." +
 											// proto paths: +
 											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.host
 											// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.host
@@ -933,8 +1077,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 															"locations": schema.ListAttribute{
 																ElementType:         types.StringType,
-																MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
-																Description: "ISO 3166-1 alpha 2. OR semantics implied." +
+																MarkdownDescription: "*OR semantics implied. ISO 3166-1 alpha 2",
+																Description: "*OR semantics implied. ISO 3166-1 alpha 2" +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
@@ -954,8 +1098,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 														},
 													},
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Geo locations to match with.",
+													Description: "Geo locations to match with." +
 														// proto paths: +
 														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match
 														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match
@@ -978,8 +1122,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 															"locations": schema.ListAttribute{
 																ElementType:         types.StringType,
-																MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
-																Description: "ISO 3166-1 alpha 2. OR semantics implied." +
+																MarkdownDescription: "*OR semantics implied. ISO 3166-1 alpha 2",
+																Description: "*OR semantics implied. ISO 3166-1 alpha 2" +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
@@ -999,8 +1143,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 														},
 													},
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "Geo locations to not match with.",
+													Description: "Geo locations to not match with." +
 														// proto paths: +
 														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match
 														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match
@@ -1023,8 +1167,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 															"ip_ranges": schema.ListAttribute{
 																ElementType:         types.StringType,
-																MarkdownDescription: "List of IP ranges. OR semantics implied.",
-																Description: "List of IP ranges. OR semantics implied." +
+																MarkdownDescription: "*OR* semantics implied.",
+																Description: "*OR* semantics implied." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
@@ -1039,13 +1183,15 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																	planmodifiers.NilRelaxedList(),
 																},
 																Validators: []validator.List{
-																	listvalidator.ValueStringsAre(),
+																	listvalidator.ValueStringsAre(
+																		stringvalidator.LengthBetween(0+1, math.MaxInt),
+																	),
 																},
 															},
 														},
 													},
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "IP ranges to match with.",
+													Description: "IP ranges to match with." +
 														// proto paths: +
 														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match
 														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match
@@ -1068,8 +1214,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 
 															"ip_ranges": schema.ListAttribute{
 																ElementType:         types.StringType,
-																MarkdownDescription: "List of IP ranges. OR semantics implied.",
-																Description: "List of IP ranges. OR semantics implied." +
+																MarkdownDescription: "*OR* semantics implied.",
+																Description: "*OR* semantics implied." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
@@ -1084,13 +1230,15 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																	planmodifiers.NilRelaxedList(),
 																},
 																Validators: []validator.List{
-																	listvalidator.ValueStringsAre(),
+																	listvalidator.ValueStringsAre(
+																		stringvalidator.LengthBetween(0+1, math.MaxInt),
+																	),
 																},
 															},
 														},
 													},
-													MarkdownDescription: "",
-													Description: "" +
+													MarkdownDescription: "IP ranges to not match with.",
+													Description: "IP ranges to not match with." +
 														// proto paths: +
 														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match
 														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match
@@ -1135,8 +1283,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 														Attributes: map[string]schema.Attribute{
 
 															"exact_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact match condition.",
+																Description: "Exact match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
@@ -1155,8 +1303,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"exact_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Exact not match condition.",
+																Description: "Exact not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
@@ -1175,8 +1323,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex match condition.",
+																Description: "PIRE regex match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
@@ -1195,8 +1343,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"pire_regex_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "PIRE regex not match condition.",
+																Description: "PIRE regex not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
@@ -1215,8 +1363,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix match condition.",
+																Description: "Prefix match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
@@ -1235,8 +1383,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 
 															"prefix_not_match": schema.StringAttribute{
-																MarkdownDescription: "",
-																Description: "" +
+																MarkdownDescription: "Prefix not match condition.",
+																Description: "Prefix not match condition." +
 																	// proto paths: +
 																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
@@ -1304,8 +1452,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																	Attributes: map[string]schema.Attribute{
 
 																		"exact_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "Exact match condition.",
+																			Description: "Exact match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
@@ -1324,8 +1472,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																		},
 
 																		"exact_not_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "Exact not match condition.",
+																			Description: "Exact not match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
@@ -1344,8 +1492,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																		},
 
 																		"pire_regex_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "PIRE regex match condition.",
+																			Description: "PIRE regex match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
@@ -1364,8 +1512,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																		},
 
 																		"pire_regex_not_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "PIRE regex not match condition.",
+																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
@@ -1384,8 +1532,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																		},
 
 																		"prefix_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "Prefix match condition.",
+																			Description: "Prefix match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
@@ -1404,8 +1552,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 																		},
 
 																		"prefix_not_match": schema.StringAttribute{
-																			MarkdownDescription: "",
-																			Description: "" +
+																			MarkdownDescription: "Prefix not match condition.",
+																			Description: "Prefix not match condition." +
 																				// proto paths: +
 																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																				// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
@@ -1442,8 +1590,8 @@ func YandexSmartcaptchaCaptchaResourceSchema(ctx context.Context) schema.Schema 
 															},
 														},
 													},
-													MarkdownDescription: "List of query matchers. AND semantics implied.",
-													Description: "List of query matchers. AND semantics implied." +
+													MarkdownDescription: "*AND* semantics implied",
+													Description: "*AND* semantics implied" +
 														// proto paths: +
 														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries
 														// -> yandex.cloud.smartcaptcha.v1.CreateCaptchaRequest.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries
