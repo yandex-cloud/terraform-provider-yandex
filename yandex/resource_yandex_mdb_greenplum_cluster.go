@@ -88,10 +88,9 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Required:    true,
 			},
 			"version": {
-				Type:         schema.TypeString,
-				Description:  "Version of the Greenplum cluster. (`6.28`)",
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"6.28", "6.25"}, true),
+				Type:        schema.TypeString,
+				Description: "Version of the Greenplum cluster.",
+				Required:    true,
 			},
 			"master_host_count": {
 				Type:        schema.TypeInt,

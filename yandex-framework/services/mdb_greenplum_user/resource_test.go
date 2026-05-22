@@ -80,62 +80,75 @@ func mdbGreenplumUserImportStep(name string) resource.TestStep {
 
 func testAccMDBGreenplumUserConfigStep0(name string) string {
 	return fmt.Sprintf(VPCDependencies+`
-resource "yandex_mdb_greenplum_cluster" "foo" {
+resource "yandex_mdb_greenplum_cluster_v2" "foo" {
+    depends_on = [yandex_vpc_subnet.foo]
+
 	name        = "%s"
 	description = "greenplum User Terraform Test"
+  	folder_id   = "%s"
 	environment = "PRESTABLE"
 	network_id  = yandex_vpc_network.foo.id
 
-	zone = "ru-central1-b"
-	subnet_id = yandex_vpc_subnet.foo.id
-	assign_public_ip = false
-	version = "6.28"
+	segment_host_count = 2
+	segment_in_host = 2
+
+    config = {
+	    zone_id = "ru-central1-b"
+    }
+	cluster_config = {
+		assign_public_ip = false
+		backup_window_start = {
+		  hours   = 1
+		  minutes = 30
+		}
+	}
 	
 	labels = { test_key_create : "test_value_create" }
 	
-	master_host_count  = 2
+	master_host_count = 2
 	
-	master_subcluster {
-		resources {
+	master_config = {
+		resources = {
 			resource_preset_id = "s2.micro"
 			disk_size          = 24
 			disk_type_id       = "network-ssd"
 		}
 	}
-	segment_subcluster {
-		resources {
+	segment_config = {
+		resources = {
 			resource_preset_id = "s2.small"
 			disk_size          = 24
 			disk_type_id       = "network-ssd"
 		}
 	}
-
-	segment_host_count = 2
-	segment_in_host = 2
 	
 	user_name     = "user1"
 	user_password = "mysecurepassword"
+
+    cloud_storage = {
+        enable = false
+    }
 }
 
 resource "yandex_mdb_greenplum_resource_group" "some_group1" {
-	cluster_id     = yandex_mdb_greenplum_cluster.foo.id
+	cluster_id     = yandex_mdb_greenplum_cluster_v2.foo.id
 	name           = "some_group1"
 	cpu_rate_limit = 25
 }
 
 resource "yandex_mdb_greenplum_resource_group" "some_group2" {
-	cluster_id     = yandex_mdb_greenplum_cluster.foo.id
+	cluster_id     = yandex_mdb_greenplum_cluster_v2.foo.id
 	name           = "some_group2"
 	cpu_rate_limit = 25
 }
-`, name)
+`, name, test.GetExampleFolderID())
 }
 
 // Create cluster, user and database
 func testAccMDBGreenplumUserConfigStep1(name string) string {
 	return testAccMDBGreenplumUserConfigStep0(name) + `
 resource "yandex_mdb_greenplum_user" "alice" {
-	cluster_id     = yandex_mdb_greenplum_cluster.foo.id
+	cluster_id     = yandex_mdb_greenplum_cluster_v2.foo.id
 	name           = "alice"
 	password       = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group2.name
@@ -147,7 +160,7 @@ resource "yandex_mdb_greenplum_user" "alice" {
 func testAccMDBGreenplumUserConfigStep2(name string) string {
 	return testAccMDBGreenplumUserConfigStep1(name) + `
 resource "yandex_mdb_greenplum_user" "bob" {
-	cluster_id = yandex_mdb_greenplum_cluster.foo.id
+	cluster_id = yandex_mdb_greenplum_cluster_v2.foo.id
 	name       = "bob"
 	password   = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group2.name
@@ -159,7 +172,7 @@ resource "yandex_mdb_greenplum_user" "bob" {
 func testAccMDBGreenplumUserConfigStep3(name string) string {
 	return testAccMDBGreenplumUserConfigStep0(name) + `
 resource "yandex_mdb_greenplum_user" "alice" {
-	cluster_id = yandex_mdb_greenplum_cluster.foo.id
+	cluster_id = yandex_mdb_greenplum_cluster_v2.foo.id
 	name       = "alice"
 	password   = "mysecureP@ssw0rd"
 	resource_group = yandex_mdb_greenplum_resource_group.some_group1.name

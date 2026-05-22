@@ -19,9 +19,9 @@ func TestExpandGreenplumConfigSpecGreenplumConfig_Positive(t *testing.T) {
 		expectedConfig     greenplum.ConfigSpec_GreenplumConfig
 	}{
 		{
-			name: "6.28 single field",
+			name: "6.29 single field",
 			rawConfig: map[string]interface{}{
-				"version": "6.28",
+				"version": "6.29",
 				"greenplum_config": map[string]interface{}{
 					"max_connections": 100,
 				},
@@ -38,9 +38,9 @@ func TestExpandGreenplumConfigSpecGreenplumConfig_Positive(t *testing.T) {
 			},
 		},
 		{
-			name: "6.28 all supported fields",
+			name: "6.29 all supported fields",
 			rawConfig: map[string]interface{}{
-				"version": "6.28",
+				"version": "6.29",
 				"greenplum_config": map[string]interface{}{
 					"max_connections":                      100,
 					"max_slot_wal_keep_size":               101,
