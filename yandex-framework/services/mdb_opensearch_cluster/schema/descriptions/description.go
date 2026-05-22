@@ -23,7 +23,7 @@ const (
 	ZoneIDs             = "A set of availability zones where hosts of node group may be allocated."
 	SubnetIDs           = "A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs."
 	AssignPublicIP      = "Sets whether the hosts should get a public IP address."
-	Roles               = "A set of OpenSearch roles assigned to hosts. Available roles are: `DATA`, `MANAGER`. Default: [`DATA`, `MANAGER`]."
+	Roles               = "A set of OpenSearch roles assigned to hosts. Available roles are: `DATA`, `MANAGER`, `WARM` and `INGEST`. Default: [`DATA`, `MANAGER`]."
 
 	// Access attributes
 	Access       = "Enable access to the Yandex Cloud services."

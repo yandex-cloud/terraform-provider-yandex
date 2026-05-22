@@ -53,7 +53,7 @@ func Hosts() schema.ListNestedAttribute {
 					Computed:            true,
 				},
 				"roles": schema.SetAttribute{
-					MarkdownDescription: "The roles of the deployed host. Can contain `DATA` and/or `MANAGER` roles. Will be empty for `DASHBOARDS` type.",
+					MarkdownDescription: "The roles of the deployed host. Can contain any combination of `DATA`, `MANAGER`, `WARM` and `INGEST` roles. Will be empty for `DASHBOARDS` type.",
 					Computed:            true,
 					ElementType:         types.StringType,
 				},

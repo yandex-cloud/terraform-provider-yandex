@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add `WARM` and `INGEST` nodegroups roles support'
+time: 2026-05-21T17:22:26.337751677+03:00
