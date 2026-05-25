@@ -57,8 +57,7 @@ func TestAccSmartwebsecuritySecurityProfile_UpgradeFromSDKv2(t *testing.T) {
 			{
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"yandex": {
-						VersionConstraint: "0.200.0",
-						Source:            "yandex-cloud/yandex",
+						Source: "yandex-cloud/yandex",
 					},
 				},
 				Config: testAccSmartwebsecuritySecurityProfileBasicMigration(name),
@@ -105,11 +104,8 @@ resource "yandex_sws_security_profile" "this" {
 
       condition {
         authority {
-          authorities {
+          authority_matcher {
             exact_match = "example.com"
-          }
-          authorities {
-            exact_match = "example.net"
           }
         }
       }
@@ -125,11 +121,8 @@ resource "yandex_sws_security_profile" "this" {
 
       condition {
         http_method {
-          http_methods {
+          http_method_matcher {
             exact_match = "DELETE"
-          }
-          http_methods {
-            exact_match = "PUT"
           }
         }
       }
