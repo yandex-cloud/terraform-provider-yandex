@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: fix connection_manager known after apply in terraform plan'
-time: 2026-04-28T17:44:39.195202+03:00

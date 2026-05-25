@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: allow passing variables to shard and hosts properties'
-time: 2026-05-14T02:03:44.241753963+03:00
