@@ -131,9 +131,15 @@ func prepareResources(ctx context.Context, ng model.WithResources) (*opensearch.
 		return nil, diags
 	}
 
+	diskBytes, d := model.EffectiveDiskSizeBytes(resource)
+	diags.Append(d...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	return &opensearch.Resources{
 		ResourcePresetId: resource.ResourcePresetID.ValueString(),
-		DiskSize:         resource.DiskSize.ValueInt64(),
+		DiskSize:         diskBytes,
 		DiskTypeId:       resource.DiskTypeID.ValueString(),
 	}, diag.Diagnostics{}
 }
@@ -149,8 +155,14 @@ func prepareDiskSizeAutoscaling(ctx context.Context, ng model.WithDiskSizeAutosc
 		return nil, diags
 	}
 
+	limitBytes, d := model.EffectiveDiskSizeLimitBytes(resource)
+	diags.Append(d...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
 	return &opensearch.DiskSizeAutoscaling{
-		DiskSizeLimit:           resource.DiskSizeLimit.ValueInt64(),
+		DiskSizeLimit:           limitBytes,
 		PlannedUsageThreshold:   resource.PlannedUsageThreshold.ValueInt64(),
 		EmergencyUsageThreshold: resource.EmergencyUsageThreshold.ValueInt64(),
 	}, diag.Diagnostics{}

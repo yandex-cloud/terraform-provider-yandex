@@ -24,8 +24,14 @@ func NodeResourceAttributes() map[string]schema.Attribute {
 			Required:            true,
 		},
 		"disk_size": schema.Int64Attribute{
-			MarkdownDescription: "Volume of the storage available to a host, in bytes.",
-			Required:            true,
+			MarkdownDescription: "Volume of the storage available to a host, in bytes. Exactly one of `disk_size` or `disk_size_gb` must be set in configuration.",
+			Optional:            true,
+			Computed:            true,
+		},
+		"disk_size_gb": schema.Int64Attribute{
+			MarkdownDescription: "Same disk volume in gibibytes (GiB); converted to bytes for the API. Exactly one of `disk_size` or `disk_size_gb` must be set in configuration.",
+			Optional:            true,
+			Computed:            true,
 		},
 		"disk_type_id": schema.StringAttribute{
 			MarkdownDescription: "Type of the storage of OpenSearch hosts.",

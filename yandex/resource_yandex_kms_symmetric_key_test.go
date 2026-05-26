@@ -18,6 +18,7 @@ func init() {
 			"yandex_compute_instance_group",
 			"yandex_compute_disk",
 			"yandex_kubernetes_cluster",
+			"yandex_mdb_opensearch_cluster",
 		},
 	})
 }

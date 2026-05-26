@@ -25,6 +25,7 @@ func getYandexVPCSecurityGroupSweeperDeps() []string {
 		"yandex_mdb_clickhouse_cluster",
 		"yandex_mdb_mongodb_cluster",
 		"yandex_mdb_mysql_cluster",
+		"yandex_mdb_opensearch_cluster",
 		"yandex_mdb_postgresql_cluster",
 		"yandex_mdb_greenplum_cluster",
 		"yandex_mdb_redis_cluster",

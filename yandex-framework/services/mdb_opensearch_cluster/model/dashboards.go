@@ -24,6 +24,33 @@ type DashboardNode struct {
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 }
 
+func (o DashboardNode) Equal(other DashboardNode) bool {
+	if !o.Name.Equal(other.Name) {
+		return false
+	}
+	if !o.Resources.Equal(other.Resources) {
+		return false
+	}
+	if !o.HostsCount.Equal(other.HostsCount) {
+		return false
+	}
+	if !o.ZoneIDs.Equal(other.ZoneIDs) {
+		return false
+	}
+	if !o.SubnetIDs.Equal(other.SubnetIDs) {
+		return false
+	}
+	if !o.AssignPublicIP.Equal(other.AssignPublicIP) {
+		return false
+	}
+
+	return true
+}
+
+func (n DashboardNode) GetName() string {
+	return n.Name.ValueString()
+}
+
 func (n DashboardNode) GetResources() types.Object {
 	return n.Resources
 }

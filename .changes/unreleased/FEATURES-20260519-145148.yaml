@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add `disk_size_gb_limit` for `disk_size_autoscaling`'
+time: 2026-05-19T14:51:48.735175+03:00

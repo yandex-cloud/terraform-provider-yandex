@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema"
 )
@@ -322,7 +323,10 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 					return
 				}
 
-				newResource, diags := types.ObjectValueFrom(ctx, model.NodeResourceAttrTypes, resources[0])
+				r := resources[0]
+				r.DiskSizeGb = types.Int64Value(datasize.ToGigabytes(r.DiskSize.ValueInt64()))
+
+				newResource, diags := types.ObjectValueFrom(ctx, model.NodeResourceAttrTypes, r)
 				resp.Diagnostics.Append(diags...)
 				if resp.Diagnostics.HasError() {
 					return
@@ -379,7 +383,10 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 						return
 					}
 
-					newResource, diags := types.ObjectValueFrom(ctx, model.NodeResourceAttrTypes, resources[0])
+					r := resources[0]
+					r.DiskSizeGb = types.Int64Value(datasize.ToGigabytes(r.DiskSize.ValueInt64()))
+
+					newResource, diags := types.ObjectValueFrom(ctx, model.NodeResourceAttrTypes, r)
 					resp.Diagnostics.Append(diags...)
 					if resp.Diagnostics.HasError() {
 						return

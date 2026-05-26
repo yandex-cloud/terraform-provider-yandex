@@ -46,6 +46,8 @@ func testSweepMDBOpenSearchCluster(_ string) error {
 		}
 	}
 
+	// sleep 1 minute to let the cluster be deleted and vpc update their state
+	time.Sleep(1 * time.Minute)
 	return result.ErrorOrNil()
 }
 

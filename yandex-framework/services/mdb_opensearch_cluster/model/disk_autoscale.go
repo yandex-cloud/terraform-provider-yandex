@@ -12,12 +12,14 @@ import (
 
 type DiskSizeAutoscaling struct {
 	DiskSizeLimit           types.Int64 `tfsdk:"disk_size_limit"`
+	DiskSizeGbLimit         types.Int64 `tfsdk:"disk_size_gb_limit"`
 	PlannedUsageThreshold   types.Int64 `tfsdk:"planned_usage_threshold"`
 	EmergencyUsageThreshold types.Int64 `tfsdk:"emergency_usage_threshold"`
 }
 
 var DiskSizeAutoscalingAttrTypes = map[string]attr.Type{
 	"disk_size_limit":           types.Int64Type,
+	"disk_size_gb_limit":        types.Int64Type,
 	"planned_usage_threshold":   types.Int64Type,
 	"emergency_usage_threshold": types.Int64Type,
 }
@@ -27,8 +29,10 @@ func diskSizeAutoscalingToObject(ctx context.Context, r *opensearch.DiskSizeAuto
 		return types.ObjectNull(DiskSizeAutoscalingAttrTypes), diag.Diagnostics{}
 	}
 
+	bytes := r.GetDiskSizeLimit()
 	return types.ObjectValueFrom(ctx, DiskSizeAutoscalingAttrTypes, DiskSizeAutoscaling{
-		DiskSizeLimit:           types.Int64Value(r.GetDiskSizeLimit()),
+		DiskSizeLimit:           types.Int64Value(bytes),
+		DiskSizeGbLimit:         types.Int64Value(datasize.ToGigabytes(bytes)),
 		PlannedUsageThreshold:   types.Int64Value(r.GetPlannedUsageThreshold()),
 		EmergencyUsageThreshold: types.Int64Value(r.GetEmergencyUsageThreshold()),
 	})
@@ -51,4 +55,20 @@ func ParseNodeDiskSizeAutoscaling(ctx context.Context, ng WithDiskSizeAutoscalin
 	}
 
 	return res, diag.Diagnostics{}
+}
+
+// EffectiveDiskSizeLimitBytes returns the autoscaling disk size limit (in bytes) from either
+// disk_size_limit or disk_size_gb_limit. When both are present (e.g. after Read), disk_size_limit
+// is authoritative.
+func EffectiveDiskSizeLimitBytes(r *DiskSizeAutoscaling) (int64, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	hasBytes := !r.DiskSizeLimit.IsNull() && !r.DiskSizeLimit.IsUnknown()
+	hasGb := !r.DiskSizeGbLimit.IsNull() && !r.DiskSizeGbLimit.IsUnknown()
+	if hasBytes {
+		return r.DiskSizeLimit.ValueInt64(), diags
+	}
+	if hasGb {
+		return datasize.ToBytes(r.DiskSizeGbLimit.ValueInt64()), diags
+	}
+	return 0, diags
 }

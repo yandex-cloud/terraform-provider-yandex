@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add `disk_size_gb` for `resources`'
+time: 2026-05-13T14:45:25.440524+03:00

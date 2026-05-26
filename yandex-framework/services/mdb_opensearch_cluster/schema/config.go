@@ -18,12 +18,12 @@ func OpenSearchConfig2() schema.SingleNestedAttribute {
 func OpenSearchConfig2Attributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"max_clause_count": schema.Int64Attribute{
-			MarkdownDescription: "Defines the maximum product of fields and terms that are queryable simultaneously. \nBefore OpenSearch 2.16, a cluster restart was required in order to apply this static setting. \nNow dynamic, existing search thread pools may use the old static value initially, causing **TooManyClauses** exceptions. \nNew thread pools use the updated value.\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/configuring-opensearch/index-settings/#dynamic-cluster-level-index-settings).",
+			MarkdownDescription: "Defines the maximum product of fields and terms that are queryable simultaneously.\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/configuring-opensearch/index-settings/#dynamic-cluster-level-index-settings).",
 			Optional:            true,
 			Computed:            true,
 		},
 		"fielddata_cache_size": schema.StringAttribute{
-			MarkdownDescription: "The maximum size of the field data cache. \nMay be specified as an absolute value (for example, 8GB) or a percentage of the node heap (for example, 50%). \nThis setting is dynamic. If you don't specify this setting, the maximum size is 35%. \nThis value should be smaller than the **indices.breaker.fielddata.limit**\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/configuring-opensearch/index-settings/#dynamic-cluster-level-index-settings).",
+			MarkdownDescription: "The maximum size of the field data cache.\nMay be specified as an absolute value (for example, 8GB) or a percentage of the node heap (for example, 50%).\nThis setting is dynamic. If you don't specify this setting, the maximum size is 35%.\nThis value should be smaller than the **indices.breaker.fielddata.limit**\nFor details, see [OpenSearch documentation](https://docs.opensearch.org/latest/install-and-configure/configuring-opensearch/index-settings/#dynamic-cluster-level-index-settings).",
 			Optional:            true,
 			Computed:            true,
 		},

@@ -22,6 +22,7 @@ func init() {
 			"yandex_kubernetes_cluster",
 			"yandex_compute_instance_group",
 			"yandex_audit_trails_trail",
+			"yandex_mdb_opensearch_cluster",
 		},
 	})
 }

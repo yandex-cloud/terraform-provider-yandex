@@ -121,6 +121,32 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 	})
 }
 
+func TestAccMDBOpenSearchCluster_diskSizeGb(t *testing.T) {
+	var r opensearch.Cluster
+	openSearchName := acctest.RandomWithPrefix("tf-opensearch-disk-gb")
+	openSearchDesc := "OpenSearch Cluster disk_size_gb acceptance test"
+	randInt := acctest.RandInt()
+	folderID := test.GetExampleFolderID()
+	openSearchResource := openSearchResourcePrefix + openSearchName
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBOpenSearchClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testSingleAccMDBOpenSearchClusterConfigDiskGb(openSearchName, openSearchDesc, "PRESTABLE", randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 1),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				),
+			},
+		},
+	})
+}
+
 func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 	var r opensearch.Cluster
 	openSearchName := acctest.RandomWithPrefix("tf-opensearch-simple")
@@ -693,6 +719,69 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 `, name, desc, environment)
 }
 
+func testSingleAccMDBOpenSearchClusterConfigDiskGb(name, desc, environment string, randInt int) string {
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-d",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
+  description = "%s"
+  labels = {
+    test_key  = "test_value"
+  }
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = false
+
+  config {
+
+    admin_password = "dummy_P@ssw0rd"
+
+    opensearch {
+      node_groups {
+        name             = "datamaster0"
+        assign_public_ip = false
+        hosts_count      = 1
+        zone_ids         = local.zones
+        roles = ["data","manager"]
+        resources {
+          resource_preset_id = "s2.micro"
+          disk_size_gb       = 10
+          disk_type_id       = "network-ssd"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
+  ]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
+}
+`, name, desc, environment)
+}
+
 func testAccMDBOpenSearchClusterEncrypted(name, desc string, randInt int) string {
 	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+diskEncryptionKeyResource+`
 
@@ -1036,7 +1125,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
           disk_type_id       = "network-ssd"
         }
         disk_size_autoscaling = {
-          disk_size_limit = 12884901888
+          disk_size_gb_limit = 12
           planned_usage_threshold = 75
           emergency_usage_threshold = 90
         }
@@ -1417,7 +1506,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         roles                = ["MANAGER"]
         resources {
           resource_preset_id   = "s2.micro"
-          disk_size            = 11811160064
+          disk_size            = 10737418240
           disk_type_id         = "network-ssd"
         }
       }

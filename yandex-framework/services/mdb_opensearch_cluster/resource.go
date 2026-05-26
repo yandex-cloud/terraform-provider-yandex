@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,12 +24,11 @@ import (
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
-	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/legacy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/log"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/planmodify"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request/auth"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request/cluster"
@@ -51,6 +49,7 @@ var _ resource.Resource = &openSearchClusterResource{}
 var _ resource.ResourceWithImportState = &openSearchClusterResource{}
 var _ resource.ResourceWithUpgradeState = &openSearchClusterResource{}
 var _ resource.ResourceWithModifyPlan = &openSearchClusterResource{}
+var _ resource.ResourceWithConfigValidators = &openSearchClusterResource{}
 
 func NewResource() resource.Resource {
 	return &openSearchClusterResource{}
@@ -81,6 +80,12 @@ func (o *openSearchClusterResource) Configure(_ context.Context, req resource.Co
 	}
 
 	o.providerConfig = providerConfig
+}
+
+func (o *openSearchClusterResource) ConfigValidators(context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		validate.DiskSizeXorValidator{},
+	}
 }
 
 // ImportState implements resource.ResourceWithImportState.
@@ -123,91 +128,25 @@ func (o *openSearchClusterResource) ModifyPlan(ctx context.Context, req resource
 	}
 
 	// Hosts will not change if OpenSearch.NodeGroups and Dashboards.NodeGroups configs are the same
-	isOpenSearchHostsChanged := false
 
-	if !planConfig.OpenSearch.Equal(stateConfig.OpenSearch) {
-		tflog.Debug(ctx, "config.OpenSearch potentially have been changed")
-		planOpenSearchBlock, stateOpenSearchBlock, diags := model.ParseGenerics(ctx, planConfig, stateConfig, model.ParseOpenSearchSubConfig)
-		if diags.HasError() {
-			return
-		}
-
-		if !planOpenSearchBlock.NodeGroups.Equal(stateOpenSearchBlock.NodeGroups) {
-			tflog.Debug(ctx, "Detected changes in config.opensearch.node_groups")
-
-			var nodeGroupsState []model.OpenSearchNode
-			var nodeGroupsPlan []model.OpenSearchNode
-			resp.Diagnostics.Append(stateOpenSearchBlock.NodeGroups.ElementsAs(ctx, &nodeGroupsState, false)...)
-			resp.Diagnostics.Append(planOpenSearchBlock.NodeGroups.ElementsAs(ctx, &nodeGroupsPlan, false)...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-
-			planGroupsByName := model.GetGroupByName(nodeGroupsPlan)
-			// If some node group is not in the plan, it means that it was deleted
-			for _, stateNodeGroup := range nodeGroupsState {
-				if _, ok := planGroupsByName[stateNodeGroup.Name.ValueString()]; !ok {
-					isOpenSearchHostsChanged = true
-					break
-				}
-			}
-
-			oldGroupsByName := model.GetGroupByName(nodeGroupsState)
-
-			for i, planNodeGroup := range nodeGroupsPlan {
-				// If some node group is not in the state, it means that it was added
-				stateNodeGroup, ok := oldGroupsByName[planNodeGroup.Name.ValueString()]
-				if !ok {
-					isOpenSearchHostsChanged = true
-					continue
-				}
-
-				if !planNodeGroup.Equal(stateNodeGroup) {
-					tflog.Debug(ctx, fmt.Sprintf("Detected changes in '%s' node_group", planNodeGroup.GetName()))
-					isOpenSearchHostsChanged = true
-				}
-
-				autoscalingOn := utils.IsPresent(attr.Value(stateNodeGroup.DiskSizeAutoscaling))
-
-				if !autoscalingOn {
-					continue
-				}
-
-				modifiedResources := mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, planNodeGroup.Resources, stateNodeGroup.Resources, autoscalingOn, &resp.Diagnostics)
-
-				if !planNodeGroup.Resources.Equal(modifiedResources) {
-					tflog.Warn(ctx, fmt.Sprintf("Detected changes in '%s' node_group.resources.disk_size but ignore them due to enabled autoscaling", planNodeGroup.GetName()))
-				}
-
-				nodeGroupsPlan[i].Resources = modifiedResources
-			}
-
-			planOpenSearchBlock.NodeGroups, diags = types.ListValueFrom(ctx, model.OpenSearchNodeType, nodeGroupsPlan)
-			resp.Diagnostics.Append(diags...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-			planConfig.OpenSearch, diags = types.ObjectValueFrom(ctx, model.OpenSearchSubConfigAttrTypes, planOpenSearchBlock)
-			resp.Diagnostics.Append(diags...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-
-			plan.Config, diags = types.ObjectValueFrom(ctx, model.ConfigAttrTypes, planConfig)
-			resp.Diagnostics.Append(diags...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-		}
+	isOpenSearchHostsChanged := planmodify.OpenSearchNodeGroupsChanges(ctx, planConfig, stateConfig, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("ModifyPlan plan after openSearchNodeGroups update: %+v", plan))
+	isDashboardsChanged := planmodify.DashboardsNodeGroupsChanges(ctx, planConfig, stateConfig, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	isDashboardsChanged, diags := isDashboardsNodeGroupsChanged(ctx, planConfig, stateConfig)
+	var diags diag.Diagnostics
+	plan.Config, diags = types.ObjectValueFrom(ctx, model.ConfigAttrTypes, planConfig)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	tflog.Debug(ctx, fmt.Sprintf("ModifyPlan plan after NodeGroups update: %+v", plan))
 
 	if !isOpenSearchHostsChanged && !isDashboardsChanged {
 		tflog.Debug(ctx, "Use state hosts, because config.opensearch.node_groups and config.dashboards.node_groups not changed")
@@ -215,36 +154,6 @@ func (o *openSearchClusterResource) ModifyPlan(ctx context.Context, req resource
 	}
 
 	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
-}
-
-func isDashboardsNodeGroupsChanged(ctx context.Context, planConfig, stateConfig *model.Config) (bool, diag.Diagnostics) {
-	if planConfig.Dashboards.Equal(stateConfig.Dashboards) {
-		return false, nil
-	}
-
-	tflog.Debug(ctx, "planConfig.Dashboards potentially have been changed")
-
-	planDashboardsBlock, stateDashboardsBlock, diags := model.ParseGenerics(ctx, planConfig, stateConfig, model.ParseDashboardSubConfig)
-	if diags.HasError() {
-		return false, diags
-	}
-
-	if stateDashboardsBlock == nil && planDashboardsBlock != nil {
-		tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups: state was nil but plan is not")
-		return true, diags
-	}
-
-	if stateDashboardsBlock != nil && planDashboardsBlock == nil {
-		tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups: state wasn't nil but plan is nil")
-		return true, diags
-	}
-
-	if !planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
-		tflog.Debug(ctx, "Detected changes in config.dashboards.node_groups")
-		return true, diags
-	}
-
-	return false, diags
 }
 
 // Create implements resource.Resource.
@@ -666,9 +575,18 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 											Attributes: map[string]schema.Attribute{
 												"disk_size_limit": schema.Int64Attribute{
 													Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details.",
-													Required:    true,
+													Optional:    true,
+													Computed:    true,
 													Validators: []validator.Int64{
-														validate.Int64GreaterValidator(path.MatchRelative().AtParent().AtParent().AtName("resources").AtName("disk_size")),
+														validate.DiskSizeLimitGreaterThanEffectiveDisk(),
+													},
+												},
+												"disk_size_gb_limit": schema.Int64Attribute{
+													MarkdownDescription: "The overall maximum for disk size in gibibytes (GiB) that limit all autoscaling iterations. Exactly one of `disk_size_limit` or `disk_size_gb_limit` must be set in configuration.",
+													Optional:            true,
+													Computed:            true,
+													Validators: []validator.Int64{
+														validate.DiskSizeGbLimitGreaterThanEffectiveDisk(),
 													},
 												},
 												"planned_usage_threshold": schema.Int64Attribute{

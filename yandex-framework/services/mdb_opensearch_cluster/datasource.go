@@ -170,6 +170,10 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 													Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details.",
 													Computed:    true,
 												},
+												"disk_size_gb_limit": schema.Int64Attribute{
+													MarkdownDescription: "The overall maximum for disk size in gibibytes (GiB) that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details.",
+													Computed:            true,
+												},
 												"planned_usage_threshold": schema.Int64Attribute{
 													Description: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
 													Optional:    true,
