@@ -25,6 +25,7 @@ const (
 func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-user")
+	folderID := getExampleFolderID()
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
@@ -40,8 +41,18 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_password_encryption", "USER_PASSWORD_ENCRYPTION_MD5"),
 					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "user_connection_manager.0.connection_id"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "connection_manager.connection_id"),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]any{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": int64(350)}),
 				),
+			},
+			// Re-plan with the same config: the implicit user_connection_manager block
+			// in state must not produce a drift against the unspecified config.
+			{
+				Config:             testAccMDBPostgreSQLUserConfigStep1(clusterName),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			{
@@ -51,6 +62,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameBob, "user_connection_manager.0.connection_id"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "bob", []string{"testdb"}),
 				),
 			},
@@ -63,6 +76,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameBob, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameBob, "user_connection_manager.0.connection_id"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "bob", []string{}),
 				),
 			},
@@ -75,6 +90,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "true"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "user_connection_manager.0.connection_id"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "alice", []string{"testdb"}),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]any{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION, "statement_timeout": int64(0)}),
 				),
@@ -87,6 +104,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "user_connection_manager.0.connection_id"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -97,6 +116,8 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "user_connection_manager.0.connection_id"),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]any{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
 					testAccCheckMDBPostgreSQLUserHasNoSettings(t, "alice", []string{"statement_timeout"}),
 				),
@@ -110,10 +131,34 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "conn_limit", "0"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "generate_password", "true"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameCharlie, "user_connection_manager.0.connection_id"),
 					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "user_password_encryption", "USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameCharlie),
+			// Create user with explicit folder IDs in user_connection_manager
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep7(clusterName, folderID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "name", "bob"),
+					resource.TestCheckResourceAttr(pgUserResourceNameBob, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameBob, "user_connection_manager.0.connection_id"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameBob, "user_connection_manager.0.connection_folder_id"),
+					resource.TestCheckResourceAttrSet(pgUserResourceNameBob, "user_connection_manager.0.secret_folder_id"),
+				),
+			},
+			mdbPostgreSQLUserImportStep(pgUserResourceNameBob),
+			// Error on trying to change connection_folder_id
+			{
+				Config:      testAccMDBPostgreSQLUserConfigStep8(clusterName, folderID),
+				ExpectError: regexp.MustCompile(".*connection_folder_id cannot be changed after user creation.*"),
+			},
+			// Error on trying to change secret_folder_id
+			{
+				Config:      testAccMDBPostgreSQLUserConfigStep9(clusterName, folderID),
+				ExpectError: regexp.MustCompile(".*secret_folder_id cannot be changed after user creation.*"),
+			},
 		},
 	})
 }
@@ -375,6 +420,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 		  disk_size          = 10
 		  disk_type_id       = "network-ssd"
 	    }
+		connection_manager {
+			enabled = true
+		}
 	}
 
 	host {
@@ -487,4 +535,52 @@ resource "yandex_mdb_postgresql_user" "charlie" {
 	login      = false
 	conn_limit = 0
 }`
+}
+
+// Create bob with explicit folder IDs in user_connection_manager
+func testAccMDBPostgreSQLUserConfigStep7(name, folderID string) string {
+	return testAccMDBPostgreSQLUserConfigStep6(name) + fmt.Sprintf(`
+resource "yandex_mdb_postgresql_user" "bob" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "bob"
+	password   = "mysecureP@ssw0rd"
+	login      = true
+
+	user_connection_manager {
+		connection_folder_id = "%s"
+		secret_folder_id     = "%s"
+	}
+}`, folderID, folderID)
+}
+
+// Try to change connection_folder_id — should fail
+func testAccMDBPostgreSQLUserConfigStep8(name, folderID string) string {
+	return testAccMDBPostgreSQLUserConfigStep6(name) + fmt.Sprintf(`
+resource "yandex_mdb_postgresql_user" "bob" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "bob"
+	password   = "mysecureP@ssw0rd"
+	login      = true
+
+	user_connection_manager {
+		connection_folder_id = "some-other-folder-id"
+		secret_folder_id     = "%s"
+	}
+}`, folderID)
+}
+
+// Try to change secret_folder_id — should fail
+func testAccMDBPostgreSQLUserConfigStep9(name, folderID string) string {
+	return testAccMDBPostgreSQLUserConfigStep6(name) + fmt.Sprintf(`
+resource "yandex_mdb_postgresql_user" "bob" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "bob"
+	password   = "mysecureP@ssw0rd"
+	login      = true
+
+	user_connection_manager {
+		connection_folder_id = "%s"
+		secret_folder_id     = "some-other-folder-id"
+	}
+}`, folderID)
 }

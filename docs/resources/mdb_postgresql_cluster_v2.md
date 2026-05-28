@@ -112,6 +112,10 @@ resource "yandex_vpc_subnet" "foo" {
   - `pooler_config` [Block]. Configuration of the connection pooler.
     - `pool_discard` (Bool). Setting pool_discard parameter in Odyssey.
     - `pooling_mode` (String). Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.)
+  - `connection_manager` [Block]. Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.
+    - `enabled` (Bool). Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.
+    - `connections_folder_id` (String). ID of the folder where connections for the cluster are created. Defaults to the cluster's folder if not specified.
+    - `secrets_folder_id` (String). ID of the folder where connection secrets are created. Defaults to the cluster's folder if not specified.
   - `postgresql_config` (Map Of String). PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
   - `version` (**Required**)(String). Version of the PostgreSQL cluster.
   - `resources` [Block]. Resources allocated to hosts of the PostgreSQL cluster.

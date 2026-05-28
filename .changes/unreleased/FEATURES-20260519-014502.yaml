@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_postgresql: add `user_connection_manager` block to the `yandex_mdb_postgresql_user` resource and datasource; the existing `connection_manager` attribute is now deprecated'
+time: 2026-05-19T01:45:02.000000000+03:00

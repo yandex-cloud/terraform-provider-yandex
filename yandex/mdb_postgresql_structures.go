@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"maps"
 	"reflect"
 	"sort"
 	"strings"
@@ -16,6 +17,8 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -44,6 +47,7 @@ func flattenPGClusterConfig(d *schema.ResourceData, c *postgresql.ClusterConfig)
 	out["disk_size_autoscaling"] = flattenPGDiskSizeAutoscaling(c.DiskSizeAutoscaling)
 	out["access"] = flattenPGAccess(c.Access)
 	out["postgresql_config"] = settings
+	out["connection_manager"] = mdbcommon.FlattenClusterConnectionManager(c.ConnectionManager)
 
 	return []interface{}{out}, nil
 }
@@ -346,11 +350,16 @@ func flattenPGUserPermissions(ps []*postgresql.Permission) *schema.Set {
 	return out
 }
 
-func flattenPGUserConnectionManager(cm *postgresql.ConnectionManager) map[string]string {
-	if cm == nil {
+// flattenPGUserConnectionManager produces the legacy (deprecated) connection_manager
+// attribute on the user resource. The API guarantees that UserConnectionManager.ConnectionId
+// is populated for the same set of users for which the legacy ConnectionManager.ConnectionId
+// used to be populated, so reading it from the new field is safe and does not require a
+// fallback to apiUser.ConnectionManager.
+func flattenPGUserConnectionManager(ucm *mdbv1.UserConnectionManager) map[string]string {
+	if ucm == nil {
 		return nil
 	}
-	return map[string]string{"connection_id": cm.ConnectionId}
+	return map[string]string{"connection_id": ucm.ConnectionId}
 }
 
 func flattenPGUserPgAudit(userSettings *postgresql.UserSettings) (string, error) {
@@ -1020,6 +1029,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"deletion_protection":                                             "deletion_protection",
 		"config.0.postgresql_config.shared_preload_libraries":             fmt.Sprintf("config_spec.%s.shared_preload_libraries", pgFieldName),
 	}
+	maps.Copy(mdbPGUpdateFieldsMap, mdbcommon.ClusterConnectionManagerUpdateFields("config.0.connection_manager", "config_spec.connection_manager."))
 
 	updatePath := []string{}
 	for field, path := range mdbPGUpdateFieldsMap {
@@ -1029,6 +1039,13 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 			}
 		}
 	}
+
+	// connection_manager.enabled is handled by a dedicated helper because the field is
+	// Optional+Computed and d.HasChange cannot distinguish "user set the value" from
+	// "value came from state".
+	updatePath = append(updatePath, mdbcommon.ClusterConnectionManagerEnabledChangedPath(
+		d, "config.0.connection_manager", "config_spec.connection_manager.",
+	)...)
 
 	for _, setting := range settingNames {
 		field := fmt.Sprintf("config.0.postgresql_config.%s", setting)
@@ -1077,6 +1094,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 		Access:                 expandPGAccess(d),
 		PerformanceDiagnostics: expandPGPerformanceDiagnostics(d),
 		DiskSizeAutoscaling:    expandPGDiskSizeAutoscaling(d),
+		ConnectionManager:      mdbcommon.ExpandClusterConnectionManager(d, "config.0.connection_manager"),
 	}
 
 	settingNames, err := expandPGConfigSpecSettings(d, cs)

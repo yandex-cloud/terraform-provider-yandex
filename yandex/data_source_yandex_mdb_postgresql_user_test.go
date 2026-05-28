@@ -80,6 +80,14 @@ func testAccDataSourceMDBPGUserAttributesCheck(datasourceName string, resourceNa
 				"connection_manager.connection_id",
 				"connection_manager.connection_id",
 			},
+			{
+				"user_connection_manager.#",
+				"user_connection_manager.#",
+			},
+			{
+				"user_connection_manager.0.connection_id",
+				"user_connection_manager.0.connection_id",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

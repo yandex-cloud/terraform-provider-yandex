@@ -8,6 +8,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
@@ -410,6 +411,7 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerDataSourceSchema(),
 		},
 	}
 }

@@ -53,6 +53,10 @@ output "fqdn" {
   - 3: `unspecified`.
     - `pooling_mode` (String). Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool).
   - `postgresql_config` (Map Of String). PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
+  - `connection_manager` [Block]. Connection Manager integration configuration for the cluster.
+    - `enabled` (Bool). Indicates whether Connection Manager integration is enabled for the cluster.
+    - `connections_folder_id` (String). ID of the folder where connections for the cluster are created.
+    - `secrets_folder_id` (String). ID of the folder where connection secrets are created.
   - `resources` [Block]. Resources allocated to hosts of the PostgreSQL cluster.
     - `disk_size` (**Required**)(Number). Volume of the storage available to a PostgreSQL host, in gigabytes.
     - `disk_type_id` (String). Type of the storage of PostgreSQL hosts.

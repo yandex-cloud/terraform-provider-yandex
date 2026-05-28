@@ -99,6 +99,7 @@ func flattenConfig(ctx context.Context, statePGCfg mdbcommon.SettingsMapValue, c
 		PoolerConfig:           flattenPoolerConfig(ctx, c.GetPoolerConfig(), diags),
 		DiskSizeAutoscaling:    flattenDiskSizeAutoscaling(ctx, c.GetDiskSizeAutoscaling(), diags),
 		PostgtgreSQLConfig:     statePGCfg,
+		ConnectionManager:      mdbcommon.FlattenClusterConnectionManagerFramework(ctx, c.GetConnectionManager(), diags),
 	})
 	diags.Append(d...)
 	return obj

@@ -16,6 +16,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -35,6 +36,9 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 		Delete: resourceYandexMDBPostgreSQLUserDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -120,12 +124,14 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			},
 			"connection_manager": {
 				Type:        schema.TypeMap,
-				Description: "Connection Manager connection configuration. Filled in by the server automatically.",
+				Description: "Connection Manager connection configuration. Populated from `user_connection_manager`.",
+				Deprecated:  fieldDeprecatedForAnother("connection_manager", "user_connection_manager"),
 				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerSchema(),
 			"generate_password": {
 				Type:        schema.TypeBool,
 				Description: "Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
@@ -284,6 +290,8 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.UserPasswordEncryption = userPasswordEncryption
 	}
 
+	user.UserConnectionManager = mdbcommon.ExpandUserConnectionManager(d, "user_connection_manager")
+
 	return user, nil
 }
 
@@ -339,10 +347,10 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta any) error
 		}
 		settings["pgaudit"] = pgAudit
 	}
-
 	d.Set("settings", settings)
 	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
-	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.ConnectionManager))
+	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.UserConnectionManager))
+	d.Set("user_connection_manager", mdbcommon.FlattenUserConnectionManager(apiUser.UserConnectionManager))
 	d.Set("auth_method", apiUser.AuthMethod.String())
 	d.Set("user_password_encryption", apiUser.UserPasswordEncryption.String())
 

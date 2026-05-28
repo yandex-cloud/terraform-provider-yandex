@@ -2219,3 +2219,69 @@ resource "yandex_mdb_postgresql_cluster" "test_priority" {
 }
 `, name, version)
 }
+
+func TestAccMDBPostgreSQLCluster_connectionManager(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cm")
+	clusterResource := "yandex_mdb_postgresql_cluster.test_connection_manager"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create with connection_manager enabled
+			{
+				Config: testAccMDBPGClusterConfigWithConnectionManager(clusterName, version, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.connection_manager.0.enabled", "true"),
+				),
+			},
+			// Re-plan with the same config: no drift expected on computed folder IDs.
+			{
+				Config:             testAccMDBPGClusterConfigWithConnectionManager(clusterName, version, true),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// Error on trying to set enabled = false
+			{
+				Config:      testAccMDBPGClusterConfigWithConnectionManager(clusterName, version, false),
+				ExpectError: regexp.MustCompile(".*enabled cannot be set to false.*"),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterConfigWithConnectionManager(name, version string, enabled bool) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "test_connection_manager" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+
+    connection_manager {
+      enabled = %t
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+  }
+}
+`, name, version, enabled)
+}

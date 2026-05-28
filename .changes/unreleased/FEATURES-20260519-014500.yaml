@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_postgresql: add `connection_manager` configuration block to the `yandex_mdb_postgresql_cluster` resource and datasource (SDKv2)'
+time: 2026-05-19T01:45:00.000000000+03:00

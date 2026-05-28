@@ -20,6 +20,10 @@ data "yandex_mdb_postgresql_user" "my_user" {
 output "permission" {
   value = data.yandex_mdb_postgresql_user.my_user.permission
 }
+
+output "connection_id" {
+  value = data.yandex_mdb_postgresql_user.my_user.user_connection_manager[0].connection_id
+}
 ```
 
 ## Arguments & Attributes Reference
@@ -27,8 +31,13 @@ output "permission" {
 - `auth_method` (String). Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.
 - `cluster_id` (**Required**)(String). The ID of the PostgreSQL cluster.
 - `conn_limit` (Number). The maximum number of connections per user. (Default 50).
-- `connection_manager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Filled in by the server automatically.
+- `connection_manager` (*Read-Only, Deprecated*) (Map Of String). Connection Manager connection configuration. Populated from `user_connection_manager`. **Deprecated**: use `user_connection_manager` instead.
+- `user_connection_manager` [Block]. Connection Manager settings for the user.
+  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user.
+  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified.
+  - `secret_folder_id` (String). ID of the folder where the connection secret is created. Defaults to the cluster's folder if not specified.
 - `deletion_protection` (String). The `true` value means that resource is protected from accidental deletion.
+- `generate_password` (Bool). Generate password using Connection Manager.
 - `grants` (List Of String). List of the user's grants.
 - `id` (String). 
 - `login` (Bool). User's ability to login.

@@ -189,6 +189,13 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		)
 	}
 
+	if !plan.ConnectionManager.Equal(state.ConnectionManager) {
+		config.SetConnectionManager(mdbcommon.ExpandClusterConnectionManagerFramework(ctx, plan.ConnectionManager, &diags))
+		cmPaths, d := mdbcommon.ClusterConnectionManagerUpdateMaskPaths(ctx, plan.ConnectionManager, state.ConnectionManager, "config_spec.connection_manager.")
+		diags.Append(d...)
+		updateMaskPaths = append(updateMaskPaths, cmPaths...)
+	}
+
 	if !plan.PostgtgreSQLConfig.Equal(state.PostgtgreSQLConfig) {
 		config.SetPostgresqlConfig(expandPostgresqlConfig(ctx, plan.Version.ValueString(), plan.PostgtgreSQLConfig, &diags))
 

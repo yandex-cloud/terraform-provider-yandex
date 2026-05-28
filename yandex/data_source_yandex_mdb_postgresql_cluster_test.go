@@ -161,6 +161,14 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"config.0.version",
 			},
 			{
+				"config.0.connection_manager.#",
+				"config.0.connection_manager.#",
+			},
+			{
+				"config.0.connection_manager.0.enabled",
+				"config.0.connection_manager.0.enabled",
+			},
+			{
 				"created_at",
 				"created_at",
 			},

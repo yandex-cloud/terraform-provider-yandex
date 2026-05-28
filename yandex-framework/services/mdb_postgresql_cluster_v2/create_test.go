@@ -30,6 +30,7 @@ var (
 		"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 		"pooler_config":             types.ObjectType{AttrTypes: expectedPCAttrTypes},
 		"disk_size_autoscaling":     types.ObjectType{AttrTypes: expectedDiskSizeAutoscalingAttrs},
+		"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 	}
 	expectedBWSAttrs = map[string]attr.Type{
 		"hours":   types.Int64Type,
@@ -103,6 +104,7 @@ var (
 				"planned_usage_threshold":   types.Int64Value(20),
 				"emergency_usage_threshold": types.Int64Value(20),
 			}),
+			"connection_manager": types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 		},
 	)
 )

@@ -538,6 +538,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"postgresql_config":         NewPgSettingsMapNull(),
 					"pooler_config":             types.ObjectNull(expectedPCAttrTypes),
 					"disk_size_autoscaling":     types.ObjectNull(expectedDiskSizeAutoscalingAttrs),
+					"connection_manager":        types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -611,6 +612,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 						"emergency_usage_threshold": types.Int64Value(20),
 						"planned_usage_threshold":   types.Int64Value(30),
 					}),
+					"connection_manager": types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{

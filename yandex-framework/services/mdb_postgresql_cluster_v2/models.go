@@ -55,6 +55,7 @@ type Config struct {
 	PostgtgreSQLConfig     mdbcommon.SettingsMapValue `tfsdk:"postgresql_config"`
 	PoolerConfig           types.Object               `tfsdk:"pooler_config"`
 	DiskSizeAutoscaling    types.Object               `tfsdk:"disk_size_autoscaling"`
+	ConnectionManager      types.Object               `tfsdk:"connection_manager"`
 }
 
 type PoolerConfig struct {
@@ -77,6 +78,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"postgresql_config":         mdbcommon.NewSettingsMapType(pgAttrProvider),
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
+	"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 }
 
 var accessAttrTypes = mdbcommon.AccessAttrTypes(true, true, true, true, true)

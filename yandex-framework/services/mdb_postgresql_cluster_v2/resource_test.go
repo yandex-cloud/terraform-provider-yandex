@@ -419,6 +419,20 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		pool_discard = false
 	`
 
+	connectionManagerEnabled := `
+		enabled = true
+	`
+
+	connectionManagerDisabled := `
+		enabled = false
+	`
+
+	connectionManagerWithFolderIDs := fmt.Sprintf(`
+		enabled = true
+		connections_folder_id = "%s"
+		secrets_folder_id     = "%s"
+	`, folderID, folderID)
+
 	dsa := `
 		disk_size_limit = 15
 		emergency_usage_threshold = 20
@@ -457,6 +471,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					dsa,
 					postgresqlConfig,
 					maintenanceWindow,
+					connectionManagerEnabled,
 					backupRetainPeriodDays, true,
 					[]string{
 						"yandex_vpc_security_group.sgroup1.id",
@@ -496,6 +511,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[2]),
 						"pool_discard": knownvalue.Bool(true),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":               knownvalue.Bool(true),
+						"connections_folder_id": knownvalue.Null(),
+						"secrets_folder_id":     knownvalue.Null(),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"disk_size_limit":           knownvalue.Int64Exact(15),
@@ -603,6 +623,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					dsaUpdate,
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -642,6 +663,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[1]),
 						"pool_discard": knownvalue.Bool(false),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":               knownvalue.Bool(true),
+						"connections_folder_id": knownvalue.StringExact(folderID),
+						"secrets_folder_id":     knownvalue.StringExact(folderID),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"disk_size_limit":           knownvalue.Int64Exact(20),
@@ -739,6 +765,25 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// Try to set enabled = false (should fail)
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
+					performanceDiagnosticsUpdated,
+					backupWindowStartUpdated,
+					poolerCfgUpdated,
+					dsaUpdate,
+					postgresqlConfigUpdated,
+					maintenanceWindowUpdated,
+					connectionManagerDisabled,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ExpectError: regexp.MustCompile(`connection_manager\.enabled cannot be set to false, disabling Connection Manager integration is not supported`),
+			},
 			// Decrease disk size (nothing changes)
 			{
 				Config: testAccMDBPGClusterFull(
@@ -750,6 +795,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					dsaUpdate,
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -842,6 +888,10 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 			pool_discard = null
 			pooling_mode = "POOLING_MODE_UNSPECIFIED"
 		`
+
+	connectionManagerEnabled := `
+		enabled = true
+	`
 
 	dsa := `
 		disk_size_limit = 20
@@ -946,6 +996,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				dsa,
 				postgresqlConfig,
 				maintenanceWindow,
+				connectionManagerEnabled,
 				backupRetainPeriodDays,
 				false, []string{},
 			),
@@ -1659,7 +1710,7 @@ func testAccMDBPGClusterFull(
 	poolerConfig,
 	dsa,
 	pgConfig,
-	maintenanceWindow string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
+	maintenanceWindow, connectionManager string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_v2" "%s" {
@@ -1707,6 +1758,9 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 	postgresql_config = {
 		%s
 	}
+    connection_manager = {
+		%s
+	}
   }
   
   maintenance_window = {
@@ -1719,7 +1773,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig, connectionManager,
 		maintenanceWindow, deletionProtection, testAccMDBPostgreSQLSecurityGroupIds(confSecurityGroupIds),
 	)
 }

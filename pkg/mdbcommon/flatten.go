@@ -56,6 +56,15 @@ func FlattenStringWrapper(ctx context.Context, ws *wrapperspb.StringValue, diags
 	return types.StringValue(ws.GetValue())
 }
 
+// FlattenStringOrNull returns Null for an empty string, mirroring standard
+// Terraform Optional semantics (omitted in HCL <=> Null in state).
+func FlattenStringOrNull(s string) types.String {
+	if s == "" {
+		return types.StringNull()
+	}
+	return types.StringValue(s)
+}
+
 func FlattenSetString(ctx context.Context, ss []string, diags *diag.Diagnostics) types.Set {
 	obj, d := types.SetValueFrom(ctx, types.StringType, ss)
 	diags.Append(d...)

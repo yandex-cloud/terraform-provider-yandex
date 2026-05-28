@@ -160,6 +160,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		PostgresqlConfig:       expandPostgresqlConfig(ctx, configSpec.Version.ValueString(), configSpec.PostgtgreSQLConfig, diags),
 		PoolerConfig:           expandPoolerConfig(ctx, configSpec.PoolerConfig, diags),
 		DiskSizeAutoscaling:    expandDiskSizeAutoscaling(ctx, configSpec.DiskSizeAutoscaling, diags),
+		ConnectionManager:      mdbcommon.ExpandClusterConnectionManagerFramework(ctx, configSpec.ConnectionManager, diags),
 	}
 }
 

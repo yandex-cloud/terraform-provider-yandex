@@ -458,6 +458,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						Optional:            true,
 						Computed:            true,
 					},
+					"connection_manager": mdbcommon.ClusterConnectionManagerFrameworkSchema(),
 				},
 				Blocks: map[string]schema.Block{
 					"resources": schema.SingleNestedBlock{
@@ -524,6 +525,8 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	}
 
 	autoscalingOn := utils.IsPresent(attr.Value(cfgState.DiskSizeAutoscaling))
+
+	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("config").AtName("connection_manager"), &resp.Diagnostics)
 
 	// remove changes on disk_size from plan if enabled autoscaling
 	cfgPlan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, cfgPlan.Resources, cfgState.Resources, autoscalingOn, &resp.Diagnostics)

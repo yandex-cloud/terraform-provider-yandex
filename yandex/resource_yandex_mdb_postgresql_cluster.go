@@ -386,6 +386,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerSchema(),
 		},
 	}
 }
@@ -1475,6 +1476,11 @@ func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *sch
 	if len(b) > 0 {
 		return errors.Join(b...)
 	}
+
+	if err := mdbcommon.CustomizeDiffClusterConnectionManager(ctx, d, "config.0.connection_manager"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
