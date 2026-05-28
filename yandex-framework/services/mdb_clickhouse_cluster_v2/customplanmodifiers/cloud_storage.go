@@ -35,9 +35,6 @@ func (m *cloudStoragePlanModifierStruct) PlanModifyObject(ctx context.Context, r
 		planModel.DataCacheMaxSize = types.Int64Null()
 		planModel.PreferNotToMerge = types.BoolNull()
 	} else {
-		if planModel.MoveFactor.IsUnknown() {
-			planModel.MoveFactor = types.NumberNull()
-		}
 		if planModel.DataCacheEnabled.IsUnknown() {
 			planModel.DataCacheEnabled = types.BoolNull()
 		}
