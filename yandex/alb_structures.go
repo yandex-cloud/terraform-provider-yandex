@@ -240,6 +240,16 @@ func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route
 		route.RouteOptions = ro
 	}
 
+	if _, ok := d.GetOk(path + "client_certificate_forward.0"); ok {
+		ccf, err := expandALBClientCertificateForward(d, path+"client_certificate_forward.0.")
+		if err != nil {
+			return nil, err
+		}
+		if ccf != nil {
+			route.SetClientCertificateForward(ccf)
+		}
+	}
+
 	_, gotHTTPRoute := d.GetOk(path + "http_route")
 	_, gotGRPCRoute := d.GetOk(path + "grpc_route")
 
@@ -283,6 +293,29 @@ func expandALBRouteOptions(d *schema.ResourceData, path string) (*apploadbalance
 	}
 
 	return ro, nil
+}
+
+func expandALBClientCertificateForward(d *schema.ResourceData, path string) (*apploadbalancer.ClientCertificateForward, error) {
+	result := &apploadbalancer.ClientCertificateForward{}
+
+	hasValue := false
+	if v, ok := d.GetOk(path + "http_header"); ok {
+		result.HttpHeader = v.(string)
+		hasValue = true
+	}
+	if v, ok := d.GetOk(path + "issuer_header_name"); ok {
+		result.IssuerHeaderName = v.(string)
+		hasValue = true
+	}
+	if v, ok := d.GetOk(path + "subject_header_name"); ok {
+		result.SubjectHeaderName = v.(string)
+		hasValue = true
+	}
+	if !hasValue {
+		return nil, nil
+	}
+
+	return result, nil
 }
 
 func expandALBRBAC(d *schema.ResourceData, path string) (*apploadbalancer.RBAC, error) {
@@ -1173,7 +1206,33 @@ func expandALBTLSHandler(d *schema.ResourceData, path string) (*apploadbalancer.
 		}
 	}
 
+	if _, ok := d.GetOk(path + "client_certificates_verification.0"); ok {
+		clientCertVerification, err := expandALBClientCertificatesVerification(d, path+"client_certificates_verification.0.")
+		if err != nil {
+			return nil, err
+		}
+		if clientCertVerification != nil {
+			mTlsHandler.maybeCreate().SetClientCertificatesVerification(clientCertVerification)
+		}
+	}
+
 	return mTlsHandler.get(), nil
+}
+
+func expandALBClientCertificatesVerification(d *schema.ResourceData, path string) (*apploadbalancer.ClientCertificatesVerification, error) {
+	result := &apploadbalancer.ClientCertificatesVerification{}
+
+	if v, ok := d.GetOk(path + "require_client_certificate"); ok {
+		result.RequireClientCertificate = v.(bool)
+	}
+
+	if v, ok := d.GetOk(path + "bytes"); ok {
+		result.TrustedCa = &apploadbalancer.ClientCertificatesVerification_Bytes{
+			Bytes: v.(string),
+		}
+	}
+
+	return result, nil
 }
 
 func expandALBEndpoint(d *schema.ResourceData, path string) (*apploadbalancer.EndpointSpec, error) {
@@ -1931,6 +1990,10 @@ func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}
 		}
 		flRoute["route_options"] = ro
 
+		if ccf := route.GetClientCertificateForward(); ccf != nil {
+			flRoute["client_certificate_forward"] = flattenALBClientCertificateForward(ccf)
+		}
+
 		switch route.GetRoute().(type) {
 		case *apploadbalancer.Route_Http:
 			flHttpRoute := flattenALBHTTPRoute(route.GetHttp())
@@ -2333,13 +2396,44 @@ func flattenALBHTTPHandler(httpHandler *apploadbalancer.HttpHandler) []interface
 func flattenALBTLSHandler(tlsHandler *apploadbalancer.TlsHandler) []interface{} {
 	if tlsHandler != nil {
 		flTLSHandler := map[string]interface{}{
-			"certificate_ids": tlsHandler.GetCertificateIds(),
-			"http_handler":    flattenALBHTTPHandler(tlsHandler.GetHttpHandler()),
-			"stream_handler":  flattenALBStreamHandler(tlsHandler.GetStreamHandler()),
+			"certificate_ids":                  tlsHandler.GetCertificateIds(),
+			"http_handler":                     flattenALBHTTPHandler(tlsHandler.GetHttpHandler()),
+			"stream_handler":                   flattenALBStreamHandler(tlsHandler.GetStreamHandler()),
+			"client_certificates_verification": flattenALBClientCertificatesVerification(tlsHandler.GetClientCertificatesVerification()),
 		}
 		return []interface{}{flTLSHandler}
 	}
 	return []interface{}{}
+}
+
+func flattenALBClientCertificatesVerification(ccv *apploadbalancer.ClientCertificatesVerification) []interface{} {
+	if ccv == nil {
+		return []interface{}{}
+	}
+	flCCV := map[string]interface{}{
+		"require_client_certificate": ccv.GetRequireClientCertificate(),
+	}
+	if bytes := ccv.GetBytes(); bytes != "" {
+		flCCV["bytes"] = bytes
+	}
+	return []interface{}{flCCV}
+}
+
+func flattenALBClientCertificateForward(ccf *apploadbalancer.ClientCertificateForward) []interface{} {
+	if ccf == nil {
+		return []interface{}{}
+	}
+	flCCF := map[string]interface{}{}
+	if httpHeader := ccf.GetHttpHeader(); httpHeader != "" {
+		flCCF["http_header"] = httpHeader
+	}
+	if issuerHeaderName := ccf.GetIssuerHeaderName(); issuerHeaderName != "" {
+		flCCF["issuer_header_name"] = issuerHeaderName
+	}
+	if subjectHeaderName := ccf.GetSubjectHeaderName(); subjectHeaderName != "" {
+		flCCF["subject_header_name"] = subjectHeaderName
+	}
+	return []interface{}{flCCF}
 }
 
 func flattenALBAllocationPolicy(alb *apploadbalancer.LoadBalancer) ([]map[string]interface{}, error) {

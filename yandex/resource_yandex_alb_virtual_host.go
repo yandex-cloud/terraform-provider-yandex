@@ -294,7 +294,8 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 							Description: disableSecurityProfileSchemaDescription,
 							Optional:    true,
 						},
-						"route_options": routeOptions(),
+						"route_options":              routeOptions(),
+						"client_certificate_forward": clientCertificateForwardSchema(),
 					},
 				},
 			},
@@ -698,4 +699,32 @@ func resourceYandexALBVirtualHostDelete(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished deleting Application Virtual Host %q", d.Id())
 	return nil
+}
+
+func clientCertificateForwardSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: "Client certificate forwarding settings.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"http_header": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "HTTP header name to forward client certificate information.",
+				},
+				"issuer_header_name": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Header name for the certificate issuer information.",
+				},
+				"subject_header_name": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Header name for the certificate subject information.",
+				},
+			},
+		},
+	}
 }

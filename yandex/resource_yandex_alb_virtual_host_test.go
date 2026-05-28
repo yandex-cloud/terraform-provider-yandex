@@ -7638,3 +7638,45 @@ func Test_buildALBVirtualHostUpdateRequest(t *testing.T) {
 		})
 	}
 }
+
+func TestAccALBVirtualHost_ClientCertificateForward(t *testing.T) {
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+					result := albVirtualHostInfo()
+
+					result.IsHTTPRoute = true
+					result.IsHTTPRouteAction = true
+					result.IsClientCertificateForward = true
+
+					return result
+				}()),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route", "client_certificate_forward", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.http_header", "Ssl-Client-Cert", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.issuer_header_name", "Ssl-Client-Issuer-Dn", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.subject_header_name", "Ssl-Client-Subject-Dn", &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}

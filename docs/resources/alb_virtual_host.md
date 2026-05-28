@@ -62,6 +62,10 @@ resource "yandex_alb_virtual_host" "my-vhost" {
 
   - `disable_security_profile` (Bool). Disables security profile for the route
   - `name` (String). Name of the route.
+  - `client_certificate_forward` [Block]. Client certificate forwarding settings.
+    - `http_header` (String). HTTP header name to forward client certificate information.
+    - `issuer_header_name` (String). Header name for the certificate issuer information.
+    - `subject_header_name` (String). Header name for the certificate subject information.
   - `grpc_route` [Block]. gRPC route resource.
 
 ~> Exactly one type of actions `grpc_route_action` or `grpc_status_response_action` should be specified.

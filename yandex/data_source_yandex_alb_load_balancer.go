@@ -386,14 +386,41 @@ func dataSourceTLSHandler() *schema.Schema {
 		Description: "TLS handler resource.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler":   dataSourceHTTPHandler(),
-				"stream_handler": dataSourceStreamHandler(),
-				"certificate_ids": {
-					Type:        schema.TypeSet,
+				"http_handler":                     dataSourceHTTPHandler(),
+				"stream_handler":                   dataSourceStreamHandler(),
+				"certificate_ids":                  dataSourceCertificateIds(),
+				"client_certificates_verification": dataSourceClientCertificatesVerification(),
+			},
+		},
+	}
+}
+
+func dataSourceCertificateIds() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString, Description: "Certificate ID"},
+		Set:         schema.HashString,
+		Description: "Certificate IDs in the Certificate Manager",
+	}
+}
+
+func dataSourceClientCertificatesVerification() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Computed:    true,
+		Description: "Client certificates verification settings.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"require_client_certificate": {
+					Type:        schema.TypeBool,
 					Computed:    true,
-					Elem:        &schema.Schema{Type: schema.TypeString},
-					Set:         schema.HashString,
-					Description: "Certificate IDs in the Certificate Manager",
+					Description: "If true, ALB will reject connections without a valid client certificate.",
+				},
+				"bytes": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: "Trusted certificate authority certificates bundle (PEM text).",
 				},
 			},
 		},

@@ -409,3 +409,45 @@ resource "yandex_alb_virtual_host" "test-virtual-host" {
 }
 `, vhName)
 }
+
+func TestAccDataSourceALBVirtualHost_ClientCertificateForward(t *testing.T) {
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+					result := albVirtualHostInfo()
+
+					result.IsHTTPRoute = true
+					result.IsHTTPRouteAction = true
+					result.IsClientCertificateForward = true
+					result.IsDataSource = true
+
+					return result
+				}()),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBVirtualHostExists(albVirtualHostDataSourceResource, &virtualHost),
+					testExistsFirstElementWithAttr(
+						albVirtualHostDataSourceResource, "route", "client_certificate_forward", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVirtualHostDataSourceResource, "route", "client_certificate_forward.0.http_header", "Ssl-Client-Cert", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVirtualHostDataSourceResource, "route", "client_certificate_forward.0.issuer_header_name", "Ssl-Client-Issuer-Dn", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVirtualHostDataSourceResource, "route", "client_certificate_forward.0.subject_header_name", "Ssl-Client-Subject-Dn", &vhPath,
+					),
+				),
+			},
+		},
+	})
+}

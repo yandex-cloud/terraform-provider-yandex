@@ -960,3 +960,83 @@ resource "yandex_vpc_security_group" "test-security-group" {
 }
 `, name, desc)
 }
+
+func TestAccDataSourceALBLoadBalancer_tlsListenerWithClientCertificatesVerification(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsTLSListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsClientCertificatesVerification = true
+	albResource.IsDataSource = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBLoadBalancerExists(albLoadBalancerDataSourceResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "name", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "name", func(value string) error {
+							listenerName := alb.GetListeners()[0].Name
+							if value != listenerName {
+								return fmt.Errorf("ALB Load Balancer's listener's name doesn't match. %s != %s", value, listenerName)
+							}
+							return nil
+						},
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "listener", "tls", &listenerPath,
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.client_certificates_verification.0.require_client_certificate", func(value string) error {
+							requireClientCert := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetClientCertificatesVerification().GetRequireClientCertificate()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != requireClientCert {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification require_client_certificate doesn't match. %t != %t", realValue, requireClientCert)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.client_certificates_verification.0.bytes", func(value string) error {
+							bytesVal := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetClientCertificatesVerification().GetBytes()
+							if value != bytesVal {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification bytes doesn't match. %s != %s", value, bytesVal)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.require_client_certificate", func(value string) error {
+							requireClientCert := alb.GetListeners()[0].GetTls().GetSniHandlers()[0].GetHandler().GetClientCertificatesVerification().GetRequireClientCertificate()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != requireClientCert {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification require_client_certificate doesn't match. %t != %t", realValue, requireClientCert)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.bytes", func(value string) error {
+							bytesVal := alb.GetListeners()[0].GetTls().GetSniHandlers()[0].GetHandler().GetClientCertificatesVerification().GetBytes()
+							if value != bytesVal {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification bytes doesn't match. %s != %s", value, bytesVal)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}

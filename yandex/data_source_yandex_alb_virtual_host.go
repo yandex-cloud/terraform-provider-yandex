@@ -137,6 +137,30 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 							Description: disableSecurityProfileSchemaDescription,
 							Computed:    true,
 						},
+						"client_certificate_forward": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Client certificate forwarding settings.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"http_header": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "HTTP header name to forward client certificate information.",
+									},
+									"issuer_header_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Header name for the certificate issuer information.",
+									},
+									"subject_header_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Header name for the certificate subject information.",
+									},
+								},
+							},
+						},
 						"http_route": {
 							Type:        schema.TypeList,
 							Description: routeHTTPRouteSchemaDescription,

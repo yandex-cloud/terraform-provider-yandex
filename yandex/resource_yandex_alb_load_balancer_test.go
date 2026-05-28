@@ -1642,3 +1642,45 @@ func terraformResourceData(t *testing.T, oldState map[string]string, newState ma
 
 	return data
 }
+
+func TestAccALBLoadBalancer_tlsListenerWithClientCertificatesVerification(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsTLSListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsClientCertificatesVerification = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "name", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "endpoint.0.ports.0", albDefaultPort, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "name", albResource.ListenerName, &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.client_certificates_verification.0.require_client_certificate", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.client_certificates_verification.0.bytes", &listenerPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}

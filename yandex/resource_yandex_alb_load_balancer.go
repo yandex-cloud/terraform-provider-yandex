@@ -421,14 +421,42 @@ func tlsHandler() *schema.Schema {
 		Description: "TLS handler resource.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler":   httpHandler(),
-				"stream_handler": streamHandler(),
-				"certificate_ids": {
-					Type:        schema.TypeSet,
-					Required:    true,
-					Elem:        &schema.Schema{Type: schema.TypeString},
-					Set:         schema.HashString,
-					Description: "Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.",
+				"http_handler":                     httpHandler(),
+				"stream_handler":                   streamHandler(),
+				"certificate_ids":                  certificateIdsSchema(),
+				"client_certificates_verification": clientCertificatesVerificationSchema(),
+			},
+		},
+	}
+}
+
+func certificateIdsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Required:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString, Description: "Certificate ID"},
+		Set:         schema.HashString,
+		Description: "Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.",
+	}
+}
+
+func clientCertificatesVerificationSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: "Client certificates verification settings.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"require_client_certificate": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will reject connections without a valid client certificate.",
+				},
+				"bytes": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Trusted certificate authority certificates bundle (PEM text).",
 				},
 			},
 		},

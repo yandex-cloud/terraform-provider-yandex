@@ -61,19 +61,20 @@ const albDefaultIdleTimeout = "42s"
 const albDefaultExpectedStatuses = "null"
 
 type resourceALBLoadBalancerInfo struct {
-	IsHTTPListener              bool
-	IsStreamListener            bool
-	IsTLSListener               bool
-	IsRedirects                 bool
-	IsHTTPHandler               bool
-	IsStreamHandler             bool
-	IsDataSource                bool
-	IsHTTP2Options              bool
-	IsAllowHTTP10               bool
-	IsRewriteRequestID          bool
-	IsPreserveHTTP1HeaderCasing bool
-	IsLogOptions                bool
-	IsIdleTimeout               bool
+	IsHTTPListener                   bool
+	IsStreamListener                 bool
+	IsTLSListener                    bool
+	IsRedirects                      bool
+	IsHTTPHandler                    bool
+	IsStreamHandler                  bool
+	IsDataSource                     bool
+	IsHTTP2Options                   bool
+	IsAllowHTTP10                    bool
+	IsRewriteRequestID               bool
+	IsPreserveHTTP1HeaderCasing      bool
+	IsLogOptions                     bool
+	IsIdleTimeout                    bool
+	IsClientCertificatesVerification bool
 
 	BaseTemplate string
 
@@ -97,35 +98,36 @@ type resourceALBLoadBalancerInfo struct {
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 	res := resourceALBLoadBalancerInfo{
-		IsHTTPListener:              false,
-		IsStreamListener:            false,
-		IsTLSListener:               false,
-		IsDataSource:                false,
-		IsRedirects:                 false,
-		IsHTTPHandler:               false,
-		IsStreamHandler:             false,
-		IsHTTP2Options:              false,
-		IsAllowHTTP10:               false,
-		IsRewriteRequestID:          false,
-		IsIdleTimeout:               false,
-		IsPreserveHTTP1HeaderCasing: false,
-		BaseTemplate:                testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
-		BalancerName:                acctest.RandomWithPrefix("tf-load-balancer"),
-		RouterName:                  acctest.RandomWithPrefix("tf-router"),
-		BackendGroupName:            acctest.RandomWithPrefix("tf-bg"),
-		TargetGroupName:             acctest.RandomWithPrefix("tf-tg"),
-		ListenerName:                acctest.RandomWithPrefix("tf-listener"),
-		BalancerDescription:         acctest.RandomWithPrefix("tf-load-balancer-description"),
-		AllowHTTP10:                 albDefaultAllowHTTP10,
-		RewriteRequestID:            albDefaultRewriteRequestID,
-		PreserveHTTP1HeaderCasing:   albDefaultPreserveHTTP1HeaderCasing,
-		MaxConcurrentStreams:        albDefaultMaxConcurrentStreams,
-		EndpointPort:                albDefaultPort,
-		HTTPToHTTPS:                 albDefaultHTTPToHTTPS,
-		CertificateID:               os.Getenv("ALB_TEST_CERTIFICATE_ID"),
-		IdleTimeout:                 albDefaultIdleTimeout,
-		AllowZonalShift:             false,
-		AutoScalePolicy:             false,
+		IsHTTPListener:                   false,
+		IsStreamListener:                 false,
+		IsTLSListener:                    false,
+		IsDataSource:                     false,
+		IsRedirects:                      false,
+		IsHTTPHandler:                    false,
+		IsStreamHandler:                  false,
+		IsHTTP2Options:                   false,
+		IsAllowHTTP10:                    false,
+		IsRewriteRequestID:               false,
+		IsIdleTimeout:                    false,
+		IsPreserveHTTP1HeaderCasing:      false,
+		IsClientCertificatesVerification: false,
+		BaseTemplate:                     testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		BalancerName:                     acctest.RandomWithPrefix("tf-load-balancer"),
+		RouterName:                       acctest.RandomWithPrefix("tf-router"),
+		BackendGroupName:                 acctest.RandomWithPrefix("tf-bg"),
+		TargetGroupName:                  acctest.RandomWithPrefix("tf-tg"),
+		ListenerName:                     acctest.RandomWithPrefix("tf-listener"),
+		BalancerDescription:              acctest.RandomWithPrefix("tf-load-balancer-description"),
+		AllowHTTP10:                      albDefaultAllowHTTP10,
+		RewriteRequestID:                 albDefaultRewriteRequestID,
+		PreserveHTTP1HeaderCasing:        albDefaultPreserveHTTP1HeaderCasing,
+		MaxConcurrentStreams:             albDefaultMaxConcurrentStreams,
+		EndpointPort:                     albDefaultPort,
+		HTTPToHTTPS:                      albDefaultHTTPToHTTPS,
+		CertificateID:                    os.Getenv("ALB_TEST_CERTIFICATE_ID"),
+		IdleTimeout:                      albDefaultIdleTimeout,
+		AllowZonalShift:                  false,
+		AutoScalePolicy:                  false,
 	}
 
 	return res
@@ -155,6 +157,7 @@ type resourceALBVirtualHostInfo struct {
 	IsGRPCRouteRateLimitAllRequests   bool
 	IsGRPCRouteRateLimitRequestsPerIP bool
 	IsHTTPRoutePathRegexRewrite       bool
+	IsClientCertificateForward        bool
 
 	BaseTemplate string
 
@@ -204,6 +207,7 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		IsVirtualHostRBAC:              false,
 		IsDataSource:                   false,
 		IsHTTPRouteActionHostRewrite:   false,
+		IsClientCertificateForward:     false,
 		BaseTemplate:                   testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		VHName:                         acctest.RandomWithPrefix("tf-virtual-host"),
 		TGName:                         acctest.RandomWithPrefix("tf-tg"),
@@ -396,6 +400,13 @@ resource "yandex_alb_virtual_host" "test-vh" {
        {{end}}
     }
     disable_security_profile = {{ .RouteDisableSecurityProfile }}
+    {{if .IsClientCertificateForward}}
+    client_certificate_forward {
+      http_header = "Ssl-Client-Cert"
+      issuer_header_name = "Ssl-Client-Issuer-Dn"
+      subject_header_name = "Ssl-Client-Subject-Dn"
+    }
+    {{end}}
     {{if .IsHTTPRoute}}
     http_route {
       http_match {
@@ -747,6 +758,24 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         }
         {{end}}
         certificate_ids = ["{{.CertificateID}}"]
+        {{if .IsClientCertificatesVerification}}
+        client_certificates_verification {
+          require_client_certificate = true
+          bytes = <<-EOT
+-----BEGIN CERTIFICATE-----
+MIIBpzCCAVGgAwIBAgIJAMttzZ34ksJIMA0GCSqGSIb3DQEBCwUAMC8xLTArBgNV
+BAMMJGVkYmY4NzlhLWJmMDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTAeFw0yMDAy
+MTgxMjAyMTFaFw0yMDAzMTkxMjAyMTFaMC8xLTArBgNVBAMMJGVkYmY4NzlhLWJm
+MDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgC
+QQDyxRijt3T5/HpPkFmo4DmrPEL3IHbqMedSwmcvYjEhex43qGLsAXC17e7tKpQE
+VDYmdvJCE6T7AfezNWLc95JRAgMBAAGjUDBOMB0GA1UdDgQWBBRIq4vrr+4b//NF
+PR2lXBPTWewVYDAfBgNVHSMEGDAWgBRIq4vrr+4b//NFPR2lXBPTWewVYDAMBgNV
+HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA0EARRiU9hEq7k9Sa2tbPF7lI9xxknjZ
+D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
+-----END CERTIFICATE-----
+EOT
+        }
+        {{end}}
       }
       sni_handler {
         name = "host"
@@ -761,6 +790,24 @@ resource "yandex_alb_load_balancer" "test-balancer" {
             allow_http10 = true
           }
           certificate_ids = ["{{.CertificateID}}"]
+  		  {{if .IsClientCertificatesVerification}}
+		  client_certificates_verification {
+		  require_client_certificate = true
+		  bytes = <<-EOT
+-----BEGIN CERTIFICATE-----
+MIIBpzCCAVGgAwIBAgIJAMttzZ34ksJIMA0GCSqGSIb3DQEBCwUAMC8xLTArBgNV
+BAMMJGVkYmY4NzlhLWJmMDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTAeFw0yMDAy
+MTgxMjAyMTFaFw0yMDAzMTkxMjAyMTFaMC8xLTArBgNVBAMMJGVkYmY4NzlhLWJm
+MDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgC
+QQDyxRijt3T5/HpPkFmo4DmrPEL3IHbqMedSwmcvYjEhex43qGLsAXC17e7tKpQE
+VDYmdvJCE6T7AfezNWLc95JRAgMBAAGjUDBOMB0GA1UdDgQWBBRIq4vrr+4b//NF
+PR2lXBPTWewVYDAfBgNVHSMEGDAWgBRIq4vrr+4b//NFPR2lXBPTWewVYDAMBgNV
+HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA0EARRiU9hEq7k9Sa2tbPF7lI9xxknjZ
+D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
+-----END CERTIFICATE-----
+EOT
+		  }
+		  {{end}}
         }
       }
     }
