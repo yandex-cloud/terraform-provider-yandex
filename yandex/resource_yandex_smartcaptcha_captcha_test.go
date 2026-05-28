@@ -58,8 +58,7 @@ func TestAccSmartcaptchaCaptcha_UpgradeFromSDKv2(t *testing.T) {
 			{
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"yandex": {
-						VersionConstraint: "0.150.0",
-						Source:            "yandex-cloud/yandex",
+						Source: "yandex-cloud/yandex",
 					},
 				},
 				Config: testAccSmartcaptchaCaptchaBasicMigration(name),
@@ -112,11 +111,8 @@ resource "yandex_smartcaptcha_captcha" "this" {
     override_variant_uuid = "yyy"
 	condition {
       host {
-        hosts {
+        host_matcher {
           exact_match = "example.com"
-        }
-        hosts {
-          exact_match = "example.net"
         }
       }
 
