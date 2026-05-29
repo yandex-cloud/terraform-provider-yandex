@@ -33,20 +33,22 @@ type Cluster struct {
 }
 
 type Host struct {
-	Zone              types.String `tfsdk:"zone"`
-	SubnetId          types.String `tfsdk:"subnet_id"`
-	AssignPublicIp    types.Bool   `tfsdk:"assign_public_ip"`
-	FQDN              types.String `tfsdk:"fqdn"`
-	ReplicationSource types.String `tfsdk:"replication_source"`
+	Zone                  types.String `tfsdk:"zone"`
+	SubnetId              types.String `tfsdk:"subnet_id"`
+	AssignPublicIp        types.Bool   `tfsdk:"assign_public_ip"`
+	FQDN                  types.String `tfsdk:"fqdn"`
+	ReplicationSource     types.String `tfsdk:"replication_source"`
+	ReplicationSourceName types.String `tfsdk:"replication_source_name"`
 }
 
 var hostType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"zone":               types.StringType,
-		"subnet_id":          types.StringType,
-		"assign_public_ip":   types.BoolType,
-		"fqdn":               types.StringType,
-		"replication_source": types.StringType,
+		"zone":                    types.StringType,
+		"subnet_id":               types.StringType,
+		"assign_public_ip":        types.BoolType,
+		"fqdn":                    types.StringType,
+		"replication_source":      types.StringType,
+		"replication_source_name": types.StringType,
 	},
 }
 

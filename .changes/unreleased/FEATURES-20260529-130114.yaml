@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mysql: possibility to create cluster with replication_source via yandex_mdb_mysql_cluster_v2'
+time: 2026-05-29T13:01:14.069012+03:00

@@ -41,7 +41,7 @@ func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.Up
 	if !plan.AssignPublicIp.Equal(state.AssignPublicIp) {
 		paths = append(paths, "assign_public_ip")
 	}
-	if !plan.ReplicationSource.Equal(state.ReplicationSource) {
+	if !plan.ReplicationSource.IsUnknown() && !plan.ReplicationSource.Equal(state.ReplicationSource) {
 		paths = append(paths, "replication_source")
 	}
 	if !plan.Priority.Equal(state.Priority) {
@@ -74,13 +74,14 @@ func (r PostgresqlHostService) ConvertToProto(h Host) *postgresql.HostSpec {
 
 func (r PostgresqlHostService) ConvertFromProto(apiHost *postgresql.Host) Host {
 	return Host{
-		Zone: types.StringValue(apiHost.ZoneId),
-
+		Zone:              types.StringValue(apiHost.ZoneId),
 		SubnetId:          types.StringValue(apiHost.SubnetId),
 		AssignPublicIp:    types.BoolValue(apiHost.AssignPublicIp),
 		ReplicationSource: types.StringValue(apiHost.ReplicationSource),
 		FQDN:              types.StringValue(apiHost.Name),
 		Priority:          types.Int64Value(apiHost.Priority.GetValue()),
+		// ReplicationSourceName is not returned by API; it is preserved from user config in refreshResourceState.
+		ReplicationSourceName: types.StringNull(),
 	}
 }
 

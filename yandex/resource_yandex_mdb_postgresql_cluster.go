@@ -819,8 +819,10 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("PostgreSQL Cluster creation failed: %s", err)
 	}
 
-	if err := createPGClusterHosts(ctx, config, d); err != nil {
-		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
+	// Update hosts after creation (e.g. configure cascade replicas)
+	log.Printf("[INFO] Updating cluster hosts after creation (if needed)...")
+	if err := updatePGClusterHosts(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
 	}
 
 	if err := startPGFailoverIfNeed(d, meta); err != nil {
@@ -956,9 +958,10 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 
 	hostSpecs := make([]*postgresql.HostSpec, 0)
 	for _, host := range hostsFromScheme {
-		if host.HostSpec.ReplicationSource == "" {
-			hostSpecs = append(hostSpecs, host.HostSpec)
-		}
+		// It is not possible to specify replication-source during cluster creation (host names are unknown)
+		// so, create all hosts as HA-hosts, and then reconfigure it
+		host.HostSpec.ReplicationSource = ""
+		hostSpecs = append(hostSpecs, host.HostSpec)
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))

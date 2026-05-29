@@ -40,7 +40,7 @@ func (r MySQLHostService) GetChanges(plan Host, state Host) (*mysql.UpdateHostSp
 	if !plan.AssignPublicIp.Equal(state.AssignPublicIp) {
 		paths = append(paths, "assign_public_ip")
 	}
-	if !plan.ReplicationSource.Equal(state.ReplicationSource) {
+	if !plan.ReplicationSource.IsUnknown() && !plan.ReplicationSource.Equal(state.ReplicationSource) {
 		paths = append(paths, "replication_source")
 	}
 	if len(paths) == 0 {
@@ -68,12 +68,13 @@ func (r MySQLHostService) ConvertToProto(h Host) *mysql.HostSpec {
 
 func (r MySQLHostService) ConvertFromProto(apiHost *mysql.Host) Host {
 	return Host{
-		Zone: types.StringValue(apiHost.ZoneId),
-
+		Zone:              types.StringValue(apiHost.ZoneId),
 		SubnetId:          types.StringValue(apiHost.SubnetId),
 		AssignPublicIp:    types.BoolValue(apiHost.AssignPublicIp),
 		ReplicationSource: types.StringValue(apiHost.ReplicationSource),
 		FQDN:              types.StringValue(apiHost.Name),
+		// ReplicationSourceName is not returned by API; it is preserved from user config in refreshResourceState.
+		ReplicationSourceName: types.StringNull(),
 	}
 }
 

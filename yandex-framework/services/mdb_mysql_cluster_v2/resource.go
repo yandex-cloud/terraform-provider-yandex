@@ -138,10 +138,15 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 							},
 						},
 						"replication_source": schema.StringAttribute{
-							Description: "FQDN of the host that is used as a replication source.",
-							Optional:    true,
+							Description: "FQDN of the host that is used as a replication source. Resolved from replication_source_name.",
 							Computed:    true,
-							Default:     stringdefault.StaticString(""),
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"replication_source_name": schema.StringAttribute{
+							Description: "Label (map key) of the host to use as replication source. Use this during cluster creation when FQDNs are not yet known.",
+							Optional:    true,
 						},
 					},
 				},
@@ -449,7 +454,93 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 
 	// remove changes on disk_size from plan if enabled autoscaling
 	plan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, plan.Resources, state.Resources, autoscalingOn, &resp.Diagnostics)
+
+	// When replication_source_name changes, mark replication_source as unknown so
+	// Terraform shows "(known after apply)" instead of the stale FQDN from state.
+	var planHostsMap map[string]Host
+	var stateHostsMap map[string]Host
+	resp.Diagnostics.Append(plan.HostSpecs.ElementsAs(ctx, &planHostsMap, false)...)
+	resp.Diagnostics.Append(state.HostSpecs.ElementsAs(ctx, &stateHostsMap, false)...)
+	if !resp.Diagnostics.HasError() {
+		rsChanged := false
+		for label, planHost := range planHostsMap {
+			stateHost, exists := stateHostsMap[label]
+			if !exists || !planHost.ReplicationSourceName.Equal(stateHost.ReplicationSourceName) {
+				planHost.ReplicationSource = types.StringUnknown()
+				planHostsMap[label] = planHost
+				rsChanged = true
+			}
+		}
+		if rsChanged {
+			var d diag.Diagnostics
+			plan.HostSpecs, d = types.MapValueFrom(ctx, hostType, planHostsMap)
+			resp.Diagnostics.Append(d...)
+		}
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.Plan.Set(ctx, plan)...)
+}
+
+// resolveReplicationSourceNames populates ReplicationSource (FQDN) from ReplicationSourceName (label)
+// using the label->FQDN mapping from stateHostSpecs. This resolved copy is passed to the API;
+// the original ReplicationSourceName values are preserved in state by refreshResourceState.
+func resolveReplicationSourceNames(ctx context.Context, planHostSpecs types.Map, stateHostSpecs types.Map, diags *diag.Diagnostics) types.Map {
+	stateHostsMap := make(map[string]Host)
+	diags.Append(stateHostSpecs.ElementsAs(ctx, &stateHostsMap, false)...)
+	if diags.HasError() {
+		return planHostSpecs
+	}
+
+	labelToFQDN := make(map[string]string)
+	for label, host := range stateHostsMap {
+		if fqdn := host.FQDN.ValueString(); fqdn != "" {
+			labelToFQDN[label] = fqdn
+		}
+	}
+
+	planHostsMap := make(map[string]Host)
+	diags.Append(planHostSpecs.ElementsAs(ctx, &planHostsMap, false)...)
+	if diags.HasError() {
+		return planHostSpecs
+	}
+
+	changed := false
+	for label, host := range planHostsMap {
+		rsName := host.ReplicationSourceName.ValueString()
+		if rsName == "" {
+			if stateHost, ok := stateHostsMap[label]; ok && stateHost.ReplicationSourceName.ValueString() != "" {
+				host.ReplicationSource = types.StringValue("")
+				planHostsMap[label] = host
+				changed = true
+			}
+			continue
+		}
+		fqdn, ok := labelToFQDN[rsName]
+		if !ok {
+			diags.AddError(
+				"Invalid replication_source_name",
+				fmt.Sprintf("Host %q has replication_source_name %q which does not match any host label in the hosts map.", label, rsName),
+			)
+			continue
+		}
+		host.ReplicationSource = types.StringValue(fqdn)
+		planHostsMap[label] = host
+		changed = true
+	}
+	if diags.HasError() {
+		return planHostSpecs
+	}
+
+	if !changed {
+		return planHostSpecs
+	}
+
+	result, d := types.MapValueFrom(ctx, hostType, planHostsMap)
+	diags.Append(d...)
+	return result
 }
 
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -488,7 +579,12 @@ func (r *clusterResource) createCluster(
 	hostSpecsSlice []*mysql.HostSpec,
 	resp *resource.CreateResponse,
 ) {
-	// Prepare Create Request
+	// It is not possible to specify replication-source during cluster creation (host names are unknown)
+	// so, create all hosts as HA-hosts, and then reconfigure it
+	for _, spec := range hostSpecsSlice {
+		spec.ReplicationSource = ""
+	}
+
 	request, diags := prepareCreateRequest(ctx, &plan, &r.providerConfig.ProviderState, hostSpecsSlice)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
@@ -501,6 +597,35 @@ func (r *clusterResource) createCluster(
 	}
 
 	plan.Id = types.StringValue(cid)
+
+	originalHostSpecs := plan.HostSpecs
+
+	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update hosts after creation (e.g. configure cascade replicas).
+	// Resolve replication_source_name labels to FQDNs (now known after first refresh).
+	tflog.Info(ctx, "Updating cluster hosts after creation (if needed)...")
+	resolvedHostSpecs := resolveReplicationSourceNames(ctx, originalHostSpecs, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	mdbcommon.UpdateClusterHosts(
+		ctx,
+		r.providerConfig.SDK,
+		&resp.Diagnostics,
+		mysqlHostService,
+		&mysqlApi,
+		cid,
+		struct{}{},
+		resolvedHostSpecs,
+		plan.HostSpecs,
+	)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, &plan)
@@ -561,9 +686,11 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
-	if resp.Diagnostics.HasError() {
-		return
+	if updateVersionRequest != nil && len(updateVersionRequest.UpdateMask.GetPaths()) > 0 {
+		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	updateRequest, d := prepareUpdateRequest(ctx, &state, &plan)
@@ -572,7 +699,15 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
+	if updateRequest != nil && len(updateRequest.UpdateMask.GetPaths()) > 0 {
+		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	// Resolve replication_source_name labels to FQDNs before updating hosts.
+	resolvedPlanHostSpecs := resolveReplicationSourceNames(ctx, plan.HostSpecs, state.HostSpecs, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -585,7 +720,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		&mysqlApi,
 		plan.Id.ValueString(),
 		struct{}{},
-		plan.HostSpecs,
+		resolvedPlanHostSpecs,
 		state.HostSpecs,
 	)
 	if resp.Diagnostics.HasError() {
@@ -625,6 +760,22 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	}
 
 	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDK, respDiagnostics, mysqlHostService, &mysqlApi, state.HostSpecs, cid)
+
+	// replication_source_name is user-configured and not returned by the API.
+	// Preserve it from the incoming state so it survives refreshes.
+	var prevHostsMap map[string]Host
+	if !state.HostSpecs.IsNull() && !state.HostSpecs.IsUnknown() {
+		d := state.HostSpecs.ElementsAs(ctx, &prevHostsMap, false)
+		respDiagnostics.Append(d...)
+		if !respDiagnostics.HasError() {
+			for label, apiHost := range entityIdToApiHosts {
+				if prev, ok := prevHostsMap[label]; ok {
+					apiHost.ReplicationSourceName = prev.ReplicationSourceName
+					entityIdToApiHosts[label] = apiHost
+				}
+			}
+		}
+	}
 
 	var diags diag.Diagnostics
 	state.HostSpecs, diags = types.MapValueFrom(ctx, hostType, entityIdToApiHosts)
