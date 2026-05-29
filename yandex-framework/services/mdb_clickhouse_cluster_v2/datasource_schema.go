@@ -111,6 +111,7 @@ func DataSourceClusterSchema(ctx context.Context) schema.Schema {
 			"hosts":                   DataSourceHostsSchema(),
 			"shards":                  DataSourceShardsSchema(),
 			"performance_diagnostics": DataSourcePerformanceDiagnosticsSchema(),
+			"external_dictionary":     DataSourceExternalDictionarySchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"shard_group":        DataSourceShardGroupSchema(),
@@ -1163,6 +1164,391 @@ func DataSourcePerformanceDiagnosticsSchema() schema.SingleNestedAttribute {
 				MarkdownDescription: "Refresh interval for performance diagnostics data. Specify the value duration format, for example `\"15s\"`, `\"1m0s\"`, or `\"1h0m0s\"`.",
 				Computed:            true,
 			},
+		},
+	}
+}
+
+func DataSourceExternalDictionarySchema() schema.MapNestedAttribute {
+	return schema.MapNestedAttribute{
+		MarkdownDescription: "External dictionaries configuration. The map key is the dictionary name.",
+		Computed:            true,
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: map[string]schema.Attribute{
+				"lifetime": schema.SingleNestedAttribute{
+					Computed:    true,
+					Description: "Lifetime of the dictionary data.",
+					Attributes: map[string]schema.Attribute{
+						"fixed_lifetime": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Fixed reload interval in seconds.",
+						},
+						"range": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "Random reload interval in seconds.",
+							Attributes: map[string]schema.Attribute{
+								"min": schema.Int64Attribute{
+									Computed:    true,
+									Description: "Minimum reload interval.",
+								},
+								"max": schema.Int64Attribute{
+									Computed:    true,
+									Description: "Maximum reload interval.",
+								},
+							},
+						},
+					},
+				},
+
+				"structure": schema.SingleNestedAttribute{
+					Computed:    true,
+					Description: "Structure of the external dictionary.",
+					Attributes: map[string]schema.Attribute{
+						"id": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "Single numeric key column for the dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"name": schema.StringAttribute{
+									Computed:    true,
+									Description: "Name of the numeric key column.",
+								},
+							},
+						},
+						"key": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "Composite key for the dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"attributes": schema.ListNestedAttribute{
+									Computed:    true,
+									Description: "Key attributes.",
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: dataSourceDictionaryAttributeSchemaAttributes(),
+									},
+								},
+							},
+						},
+						"attributes": schema.ListNestedAttribute{
+							Computed:    true,
+							Description: "Dictionary attributes.",
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: dataSourceDictionaryAttributeSchemaAttributes(),
+							},
+						},
+						"range_min": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "Field holding the beginning of the range for RANGE_HASHED layout.",
+							Attributes:  dataSourceDictionaryAttributeSchemaAttributes(),
+						},
+						"range_max": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "Field holding the end of the range for RANGE_HASHED layout.",
+							Attributes:  dataSourceDictionaryAttributeSchemaAttributes(),
+						},
+					},
+				},
+
+				"layout": schema.SingleNestedAttribute{
+					Computed:    true,
+					Description: "Layout of the external dictionary.",
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Computed:    true,
+							Description: "Layout type (FLAT, HASHED, CACHE, etc.).",
+						},
+						"size_in_cells": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Number of cells in the cache or initial array size.",
+						},
+						"allow_read_expired_keys": schema.BoolAttribute{
+							Computed:    true,
+							Description: "Allow reading expired keys.",
+						},
+						"max_update_queue_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Max size of update queue.",
+						},
+						"update_queue_push_timeout_milliseconds": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Max timeout in milliseconds for push update task into queue.",
+						},
+						"query_wait_timeout_milliseconds": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Max wait timeout in milliseconds for update task to complete.",
+						},
+						"max_threads_for_updates": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Max threads for cache dictionary update.",
+						},
+						"initial_array_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Initial dictionary key size for FLAT layout.",
+						},
+						"max_array_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Maximum dictionary key size for FLAT layout.",
+						},
+						"access_to_key_from_attributes": schema.BoolAttribute{
+							Computed:    true,
+							Description: "Allows to retrieve key attribute using dictGetString function.",
+						},
+					},
+				},
+
+				"source": schema.SingleNestedAttribute{
+					Computed:    true,
+					Description: "Source of the external dictionary data.",
+					Attributes: map[string]schema.Attribute{
+						"http_source": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "HTTP source for the external dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"url": schema.StringAttribute{
+									Computed:    true,
+									Description: "URL of the HTTP source.",
+								},
+								"format": schema.StringAttribute{
+									Computed:    true,
+									Description: "Data format (CSV, TSV, etc.).",
+								},
+								"headers": schema.ListNestedAttribute{
+									Computed:    true,
+									Description: "HTTP headers.",
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"name": schema.StringAttribute{
+												Computed:    true,
+												Description: "Header name.",
+											},
+											"value": schema.StringAttribute{
+												Computed:    true,
+												Description: "Header value.",
+											},
+										},
+									},
+								},
+							},
+						},
+
+						"clickhouse_source": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "ClickHouse source for the external dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Computed:    true,
+									Description: "ClickHouse database name.",
+								},
+								"table": schema.StringAttribute{
+									Computed:    true,
+									Description: "ClickHouse table name.",
+								},
+								"host": schema.StringAttribute{
+									Computed:    true,
+									Description: "ClickHouse host.",
+								},
+								"port": schema.Int64Attribute{
+									Computed:    true,
+									Description: "ClickHouse port.",
+								},
+								"user": schema.StringAttribute{
+									Computed:    true,
+									Description: "ClickHouse user.",
+								},
+								"password": schema.StringAttribute{
+									Computed:    true,
+									Sensitive:   true,
+									Description: "ClickHouse password.",
+								},
+								"where": schema.StringAttribute{
+									Computed:    true,
+									Description: "Selection criteria (WHERE clause).",
+								},
+								"secure": schema.BoolAttribute{
+									Computed:    true,
+									Description: "Use TLS for the connection.",
+								},
+							},
+						},
+
+						"mongodb_source": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "MongoDB source for the external dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Computed:    true,
+									Description: "MongoDB database name.",
+								},
+								"collection": schema.StringAttribute{
+									Computed:    true,
+									Description: "MongoDB collection name.",
+								},
+								"host": schema.StringAttribute{
+									Computed:    true,
+									Description: "MongoDB host.",
+								},
+								"port": schema.Int64Attribute{
+									Computed:    true,
+									Description: "MongoDB port.",
+								},
+								"user": schema.StringAttribute{
+									Computed:    true,
+									Description: "MongoDB user.",
+								},
+								"password": schema.StringAttribute{
+									Computed:    true,
+									Sensitive:   true,
+									Description: "MongoDB password.",
+								},
+								"options": schema.StringAttribute{
+									Computed:    true,
+									Description: "MongoDB connection options (e.g. authSource=admin).",
+								},
+							},
+						},
+
+						"postgresql_source": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "PostgreSQL source for the external dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Computed:    true,
+									Description: "PostgreSQL database name.",
+								},
+								"table": schema.StringAttribute{
+									Computed:    true,
+									Description: "PostgreSQL table name.",
+								},
+								"hosts": schema.ListAttribute{
+									Computed:    true,
+									ElementType: types.StringType,
+									Description: "PostgreSQL hosts.",
+								},
+								"port": schema.Int64Attribute{
+									Computed:    true,
+									Description: "PostgreSQL port.",
+								},
+								"user": schema.StringAttribute{
+									Computed:    true,
+									Description: "PostgreSQL user.",
+								},
+								"password": schema.StringAttribute{
+									Computed:    true,
+									Sensitive:   true,
+									Description: "PostgreSQL password.",
+								},
+								"invalidate_query": schema.StringAttribute{
+									Computed:    true,
+									Description: "Query to check if the dictionary data has changed.",
+								},
+								"ssl_mode": schema.StringAttribute{
+									Computed:    true,
+									Description: "SSL mode for the PostgreSQL connection (DISABLE, ALLOW, PREFER, VERIFY_CA, VERIFY_FULL).",
+								},
+							},
+						},
+
+						"mysql_source": schema.SingleNestedAttribute{
+							Computed:    true,
+							Description: "MySQL source for the external dictionary.",
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Computed:    true,
+									Description: "MySQL database name.",
+								},
+								"table": schema.StringAttribute{
+									Computed:    true,
+									Description: "MySQL table name.",
+								},
+								"port": schema.Int64Attribute{
+									Computed:    true,
+									Description: "Default port for replicas.",
+								},
+								"user": schema.StringAttribute{
+									Computed:    true,
+									Description: "Default user for replicas.",
+								},
+								"password": schema.StringAttribute{
+									Computed:    true,
+									Sensitive:   true,
+									Description: "Default password for replicas.",
+								},
+								"where": schema.StringAttribute{
+									Computed:    true,
+									Description: "WHERE clause for selecting rows.",
+								},
+								"invalidate_query": schema.StringAttribute{
+									Computed:    true,
+									Description: "Query to check if the dictionary data has changed.",
+								},
+								"close_connection": schema.BoolAttribute{
+									Computed:    true,
+									Description: "Close connection after each query.",
+								},
+								"share_connection": schema.BoolAttribute{
+									Computed:    true,
+									Description: "Share connection between threads.",
+								},
+								"replicas": schema.ListNestedAttribute{
+									Computed:    true,
+									Description: "MySQL replicas.",
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"host": schema.StringAttribute{
+												Computed:    true,
+												Description: "Replica host.",
+											},
+											"priority": schema.Int64Attribute{
+												Computed:    true,
+												Description: "Replica priority.",
+											},
+											"port": schema.Int64Attribute{
+												Computed:    true,
+												Description: "Replica port.",
+											},
+											"user": schema.StringAttribute{
+												Computed:    true,
+												Description: "Replica user.",
+											},
+											"password": schema.StringAttribute{
+												Computed:    true,
+												Sensitive:   true,
+												Description: "Replica password.",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func dataSourceDictionaryAttributeSchemaAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"name": schema.StringAttribute{
+			Computed:    true,
+			Description: "Attribute name.",
+		},
+		"type": schema.StringAttribute{
+			Computed:    true,
+			Description: "Attribute type.",
+		},
+		"null_value": schema.StringAttribute{
+			Computed:    true,
+			Description: "Default value for null.",
+		},
+		"expression": schema.StringAttribute{
+			Computed:    true,
+			Description: "Expression for computing the attribute.",
+		},
+		"hierarchical": schema.BoolAttribute{
+			Computed:    true,
+			Description: "Is the attribute hierarchical.",
+		},
+		"injective": schema.BoolAttribute{
+			Computed:    true,
+			Description: "Is the attribute injective.",
 		},
 	}
 }

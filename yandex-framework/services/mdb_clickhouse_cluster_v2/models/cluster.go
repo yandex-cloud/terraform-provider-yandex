@@ -34,11 +34,12 @@ type ClusterResource struct {
 	EmbeddedKeeper         types.Bool   `tfsdk:"embedded_keeper"`
 	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
 
-	FormatSchema types.Set  `tfsdk:"format_schema"`
-	MLModel      types.Set  `tfsdk:"ml_model"`
-	Shards       types.Map  `tfsdk:"shards"`
-	ShardGroup   types.List `tfsdk:"shard_group"`
-	Extension    types.Set  `tfsdk:"extension"`
+	FormatSchema       types.Set  `tfsdk:"format_schema"`
+	MLModel            types.Set  `tfsdk:"ml_model"`
+	Shards             types.Map  `tfsdk:"shards"`
+	ShardGroup         types.List `tfsdk:"shard_group"`
+	Extension          types.Set  `tfsdk:"extension"`
+	ExternalDictionary types.Map  `tfsdk:"external_dictionary"`
 
 	HostSpecs              types.Map      `tfsdk:"hosts"`
 	Timeouts               timeouts.Value `tfsdk:"timeouts"`
@@ -74,11 +75,12 @@ var ClusterResourceAttrTypes = map[string]attr.Type{
 	"embedded_keeper":           types.BoolType,
 	"backup_retain_period_days": types.Int64Type,
 
-	"format_schema": types.SetType{ElemType: types.ObjectType{AttrTypes: FormatSchemaAttrTypes}},
-	"ml_model":      types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
-	"shards":        types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
-	"shard_group":   types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
-	"extension":     types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
+	"format_schema":       types.SetType{ElemType: types.ObjectType{AttrTypes: FormatSchemaAttrTypes}},
+	"ml_model":            types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
+	"shards":              types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
+	"shard_group":         types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
+	"extension":           types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
+	"external_dictionary": types.MapType{ElemType: types.ObjectType{AttrTypes: ExternalDictionaryAttrTypes}},
 
 	"hosts":                    types.MapType{ElemType: types.StringType},
 	"timeouts":                 timeouts.Type{},
@@ -116,11 +118,12 @@ type ClusterDataSource struct {
 	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
 	PerformanceDiagnostics types.Object `tfsdk:"performance_diagnostics"`
 
-	FormatSchema types.Set  `tfsdk:"format_schema"`
-	MLModel      types.Set  `tfsdk:"ml_model"`
-	Shards       types.Map  `tfsdk:"shards"`
-	ShardGroup   types.List `tfsdk:"shard_group"`
-	Extension    types.Set  `tfsdk:"extension"`
+	FormatSchema       types.Set  `tfsdk:"format_schema"`
+	MLModel            types.Set  `tfsdk:"ml_model"`
+	Shards             types.Map  `tfsdk:"shards"`
+	ShardGroup         types.List `tfsdk:"shard_group"`
+	Extension          types.Set  `tfsdk:"extension"`
+	ExternalDictionary types.Map  `tfsdk:"external_dictionary"`
 
 	HostSpecs            types.Map      `tfsdk:"hosts"`
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
@@ -155,11 +158,12 @@ var ClusterDataSourceTypes = map[string]attr.Type{
 	"backup_retain_period_days": types.Int64Type,
 	"performance_diagnostics":   types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
 
-	"format_schema": types.SetType{ElemType: types.ObjectType{AttrTypes: FormatSchemaAttrTypes}},
-	"ml_model":      types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
-	"shards":        types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
-	"shard_group":   types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
-	"extension":     types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
+	"format_schema":       types.SetType{ElemType: types.ObjectType{AttrTypes: FormatSchemaAttrTypes}},
+	"ml_model":            types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
+	"shards":              types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
+	"shard_group":         types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
+	"extension":           types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
+	"external_dictionary": types.MapType{ElemType: types.ObjectType{AttrTypes: ExternalDictionaryAttrTypes}},
 
 	"hosts":                    types.MapType{ElemType: types.StringType},
 	"timeouts":                 timeouts.Type{},

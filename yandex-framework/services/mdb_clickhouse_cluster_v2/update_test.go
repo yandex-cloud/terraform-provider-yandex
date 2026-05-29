@@ -2,11 +2,16 @@ package mdb_clickhouse_cluster_v2
 
 import (
 	"context"
+	"sort"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	clickhouse "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 )
 
 func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) {
@@ -193,6 +198,186 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 			if !c.expectFormatSchemasReq && (len(sgDelete) != 0 || len(gsUpdate) != 0 || len(sgCreate) != 0) {
 				t.Errorf("Did not expect shard group operations in %s, got del=%v upd=%d add=%d",
 					c.testname, len(mlDelete), len(gsUpdate), len(sgCreate))
+			}
+		})
+	}
+}
+
+func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryUpdateOps(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	makeCluster := func(dicts types.Map) *models.ClusterResource {
+		cfg := minimalConfig.Attributes()
+		cfg["external_dictionary"] = dicts
+		reqVal := types.ObjectValueMust(models.ClusterResourceAttrTypes, cfg)
+		cluster := &models.ClusterResource{}
+		diags := reqVal.As(ctx, cluster, datasize.DefaultOpts)
+		if diags.HasError() {
+			t.Fatalf("Unexpected diagnostics in As(): %v", diags.Errors())
+		}
+		return cluster
+	}
+
+	emptyStructure := &clickhouseConfig.ClickhouseConfig_ExternalDictionary_Structure{}
+	flatLayout := &clickhouseConfig.ClickhouseConfig_ExternalDictionary_Layout{
+		Type: clickhouseConfig.ClickhouseConfig_ExternalDictionary_Layout_FLAT,
+	}
+	fixed300 := &clickhouseConfig.ClickhouseConfig_ExternalDictionary_FixedLifetime{FixedLifetime: 300}
+
+	httpDict := &clickhouseConfig.ClickhouseConfig_ExternalDictionary{
+		Name:      "http_dict",
+		Structure: emptyStructure,
+		Layout:    flatLayout,
+		Lifetime:  fixed300,
+		Source: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource_{
+			HttpSource: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource{
+				Url:    "https://example.com/dict",
+				Format: "CSV",
+			},
+		},
+	}
+
+	chDict := &clickhouseConfig.ClickhouseConfig_ExternalDictionary{
+		Name:      "ch_dict",
+		Structure: emptyStructure,
+		Layout:    flatLayout,
+		Lifetime:  fixed300,
+		Source: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_ClickhouseSource_{
+			ClickhouseSource: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_ClickhouseSource{
+				Db: "default", Table: "cities", Host: "rc1a-ch.mdb.yandexcloud.net",
+				Port: 9000, User: "ch_user", Password: "ch_pass",
+			},
+		},
+	}
+
+	mysqlDictFromAPI := &clickhouseConfig.ClickhouseConfig_ExternalDictionary{
+		Name:      "mysql_dict",
+		Structure: emptyStructure,
+		Layout:    flatLayout,
+		Lifetime:  fixed300,
+		Source: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_{
+			MysqlSource: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource{
+				Db:    "mydb",
+				Table: "cities",
+				Port:  3306,
+				User:  "mysql_user",
+				Replicas: []*clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_Replica{
+					{Host: "rc1b-mysql.mdb.yandexcloud.net", Priority: 1, Port: 3306, User: "replica_user"},
+					{Host: "rc1d-mysql.mdb.yandexcloud.net", Priority: 2, Port: 3306, User: "replica_user"},
+				},
+			},
+		},
+	}
+
+	cases := []struct {
+		name            string
+		current         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary
+		state           types.Map
+		plan            types.Map
+		expectedDelete  []string
+		expectedCreates []*clickhouse.CreateClusterExternalDictionaryRequest
+	}{
+		{
+			name:            "no_change",
+			current:         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{httpDict},
+			state:           httpDictTF,
+			plan:            httpDictTF,
+			expectedDelete:  nil,
+			expectedCreates: nil,
+		},
+		{
+			name:            "no_change_with_password",
+			current:         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{mysqlDictFromAPI},
+			state:           mysqlDictTF,
+			plan:            mysqlDictTF,
+			expectedDelete:  nil,
+			expectedCreates: nil,
+		},
+		{
+			name:           "add_new_dict",
+			current:        nil,
+			state:          emptyDictMapTF,
+			plan:           httpDictTF,
+			expectedDelete: nil,
+			expectedCreates: []*clickhouse.CreateClusterExternalDictionaryRequest{
+				{ClusterId: clusterId, ExternalDictionary: httpDict},
+			},
+		},
+		{
+			name:            "remove_dict",
+			current:         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{httpDict},
+			state:           httpDictTF,
+			plan:            emptyDictMapTF,
+			expectedDelete:  []string{"http_dict"},
+			expectedCreates: nil,
+		},
+		{
+			name:           "modify_dict",
+			state:          httpDictTF,
+			current:        []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{httpDict},
+			plan:           httpDictModifiedTF,
+			expectedDelete: []string{"http_dict"},
+			expectedCreates: []*clickhouse.CreateClusterExternalDictionaryRequest{
+				{
+					ClusterId: clusterId,
+					ExternalDictionary: &clickhouseConfig.ClickhouseConfig_ExternalDictionary{
+						Name:      "http_dict",
+						Structure: emptyStructure,
+						Layout:    flatLayout,
+						Lifetime:  fixed300,
+						Source: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource_{
+							HttpSource: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource{
+								Url: "https://example.com/dict", Format: "TSV",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:           "mixed_add_remove",
+			current:        []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{httpDict},
+			state:          httpDictTF,
+			plan:           makeDictMapTF(map[string]types.Object{"ch_dict": makeDictTF(chDictSourceTF)}),
+			expectedDelete: []string{"http_dict"},
+			expectedCreates: []*clickhouse.CreateClusterExternalDictionaryRequest{
+				{ClusterId: clusterId, ExternalDictionary: chDict},
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			var diags diag.Diagnostics
+			stateCluster := makeCluster(c.state)
+			stateDicts := models.ExpandExternalDictionaries(ctx, stateCluster.ExternalDictionary, &diags)
+			if diags.HasError() {
+				t.Fatalf("Unexpected diagnostics expanding state: %v", diags.Errors())
+			}
+			planCluster := makeCluster(c.plan)
+			toDelete, toCreate := prepareExternalDictionaryUpdateOps(ctx, clusterId, c.current, stateDicts, planCluster, &diags)
+			if diags.HasError() {
+				t.Fatalf("Unexpected diagnostics: %v", diags.Errors())
+			}
+
+			sort.Strings(toDelete)
+			sort.Strings(c.expectedDelete)
+			if len(toDelete) != len(c.expectedDelete) {
+				t.Fatalf("Expected deletes %v, got %v", c.expectedDelete, toDelete)
+			}
+			for i, name := range c.expectedDelete {
+				if toDelete[i] != name {
+					t.Errorf("Expected delete[%d]=%q, got %q", i, name, toDelete[i])
+				}
+			}
+
+			if len(toCreate) != len(c.expectedCreates) {
+				t.Fatalf("Expected %d creates, got %d", len(c.expectedCreates), len(toCreate))
+			}
+			for i, expected := range c.expectedCreates {
+				utils.AssertProtoEqual(t, c.name, expected, toCreate[i])
 			}
 		})
 	}

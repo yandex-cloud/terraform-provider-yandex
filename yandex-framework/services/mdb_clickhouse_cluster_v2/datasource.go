@@ -188,4 +188,7 @@ func refreshDataSourceState(ctx context.Context, prevState, state *models.Cluste
 
 	currentExtensions := clickhouseApi.ListExtensions(ctx, sdk, diags, cid)
 	state.Extension = models.FlattenListExtensions(ctx, currentExtensions, diags)
+
+	currentDicts := clickhouseApi.ListExternalDictionaries(ctx, sdk, diags, cid)
+	state.ExternalDictionary = models.FlattenExternalDictionaries(ctx, currentDicts, types.MapNull(types.ObjectType{AttrTypes: models.ExternalDictionaryAttrTypes}), diags)
 }

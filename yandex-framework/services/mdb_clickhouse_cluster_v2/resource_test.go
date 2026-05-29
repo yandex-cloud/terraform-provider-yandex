@@ -1027,6 +1027,23 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.host", "127.0.0.2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.port", "8999"),
 
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.lifetime.fixed_lifetime", "300"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.layout.type", "FLAT"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.db", "mydb"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.table", "cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.user", "mysql_user"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.host", "rc1b-mysql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.priority", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.port", "3306"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.host", "rc1d-mysql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.priority", "2"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.port", "3306"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.name", "city"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.type", "String"),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1219,6 +1236,23 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.host", "127.0.0.3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.port", "8998"),
+
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.lifetime.fixed_lifetime", "300"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.layout.type", "FLAT"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.db", "mydb"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.table", "cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.user", "mysql_user"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.host", "rc1b-mysql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.priority", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.0.port", "3306"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.host", "rc1d-mysql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.priority", "2"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.replicas.1.port", "3306"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.name", "city"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.type", "String"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -1773,6 +1807,49 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   # maintenance_window
   %s
 
+  external_dictionary = {
+    "mysql_dict" = {
+      lifetime = {
+        fixed_lifetime = 300
+      }
+      structure = {
+        id = {
+          name = "id"
+        }
+        attributes = [{
+          name = "city"
+          type = "String"
+        }]
+      }
+      layout = {
+        type = "FLAT"
+      }
+      source = {
+        mysql_source = {
+          db       = "mydb"
+          table    = "cities"
+          user     = "mysql_user"
+          replicas = [
+            {
+              host     = "rc1b-mysql.mdb.yandexcloud.net"
+              priority = 1
+              port     = 3306
+              user     = "replica_user"
+              password = "replica1_pass"
+            },
+            {
+              host     = "rc1d-mysql.mdb.yandexcloud.net"
+              priority = 2
+              port     = 3306
+              user     = "replica_user"
+              password = "replica2_pass"
+            },
+          ]
+        }
+      }
+    }
+  }
+
   # deletion_protection = true
 }
 `,
@@ -2326,6 +2403,8 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"admin_password",             // passwords are not returned
 			"clickhouse.config.kafka",    // passwords are not returned
 			"clickhouse.config.rabbitmq", // passwords are not returned
+			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned
+			"external_dictionary.mysql_dict.source.mysql_source.replicas.1.password", // passwords are not returned
 		},
 	}
 }

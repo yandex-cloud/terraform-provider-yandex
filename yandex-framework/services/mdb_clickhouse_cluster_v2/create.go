@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -373,4 +374,45 @@ func prepareRestoreRequest(
 		](ctx, plan.MaintenanceWindow, &diags),
 		PartialRestore: partialRestore,
 	}, diags
+
+}
+func (r *clusterResource) createExternalDictionaries(ctx context.Context, plan models.ClusterResource, existing []*clickhouseConfig.ClickhouseConfig_ExternalDictionary, diags *diag.Diagnostics) {
+	tflog.Debug(ctx, "Creating ClickHouse external dictionaries")
+
+	requests := prepareExternalDictionariesCreateRequests(ctx, &plan, existing, diags)
+	if diags.HasError() {
+		return
+	}
+
+	for _, req := range requests {
+		clickhouseApi.CreateExternalDictionary(ctx, r.providerConfig.SDK, diags, req)
+		if diags.HasError() {
+			return
+		}
+	}
+}
+
+func prepareExternalDictionariesCreateRequests(ctx context.Context, plan *models.ClusterResource, existing []*clickhouseConfig.ClickhouseConfig_ExternalDictionary, diags *diag.Diagnostics) []*clickhouse.CreateClusterExternalDictionaryRequest {
+	cid := plan.Id.ValueString()
+	dicts := models.ExpandExternalDictionaries(ctx, plan.ExternalDictionary, diags)
+	if diags.HasError() {
+		return nil
+	}
+
+	existingNames := make(map[string]struct{}, len(existing))
+	for _, d := range existing {
+		existingNames[d.Name] = struct{}{}
+	}
+
+	requests := make([]*clickhouse.CreateClusterExternalDictionaryRequest, 0, len(dicts))
+	for _, dict := range dicts {
+		if _, ok := existingNames[dict.Name]; ok {
+			continue
+		}
+		requests = append(requests, &clickhouse.CreateClusterExternalDictionaryRequest{
+			ClusterId:          cid,
+			ExternalDictionary: dict,
+		})
+	}
+	return requests
 }

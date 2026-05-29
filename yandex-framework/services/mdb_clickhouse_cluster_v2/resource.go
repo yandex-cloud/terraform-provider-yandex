@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
@@ -88,6 +89,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		existingMlModels      []*clickhouse.MlModel
 		existingShardGroups   []*clickhouse.ShardGroup
 		existingExtensions    []*clickhouse.ClusterExtension
+		existingDicts         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary
 	)
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -130,6 +132,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		existingMlModels = clickhouseApi.ListMlModels(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
 		existingShardGroups = clickhouseApi.ListShardGroups(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
 		existingExtensions = clickhouseApi.ListExtensions(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		existingDicts = clickhouseApi.ListExternalDictionaries(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -155,6 +158,12 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// Create extensions
 	r.createExtensions(ctx, plan, existingExtensions, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Create external dictionaries
+	r.createExternalDictionaries(ctx, plan, existingDicts, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -341,6 +350,15 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		// Update extensions
 		tflog.Debug(ctx, "Updating Clickhouse extensions")
 		updateExtensions(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	if !state.ExternalDictionary.Equal(plan.ExternalDictionary) {
+		// Update external dictionaries
+		tflog.Debug(ctx, "Updating Clickhouse external dictionaries")
+		updateExternalDictionaries(ctx, state, plan, r.providerConfig.SDK, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -577,6 +595,9 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 
 	currentExtensions := clickhouseApi.ListExtensions(ctx, sdk, diags, cid)
 	state.Extension = models.FlattenListExtensions(ctx, currentExtensions, diags)
+
+	currentDicts := clickhouseApi.ListExternalDictionaries(ctx, sdk, diags, cid)
+	state.ExternalDictionary = models.FlattenExternalDictionaries(ctx, currentDicts, prevState.ExternalDictionary, diags)
 }
 
 func shardOverridesChanged(

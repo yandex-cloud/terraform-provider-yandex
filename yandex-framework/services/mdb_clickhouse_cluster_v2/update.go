@@ -7,11 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -686,6 +688,92 @@ func updateExtensions(ctx context.Context, plan models.ClusterResource, sdk *ycs
 	clickhouseApi.SetExtensions(ctx, sdk, diags, plan.Id.ValueString(), specs)
 }
 
+// External Dictionaries
+
+func updateExternalDictionaries(ctx context.Context, state, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+	cid := plan.Id.ValueString()
+
+	currentDicts := clickhouseApi.ListExternalDictionaries(ctx, sdk, diags, cid)
+	if diags.HasError() {
+		return
+	}
+
+	stateDicts := models.ExpandExternalDictionaries(ctx, state.ExternalDictionary, diags)
+	if diags.HasError() {
+		return
+	}
+
+	toDelete, toCreate := prepareExternalDictionaryUpdateOps(ctx, cid, currentDicts, stateDicts, &plan, diags)
+	if diags.HasError() {
+		return
+	}
+
+	for _, name := range toDelete {
+		clickhouseApi.DeleteExternalDictionary(ctx, sdk, diags, cid, name)
+		if diags.HasError() {
+			return
+		}
+	}
+
+	for _, req := range toCreate {
+		clickhouseApi.CreateExternalDictionary(ctx, sdk, diags, req)
+		if diags.HasError() {
+			return
+		}
+	}
+}
+
+func prepareExternalDictionaryUpdateOps(
+	ctx context.Context,
+	cid string,
+	current []*clickhouseConfig.ClickhouseConfig_ExternalDictionary,
+	state []*clickhouseConfig.ClickhouseConfig_ExternalDictionary,
+	plan *models.ClusterResource,
+	diags *diag.Diagnostics,
+) (toDelete []string, toCreate []*clickhouse.CreateClusterExternalDictionaryRequest) {
+	currentByName := make(map[string]*clickhouseConfig.ClickhouseConfig_ExternalDictionary, len(current))
+	for _, d := range current {
+		currentByName[d.Name] = d
+	}
+
+	stateByName := make(map[string]*clickhouseConfig.ClickhouseConfig_ExternalDictionary, len(state))
+	for _, d := range state {
+		stateByName[d.Name] = d
+	}
+
+	planDicts := models.ExpandExternalDictionaries(ctx, plan.ExternalDictionary, diags)
+	if diags.HasError() {
+		return
+	}
+
+	planNames := make(map[string]struct{}, len(planDicts))
+	for _, d := range planDicts {
+		planNames[d.Name] = struct{}{}
+	}
+
+	for name := range currentByName {
+		if _, inPlan := planNames[name]; !inPlan {
+			toDelete = append(toDelete, name)
+		}
+	}
+
+	for _, dict := range planDicts {
+		if curr, exists := currentByName[dict.Name]; exists {
+			currWithPasswords := restoreDictProtoPasswords(curr, stateByName[dict.Name])
+			if proto.Equal(currWithPasswords, dict) {
+				continue
+			}
+			toDelete = append(toDelete, dict.Name)
+		}
+		toCreate = append(toCreate, &clickhouse.CreateClusterExternalDictionaryRequest{
+			ClusterId:          cid,
+			ExternalDictionary: dict,
+		})
+	}
+
+	return
+}
+
 // Utils
 
 func appendNestedConfigUpdatePaths(
@@ -703,4 +791,42 @@ func appendNestedConfigUpdatePaths(
 		}
 	}
 	return updateMaskPaths
+}
+
+func restoreDictProtoPasswords(
+	curr *clickhouseConfig.ClickhouseConfig_ExternalDictionary,
+	state *clickhouseConfig.ClickhouseConfig_ExternalDictionary,
+) *clickhouseConfig.ClickhouseConfig_ExternalDictionary {
+	if state == nil {
+		return curr
+	}
+	cloned := proto.Clone(curr).(*clickhouseConfig.ClickhouseConfig_ExternalDictionary)
+	switch currSrc := cloned.Source.(type) {
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_ClickhouseSource_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_ClickhouseSource_); ok {
+			currSrc.ClickhouseSource.Password = stateSrc.ClickhouseSource.Password
+		}
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_MongodbSource_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_MongodbSource_); ok {
+			currSrc.MongodbSource.Password = stateSrc.MongodbSource.Password
+		}
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSource_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSource_); ok {
+			currSrc.PostgresqlSource.Password = stateSrc.PostgresqlSource.Password
+		}
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_); ok {
+			currSrc.MysqlSource.Password = stateSrc.MysqlSource.Password
+			stateReplicaPasswords := make(map[string]string, len(stateSrc.MysqlSource.Replicas))
+			for _, r := range stateSrc.MysqlSource.Replicas {
+				stateReplicaPasswords[r.Host] = r.Password
+			}
+			for _, replica := range currSrc.MysqlSource.Replicas {
+				if pwd, ok := stateReplicaPasswords[replica.Host]; ok {
+					replica.Password = pwd
+				}
+			}
+		}
+	}
+	return cloned
 }

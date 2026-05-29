@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
@@ -987,4 +988,78 @@ func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diag
 		return ""
 	}
 	return md.ClusterId
+}
+
+// External dictionaries
+
+func (c *ClickHouseAPI) ListExternalDictionaries(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouseConfig.ClickhouseConfig_ExternalDictionary {
+	var externalDictionaries []*clickhouseConfig.ClickhouseConfig_ExternalDictionary
+	pageToken := ""
+
+	for {
+		resp, err := sdk.MDB().Clickhouse().Cluster().ListExternalDictionaries(ctx, &clickhouse.ListClusterExternalDictionariesRequest{
+			ClusterId: cid,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			diags.AddError(
+				"Failed to read resource",
+				fmt.Sprintf("Error while requesting API to list external dictionaries of ClickHouse cluster '%s': %s", cid, err.Error()),
+			)
+			return nil
+		}
+
+		externalDictionaries = append(externalDictionaries, resp.ExternalDictionaries...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+
+	return externalDictionaries
+}
+
+func (c *ClickHouseAPI) CreateExternalDictionary(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterExternalDictionaryRequest) {
+	tflog.Debug(ctx, "Creating ClickHouse external dictionary", map[string]any{"cluster_id": req.ClusterId, "name": req.ExternalDictionary.GetName()})
+
+	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().CreateExternalDictionary(ctx, req))
+	if err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while requesting API to create external dictionary %q in ClickHouse cluster '%s': %s", req.ExternalDictionary.GetName(), req.ClusterId, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to create resource",
+			fmt.Sprintf("Error while waiting for operation %q to create external dictionary %q in ClickHouse cluster '%s': %s", op.Id(), req.ExternalDictionary.GetName(), req.ClusterId, err.Error()),
+		)
+	}
+}
+
+func (c *ClickHouseAPI) DeleteExternalDictionary(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, name string) {
+	tflog.Debug(ctx, "Deleting ClickHouse external dictionary", map[string]any{"cluster_id": cid, "name": name})
+
+	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().DeleteExternalDictionary(ctx, &clickhouse.DeleteClusterExternalDictionaryRequest{
+		ClusterId:              cid,
+		ExternalDictionaryName: name,
+	}))
+	if err != nil {
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while requesting API to delete external dictionary %q from ClickHouse cluster '%s': %s", name, cid, err.Error()),
+		)
+		return
+	}
+
+	if err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to delete resource",
+			fmt.Sprintf("Error while waiting for operation %q to delete external dictionary %q from ClickHouse cluster '%s': %s", op.Id(), name, cid, err.Error()),
+		)
+	}
 }

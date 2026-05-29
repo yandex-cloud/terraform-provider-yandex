@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/numberplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -154,6 +155,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"shards":                  ShardsSchema(),
 			"restore":                 RestoreSchema(),
 			"performance_diagnostics": PerformanceDiagnosticsSchema(),
+			"external_dictionary":     ExternalDictionarySchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"shard_group":        ShardGroupSchema(),
@@ -1880,6 +1882,515 @@ func RabbitMQSchema() schema.SingleNestedAttribute {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+		},
+	}
+}
+
+func ExternalDictionarySchema() schema.MapNestedAttribute {
+	return schema.MapNestedAttribute{
+		Description: "External dictionaries configuration. The map key is the dictionary name.",
+		Optional:    true,
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: map[string]schema.Attribute{
+				"lifetime": schema.SingleNestedAttribute{
+					Description: "Lifetime of the dictionary data.",
+					Required:    true,
+					Attributes: map[string]schema.Attribute{
+						"fixed_lifetime": schema.Int64Attribute{
+							Description: "Fixed reload interval in seconds.",
+							Optional:    true,
+						},
+						"range": schema.SingleNestedAttribute{
+							Description: "Random reload interval in seconds.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"min": schema.Int64Attribute{
+									Description: "Minimum reload interval.",
+									Required:    true,
+								},
+								"max": schema.Int64Attribute{
+									Description: "Maximum reload interval.",
+									Required:    true,
+								},
+							},
+						},
+					},
+				},
+				"structure": schema.SingleNestedAttribute{
+					Description: "Structure of the external dictionary.",
+					Required:    true,
+					Attributes: map[string]schema.Attribute{
+						"id": schema.SingleNestedAttribute{
+							Description: "Single numeric key column for the dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"name": schema.StringAttribute{
+									Description: "Name of the numeric key column.",
+									Required:    true,
+								},
+							},
+						},
+						"key": schema.SingleNestedAttribute{
+							Description: "Composite key for the dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"attributes": schema.ListNestedAttribute{
+									Description: "Key attributes.",
+									Required:    true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: dictionaryAttributeSchemaAttributes(),
+									},
+								},
+							},
+						},
+						"attributes": schema.ListNestedAttribute{
+							Description: "Dictionary attributes.",
+							Optional:    true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: dictionaryAttributeSchemaAttributes(),
+							},
+						},
+						"range_min": schema.SingleNestedAttribute{
+							Description: "Field holding the beginning of the range for RANGE_HASHED layout.",
+							Optional:    true,
+							Attributes:  dictionaryAttributeSchemaAttributes(),
+						},
+						"range_max": schema.SingleNestedAttribute{
+							Description: "Field holding the end of the range for RANGE_HASHED layout.",
+							Optional:    true,
+							Attributes:  dictionaryAttributeSchemaAttributes(),
+						},
+					},
+				},
+				"layout": schema.SingleNestedAttribute{
+					Description: "Layout of the external dictionary.",
+					Required:    true,
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Description: "Layout type (FLAT, HASHED, CACHE, etc.).",
+							Required:    true,
+						},
+						"size_in_cells": schema.Int64Attribute{
+							Description: "Number of cells in the cache or initial array size.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"allow_read_expired_keys": schema.BoolAttribute{
+							Description: "Allow reading expired keys.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Bool{
+								boolplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"max_update_queue_size": schema.Int64Attribute{
+							Description: "Max size of update queue.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"update_queue_push_timeout_milliseconds": schema.Int64Attribute{
+							Description: "Max timeout in milliseconds for push update task into queue.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"query_wait_timeout_milliseconds": schema.Int64Attribute{
+							Description: "Max wait timeout in milliseconds for update task to complete.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"max_threads_for_updates": schema.Int64Attribute{
+							Description: "Max threads for cache dictionary update.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"initial_array_size": schema.Int64Attribute{
+							Description: "Initial dictionary key size for FLAT layout.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"max_array_size": schema.Int64Attribute{
+							Description: "Maximum dictionary key size for FLAT layout.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"access_to_key_from_attributes": schema.BoolAttribute{
+							Description: "Allows to retrieve key attribute using dictGetString function.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Bool{
+								boolplanmodifier.UseStateForUnknown(),
+							},
+						},
+					},
+				},
+				"source": schema.SingleNestedAttribute{
+					Description: "Source of the external dictionary data.",
+					Required:    true,
+					Attributes: map[string]schema.Attribute{
+						"http_source": schema.SingleNestedAttribute{
+							Description: "HTTP source for the external dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"url": schema.StringAttribute{
+									Description: "URL of the HTTP source.",
+									Required:    true,
+								},
+								"format": schema.StringAttribute{
+									Description: "Data format (CSV, TSV, etc.).",
+									Required:    true,
+								},
+								"headers": schema.ListNestedAttribute{
+									Description: "HTTP headers.",
+									Optional:    true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"name": schema.StringAttribute{
+												Description: "Header name.",
+												Required:    true,
+											},
+											"value": schema.StringAttribute{
+												Description: "Header value.",
+												Required:    true,
+											},
+										},
+									},
+								},
+							},
+						},
+						"clickhouse_source": schema.SingleNestedAttribute{
+							Description: "ClickHouse source for the external dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Description: "ClickHouse database name.",
+									Required:    true,
+								},
+								"table": schema.StringAttribute{
+									Description: "ClickHouse table name.",
+									Required:    true,
+								},
+								"host": schema.StringAttribute{
+									Description: "ClickHouse host. Defaults to localhost if not specified.",
+									Optional:    true,
+									Computed:    true,
+									Default:     stringdefault.StaticString("localhost"),
+								},
+								"port": schema.Int64Attribute{
+									Description: "ClickHouse port. Defaults to 8123 if not specified.",
+									Optional:    true,
+									Computed:    true,
+									Default:     int64default.StaticInt64(8123),
+								},
+								"user": schema.StringAttribute{
+									Description: "ClickHouse user.",
+									Required:    true,
+								},
+								"password": schema.StringAttribute{
+									Description: "ClickHouse password.",
+									Optional:    true,
+									Computed:    true,
+									Sensitive:   true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"where": schema.StringAttribute{
+									Description: "Selection criteria (WHERE clause).",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"secure": schema.BoolAttribute{
+									Description: "Use TLS for the connection.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.Bool{
+										boolplanmodifier.UseStateForUnknown(),
+									},
+								},
+							},
+						},
+						"mongodb_source": schema.SingleNestedAttribute{
+							Description: "MongoDB source for the external dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Description: "MongoDB database name.",
+									Required:    true,
+								},
+								"collection": schema.StringAttribute{
+									Description: "MongoDB collection name.",
+									Required:    true,
+								},
+								"host": schema.StringAttribute{
+									Description: "MongoDB host.",
+									Required:    true,
+								},
+								"port": schema.Int64Attribute{
+									Description: "MongoDB port. Defaults to 27017 if not specified.",
+									Optional:    true,
+									Computed:    true,
+									Default:     int64default.StaticInt64(27017),
+								},
+								"user": schema.StringAttribute{
+									Description: "MongoDB user.",
+									Required:    true,
+								},
+								"password": schema.StringAttribute{
+									Description: "MongoDB password.",
+									Optional:    true,
+									Computed:    true,
+									Sensitive:   true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"options": schema.StringAttribute{
+									Description: "MongoDB connection options (e.g. authSource=admin).",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+							},
+						},
+						"postgresql_source": schema.SingleNestedAttribute{
+							Description: "PostgreSQL source for the external dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Description: "PostgreSQL database name.",
+									Required:    true,
+								},
+								"table": schema.StringAttribute{
+									Description: "PostgreSQL table name.",
+									Required:    true,
+								},
+								"hosts": schema.ListAttribute{
+									Description: "PostgreSQL hosts.",
+									Required:    true,
+									ElementType: types.StringType,
+								},
+								"port": schema.Int64Attribute{
+									Description: "PostgreSQL port. Defaults to 5432 if not specified.",
+									Optional:    true,
+									Computed:    true,
+									Default:     int64default.StaticInt64(5432),
+								},
+								"user": schema.StringAttribute{
+									Description: "PostgreSQL user.",
+									Required:    true,
+								},
+								"password": schema.StringAttribute{
+									Description: "PostgreSQL password.",
+									Optional:    true,
+									Computed:    true,
+									Sensitive:   true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"invalidate_query": schema.StringAttribute{
+									Description: "Query to check if the dictionary data has changed.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"ssl_mode": schema.StringAttribute{
+									Description: "SSL mode for the PostgreSQL connection (DISABLE, ALLOW, PREFER, VERIFY_CA, VERIFY_FULL).",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+									Validators: []validator.String{
+										stringvalidator.OneOf("DISABLE", "ALLOW", "PREFER", "VERIFY_CA", "VERIFY_FULL"),
+									},
+								},
+							},
+						},
+						"mysql_source": schema.SingleNestedAttribute{
+							Description: "MySQL source for the external dictionary.",
+							Optional:    true,
+							Attributes: map[string]schema.Attribute{
+								"db": schema.StringAttribute{
+									Description: "MySQL database name.",
+									Required:    true,
+								},
+								"table": schema.StringAttribute{
+									Description: "MySQL table name.",
+									Required:    true,
+								},
+								"port": schema.Int64Attribute{
+									Description: "Default port for replicas.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.Int64{
+										int64planmodifier.UseStateForUnknown(),
+									},
+								},
+								"user": schema.StringAttribute{
+									Description: "Default user for replicas.",
+									Required:    true,
+								},
+								"password": schema.StringAttribute{
+									Description: "Default password for replicas.",
+									Optional:    true,
+									Computed:    true,
+									Sensitive:   true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"where": schema.StringAttribute{
+									Description: "WHERE clause for selecting rows.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"invalidate_query": schema.StringAttribute{
+									Description: "Query to check if the dictionary data has changed.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"close_connection": schema.BoolAttribute{
+									Description: "Close connection after each query.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.Bool{
+										boolplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"share_connection": schema.BoolAttribute{
+									Description: "Share connection between threads.",
+									Optional:    true,
+									Computed:    true,
+									PlanModifiers: []planmodifier.Bool{
+										boolplanmodifier.UseStateForUnknown(),
+									},
+								},
+								"replicas": schema.ListNestedAttribute{
+									Description: "MySQL replicas.",
+									Required:    true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"host": schema.StringAttribute{
+												Description: "Replica host.",
+												Required:    true,
+											},
+											"priority": schema.Int64Attribute{
+												Description: "Replica priority.",
+												Required:    true,
+											},
+											"port": schema.Int64Attribute{
+												Description: "Replica port.",
+												Optional:    true,
+												Computed:    true,
+												PlanModifiers: []planmodifier.Int64{
+													int64planmodifier.UseStateForUnknown(),
+												},
+											},
+											"user": schema.StringAttribute{
+												Description: "Replica user.",
+												Optional:    true,
+												Computed:    true,
+												PlanModifiers: []planmodifier.String{
+													stringplanmodifier.UseStateForUnknown(),
+												},
+											},
+											"password": schema.StringAttribute{
+												Description: "Replica password.",
+												Optional:    true,
+												Computed:    true,
+												Sensitive:   true,
+												PlanModifiers: []planmodifier.String{
+													stringplanmodifier.UseStateForUnknown(),
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func dictionaryAttributeSchemaAttributes() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"name": schema.StringAttribute{
+			Description: "Attribute name.",
+			Required:    true,
+		},
+		"type": schema.StringAttribute{
+			Description: "Attribute type.",
+			Required:    true,
+		},
+		"null_value": schema.StringAttribute{
+			Description: "Default value for null.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
+		},
+		"expression": schema.StringAttribute{
+			Description: "Expression for computing the attribute.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
+		},
+		"hierarchical": schema.BoolAttribute{
+			Description: "Is the attribute hierarchical.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.UseStateForUnknown(),
+			},
+		},
+		"injective": schema.BoolAttribute{
+			Description: "Is the attribute injective.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.UseStateForUnknown(),
 			},
 		},
 	}
