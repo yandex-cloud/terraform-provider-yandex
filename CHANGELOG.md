@@ -2,6 +2,20 @@
 
 
 
+## 0.207.0 (June 4, 2026)
+##### FEATURES:
+* mdb_clickhouse: support external dictionaries management
+* mdb_postgresql: add `connection_manager` configuration block to the `yandex_mdb_postgresql_cluster` resource and datasource (SDKv2)
+* mdb_postgresql: add `connection_manager` configuration block to the `yandex_mdb_postgresql_cluster_v2` resource (Plugin Framework)
+* mdb_postgresql: add `user_connection_manager` block to the `yandex_mdb_postgresql_user` resource and datasource; the existing `connection_manager` attribute is now deprecated
+* alb: added `client_certificates_verification` field to the `resource_yandex_alb_load_balancer` resource
+* alb: added `client_certificate_forward` field to the `resource_yandex_alb_virtual_host` resource
+* postgresql: possibility to create cluster with replication_source via yandex_mdb_postgresql_cluster
+* postgresql: possibility to create cluster with replication_source via yandex_mdb_postgresql_cluster_v2
+* mysql: possibility to create cluster with replication_source via yandex_mdb_mysql_cluster_v2
+##### BUG FIXES:
+* mdb_clickhouse: fix cloud_storage.move_factor causing inconsistent state on create when unset
+
 ## 0.206.0 (May 28, 2026)
 ##### FEATURES:
 * opensearch: add `disk_size_gb` for `resources`

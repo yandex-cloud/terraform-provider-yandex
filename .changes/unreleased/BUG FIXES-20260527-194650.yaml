@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: fix cloud_storage.move_factor causing inconsistent state on create when unset'
-time: 2026-05-27T19:46:50.652891+03:00
