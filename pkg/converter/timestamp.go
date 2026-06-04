@@ -17,7 +17,7 @@ func ParseTimestamp(ts string, diags *diag.Diagnostics) *timestamppb.Timestamp {
 	if err != nil {
 		diags.AddError(
 			"Failed to parse timestamp",
-			fmt.Sprintf("Failed to parce timestamp, got: %T, need RFC3339 like %s", ts, time.RFC3339),
+			fmt.Sprintf("Failed to parse timestamp, got: %T, need RFC3339 like %s", ts, time.RFC3339),
 		)
 		return nil
 	}
