@@ -33,6 +33,7 @@ output "network_id" {
   - `web_sql` (Bool). Allow access for Web SQL.
   - `yandex_query` (Bool). Allow access for YandexQuery.
 - `admin_password` (String). A password used to authorize as user `admin` when `sql_user_management` enabled.
+- `allow_host_recreation` (Bool). Allows or denies re-creation of hosts during cluster configuration changes that require it, such as a disk type change. Note: only data of replicated tables is preserved during host re-creation; data of non-replicated tables is lost.
 - `backup_retain_period_days` (Number). The period in days during which backups are stored.
 - `backup_window_start` [Block]. Time to start the daily backup, in the UTC timezone.
   - `hours` (Number). The hour at which backup will be started (UTC).

@@ -103,6 +103,10 @@ func DataSourceClusterSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Whether to copy schema on new ClickHouse hosts.",
 				Computed:            true,
 			},
+			"allow_host_recreation": schema.BoolAttribute{
+				MarkdownDescription: "Allows or denies re-creation of hosts during cluster configuration changes that require it, such as a disk type change. Note: only data of replicated tables is preserved during host re-creation; data of non-replicated tables is lost.",
+				Computed:            true,
+			},
 			"clickhouse":              DataSourceClickHouseSchema(),
 			"zookeeper":               DataSourceZooKeeperSchema(),
 			"cloud_storage":           DataSourceCloudStorageSchema(),

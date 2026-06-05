@@ -111,9 +111,13 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 
 	if len(request.UpdateMask.Paths) == 0 {
 		return nil
-	} else {
-		return request
 	}
+
+	if !plan.AllowHostRecreation.IsNull() && !plan.AllowHostRecreation.IsUnknown() {
+		request.SetAllowHostRecreation(&wrapperspb.BoolValue{Value: plan.AllowHostRecreation.ValueBool()})
+	}
+
+	return request
 }
 
 // Cluster config
@@ -604,15 +608,20 @@ func updateShards(ctx context.Context, plan models.ClusterResource, sdk *ycsdk.S
 		return
 	}
 
+	var allowHostRecreation *wrapperspb.BoolValue
+	if !plan.AllowHostRecreation.IsNull() && !plan.AllowHostRecreation.IsUnknown() {
+		allowHostRecreation = &wrapperspb.BoolValue{Value: plan.AllowHostRecreation.ValueBool()}
+	}
+
 	for _, shard := range shards {
-		updateShard(ctx, cid, shard, sdk, diags)
+		updateShard(ctx, cid, shard, allowHostRecreation, sdk, diags)
 		if diags.HasError() {
 			return
 		}
 	}
 }
 
-func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpec, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpec, allowHostRecreation *wrapperspb.BoolValue, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	var updateMaskPaths []string
 	currentShard := clickhouseApi.GetShard(ctx, sdk, diags, cid, shardSpec.Name)
 	if diags.HasError() {
@@ -665,9 +674,10 @@ func updateShard(ctx context.Context, cid string, shardSpec *clickhouse.ShardSpe
 	}
 
 	clickhouseApi.UpdateShard(ctx, sdk, diags, &clickhouse.UpdateClusterShardRequest{
-		ClusterId:  cid,
-		ShardName:  shardSpec.Name,
-		ConfigSpec: shardSpec.ConfigSpec,
+		ClusterId:           cid,
+		ShardName:           shardSpec.Name,
+		ConfigSpec:          shardSpec.ConfigSpec,
+		AllowHostRecreation: allowHostRecreation,
 		UpdateMask: &fieldmaskpb.FieldMask{
 			Paths: updateMaskPaths,
 		},

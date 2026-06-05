@@ -68,6 +68,7 @@ var (
 			}),
 			"timeouts":                 timeouts.Value{},
 			"copy_schema_on_new_hosts": types.BoolNull(),
+			"allow_host_recreation":    types.BoolNull(),
 			"restore":                  types.ObjectNull(models.RestoreAttrTypes),
 			"performance_diagnostics":  types.ObjectNull(models.PerformanceDiagnosticsAttrTypes),
 		},
@@ -644,6 +645,7 @@ var (
 			"external_dictionary":      types.MapNull(types.ObjectType{AttrTypes: models.ExternalDictionaryAttrTypes}),
 			"timeouts":                 timeouts.Value{},
 			"copy_schema_on_new_hosts": types.BoolNull(),
+			"allow_host_recreation":    types.BoolNull(),
 			"restore":                  types.ObjectNull(models.RestoreAttrTypes),
 			"performance_diagnostics": types.ObjectValueMust(
 				models.PerformanceDiagnosticsAttrTypes,

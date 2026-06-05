@@ -2400,6 +2400,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"zookeeper",                  // zookeeper spec is not imported by default
 			"health",                     // volatile value
 			"copy_schema_on_new_hosts",   // special parameter
+			"allow_host_recreation",      // special parameter
 			"admin_password",             // passwords are not returned
 			"clickhouse.config.kafka",    // passwords are not returned
 			"clickhouse.config.rabbitmq", // passwords are not returned
