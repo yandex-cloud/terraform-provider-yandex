@@ -109,6 +109,7 @@
   ".yfm":"opensource/terraform-provider-yandex-mirror/.yfm",
   "CHANGELOG.md":"opensource/terraform-provider-yandex-mirror/CHANGELOG.md",
   "CONTRIBUTING.md":"opensource/terraform-provider-yandex-mirror/CONTRIBUTING.md",
+  "Doraprobe":"opensource/terraform-provider-yandex-mirror/Doraprobe",
   "GNUmakefile":"opensource/terraform-provider-yandex-mirror/GNUmakefile",
   "LICENSE":"opensource/terraform-provider-yandex-mirror/LICENSE",
   "README.md":"opensource/terraform-provider-yandex-mirror/README.md",
