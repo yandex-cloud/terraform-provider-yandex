@@ -2,6 +2,10 @@
 
 
 
+## 0.208.0 (June 8, 2026)
+##### FEATURES:
+* mdb_clickhouse: add host recreation option
+
 ## 0.207.0 (June 4, 2026)
 ##### FEATURES:
 * mdb_clickhouse: support external dictionaries management
