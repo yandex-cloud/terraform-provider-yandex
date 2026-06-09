@@ -103,6 +103,10 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 						MarkdownDescription: "SanitizePayload parameter.",
 						Computed:            true,
 					},
+					"databases": schema.StringAttribute{
+						MarkdownDescription: "Databases user has access to.",
+						Computed:            true,
+					},
 				},
 			},
 		},

@@ -31,6 +31,7 @@ func flattenPermissions(ctx context.Context, permissions *redis.Permissions) (ty
 		Patterns:        types.StringValue(permissions.Patterns.GetValue()),
 		PubSubChannels:  types.StringValue(permissions.PubSubChannels.GetValue()),
 		SanitizePayload: types.StringValue(permissions.SanitizePayload.GetValue()),
+		Databases:       types.StringValue(permissions.Databases.GetValue()),
 	}
 
 	return types.ObjectValueFrom(ctx, permissionType.AttributeTypes(), res)

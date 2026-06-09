@@ -42,6 +42,7 @@ type Permissions struct {
 	Patterns        string
 	PubSubChannels  string
 	SanitizePayload string
+	Databases       string
 }
 
 // Test that a Redis User can be created, updated and destroyed
@@ -61,6 +62,7 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 							PubSubChannels:  "resetchannels",
 							Patterns:        "allkeys",
 							SanitizePayload: "sanitize-payload",
+							Databases:       "alldbs",
 						}),
 				),
 			},
@@ -76,6 +78,7 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 							Patterns:        "~456*",
 							PubSubChannels:  "&123*",
 							SanitizePayload: "sanitize-payload",
+							Databases:       "0,1,2",
 						}),
 				),
 			},
@@ -92,6 +95,7 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 							Patterns:        "~4242*",
 							PubSubChannels:  "&4242*",
 							SanitizePayload: "skip-sanitize-payload",
+							Databases:       "resetdbs",
 						}),
 				),
 			},
@@ -141,6 +145,7 @@ func testAccCheckMDBRedisUserComparePermissions(t *testing.T, username string, e
 		assert.Equal(t, expected.Patterns, actual.Patterns.GetValue())
 		assert.Equal(t, expected.PubSubChannels, actual.PubSubChannels.GetValue())
 		assert.Equal(t, expected.SanitizePayload, actual.SanitizePayload.GetValue())
+		assert.Equal(t, expected.Databases, actual.Databases.GetValue())
 
 		return nil
 	}
@@ -156,7 +161,7 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
 
 	config = {
 		password = "mySecre4tP@ssw0rd"
-	    version = "8.1-valkey"
+	    version = "9.1-valkey"
 	}
 
 	resources = {
@@ -181,7 +186,10 @@ resource "yandex_mdb_redis_user" "alice" {
 	cluster_id = yandex_mdb_redis_cluster_v2.foo.id
 	name       = "alice"
 	passwords   = ["mysecureP@ssw0rd"]
-	permissions = { pub_sub_channels = "resetchannels" }
+	permissions = {
+		pub_sub_channels = "resetchannels"
+		databases        = "alldbs"
+	}
 }`
 }
 
@@ -198,6 +206,7 @@ resource "yandex_mdb_redis_user" "bob" {
 		patterns = "~456*"
 		pub_sub_channels = "&123*"
 		sanitize_payload = "sanitize-payload"
+		databases = "0,1,2"
   	}
 	enabled = false
 }`
@@ -216,6 +225,7 @@ resource "yandex_mdb_redis_user" "alice" {
 		patterns = "~4242*"
 		pub_sub_channels = "&4242*"
 		sanitize_payload = "skip-sanitize-payload"
+		databases = "resetdbs"
   	}
 }`
 }

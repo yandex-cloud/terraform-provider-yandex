@@ -188,6 +188,14 @@ func (r *bindingResource) Schema(ctx context.Context,
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
+					"databases": schema.StringAttribute{
+						MarkdownDescription: "Databases user has access to. Accepts \"alldbs\", \"resetdbs\", or comma-separated list of database numbers (e.g. \"0,1,5\").",
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
+					},
 				},
 
 				PlanModifiers: []planmodifier.Object{
@@ -294,6 +302,9 @@ func getUpdatePaths(ctx context.Context, diags *diag.Diagnostics, plan, state Us
 		}
 		if !planPermissions.SanitizePayload.Equal(statePermissions.SanitizePayload) {
 			updatePaths = append(updatePaths, permissionsPrefix+"sanitize_payload")
+		}
+		if !planPermissions.Databases.Equal(statePermissions.Databases) {
+			updatePaths = append(updatePaths, permissionsPrefix+"databases")
 		}
 	}
 

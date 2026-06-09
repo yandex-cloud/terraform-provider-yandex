@@ -30,6 +30,7 @@ type Permissions struct {
 	Patterns        types.String `tfsdk:"patterns"`
 	PubSubChannels  types.String `tfsdk:"pub_sub_channels"`
 	SanitizePayload types.String `tfsdk:"sanitize_payload"`
+	Databases       types.String `tfsdk:"databases"`
 }
 
 var permissionType = types.ObjectType{
@@ -39,6 +40,7 @@ var permissionType = types.ObjectType{
 		"patterns":         types.StringType,
 		"pub_sub_channels": types.StringType,
 		"sanitize_payload": types.StringType,
+		"databases":        types.StringType,
 	},
 }
 
@@ -63,6 +65,7 @@ func permissionsToState(ctx context.Context, perms *redis.Permissions, state *Us
 	permissions.Patterns = types.StringValue(perms.Patterns.GetValue())
 	permissions.PubSubChannels = types.StringValue(perms.PubSubChannels.GetValue())
 	permissions.SanitizePayload = types.StringValue(perms.SanitizePayload.GetValue())
+	permissions.Databases = types.StringValue(perms.Databases.GetValue())
 
 	permissionsObject, diags := types.ObjectValueFrom(ctx, permissionType.AttrTypes, permissions)
 
@@ -113,6 +116,9 @@ func permissionsFromState(ctx context.Context, u types.Object) (*redis.Permissio
 	}
 	if utils.IsPresent(permissions.SanitizePayload) {
 		res.SanitizePayload = &wrapperspb.StringValue{Value: permissions.SanitizePayload.ValueString()}
+	}
+	if utils.IsPresent(permissions.Databases) {
+		res.Databases = &wrapperspb.StringValue{Value: permissions.Databases.ValueString()}
 	}
 
 	return res, diags

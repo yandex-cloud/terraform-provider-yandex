@@ -95,6 +95,10 @@ func testAccDataSourceMDBMGUserAttributesCheck(datasourceName string, resourceNa
 				"permissions.sanitize_payload",
 			},
 			{
+				"permissions.databases",
+				"permissions.databases",
+			},
+			{
 				"enabled",
 				"enabled",
 			},
@@ -152,7 +156,7 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
 
 	config = {
 		password = "mySecre4tP@ssw0rd"
-	    version = "8.1-valkey"
+	    version = "9.1-valkey"
 	}
 
 	resources = {
@@ -178,6 +182,7 @@ resource "yandex_mdb_redis_user" "foo" {
 		patterns = "~456*"
 		pub_sub_channels = "&123*"
 		sanitize_payload = "sanitize-payload"
+		databases = "0,1,2"
   	}
 	enabled = false
 }
