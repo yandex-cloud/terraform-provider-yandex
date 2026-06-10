@@ -38,6 +38,12 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			rawConfig := d.GetRawConfig()
+			hasPassword := !rawConfig.IsNull() && rawConfig.GetAttr("password").IsKnown() && !rawConfig.GetAttr("password").IsNull()
+			hasPasswordWo := !rawConfig.IsNull() && rawConfig.GetAttr("password_wo").IsKnown() && !rawConfig.GetAttr("password_wo").IsNull()
+			if hasPassword && hasPasswordWo {
+				return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+			}
 			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
 		},
 
@@ -67,6 +73,17 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Description: "The password of the user.",
 				Optional:    true,
 				Sensitive:   true,
+			},
+			"password_wo": {
+				Type:        schema.TypeString,
+				Description: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates.",
+				Optional:    true,
+				WriteOnly:   true,
+			},
+			"password_wo_version": {
+				Type:        schema.TypeInt,
+				Description: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:    true,
 			},
 			"login": {
 				Type:        schema.TypeBool,
@@ -221,6 +238,14 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 
 	if v, ok := d.GetOkExists("password"); ok {
 		user.Password = v.(string)
+	}
+
+	rawConfig := d.GetRawConfig()
+	if !rawConfig.IsNull() {
+		pwWo := rawConfig.GetAttr("password_wo")
+		if pwWo.IsKnown() && !pwWo.IsNull() {
+			user.Password = pwWo.AsString()
+		}
 	}
 
 	if v, ok := d.GetOkExists("login"); ok {
@@ -385,6 +410,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 	updatePath := []string{}
 	changeMask := map[string]string{
 		"password":                                     "password",
+		"password_wo_version":                          "password",
 		"permission":                                   "permissions",
 		"login":                                        "login",
 		"grants":                                       "grants",
