@@ -899,7 +899,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -996,7 +996,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1206,7 +1206,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1292,7 +1292,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1382,7 +1382,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 2
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1424,6 +1424,12 @@ locals {
     "ru-central1-b",
     "ru-central1-d",
   ]
+  zone_a = [
+    "ru-central1-a",
+  ]
+  zone_b = [
+    "ru-central1-b",
+  ]
 }
 
 resource "yandex_mdb_opensearch_cluster" "%[1]s" {
@@ -1446,11 +1452,9 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "data1"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones
+        zone_ids             = local.zone_a
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA"]
         resources {
@@ -1463,11 +1467,9 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "data2"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zones
+        zone_ids             = local.zone_b
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA"]
         resources {
@@ -1518,7 +1520,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 2
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1637,7 +1639,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "dash0"
         assign_public_ip     = false
         hosts_count          = 2
-        zone_ids             = local.zones  
+        zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
@@ -1721,7 +1723,7 @@ resource "yandex_vpc_security_group" "mdb-opensearch-test-sg-x" {
 
 resource "yandex_vpc_security_group" "mdb-opensearch-test-sg-y" {
   network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
-  
+
   ingress {
     protocol          = "ANY"
     description       = "Allow incoming traffic from members of the same security group"
