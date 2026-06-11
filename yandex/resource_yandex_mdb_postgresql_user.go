@@ -79,6 +79,7 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Description: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates.",
 				Optional:    true,
 				WriteOnly:   true,
+				Sensitive:   true,
 			},
 			"password_wo_version": {
 				Type:        schema.TypeInt,
