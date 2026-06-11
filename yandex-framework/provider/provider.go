@@ -25,7 +25,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_desktop_group"
 	yandex_cloud_desktops_image "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloud_desktops_image"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/cloudregistry_registry_ip_permission"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_chart"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_dashboard"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_dataset"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datalens_workbook"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/gitlab_instance"
@@ -348,7 +352,11 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		cloud_desktops_desktop_group.NewResource,
 		cloud_desktops_desktop.NewResource,
 		mdb_clickhouse_cluster_v2.NewClickHouseClusterResourceV2,
+		datalens_workbook.NewResource,
 		datalens_connection.NewResource,
+		datalens_dataset.NewResource,
+		datalens_chart.NewResource,
+		datalens_dashboard.NewResource,
 	}, yandex_gen.GetProviderResources()...)
 }
 
@@ -385,7 +393,11 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		cloud_desktops_desktop_group.NewDatasource,
 		cloud_desktops_desktop.NewDatasource,
 		mdb_clickhouse_cluster_v2.NewDataSource,
+		datalens_workbook.NewDataSource,
 		datalens_connection.NewDataSource,
+		datalens_dataset.NewDataSource,
+		datalens_chart.NewDataSource,
+		datalens_dashboard.NewDataSource,
 	}, yandex_gen.GetProviderDataSources()...)
 }
 
