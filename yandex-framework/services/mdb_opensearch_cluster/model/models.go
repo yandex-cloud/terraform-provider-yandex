@@ -42,6 +42,7 @@ type Config struct {
 	OpenSearch    types.Object `tfsdk:"opensearch"`
 	Dashboards    types.Object `tfsdk:"dashboards"`
 	Access        types.Object `tfsdk:"access"`
+	AuditLog      types.Object `tfsdk:"audit_log"`
 }
 
 var ConfigAttrTypes = map[string]attr.Type{
@@ -50,6 +51,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"opensearch":     types.ObjectType{AttrTypes: OpenSearchSubConfigAttrTypes},
 	"dashboards":     types.ObjectType{AttrTypes: DashboardsSubConfigAttrTypes},
 	"access":         types.ObjectType{AttrTypes: accessAttrTypes},
+	"audit_log":      types.ObjectType{AttrTypes: AuditLogTypes},
 }
 
 func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *OpenSearch) diag.Diagnostics {
@@ -141,12 +143,18 @@ func configToState(ctx context.Context, cfg *opensearch.ClusterConfig, state *Op
 		return types.ObjectUnknown(ConfigAttrTypes), diags
 	}
 
+	auditLog, diags := auditLogToObject(ctx, cfg.AuditLog)
+	if diags.HasError() {
+		return types.ObjectUnknown(AuditLogTypes), diags
+	}
+
 	return types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
 		Version:       types.StringValue(cfg.GetVersion()),
 		AdminPassword: adminPassword,
 		OpenSearch:    opensearchSubConfig,
 		Dashboards:    dashboardSubConfig,
 		Access:        access,
+		AuditLog:      auditLog,
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	osconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -130,12 +131,21 @@ func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensea
 		Config:     osCreateSpecCfg2,
 	}
 
+	var auditLog *osconfig.AuditLog
+	if !(config.AuditLog.IsUnknown() || config.AuditLog.IsNull()) {
+		auditLog, diags = model.PrepareCreateAuditLog(ctx, config.AuditLog)
+		if diags.HasError() {
+			return nil, diags
+		}
+	}
+
 	if config.Dashboards.IsNull() || config.Dashboards.IsUnknown() {
 		return &opensearch.ConfigCreateSpec{
 			Access:         access,
 			AdminPassword:  config.AdminPassword.ValueString(),
 			Version:        config.Version.ValueString(),
 			OpensearchSpec: opensearchSpec,
+			AuditLog:       auditLog,
 		}, diags
 	}
 
@@ -159,6 +169,7 @@ func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensea
 		Version:        config.Version.ValueString(),
 		OpensearchSpec: opensearchSpec,
 		DashboardsSpec: dashboardsSpec,
+		AuditLog:       auditLog,
 	}, diags
 }
 

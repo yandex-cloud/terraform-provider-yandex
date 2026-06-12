@@ -251,6 +251,15 @@ For details, see [OpenSearch documentation](https://docs.opensearch.org/latest/i
         - `disk_size` (**Required**)(Number). Volume of the storage available to a host, in bytes.
         - `disk_type_id` (**Required**)(String). Type of the storage of OpenSearch hosts.
         - `resource_preset_id` (**Required**)(String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).
+  - `audit_log` [Block]. OpenSearch audit log configuration settings.
+    - `compliance_enabled` (Bool). Enables audit logging on changes to a security index, such as changes to roles mappings and role creation or deletion.
+    - `log_request_body` (Bool). Includes the body of the request (if available) for both REST and the transport layer.
+    - `log_search_queries` (Bool). Enables indices data read requests logging.
+    - `log_data_modifications` (Bool). Enables indices data write request logging.
+    - `log_index_metadata_access` (Bool). Enables indices metadata requests logging.
+    - `log_monitoring_checks` (Bool). Enables monitoring data requests logging.
+    - `log_index_maintenance` (Bool). Enables indices maintenance requests logging, such as indices refreshes, flushes and merges.
+    - `log_backup_operations` (Bool). Enables snapshots and repositories requests logging.
 - `maintenance_window` [Block]. 
   - `day` (String). 
   - `hour` (Number). 

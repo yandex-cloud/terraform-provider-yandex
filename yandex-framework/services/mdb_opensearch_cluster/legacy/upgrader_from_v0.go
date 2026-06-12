@@ -48,6 +48,7 @@ type config struct {
 	OpenSearch    types.List   `tfsdk:"opensearch"`
 	Dashboards    types.List   `tfsdk:"dashboards"`
 	Access        types.Object `tfsdk:"access"`
+	AuditLog      types.Object `tfsdk:"audit_log"`
 }
 
 type openSearchSubConfig struct {
@@ -303,6 +304,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				Version:       oldConfig.Version,
 				AdminPassword: oldConfig.AdminPassword,
 				Access:        oldConfig.Access,
+				AuditLog:      oldConfig.AuditLog,
 			}
 
 			openSearchSubConfigs := make([]openSearchSubConfig, 0, 1)

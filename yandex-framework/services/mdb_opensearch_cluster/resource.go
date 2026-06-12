@@ -503,6 +503,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
+					"audit_log": common_schema.AuditLog(),
 				},
 				Blocks: map[string]schema.Block{
 					"opensearch": schema.SingleNestedBlock{

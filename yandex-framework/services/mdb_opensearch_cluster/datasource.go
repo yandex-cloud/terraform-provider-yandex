@@ -258,6 +258,7 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 						Optional:            true,
 						Sensitive:           true,
 					},
+					"audit_log": common_schema.AuditLog(),
 				},
 			},
 			"maintenance_window": schema.SingleNestedBlock{

@@ -172,5 +172,18 @@ func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opens
 		config.Access = access
 	}
 
+	if !plan.AuditLog.IsUnknown() && !plan.AuditLog.Equal(state.AuditLog) {
+		auditLog, auditLogUpdateMask, diags := model.PrepareUpdateAuditLog(ctx, plan.AuditLog, state.AuditLog)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+		if len(auditLogUpdateMask) > 0 {
+			config.AuditLog = auditLog
+			for _, m := range auditLogUpdateMask {
+				updateMaskPaths = append(updateMaskPaths, fmt.Sprintf("config_spec.audit_log.%s", m))
+			}
+		}
+	}
+
 	return config, updateMaskPaths, diags
 }
