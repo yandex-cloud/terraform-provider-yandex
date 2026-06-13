@@ -90,6 +90,7 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: common.ResourceDescriptions["subnet_ids"],
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"topic": {
@@ -1013,6 +1014,12 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	if err := d.Set("host", flattenKafkaHosts(hosts)); err != nil {
+		return err
+	}
+
+	actualSubnets := flattenKafkaClusterSubnets(hosts)
+	stateSubnets := expandStringSlice(d.Get("subnet_ids").([]interface{}))
+	if err := d.Set("subnet_ids", orderKafkaSubnetsByState(stateSubnets, actualSubnets)); err != nil {
 		return err
 	}
 

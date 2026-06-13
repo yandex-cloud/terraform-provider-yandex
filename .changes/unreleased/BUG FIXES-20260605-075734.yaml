@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_kafka: populate `subnet_ids` on read so `yandex_mdb_kafka_cluster` no longer shows a permanent diff after import'
+time: 2026-06-05T07:57:34+03:00

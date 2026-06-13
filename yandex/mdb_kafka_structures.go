@@ -1152,6 +1152,51 @@ func flattenKafkaHosts(hosts []*kafka.Host) *schema.Set {
 	return result
 }
 
+func flattenKafkaClusterSubnets(hosts []*kafka.Host) []string {
+	subnets := make([]string, 0, len(hosts))
+	seen := make(map[string]struct{}, len(hosts))
+	for _, host := range hosts {
+		subnetID := host.GetSubnetId()
+		if subnetID == "" {
+			continue
+		}
+		if _, ok := seen[subnetID]; ok {
+			continue
+		}
+		seen[subnetID] = struct{}{}
+		subnets = append(subnets, subnetID)
+	}
+	return subnets
+}
+
+func orderKafkaSubnetsByState(stateSubnets, actualSubnets []string) []string {
+	actual := make(map[string]struct{}, len(actualSubnets))
+	for _, id := range actualSubnets {
+		actual[id] = struct{}{}
+	}
+
+	ordered := make([]string, 0, len(actualSubnets))
+	used := make(map[string]struct{}, len(actualSubnets))
+	for _, id := range stateSubnets {
+		if _, ok := actual[id]; !ok {
+			continue
+		}
+		if _, dup := used[id]; dup {
+			continue
+		}
+		used[id] = struct{}{}
+		ordered = append(ordered, id)
+	}
+	for _, id := range actualSubnets {
+		if _, ok := used[id]; ok {
+			continue
+		}
+		used[id] = struct{}{}
+		ordered = append(ordered, id)
+	}
+	return ordered
+}
+
 func kafkaUsersPasswords(users []*kafka.UserSpec) map[string]string {
 	result := map[string]string{}
 	for _, u := range users {
