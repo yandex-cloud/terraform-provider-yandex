@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'trino: add `user_s3` option to `exchange_manager` in trino_cluster resource'
+time: 2026-05-22T06:05:00.000000000+00:00

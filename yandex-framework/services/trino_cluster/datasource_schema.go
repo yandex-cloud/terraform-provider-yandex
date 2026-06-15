@@ -151,6 +151,23 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 								Description:         "Use S3 created on service side as exchange manager.",
 								MarkdownDescription: "Use S3 created on service side as exchange manager.",
 							},
+							"s3": schema.SingleNestedAttribute{
+								Attributes: map[string]schema.Attribute{
+									"bucket": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Name of the Object Storage bucket used as exchange manager storage.",
+										MarkdownDescription: "Name of the Object Storage bucket used as exchange manager storage.",
+									},
+								},
+								CustomType: S3Type{
+									ObjectType: types.ObjectType{
+										AttrTypes: S3Value{}.AttributeTypes(ctx),
+									},
+								},
+								Computed:            true,
+								Description:         "Use user Object Storage bucket as exchange manager.",
+								MarkdownDescription: "Use user Object Storage bucket as exchange manager.",
+							},
 						},
 						CustomType: ExchangeManagerType{
 							ObjectType: types.ObjectType{

@@ -202,6 +202,23 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "Additional properties.",
 								MarkdownDescription: "Additional properties.",
 							},
+							"s3": schema.SingleNestedAttribute{
+								Attributes: map[string]schema.Attribute{
+									"bucket": schema.StringAttribute{
+										Required:            true,
+										Description:         "Name of the Object Storage bucket used as exchange manager storage.",
+										MarkdownDescription: "Name of the Object Storage bucket used as exchange manager storage.",
+									},
+								},
+								CustomType: S3Type{
+									ObjectType: types.ObjectType{
+										AttrTypes: S3Value{}.AttributeTypes(ctx),
+									},
+								},
+								Optional:            true,
+								Description:         "Use user Object Storage bucket as exchange manager.",
+								MarkdownDescription: "Use user Object Storage bucket as exchange manager.",
+							},
 							"service_s3": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{},
 								CustomType: ServiceS3Type{
@@ -209,7 +226,7 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 										AttrTypes: ServiceS3Value{}.AttributeTypes(ctx),
 									},
 								},
-								Required:            true,
+								Optional:            true,
 								Description:         "Use S3 created on service side as exchange manager.",
 								MarkdownDescription: "Use S3 created on service side as exchange manager.",
 							},
@@ -222,6 +239,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 						Required:            true,
 						Description:         "Configuration for exchange manager.",
 						MarkdownDescription: "Configuration for exchange manager.",
+						Validators: []validator.Object{
+							onlyOneOptionValidator("ExchangeManager", "service_s3", "s3"),
+						},
 					},
 					"policy": schema.StringAttribute{
 						Required:            true,
@@ -2159,6 +2179,24 @@ func (t ExchangeManagerType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`additional_properties expected to be basetypes.MapValue, was: %T`, additionalPropertiesAttribute))
 	}
 
+	s3Attribute, ok := attributes["s3"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`s3 is missing from object`)
+
+		return nil, diags
+	}
+
+	s3Val, ok := s3Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`s3 expected to be basetypes.ObjectValue, was: %T`, s3Attribute))
+	}
+
 	serviceS3Attribute, ok := attributes["service_s3"]
 
 	if !ok {
@@ -2183,6 +2221,7 @@ func (t ExchangeManagerType) ValueFromObject(ctx context.Context, in basetypes.O
 
 	return ExchangeManagerValue{
 		AdditionalProperties: additionalPropertiesVal,
+		S3:                   s3Val,
 		ServiceS3:            serviceS3Val,
 		state:                attr.ValueStateKnown,
 	}, diags
@@ -2269,6 +2308,24 @@ func NewExchangeManagerValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`additional_properties expected to be basetypes.MapValue, was: %T`, additionalPropertiesAttribute))
 	}
 
+	s3Attribute, ok := attributes["s3"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`s3 is missing from object`)
+
+		return NewExchangeManagerValueUnknown(), diags
+	}
+
+	s3Val, ok := s3Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`s3 expected to be basetypes.ObjectValue, was: %T`, s3Attribute))
+	}
+
 	serviceS3Attribute, ok := attributes["service_s3"]
 
 	if !ok {
@@ -2293,6 +2350,7 @@ func NewExchangeManagerValue(attributeTypes map[string]attr.Type, attributes map
 
 	return ExchangeManagerValue{
 		AdditionalProperties: additionalPropertiesVal,
+		S3:                   s3Val,
 		ServiceS3:            serviceS3Val,
 		state:                attr.ValueStateKnown,
 	}, diags
@@ -2367,18 +2425,22 @@ var _ basetypes.ObjectValuable = ExchangeManagerValue{}
 
 type ExchangeManagerValue struct {
 	AdditionalProperties basetypes.MapValue    `tfsdk:"additional_properties"`
+	S3                   basetypes.ObjectValue `tfsdk:"s3"`
 	ServiceS3            basetypes.ObjectValue `tfsdk:"service_s3"`
 	state                attr.ValueState
 }
 
 func (v ExchangeManagerValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["additional_properties"] = basetypes.MapType{
 		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["s3"] = basetypes.ObjectType{
+		AttrTypes: S3Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["service_s3"] = basetypes.ObjectType{
 		AttrTypes: ServiceS3Value{}.AttributeTypes(ctx),
@@ -2388,7 +2450,7 @@ func (v ExchangeManagerValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.AdditionalProperties.ToTerraformValue(ctx)
 
@@ -2397,6 +2459,14 @@ func (v ExchangeManagerValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 		}
 
 		vals["additional_properties"] = val
+
+		val, err = v.S3.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["s3"] = val
 
 		val, err = v.ServiceS3.ToTerraformValue(ctx)
 
@@ -2434,6 +2504,27 @@ func (v ExchangeManagerValue) String() string {
 
 func (v ExchangeManagerValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var s3 basetypes.ObjectValue
+
+	if v.S3.IsNull() {
+		s3 = types.ObjectNull(
+			S3Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.S3.IsUnknown() {
+		s3 = types.ObjectUnknown(
+			S3Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.S3.IsNull() && !v.S3.IsUnknown() {
+		s3 = types.ObjectValueMust(
+			S3Value{}.AttributeTypes(ctx),
+			v.S3.Attributes(),
+		)
+	}
 
 	var serviceS3 basetypes.ObjectValue
 
@@ -2473,6 +2564,9 @@ func (v ExchangeManagerValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"additional_properties": basetypes.MapType{
 				ElemType: types.StringType,
 			},
+			"s3": basetypes.ObjectType{
+				AttrTypes: S3Value{}.AttributeTypes(ctx),
+			},
 			"service_s3": basetypes.ObjectType{
 				AttrTypes: ServiceS3Value{}.AttributeTypes(ctx),
 			},
@@ -2482,6 +2576,9 @@ func (v ExchangeManagerValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	attributeTypes := map[string]attr.Type{
 		"additional_properties": basetypes.MapType{
 			ElemType: types.StringType,
+		},
+		"s3": basetypes.ObjectType{
+			AttrTypes: S3Value{}.AttributeTypes(ctx),
 		},
 		"service_s3": basetypes.ObjectType{
 			AttrTypes: ServiceS3Value{}.AttributeTypes(ctx),
@@ -2500,6 +2597,7 @@ func (v ExchangeManagerValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		attributeTypes,
 		map[string]attr.Value{
 			"additional_properties": additionalPropertiesVal,
+			"s3":                    s3,
 			"service_s3":            serviceS3,
 		})
 
@@ -2525,6 +2623,10 @@ func (v ExchangeManagerValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.S3.Equal(other.S3) {
+		return false
+	}
+
 	if !v.ServiceS3.Equal(other.ServiceS3) {
 		return false
 	}
@@ -2545,9 +2647,336 @@ func (v ExchangeManagerValue) AttributeTypes(ctx context.Context) map[string]att
 		"additional_properties": basetypes.MapType{
 			ElemType: types.StringType,
 		},
+		"s3": basetypes.ObjectType{
+			AttrTypes: S3Value{}.AttributeTypes(ctx),
+		},
 		"service_s3": basetypes.ObjectType{
 			AttrTypes: ServiceS3Value{}.AttributeTypes(ctx),
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = S3Type{}
+
+type S3Type struct {
+	basetypes.ObjectType
+}
+
+func (t S3Type) Equal(o attr.Type) bool {
+	other, ok := o.(S3Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t S3Type) String() string {
+	return "S3Type"
+}
+
+func (t S3Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	bucketAttribute, ok := attributes["bucket"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bucket is missing from object`)
+
+		return nil, diags
+	}
+
+	bucketVal, ok := bucketAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bucket expected to be basetypes.StringValue, was: %T`, bucketAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return S3Value{
+		Bucket: bucketVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewS3ValueNull() S3Value {
+	return S3Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewS3ValueUnknown() S3Value {
+	return S3Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewS3Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (S3Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing S3Value Attribute Value",
+				"While creating a S3Value value, a missing attribute value was detected. "+
+					"A S3Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("S3Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid S3Value Attribute Type",
+				"While creating a S3Value value, an invalid attribute value was detected. "+
+					"A S3Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("S3Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("S3Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra S3Value Attribute Value",
+				"While creating a S3Value value, an extra attribute value was detected. "+
+					"A S3Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra S3Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewS3ValueUnknown(), diags
+	}
+
+	bucketAttribute, ok := attributes["bucket"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bucket is missing from object`)
+
+		return NewS3ValueUnknown(), diags
+	}
+
+	bucketVal, ok := bucketAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bucket expected to be basetypes.StringValue, was: %T`, bucketAttribute))
+	}
+
+	if diags.HasError() {
+		return NewS3ValueUnknown(), diags
+	}
+
+	return S3Value{
+		Bucket: bucketVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewS3ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) S3Value {
+	object, diags := NewS3Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewS3ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t S3Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewS3ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewS3ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewS3ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewS3ValueMust(S3Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t S3Type) ValueType(ctx context.Context) attr.Value {
+	return S3Value{}
+}
+
+var _ basetypes.ObjectValuable = S3Value{}
+
+type S3Value struct {
+	Bucket basetypes.StringValue `tfsdk:"bucket"`
+	state  attr.ValueState
+}
+
+func (v S3Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["bucket"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Bucket.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bucket"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v S3Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v S3Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v S3Value) String() string {
+	return "S3Value"
+}
+
+func (v S3Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"bucket": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"bucket": v.Bucket,
+		})
+
+	return objVal, diags
+}
+
+func (v S3Value) Equal(o attr.Value) bool {
+	other, ok := o.(S3Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Bucket.Equal(other.Bucket) {
+		return false
+	}
+
+	return true
+}
+
+func (v S3Value) Type(ctx context.Context) attr.Type {
+	return S3Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v S3Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"bucket": basetypes.StringType{},
 	}
 }
 

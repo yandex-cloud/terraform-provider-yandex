@@ -75,6 +75,20 @@ resource "yandex_resourcemanager_folder_iam_member" "trino-sa-bindings-{{ .RandS
   role      = "managed-trino.integrationProvider"
   member    = "serviceAccount:${yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id}"
 }
+
+resource "yandex_resourcemanager_folder_iam_member" "trino-sa-storage-{{ .RandSuffix }}" {
+  folder_id = "{{ .FolderID }}"
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id}"
+}
+
+resource "yandex_storage_bucket" "trino-exchange-{{ .RandSuffix }}" {
+  bucket     = "trino-exchange-{{ .RandSuffix }}"
+  folder_id  = "{{ .FolderID }}"
+  depends_on = [
+    yandex_resourcemanager_folder_iam_member.trino-sa-storage-{{ .RandSuffix }}
+  ]
+}
 `)
 	require.NoError(t, err)
 	b := new(bytes.Buffer)
@@ -132,6 +146,7 @@ type RetryPolicyParams struct {
 
 type ExchangeManagerParams struct {
 	AdditionalProperties map[string]string
+	S3Bucket             string // Terraform expression for bucket; empty means service_s3
 }
 
 func trinoClusterConfig(t *testing.T, params trinoClusterConfigParams) string {
@@ -206,7 +221,13 @@ EOT
     }
     {{ end }}
     exchange_manager = {
+      {{ if .RetryPolicy.ExchangeManager.S3Bucket }}
+      s3 = {
+        bucket = {{ .RetryPolicy.ExchangeManager.S3Bucket }}
+      }
+      {{ else }}
       service_s3 = {}
+      {{ end }}
       {{ if .RetryPolicy.ExchangeManager.AdditionalProperties }}
       additional_properties = {
         {{ range $key, $val := .RetryPolicy.ExchangeManager.AdditionalProperties}}
@@ -252,6 +273,9 @@ EOT
 
   depends_on = [
     yandex_resourcemanager_folder_iam_member.trino-sa-bindings-{{ .RandSuffix }}
+    {{ if and .RetryPolicy .RetryPolicy.ExchangeManager.S3Bucket }}
+    , yandex_storage_bucket.trino-exchange-{{ .RandSuffix }}
+    {{ end }}
   ]
 }`)
 	require.NoError(t, err)
@@ -407,6 +431,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 						},
 						ExchangeManager: ExchangeManagerParams{
 							AdditionalProperties: map[string]string{},
+							S3Bucket:             fmt.Sprintf("yandex_storage_bucket.trino-exchange-%s.bucket", randSuffix),
 						},
 					},
 					Version:        "476",
@@ -440,6 +465,8 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "logging.min_level", "INFO"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.additional_properties.fault-tolerant-execution-max-task-split-count", "1024"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.s3.bucket", fmt.Sprintf("trino-exchange-%s", randSuffix)),
+					resource.TestCheckNoResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.service_s3"),
 
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.create", "50m"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "timeouts.update", "50m"),

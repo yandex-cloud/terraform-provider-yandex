@@ -58,7 +58,9 @@ func trinoDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 			AdditionalProperties: map[string]string{
 				"fault-tolerant-execution-max-task-split-count": "1024",
 			},
-			ExchangeManager: ExchangeManagerParams{},
+			ExchangeManager: ExchangeManagerParams{
+				S3Bucket: fmt.Sprintf("yandex_storage_bucket.trino-exchange-%s.bucket", randSuffix),
+			},
 		},
 		Version:        "476",
 		TrustedCerts:   []string{caCert1},
@@ -109,6 +111,8 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.min_level", "INFO"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
+		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.s3.bucket", fmt.Sprintf("trino-exchange-%s", randSuffix)),
+		resource.TestCheckNoResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.service_s3"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "version", "476"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
 		testCheckResourceGroupsEqual("data.yandex_trino_cluster.trino_cluster", "resource_groups_json", resourceGroups2),

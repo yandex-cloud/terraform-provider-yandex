@@ -196,27 +196,34 @@ func retryPolicyValueFromAPI(ctx context.Context, cfg *trino.RetryPolicyConfig) 
 		return NewRetryPolicyValueUnknown(), diags
 	}
 
-	_, ok := cfg.GetExchangeManager().GetStorage().GetType().(*trino.ExchangeManagerStorage_ServiceS3_)
-	if !ok {
-		d := diag.NewErrorDiagnostic("Failed to parse Trino cluster value received from Cloud API",
-			"ExchangeManager storage has unexpected type. Please update provider.")
-		return NewRetryPolicyValueUnknown(), diag.Diagnostics{d}
-	}
-
-	serviceS3, diags := ServiceS3Value{state: attr.ValueStateKnown}.ToObjectValue(ctx)
-	if diags.HasError() {
-		return NewRetryPolicyValueUnknown(), diags
-	}
-
-	exchangeManagerAdditionalProperties, diags := types.MapValueFrom(ctx, types.StringType, cfg.ExchangeManager.AdditionalProperties)
+	exchangeManagerAdditionalProperties, diags := types.MapValueFrom(ctx, types.StringType, cfg.GetExchangeManager().GetAdditionalProperties())
 	if diags.HasError() {
 		return NewRetryPolicyValueUnknown(), diags
 	}
 
 	exchangeManagerValue := ExchangeManagerValue{
 		AdditionalProperties: exchangeManagerAdditionalProperties,
-		ServiceS3:            serviceS3,
 		state:                attr.ValueStateKnown,
+	}
+
+	if storage := cfg.GetExchangeManager().GetStorage(); storage != nil {
+		switch storageType := storage.GetType().(type) {
+		case *trino.ExchangeManagerStorage_ServiceS3_:
+			serviceS3, dd := ServiceS3Value{state: attr.ValueStateKnown}.ToObjectValue(ctx)
+			diags.Append(dd...)
+			exchangeManagerValue.ServiceS3 = serviceS3
+		case *trino.ExchangeManagerStorage_S3_:
+			s3Value := S3Value{
+				Bucket: types.StringValue(storageType.S3.GetBucket()),
+				state:  attr.ValueStateKnown,
+			}
+			s3, dd := s3Value.ToObjectValue(ctx)
+			diags.Append(dd...)
+			exchangeManagerValue.S3 = s3
+		}
+	}
+	if diags.HasError() {
+		return NewRetryPolicyValueUnknown(), diags
 	}
 
 	exchangeManagerObject, diags := exchangeManagerValue.ToObjectValue(ctx)
@@ -276,7 +283,7 @@ func loggingValueFromAPI(cfg *trino.LoggingConfig) (LoggingValue, diag.Diagnosti
 		loggingValue.LogGroupId = types.StringValue(t.LogGroupId)
 	default:
 		diags.AddError("Failed to parse Trino cluster value received from Cloud API",
-			"Logging destination has unexpected type. Please update provider.")
+			"Logging destination has unexpected type")
 		return NewLoggingValueNull(), diags
 	}
 

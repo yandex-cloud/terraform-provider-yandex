@@ -309,12 +309,40 @@
                   "single_nested": {
                     "computed_optional_required": "required",
                     "description": "Configuration for exchange manager.",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [
+                            {
+                              "path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"
+                            }
+                          ],
+                          "schema_definition": "onlyOneOptionValidator(\"ExchangeManager\", \"service_s3\", \"s3\")"
+                        }
+                      }
+                    ],
                     "attributes": [
                       {
                         "name": "service_s3",
                         "single_nested": {
-                          "computed_optional_required": "required",
+                          "computed_optional_required": "optional",
                           "description": "Use S3 created on service side as exchange manager."
+                        }
+                      },
+                      {
+                        "name": "s3",
+                        "single_nested": {
+                          "computed_optional_required": "optional",
+                          "description": "Use user Object Storage bucket as exchange manager.",
+                          "attributes": [
+                            {
+                              "name": "bucket",
+                              "string": {
+                                "computed_optional_required": "required",
+                                "description": "Name of the Object Storage bucket used as exchange manager storage."
+                              }
+                            }
+                          ]
                         }
                       },
                       {

@@ -263,6 +263,27 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		exchangeManagerAdditionalProperties := make(map[string]string, len(exchangeManager.AdditionalProperties.Elements()))
 		diags.Append(exchangeManager.AdditionalProperties.ElementsAs(ctx, &exchangeManagerAdditionalProperties, false)...)
 
+		storage := &trino.ExchangeManagerStorage{}
+		switch {
+		case !isNullOrUnknown(exchangeManager.ServiceS3):
+			storage.Type = &trino.ExchangeManagerStorage_ServiceS3_{
+				ServiceS3: &trino.ExchangeManagerStorage_ServiceS3{},
+			}
+		case !isNullOrUnknown(exchangeManager.S3):
+			s3Object, dd := S3Type{}.ValueFromObject(ctx, exchangeManager.S3)
+			diags.Append(dd...)
+			if diags.HasError() {
+				return nil, nil, diags
+			}
+
+			s3 := s3Object.(S3Value)
+			storage.Type = &trino.ExchangeManagerStorage_S3_{
+				S3: &trino.ExchangeManagerStorage_S3{
+					Bucket: s3.Bucket.ValueString(),
+				},
+			}
+		}
+
 		// RetryPolicy
 		additionalProperties := make(map[string]string, len(plan.RetryPolicy.AdditionalProperties.Elements()))
 		diags.Append(plan.RetryPolicy.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
@@ -271,11 +292,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			Policy: trino.RetryPolicyConfig_RetryPolicy(trino.RetryPolicyConfig_RetryPolicy_value[plan.RetryPolicy.Policy.ValueString()]),
 			ExchangeManager: &trino.ExchangeManagerConfig{
 				AdditionalProperties: exchangeManagerAdditionalProperties,
-				Storage: &trino.ExchangeManagerStorage{
-					Type: &trino.ExchangeManagerStorage_ServiceS3_{
-						ServiceS3: &trino.ExchangeManagerStorage_ServiceS3{},
-					},
-				},
+				Storage:              storage,
 			},
 			AdditionalProperties: additionalProperties,
 		}

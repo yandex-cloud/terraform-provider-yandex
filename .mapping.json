@@ -100,6 +100,7 @@
   ".changes/0.208.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.208.0.md",
   ".changes/header.tpl.md":"opensource/terraform-provider-yandex-mirror/.changes/header.tpl.md",
   ".changes/unreleased/.gitkeep":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/.gitkeep",
+  ".changes/unreleased/FEATURES-20260522-trino-user-s3.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260522-trino-user-s3.yaml",
   ".changes/unreleased/FEATURES-20260604-164304.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260604-164304.yaml",
   ".changes/unreleased/FEATURES-20260611-150458.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260611-150458.yaml",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",
