@@ -2,6 +2,11 @@
 
 
 
+## 0.209.0 (June 15, 2026)
+##### FEATURES:
+* redis: add databases parameter to yandex_mdb_redis_user resource
+* opensearch: add server flags compliance_enabled,log_request_body,log_search_queries,log_data_modifications,log_index_metadata_access,log_monitoring_checks,log_index_maintenance,log_backup_operations
+
 ## 0.208.0 (June 8, 2026)
 ##### FEATURES:
 * mdb_clickhouse: add host recreation option

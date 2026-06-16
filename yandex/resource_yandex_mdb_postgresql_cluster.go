@@ -551,8 +551,8 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 				Type:         schema.TypeInt,
 				Description:  "Host priority in HA group. It works only when `name` is set. Must be between 0 and 100.",
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntBetween(0, 100),
-				Default:      0,
 			},
 			"replication_source_name": {
 				Type:        schema.TypeString,

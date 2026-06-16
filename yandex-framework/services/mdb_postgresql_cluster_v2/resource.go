@@ -161,7 +161,9 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 							Validators: []validator.Int64{
 								int64validator.Between(0, 100),
 							},
-							Default: int64default.StaticInt64(0),
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
 						},
 					},
 				},

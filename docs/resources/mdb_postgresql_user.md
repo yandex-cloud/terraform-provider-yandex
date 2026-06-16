@@ -21,10 +21,6 @@ resource "yandex_mdb_postgresql_user" "my_user" {
     default_transaction_isolation = "read committed"
     log_min_duration_statement    = 5000
   }
-  user_connection_manager {
-    connection_folder_id = "some-folder-id"
-    secret_folder_id     = "some-folder-id"
-  }
 }
 
 resource "yandex_mdb_postgresql_cluster" "my_cluster" {
@@ -62,11 +58,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `auth_method` (String). Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.
 - `cluster_id` (**Required**)(String). The ID of the PostgreSQL cluster.
 - `conn_limit` (Number). The maximum number of connections per user. (Default 50).
-- `connection_manager` (*Read-Only, Deprecated*) (Map Of String). Connection Manager connection configuration. Populated from `user_connection_manager`. **Deprecated**: use `user_connection_manager` instead.
-- `user_connection_manager` [Block]. Connection Manager settings for the user. If not specified, Connection Manager will still create a connection using the cluster's folder for both connection and secret. Cannot be changed after user creation.
-  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user. Computed by the server.
-  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified.
-  - `secret_folder_id` (String). ID of the folder where the connection secret is created. Defaults to the cluster's folder if not specified.
+- `connection_manager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Populated from `user_connection_manager`.
 - `deletion_protection` (String). The `true` value means that resource is protected from accidental deletion.
 - `generate_password` (Bool). Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.
 
@@ -131,7 +123,11 @@ The default is password_encryption setting for cluster.
   - `create` (String). 
   - `delete` (String). 
   - `read` (String). 
-  - `update` (String).
+  - `update` (String). 
+- `user_connection_manager` [Block]. Connection Manager settings for the user.
+  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
+  - `connection_id` (*Read-Only*) (String). ID of the connection manager connection for this user. Computed by the server.
+  - `secret_folder_id` (String). ID of the folder where the secret is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
 
 ## Import
 

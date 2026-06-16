@@ -1876,6 +1876,88 @@ func testAccMDBPGClusterHostsStep4(name, version string) string {
 `)
 }
 
+// Test that an explicitly set host priority is not reset when omitted from config
+func TestAccMDBPostgreSQLCluster_priority(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-priority")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.cluster_priority"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterPriorityStep1(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("priority"), knownvalue.Int64Exact(10)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterPriorityStep2(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("priority"), knownvalue.Int64Exact(10)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterPriorityStep0(name, version, hosts string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "cluster_priority" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Priority Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+%s
+}
+`, name, version, hosts)
+}
+
+// Set host priority explicitly
+func testAccMDBPGClusterPriorityStep1(name, version string) string {
+	return testAccMDBPGClusterPriorityStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      priority  = 10
+    }
+  }
+`)
+}
+
+// Omit priority: the previously set value must be preserved (no reset to 0)
+func testAccMDBPGClusterPriorityStep2(name, version string) string {
+	return testAccMDBPGClusterPriorityStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+`)
+}
+
 func testAccMDBPGClusterHostsSpecialCaseStep0(name, version, hosts string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_v2" "cluster_hosts_special_case_tests" {

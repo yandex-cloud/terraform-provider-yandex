@@ -2158,6 +2158,14 @@ func TestAccMDBPostgreSQLCluster_priority(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
+			// Omitting priority from config must keep the previously set value (no reset to 0)
+			{
+				Config: testAccMDBPGClusterConfigPriorityOmitted(clusterName, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.priority", "10"),
+				),
+			},
 			// Host priority without name -> error
 			{
 				Config:      testAccMDBPGClusterConfigPriorityWithoutName(clusterName, version),
@@ -2192,6 +2200,32 @@ resource "yandex_mdb_postgresql_cluster" "test_priority" {
   }
 }
 `, name, version, priority)
+}
+
+func testAccMDBPGClusterConfigPriorityOmitted(name, version string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "test_priority" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  host {
+    name      = "host-a"
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+  }
+}
+`, name, version)
 }
 
 func testAccMDBPGClusterConfigPriorityWithoutName(name, version string) string {
