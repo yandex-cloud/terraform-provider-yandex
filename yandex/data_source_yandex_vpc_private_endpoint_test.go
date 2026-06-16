@@ -93,3 +93,70 @@ func testAccDataSourceVPCPrivateEndpointConfig(networkName, subnetName, peName s
 	}
 	return spec + vpcPrivateEndpointDataSourceByID
 }
+
+func TestAccDataSourceVPCPrivateEndpoint_DnsRecords(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	peName := acctest.RandomWithPrefix("tf-private-endpoint")
+
+	var pe privatelink.PrivateEndpoint
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCPrivateEndpointDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVPCPrivateEndpointDnsRecordsConfig(networkName, subnetName, peName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCPrivateEndpointExists("yandex_vpc_private_endpoint.pe", &pe),
+					resource.TestCheckResourceAttr("data.yandex_vpc_private_endpoint.pe", "dns_options.#", "1"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_private_endpoint.pe", "dns_options.0.private_dns_records_enabled", "true"),
+					resource.TestCheckResourceAttrSet("data.yandex_vpc_private_endpoint.pe", "dns_records.#"),
+					resource.TestCheckResourceAttrSet("data.yandex_vpc_private_endpoint.pe", "dns_records.0.name"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceVPCPrivateEndpoint_ServiceName(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	peName := acctest.RandomWithPrefix("tf-private-endpoint")
+
+	const serviceName = "yandex.cloud.storage"
+
+	var pe privatelink.PrivateEndpoint
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCPrivateEndpointDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVPCPrivateEndpointServiceNameConfig(networkName, subnetName, peName, serviceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCPrivateEndpointExists("yandex_vpc_private_endpoint.pe", &pe),
+					resource.TestCheckResourceAttr("data.yandex_vpc_private_endpoint.pe", "name", peName),
+					resource.TestCheckResourceAttr("data.yandex_vpc_private_endpoint.pe", "service_name", serviceName),
+					resource.TestCheckResourceAttrSet("data.yandex_vpc_private_endpoint.pe", "endpoint_address.0.address"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceVPCPrivateEndpointDnsRecordsConfig(networkName, subnetName, peName string) string {
+	return testAccVPCPrivateEndpointConfigDnsOptions(networkName, subnetName, peName) +
+		vpcPrivateEndpointDataSourceByID
+}
+
+func testAccDataSourceVPCPrivateEndpointServiceNameConfig(networkName, subnetName, peName, serviceName string) string {
+	return testAccVPCPrivateEndpointConfigServiceName(networkName, subnetName, peName, serviceName) +
+		vpcPrivateEndpointDataSourceByID
+}

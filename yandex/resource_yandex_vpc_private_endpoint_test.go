@@ -277,6 +277,95 @@ resource "yandex_vpc_private_endpoint" "pe" {
 `, networkName, subnetName, peName)
 }
 
+func TestAccVPCPrivateEndpoint_DnsRecords(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	peName := acctest.RandomWithPrefix("tf-private-endpoint")
+
+	var pe privatelink.PrivateEndpoint
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCPrivateEndpointDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCPrivateEndpointConfigDnsOptions(networkName, subnetName, peName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCPrivateEndpointExists("yandex_vpc_private_endpoint.pe", &pe),
+					resource.TestCheckResourceAttr("yandex_vpc_private_endpoint.pe", "dns_options.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_private_endpoint.pe", "dns_options.0.private_dns_records_enabled", "true"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "dns_records.#"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "dns_records.0.name"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccVPCPrivateEndpoint_ServiceName(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	peName := acctest.RandomWithPrefix("tf-private-endpoint")
+
+	const serviceName = "yandex.cloud.storage"
+
+	var pe privatelink.PrivateEndpoint
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCPrivateEndpointDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCPrivateEndpointConfigServiceName(networkName, subnetName, peName, serviceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCPrivateEndpointExists("yandex_vpc_private_endpoint.pe", &pe),
+					resource.TestCheckResourceAttr("yandex_vpc_private_endpoint.pe", "name", peName),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "folder_id"),
+					testAccCheckCreatedAtAttr("yandex_vpc_private_endpoint.pe"),
+					resource.TestCheckResourceAttr("yandex_vpc_private_endpoint.pe", "service_name", serviceName),
+					resource.TestCheckResourceAttr("yandex_vpc_private_endpoint.pe", "endpoint_address.#", "1"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "endpoint_address.0.subnet_id"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "endpoint_address.0.address"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_private_endpoint.pe", "endpoint_address.0.address_id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccVPCPrivateEndpointConfigServiceName(networkName, subnetName, peName, serviceName string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_subnet" "subnet-a" {
+  name           = "%s"
+  description    = "description for subnet-a"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.0.0.0/16"]
+}
+
+resource "yandex_vpc_private_endpoint" "pe" {
+  name       = "%s"
+  network_id = yandex_vpc_network.foo.id
+
+  service_name = "%s"
+
+  endpoint_address {
+    subnet_id = yandex_vpc_subnet.subnet-a.id
+  }
+}
+`, networkName, subnetName, peName, serviceName)
+}
+
 func testAccVPCPrivateEndpointConfigAddressSpec(networkName, subnetName, peName string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "foo" {

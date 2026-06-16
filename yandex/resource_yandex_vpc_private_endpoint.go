@@ -89,11 +89,18 @@ func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Private endpoint for Object Storage.",
 				MaxItems:    1,
-				// NOTE: For now we require object storage, but later there will be more choices / services.
-				Required: true,
+				Optional:    true,
+				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
+			},
+
+			"service_name": {
+				Type:        schema.TypeString,
+				Description: "Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).",
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"endpoint_address": {
@@ -143,6 +150,21 @@ func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 					},
 				},
 			},
+
+			"dns_records": {
+				Type:        schema.TypeList,
+				Description: "Private endpoint DNS records block.",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "Name of the dns record.",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -180,8 +202,16 @@ func resourceYandexVPCPrivateEndpointCreate(d *schema.ResourceData, meta interfa
 		AddressSpec: addressSpec,
 	}
 
-	if d.Get("object_storage") != nil {
+	if d.HasChange("object_storage") && d.HasChange("service_name") {
+		return fmt.Errorf("only one of 'object_storage' or 'service_name' can be specified")
+	} else if d.HasChange("object_storage") {
 		req.Service = &privatelink.CreatePrivateEndpointRequest_ObjectStorage{}
+	} else if d.HasChange("service_name") {
+		req.Service = &privatelink.CreatePrivateEndpointRequest_ServiceName{
+			ServiceName: d.Get("service_name").(string),
+		}
+	} else {
+		return fmt.Errorf("one of 'object_storage' or 'service_name' must be specified")
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -267,10 +297,19 @@ func yandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interface{}, id s
 		return err
 	}
 
+	dnsRecords := flattenPrivateEndpointDnsRecords(privateEndpoint.GetDnsRecords())
+	if err := d.Set("dns_records", dnsRecords); err != nil {
+		return err
+	}
+
 	switch v := privateEndpoint.Service.(type) {
 	case *privatelink.PrivateEndpoint_ObjectStorage_:
 		objStorage := flattenPrivateEndpointObjectStorage(v.ObjectStorage)
 		if err := d.Set("object_storage", objStorage); err != nil {
+			return err
+		}
+	case *privatelink.PrivateEndpoint_ServiceName:
+		if err := d.Set("service_name", v.ServiceName); err != nil {
 			return err
 		}
 	}
@@ -413,6 +452,16 @@ func flattenPrivateEndpointDnsOptions(dnsOpts *privatelink.PrivateEndpoint_DnsOp
 	res := make(map[string]interface{})
 	res["private_dns_records_enabled"] = dnsOpts.PrivateDnsRecordsEnabled
 	return []map[string]interface{}{res}
+}
+
+func flattenPrivateEndpointDnsRecords(dnsRecords []*privatelink.PrivateEndpoint_DnsRecord) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(dnsRecords))
+	for i, dnsRecord := range dnsRecords {
+		res[i] = map[string]interface{}{
+			"name": dnsRecord.GetName(),
+		}
+	}
+	return res
 }
 
 func flattenPrivateEndpointAddress(endpointAddr *privatelink.PrivateEndpoint_EndpointAddress) []map[string]interface{} {

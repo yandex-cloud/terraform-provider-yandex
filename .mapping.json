@@ -103,6 +103,7 @@
   ".changes/unreleased/.gitkeep":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/.gitkeep",
   ".changes/unreleased/BUG FIXES-20260611-164832.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20260611-164832.yaml",
   ".changes/unreleased/BUG FIXES-20260614-104157.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20260614-104157.yaml",
+  ".changes/unreleased/ENHANCEMENTS-20260525-133410.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/ENHANCEMENTS-20260525-133410.yaml",
   ".changes/unreleased/FEATURES-20260522-trino-user-s3.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260522-trino-user-s3.yaml",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",
   ".github/workflows/release.yml":"opensource/terraform-provider-yandex-mirror/.github/workflows/release.yml",

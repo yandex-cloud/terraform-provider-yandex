@@ -66,6 +66,11 @@ func dataSourceYandexVPCPrivateEndpoint() *schema.Resource {
 					Schema: map[string]*schema.Schema{},
 				},
 			},
+			"service_name": {
+				Type:        schema.TypeString,
+				Description: resourceYandexVPCPrivateEndpoint().Schema["service_name"].Description,
+				Optional:    true,
+			},
 			"endpoint_address": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -93,6 +98,18 @@ func dataSourceYandexVPCPrivateEndpoint() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"private_dns_records_enabled": {
 							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"dns_records": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
