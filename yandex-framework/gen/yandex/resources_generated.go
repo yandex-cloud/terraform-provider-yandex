@@ -5,6 +5,8 @@ package yandex
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_airflow_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
@@ -158,6 +160,8 @@ func init() {
 		yandex_airflow_cluster_iam_binding.NewResource,
 		yandex_cm_certificate_iam_binding.NewResource,
 		yandex_cm_certificate_iam_member.NewResource,
+		yandex_cloudregistry_folder.NewResource,
+		yandex_cloudregistry_folder_iam_binding.NewResource,
 		yandex_cloudregistry_lifecycle_policy.NewResource,
 		yandex_cloudregistry_registry.NewResource,
 		yandex_cloudregistry_registry_iam_binding.NewResource,
