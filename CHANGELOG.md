@@ -2,6 +2,15 @@
 
 
 
+## 0.210.0 (June 18, 2026)
+##### FEATURES:
+* trino: add `user_s3` option to `exchange_manager` in trino_cluster resource
+##### BUG FIXES:
+* postgresql: fix `yandex_mdb_postgresql_cluster` resetting host `priority` to 0 when it is not set in config
+* postgresql: fix `yandex_mdb_postgresql_cluster_v2` resetting host `priority` to 0 when it is not set in config
+##### ENHANCEMENTS:
+* vpc: added `service_name` and `dns_records` parameters in `yandex_vpc_private_endpoint` resource and data source.
+
 ## 0.209.0 (June 15, 2026)
 ##### FEATURES:
 * redis: add databases parameter to yandex_mdb_redis_user resource

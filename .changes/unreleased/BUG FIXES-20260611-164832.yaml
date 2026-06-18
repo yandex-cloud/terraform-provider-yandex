@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'postgresql: fix `yandex_mdb_postgresql_cluster` resetting host `priority` to 0 when it is not set in config'
-time: 2026-06-11T16:48:32.047987586+03:00
