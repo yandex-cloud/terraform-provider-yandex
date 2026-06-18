@@ -214,7 +214,8 @@ resource "yandex_vpc_subnet" "es-subnet-d" {
       - `subnet_ids` (List Of String). A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.
       - `zone_ids` (**Required**)(Set Of String). A set of availability zones where hosts of node group may be allocated.
       - `resources` [Block]. Resources allocated to hosts of this OpenSearch node group.
-        - `disk_size` (**Required**)(Number). Volume of the storage available to a host, in bytes.
+        - `disk_size` (Number). Volume of the storage available to a host, in bytes. **One of `disk_size` and `disk_size_gb` is required.**
+        - `disk_size_gb` (Number). Volume of the storage available to a host, in gigabytes. **One of `disk_size` and `disk_size_gb` is required.**
         - `disk_type_id` (**Required**)(String). Type of the storage of OpenSearch hosts.
         - `resource_preset_id` (**Required**)(String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-opensearch/concepts).
   - `opensearch` [Block]. Configuration for OpenSearch node groups.
@@ -239,7 +240,8 @@ For details, see [OpenSearch documentation](https://docs.opensearch.org/latest/i
     - `node_groups` [Block]. A set of named OpenSearch node group configurations.
       - `assign_public_ip` (Bool). Sets whether the hosts should get a public IP address.
       - `disk_size_autoscaling` [Block]. Node group disk size autoscaling settings.
-        - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details.
+        - `disk_size_limit` (Number). The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details. **One of `disk_size_limit` and `disk_size_gb_limit` is required.**
+        - `disk_size_gb_limit` (Number). The overall maximum for disk size (in gigabytes) that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-opensearch/concepts/storage#auto-rescale) for details. **One of `disk_size_limit` and `disk_size_gb_limit` is required.**
         - `emergency_usage_threshold` (Number). Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.
         - `planned_usage_threshold` (Number). Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.
       - `hosts_count` (**Required**)(Number). Number of hosts in this node group.
