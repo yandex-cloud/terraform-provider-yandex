@@ -14,12 +14,13 @@ import (
 
 	awspolicy "github.com/jen20/awspolicyequivalence"
 	storagepb "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -31,6 +32,7 @@ var storageClassSet = []string{
 	s3.StorageClassStandard,
 	s3.StorageClassCold,
 	s3.StorageClassIce,
+	s3.StorageClassIntelligentTiering,
 }
 
 func resourceYandexStorageBucket() *schema.Resource {
@@ -531,7 +533,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 									},
 									"storage_class": {
 										Type:         schema.TypeString,
-										Description:  "Specifies the storage class to which you want the object to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].",
+										Description:  "Specifies the storage class to which you want the object to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`, `INTELLIGENT_TIERING`].",
 										Required:     true,
 										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},
@@ -553,7 +555,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 									},
 									"storage_class": {
 										Type:         schema.TypeString,
-										Description:  "Specifies the storage class to which you want the noncurrent object versions to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].",
+										Description:  "Specifies the storage class to which you want the noncurrent object versions to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`, `INTELLIGENT_TIERING`].",
 										Required:     true,
 										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},

@@ -3,9 +3,10 @@ package s3
 import "github.com/aws/aws-sdk-go/service/s3"
 
 const (
-	StorageClassStandard = s3.StorageClassStandardIa
-	StorageClassCold     = "COLD"
-	StorageClassIce      = "ICE"
+	StorageClassStandard           = s3.StorageClassStandardIa
+	StorageClassCold               = "COLD"
+	StorageClassIce                = "ICE"
+	StorageClassIntelligentTiering = s3.StorageClassIntelligentTiering
 )
 
 const (
