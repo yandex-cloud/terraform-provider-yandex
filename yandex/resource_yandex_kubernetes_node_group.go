@@ -495,7 +495,6 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.",
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"maintenance_policy": {
@@ -1286,6 +1285,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"description":                                               "description",
 	"labels":                                                    "labels",
 	"node_labels":                                               "node_labels",
+	"node_taints":                                               "node_taints",
 	"instance_template.0.platform_id":                           "node_template.platform_id",
 	"instance_template.0.metadata":                              "node_template.metadata",
 	"instance_template.0.resources.0.memory":                    "node_template.resources_spec.memory",
@@ -1379,6 +1379,11 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		return nil, fmt.Errorf("error getting node group deploy policy while updating Kubernetes node group: %s", err)
 	}
 
+	nodeTaints, err := getNodeGroupNodeTaints(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node taints while updating Kubernetes node group: %s", err)
+	}
+
 	wlif, err := getNodeGroupWorkloadIdentityFederation(d)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node group workload identity federation: %s", err)
@@ -1400,6 +1405,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		},
 		MaintenancePolicy:          mp,
 		DeployPolicy:               dp,
+		NodeTaints:                 nodeTaints,
 		NodeLabels:                 getNodeGroupNodeLabels(d),
 		AllocationPolicy:           getNodeGroupAllocationPolicy(d),
 		WorkloadIdentityFederation: wlif,

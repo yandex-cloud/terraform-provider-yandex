@@ -216,10 +216,17 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource.Name = safeResourceName("clusternewname")
 	nodeUpdatedResource.Description = "new-description"
 	nodeUpdatedResource.Version = k8sTestUpdateVersion
+
 	nodeUpdatedResource.LabelKey = "new_label_key"
 	nodeUpdatedResource.LabelValue = "new_label_value"
+
 	nodeUpdatedResource.NodeLabelKey = "new_node_label_key"
 	nodeUpdatedResource.NodeLabelValue = "new_node_label_value"
+
+	nodeUpdatedResource.NodeTaintKey = "key2"
+	nodeUpdatedResource.NodeTaintValue = "value2"
+	nodeUpdatedResource.NodeTaintEffect = "NoExecute"
+
 	nodeUpdatedResource.Memory = "4"
 	nodeUpdatedResource.Cores = "2"
 	nodeUpdatedResource.DiskSize = "65"
@@ -237,6 +244,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource2.NodeName = ""
 	// clearing node group template labels
 	nodeUpdatedResource2.TemplateLabelKey = ""
+	nodeUpdatedResource2.NodeTaintEffect = "PreferNoSchedule"
 	nodeUpdatedResource2.constructMaintenancePolicyField(true, true, weeklyMaintenancePolicy)
 
 	nodeUpdatedResource3 := nodeUpdatedResource2
@@ -248,6 +256,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource5 := nodeUpdatedResource4
 	nodeUpdatedResource5.constructMaintenancePolicyField(true, false, anyMaintenancePolicy)
 
+	var originalNGID string
 	var ng k8s.NodeGroup
 
 	resource.Test(t, resource.TestCase{
@@ -259,6 +268,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
 				),
 			},
@@ -266,6 +276,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
 				),
 			},
@@ -273,6 +284,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
 				),
 			},
@@ -280,6 +292,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
 				),
 			},
@@ -287,6 +300,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource4),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
 				),
 			},
@@ -294,6 +308,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource5),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource5, true, false),
 				),
 			},
@@ -722,6 +737,10 @@ type resourceNodeGroupInfo struct {
 	NodeLabelKey   string
 	NodeLabelValue string
 
+	NodeTaintKey    string
+	NodeTaintValue  string
+	NodeTaintEffect string
+
 	MaintenancePolicy string
 
 	NetworkInterfaces string
@@ -791,6 +810,9 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		LabelValue:            "label_value",
 		NodeLabelKey:          "node_label_key",
 		NodeLabelValue:        "node_label_value",
+		NodeTaintKey:          "key1",
+		NodeTaintValue:        "value1",
+		NodeTaintEffect:       "NoSchedule",
 		NetworkInterfaces:     enableNAT,
 		NodeName:              "node-{instance.short_id}",
 		TemplateLabelKey:      "one",
@@ -1057,7 +1079,7 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   {{.MaintenancePolicy}}
 
   node_taints = [
-    "key1=value1:NoSchedule"
+    "{{.NodeTaintKey}}={{.NodeTaintValue}}:{{.NodeTaintEffect}}"
   ]
   allowed_unsafe_sysctls = [
     "kernel.msg*",
@@ -1425,6 +1447,26 @@ func testAccCheckKubernetesNodeGroupExists(n string, ng *k8s.NodeGroup) resource
 		}
 
 		*ng = *found
+		return nil
+	}
+}
+
+// testAccCheckKubernetesNodeGroupNotRecreated records the node group ID on its
+// first invocation and, on subsequent steps, fails if the ID has changed. A
+// changed ID means the resource was destroyed and recreated rather than updated
+// in-place
+func testAccCheckKubernetesNodeGroupNotRecreated(ng *k8s.NodeGroup, originalID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if *originalID == "" {
+			*originalID = ng.Id
+			return nil
+		}
+
+		if ng.Id != *originalID {
+			return fmt.Errorf("kubernetes node group was recreated (id changed from %s to %s), expected in-place update",
+				*originalID, ng.Id)
+		}
+
 		return nil
 	}
 }
