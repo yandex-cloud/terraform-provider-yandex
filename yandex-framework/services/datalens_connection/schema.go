@@ -3,11 +3,9 @@ package datalens_connection
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 )
@@ -24,9 +22,6 @@ func ResourceSchema(_ context.Context) schema.Schema {
 				Required: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
-				},
-				Validators: []validator.String{
-					stringvalidator.OneOf("ydb"),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -115,9 +110,6 @@ func ResourceSchema(_ context.Context) schema.Schema {
 							"Possible values: `anonymous`, `password`, `oauth`.",
 						Optional: true,
 						Computed: true,
-						Validators: []validator.String{
-							stringvalidator.OneOf("anonymous", "password", "oauth"),
-						},
 					},
 					"username": schema.StringAttribute{
 						MarkdownDescription: "The username for authentication (used when `auth_type` is `password`).",
@@ -133,9 +125,6 @@ func ResourceSchema(_ context.Context) schema.Schema {
 						MarkdownDescription: "The SSL CA certificate for secure connections.",
 						Optional:            true,
 						Sensitive:           true,
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-						},
 					},
 					"ssl_enable": schema.StringAttribute{
 						MarkdownDescription: "Whether SSL is enabled for the connection. " +
@@ -148,13 +137,15 @@ func ResourceSchema(_ context.Context) schema.Schema {
 							"Possible values: `off`, `subselect`, `template`, `dashsql`. Defaults to `off`.",
 						Optional: true,
 						Computed: true,
-						Validators: []validator.String{
-							stringvalidator.OneOf("off", "subselect", "template", "dashsql"),
-						},
 					},
 					"cache_ttl_sec": schema.Int64Attribute{
 						MarkdownDescription: "The cache TTL in seconds. `null` means default caching behavior.",
 						Optional:            true,
+					},
+					"cache_invalidation_throttling_interval_sec": schema.Int64Attribute{
+						MarkdownDescription: "Throttling interval (seconds) between cache invalidation calls. " +
+							"`null` means no throttling.",
+						Optional: true,
 					},
 					"data_export_forbidden": schema.StringAttribute{
 						MarkdownDescription: "Whether data export is forbidden. " +
