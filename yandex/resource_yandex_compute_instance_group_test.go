@@ -790,6 +790,7 @@ resource "yandex_compute_instance_group" "group1" {
     max_creating    = 3
     max_expansion   = 3
     max_deleting    = 3
+    minimal_action = "RECREATE"
   }
 }
 
