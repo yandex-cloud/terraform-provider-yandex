@@ -2,6 +2,13 @@
 
 
 
+## 0.211.0 (June 22, 2026)
+##### FEATURES:
+* yandex_storage_bucket: support INTELLIGENT_TIERING storage class
+* kubernetes: ForceNew is set to false for yandex_kubernetes_node_group.node_taints (updates on node group taints do not recreate node groups)
+##### ENHANCEMENTS:
+* opensearch: update docs
+
 ## 0.210.0 (June 18, 2026)
 ##### FEATURES:
 * trino: add `user_s3` option to `exchange_manager` in trino_cluster resource

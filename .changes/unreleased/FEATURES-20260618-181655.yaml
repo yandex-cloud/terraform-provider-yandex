@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'kubernetes: ForceNew is set to false for yandex_kubernetes_node_group.node_taints (updates on node group taints do not recreate node groups)'
-time: 2026-06-18T18:16:55.894324+02:00
